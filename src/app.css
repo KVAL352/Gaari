@@ -1,0 +1,64 @@
+@import 'tailwindcss';
+
+:root {
+	/* Base */
+	--color-bg: #ffffff;
+	--color-surface: #f9fafb;
+	--color-border: #e5e7eb;
+	--color-text-primary: #111827;
+	--color-text-secondary: #6b7280;
+
+	/* Status */
+	--color-today: #2563eb;
+	--color-free: #16a34a;
+	--color-soldout: #dc2626;
+	--color-lasttickets: #ea580c;
+	--color-cancelled: #6b7280;
+
+	/* Category placeholders */
+	--color-cat-music: #dbeafe;
+	--color-cat-theatre: #fce7f3;
+	--color-cat-family: #d1fae5;
+	--color-cat-festival: #fef3c7;
+	--color-cat-sports: #fee2e2;
+	--color-cat-culture: #e0e7ff;
+	--color-cat-food: #ffedd5;
+	--color-cat-nightlife: #f3e8ff;
+	--color-cat-workshop: #e0f2fe;
+	--color-cat-student: #fef9c3;
+	--color-cat-tours: #ecfdf5;
+}
+
+html {
+	font-family: 'Inter', system-ui, -apple-system, sans-serif;
+	color: var(--color-text-primary);
+	background: var(--color-bg);
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+}
+
+/* Tabular numbers for dates, times, prices */
+.tabular-nums,
+time,
+.card-date,
+.card-price {
+	font-variant-numeric: tabular-nums;
+}
+
+/* Skip to content link */
+.skip-link {
+	position: absolute;
+	top: -40px;
+	left: 0;
+	background: var(--color-text-primary);
+	color: var(--color-bg);
+	padding: 8px 16px;
+	z-index: 100;
+	transition: top 0.2s;
+}
+.skip-link:focus {
+	top: 0;
+}
