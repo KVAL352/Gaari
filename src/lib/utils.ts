@@ -137,18 +137,62 @@ export function groupEventsByDate<T extends { date_start: string }>(events: T[])
 	return groups;
 }
 
-// ── ICS export ──
+// ── Calendar export ──
 
-export function generateICS(event: {
+export interface CalendarEventData {
 	title: string;
 	description?: string;
 	date_start: string;
 	date_end?: string;
 	venue_name?: string;
 	address?: string;
-}): string {
-	const formatICSDate = (d: string) => new Date(d).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+}
 
+function formatICSDate(d: string): string {
+	return new Date(d).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+}
+
+function formatGoogleDate(d: string): string {
+	return new Date(d).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z/, 'Z');
+}
+
+export function getGoogleCalendarUrl(event: CalendarEventData): string {
+	const start = formatGoogleDate(event.date_start);
+	const end = formatGoogleDate(event.date_end || event.date_start);
+	const location = event.venue_name
+		? `${event.venue_name}${event.address ? ', ' + event.address : ''}`
+		: '';
+
+	const params = new URLSearchParams({
+		action: 'TEMPLATE',
+		text: event.title,
+		dates: `${start}/${end}`,
+		location,
+		details: event.description?.slice(0, 500) || ''
+	});
+
+	return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+export function getOutlookCalendarUrl(event: CalendarEventData): string {
+	const location = event.venue_name
+		? `${event.venue_name}${event.address ? ', ' + event.address : ''}`
+		: '';
+
+	const params = new URLSearchParams({
+		path: '/calendar/action/compose',
+		rru: 'addevent',
+		subject: event.title,
+		startdt: new Date(event.date_start).toISOString(),
+		enddt: new Date(event.date_end || event.date_start).toISOString(),
+		location,
+		body: event.description?.slice(0, 500) || ''
+	});
+
+	return `https://outlook.live.com/calendar/0/action/compose?${params.toString()}`;
+}
+
+export function generateICS(event: CalendarEventData): string {
 	const lines = [
 		'BEGIN:VCALENDAR',
 		'VERSION:2.0',
@@ -166,7 +210,7 @@ export function generateICS(event: {
 	return lines.join('\r\n');
 }
 
-export function downloadICS(event: Parameters<typeof generateICS>[0]) {
+export function downloadICS(event: CalendarEventData) {
 	const ics = generateICS(event);
 	const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
 	const url = URL.createObjectURL(blob);

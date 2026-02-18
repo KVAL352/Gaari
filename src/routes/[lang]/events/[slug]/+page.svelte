@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { lang, t } from '$lib/i18n';
 	import {
-		formatEventDate, formatEventTime, formatPrice, isFreeEvent,
-		getCategoryColor, getCategoryIcon, downloadICS
+		formatEventDate, formatEventTime, formatPrice, isFreeEvent
 	} from '$lib/utils';
 	import type { GaariEvent } from '$lib/types';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
+	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
+	import CalendarDropdown from '$lib/components/CalendarDropdown.svelte';
 	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquare } from 'lucide-svelte';
 
 	let { data } = $props();
@@ -24,16 +25,14 @@
 	let correctionReason = $state('');
 	let correctionSubmitted = $state(false);
 
-	function handleCalendarExport() {
-		downloadICS({
-			title: title,
-			description: description,
-			date_start: event.date_start,
-			date_end: event.date_end,
-			venue_name: event.venue_name,
-			address: event.address
-		});
-	}
+	let calendarData = $derived({
+		title: title,
+		description: description,
+		date_start: event.date_start,
+		date_end: event.date_end,
+		venue_name: event.venue_name,
+		address: event.address
+	});
 
 	function handleCorrectionSubmit(e: SubmitEvent) {
 		e.preventDefault();
@@ -62,12 +61,7 @@
 		{#if event.image_url}
 			<img src={event.image_url} alt="" class="h-full w-full object-cover" width="800" height="450" />
 		{:else}
-			<div
-				class="flex h-full w-full items-center justify-center"
-				style="background-color: {getCategoryColor(event.category)}"
-			>
-				<span class="text-6xl" aria-hidden="true">{getCategoryIcon(event.category)}</span>
-			</div>
+			<ImagePlaceholder category={event.category} size={64} />
 		{/if}
 	</div>
 
@@ -92,7 +86,7 @@
 	<!-- Key info grid -->
 	<div class="mb-8 grid gap-4 sm:grid-cols-2">
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
-			<Calendar size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-today)]" />
+			<Calendar size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-accent)]" />
 			<div>
 				<h2 class="text-sm font-semibold">{$t('when')}</h2>
 				<time datetime={event.date_start} class="tabular-nums text-sm text-[var(--color-text-secondary)]">
@@ -104,7 +98,7 @@
 			</div>
 		</div>
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
-			<MapPin size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-today)]" />
+			<MapPin size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-accent)]" />
 			<div>
 				<h2 class="text-sm font-semibold">{$t('where')}</h2>
 				<p class="text-sm text-[var(--color-text-secondary)]">{event.venue_name}</p>
@@ -112,14 +106,14 @@
 			</div>
 		</div>
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
-			<Tag size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-today)]" />
+			<Tag size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-accent)]" />
 			<div>
 				<h2 class="text-sm font-semibold">{$t('priceLabel')}</h2>
 				<p class="tabular-nums text-sm text-[var(--color-text-secondary)]">{formatPrice(event.price, $lang)}</p>
 			</div>
 		</div>
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
-			<Clock size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-today)]" />
+			<Clock size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-accent)]" />
 			<div>
 				<h2 class="text-sm font-semibold">{$t('category')}</h2>
 				<p class="text-sm text-[var(--color-text-secondary)]">{$t(`cat.${event.category}` as any)}</p>
@@ -134,19 +128,13 @@
 				href={event.ticket_url}
 				target="_blank"
 				rel="noopener noreferrer"
-				class="inline-flex items-center gap-2 rounded-xl bg-[var(--color-today)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+				class="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
 			>
 				<ExternalLink size={16} />
 				{$t('buyTickets')}
 			</a>
 		{/if}
-		<button
-			onclick={handleCalendarExport}
-			class="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-6 py-3 text-sm font-semibold transition-colors hover:bg-[var(--color-surface)]"
-		>
-			<Calendar size={16} />
-			{$t('addToCalendar')}
-		</button>
+		<CalendarDropdown event={calendarData} />
 	</div>
 
 	<!-- Description -->
@@ -160,7 +148,7 @@
 	<!-- Suggest correction -->
 	<section class="mb-12">
 		{#if correctionSubmitted}
-			<div class="rounded-xl bg-green-50 p-4 text-sm text-green-800">
+			<div class="rounded-xl bg-[var(--funkis-green-subtle)] p-4 text-sm text-[var(--funkis-green)]">
 				Takk for forslaget! / Thank you for your suggestion!
 			</div>
 		{:else}
@@ -197,7 +185,7 @@
 						</label>
 						<textarea id="correction-reason" bind:value={correctionReason} rows="2" class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm"></textarea>
 					</div>
-					<button type="submit" class="rounded-lg bg-[var(--color-today)] px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+					<button type="submit" class="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]">
 						{$t('submit')}
 					</button>
 				</form>

@@ -28,7 +28,7 @@
 		</button>
 		<button
 			onclick={onBrowseAll}
-			class="rounded-xl bg-[var(--color-today)] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+			class="rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
 		>
 			{$t('browseAll')}
 		</button>

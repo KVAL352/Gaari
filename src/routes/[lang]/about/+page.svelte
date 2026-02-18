@@ -27,7 +27,7 @@
 		<h2 class="mb-3 text-xl font-semibold">{$t('contact')}</h2>
 		<a
 			href="mailto:gaari.bergen@proton.me"
-			class="inline-flex items-center gap-2 text-[var(--color-today)] hover:underline"
+			class="inline-flex items-center gap-2 text-[var(--color-accent)] hover:underline"
 		>
 			<Mail size={16} />
 			gaari.bergen@proton.me
@@ -43,7 +43,7 @@
 		</p>
 		<a
 			href="/{$lang}/submit"
-			class="inline-block rounded-xl bg-[var(--color-today)] px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+			class="inline-block rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white hover:bg-[var(--color-accent-hover)]"
 		>
 			{$t('submitEvent')}
 		</a>

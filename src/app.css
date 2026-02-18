@@ -1,43 +1,130 @@
 @import 'tailwindcss';
 
+/* ==============================================
+   FUNKIS COLOR SYSTEM
+   Inspired by Sundt Building, Bergen (1938)
+   Per Grieg, architect
+   ============================================== */
+
 :root {
-	/* Base */
-	--color-bg: #ffffff;
-	--color-surface: #f9fafb;
-	--color-border: #e5e7eb;
-	--color-text-primary: #111827;
-	--color-text-secondary: #6b7280;
+	/* ── Primitive tokens (raw Funkis palette) ── */
+	--funkis-white:        #FFFFFF;
+	--funkis-plaster:      #F5F3EE;
+	--funkis-plaster-warm: #EDEAE3;
+	--funkis-shadow-light: #D4D1CA;
+	--funkis-shadow:       #B4BAC2;
+	--funkis-granite:      #6B6862;
+	--funkis-steel:        #3A3A3C;
+	--funkis-iron:         #1C1C1E;
+	--funkis-red:          #C82D2D;
+	--funkis-red-hover:    #A82424;
+	--funkis-red-subtle:   #F9EEEE;
+	--funkis-green:        #1E7A3A;
+	--funkis-green-subtle: #EEF6F0;
+	--funkis-amber:        #B8860B;
+	--funkis-amber-subtle: #FDF6E8;
 
-	/* Status */
-	--color-today: #2563eb;
-	--color-free: #16a34a;
-	--color-soldout: #dc2626;
-	--color-lasttickets: #ea580c;
-	--color-cancelled: #6b7280;
+	/* ── Semantic tokens ── */
 
-	/* Category placeholders */
-	--color-cat-music: #dbeafe;
-	--color-cat-theatre: #fce7f3;
-	--color-cat-family: #d1fae5;
-	--color-cat-festival: #fef3c7;
-	--color-cat-sports: #fee2e2;
-	--color-cat-culture: #e0e7ff;
-	--color-cat-food: #ffedd5;
-	--color-cat-nightlife: #f3e8ff;
-	--color-cat-workshop: #e0f2fe;
-	--color-cat-student: #fef9c3;
-	--color-cat-tours: #ecfdf5;
+	/* Backgrounds */
+	--color-bg:            #F7F5F0;
+	--color-bg-surface:    #FFFFFF;
+	--color-surface:       var(--funkis-plaster-warm);
+	--color-bg-elevated:   var(--funkis-white);
+
+	/* Borders */
+	--color-border:        var(--funkis-shadow-light);
+	--color-border-subtle: #E8E6E1;
+	--color-border-strong: var(--funkis-granite);
+
+	/* Text */
+	--color-text-primary:   var(--funkis-iron);
+	--color-text-secondary: var(--funkis-granite);
+	--color-text-muted:     var(--funkis-shadow);
+
+	/* Accent (Sundt vermillion red) */
+	--color-accent:        var(--funkis-red);
+	--color-accent-hover:  var(--funkis-red-hover);
+	--color-accent-subtle: var(--funkis-red-subtle);
+
+	/* Status badges */
+	--color-today:         var(--funkis-red);
+	--color-free:          var(--funkis-green);
+	--color-soldout:       #8B1A1A;
+	--color-lasttickets:   var(--funkis-amber);
+	--color-cancelled:     var(--funkis-granite);
+
+	/* Shadows */
+	--shadow-sm:  0 1px 2px rgba(28, 28, 30, 0.06);
+	--shadow-md:  0 2px 8px rgba(28, 28, 30, 0.08);
+	--shadow-lg:  0 8px 24px rgba(28, 28, 30, 0.10);
+
+	/* Category placeholders — saturated Funkis tints */
+	--color-cat-music: #C8DCF0;
+	--color-cat-theatre: #E8C8D8;
+	--color-cat-family: #F0DFCA;
+	--color-cat-festival: #F0D8B0;
+	--color-cat-sports: #C8DDD0;
+	--color-cat-culture: #D4C8E8;
+	--color-cat-food: #EDD5B8;
+	--color-cat-nightlife: #C8C8E0;
+	--color-cat-workshop: #CAD8C8;
+	--color-cat-student: #D0E0CC;
+	--color-cat-tours: #C4DDD4;
+
+	/* Typography */
+	--font-heading: 'Space Grotesk', system-ui, sans-serif;
+	--font-body:    'Inter', system-ui, sans-serif;
+}
+
+/* ── Dark mode ── */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-bg:            #121214;
+		--color-bg-surface:    #1C1C1E;
+		--color-surface:       #232326;
+		--color-bg-elevated:   #2C2C2E;
+
+		--color-border:        #3A3A3C;
+		--color-border-subtle: #2C2C2E;
+		--color-border-strong: #636366;
+
+		--color-text-primary:   #F5F3EE;
+		--color-text-secondary: #ADADB0;
+		--color-text-muted:     #7C7C80;
+
+		--color-accent:        #E05555;
+		--color-accent-hover:  #EE7070;
+		--color-accent-subtle: rgba(224, 85, 85, 0.12);
+
+		--color-today:         #E05555;
+		--color-free:          #4CAF6A;
+		--color-soldout:       #E05555;
+		--color-lasttickets:   #D4A44A;
+		--color-cancelled:     #7C7C80;
+
+		--shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.3);
+		--shadow-md:  0 2px 8px rgba(0, 0, 0, 0.4);
+		--shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.5);
+	}
 }
 
 html {
-	font-family: 'Inter', system-ui, -apple-system, sans-serif;
+	font-family: var(--font-body);
 	color: var(--color-text-primary);
 	background: var(--color-bg);
+	-webkit-font-smoothing: antialiased;
 }
 
 body {
 	margin: 0;
 	min-height: 100vh;
+}
+
+/* Heading font */
+h1, h2, h3 {
+	font-family: var(--font-heading);
+	line-height: 1.15;
 }
 
 /* Tabular numbers for dates, times, prices */
@@ -46,6 +133,16 @@ time,
 .card-date,
 .card-price {
 	font-variant-numeric: tabular-nums;
+}
+
+/* Funkis uppercase label */
+.label-caps {
+	font-family: var(--font-heading);
+	font-size: 0.6875rem;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--color-text-secondary);
 }
 
 /* Skip to content link */

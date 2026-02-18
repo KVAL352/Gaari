@@ -6,7 +6,7 @@
 	let menuOpen = $state(false);
 </script>
 
-<header class="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/95 backdrop-blur-sm">
+<header class="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg-surface)]/95 backdrop-blur-sm">
 	<a href="#events" class="skip-link">{$t('skipToEvents')}</a>
 	<div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
 		<!-- Logo -->
@@ -14,9 +14,9 @@
 
 		<!-- Desktop nav -->
 		<nav class="hidden items-center gap-6 md:flex" aria-label="Main">
-			<a href="/{$lang}" class="text-sm font-medium hover:text-[var(--color-today)]">{$t('explore')}</a>
-			<a href="/{$lang}/about" class="text-sm font-medium hover:text-[var(--color-today)]">{$t('about')}</a>
-			<a href="/{$lang}/submit" class="text-sm font-medium hover:text-[var(--color-today)]">{$t('submitEvent')}</a>
+			<a href="/{$lang}" class="text-sm font-medium hover:text-[var(--color-accent)]">{$t('explore')}</a>
+			<a href="/{$lang}/about" class="text-sm font-medium hover:text-[var(--color-accent)]">{$t('about')}</a>
+			<a href="/{$lang}/submit" class="text-sm font-medium hover:text-[var(--color-accent)]">{$t('submitEvent')}</a>
 		</nav>
 
 		<!-- Right side -->
@@ -39,7 +39,7 @@
 
 	<!-- Mobile menu -->
 	{#if menuOpen}
-		<nav class="border-t border-[var(--color-border)] bg-white px-4 py-3 md:hidden" aria-label="Mobile">
+		<nav class="border-t border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-3 md:hidden" aria-label="Mobile">
 			<a href="/{$lang}" class="block py-2 text-sm font-medium" onclick={() => menuOpen = false}>{$t('explore')}</a>
 			<a href="/{$lang}/about" class="block py-2 text-sm font-medium" onclick={() => menuOpen = false}>{$t('about')}</a>
 			<a href="/{$lang}/submit" class="block py-2 text-sm font-medium" onclick={() => menuOpen = false}>{$t('submitEvent')}</a>

@@ -28,6 +28,6 @@
 		type="search"
 		bind:value={query}
 		placeholder={$t('searchPlaceholder')}
-		class="h-12 w-full rounded-xl border border-[var(--color-border)] bg-white pl-10 pr-4 text-sm shadow-sm transition-shadow focus:border-[var(--color-today)] focus:outline-none focus:ring-2 focus:ring-[var(--color-today)]/20"
+		class="h-12 w-full rounded-xl border border-[var(--color-border)] bg-white pl-10 pr-4 text-sm shadow-sm transition-shadow focus:border-[var(--color-accent)] focus:outline-2 focus:outline-[var(--color-accent)] focus:outline-offset-2"
 	/>
 </form>

@@ -13,9 +13,9 @@
 	let { activeWhen = '', searchQuery = '', onSearch, onDateSelect }: Props = $props();
 </script>
 
-<section class="bg-gradient-to-b from-blue-50 to-white px-4 pb-8 pt-12">
+<section class="bg-[var(--color-surface)] px-4 pb-8 pt-12">
 	<div class="mx-auto max-w-2xl text-center">
-		<h1 class="mb-6 text-3xl font-bold tracking-tight sm:text-4xl">
+		<h1 class="mb-6 text-3xl font-semibold tracking-tight sm:text-4xl">
 			{$t('tagline')}
 		</h1>
 		<div class="mb-6">

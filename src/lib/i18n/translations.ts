@@ -2,7 +2,7 @@ export const translations = {
 	no: {
 		// General
 		siteName: 'Gåri',
-		tagline: 'Ke det går i Bergen?',
+		tagline: 'Ke\u2019 det går i Bergen?',
 
 		// Navigation
 		explore: 'Utforsk',
@@ -55,8 +55,13 @@ export const translations = {
 		browseAll: 'Se alle arrangementer',
 		backToTop: 'Tilbake til toppen',
 		addToCalendar: 'Legg til i kalender',
+		googleCalendar: 'Google Kalender',
+		outlookCalendar: 'Outlook',
+		downloadICS: 'Last ned .ics-fil',
 		suggestCorrection: 'Foreslå rettelse',
 		submitEvent: 'Send inn arrangement',
+		share: 'Del',
+		linkCopied: 'Lenke kopiert!',
 		buyTickets: 'Kjøp billetter',
 		visitWebsite: 'Besøk nettside',
 
@@ -110,7 +115,7 @@ export const translations = {
 
 		// About
 		aboutTitle: 'Om Gåri',
-		aboutText: 'Gåri samler alle arrangementer i Bergen på ett sted — fra store konserter til små nabolagshendelser. Navnet kommer fra bergensk: «Ke det går i?» betyr «Hva skjer?»',
+		aboutText: 'Gåri samler alle arrangementer i Bergen på ett sted — fra store konserter til små nabolagshendelser. Navnet kommer fra bergensk: «Ke\u2019 det går i?» betyr «Hva skjer?»',
 		howItWorks: 'Slik fungerer det',
 		howItWorksText: 'Vi samler arrangementer fra hele Bergen. Arrangører kan også sende inn sine egne arrangementer. Alt gjennomgås før publisering.',
 		contact: 'Kontakt',
@@ -177,8 +182,13 @@ export const translations = {
 		browseAll: 'Browse All Events',
 		backToTop: 'Back to top',
 		addToCalendar: 'Add to Calendar',
+		googleCalendar: 'Google Calendar',
+		outlookCalendar: 'Outlook',
+		downloadICS: 'Download .ics file',
 		suggestCorrection: 'Suggest correction',
 		submitEvent: 'Submit event',
+		share: 'Share',
+		linkCopied: 'Link copied!',
 		buyTickets: 'Buy Tickets',
 		visitWebsite: 'Visit Website',
 
@@ -226,7 +236,7 @@ export const translations = {
 		submit: 'Submit',
 
 		aboutTitle: 'About Gåri',
-		aboutText: 'Gåri gathers all events in Bergen in one place — from big concerts to small neighbourhood happenings. The name comes from the Bergen dialect: «Ke det går i?» means «What\'s going on?»',
+		aboutText: 'Gåri gathers all events in Bergen in one place — from big concerts to small neighbourhood happenings. The name comes from the Bergen dialect: «Ke\u2019 det går i?» means «What\u2019s going on?»',
 		howItWorks: 'How It Works',
 		howItWorksText: 'We aggregate events from across Bergen. Organizers can also submit their own events. Everything is reviewed before publishing.',
 		contact: 'Contact',

@@ -9,17 +9,20 @@
 
 	let { children }: { children: Snippet } = $props();
 
-	// Sync lang store with URL param
+	// Sync lang store with URL param + update html lang attribute
 	$effect(() => {
 		const urlLang = $page.params.lang as Lang;
 		if (urlLang === 'no' || urlLang === 'en') {
 			setLang(urlLang);
+			if (typeof document !== 'undefined') {
+				document.documentElement.lang = urlLang === 'no' ? 'nb' : 'en';
+			}
 		}
 	});
 </script>
 
 <svelte:head>
-	<html lang={$lang === 'no' ? 'nb' : 'en'}></html>
+	<title>Gåri</title>
 </svelte:head>
 
 <div class="flex min-h-screen flex-col">

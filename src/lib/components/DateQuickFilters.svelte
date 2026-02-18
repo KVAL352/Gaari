@@ -21,8 +21,8 @@
 		<button
 			class="rounded-full border px-4 py-1.5 text-sm font-medium transition-colors
 				{active === f.key
-					? 'border-[var(--color-today)] bg-[var(--color-today)] text-white'
-					: 'border-[var(--color-border)] bg-white text-[var(--color-text-primary)] hover:border-[var(--color-today)] hover:text-[var(--color-today)]'}"
+					? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-white'
+					: 'border-[var(--color-border)] bg-white text-[var(--color-text-primary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]'}"
 			onclick={() => onSelect?.(active === f.key ? '' : f.key)}
 		>
 			{$t(f.label)}

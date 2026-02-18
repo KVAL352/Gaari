@@ -19,8 +19,8 @@
 </script>
 
 {#each grouped as [dateKey, dayEvents], groupIdx}
-	<section class="mb-8">
-		<div class="mb-4 flex items-center gap-3 px-1">
+	<section class="mx-auto mb-8 max-w-5xl">
+		<div class="mb-4 flex items-center gap-3 border-l-[3px] border-[var(--color-accent)] pl-3">
 			<h2 class="text-xl font-semibold text-[var(--color-text-primary)]">
 				{formatDateSectionHeader(dateKey + 'T00:00:00', $lang)}
 			</h2>
@@ -29,7 +29,7 @@
 			</span>
 			<div class="h-px flex-1 bg-[var(--color-border)]"></div>
 		</div>
-		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 			{#each dayEvents as event, i}
 				<EventCard {event} eager={groupIdx === 0 && i < 4} />
 			{/each}

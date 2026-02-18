@@ -70,7 +70,7 @@
 	});
 </script>
 
-<div class="border-b border-[var(--color-border)] bg-white">
+<div class="border-b border-t border-[var(--color-shadow-light,#D4D1CA)] bg-white">
 	<div class="mx-auto max-w-7xl px-4 py-3">
 		<!-- Filter dropdowns -->
 		<div class="flex flex-wrap items-center gap-3">
@@ -153,11 +153,11 @@
 		{#if hasActiveFilters}
 			<div class="mt-2 flex flex-wrap items-center gap-2">
 				{#each activeChips as chip}
-					<span class="inline-flex items-center gap-1 rounded-full bg-[var(--color-surface)] px-3 py-1 text-sm">
+					<span class="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent)] px-3 py-1 text-sm font-medium text-white">
 						{chip.label}
 						<button
 							onclick={() => removeFilter(chip.key)}
-							class="ml-0.5 rounded-full p-0.5 hover:bg-[var(--color-border)]"
+							class="ml-0.5 rounded-full p-0.5 hover:bg-white/20"
 							aria-label="Remove {chip.label} filter"
 						>
 							<X size={12} />
