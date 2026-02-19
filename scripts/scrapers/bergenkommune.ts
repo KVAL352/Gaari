@@ -8,6 +8,9 @@ const LIST_URL = `${BASE_URL}/DNComponent/GetFilteredEventList`;
 const MAX_PAGES = 30;
 const DELAY_MS = 1000;
 
+// Skip events targeted at kindergartens (not accessible to general public)
+const KINDERGARTEN_KEYWORDS = ['barnehage', 'barnehager', 'barnehagebarn'];
+
 interface ListEvent {
 	eventId: string;
 	title: string;
@@ -163,6 +166,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`[${SOURCE}] Total events found: ${found}`);
 
 	for (const event of allEvents) {
+		// Skip kindergarten-only events
+		const titleLower = event.title.toLowerCase();
+		if (KINDERGARTEN_KEYWORDS.some(kw => titleLower.includes(kw))) {
+			console.log(`  [skip] ${event.title} (kindergarten)`);
+			continue;
+		}
+
 		if (await eventExists(event.detailUrl)) continue;
 
 		// Fetch detail page for richer data
