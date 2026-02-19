@@ -29,6 +29,7 @@ interface DetailData {
 	time: string;
 	address: string;
 	organizer: string;
+	isKindergarten: boolean;
 }
 
 function parseListPage(html: string): ListEvent[] {
@@ -111,7 +112,11 @@ async function fetchDetail(url: string): Promise<DetailData | null> {
 	const organizer = $('b:contains("Arrangør")').parent().text().replace('Arrangør:', '').trim()
 		|| $('.detail-event-shop-name').val() as string || '';
 
-	return { price, description, time: timeText, address, organizer };
+	// Check full page text for kindergarten-only indicators
+	const pageText = $('body').text().toLowerCase();
+	const isKindergarten = KINDERGARTEN_KEYWORDS.some(kw => pageText.includes(kw));
+
+	return { price, description, time: timeText, address, organizer, isKindergarten };
 }
 
 // Map Bergen Kommune tag IDs to categories (based on filter analysis)
@@ -178,6 +183,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Fetch detail page for richer data
 		await delay(500);
 		const detail = await fetchDetail(event.detailUrl);
+
+		// Skip if detail page reveals kindergarten-only content
+		if (detail?.isKindergarten) {
+			console.log(`  [skip] ${event.title} (kindergarten on detail page)`);
+			continue;
+		}
 
 		const category = guessCategory(event.title, event.subtitle, event.tags);
 		const bydel = mapBydel(event.venue);
