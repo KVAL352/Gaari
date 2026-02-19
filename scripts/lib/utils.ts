@@ -141,6 +141,92 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 	return true;
 }
 
+// Normalize title for deduplication comparison
+export function normalizeTitle(title: string): string {
+	return title
+		.toLowerCase()
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.replace(/[æ]/g, 'ae').replace(/[ø]/g, 'o').replace(/[å]/g, 'a')
+		.replace(/20\d{2}/g, '')           // Remove years
+		.replace(/\b(bergen|i bergen)\b/g, '') // Remove "bergen"
+		.replace(/[^a-z0-9]/g, '')         // Only alphanumeric
+		.trim();
+}
+
+// Check if a similar event already exists (cross-source deduplication)
+export async function findDuplicate(title: string, dateStart: string): Promise<boolean> {
+	const dateDay = dateStart.slice(0, 10); // YYYY-MM-DD
+	const normalized = normalizeTitle(title);
+	if (normalized.length < 5) return false; // Too short to match reliably
+
+	// Fetch events on the same day
+	const { data } = await supabase
+		.from('events')
+		.select('title_no')
+		.gte('date_start', `${dateDay}T00:00:00`)
+		.lte('date_start', `${dateDay}T23:59:59`);
+
+	if (!data || data.length === 0) return false;
+
+	for (const existing of data) {
+		const existingNorm = normalizeTitle(existing.title_no);
+		// Check if one title contains the other (handles "Venue: Event Title" vs "Event Title")
+		if (normalized.includes(existingNorm) || existingNorm.includes(normalized)) {
+			return true;
+		}
+		// Check high overlap (Levenshtein-like: shared substring ratio)
+		if (normalized.length >= 8 && existingNorm.length >= 8) {
+			const shorter = normalized.length < existingNorm.length ? normalized : existingNorm;
+			const longer = normalized.length < existingNorm.length ? existingNorm : normalized;
+			if (longer.includes(shorter.slice(0, Math.floor(shorter.length * 0.8)))) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+// Remove expired events (date_end or date_start is in the past)
+export async function removeExpiredEvents(): Promise<number> {
+	const now = new Date().toISOString();
+
+	// Delete events where date_end is past (multi-day events that have ended)
+	const { data: endedEvents } = await supabase
+		.from('events')
+		.select('id')
+		.not('date_end', 'is', null)
+		.lt('date_end', now);
+
+	// Delete events where date_start is past and no date_end
+	const { data: pastEvents } = await supabase
+		.from('events')
+		.select('id')
+		.is('date_end', null)
+		.lt('date_start', now);
+
+	const allIds = [
+		...(endedEvents || []).map(e => e.id),
+		...(pastEvents || []).map(e => e.id),
+	];
+
+	if (allIds.length === 0) return 0;
+
+	// Delete in batches
+	let deleted = 0;
+	for (let i = 0; i < allIds.length; i += 100) {
+		const batch = allIds.slice(i, i + 100);
+		const { error } = await supabase
+			.from('events')
+			.delete()
+			.in('id', batch);
+		if (!error) deleted += batch.length;
+	}
+
+	return deleted;
+}
+
 // Delay helper for rate limiting
 export function delay(ms: number): Promise<void> {
 	return new Promise(resolve => setTimeout(resolve, ms));

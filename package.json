@@ -12,7 +12,9 @@
 		"scrape:bergenlive": "cd scripts && npx tsx scrape.ts bergenlive",
 		"scrape:visitbergen": "cd scripts && npx tsx scrape.ts visitbergen",
 		"scrape:bergenkommune": "cd scripts && npx tsx scrape.ts bergenkommune",
-		"scrape:kulturikveld": "cd scripts && npx tsx scrape.ts kulturikveld"
+		"scrape:kulturikveld": "cd scripts && npx tsx scrape.ts kulturikveld",
+		"scrape:barnasnorge": "cd scripts && npx tsx scrape.ts barnasnorge",
+		"scrape:studentbergen": "cd scripts && npx tsx scrape.ts studentbergen"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^4.0.0",

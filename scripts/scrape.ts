@@ -4,6 +4,8 @@ import { scrape as scrapeBergenKommune } from './scrapers/bergenkommune.js';
 import { scrape as scrapeKulturIKveld } from './scrapers/kulturikveld.js';
 import { scrape as scrapeBarnasNorge } from './scrapers/barnasnorge.js';
 import { scrape as scrapeStudentBergen } from './scrapers/studentbergen.js';
+import { removeExpiredEvents } from './lib/utils.js';
+import { deduplicate } from './lib/dedup.js';
 
 const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
 	bergenlive: scrapeBergenLive,
@@ -19,8 +21,15 @@ async function main() {
 	const selected = args.length > 0 ? args : Object.keys(scrapers);
 
 	console.log('=== Gåri Event Scraper ===');
-	console.log(`Running: ${selected.join(', ')}\n`);
+	console.log(`${new Date().toISOString()}\n`);
 
+	// Step 1: Remove expired events
+	console.log('--- Cleaning expired events ---');
+	const expired = await removeExpiredEvents();
+	console.log(`Removed ${expired} expired events\n`);
+
+	// Step 2: Run scrapers
+	console.log(`--- Running scrapers: ${selected.join(', ')} ---\n`);
 	const results: Record<string, { found: number; inserted: number }> = {};
 
 	for (const name of selected) {
@@ -39,14 +48,21 @@ async function main() {
 		}
 	}
 
+	// Step 3: Deduplicate across sources
+	console.log('\n--- Deduplicating ---');
+	const dupsRemoved = await deduplicate();
+	console.log(`Removed ${dupsRemoved} duplicate events\n`);
+
 	// Summary
-	console.log('\n=== Summary ===');
+	console.log('=== Summary ===');
 	for (const [name, result] of Object.entries(results)) {
 		console.log(`  ${name}: found ${result.found}, inserted ${result.inserted} new`);
 	}
 
 	const totalInserted = Object.values(results).reduce((sum, r) => sum + r.inserted, 0);
 	console.log(`\nTotal new events: ${totalInserted}`);
+	console.log(`Expired removed: ${expired}`);
+	console.log(`Duplicates removed: ${dupsRemoved}`);
 }
 
 main().catch(console.error);
