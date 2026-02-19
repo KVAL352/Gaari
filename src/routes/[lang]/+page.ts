@@ -5,7 +5,9 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {
 	try {
-		const now = new Date().toISOString();
+		// Use Norwegian time so Vercel (UTC) filters correctly
+		const nowOslo = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Oslo' }).replace(' ', 'T');
+		const now = nowOslo;
 		const { data, error } = await supabase
 			.from('events')
 			.select('id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status')
