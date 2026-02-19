@@ -10,7 +10,8 @@
     "scrape:bergenkommune": "tsx scrape.ts bergenkommune",
     "scrape:kulturikveld": "tsx scrape.ts kulturikveld",
     "scrape:barnasnorge": "tsx scrape.ts barnasnorge",
-    "fix:barnas-images": "tsx fix-barnas-images.ts"
+    "fix:barnas-images": "tsx fix-barnas-images.ts",
+    "scrape:studentbergen": "tsx scrape.ts studentbergen"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.97.0",
