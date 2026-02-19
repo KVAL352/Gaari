@@ -5,11 +5,14 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {
 	try {
+		const now = new Date().toISOString();
 		const { data, error } = await supabase
 			.from('events')
-			.select('*')
+			.select('id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status')
 			.in('status', ['approved', 'cancelled'])
-			.order('date_start', { ascending: true });
+			.gte('date_start', now)
+			.order('date_start', { ascending: true })
+			.limit(500);
 
 		if (error) throw error;
 
@@ -17,7 +20,7 @@ export const load: PageLoad = async () => {
 			// Map price from string back to number where possible
 			const events: GaariEvent[] = data.map(e => ({
 				...e,
-				price: isNaN(Number(e.price)) ? e.price : Number(e.price)
+				price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
 			}));
 			return { events, source: 'supabase' as const };
 		}

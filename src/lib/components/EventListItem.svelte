@@ -51,7 +51,7 @@
 		<div class="min-w-0 flex-1">
 			<h3 class="truncate text-sm font-semibold">{title}</h3>
 			<p class="tabular-nums text-xs text-[var(--color-text-secondary)]">
-				{formatEventDate(event.date_start, $lang)} · {formatEventTime(event.date_start, $lang)} · {event.venue_name}
+				{formatEventDate(event.date_start, $lang)}{formatEventTime(event.date_start, $lang) ? ` · ${formatEventTime(event.date_start, $lang)}` : ''} · {event.venue_name}
 			</p>
 		</div>
 

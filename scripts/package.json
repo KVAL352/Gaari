@@ -1,0 +1,20 @@
+{
+  "name": "gaari-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "scrape": "tsx scrape.ts",
+    "scrape:visitbergen": "tsx scrape.ts visitbergen",
+    "scrape:bergenlive": "tsx scrape.ts bergenlive"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.97.0",
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.0.0"
+  }
+}

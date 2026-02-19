@@ -1,0 +1,191 @@
+// Map source category names → Gåri categories
+const CATEGORY_MAP: Record<string, string> = {
+	// Norwegian
+	'konserter': 'music',
+	'konsert': 'music',
+	'musikk': 'music',
+	'jazz': 'music',
+	'rock': 'music',
+	'pop': 'music',
+	'elektronisk': 'music',
+	'klassisk': 'music',
+	'festival': 'festival',
+	'festivaler': 'festival',
+	'marked': 'festival',
+	'markeder': 'festival',
+	'julemarked': 'festival',
+	'teater': 'theatre',
+	'theater': 'theatre',
+	'scenekunst': 'theatre',
+	'opera': 'theatre',
+	'dans': 'theatre',
+	'revy': 'theatre',
+	'standup': 'nightlife',
+	'stand-up': 'nightlife',
+	'uteliv': 'nightlife',
+	'nattklubb': 'nightlife',
+	'klubb': 'nightlife',
+	'kunst': 'culture',
+	'kultur': 'culture',
+	'utstilling': 'culture',
+	'utstillinger': 'culture',
+	'galleri': 'culture',
+	'museum': 'culture',
+	'literatur': 'culture',
+	'mat': 'food',
+	'mat og drikke': 'food',
+	'restaurant': 'food',
+	'vin': 'food',
+	'smak': 'food',
+	'barn': 'family',
+	'familie': 'family',
+	'barneaktiviteter': 'family',
+	'familieaktiviteter': 'family',
+	'sport': 'sports',
+	'idrett': 'sports',
+	'fotball': 'sports',
+	'friluft': 'sports',
+	'turgåing': 'sports',
+	'vandring': 'sports',
+	'yoga': 'sports',
+	'tur': 'tours',
+	'omvisning': 'tours',
+	'guidet': 'tours',
+	'sightseeing': 'tours',
+	'kurs': 'workshop',
+	'workshop': 'workshop',
+	'verksted': 'workshop',
+	'student': 'student',
+	'familie/barn': 'family',
+	'mat og drikke': 'food',
+	'kino': 'culture',
+	'film': 'culture',
+	'foredrag': 'culture',
+	'debatt': 'culture',
+	'lesning': 'culture',
+	'quiz': 'nightlife',
+	'pub': 'nightlife',
+	// English
+	'concerts': 'music',
+	'concert': 'music',
+	'music': 'music',
+	'festivals': 'festival',
+	'markets': 'festival',
+	'theatre': 'theatre',
+	'performing arts': 'theatre',
+	'nightlife': 'nightlife',
+	'comedy': 'nightlife',
+	'arts': 'culture',
+	'culture': 'culture',
+	'exhibition': 'culture',
+	'exhibitions': 'culture',
+	'food': 'food',
+	'food & drink': 'food',
+	'family': 'family',
+	'kids': 'family',
+	'children': 'family',
+	'sports': 'sports',
+	'outdoors': 'sports',
+	'tours': 'tours',
+	'sightseeing': 'tours',
+	'workshops': 'workshop',
+	'classes': 'workshop',
+};
+
+export function mapCategory(sourceCategory: string): string {
+	const lower = sourceCategory.toLowerCase().trim();
+
+	// Direct match
+	if (CATEGORY_MAP[lower]) return CATEGORY_MAP[lower];
+
+	// Partial match
+	for (const [key, value] of Object.entries(CATEGORY_MAP)) {
+		if (lower.includes(key) || key.includes(lower)) return value;
+	}
+
+	// Default
+	return 'culture';
+}
+
+// Map known venues → bydel
+const VENUE_BYDEL_MAP: Record<string, string> = {
+	'grieghallen': 'Sentrum',
+	'den nationale scene': 'Sentrum',
+	'ole bull scene': 'Sentrum',
+	'lille ole bull': 'Sentrum',
+	'forum scene': 'Sentrum',
+	'det akademiske kvarter': 'Sentrum',
+	'kvarteret': 'Sentrum',
+	'konsertpaleet': 'Sentrum',
+	'kulturhuset': 'Sentrum',
+	'bergen kunsthall': 'Sentrum',
+	'kode': 'Sentrum',
+	'bergen kino': 'Sentrum',
+	'media city bergen': 'Sentrum',
+	'byparken': 'Sentrum',
+	'festplassen': 'Sentrum',
+	'fisketorget': 'Sentrum',
+	'torgallmenningen': 'Sentrum',
+	'bergen bibliotek': 'Sentrum',
+	'bergen offentlige bibliotek': 'Sentrum',
+	'hulen': 'Sentrum',
+	'usf verftet': 'Bergenhus',
+	'usf': 'Bergenhus',
+	'sardinen': 'Bergenhus',
+	'røkeriet': 'Bergenhus',
+	'bryggen': 'Bergenhus',
+	'bryggens museum': 'Bergenhus',
+	'håkonshallen': 'Bergenhus',
+	'rosenkrantztårnet': 'Bergenhus',
+	'bergenhus festning': 'Bergenhus',
+	'schøtstuene': 'Bergenhus',
+	'brann stadion': 'Bergenhus',
+	'klubb natt': 'Bergenhus',
+	'akvariet': 'Bergenhus',
+	'fløibanen': 'Sentrum',
+	'fløyen': 'Sentrum',
+	'laksevåg kultursenter': 'Laksevåg',
+	'fyllingsdalen arena': 'Fyllingsdalen',
+	'åsane bibliotek': 'Åsane',
+	'åsane kulturhus': 'Åsane',
+	'fana kulturhus': 'Fana',
+	'arna stasjon': 'Arna',
+	'vilvite': 'Sentrum',
+	'torbjørns konserthall': 'Sentrum',
+	'madam felle': 'Sentrum',
+	'cornerteateret': 'Sentrum',
+	'cornerhagen': 'Sentrum',
+	'litteraturhuset': 'Sentrum',
+	'cinemateket': 'Sentrum',
+	'permanenten': 'Sentrum',
+	'landmark': 'Sentrum',
+	'frille': 'Sentrum',
+	'dyvekes': 'Sentrum',
+	'statsraaden': 'Sentrum',
+	'victoria': 'Sentrum',
+	'vic': 'Sentrum',
+	'bergen kjøtt': 'Sentrum',
+	'studio bergen': 'Sentrum',
+	'oseana': 'Os',
+	'skyland': 'Åsane',
+	'fyllingsdalen': 'Fyllingsdalen',
+	's12 galleri': 'Sentrum',
+	'7fjell': 'Sentrum',
+	'7 fjell': 'Sentrum',
+	'colonialen': 'Sentrum',
+};
+
+export function mapBydel(venueName: string): string {
+	const lower = venueName.toLowerCase().trim();
+
+	// Direct match
+	if (VENUE_BYDEL_MAP[lower]) return VENUE_BYDEL_MAP[lower];
+
+	// Partial match
+	for (const [key, value] of Object.entries(VENUE_BYDEL_MAP)) {
+		if (lower.includes(key) || key.includes(lower)) return value;
+	}
+
+	// Default — most Bergen events are central
+	return 'Sentrum';
+}

@@ -18,7 +18,7 @@ export const load: PageLoad = async ({ params }) => {
 		// Map price
 		const mapped: GaariEvent = {
 			...event,
-			price: isNaN(Number(event.price)) ? event.price : Number(event.price)
+			price: event.price === '' || event.price === null ? '' : isNaN(Number(event.price)) ? event.price : Number(event.price)
 		};
 
 		// Related events: same category, excluding current
@@ -33,7 +33,7 @@ export const load: PageLoad = async ({ params }) => {
 
 		const related: GaariEvent[] = (relatedData || []).map(e => ({
 			...e,
-			price: isNaN(Number(e.price)) ? e.price : Number(e.price)
+			price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
 		}));
 
 		return { event: mapped, related };

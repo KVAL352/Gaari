@@ -103,10 +103,7 @@
 			<div>
 				<h2 class="text-sm font-semibold">{$t('when')}</h2>
 				<time datetime={event.date_start} class="tabular-nums text-sm text-[var(--color-text-secondary)]">
-					{formatEventDate(event.date_start, $lang)}, {formatEventTime(event.date_start, $lang)}
-					{#if event.date_end}
-						— {formatEventTime(event.date_end, $lang)}
-					{/if}
+					{formatEventDate(event.date_start, $lang)}{formatEventTime(event.date_start, $lang) ? `, ${formatEventTime(event.date_start, $lang)}` : ''}{#if event.date_end && formatEventTime(event.date_end, $lang)} — {formatEventTime(event.date_end, $lang)}{/if}
 				</time>
 			</div>
 		</div>
@@ -144,7 +141,7 @@
 				class="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
 			>
 				<ExternalLink size={16} />
-				{$t('buyTickets')}
+				{isFreeEvent(event.price) ? ($lang === 'no' ? 'Mer info' : 'More info') : $t('buyTickets')}
 			</a>
 		{/if}
 		<CalendarDropdown event={calendarData} />

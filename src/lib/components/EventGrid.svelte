@@ -19,7 +19,7 @@
 </script>
 
 {#each grouped as [dateKey, dayEvents], groupIdx}
-	<section class="mx-auto mb-8 max-w-5xl">
+	<section class="mb-8">
 		<div class="mb-5 flex items-center gap-3 border-l-4 border-[#141414] pl-3.5">
 			<h2 class="text-lg font-semibold text-[var(--color-text-primary)]" style="font-family: var(--font-display)">
 				{formatDateSectionHeader(dateKey + 'T00:00:00', $lang)}

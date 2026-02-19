@@ -28,6 +28,10 @@ export function formatEventDate(dateStr: string, locale: 'no' | 'en' = 'no'): st
 
 export function formatEventTime(dateStr: string, locale: 'no' | 'en' = 'no'): string {
 	const date = new Date(dateStr);
+	// Don't show time if it's the default 12:00 placeholder (scraped events without real times)
+	const hours = date.getHours();
+	const minutes = date.getMinutes();
+	if (hours === 12 && minutes === 0) return '';
 	return date.toLocaleTimeString(locale === 'no' ? 'nb-NO' : 'en-GB', {
 		hour: '2-digit',
 		minute: '2-digit'
@@ -54,8 +58,11 @@ export function formatDateSectionHeader(dateStr: string, locale: 'no' | 'en' = '
 // ── Price formatting ──
 
 export function formatPrice(price: string | number | null, locale: 'no' | 'en' = 'no'): string {
-	if (price === null || price === undefined || price === '' || price === 0 || price === '0' || price === 'Free' || price === 'Gratis') {
+	if (isFreeEvent(price)) {
 		return locale === 'no' ? 'Gratis' : 'Free';
+	}
+	if (price === null || price === undefined || price === '') {
+		return locale === 'no' ? 'Se pris' : 'See price';
 	}
 	if (typeof price === 'string' && isNaN(Number(price))) {
 		return price;
@@ -65,7 +72,7 @@ export function formatPrice(price: string | number | null, locale: 'no' | 'en' =
 }
 
 export function isFreeEvent(price: string | number | null): boolean {
-	return price === null || price === undefined || price === '' || price === 0 || price === '0' || price === 'Free' || price === 'Gratis';
+	return price === 0 || price === '0' || price === 'Free' || price === 'Gratis';
 }
 
 // ── Category helpers ──

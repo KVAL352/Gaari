@@ -3,10 +3,140 @@
 	import { CATEGORIES, BYDELER } from '$lib/types';
 	import { supabase } from '$lib/supabase';
 	import { slugify } from '$lib/utils';
+	import { Upload, AlertTriangle } from 'lucide-svelte';
 
 	let submitted = $state(false);
 	let submitting = $state(false);
 	let submitError = $state('');
+	let imageFile = $state<File | null>(null);
+	let imagePreview = $state('');
+	let imageWarning = $state('');
+	let processedBlob = $state<Blob | null>(null);
+
+	function normalizeUrl(url: string): string | null {
+		if (!url) return null;
+		url = url.trim();
+		if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+			url = 'https://' + url;
+		}
+		return url;
+	}
+
+	function processImage(file: File): Promise<{ blob: Blob; warning: string }> {
+		return new Promise((resolve, reject) => {
+			const img = new Image();
+			img.onload = () => {
+				let warning = '';
+				const w = img.naturalWidth;
+				const h = img.naturalHeight;
+
+				// Check minimum width
+				if (w < 800) {
+					reject(new Error($lang === 'no'
+						? `Bildet er for lite (${w}px bredt). Minimum 800px bredde.`
+						: `Image is too small (${w}px wide). Minimum 800px width.`));
+					return;
+				}
+
+				// Aspect ratio check
+				const ratio = w / h;
+				if (ratio < 1.2) {
+					warning = $lang === 'no'
+						? 'Tips: Liggende format (16:9) ser best ut på siden.'
+						: 'Tip: Landscape format (16:9) looks best on the site.';
+				}
+
+				// Resize if wider than 1200px
+				const maxWidth = 1200;
+				const canvas = document.createElement('canvas');
+				const ctx = canvas.getContext('2d')!;
+
+				if (w > maxWidth) {
+					const scale = maxWidth / w;
+					canvas.width = maxWidth;
+					canvas.height = Math.round(h * scale);
+				} else {
+					canvas.width = w;
+					canvas.height = h;
+				}
+
+				ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+				canvas.toBlob(
+					(blob) => {
+						if (blob) {
+							resolve({ blob, warning });
+						} else {
+							reject(new Error('Failed to process image'));
+						}
+					},
+					'image/jpeg',
+					0.85
+				);
+			};
+			img.onerror = () => reject(new Error('Failed to load image'));
+			img.src = URL.createObjectURL(file);
+		});
+	}
+
+	async function handleImageSelect(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		submitError = '';
+		imageWarning = '';
+
+		// Max 5MB raw
+		if (file.size > 5 * 1024 * 1024) {
+			submitError = $lang === 'no'
+				? 'Bildet er for stort. Maks 5 MB.'
+				: 'Image is too large. Max 5 MB.';
+			input.value = '';
+			return;
+		}
+
+		try {
+			const { blob, warning } = await processImage(file);
+			processedBlob = blob;
+			imageFile = file;
+			imageWarning = warning;
+			if (imagePreview) URL.revokeObjectURL(imagePreview);
+			imagePreview = URL.createObjectURL(blob);
+		} catch (err: any) {
+			submitError = err.message;
+			input.value = '';
+		}
+	}
+
+	function removeImage() {
+		imageFile = null;
+		processedBlob = null;
+		imageWarning = '';
+		if (imagePreview) URL.revokeObjectURL(imagePreview);
+		imagePreview = '';
+	}
+
+	async function uploadImage(slug: string): Promise<string | null> {
+		if (!processedBlob) return null;
+
+		const path = `events/${slug}.jpg`;
+
+		const { error } = await supabase.storage
+			.from('event-images')
+			.upload(path, processedBlob, {
+				contentType: 'image/jpeg',
+				upsert: true
+			});
+
+		if (error) return null;
+
+		const { data } = supabase.storage
+			.from('event-images')
+			.getPublicUrl(path);
+
+		return data.publicUrl;
+	}
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
@@ -19,21 +149,39 @@
 		const titleNo = fd.get('title-no') as string;
 		const slug = slugify(titleNo) + '-' + Date.now().toString(36);
 
+		// Combine date + time
+		const startDate = fd.get('date-start') as string;
+		const startTime = (fd.get('time-start') as string) || '12:00';
+		const endDate = fd.get('date-end') as string;
+		const endTime = fd.get('time-end') as string;
+
+		const dateStart = startDate ? `${startDate}T${startTime}` : null;
+		const dateEnd = (endDate && endTime) ? `${endDate}T${endTime}` : null;
+
+		if (!dateStart) {
+			submitError = $lang === 'no' ? 'Startdato er påkrevd.' : 'Start date is required.';
+			submitting = false;
+			return;
+		}
+
+		// Upload image if provided
+		let imageUrl = await uploadImage(slug);
+
 		const { error } = await supabase.from('events').insert({
 			slug,
 			title_no: titleNo,
 			title_en: (fd.get('title-en') as string) || null,
 			category: fd.get('category') as string,
-			date_start: fd.get('date-start') as string,
-			date_end: (fd.get('date-end') as string) || null,
+			date_start: dateStart,
+			date_end: dateEnd,
 			venue_name: fd.get('venue') as string,
 			address: fd.get('address') as string,
 			bydel: fd.get('bydel') as string,
 			price: (fd.get('price') as string) || '0',
 			description_no: fd.get('desc-no') as string,
 			description_en: (fd.get('desc-en') as string) || null,
-			ticket_url: (fd.get('ticket-url') as string) || null,
-			image_url: (fd.get('image-url') as string) || null,
+			ticket_url: normalizeUrl(fd.get('ticket-url') as string),
+			image_url: imageUrl,
 			age_group: 'all',
 			language: 'both',
 			status: 'pending'
@@ -57,16 +205,20 @@
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">
-	<h1 class="mb-2 text-3xl font-bold">{$t('submitTitle')}</h1>
-	<p class="mb-8 text-[var(--color-text-secondary)]">{$t('submitDescription')}</p>
+	<p class="mb-8 text-sm text-[var(--color-text-secondary)]">
+		{$lang === 'no' ? 'Alle innsendte arrangementer gjennomgås før publisering.' : 'All submitted events are reviewed before publishing.'}
+	</p>
 
 	{#if submitted}
-		<div class="rounded-xl bg-[var(--funkis-green-subtle)] p-6 text-center">
-			<p class="text-lg font-semibold text-green-800">
-				{$lang === 'no' ? 'Takk! Arrangementet ditt er sendt inn til gjennomgang.' : 'Thank you! Your event has been submitted for review.'}
+		<div class="rounded-2xl bg-[var(--color-accent)] p-8 text-center text-white shadow-lg">
+			<p class="text-2xl font-bold">
+				{$lang === 'no' ? 'Takk!' : 'Thank you!'}
 			</p>
-			<a href="/{$lang}" class="mt-4 inline-block text-sm text-[var(--color-text-primary)] hover:underline">
-				← {$t('explore')}
+			<p class="mt-2 text-white/85">
+				{$lang === 'no' ? 'Arrangementet ditt er sendt inn til gjennomgang.' : 'Your event has been submitted for review.'}
+			</p>
+			<a href="/{$lang}" class="mt-6 inline-block rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-[var(--color-accent)] transition-colors hover:bg-white/90">
+				← {$lang === 'no' ? 'Tilbake til arrangementer' : 'Back to events'}
 			</a>
 		</div>
 	{:else}
@@ -96,16 +248,30 @@
 				</select>
 			</div>
 
-			<!-- Dates -->
+			<!-- Start date + time -->
 			<div class="grid gap-4 sm:grid-cols-2">
 				<div>
 					<label for="date-start" class="mb-1 block text-sm font-medium">{$t('startDate')} *</label>
-					<input id="date-start" name="date-start" type="datetime-local" required
+					<input id="date-start" name="date-start" type="date" required
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
 				</div>
 				<div>
+					<label for="time-start" class="mb-1 block text-sm font-medium">{$lang === 'no' ? 'Klokkeslett start' : 'Start time'} *</label>
+					<input id="time-start" name="time-start" type="time" required value="19:00"
+						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+				</div>
+			</div>
+
+			<!-- End date + time -->
+			<div class="grid gap-4 sm:grid-cols-2">
+				<div>
 					<label for="date-end" class="mb-1 block text-sm font-medium">{$t('endDate')}</label>
-					<input id="date-end" name="date-end" type="datetime-local"
+					<input id="date-end" name="date-end" type="date"
+						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+				</div>
+				<div>
+					<label for="time-end" class="mb-1 block text-sm font-medium">{$lang === 'no' ? 'Klokkeslett slutt' : 'End time'}</label>
+					<input id="time-end" name="time-end" type="time"
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
 				</div>
 			</div>
@@ -154,16 +320,55 @@
 					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20"></textarea>
 			</div>
 
-			<!-- URLs -->
+			<!-- Ticket URL -->
 			<div>
 				<label for="ticket-url" class="mb-1 block text-sm font-medium">{$t('ticketUrl')}</label>
-				<input id="ticket-url" name="ticket-url" type="url"
+				<input id="ticket-url" name="ticket-url" type="text" placeholder={$lang === 'no' ? 'grieghallen.no/billetter' : 'ticketmaster.no/event'}
 					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
 			</div>
+
+			<!-- Image upload -->
 			<div>
-				<label for="image-url" class="mb-1 block text-sm font-medium">{$t('imageUrl')}</label>
-				<input id="image-url" name="image-url" type="url"
-					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+				<label class="mb-1 block text-sm font-medium">
+					{$lang === 'no' ? 'Bilde (valgfritt)' : 'Image (optional)'}
+				</label>
+				<p class="mb-2 text-xs text-[var(--color-text-muted)]">
+					{$lang === 'no' ? 'Anbefalt: liggende format (16:9). Min 800px bredde, maks 5 MB. Bilder skaleres automatisk.' : 'Recommended: landscape (16:9). Min 800px wide, max 5 MB. Images are auto-resized.'}
+				</p>
+				{#if imagePreview}
+					<div class="relative mb-2">
+						<img src={imagePreview} alt="" class="aspect-[16/9] w-full rounded-lg object-cover" />
+						<button
+							type="button"
+							onclick={removeImage}
+							class="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white hover:bg-black/80"
+						>
+							{$lang === 'no' ? 'Fjern' : 'Remove'}
+						</button>
+					</div>
+					{#if imageWarning}
+						<p class="flex items-center gap-1 text-xs text-amber-600">
+							<AlertTriangle size={14} />
+							{imageWarning}
+						</p>
+					{/if}
+				{:else}
+					<label
+						class="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-[var(--color-border)] p-6 text-center transition-colors hover:border-[#141414] hover:bg-[var(--color-surface)]"
+					>
+						<Upload size={24} class="text-[var(--color-text-muted)]" />
+						<span class="text-sm text-[var(--color-text-secondary)]">
+							{$lang === 'no' ? 'Klikk for å laste opp bilde' : 'Click to upload image'}
+						</span>
+						<span class="text-xs text-[var(--color-text-muted)]">JPG, PNG, WebP — maks 5 MB</span>
+						<input
+							type="file"
+							accept="image/jpeg,image/png,image/webp"
+							onchange={handleImageSelect}
+							class="hidden"
+						/>
+					</label>
+				{/if}
 			</div>
 
 			{#if submitError}

@@ -104,7 +104,7 @@
 				{title}
 			</h3>
 			<time datetime={event.date_start} class="tabular-nums mb-1 text-sm text-[var(--color-text-secondary)]">
-				{dateText} · {timeText}
+				{dateText}{timeText ? ` · ${timeText}` : ''}
 			</time>
 			<p class="mb-3 text-sm text-[var(--color-text-secondary)]">
 				{event.venue_name}, {event.bydel}
