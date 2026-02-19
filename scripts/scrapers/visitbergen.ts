@@ -59,11 +59,16 @@ function parseListPage(html: string): { events: ListEvent[]; totalPages: number 
 			imageUrl = imgSrc.startsWith('http') ? imgSrc : `${BASE_URL}${imgSrc}`;
 		}
 
-		// Ticket URL: external link (not visitbergen.com)
+		// Ticket URL: external link (not visitbergen.com, skip junk)
+		const junkDomains = ['miljofyrtarn.no', 'innovasjonnorge.no', 'visitnorway.com',
+			'google.com', 'facebook.com', 'twitter.com', 'instagram.com', 'tripadvisor',
+			'youtube.com', 'linkedin.com', 'pinterest.com', 'schema.org'];
 		let ticketUrl: string | undefined;
 		$w.find('a[href]').each((_, a) => {
+			if (ticketUrl) return;
 			const linkHref = $(a).attr('href') || '';
-			if (linkHref.startsWith('http') && !linkHref.includes('visitbergen.com')) {
+			if (linkHref.startsWith('http') && !linkHref.includes('visitbergen.com')
+				&& !junkDomains.some(d => linkHref.includes(d))) {
 				ticketUrl = linkHref;
 			}
 		});
