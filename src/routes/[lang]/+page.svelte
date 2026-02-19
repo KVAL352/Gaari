@@ -136,11 +136,6 @@
 	onClearAll={handleClearAll}
 />
 
-<!-- Debug: remove after testing -->
-{#if data.source === 'seed'}
-	<p class="bg-yellow-200 px-4 py-2 text-center text-sm font-bold text-yellow-800">DEBUG: Showing SEED data (Supabase connection failed)</p>
-{/if}
-
 <div class="mx-auto max-w-7xl px-4 py-6">
 	{#if filteredEvents.length === 0}
 		<EmptyState
