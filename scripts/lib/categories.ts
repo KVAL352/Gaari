@@ -65,6 +65,10 @@ const CATEGORY_MAP: Record<string, string> = {
 	'lesning': 'culture',
 	'quiz': 'nightlife',
 	'pub': 'nightlife',
+	'humor': 'nightlife',
+	'teater/musikal': 'theatre',
+	'musikal': 'theatre',
+	'annet': 'culture',
 	// English
 	'concerts': 'music',
 	'concert': 'music',

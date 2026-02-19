@@ -10,7 +10,9 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"scrape": "cd scripts && npx tsx scrape.ts",
 		"scrape:bergenlive": "cd scripts && npx tsx scrape.ts bergenlive",
-		"scrape:visitbergen": "cd scripts && npx tsx scrape.ts visitbergen"
+		"scrape:visitbergen": "cd scripts && npx tsx scrape.ts visitbergen",
+		"scrape:bergenkommune": "cd scripts && npx tsx scrape.ts bergenkommune",
+		"scrape:kulturikveld": "cd scripts && npx tsx scrape.ts kulturikveld"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^4.0.0",

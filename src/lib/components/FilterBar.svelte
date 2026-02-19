@@ -67,7 +67,7 @@
 			<select
 				value={category}
 				onchange={(e) => handleSelect('category', e)}
-				class="rounded-lg border border-[var(--color-border)] bg-white px-2.5 py-1.5 text-sm"
+				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				<option value="">{$t('allCategories')}</option>
 				{#each CATEGORIES as cat}
@@ -78,7 +78,7 @@
 			<select
 				value={bydel}
 				onchange={(e) => handleSelect('bydel', e)}
-				class="rounded-lg border border-[var(--color-border)] bg-white px-2.5 py-1.5 text-sm"
+				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				<option value="">{$t('allAreas')}</option>
 				{#each BYDELER as b}
@@ -89,7 +89,7 @@
 			<select
 				value={price}
 				onchange={(e) => handleSelect('price', e)}
-				class="rounded-lg border border-[var(--color-border)] bg-white px-2.5 py-1.5 text-sm"
+				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				{#each priceOptions as opt}
 					<option value={opt.value}>{$t(opt.label)}</option>
@@ -99,7 +99,7 @@
 			<select
 				value={audience}
 				onchange={(e) => handleSelect('audience', e)}
-				class="rounded-lg border border-[var(--color-border)] bg-white px-2.5 py-1.5 text-sm"
+				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				{#each audienceOptions as opt}
 					<option value={opt.value}>{$t(opt.label)}</option>

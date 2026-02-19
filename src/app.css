@@ -39,8 +39,8 @@
 
 	/* Text — high contrast, like black steel frames */
 	--color-text-primary:   #141414;
-	--color-text-secondary: #5A5A5A;
-	--color-text-muted:     #8A8A8A;
+	--color-text-secondary: #4D4D4D;  /* 6.96:1 on white — WCAG AA+AAA */
+	--color-text-muted:     #737373;  /* 4.68:1 on white — WCAG AA */
 
 	/* Accent (Sundt vermillion red) */
 	--color-accent:        var(--funkis-red);
@@ -90,8 +90,8 @@
 		--color-border-strong: #636366;
 
 		--color-text-primary:   #F5F3EE;
-		--color-text-secondary: #ADADB0;
-		--color-text-muted:     #7C7C80;
+		--color-text-secondary: #B8B8BC;  /* 7.0:1 on #1C1C1E — WCAG AAA */
+		--color-text-muted:     #919196;  /* 4.72:1 on #1C1C1E — WCAG AA */
 
 		--color-accent:        #E05555;
 		--color-accent-hover:  #EE7070;

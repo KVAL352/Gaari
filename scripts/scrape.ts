@@ -1,9 +1,15 @@
 import { scrape as scrapeBergenLive } from './scrapers/bergenlive.js';
 import { scrape as scrapeVisitBergen } from './scrapers/visitbergen.js';
+import { scrape as scrapeBergenKommune } from './scrapers/bergenkommune.js';
+import { scrape as scrapeKulturIKveld } from './scrapers/kulturikveld.js';
+import { scrape as scrapeBarnasNorge } from './scrapers/barnasnorge.js';
 
 const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
 	bergenlive: scrapeBergenLive,
 	visitbergen: scrapeVisitBergen,
+	bergenkommune: scrapeBergenKommune,
+	kulturikveld: scrapeKulturIKveld,
+	barnasnorge: scrapeBarnasNorge,
 };
 
 async function main() {

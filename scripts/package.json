@@ -6,7 +6,11 @@
   "scripts": {
     "scrape": "tsx scrape.ts",
     "scrape:visitbergen": "tsx scrape.ts visitbergen",
-    "scrape:bergenlive": "tsx scrape.ts bergenlive"
+    "scrape:bergenlive": "tsx scrape.ts bergenlive",
+    "scrape:bergenkommune": "tsx scrape.ts bergenkommune",
+    "scrape:kulturikveld": "tsx scrape.ts kulturikveld",
+    "scrape:barnasnorge": "tsx scrape.ts barnasnorge",
+    "fix:barnas-images": "tsx fix-barnas-images.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.97.0",
