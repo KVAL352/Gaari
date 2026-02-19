@@ -29,8 +29,9 @@ export const load: PageLoad = async () => {
 
 		// Empty table — fall back to seed data
 		return { events: seedEvents, source: 'seed' as const };
-	} catch {
+	} catch (err) {
 		// Supabase unreachable — fall back to seed data
+		console.error('Supabase load failed:', err);
 		return { events: seedEvents, source: 'seed' as const };
 	}
 };
