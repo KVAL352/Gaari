@@ -77,37 +77,8 @@
 	--font-body:    'Inter', system-ui, sans-serif;
 }
 
-/* ── Dark mode ── */
-@media (prefers-color-scheme: dark) {
-	:root {
-		--color-bg:            #121214;
-		--color-bg-surface:    #1C1C1E;
-		--color-surface:       #232326;
-		--color-bg-elevated:   #2C2C2E;
-
-		--color-border:        #3A3A3C;
-		--color-border-subtle: #2C2C2E;
-		--color-border-strong: #636366;
-
-		--color-text-primary:   #F5F3EE;
-		--color-text-secondary: #B8B8BC;  /* 7.0:1 on #1C1C1E — WCAG AAA */
-		--color-text-muted:     #919196;  /* 4.72:1 on #1C1C1E — WCAG AA */
-
-		--color-accent:        #E05555;
-		--color-accent-hover:  #EE7070;
-		--color-accent-subtle: rgba(224, 85, 85, 0.12);
-
-		--color-today:         #E05555;
-		--color-free:          #4CAF6A;
-		--color-soldout:       #E05555;
-		--color-lasttickets:   #D4A44A;
-		--color-cancelled:     #7C7C80;
-
-		--shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.3);
-		--shadow-md:  0 2px 8px rgba(0, 0, 0, 0.4);
-		--shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.5);
-	}
-}
+/* Dark mode disabled — components use hardcoded bg-white in many places.
+   TODO: implement full dark mode by replacing all bg-white with bg-[var(--color-bg-surface)] */
 
 html {
 	font-family: var(--font-body);
