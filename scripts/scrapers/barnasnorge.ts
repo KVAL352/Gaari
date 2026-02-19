@@ -11,7 +11,10 @@ const MAX_PAGES = 10;
 const DELAY_MS = 1500;
 
 // Keywords indicating kindergarten-only events (not public)
-const KINDERGARTEN_KEYWORDS = ['barnehage', 'barnehagebarn'];
+const KINDERGARTEN_KEYWORDS = [
+	'barnehage', 'barnehagebarn', 'barnehagens ansatte',
+	'inviterer barnehager', 'kun ment for', 'eldste i barnehagen', 'barnehagene',
+];
 
 interface BarnEvent {
 	title: string;
@@ -26,6 +29,7 @@ interface BarnEvent {
 interface VenueInfo {
 	imageUrl: string | null;
 	venueUrl: string | null;
+	isKindergarten: boolean;
 }
 
 function parseListPage(html: string): BarnEvent[] {
@@ -98,29 +102,38 @@ async function fetchVenueInfo(detailUrl: string): Promise<VenueInfo> {
 		return venueCache.get(detailUrl)!;
 	}
 
-	const empty: VenueInfo = { imageUrl: null, venueUrl: null };
+	const empty: VenueInfo = { imageUrl: null, venueUrl: null, isKindergarten: false };
 
 	try {
 		const html = await fetchHTML(detailUrl);
 		if (!html) { venueCache.set(detailUrl, empty); return empty; }
 
 		const $ = cheerio.load(html);
+
+		// Check full page text for kindergarten keywords
+		const pageText = $('body').text().toLowerCase();
+		const isKindergarten = KINDERGARTEN_KEYWORDS.some(kw => pageText.includes(kw));
+
 		const ldScript = $('script[type="application/ld+json"]').first().html();
-		if (!ldScript) { venueCache.set(detailUrl, empty); return empty; }
+		if (!ldScript) {
+			const result: VenueInfo = { imageUrl: null, venueUrl: null, isKindergarten };
+			venueCache.set(detailUrl, result);
+			return result;
+		}
 
 		const ld = JSON.parse(ldScript.replace(/[\x00-\x1F\x7F]/g, ' '));
 		const venueUrl = ld.offers?.url;
 		if (!venueUrl || !venueUrl.startsWith('http')) {
-			venueCache.set(detailUrl, empty);
-			return empty;
+			const result: VenueInfo = { imageUrl: null, venueUrl: null, isKindergarten };
+			venueCache.set(detailUrl, result);
+			return result;
 		}
 
 		// Fetch the actual venue/event page for og:image
 		await delay(500);
 		const venueHtml = await fetchHTML(venueUrl);
 		if (!venueHtml) {
-			// Still have venue URL even if page didn't load
-			const result: VenueInfo = { imageUrl: null, venueUrl };
+			const result: VenueInfo = { imageUrl: null, venueUrl, isKindergarten };
 			venueCache.set(detailUrl, result);
 			return result;
 		}
@@ -133,7 +146,7 @@ async function fetchVenueInfo(detailUrl: string): Promise<VenueInfo> {
 			console.log(`    [venue] ${detailUrl.split('/').pop()} → ${venueUrl.slice(0, 60)}`);
 		}
 
-		const result: VenueInfo = { imageUrl, venueUrl };
+		const result: VenueInfo = { imageUrl, venueUrl, isKindergarten };
 		venueCache.set(detailUrl, result);
 		return result;
 	} catch (e: any) {
@@ -216,6 +229,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Get real image + venue URL from the actual event page
 		await delay(DELAY_MS);
 		const venueInfo = await fetchVenueInfo(event.detailUrl);
+
+		// Skip if detail page reveals kindergarten-only content
+		if (venueInfo.isKindergarten) {
+			console.log(`  [skip] ${event.title} (kindergarten content on detail page)`);
+			skippedKindergarten++;
+			continue;
+		}
 
 		// Use real image if available, otherwise fall back to BarnasNorge
 		const imageUrl = venueInfo.imageUrl || event.imageUrl;
