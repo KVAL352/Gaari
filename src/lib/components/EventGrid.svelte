@@ -20,14 +20,13 @@
 
 {#each grouped as [dateKey, dayEvents], groupIdx}
 	<section class="mx-auto mb-8 max-w-5xl">
-		<div class="mb-4 flex items-center gap-3 border-l-[3px] border-[var(--color-accent)] pl-3">
-			<h2 class="text-xl font-semibold text-[var(--color-text-primary)]">
+		<div class="mb-5 flex items-center gap-3 border-l-4 border-[#141414] pl-3.5">
+			<h2 class="text-lg font-semibold text-[var(--color-text-primary)]" style="font-family: var(--font-display)">
 				{formatDateSectionHeader(dateKey + 'T00:00:00', $lang)}
 			</h2>
-			<span class="text-sm text-[var(--color-text-secondary)]">
-				— {dayEvents.length} {$t('events')}
+			<span class="text-sm text-[var(--color-text-muted)]">
+				{dayEvents.length} {$t('events')}
 			</span>
-			<div class="h-px flex-1 bg-[var(--color-border)]"></div>
 		</div>
 		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 			{#each dayEvents as event, i}

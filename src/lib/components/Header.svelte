@@ -6,17 +6,17 @@
 	let menuOpen = $state(false);
 </script>
 
-<header class="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg-surface)]/95 backdrop-blur-sm">
+<header class="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/95 backdrop-blur-sm">
 	<a href="#events" class="skip-link">{$t('skipToEvents')}</a>
 	<div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
 		<!-- Logo -->
-		<a href="/{$lang}" class="text-xl font-bold tracking-tight">Gåri</a>
+		<a href="/{$lang}" class="text-[22px] font-bold uppercase tracking-[0.12em] text-[var(--color-accent)]" style="font-family: var(--font-display)">GÅRI</a>
 
 		<!-- Desktop nav -->
 		<nav class="hidden items-center gap-6 md:flex" aria-label="Main">
-			<a href="/{$lang}" class="text-sm font-medium hover:text-[var(--color-accent)]">{$t('explore')}</a>
-			<a href="/{$lang}/about" class="text-sm font-medium hover:text-[var(--color-accent)]">{$t('about')}</a>
-			<a href="/{$lang}/submit" class="text-sm font-medium hover:text-[var(--color-accent)]">{$t('submitEvent')}</a>
+			<a href="/{$lang}" class="text-sm font-medium hover:text-[var(--color-text-primary)]">{$t('explore')}</a>
+			<a href="/{$lang}/about" class="text-sm font-medium hover:text-[var(--color-text-primary)]">{$t('about')}</a>
+			<a href="/{$lang}/submit" class="text-sm font-medium hover:text-[var(--color-text-primary)]">{$t('submitEvent')}</a>
 		</nav>
 
 		<!-- Right side -->

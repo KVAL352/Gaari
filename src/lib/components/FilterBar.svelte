@@ -70,8 +70,8 @@
 	});
 </script>
 
-<div class="border-b border-t border-[var(--color-shadow-light,#D4D1CA)] bg-white">
-	<div class="mx-auto max-w-7xl px-4 py-3">
+<div class="border-t border-[var(--color-border)] border-b-[3px] border-b-[#141414] bg-white">
+	<div class="mx-auto max-w-5xl px-4 py-3">
 		<!-- Filter dropdowns -->
 		<div class="flex flex-wrap items-center gap-3">
 			<!-- Category -->
@@ -153,7 +153,7 @@
 		{#if hasActiveFilters}
 			<div class="mt-2 flex flex-wrap items-center gap-2">
 				{#each activeChips as chip}
-					<span class="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent)] px-3 py-1 text-sm font-medium text-white">
+					<span class="inline-flex items-center gap-1 rounded-full bg-[#141414] px-3 py-1 text-sm font-medium text-white">
 						{chip.label}
 						<button
 							onclick={() => removeFilter(chip.key)}

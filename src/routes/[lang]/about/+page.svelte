@@ -27,7 +27,7 @@
 		<h2 class="mb-3 text-xl font-semibold">{$t('contact')}</h2>
 		<a
 			href="mailto:gaari.bergen@proton.me"
-			class="inline-flex items-center gap-2 text-[var(--color-accent)] hover:underline"
+			class="inline-flex items-center gap-2 text-[var(--color-text-primary)] hover:underline"
 		>
 			<Mail size={16} />
 			gaari.bergen@proton.me

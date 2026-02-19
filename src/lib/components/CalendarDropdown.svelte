@@ -53,7 +53,7 @@
 			onclick={toggle}
 			aria-label={$t('addToCalendar')}
 			aria-expanded={open}
-			class="rounded-full p-1.5 text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
+			class="rounded-full p-1.5 text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-text-primary)]"
 		>
 			<CalendarPlus size={18} />
 		</button>
@@ -97,7 +97,7 @@
 				class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface)]"
 			>
 				<Download size={16} class="flex-shrink-0 text-[var(--color-text-secondary)]" />
-				{$t('downloadICS')}
+				{$t('appleCalendar')}
 			</button>
 		</div>
 	{/if}

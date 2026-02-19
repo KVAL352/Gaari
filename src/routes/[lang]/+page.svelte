@@ -2,7 +2,6 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { lang, t } from '$lib/i18n';
-	import { seedEvents } from '$lib/data/seed-events';
 	import { isFreeEvent } from '$lib/utils';
 	import type { Category, Bydel, GaariEvent } from '$lib/types';
 	import HeroSection from '$lib/components/HeroSection.svelte';
@@ -11,6 +10,9 @@
 	import EventListItem from '$lib/components/EventListItem.svelte';
 	import LoadMore from '$lib/components/LoadMore.svelte';
 	import EmptyState from '$lib/components/EmptyState.svelte';
+
+	let { data } = $props();
+	let allEvents: GaariEvent[] = $derived(data.events);
 
 	const PAGE_SIZE = 12;
 
@@ -26,7 +28,7 @@
 
 	// Filter events
 	let filteredEvents = $derived.by(() => {
-		let events = seedEvents.filter(e => e.status !== 'cancelled' && e.status !== 'expired');
+		let events = allEvents.filter(e => e.status !== 'cancelled' && e.status !== 'expired');
 		const now = new Date();
 
 		// When filter
@@ -166,7 +168,7 @@
 	}
 
 	// Popular events for empty state
-	let popularEvents = $derived(seedEvents.filter(e => e.status === 'approved').slice(0, 3));
+	let popularEvents = $derived(allEvents.filter(e => e.status === 'approved').slice(0, 3));
 </script>
 
 <svelte:head>
@@ -176,8 +178,6 @@
 
 <HeroSection
 	activeWhen={when}
-	searchQuery={q}
-	onSearch={handleSearch}
 	onDateSelect={handleDateSelect}
 />
 

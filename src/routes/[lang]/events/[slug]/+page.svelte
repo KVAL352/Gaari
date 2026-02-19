@@ -9,6 +9,7 @@
 	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
 	import CalendarDropdown from '$lib/components/CalendarDropdown.svelte';
 	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquare } from 'lucide-svelte';
+	import { supabase } from '$lib/supabase';
 
 	let { data } = $props();
 	let event: GaariEvent = $derived(data.event);
@@ -24,6 +25,7 @@
 	let correctionValue = $state('');
 	let correctionReason = $state('');
 	let correctionSubmitted = $state(false);
+	let correctionSubmitting = $state(false);
 
 	let calendarData = $derived({
 		title: title,
@@ -34,8 +36,19 @@
 		address: event.address
 	});
 
-	function handleCorrectionSubmit(e: SubmitEvent) {
+	async function handleCorrectionSubmit(e: SubmitEvent) {
 		e.preventDefault();
+		correctionSubmitting = true;
+
+		await supabase.from('edit_suggestions').insert({
+			event_id: event.id,
+			field: correctionField,
+			suggested_value: correctionValue,
+			reason: correctionReason || null,
+			status: 'pending'
+		});
+
+		correctionSubmitting = false;
 		correctionSubmitted = true;
 		showCorrectionForm = false;
 	}
@@ -86,7 +99,7 @@
 	<!-- Key info grid -->
 	<div class="mb-8 grid gap-4 sm:grid-cols-2">
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
-			<Calendar size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-accent)]" />
+			<Calendar size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-text-secondary)]" />
 			<div>
 				<h2 class="text-sm font-semibold">{$t('when')}</h2>
 				<time datetime={event.date_start} class="tabular-nums text-sm text-[var(--color-text-secondary)]">
@@ -98,7 +111,7 @@
 			</div>
 		</div>
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
-			<MapPin size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-accent)]" />
+			<MapPin size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-text-secondary)]" />
 			<div>
 				<h2 class="text-sm font-semibold">{$t('where')}</h2>
 				<p class="text-sm text-[var(--color-text-secondary)]">{event.venue_name}</p>
@@ -106,14 +119,14 @@
 			</div>
 		</div>
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
-			<Tag size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-accent)]" />
+			<Tag size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-text-secondary)]" />
 			<div>
 				<h2 class="text-sm font-semibold">{$t('priceLabel')}</h2>
 				<p class="tabular-nums text-sm text-[var(--color-text-secondary)]">{formatPrice(event.price, $lang)}</p>
 			</div>
 		</div>
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
-			<Clock size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-accent)]" />
+			<Clock size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-text-secondary)]" />
 			<div>
 				<h2 class="text-sm font-semibold">{$t('category')}</h2>
 				<p class="text-sm text-[var(--color-text-secondary)]">{$t(`cat.${event.category}` as any)}</p>
@@ -185,7 +198,7 @@
 						</label>
 						<textarea id="correction-reason" bind:value={correctionReason} rows="2" class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm"></textarea>
 					</div>
-					<button type="submit" class="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]">
+					<button type="submit" class="rounded-lg bg-[#141414] px-4 py-2 text-sm font-medium text-white hover:bg-[#2a2a2a]">
 						{$t('submit')}
 					</button>
 				</form>

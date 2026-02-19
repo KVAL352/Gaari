@@ -35,7 +35,7 @@
 </script>
 
 <li class="list-none">
-	<article class="relative flex items-center gap-4 rounded-lg border border-[var(--funkis-shadow-light)] bg-[var(--color-bg-surface)] p-3 shadow-sm transition-all hover:shadow-md">
+	<article class="relative flex items-center gap-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-3 shadow-sm transition-all hover:shadow-md">
 		<a href={eventUrl} class="absolute inset-0 z-0" aria-label={title}></a>
 
 		<!-- Thumbnail -->
@@ -59,7 +59,7 @@
 		<span class="tabular-nums flex-shrink-0 text-sm font-semibold">{formatPrice(event.price, $lang)}</span>
 		<div class="relative z-10 flex items-center gap-1">
 			<CalendarDropdown event={calendarData} compact />
-			<button onclick={handleShare} aria-label="{$lang === 'no' ? 'Del' : 'Share'} {title}" class="flex-shrink-0 rounded-full p-1.5 text-[var(--color-text-secondary)] hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]">
+			<button onclick={handleShare} aria-label="{$lang === 'no' ? 'Del' : 'Share'} {title}" class="flex-shrink-0 rounded-full p-1.5 text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text-primary)]">
 				<Send size={16} />
 			</button>
 		</div>
