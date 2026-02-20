@@ -13,6 +13,7 @@ const SOURCE_RANK: Record<string, number> = {
 	nordnessjobad: 4,
 	raabrent: 4,
 	bergenchamber: 3,
+	colonialen: 4,
 	bergenkommune: 3,
 	kulturikveld: 3,
 	barnasnorge: 2,

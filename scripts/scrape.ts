@@ -11,6 +11,7 @@ import { scrape as scrapeHoopla } from './scrapers/hoopla.js';
 import { scrape as scrapeNordnesSjobad } from './scrapers/nordnessjobad.js';
 import { scrape as scrapeRaabrent } from './scrapers/raabrent.js';
 import { scrape as scrapeBergenChamber } from './scrapers/bergenchamber.js';
+import { scrape as scrapeColonialen } from './scrapers/colonialen.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -28,6 +29,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	nordnessjobad: scrapeNordnesSjobad,
 	raabrent: scrapeRaabrent,
 	bergenchamber: scrapeBergenChamber,
+	colonialen: scrapeColonialen,
 };
 
 async function main() {
