@@ -14,18 +14,30 @@
 		"scrape:bergenkommune": "cd scripts && npx tsx scrape.ts bergenkommune",
 		"scrape:kulturikveld": "cd scripts && npx tsx scrape.ts kulturikveld",
 		"scrape:barnasnorge": "cd scripts && npx tsx scrape.ts barnasnorge",
-		"scrape:studentbergen": "cd scripts && npx tsx scrape.ts studentbergen"
+		"scrape:studentbergen": "cd scripts && npx tsx scrape.ts studentbergen",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check ."
 	},
 	"devDependencies": {
+		"@eslint/js": "^10.0.1",
 		"@sveltejs/adapter-auto": "^4.0.0",
 		"@sveltejs/adapter-vercel": "^6.3.2",
 		"@sveltejs/kit": "^2.21.0",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
 		"@tailwindcss/vite": "^4.0.0",
+		"eslint": "^10.0.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-svelte": "^3.15.0",
+		"globals": "^17.3.0",
+		"prettier": "^3.8.1",
+		"prettier-plugin-svelte": "^3.5.0",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
 		"tailwindcss": "^4.0.0",
 		"typescript": "^5.0.0",
+		"typescript-eslint": "^8.56.0",
 		"vite": "^6.0.0"
 	},
 	"dependencies": {
