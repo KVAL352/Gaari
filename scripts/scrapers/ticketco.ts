@@ -19,6 +19,8 @@ const SUBDOMAINS = [
 	'bergendansesenter',
 	'vic',
 	'vestnorsk',
+	'borealis',
+	'nattjazz',
 ];
 
 interface TCEvent {

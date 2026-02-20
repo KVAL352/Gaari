@@ -34,6 +34,8 @@ import { scrape as scrapeHarmonien } from './scrapers/harmonien.js';
 import { scrape as scrapeOseana } from './scrapers/oseana.js';
 import { scrape as scrapeCarteBlanche } from './scrapers/carteblanche.js';
 import { scrape as scrapeFestspillene } from './scrapers/festspillene.js';
+import { scrape as scrapeBergenfest } from './scrapers/bergenfest.js';
+import { scrape as scrapeBjorgvinBlues } from './scrapers/bjorgvinblues.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -74,6 +76,8 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	oseana: scrapeOseana,
 	carteblanche: scrapeCarteBlanche,
 	festspillene: scrapeFestspillene,
+	bergenfest: scrapeBergenfest,
+	bjorgvinblues: scrapeBjorgvinBlues,
 };
 
 async function main() {

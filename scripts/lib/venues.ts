@@ -140,6 +140,9 @@ const VENUE_URLS: Record<string, string> = {
 	'nattlandsveien 76a': 'https://bergenbibliotek.no',
 	'inndalsveien 28': 'https://kvarteret.no',
 
+	// Festivals
+	'bergenfest': 'https://bergenfest.no',
+
 	// Festspillene venues
 	'festallmenningen': 'https://www.fib.no',
 	'festspillene': 'https://www.fib.no',

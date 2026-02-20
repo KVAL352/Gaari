@@ -36,6 +36,8 @@ const SOURCE_RANK: Record<string, number> = {
 	oseana: 4,
 	carteblanche: 5,
 	festspillene: 5,
+	bergenfest: 5,
+	bjorgvinblues: 3,
 	bergenkommune: 3,
 	kulturikveld: 3,
 	barnasnorge: 2,
