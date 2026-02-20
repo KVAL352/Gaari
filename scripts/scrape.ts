@@ -9,6 +9,8 @@ import { scrape as scrapeEventbrite } from './scrapers/eventbrite.js';
 import { scrape as scrapeTicketCo } from './scrapers/ticketco.js';
 import { scrape as scrapeHoopla } from './scrapers/hoopla.js';
 import { scrape as scrapeNordnesSjobad } from './scrapers/nordnessjobad.js';
+import { scrape as scrapeRaabrent } from './scrapers/raabrent.js';
+import { scrape as scrapeBergenChamber } from './scrapers/bergenchamber.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -24,6 +26,8 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	ticketco: scrapeTicketCo,
 	hoopla: scrapeHoopla,
 	nordnessjobad: scrapeNordnesSjobad,
+	raabrent: scrapeRaabrent,
+	bergenchamber: scrapeBergenChamber,
 };
 
 async function main() {
