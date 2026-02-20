@@ -52,7 +52,7 @@ export default ts.config(
 			'.svelte-kit/',
 			'dist/',
 			'node_modules/',
-			'scripts/node_modules/',
+			'scripts/',
 		],
 	}
 );
