@@ -29,6 +29,7 @@ import { scrape as scrapeKODE } from './scrapers/kode.js';
 import { scrape as scrapeLitthus } from './scrapers/litthusbergen.js';
 import { scrape as scrapeBergenBibliotek } from './scrapers/bergenbibliotek.js';
 import { scrape as scrapeFloyen } from './scrapers/floyen.js';
+import { scrape as scrapeBITTeater } from './scrapers/bitteater.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -64,6 +65,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	litthusbergen: scrapeLitthus,
 	bergenbibliotek: scrapeBergenBibliotek,
 	floyen: scrapeFloyen,
+	bitteater: scrapeBITTeater,
 };
 
 async function main() {

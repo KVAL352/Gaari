@@ -57,6 +57,8 @@ const VENUE_URLS: Record<string, string> = {
 	'litteraturhuset i bergen': 'https://litthusbergen.no',
 	'cinemateket i bergen': 'https://cinemateket.no',
 	'cinemateket': 'https://cinemateket.no',
+	'bergen domkirke': 'https://kirkemusikkibergen.no',
+	'bit teatergarasjen': 'https://bitteater.no',
 
 	// Libraries
 	'bergen offentlige bibliotek': 'https://bergenbibliotek.no',

@@ -31,6 +31,7 @@ const SOURCE_RANK: Record<string, number> = {
 	litthusbergen: 4,
 	bergenbibliotek: 4,
 	floyen: 4,
+	bitteater: 5,
 	bergenkommune: 3,
 	kulturikveld: 3,
 	barnasnorge: 2,
