@@ -1,26 +1,13 @@
+import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, parseNorwegianDate } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
 
 const SOURCE = 'raabrent';
-const API_URL = 'https://api.bigcartel.com/raabrent/products.json';
+const BASE_URL = 'https://www.raabrent.no';
+const LIST_URL = `${BASE_URL}/products`;
 const VENUE = 'Råbrent Keramikkverksted';
 const ADDRESS = 'Lille Øvregaten 18, Bergen';
 
-interface BCProduct {
-	id: number;
-	name: string;
-	price: number;
-	status: string;
-	permalink: string;
-	url: string;
-	description: string;
-	images: Array<{ secure_url: string }>;
-	categories: Array<{ name: string }>;
-	options: Array<{ name: string; sold_out: boolean }>;
-	on_sale: boolean;
-}
-
-// Norwegian months for parsing from title
 const MONTHS: Record<string, string> = {
 	januar: '01', februar: '02', mars: '03', april: '04',
 	mai: '05', juni: '06', juli: '07', august: '08',
@@ -37,7 +24,6 @@ function parseDateFromTitle(title: string): string | null {
 	const month = MONTHS[monthName];
 	if (!month) return null;
 
-	// Assume current year, or next year if month is in the past
 	const now = new Date();
 	let year = now.getFullYear();
 	const testDate = new Date(`${year}-${month}-${day}`);
@@ -48,86 +34,104 @@ function parseDateFromTitle(title: string): string | null {
 	return `${year}-${month}-${day}`;
 }
 
-function parseTimeFromDescription(html: string): { start: string; end: string } | null {
-	const text = html.replace(/<[^>]+>/g, ' ');
-	const match = text.match(/(\d{2}:\d{2})\s*[-–]\s*(\d{2}:\d{2})/);
+function parseTimeFromTitle(title: string): { start: string; end: string } | null {
+	// "LYNKURS pa OY 14. mars 12:00-13:00"
+	const match = title.match(/(\d{2}:\d{2})\s*[-–]\s*(\d{2}:\d{2})/);
 	if (!match) return null;
 	return { start: match[1], end: match[2] };
 }
 
-function stripHtml(html: string): string {
-	return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 500);
+interface ProductInfo {
+	title: string;
+	sourceUrl: string;
+	price: string;
+	imageUrl?: string;
+	datePart: string;
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
-	console.log(`\n[${SOURCE}] Fetching Råbrent Keramikk courses...`);
+	console.log(`\n[${SOURCE}] Fetching Råbrent Keramikk courses (storefront HTML)...`);
 
-	const res = await fetch(API_URL, {
-		headers: {
-			'User-Agent': 'Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)',
-			'Accept': 'application/json',
-		},
+	const html = await fetchHTML(LIST_URL);
+	if (!html) return { found: 0, inserted: 0 };
+
+	const $ = cheerio.load(html);
+	const products: ProductInfo[] = [];
+
+	$('div.product-list-thumb.product').each((_, el) => {
+		const card = $(el);
+
+		// Skip sold out and coming soon
+		if (card.hasClass('sold') || card.hasClass('soon')) return;
+
+		const link = card.find('a.product-list-link');
+		const href = link.attr('href');
+		if (!href) return;
+
+		const title = card.find('div.product-list-thumb-name').text().trim();
+		if (!title) return;
+
+		// Only process products with dates (skip gift cards, etc.)
+		const datePart = parseDateFromTitle(title);
+		if (!datePart) return;
+
+		// Price
+		const priceEl = card.find('span[data-currency-amount]');
+		const priceAmount = priceEl.attr('data-currency-amount');
+		const price = priceAmount ? `${Math.round(parseFloat(priceAmount))} kr` : '';
+
+		// Image — replace w=20 placeholder with w=800
+		const imgEl = card.find('img.product-list-image');
+		const imgSrc = imgEl.attr('src') || '';
+		const imageUrl = imgSrc ? imgSrc.replace(/w=\d+/, 'w=800') : undefined;
+
+		products.push({
+			title,
+			sourceUrl: `${BASE_URL}${href}`,
+			price,
+			imageUrl,
+			datePart,
+		});
 	});
 
-	if (!res.ok) {
-		console.error(`[${SOURCE}] HTTP ${res.status}`);
-		return { found: 0, inserted: 0 };
-	}
+	console.log(`[${SOURCE}] Found ${products.length} upcoming courses`);
 
-	const products: BCProduct[] = await res.json();
-	let found = 0;
+	let found = products.length;
 	let inserted = 0;
 
 	for (const product of products) {
-		// Only process active, on-sale products with a date in the name
-		if (product.status !== 'active') continue;
+		if (await eventExists(product.sourceUrl)) continue;
 
-		const datePart = parseDateFromTitle(product.name);
-		if (!datePart) continue; // Skip products without dates (gift cards, private events, etc.)
-
-		found++;
-
-		// Check if all options are sold out
-		const allSoldOut = product.options.length > 0 && product.options.every(o => o.sold_out);
-		if (allSoldOut) continue;
-
-		const sourceUrl = product.url;
-		if (await eventExists(sourceUrl)) continue;
-
-		const time = parseTimeFromDescription(product.description);
+		const time = parseTimeFromTitle(product.title);
 		const dateStart = time
-			? new Date(`${datePart}T${time.start}:00+01:00`).toISOString()
-			: new Date(`${datePart}T18:00:00+01:00`).toISOString();
+			? new Date(`${product.datePart}T${time.start}:00+01:00`).toISOString()
+			: new Date(`${product.datePart}T18:00:00+01:00`).toISOString();
 		const dateEnd = time
-			? new Date(`${datePart}T${time.end}:00+01:00`).toISOString()
+			? new Date(`${product.datePart}T${time.end}:00+01:00`).toISOString()
 			: undefined;
 
-		const description = stripHtml(product.description) || product.name;
-		const imageUrl = product.images[0]?.secure_url || undefined;
-		const price = product.price ? `${product.price} kr` : '';
-
 		const success = await insertEvent({
-			slug: makeSlug(product.name, datePart),
-			title_no: product.name,
-			description_no: description,
+			slug: makeSlug(product.title, product.datePart),
+			title_no: product.title,
+			description_no: product.title,
 			category: 'workshop',
 			date_start: dateStart,
 			date_end: dateEnd,
 			venue_name: VENUE,
 			address: ADDRESS,
 			bydel: mapBydel(VENUE),
-			price,
-			ticket_url: sourceUrl,
+			price: product.price,
+			ticket_url: product.sourceUrl,
 			source: SOURCE,
-			source_url: sourceUrl,
-			image_url: imageUrl,
+			source_url: product.sourceUrl,
+			image_url: product.imageUrl,
 			age_group: 'all',
 			language: 'no',
 			status: 'approved',
 		});
 
 		if (success) {
-			console.log(`  + ${product.name} (${price})`);
+			console.log(`  + ${product.title} (${product.price})`);
 			inserted++;
 		}
 	}

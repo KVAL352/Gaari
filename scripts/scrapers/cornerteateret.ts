@@ -1,41 +1,22 @@
+import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, makeDescription } from '../lib/utils.js';
 
 const SOURCE = 'cornerteateret';
-const API_URL = 'https://cornerteateret.no/program?format=json';
 const BASE_URL = 'https://cornerteateret.no';
+const LIST_URL = `${BASE_URL}/program`;
 const VENUE = 'Cornerteateret';
 const ADDRESS = 'Kong Christian Frederiks Plass 4, Bergen';
 
-interface SQEvent {
-	id: string;
-	title: string;
-	startDate: number;
-	endDate: number;
-	fullUrl: string;
-	assetUrl: string;
-	excerpt: string;
-	body: string;
-	categories: string[];
-	tags: string[];
-	location?: {
-		addressTitle?: string;
-		addressLine1?: string;
-	};
-}
-
-function guessCategory(title: string, tags: string[]): string {
+function guessCategory(title: string): string {
 	const t = title.toLowerCase();
-	const allTags = tags.map(s => s.toLowerCase()).join(' ');
-
-	if (t.includes('konsert') || t.includes('jazz') || t.includes('bass') || t.includes('feat.') || allTags.includes('music')) return 'music';
+	if (t.includes('konsert') || t.includes('jazz') || t.includes('bass') || t.includes('feat.') || t.includes('dj')) return 'music';
 	if (t.includes('teater') || t.includes('impro') || t.includes('revy') || t.includes('forestilling')) return 'theatre';
 	if (t.includes('standup') || t.includes('stand-up') || t.includes('quiz') || t.includes('pub')) return 'nightlife';
 	if (t.includes('barn') || t.includes('kids') || t.includes('children')) return 'family';
 	if (t.includes('workshop') || t.includes('kurs')) return 'workshop';
 	if (t.includes('film') || t.includes('kino')) return 'culture';
 	if (t.includes('kor') || t.includes('choir') || t.includes('pubkor')) return 'music';
-	// Cornerteateret is primarily a theater/performance venue
 	return 'theatre';
 }
 
@@ -43,51 +24,77 @@ function stripHtml(html: string): string {
 	return html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+function bergenOffset(dateStr: string): string {
+	const month = parseInt(dateStr.slice(5, 7));
+	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
+}
+
 export async function scrape(): Promise<{ found: number; inserted: number }> {
-	console.log(`\n[${SOURCE}] Fetching Cornerteateret events...`);
+	console.log(`\n[${SOURCE}] Fetching Cornerteateret events (HTML)...`);
 
-	const res = await fetch(API_URL, {
-		headers: {
-			'User-Agent': 'Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)',
-			'Accept': 'application/json',
-		},
-	});
+	const html = await fetchHTML(LIST_URL);
+	if (!html) return { found: 0, inserted: 0 };
 
-	if (!res.ok) {
-		console.error(`[${SOURCE}] HTTP ${res.status}`);
-		return { found: 0, inserted: 0 };
-	}
+	const $ = cheerio.load(html);
+	const articles = $('article.eventlist-event--upcoming');
+	console.log(`[${SOURCE}] Found ${articles.length} upcoming events`);
 
-	const data = await res.json();
-	const events: SQEvent[] = data.upcoming || [];
-	console.log(`[${SOURCE}] Found ${events.length} upcoming events`);
-
-	let found = events.length;
+	let found = articles.length;
 	let inserted = 0;
 
-	for (const event of events) {
-		const sourceUrl = `${BASE_URL}${event.fullUrl}`;
+	for (let i = 0; i < articles.length; i++) {
+		const el = articles.eq(i);
+
+		// Title and detail URL
+		const titleLink = el.find('h1.eventlist-title a.eventlist-title-link');
+		const title = titleLink.text().trim();
+		const detailPath = titleLink.attr('href');
+		if (!title || !detailPath) continue;
+
+		const sourceUrl = `${BASE_URL}${detailPath}`;
 		if (await eventExists(sourceUrl)) continue;
 
-		const title = stripHtml(event.title);
-		const venueName = event.location?.addressTitle || VENUE;
-		const address = event.location?.addressLine1 || ADDRESS;
-		const bydel = mapBydel(venueName);
-		const category = guessCategory(title, event.tags || []);
-		const dateStart = new Date(event.startDate).toISOString();
-		const dateEnd = new Date(event.endDate).toISOString();
-		const datePart = dateStart.slice(0, 10);
+		// Date — first time.event-date is start, second (if multiday) is end
+		const dateEls = el.find('time.event-date');
+		const startDateStr = dateEls.eq(0).attr('datetime'); // YYYY-MM-DD
+		if (!startDateStr) continue;
 
-		const description = event.excerpt
-			? stripHtml(event.excerpt).slice(0, 500)
-			: event.body
-				? stripHtml(event.body).slice(0, 500)
-				: title;
+		const endDateStr = dateEls.length > 1 ? dateEls.eq(1).attr('datetime') : null;
+
+		// Time
+		const startTimeEl = el.find('time.event-time-localized-start, time.event-time-localized');
+		const endTimeEl = el.find('time.event-time-localized-end');
+		const startTime = startTimeEl.first().text().trim() || '19:00';
+		const endTime = endTimeEl.first().text().trim();
+
+		const offset = bergenOffset(startDateStr);
+		const dateStart = new Date(`${startDateStr}T${startTime}:00${offset}`).toISOString();
+		const dateEnd = endDateStr
+			? new Date(`${endDateStr}T${endTime || '23:00'}:00${bergenOffset(endDateStr)}`).toISOString()
+			: endTime
+				? new Date(`${startDateStr}T${endTime}:00${offset}`).toISOString()
+				: undefined;
+
+		// Image
+		const imgEl = el.find('a.eventlist-column-thumbnail img');
+		const imageUrl = imgEl.attr('data-src') || imgEl.attr('src') || undefined;
+
+		// Category
+		const category = guessCategory(title);
+
+		// Venue — from meta address or default
+		const addressEl = el.find('li.eventlist-meta-address');
+		const venueText = addressEl.length
+			? addressEl.clone().children().remove().end().text().trim()
+			: '';
+		const venueName = venueText || VENUE;
+		const address = ADDRESS;
+		const bydel = mapBydel(venueName);
 
 		const success = await insertEvent({
-			slug: makeSlug(title, datePart),
+			slug: makeSlug(title, startDateStr),
 			title_no: title,
-			description_no: description || title,
+			description_no: makeDescription(title, venueName, category),
 			category,
 			date_start: dateStart,
 			date_end: dateEnd,
@@ -98,7 +105,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
-			image_url: event.assetUrl || undefined,
+			image_url: imageUrl,
 			age_group: 'all',
 			language: title.match(/[a-zA-Z]{5,}/) ? 'both' : 'no',
 			status: 'approved',

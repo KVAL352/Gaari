@@ -1,13 +1,13 @@
 import * as cheerio from 'cheerio';
 import { mapCategory, mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
 
 const SOURCE = 'kulturikveld';
 const BASE_URL = 'https://kulturikveld.no';
 const LIST_URL = `${BASE_URL}/arrangementer/bergen`;
 const MAX_PAGES = 25;
-const DELAY_MS = 1500;
+const DELAY_MS = 3000;
 
 interface KikEvent {
 	name: string;
@@ -200,7 +200,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const success = await insertEvent({
 			slug: makeSlug(event.name, event.startDate),
 			title_no: event.name,
-			description_no: event.description || event.name,
+			description_no: makeDescription(event.name, event.venueName, category),
 			category,
 			date_start: new Date(event.startDate).toISOString(),
 			date_end: event.endDate ? new Date(event.endDate).toISOString() : undefined,

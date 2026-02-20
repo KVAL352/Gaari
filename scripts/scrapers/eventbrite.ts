@@ -1,5 +1,5 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
 
 const SOURCE = 'eventbrite';
 const BASE_URL = 'https://www.eventbrite.com/d/norway--bergen/all-events/';
@@ -141,7 +141,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const success = await insertEvent({
 				slug: makeSlug(event.name, event.start_date),
 				title_no: event.name,
-				description_no: description,
+				description_no: makeDescription(event.name, venueName, category),
 				category,
 				date_start: dateStart,
 				date_end: dateEnd,
@@ -165,7 +165,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		}
 
 		page++;
-		if (page <= pageCount) await delay(1500);
+		if (page <= pageCount) await delay(3000);
 	}
 
 	return { found, inserted };

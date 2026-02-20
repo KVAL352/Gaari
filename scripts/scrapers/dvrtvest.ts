@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
 
 const SOURCE = 'dvrtvest';
 const BASE_URL = 'https://www.detvestnorsketeateret.no';
@@ -116,7 +116,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		allEvents.push(...events);
 		page++;
-		await delay(1000);
+		await delay(3000);
 	}
 
 	console.log(`[${SOURCE}] Found ${allEvents.length} performance dates across ${page - 1} pages`);
@@ -127,7 +127,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 	console.log(`[${SOURCE}] Fetching details for ${showPaths.length} unique shows...`);
 	for (const path of showPaths) {
-		await delay(1000);
+		await delay(3000);
 		showDetails.set(path, await fetchShowDetail(path));
 	}
 
@@ -159,7 +159,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const success = await insertEvent({
 			slug: makeSlug(event.title, datePart),
 			title_no: event.title,
-			description_no: detail.description || event.title,
+			description_no: makeDescription(event.title, VENUE, category),
 			category,
 			date_start: dateStart,
 			venue_name: venueName,

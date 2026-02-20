@@ -9,7 +9,7 @@ const BASE_URL = 'https://www.barnasnorge.no';
 const LIST_URL = `${BASE_URL}/arrangementer-for-barn/bergen`;
 const PAGE_PARAM = '8e773ef3_page';
 const MAX_PAGES = 10;
-const DELAY_MS = 1500;
+const DELAY_MS = 3000;
 
 // Keywords indicating kindergarten-only events (not public)
 const KINDERGARTEN_KEYWORDS = [
@@ -131,7 +131,7 @@ async function fetchVenueInfo(detailUrl: string): Promise<VenueInfo> {
 		}
 
 		// Fetch the actual venue/event page for og:image
-		await delay(500);
+		await delay(3000);
 		const venueHtml = await fetchHTML(venueUrl);
 		if (!venueHtml) {
 			const result: VenueInfo = { imageUrl: null, venueUrl, isKindergarten };

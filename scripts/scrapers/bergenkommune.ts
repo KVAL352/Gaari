@@ -1,13 +1,13 @@
 import * as cheerio from 'cheerio';
 import { mapCategory, mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
 
 const SOURCE = 'bergenkommune';
 const BASE_URL = 'https://billett.bergen.kommune.no';
 const LIST_URL = `${BASE_URL}/DNComponent/GetFilteredEventList`;
 const MAX_PAGES = 30;
-const DELAY_MS = 1000;
+const DELAY_MS = 3000;
 
 // Skip events targeted at kindergartens (not accessible to general public)
 const KINDERGARTEN_KEYWORDS = ['barnehage', 'barnehager', 'barnehagebarn'];
@@ -182,7 +182,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (await eventExists(event.detailUrl)) continue;
 
 		// Fetch detail page for richer data
-		await delay(500);
+		await delay(3000);
 		const detail = await fetchDetail(event.detailUrl);
 
 		// Skip if detail page reveals kindergarten-only content
@@ -207,13 +207,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			? `${event.dateEnd}T23:59:00`
 			: undefined;
 
-		const description = detail?.description || event.subtitle || event.title;
 		const address = detail?.address || event.venue;
 
 		const success = await insertEvent({
 			slug: makeSlug(event.title, event.dateStart),
 			title_no: event.title,
-			description_no: description,
+			description_no: makeDescription(event.title, event.venue, category),
 			category,
 			date_start: new Date(dateStart).toISOString(),
 			date_end: dateEnd ? new Date(dateEnd).toISOString() : undefined,

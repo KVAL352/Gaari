@@ -227,6 +227,26 @@ export async function removeExpiredEvents(): Promise<number> {
 	return deleted;
 }
 
+// Generate a factual description from event metadata (avoids copying copyrighted text)
+const CATEGORY_LABELS_NO: Record<string, string> = {
+	music: 'Konsert',
+	culture: 'Kulturarrangement',
+	theatre: 'Teater/scenekunst',
+	family: 'Familieaktivitet',
+	food: 'Mat og drikke',
+	festival: 'Festival/marked',
+	sports: 'Sport/friluft',
+	nightlife: 'Uteliv',
+	workshop: 'Kurs/workshop',
+	student: 'Studentarrangement',
+	tours: 'Tur/omvisning',
+};
+
+export function makeDescription(title: string, venueName: string, category: string): string {
+	const catLabel = CATEGORY_LABELS_NO[category] || 'Arrangement';
+	return `${catLabel} på ${venueName}`;
+}
+
 // Delay helper for rate limiting
 export function delay(ms: number): Promise<void> {
 	return new Promise(resolve => setTimeout(resolve, ms));

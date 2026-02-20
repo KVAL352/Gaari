@@ -1,6 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
-import { makeSlug, eventExists, insertEvent, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, delay, makeDescription } from '../lib/utils.js';
 
 const SOURCE = 'hoopla';
 
@@ -116,7 +116,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const success = await insertEvent({
 				slug: makeSlug(event.name, datePart),
 				title_no: event.name,
-				description_no: event.short_description || event.name,
+				description_no: makeDescription(event.name, venueName, category),
 				category,
 				date_start: new Date(event.start).toISOString(),
 				date_end: event.end ? new Date(event.end).toISOString() : undefined,
@@ -139,7 +139,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			}
 		}
 
-		await delay(1000);
+		await delay(3000);
 	}
 
 	return { found, inserted };

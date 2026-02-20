@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
 
 const SOURCE = 'ticketco';
 
@@ -101,7 +101,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const success = await insertEvent({
 				slug: makeSlug(event.name, datePart),
 				title_no: event.name,
-				description_no: description || event.name,
+				description_no: makeDescription(event.name, venueName, category),
 				category,
 				date_start: new Date(event.startDate).toISOString(),
 				date_end: event.endDate ? new Date(event.endDate).toISOString() : undefined,
@@ -124,7 +124,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			}
 		}
 
-		await delay(1000);
+		await delay(3000);
 	}
 
 	return { found, inserted };

@@ -117,7 +117,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			pending.push({ title, sourceUrl, imageUrl, timeText, location, site });
 		});
 
-		await delay(1000);
+		await delay(3000);
 	}
 
 	for (const e of pending) {

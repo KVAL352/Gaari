@@ -1,5 +1,5 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, makeDescription } from '../lib/utils.js';
 
 const SOURCE = 'paintnsip';
 const GRAPHQL_URL = 'https://booking-hasura.askeladden.co/v1/graphql';
@@ -112,7 +112,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const success = await insertEvent({
 			slug: makeSlug(title, datePart),
 			title_no: title,
-			description_no: description || title,
+			description_no: makeDescription(title, venueName, 'workshop'),
 			category: 'workshop',
 			date_start: dateStart,
 			date_end: dateEnd,

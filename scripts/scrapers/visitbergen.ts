@@ -1,13 +1,13 @@
 import * as cheerio from 'cheerio';
 import { mapCategory, mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate, delay, makeDescription } from '../lib/utils.js';
 
 const SOURCE = 'visitbergen';
 const BASE_URL = 'https://www.visitbergen.com';
 const SEARCH_URL = `${BASE_URL}/hva-skjer/searchresults`;
 const MAX_PAGES = 60; // All pages (20 events per page)
-const DELAY_MS = 1500; // Be polite
+const DELAY_MS = 3000; // Be polite
 
 // Check if a date_start has the noon default (= no real time was parsed)
 function isNoonDefault(dateStr: string): boolean {
@@ -188,7 +188,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		// If the list page only gave us a date (noon default), fetch the real time
 		if (isNoonDefault(dateStart)) {
-			await delay(500);
+			await delay(3000);
 			const realTime = await fetchTimeFromDetail(event.detailUrl, dateStart);
 			if (realTime) {
 				dateStart = realTime;
@@ -201,7 +201,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const success = await insertEvent({
 			slug: makeSlug(event.title, dateStart),
 			title_no: event.title,
-			description_no: event.description || event.title,
+			description_no: makeDescription(event.title, event.venue, category),
 			category,
 			date_start: dateStart,
 			date_end: event.dateEnd || undefined,
