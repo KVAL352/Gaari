@@ -18,6 +18,8 @@ const SOURCE_RANK: Record<string, number> = {
 	paintnsip: 4,
 	bergenfilmklubb: 4,
 	cornerteateret: 4,
+	dvrtvest: 5,
+	kunsthall: 4,
 	bergenkommune: 3,
 	kulturikveld: 3,
 	barnasnorge: 2,

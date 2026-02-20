@@ -179,6 +179,9 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'colonialen': 'Sentrum',
 	'paint\'n sip': 'Sentrum',
 	'bergen filmklubb': 'Sentrum',
+	'det vestnorske teateret': 'Sentrum',
+	'logen': 'Sentrum',
+	'bergen kunsthall': 'Sentrum',
 };
 
 export function mapBydel(venueName: string): string {
