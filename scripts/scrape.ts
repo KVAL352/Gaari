@@ -20,6 +20,9 @@ import { scrape as scrapeDvrtVest } from './scrapers/dvrtvest.js';
 import { scrape as scrapeKunsthall } from './scrapers/kunsthall.js';
 import { scrape as scrapeBrettspill } from './scrapers/brettspill.js';
 import { scrape as scrapeMediaCity } from './scrapers/mediacity.js';
+import { scrape as scrapeForumScene } from './scrapers/forumscene.js';
+import { scrape as scrapeUSFVerftet } from './scrapers/usfverftet.js';
+import { scrape as scrapeDNS } from './scrapers/dns.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -46,6 +49,9 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	kunsthall: scrapeKunsthall,
 	brettspill: scrapeBrettspill,
 	mediacity: scrapeMediaCity,
+	forumscene: scrapeForumScene,
+	usfverftet: scrapeUSFVerftet,
+	dns: scrapeDNS,
 };
 
 async function main() {

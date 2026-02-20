@@ -28,6 +28,9 @@ const VENUE_URLS: Record<string, string> = {
 	'usf verftet': 'https://usf.no',
 	'usf': 'https://usf.no',
 	'sardinen': 'https://usf.no',
+	'sardinen usf': 'https://usf.no',
+	'studio usf': 'https://usf.no',
+	'rokeriet usf': 'https://usf.no',
 	'røkeriet': 'https://usf.no',
 
 	// Smaller venues
