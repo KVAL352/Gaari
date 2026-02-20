@@ -44,6 +44,7 @@ const VENUE_URLS: Record<string, string> = {
 	'det akademiske kvarter': 'https://kvarteret.no',
 	'landmark': 'https://landmark.no',
 	'victoria': 'https://victoria.no',
+	'vic': 'https://victoria.no',
 
 	// Cultural institutions
 	'bergen kunsthall': 'https://bergenkunsthall.no',
@@ -59,6 +60,9 @@ const VENUE_URLS: Record<string, string> = {
 	'cinemateket': 'https://cinemateket.no',
 	'bergen domkirke': 'https://kirkemusikkibergen.no',
 	'bit teatergarasjen': 'https://bitteater.no',
+	'carte blanche': 'https://carteblanche.no',
+	'bergen filharmoniske orkester': 'https://harmonien.no',
+	'harmonien': 'https://harmonien.no',
 
 	// Libraries
 	'bergen offentlige bibliotek': 'https://bergenbibliotek.no',
@@ -135,6 +139,11 @@ const VENUE_URLS: Record<string, string> = {
 	'øvre nesttunvegen 18': 'https://bergen.kommune.no/kulturhus/fana',
 	'nattlandsveien 76a': 'https://bergenbibliotek.no',
 	'inndalsveien 28': 'https://kvarteret.no',
+
+	// Festspillene venues
+	'festallmenningen': 'https://www.fib.no',
+	'festspillene': 'https://www.fib.no',
+	'spissen': 'https://www.fib.no',
 
 	// DNT (outdoor/hiking)
 	'dnt bergen': 'https://www.dnt.no/dnt-der-du-er/bergen-og-hordaland-turlag/',

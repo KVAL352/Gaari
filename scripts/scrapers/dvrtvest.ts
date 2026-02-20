@@ -34,6 +34,11 @@ function guessCategory(title: string): string {
 	return 'theatre';
 }
 
+function bergenOffset(dateStr: string): string {
+	const month = parseInt(dateStr.slice(5, 7));
+	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
+}
+
 function stripHtml(html: string): string {
 	return html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 }
@@ -55,14 +60,14 @@ async function fetchListingPage(url: string): Promise<ListingEvent[]> {
 
 		const detailLink = $(el).find('a.PerformanceUpcoming__performanceInfo').attr('href') || '';
 		const ticketBtn = $(el).find('vt-button').attr('href') || '';
-		const soldOutText = $(el).find('p.PerformanceUpcoming__performanceTicketText').text().trim();
+		const itemText = $(el).text().toLowerCase();
 
 		events.push({
 			title,
 			datetime,
 			detailPath: detailLink,
 			ticketUrl: ticketBtn || undefined,
-			soldOut: soldOutText.toLowerCase().includes('utseld'),
+			soldOut: itemText.includes('utseld') || itemText.includes('utsolgt'),
 		});
 	});
 
@@ -149,7 +154,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const dtParts = event.datetime.split(' ');
 		const datePart = dtParts[0]; // YYYY-MM-DD
 		const timePart = dtParts[1]?.replace(/\./g, ':'); // HH:MM:SS
-		const dateStart = new Date(`${datePart}T${timePart || '19:00:00'}+01:00`).toISOString();
+		const dateStart = new Date(`${datePart}T${timePart || '19:00:00'}${bergenOffset(datePart)}`).toISOString();
 
 		// Venue: use scene from detail if available
 		const scene = detail.scene;
