@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
+import { resolveTicketUrl } from '../lib/venues.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
 
 const SOURCE = 'barnasnorge';
@@ -240,7 +241,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Use real image if available, otherwise fall back to BarnasNorge
 		const imageUrl = venueInfo.imageUrl || event.imageUrl;
 		// Link directly to venue page, not BarnasNorge
-		const ticketUrl = venueInfo.venueUrl || event.detailUrl;
+		const ticketUrl = venueInfo.venueUrl || resolveTicketUrl(venue, event.detailUrl) || event.detailUrl;
 
 		const success = await insertEvent({
 			slug: makeSlug(event.title, datePart),

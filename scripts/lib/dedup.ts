@@ -1,5 +1,6 @@
 import { supabase } from './supabase.js';
 import { normalizeTitle } from './utils.js';
+import { isAggregatorUrl } from './venues.js';
 
 // Source quality ranking — higher = prefer to keep
 const SOURCE_RANK: Record<string, number> = {
@@ -24,7 +25,7 @@ interface EventRow {
 function scoreEvent(e: EventRow): number {
 	let score = SOURCE_RANK[e.source] || 0;
 	if (e.image_url) score += 2;
-	if (e.ticket_url && !e.ticket_url.includes('visitbergen.com')) score += 2;
+	if (e.ticket_url && !isAggregatorUrl(e.ticket_url)) score += 2;
 	if (e.description_no && e.description_no.length > 50) score += 1;
 	return score;
 }

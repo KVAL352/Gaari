@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapCategory, mapBydel } from '../lib/categories.js';
+import { resolveTicketUrl } from '../lib/venues.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate, delay } from '../lib/utils.js';
 
 const SOURCE = 'visitbergen';
@@ -208,7 +209,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: event.venue,
 			bydel,
 			price: '',
-			ticket_url: event.ticketUrl || event.detailUrl,
+			ticket_url: resolveTicketUrl(event.venue, event.ticketUrl) || event.detailUrl,
 			source: SOURCE,
 			source_url: event.detailUrl,
 			image_url: event.imageUrl,
