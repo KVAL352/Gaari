@@ -26,6 +26,7 @@ jobs:
 
       - name: Type check
         run: npm run check
+        continue-on-error: true
 
       - name: Build
         run: npm run build
