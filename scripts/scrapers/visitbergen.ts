@@ -8,6 +8,53 @@ const SEARCH_URL = `${BASE_URL}/hva-skjer/searchresults`;
 const MAX_PAGES = 60; // All pages (20 events per page)
 const DELAY_MS = 1500; // Be polite
 
+// Check if a date_start has the noon default (= no real time was parsed)
+function isNoonDefault(dateStr: string): boolean {
+	return dateStr.includes('T12:00:00') || dateStr.includes('T11:00:00');
+}
+
+// Fetch the detail page and extract the actual event time for a specific date
+async function fetchTimeFromDetail(detailUrl: string, dateStart: string): Promise<string | null> {
+	const html = await fetchHTML(detailUrl);
+	if (!html) return null;
+
+	const $ = cheerio.load(html);
+	const dateDay = dateStart.slice(0, 10); // YYYY-MM-DD
+	const eventDate = new Date(dateDay);
+	const day = eventDate.getUTCDate();
+	const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
+	const month = monthNames[eventDate.getUTCMonth()];
+	const year = eventDate.getUTCFullYear();
+
+	// Visit Bergen detail pages have opening hours like: "Venue (20 Feb 2026)\n21:00"
+	// Look for the date pattern and grab the time after it
+	const bodyText = $('body').text();
+	const datePatterns = [
+		`${day} ${month}  ${year}`,          // "20 Feb  2026" (double space on VB)
+		`${day} ${month} ${year}`,           // "20 Feb 2026"
+		`${day}. ${month.toLowerCase()}`,    // "20. feb"
+	];
+
+	for (const pattern of datePatterns) {
+		const idx = bodyText.indexOf(pattern);
+		if (idx < 0) continue;
+
+		// Look for HH:MM in the next 100 chars after the date
+		const after = bodyText.slice(idx, idx + 100);
+		const timeMatch = after.match(/(\d{1,2}):(\d{2})/);
+		if (timeMatch) {
+			const hour = parseInt(timeMatch[1]);
+			const min = parseInt(timeMatch[2]);
+			if (hour >= 0 && hour <= 23 && min >= 0 && min <= 59) {
+				// Build a proper ISO date with the real time (UTC)
+				return `${dateDay}T${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}:00`;
+			}
+		}
+	}
+
+	return null;
+}
+
 interface ListEvent {
 	title: string;
 	detailUrl: string;
@@ -136,15 +183,26 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	for (const event of allEvents) {
 		if (await eventExists(event.detailUrl)) continue;
 
+		let dateStart = event.dateStart!;
+
+		// If the list page only gave us a date (noon default), fetch the real time
+		if (isNoonDefault(dateStart)) {
+			await delay(500);
+			const realTime = await fetchTimeFromDetail(event.detailUrl, dateStart);
+			if (realTime) {
+				dateStart = realTime;
+			}
+		}
+
 		const category = event.category ? mapCategory(event.category) : 'culture';
 		const bydel = mapBydel(event.venue);
 
 		const success = await insertEvent({
-			slug: makeSlug(event.title, event.dateStart!),
+			slug: makeSlug(event.title, dateStart),
 			title_no: event.title,
 			description_no: event.description || event.title,
 			category,
-			date_start: event.dateStart!,
+			date_start: dateStart,
 			date_end: event.dateEnd || undefined,
 			venue_name: event.venue,
 			address: event.venue,
@@ -160,7 +218,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		});
 
 		if (success) {
-			console.log(`  + ${event.title} (${event.venue}, ${category})`);
+			const time = dateStart.slice(11, 16);
+			console.log(`  + ${event.title} (${event.venue}, ${category}, ${time})`);
 			inserted++;
 		}
 	}
