@@ -16,8 +16,9 @@ const AGGREGATOR_DOMAINS = [
 // Venue name → website URL
 const VENUE_URLS: Record<string, string> = {
 	// Major concert/performance venues
-	'ole bull scene': 'https://olebullscene.no',
-	'lille ole bull': 'https://olebullscene.no',
+	'ole bull scene': 'https://olebullhuset.no',
+	'ole bull huset': 'https://olebullhuset.no',
+	'lille ole bull': 'https://olebullhuset.no',
 	'det vestnorske teateret': 'https://dfrtvest.no',
 	'dns': 'https://dns.no',
 	'den nationale scene': 'https://dns.no',
@@ -119,7 +120,7 @@ const VENUE_URLS: Record<string, string> = {
 	'strandgaten 250': 'https://usf.no',
 	'olav kyrres gate 49': 'https://bergenbibliotek.no',
 	'strømgaten 6': 'https://bergenbibliotek.no',
-	'øvre ole bulls plass 6': 'https://olebullscene.no',
+	'øvre ole bulls plass 6': 'https://olebullhuset.no',
 	'bontelabo 2': 'https://forsvarsbygg.no/festningene/bergenhus-festning',
 	'åsane senter 52': 'https://bergenbibliotek.no',
 	'østre nesttunvegen 18': 'https://bergen.kommune.no/kulturhus/fana',

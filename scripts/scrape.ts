@@ -23,6 +23,7 @@ import { scrape as scrapeMediaCity } from './scrapers/mediacity.js';
 import { scrape as scrapeForumScene } from './scrapers/forumscene.js';
 import { scrape as scrapeUSFVerftet } from './scrapers/usfverftet.js';
 import { scrape as scrapeDNS } from './scrapers/dns.js';
+import { scrape as scrapeOleBull } from './scrapers/olebull.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -52,6 +53,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	forumscene: scrapeForumScene,
 	usfverftet: scrapeUSFVerftet,
 	dns: scrapeDNS,
+	olebull: scrapeOleBull,
 };
 
 async function main() {

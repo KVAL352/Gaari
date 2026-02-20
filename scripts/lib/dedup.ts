@@ -25,6 +25,7 @@ const SOURCE_RANK: Record<string, number> = {
 	forumscene: 5,
 	usfverftet: 5,
 	dns: 5,
+	olebull: 5,
 	bergenkommune: 3,
 	kulturikveld: 3,
 	barnasnorge: 2,
