@@ -8,6 +8,7 @@ const SOURCE_RANK: Record<string, number> = {
 	studentbergen: 4,
 	dnt: 4,
 	eventbrite: 3,
+	ticketco: 4,
 	bergenkommune: 3,
 	kulturikveld: 3,
 	barnasnorge: 2,
