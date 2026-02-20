@@ -8,6 +8,7 @@ import { scrape as scrapeDNT } from './scrapers/dnt.js';
 import { scrape as scrapeEventbrite } from './scrapers/eventbrite.js';
 import { scrape as scrapeTicketCo } from './scrapers/ticketco.js';
 import { scrape as scrapeHoopla } from './scrapers/hoopla.js';
+import { scrape as scrapeNordnesSjobad } from './scrapers/nordnessjobad.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -22,6 +23,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	eventbrite: scrapeEventbrite,
 	ticketco: scrapeTicketCo,
 	hoopla: scrapeHoopla,
+	nordnessjobad: scrapeNordnesSjobad,
 };
 
 async function main() {

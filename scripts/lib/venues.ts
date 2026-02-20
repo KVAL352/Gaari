@@ -126,6 +126,10 @@ const VENUE_URLS: Record<string, string> = {
 
 	// DNT (outdoor/hiking)
 	'dnt bergen': 'https://www.dnt.no/dnt-der-du-er/bergen-og-hordaland-turlag/',
+
+	// Swimming/sports
+	'nordnes sjøbad': 'https://nordnessjobad.no',
+	'ado arena': 'https://adoarena.no',
 };
 
 /**
