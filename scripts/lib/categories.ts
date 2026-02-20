@@ -182,6 +182,9 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'det vestnorske teateret': 'Sentrum',
 	'logen': 'Sentrum',
 	'bergen kunsthall': 'Sentrum',
+	'nordnes bydelshus': 'Bergenhus',
+	'media city': 'Sentrum',
+	'medieklyngen': 'Sentrum',
 };
 
 export function mapBydel(venueName: string): string {

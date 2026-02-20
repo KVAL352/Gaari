@@ -18,6 +18,8 @@ import { scrape as scrapeBergenFilmklubb } from './scrapers/bergenfilmklubb.js';
 import { scrape as scrapeCornerteateret } from './scrapers/cornerteateret.js';
 import { scrape as scrapeDvrtVest } from './scrapers/dvrtvest.js';
 import { scrape as scrapeKunsthall } from './scrapers/kunsthall.js';
+import { scrape as scrapeBrettspill } from './scrapers/brettspill.js';
+import { scrape as scrapeMediaCity } from './scrapers/mediacity.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -42,6 +44,8 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	cornerteateret: scrapeCornerteateret,
 	dvrtvest: scrapeDvrtVest,
 	kunsthall: scrapeKunsthall,
+	brettspill: scrapeBrettspill,
+	mediacity: scrapeMediaCity,
 };
 
 async function main() {
