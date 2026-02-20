@@ -26,6 +26,7 @@ import { scrape as scrapeDNS } from './scrapers/dns.js';
 import { scrape as scrapeOleBull } from './scrapers/olebull.js';
 import { scrape as scrapeGrieghallen } from './scrapers/grieghallen.js';
 import { scrape as scrapeKODE } from './scrapers/kode.js';
+import { scrape as scrapeLitthus } from './scrapers/litthusbergen.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -58,6 +59,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	olebull: scrapeOleBull,
 	grieghallen: scrapeGrieghallen,
 	kode: scrapeKODE,
+	litthusbergen: scrapeLitthus,
 };
 
 async function main() {

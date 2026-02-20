@@ -28,6 +28,7 @@ const SOURCE_RANK: Record<string, number> = {
 	olebull: 5,
 	grieghallen: 5,
 	kode: 5,
+	litthusbergen: 4,
 	bergenkommune: 3,
 	kulturikveld: 3,
 	barnasnorge: 2,

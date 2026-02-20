@@ -53,7 +53,8 @@ const VENUE_URLS: Record<string, string> = {
 	'lysverket': 'https://kodebergen.no',
 	'rasmus meyer': 'https://kodebergen.no',
 	'troldhaugen': 'https://kodebergen.no',
-	'litteraturhuset': 'https://litteraturhuset.no/bergen',
+	'litteraturhuset': 'https://litthusbergen.no',
+	'litteraturhuset i bergen': 'https://litthusbergen.no',
 	'cinemateket i bergen': 'https://cinemateket.no',
 	'cinemateket': 'https://cinemateket.no',
 

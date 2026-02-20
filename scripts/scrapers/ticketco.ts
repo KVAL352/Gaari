@@ -12,6 +12,8 @@ const SUBDOMAINS = [
 	'kulturhusetibergen',
 	'kvarteret',
 	'cinemateketbergen',
+	'hulen',
+	'litthus',
 ];
 
 interface TCEvent {
