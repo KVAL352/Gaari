@@ -26,6 +26,8 @@ const SOURCE_RANK: Record<string, number> = {
 	usfverftet: 5,
 	dns: 5,
 	olebull: 5,
+	grieghallen: 5,
+	kode: 5,
 	bergenkommune: 3,
 	kulturikveld: 3,
 	barnasnorge: 2,

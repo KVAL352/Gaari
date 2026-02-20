@@ -24,6 +24,8 @@ import { scrape as scrapeForumScene } from './scrapers/forumscene.js';
 import { scrape as scrapeUSFVerftet } from './scrapers/usfverftet.js';
 import { scrape as scrapeDNS } from './scrapers/dns.js';
 import { scrape as scrapeOleBull } from './scrapers/olebull.js';
+import { scrape as scrapeGrieghallen } from './scrapers/grieghallen.js';
+import { scrape as scrapeKODE } from './scrapers/kode.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -54,6 +56,8 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	usfverftet: scrapeUSFVerftet,
 	dns: scrapeDNS,
 	olebull: scrapeOleBull,
+	grieghallen: scrapeGrieghallen,
+	kode: scrapeKODE,
 };
 
 async function main() {

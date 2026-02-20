@@ -47,7 +47,12 @@ const VENUE_URLS: Record<string, string> = {
 
 	// Cultural institutions
 	'bergen kunsthall': 'https://bergenkunsthall.no',
-	'kode': 'https://kfrb.no',
+	'kode': 'https://kodebergen.no',
+	'permanenten': 'https://kodebergen.no',
+	'stenersen': 'https://kodebergen.no',
+	'lysverket': 'https://kodebergen.no',
+	'rasmus meyer': 'https://kodebergen.no',
+	'troldhaugen': 'https://kodebergen.no',
 	'litteraturhuset': 'https://litteraturhuset.no/bergen',
 	'cinemateket i bergen': 'https://cinemateket.no',
 	'cinemateket': 'https://cinemateket.no',
