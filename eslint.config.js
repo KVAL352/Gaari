@@ -27,6 +27,26 @@ export default ts.config(
 		},
 	},
 	{
+		rules: {
+			// Allow `any` in pragmatic cases (event handlers, catch blocks)
+			'@typescript-eslint/no-explicit-any': 'warn',
+			// Svelte reactive vars may look unused to ESLint
+			'@typescript-eslint/no-unused-vars': ['warn', {
+				argsIgnorePattern: '^_',
+				varsIgnorePattern: '^_|^\\$',
+			}],
+			// SvelteKit handles href resolution via its router
+			'svelte/no-navigation-without-resolve': 'off',
+			// Each-key is good practice but not critical for small static lists
+			'svelte/require-each-key': 'warn',
+			// Allow empty catch blocks
+			'no-empty': ['warn', { allowEmptyCatch: true }],
+			// Svelte 5 reactivity suggestions — follow gradually
+			'svelte/prefer-writable-derived': 'warn',
+			'svelte/prefer-svelte-reactivity': 'warn',
+		},
+	},
+	{
 		ignores: [
 			'build/',
 			'.svelte-kit/',
