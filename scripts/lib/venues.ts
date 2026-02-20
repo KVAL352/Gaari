@@ -123,6 +123,9 @@ const VENUE_URLS: Record<string, string> = {
 	'øvre nesttunvegen 18': 'https://bergen.kommune.no/kulturhus/fana',
 	'nattlandsveien 76a': 'https://bergenbibliotek.no',
 	'inndalsveien 28': 'https://kvarteret.no',
+
+	// DNT (outdoor/hiking)
+	'dnt bergen': 'https://www.dnt.no/dnt-der-du-er/bergen-og-hordaland-turlag/',
 };
 
 /**

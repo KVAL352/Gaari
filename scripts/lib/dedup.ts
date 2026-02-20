@@ -6,6 +6,7 @@ import { isAggregatorUrl } from './venues.js';
 const SOURCE_RANK: Record<string, number> = {
 	bergenlive: 5,
 	studentbergen: 4,
+	dnt: 4,
 	bergenkommune: 3,
 	kulturikveld: 3,
 	barnasnorge: 2,
