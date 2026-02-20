@@ -130,6 +130,14 @@ const VENUE_URLS: Record<string, string> = {
 	// Swimming/sports
 	'nordnes sjøbad': 'https://nordnessjobad.no',
 	'ado arena': 'https://adoarena.no',
+
+	// Workshop/creative venues
+	'paint\'n sip': 'https://paintnsip.no',
+	'paintnsip': 'https://paintnsip.no',
+
+	// Film/theater
+	'bergen filmklubb': 'https://bergenfilmklubb.no',
+	'tivoli': 'https://kvarteret.no',
 };
 
 /**

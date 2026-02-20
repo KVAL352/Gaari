@@ -13,6 +13,9 @@ import { scrape as scrapeRaabrent } from './scrapers/raabrent.js';
 import { scrape as scrapeBergenChamber } from './scrapers/bergenchamber.js';
 import { scrape as scrapeColonialen } from './scrapers/colonialen.js';
 import { scrape as scrapeBergenKjott } from './scrapers/bergenkjott.js';
+import { scrape as scrapePaintNSip } from './scrapers/paintnsip.js';
+import { scrape as scrapeBergenFilmklubb } from './scrapers/bergenfilmklubb.js';
+import { scrape as scrapeCornerteateret } from './scrapers/cornerteateret.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -32,6 +35,9 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	bergenchamber: scrapeBergenChamber,
 	colonialen: scrapeColonialen,
 	bergenkjott: scrapeBergenKjott,
+	paintnsip: scrapePaintNSip,
+	bergenfilmklubb: scrapeBergenFilmklubb,
+	cornerteateret: scrapeCornerteateret,
 };
 
 async function main() {
