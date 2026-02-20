@@ -5,6 +5,7 @@ import { scrape as scrapeKulturIKveld } from './scrapers/kulturikveld.js';
 import { scrape as scrapeBarnasNorge } from './scrapers/barnasnorge.js';
 import { scrape as scrapeStudentBergen } from './scrapers/studentbergen.js';
 import { scrape as scrapeDNT } from './scrapers/dnt.js';
+import { scrape as scrapeEventbrite } from './scrapers/eventbrite.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -16,6 +17,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	barnasnorge: scrapeBarnasNorge,
 	studentbergen: scrapeStudentBergen,
 	dnt: scrapeDNT,
+	eventbrite: scrapeEventbrite,
 };
 
 async function main() {
