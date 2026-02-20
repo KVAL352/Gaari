@@ -12,6 +12,7 @@ import { scrape as scrapeNordnesSjobad } from './scrapers/nordnessjobad.js';
 import { scrape as scrapeRaabrent } from './scrapers/raabrent.js';
 import { scrape as scrapeBergenChamber } from './scrapers/bergenchamber.js';
 import { scrape as scrapeColonialen } from './scrapers/colonialen.js';
+import { scrape as scrapeBergenKjott } from './scrapers/bergenkjott.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -30,6 +31,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	raabrent: scrapeRaabrent,
 	bergenchamber: scrapeBergenChamber,
 	colonialen: scrapeColonialen,
+	bergenkjott: scrapeBergenKjott,
 };
 
 async function main() {
