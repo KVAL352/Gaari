@@ -151,6 +151,14 @@ const VENUE_URLS: Record<string, string> = {
 	// DNT (outdoor/hiking)
 	'dnt bergen': 'https://www.dnt.no/dnt-der-du-er/bergen-og-hordaland-turlag/',
 
+	// Electronic art
+	'bek': 'https://bek.no',
+	'bergen senter for elektronisk kunst': 'https://bek.no',
+
+	// Sports
+	'brann stadion': 'https://brann.no',
+	'sk brann': 'https://brann.no',
+
 	// Swimming/sports
 	'nordnes sjøbad': 'https://nordnessjobad.no',
 	'ado arena': 'https://adoarena.no',
