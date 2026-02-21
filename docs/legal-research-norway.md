@@ -106,6 +106,11 @@ Gåri scraper offentlig tilgjengelige eventdata fra 22+ kilder i Bergen. Denne a
 | Det Vestnorske Teateret | Offentlig eventliste |
 | BergenLive | Offentlig eventliste |
 | Kultur i Kveld | Offentlig eventliste |
+| BEK | Åpen WordPress REST API, offentlig kunstsenter |
+| Beyond the Gates | Offentlig festivalprogram (Squarespace) |
+| SK Brann | Offentlig terminliste |
+| Kulturhuset i Bergen | Offentlig eventliste (Squarespace) |
+| VVV (Varmere Våtere Villere) | Offentlig festivalprogram (Squarespace) |
 
 ### Middels risiko (ToS-begrensninger)
 | Kilde | Risiko | Tiltak |
@@ -187,7 +192,7 @@ Gåri scraper offentlig tilgjengelige eventdata fra 22+ kilder i Bergen. Denne a
 
 ## 7. Anbefaling
 
-Gåris scraping-praksis er **innenfor lovlige rammer** for de 19 lavrisikokildene. For de 3 mellomrisikokildene (TicketCo, Hoopla, Eventbrite) bør partnerskapsavtaler inngås så snart som mulig. Bildehotlinking bør erstattes med egen cache for å unngå opphavsrettslige utfordringer.
+Gåris scraping-praksis er **innenfor lovlige rammer** for de 24 lavrisikokildene (19 opprinnelige + 5 nye: BEK, Beyond the Gates, Brann, Kulturhuset i Bergen, VVV). For de 3 mellomrisikokildene (TicketCo, Hoopla, Eventbrite) bør partnerskapsavtaler inngås så snart som mulig. Bildehotlinking bør erstattes med egen cache for å unngå opphavsrettslige utfordringer.
 
 Den sterkeste juridiske posisjonen oppnås ved å:
 1. Fortsette å respektere robots.txt konsekvent
