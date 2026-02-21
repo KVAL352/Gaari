@@ -148,6 +148,10 @@ const VENUE_URLS: Record<string, string> = {
 	'festspillene': 'https://www.fib.no',
 	'spissen': 'https://www.fib.no',
 
+	// Climate festival venues
+	'byrommet': 'https://varmerevaterevillere.no',
+	'østre': 'https://ostre.no',
+
 	// DNT (outdoor/hiking)
 	'dnt bergen': 'https://www.dnt.no/dnt-der-du-er/bergen-og-hordaland-turlag/',
 

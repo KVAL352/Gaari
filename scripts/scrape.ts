@@ -39,6 +39,8 @@ import { scrape as scrapeBjorgvinBlues } from './scrapers/bjorgvinblues.js';
 import { scrape as scrapeBEK } from './scrapers/bek.js';
 import { scrape as scrapeBeyondTheGates } from './scrapers/beyondthegates.js';
 import { scrape as scrapeBrann } from './scrapers/brann.js';
+import { scrape as scrapeKulturhusetIBergen } from './scrapers/kulturhusetibergen.js';
+import { scrape as scrapeVVV } from './scrapers/vvv.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -84,6 +86,8 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	bek: scrapeBEK,
 	beyondthegates: scrapeBeyondTheGates,
 	brann: scrapeBrann,
+	kulturhusetibergen: scrapeKulturhusetIBergen,
+	vvv: scrapeVVV,
 };
 
 async function main() {
