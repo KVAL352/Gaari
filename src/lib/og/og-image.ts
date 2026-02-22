@@ -316,7 +316,7 @@ function defaultMarkup() {
 							display: 'flex',
 							fontSize: '80px',
 							fontFamily: 'Barlow Condensed',
-							color: TEXT_PRIMARY,
+							color: FUNKIS_RED,
 							letterSpacing: '-0.02em'
 						},
 						children: 'Gåri'
