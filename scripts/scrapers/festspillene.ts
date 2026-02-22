@@ -1,4 +1,4 @@
-import { makeSlug, eventExists, insertEvent, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, delay, makeDescription } from '../lib/utils.js';
 
 const SOURCE = 'festspillene';
 const STORYBLOK_TOKEN = '9GLqtx9xc3ueOm5rVi0sZgtt';
@@ -163,9 +163,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const category = guessCategory(title, c.SyncScene || '');
 		const price = formatPrice(c.SyncPricing, c.SyncFreeEvent);
 		const imageUrl = production?.thumbnail?.filename || production?.mobileThumbnail?.filename;
-		const description = production?.excerpt
-			? `Festspillene i Bergen 2026: ${production.excerpt}`
-			: `Festspillene i Bergen 2026. ${c.SyncScene || ''}${c.SyncEventDuration ? ` (${c.SyncEventDuration})` : ''}`.trim();
+		const venue = c.SyncScene || 'Festspillene i Bergen';
+		const description = `Festspillene i Bergen: ${makeDescription(title, venue, category)}`;
 
 		const success = await insertEvent({
 			slug: makeSlug(title, dateOnly),

@@ -1,14 +1,14 @@
 # Juridisk analyse: Web scraping for Gåri eventkalender
 
 **Utarbeidet: 2026-02-20**
-**Sist oppdatert: 2026-02-20**
-**Status: Lovlighetsfiks implementert i commit `f3c6fe9`**
+**Sist oppdatert: 2026-02-22**
+**Status: Full compliance-revisjon — 44 scrapere verifisert**
 
 ---
 
 ## 1. Sammendrag
 
-Gåri scraper offentlig tilgjengelige eventdata fra 22+ kilder i Bergen. Denne analysen dekker norsk og EU/EØS-rett som er relevant for web scraping av eventinformasjon, og dokumenterer de konkrete tiltakene vi har implementert for å holde oss innenfor lovlige rammer.
+Gåri scraper offentlig tilgjengelige eventdata fra 44 kilder i Bergen. Denne analysen dekker norsk og EU/EØS-rett som er relevant for web scraping av eventinformasjon, og dokumenterer de konkrete tiltakene vi har implementert for å holde oss innenfor lovlige rammer.
 
 **Konklusjon:** Standard HTTP-scraping av offentlig tilgjengelig eventinformasjon er lovlig i Norge, forutsatt at man:
 1. Respekterer robots.txt
@@ -28,12 +28,12 @@ Gåri scraper offentlig tilgjengelige eventdata fra 22+ kilder i Bergen. Denne a
 - Alle fotografier, illustrasjoner og kreative tekster er beskyttet
 - Eventbeskrivelser som inneholder kreativ formulering er vernet
 - **Faktaopplysninger** (tittel, dato, sted, pris) er IKKE opphavsrettsbeskyttet
-- **Tiltak:** Alle scrapere bruker `makeDescription()` som genererer faktabaserte beskrivelser (`"Konsert på Garage"`) i stedet for å kopiere kildenes kreative tekst
+- **Tiltak:** Alle 44 scrapere bruker enten `makeDescription()` eller egne faktabaserte maler for beskrivelser — ingen kopierer kreativ kildetekst
 
 **§ 24 — Databasevern (sui generis):**
 - Databaser med "vesentlig investering" i innsamling/presentasjon er beskyttet
 - Forbyr "uttrekk og/eller gjenbruk av en vesentlig del" av databasen
-- **Vurdering for Gåri:** Vi henter kun fremtidige events (ikke historisk arkiv), og vi aggregerer fra 22+ kilder — ingen enkelt kilde utgjør en "vesentlig del" av vår database
+- **Vurdering for Gåri:** Vi henter kun fremtidige events (ikke historisk arkiv), og vi aggregerer fra 44 kilder — ingen enkelt kilde utgjør en "vesentlig del" av vår database
 - **Tiltak:** Begrens uttrekk til aktive/fremtidige events, aldri arkiver historiske data fra enkeltkilde
 
 ### 2.2 GDPR / Personopplysningsloven
@@ -84,7 +84,7 @@ Gåri scraper offentlig tilgjengelige eventdata fra 22+ kilder i Bergen. Denne a
 
 ## 3. Risikovurdering per kilde
 
-### Lav risiko (offentlige/åpne kilder)
+### Lav risiko (offentlige/åpne kilder) — 41 scrapere
 | Kilde | Begrunnelse |
 |-------|-------------|
 | DNT Bergen | Åpen API, ingen robots.txt-begrensning, offentlig informasjon |
@@ -93,10 +93,10 @@ Gåri scraper offentlig tilgjengelige eventdata fra 22+ kilder i Bergen. Denne a
 | StudentBergen | Åpen JSON API |
 | BarnasNorge | Offentlig eventliste |
 | Bergen Næringsråd | Offentlig eventliste |
-| Nordnes Sjøbad | Offentlig eventliste |
+| Nordnes Sjøbad / Ado Arena | Offentlig eventliste |
 | Bergen Kunsthall | Offentlig eventliste |
 | Bergen Brettspillklubb | Åpen JSON API |
-| Media City Bergen | Offentlig eventliste |
+| Media City Bergen | Offentlig iCal-feed |
 | Colonialen | HTML-parsing, respekterer robots.txt |
 | Cornerteateret | HTML-parsing, respekterer robots.txt |
 | Bergen Filmklubb | HTML-parsing, respekterer robots.txt |
@@ -111,12 +111,29 @@ Gåri scraper offentlig tilgjengelige eventdata fra 22+ kilder i Bergen. Denne a
 | SK Brann | Offentlig terminliste |
 | Kulturhuset i Bergen | Offentlig eventliste (Squarespace) |
 | VVV (Varmere Våtere Villere) | Offentlig festivalprogram (Squarespace) |
+| Bymuseet i Bergen | Offentlig museumsliste (9 museer) |
+| BIT Teatergarasjen | Offentlig eventliste |
+| Bjørgvin Blues | Offentlig konsertliste |
+| Bergenfest | Offentlig festivalprogram |
+| Festspillene i Bergen | Åpen Storyblok CMS API |
+| Den Nationale Scene | Åpen JSON API |
+| USF Verftet | Offentlig eventliste (Next.js) |
+| Forum Scene | Offentlig eventliste (Webflow) |
+| Ole Bull Scene | Åpen GraphQL API (Statamic) |
+| KODE Bergen | Åpen Sanity CMS API |
+| Grieghallen | Offentlig eventliste (embedded JSON) |
+| Litteraturhuset i Bergen | Offentlig eventliste (Webflow) |
+| Bergen Bibliotek | Offentlig eventliste |
+| Fløyen | Offentlig eventliste |
+| Harmonien | Offentlig eventliste (embedded JSON) |
+| Oseana | Offentlig eventliste |
+| Carte Blanche | Offentlig eventliste |
 
-### Middels risiko (ToS-begrensninger)
+### Middels risiko (ToS-begrensninger) — 3 scrapere
 | Kilde | Risiko | Tiltak |
 |-------|--------|--------|
-| TicketCo | ToS forbyr distribusjon uten avtale | Kontakt for partnerskap |
-| Hoopla | ToS forbyr kopiering av innhold | Kontakt for API-tilgang |
+| TicketCo (14 venues) | ToS forbyr distribusjon uten avtale | Kontakt for partnerskap |
+| Hoopla (8 venues) | ToS forbyr kopiering av innhold | Kontakt for API-tilgang |
 | Eventbrite | ToS forbyr harvesting | Bruk offisiell API eller kontakt |
 
 ### Akseptert risiko
@@ -128,27 +145,36 @@ Gåri scraper offentlig tilgjengelige eventdata fra 22+ kilder i Bergen. Denne a
 
 ---
 
-## 4. Implementerte tiltak (commit `f3c6fe9`)
+## 4. Implementerte tiltak
 
 ### 4.1 robots.txt-respekt
-- **5 scrapere omskrevet** for å respektere robots.txt:
+- **Fullstendig revisjon av alle 45 domener utført 2026-02-22**
+- Alle 44 scrapere verifisert — ingen aksesserer blokkerte stier
+- **5 scrapere omskrevet** (feb 2026) for å unngå blokkerte stier:
   - Colonialen: `?format=json` → HTML-parsing
   - Bergen Filmklubb: `?format=json` → HTML-parsing
   - Cornerteateret: `?format=json` → HTML-parsing
   - Bergen Kjøtt: `?format=json` → noscript + JSON-LD
   - Råbrent: `api.bigcartel.com` → storefront HTML
+- **Merknad:** 8 Squarespace-sider blokkerer navngitte AI-boter (ClaudeBot, GPTBot osv.) — Gåris custom User-Agent matcher ikke disse og følger wildcard `*`-regler som tillater offentlige sider. Teknisk compliant, men notert.
+- **Merknad:** oseana.no ber om `Crawl-delay: 10` — ikke relevant da scraperen kun gjør én forespørsel
 
 ### 4.2 Rate limiting
-- Alle 22 scrapere oppgradert fra 1-1.5s til **3 sekunder** mellom forespørsler
+- **18 multi-request scrapere** bruker 3 sekunder delay mellom forespørsler (paginering, detaljsider)
+- **26 single-request scrapere** henter kun én side — delay ikke påkrevet
 - Forhindrer overbelastning og demonstrerer god vilje
+- Cron-kjøring: 2 ganger daglig via GitHub Actions
 
 ### 4.3 Opphavsrettsoverholdelse
-- Alle 22 scrapere bruker `makeDescription(title, venue, category)` for genererte beskrivelser
-- Ingen kopiering av kreativt innhold fra kildene
-- Kun faktaopplysninger: tittel, dato, sted, pris, kategori
+- **35 scrapere** bruker `makeDescription(title, venue, category)` for genererte beskrivelser
+- **9 scrapere** bruker egne faktabaserte maler (f.eks. `"SK Brann mot {opponent} på Brann Stadion"`)
+- **0 scrapere** kopierer kreativt innhold fra kildene
+- Kun faktaopplysninger lagres: tittel, dato, sted, pris, kategori
+- **Fiks 2026-02-22:** `floyen.ts` og `festspillene.ts` kopierte kildetekst — omskrevet til `makeDescription()`
 
 ### 4.4 Identifisering
-- Alle scrapere bruker ærlig User-Agent: `Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)`
+- `fetchHTML()` (sentral funksjon) setter User-Agent: `Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)`
+- 11 scrapere med direkte `fetch()`-kall setter samme User-Agent eksplisitt
 - Kontakt-e-post tilgjengelig for eventuelle henvendelser fra arrangører
 
 ---
@@ -156,12 +182,12 @@ Gåri scraper offentlig tilgjengelige eventdata fra 22+ kilder i Bergen. Denne a
 ## 5. Safe harbor-strategi
 
 ### Prinsipper vi følger
-1. **Respektér robots.txt** — juridisk ikke bindende, men demonstrerer god tro
+1. **Respektér robots.txt** — fullstendig revisjon av alle 45 domener gjennomført
 2. **Ikke omgå tekniske sperrer** — unngår straffelovens § 204
 3. **Generer egne beskrivelser** — respekterer åndsverkloven §§ 2-3
 4. **Begrens datauttak** — kun fremtidige events, ikke arkiver
 5. **Link tilbake** — alle events linker til kilde via `source_url` og `ticket_url`
-6. **Rimelig frekvens** — 3s delay, 2x daglig kjøring via cron
+6. **Rimelig frekvens** — 3s delay for multi-request scrapere, 2x daglig cron
 7. **Ærlig identifikasjon** — User-Agent med prosjektnavn og kontakt-e-post
 8. **Komplementær tjeneste** — sender trafikk til arrangører, ikke substitutt
 
@@ -190,9 +216,21 @@ Gåri scraper offentlig tilgjengelige eventdata fra 22+ kilder i Bergen. Denne a
 
 ---
 
-## 7. Anbefaling
+## 7. robots.txt-revisjon (2026-02-22)
 
-Gåris scraping-praksis er **innenfor lovlige rammer** for de 24 lavrisikokildene (19 opprinnelige + 5 nye: BEK, Beyond the Gates, Brann, Kulturhuset i Bergen, VVV). For de 3 mellomrisikokildene (TicketCo, Hoopla, Eventbrite) bør partnerskapsavtaler inngås så snart som mulig. Bildehotlinking bør erstattes med egen cache for å unngå opphavsrettslige utfordringer.
+Fullstendig gjennomgang av alle 45 domener som scrapes:
+
+| Status | Antall | Domener |
+|--------|--------|---------|
+| Compliant (robots.txt finnes) | 34 | raabrent.no, colonialen.no, bergenfilmklubb.no, cornerteateret.no, bergenkjott.org, kulturikveld.no, studentbergen.no, hoopla.no, dns.no, usf.no, forumscene.no, olebullhuset.no, kodebergen.no, litthusbergen.no, bergenbibliotek.no, bitteater.no, oseana.no, carteblanche.no, fib.no, ticketco.events, bek.no, beyondthegates.no, brann.no, kulturhusetibergen.no, varmerevaterevillere.no, bymuseet.no, kunsthall.no, nordnessjobad.no, adoarena.no, barnasnorge.no, dnt.no, visitbergen.com, eventbrite.com, mediacity/medieklyngen.no |
+| Compliant (ingen robots.txt) | 11 | bergenlive.no, bergenbrettspill.no, bergen-chamber.no, billett.bergen.kommune.no, booking-hasura.askeladden.co, grieghallen.no, floyen.no, harmonien.no, detvestnorsketeateret.no, bergenfest.no, bjorgvinblues.no |
+| Blokkerte stier aksessert | 0 | — |
+
+---
+
+## 8. Anbefaling
+
+Gåris scraping-praksis er **innenfor lovlige rammer** for de 41 lavrisikokildene. For de 3 mellomrisikokildene (TicketCo, Hoopla, Eventbrite) bør partnerskapsavtaler inngås så snart som mulig. Bildehotlinking bør erstattes med egen cache for å unngå opphavsrettslige utfordringer.
 
 Den sterkeste juridiske posisjonen oppnås ved å:
 1. Fortsette å respektere robots.txt konsekvent

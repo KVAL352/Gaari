@@ -134,16 +134,6 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			}
 		});
 
-		// Description — find meaningful paragraphs (skip nav, short ones)
-		let description = '';
-		d$('p').each((_, el) => {
-			if (description) return;
-			const text = d$(el).text().trim();
-			if (text.length > 30 && !text.includes('Direkte til') && !text.includes('Fløibanen AS')) {
-				description = text.slice(0, 300);
-			}
-		});
-
 		// Image from CDN
 		const img = d$('img[src*="nf.cdn.netflexapp"]').first();
 		const imageUrl = img.attr('src') || undefined;
@@ -158,12 +148,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			? new Date(`${dateEnd}T22:00:00${bergenOffset(dateEnd)}`).toISOString()
 			: undefined;
 
-		const category = guessCategory(title, description);
+		const category = guessCategory(title, '');
 
 		const success = await insertEvent({
 			slug: makeSlug(title, dateStart),
 			title_no: title,
-			description_no: description || makeDescription(title, 'Fløyen', category),
+			description_no: makeDescription(title, 'Fløyen', category),
 			category,
 			date_start: dateStartIso,
 			date_end: dateEndIso,
