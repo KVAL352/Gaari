@@ -21,6 +21,14 @@
 		<p class="leading-relaxed text-[var(--color-text-secondary)]">
 			{$t('howItWorksText')}
 		</p>
+		<p class="mt-3 text-sm">
+			<a
+				href="/{$lang}/datainnsamling"
+				class="text-[var(--color-accent)] hover:underline"
+			>
+				{$lang === 'no' ? 'Les mer om datainnsamling og juridisk grunnlag' : 'Read more about data collection and legal basis'}
+			</a>
+		</p>
 	</section>
 
 	<section class="mb-8">

@@ -12,6 +12,12 @@
 
 		optOutStatus = 'submitting';
 
+		// Honeypot — bots fill this hidden field, real users don't
+		if (fd.get('website')) {
+			optOutStatus = 'success';
+			return;
+		}
+
 		const { error } = await supabase.from('opt_out_requests').insert({
 			organization: fd.get('organization') as string,
 			domain: (fd.get('domain') as string).replace(/^https?:\/\//, '').replace(/\/.*$/, ''),
@@ -31,6 +37,9 @@
 
 <svelte:head>
 	<title>{$t('dataCollectionTitle')} — Gåri</title>
+	<meta name="description" content={$lang === 'no'
+		? 'Hvordan Gåri samler inn eventdata fra 44 kilder i Bergen. Juridisk grunnlag, prinsipper og opt-out for arrangører.'
+		: 'How Gåri collects event data from 44 sources in Bergen. Legal basis, principles, and opt-out for organizers.'} />
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">
@@ -338,6 +347,10 @@
 			</div>
 		{:else}
 			<form onsubmit={handleOptOut} class="space-y-5 rounded-lg border border-[var(--color-border)] p-5">
+				<!-- Honeypot field — hidden from users, bots will fill it -->
+				<div class="absolute -left-[9999px]" aria-hidden="true">
+					<input type="text" name="website" tabindex="-1" autocomplete="off" />
+				</div>
 				<div>
 					<label for="organization" class="mb-1.5 block text-sm font-medium">
 						{$lang === 'no' ? 'Organisasjon / stedsnavn' : 'Organization / venue name'}
@@ -410,7 +423,7 @@
 		{/if}
 	</section>
 
-	<!-- Contact -->
+	<!-- Contact & last updated -->
 	<section class="border-t border-[var(--color-border)] pt-8">
 		<h2 class="mb-3 text-xl font-semibold">{$t('contact')}</h2>
 		<a
@@ -420,6 +433,9 @@
 			<Mail size={16} />
 			gaari.bergen@proton.me
 		</a>
+		<p class="mt-8 text-sm text-[var(--color-text-muted)]">
+			{$lang === 'no' ? 'Sist oppdatert: 22. februar 2026' : 'Last updated: February 22, 2026'}
+		</p>
 	</section>
 </div>
 </div>
