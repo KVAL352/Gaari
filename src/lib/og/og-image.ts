@@ -136,11 +136,11 @@ function eventWithPhotoMarkup(
 ) {
 	const catColor = CATEGORY_COLORS[opts.category] || '#D4D1CA';
 	const catLabel = CATEGORY_LABELS[opts.category] || opts.category;
-	const displayTitle = truncate(opts.title, 55);
+	const displayTitle = truncate(opts.title, 45);
 
 	const dateVenueParts: string[] = [];
 	if (opts.date) dateVenueParts.push(formatDate(opts.date));
-	if (opts.venue) dateVenueParts.push(truncate(opts.venue, 35));
+	if (opts.venue) dateVenueParts.push(truncate(opts.venue, 30));
 	const dateVenueText = dateVenueParts.join('  \u00b7  ');
 
 	return {
@@ -200,7 +200,7 @@ function eventWithPhotoMarkup(
 							padding: '40px 48px'
 						},
 						children: [
-							// Top bar: Gåri logo
+							// Top bar: Gåri logo + tagline + category
 							{
 								type: 'div',
 								props: {
@@ -210,17 +210,42 @@ function eventWithPhotoMarkup(
 										alignItems: 'center'
 									},
 									children: [
+										// Gåri + tagline
 										{
 											type: 'div',
 											props: {
 												style: {
 													display: 'flex',
-													fontSize: '32px',
-													fontFamily: 'Barlow Condensed',
-													color: WHITE,
-													letterSpacing: '0.02em'
+													alignItems: 'baseline',
+													gap: '14px'
 												},
-												children: 'Gåri'
+												children: [
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '44px',
+																fontFamily: 'Barlow Condensed',
+																color: WHITE,
+																letterSpacing: '0.02em'
+															},
+															children: 'Gåri'
+														}
+													},
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '18px',
+																fontFamily: 'Inter',
+																color: 'rgba(255,255,255,0.6)'
+															},
+															children: 'Alt som skjer i Bergen'
+														}
+													}
+												]
 											}
 										},
 										// Category pill (top right)
@@ -230,9 +255,9 @@ function eventWithPhotoMarkup(
 												style: {
 													display: 'flex',
 													backgroundColor: catColor,
-													borderRadius: '20px',
-													padding: '6px 18px',
-													fontSize: '16px',
+													borderRadius: '24px',
+													padding: '8px 24px',
+													fontSize: '20px',
 													fontFamily: 'Inter',
 													color: TEXT_PRIMARY
 												},
@@ -242,7 +267,7 @@ function eventWithPhotoMarkup(
 									]
 								}
 							},
-							// Bottom: title + date/venue + Bergen
+							// Bottom: title + date/venue
 							{
 								type: 'div',
 								props: {
@@ -284,43 +309,18 @@ function eventWithPhotoMarkup(
 													}
 												]
 											: []),
-										// Bottom line: red accent + Bergen
+										// Red accent bar
 										{
 											type: 'div',
 											props: {
 												style: {
 													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'space-between',
+													width: '48px',
+													height: '4px',
+													backgroundColor: FUNKIS_RED,
+													borderRadius: '2px',
 													marginTop: '4px'
-												},
-												children: [
-													// Red accent bar
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																width: '48px',
-																height: '4px',
-																backgroundColor: FUNKIS_RED,
-																borderRadius: '2px'
-															}
-														}
-													},
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																fontSize: '16px',
-																fontFamily: 'Inter',
-																color: 'rgba(255,255,255,0.6)'
-															},
-															children: 'gaari.no  \u00b7  Bergen'
-														}
-													}
-												]
+												}
 											}
 										}
 									]
@@ -334,42 +334,18 @@ function eventWithPhotoMarkup(
 	};
 }
 
-// Event WITHOUT photo: white background + category color bar (original design)
+// Event WITHOUT photo: white background + category color bar
 function eventNoPhotoMarkup(
 	opts: Required<Pick<OgImageOptions, 'title' | 'category'>> & OgImageOptions
 ) {
 	const catColor = CATEGORY_COLORS[opts.category] || '#D4D1CA';
 	const catLabel = CATEGORY_LABELS[opts.category] || opts.category;
-	const displayTitle = truncate(opts.title, 60);
+	const displayTitle = truncate(opts.title, 45);
 
-	const dateVenueItems: any[] = [];
-	if (opts.date) {
-		dateVenueItems.push({
-			type: 'span',
-			props: {
-				children: formatDate(opts.date),
-				style: { display: 'flex' }
-			}
-		});
-	}
-	if (opts.date && opts.venue) {
-		dateVenueItems.push({
-			type: 'span',
-			props: {
-				children: '  \u00b7  ',
-				style: { display: 'flex', color: TEXT_MUTED }
-			}
-		});
-	}
-	if (opts.venue) {
-		dateVenueItems.push({
-			type: 'span',
-			props: {
-				children: truncate(opts.venue, 40),
-				style: { display: 'flex' }
-			}
-		});
-	}
+	const dateVenueParts: string[] = [];
+	if (opts.date) dateVenueParts.push(formatDate(opts.date));
+	if (opts.venue) dateVenueParts.push(truncate(opts.venue, 30));
+	const dateVenueText = dateVenueParts.join('  \u00b7  ');
 
 	return {
 		type: 'div',
@@ -410,18 +386,42 @@ function eventNoPhotoMarkup(
 							height: '100%'
 						},
 						children: [
-							// Top: Gåri branding
+							// Top: Gåri + tagline
 							{
 								type: 'div',
 								props: {
 									style: {
 										display: 'flex',
-										fontSize: '28px',
-										fontFamily: 'Barlow Condensed',
-										color: FUNKIS_RED,
-										letterSpacing: '0.02em'
+										alignItems: 'baseline',
+										gap: '14px'
 									},
-									children: 'Gåri'
+									children: [
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '40px',
+													fontFamily: 'Barlow Condensed',
+													color: FUNKIS_RED,
+													letterSpacing: '0.02em'
+												},
+												children: 'Gåri'
+											}
+										},
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '18px',
+													fontFamily: 'Inter',
+													color: TEXT_MUTED
+												},
+												children: 'Alt som skjer i Bergen'
+											}
+										}
+									]
 								}
 							},
 							// Middle: Title + date/venue
@@ -448,7 +448,7 @@ function eventNoPhotoMarkup(
 												children: displayTitle
 											}
 										},
-										...(dateVenueItems.length > 0
+										...(dateVenueText
 											? [
 													{
 														type: 'div',
@@ -457,10 +457,9 @@ function eventNoPhotoMarkup(
 																display: 'flex',
 																fontSize: '22px',
 																fontFamily: 'Inter',
-																color: TEXT_SECONDARY,
-																alignItems: 'center'
+																color: TEXT_SECONDARY
 															},
-															children: dateVenueItems
+															children: dateVenueText
 														}
 													}
 												]
@@ -468,7 +467,7 @@ function eventNoPhotoMarkup(
 									]
 								}
 							},
-							// Bottom: Category badge + Bergen label
+							// Bottom: Category badge
 							{
 								type: 'div',
 								props: {
@@ -485,25 +484,13 @@ function eventNoPhotoMarkup(
 												style: {
 													display: 'flex',
 													backgroundColor: catColor,
-													borderRadius: '20px',
-													padding: '6px 20px',
-													fontSize: '18px',
+													borderRadius: '24px',
+													padding: '8px 24px',
+													fontSize: '20px',
 													fontFamily: 'Inter',
 													color: TEXT_PRIMARY
 												},
 												children: catLabel
-											}
-										},
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													fontSize: '18px',
-													fontFamily: 'Inter',
-													color: TEXT_MUTED
-												},
-												children: 'gaari.no  \u00b7  Bergen'
 											}
 										}
 									]
