@@ -60,7 +60,13 @@ async function loadFonts(origin: string) {
 
 function truncate(text: string, maxLen: number): string {
 	if (text.length <= maxLen) return text;
-	return text.slice(0, maxLen - 1).trimEnd() + '\u2026';
+	// Break at last word boundary
+	const trimmed = text.slice(0, maxLen);
+	const lastSpace = trimmed.lastIndexOf(' ');
+	if (lastSpace > maxLen * 0.5) {
+		return trimmed.slice(0, lastSpace) + '\u2026';
+	}
+	return trimmed.trimEnd() + '\u2026';
 }
 
 function formatDate(dateStr: string): string {
@@ -170,7 +176,21 @@ function eventWithPhotoMarkup(
 						}
 					}
 				},
-				// Gradient overlay (bottom)
+				// Gradient overlay (top — for logo readability)
+				{
+					type: 'div',
+					props: {
+						style: {
+							position: 'absolute',
+							left: 0,
+							right: 0,
+							top: 0,
+							height: '35%',
+							background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0))'
+						}
+					}
+				},
+				// Gradient overlay (bottom — for title readability)
 				{
 					type: 'div',
 					props: {
@@ -379,14 +399,15 @@ function eventNoPhotoMarkup(
 						style: {
 							display: 'flex',
 							flexDirection: 'column',
-							justifyContent: 'space-between',
+							justifyContent: 'center',
 							padding: '48px 56px 48px 48px',
 							marginLeft: '10px',
 							width: '100%',
-							height: '100%'
+							height: '100%',
+							gap: '32px'
 						},
 						children: [
-							// Top: Gåri + tagline
+							// Gåri + tagline
 							{
 								type: 'div',
 								props: {
@@ -424,7 +445,7 @@ function eventNoPhotoMarkup(
 									]
 								}
 							},
-							// Middle: Title + date/venue
+							// Title + date/venue
 							{
 								type: 'div',
 								props: {
@@ -467,15 +488,12 @@ function eventNoPhotoMarkup(
 									]
 								}
 							},
-							// Bottom: Category badge
+							// Category badge
 							{
 								type: 'div',
 								props: {
 									style: {
-										display: 'flex',
-										justifyContent: 'space-between',
-										alignItems: 'flex-end',
-										width: '100%'
+										display: 'flex'
 									},
 									children: [
 										{
@@ -554,11 +572,11 @@ function defaultMarkup() {
 						style: {
 							display: 'flex',
 							fontSize: '32px',
-							fontFamily: 'Inter',
+							fontFamily: 'Barlow Condensed',
 							color: TEXT_SECONDARY,
 							marginTop: '12px'
 						},
-						children: "Ke' det g\u00e5r i Bergen?"
+						children: 'Alt som skjer i Bergen p\u00e5 ett sted'
 					}
 				},
 				// Location
