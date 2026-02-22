@@ -5,6 +5,9 @@
 
 <svelte:head>
 	<title>{$t('aboutTitle')} — Gåri</title>
+	<meta name="description" content={$t('aboutText')} />
+	<meta property="og:title" content={`${$t('aboutTitle')} — Gåri`} />
+	<meta property="og:description" content={$t('aboutText')} />
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">

@@ -5,6 +5,10 @@
 
 	let optOutStatus: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
 
+	let metaDesc = $derived($lang === 'no'
+		? 'Hvordan Gåri samler inn eventdata fra 44 kilder i Bergen. Juridisk grunnlag, prinsipper og opt-out for arrangører.'
+		: 'How Gåri collects event data from 44 sources in Bergen. Legal basis, principles, and opt-out for organizers.');
+
 	async function handleOptOut(e: SubmitEvent) {
 		e.preventDefault();
 		const form = e.target as HTMLFormElement;
@@ -37,9 +41,9 @@
 
 <svelte:head>
 	<title>{$t('dataCollectionTitle')} — Gåri</title>
-	<meta name="description" content={$lang === 'no'
-		? 'Hvordan Gåri samler inn eventdata fra 44 kilder i Bergen. Juridisk grunnlag, prinsipper og opt-out for arrangører.'
-		: 'How Gåri collects event data from 44 sources in Bergen. Legal basis, principles, and opt-out for organizers.'} />
+	<meta name="description" content={metaDesc} />
+	<meta property="og:title" content={`${$t('dataCollectionTitle')} — Gåri`} />
+	<meta property="og:description" content={metaDesc} />
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">

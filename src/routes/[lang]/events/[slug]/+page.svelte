@@ -57,6 +57,11 @@
 <svelte:head>
 	<title>{title} — Gåri</title>
 	<meta name="description" content={description?.slice(0, 160)} />
+	<meta property="og:title" content={`${title} — Gåri`} />
+	<meta property="og:description" content={description?.slice(0, 160)} />
+	{#if event.image_url}
+		<meta property="og:image" content={event.image_url} />
+	{/if}
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-6">

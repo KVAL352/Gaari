@@ -121,6 +121,8 @@
 <svelte:head>
 	<title>Gåri — {$t('tagline')}</title>
 	<meta name="description" content={$lang === 'no' ? 'Finn alle arrangementer i Bergen på ett sted.' : 'Find all events in Bergen in one place.'} />
+	<meta property="og:title" content={`Gåri — ${$t('tagline')}`} />
+	<meta property="og:description" content={$lang === 'no' ? 'Finn alle arrangementer i Bergen på ett sted.' : 'Find all events in Bergen in one place.'} />
 </svelte:head>
 
 <HeroSection />

@@ -9,6 +9,10 @@
 
 	let { children }: { children: Snippet } = $props();
 
+	// SEO: hreflang + OG URL
+	let pathWithoutLang = $derived($page.url.pathname.replace(/^\/(no|en)/, ''));
+	let baseUrl = $derived($page.url.origin);
+
 	// Sync lang store with URL param + update html lang attribute
 	$effect(() => {
 		const urlLang = $page.params.lang as Lang;
@@ -23,6 +27,18 @@
 
 <svelte:head>
 	<title>Gåri</title>
+
+	<!-- Open Graph defaults (pages override og:title and og:description) -->
+	<meta property="og:site_name" content="Gåri" />
+	<meta property="og:type" content="website" />
+	<meta property="og:locale" content={$lang === 'no' ? 'nb_NO' : 'en_US'} />
+	<meta property="og:locale:alternate" content={$lang === 'no' ? 'en_US' : 'nb_NO'} />
+	<meta property="og:url" content={`${baseUrl}/${$lang}${pathWithoutLang}`} />
+
+	<!-- hreflang for bilingual SEO -->
+	<link rel="alternate" hreflang="nb" href={`${baseUrl}/no${pathWithoutLang}`} />
+	<link rel="alternate" hreflang="en" href={`${baseUrl}/en${pathWithoutLang}`} />
+	<link rel="alternate" hreflang="x-default" href={`${baseUrl}/no${pathWithoutLang}`} />
 </svelte:head>
 
 <div class="flex min-h-screen flex-col">
