@@ -11,6 +11,9 @@ CREATE TABLE opt_out_requests (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Table-level permissions
+GRANT INSERT ON opt_out_requests TO anon;
+
 -- RLS: allow anonymous inserts (the form), but only service role can read/manage
 ALTER TABLE opt_out_requests ENABLE ROW LEVEL SECURITY;
 
