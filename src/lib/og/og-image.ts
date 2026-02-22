@@ -238,11 +238,11 @@ function eventWithPhotoMarkup(
 														props: {
 															style: {
 																display: 'flex',
-																fontSize: '18px',
-																fontFamily: 'Inter',
-																color: 'rgba(255,255,255,0.6)'
+																fontSize: '22px',
+																fontFamily: 'Barlow Condensed',
+																color: 'rgba(255,255,255,0.75)'
 															},
-															children: 'Alt som skjer i Bergen'
+															children: 'Alt som skjer i Bergen p\u00e5 ett sted'
 														}
 													}
 												]
@@ -414,11 +414,11 @@ function eventNoPhotoMarkup(
 											props: {
 												style: {
 													display: 'flex',
-													fontSize: '18px',
-													fontFamily: 'Inter',
+													fontSize: '22px',
+													fontFamily: 'Barlow Condensed',
 													color: TEXT_MUTED
 												},
-												children: 'Alt som skjer i Bergen'
+												children: 'Alt som skjer i Bergen p\u00e5 ett sted'
 											}
 										}
 									]
