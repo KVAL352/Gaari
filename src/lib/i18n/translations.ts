@@ -124,6 +124,8 @@ export const translations = {
 		footerTagline: 'Alt som skjer i Bergen, samlet på ett sted.',
 		accessibility: 'Tilgjengelighet',
 		privacy: 'Personvern',
+		dataCollection: 'Datainnsamling',
+		dataCollectionTitle: 'Datainnsamling',
 
 		// Grid/List toggle
 		gridView: 'Rutenett',
@@ -244,6 +246,8 @@ export const translations = {
 		footerTagline: 'Everything happening in Bergen, all in one place.',
 		accessibility: 'Accessibility',
 		privacy: 'Privacy',
+		dataCollection: 'Data Collection',
+		dataCollectionTitle: 'Data Collection',
 
 		gridView: 'Grid',
 		listView: 'List',

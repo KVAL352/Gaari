@@ -107,6 +107,31 @@ export async function eventExists(sourceUrl: string): Promise<boolean> {
 	return (data && data.length > 0) || false;
 }
 
+// Opt-out filtering — domains that have requested removal
+let optOutDomains: Set<string> | null = null;
+
+export async function loadOptOuts(): Promise<void> {
+	const { data } = await supabase
+		.from('opt_out_requests')
+		.select('domain')
+		.eq('status', 'approved');
+
+	optOutDomains = new Set((data || []).map(r => r.domain.toLowerCase()));
+	if (optOutDomains.size > 0) {
+		console.log(`Loaded ${optOutDomains.size} opt-out domain(s): ${[...optOutDomains].join(', ')}`);
+	}
+}
+
+export function isOptedOut(sourceUrl: string): boolean {
+	if (!optOutDomains || optOutDomains.size === 0) return false;
+	try {
+		const hostname = new URL(sourceUrl).hostname.replace(/^www\./, '');
+		return optOutDomains.has(hostname);
+	} catch {
+		return false;
+	}
+}
+
 // Insert an event into Supabase
 export interface ScrapedEvent {
 	slug: string;
@@ -131,6 +156,9 @@ export interface ScrapedEvent {
 }
 
 export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
+	if (isOptedOut(event.source_url)) {
+		return false;
+	}
 	const { error } = await supabase.from('events').insert(event);
 	if (error) {
 		// Duplicate slug — skip silently

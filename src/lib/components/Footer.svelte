@@ -51,6 +51,7 @@
 				<h4 class="mb-2 text-sm font-semibold">Gåri</h4>
 				<ul class="space-y-1">
 					<li><a href="/{$lang}/about" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{$t('about')}</a></li>
+					<li><a href="/{$lang}/datainnsamling" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{$t('dataCollection')}</a></li>
 					<li><a href="/{$lang}/submit" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{$t('submitEvent')}</a></li>
 					<li><a href="mailto:gaari.bergen@proton.me" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{$t('contact')}</a></li>
 				</ul>

@@ -42,8 +42,9 @@ import { scrape as scrapeBrann } from './scrapers/brann.js';
 import { scrape as scrapeKulturhusetIBergen } from './scrapers/kulturhusetibergen.js';
 import { scrape as scrapeVVV } from './scrapers/vvv.js';
 import { scrape as scrapeBymuseet } from './scrapers/bymuseet.js';
-import { removeExpiredEvents } from './lib/utils.js';
+import { removeExpiredEvents, loadOptOuts } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
+import { supabase } from './lib/supabase.js';
 
 const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
 	bergenlive: scrapeBergenLive,
@@ -103,6 +104,28 @@ async function main() {
 	console.log('--- Cleaning expired events ---');
 	const expired = await removeExpiredEvents();
 	console.log(`Removed ${expired} expired events\n`);
+
+	// Step 1b: Load opt-outs and remove existing events from opted-out domains
+	console.log('--- Loading opt-outs ---');
+	await loadOptOuts();
+	const { data: optOuts } = await supabase
+		.from('opt_out_requests')
+		.select('domain')
+		.eq('status', 'approved');
+	let optOutRemoved = 0;
+	for (const { domain } of optOuts || []) {
+		const { data: matching } = await supabase
+			.from('events')
+			.select('id, source_url')
+			.ilike('source_url', `%${domain}%`);
+		if (matching && matching.length > 0) {
+			const ids = matching.map(e => e.id);
+			const { error } = await supabase.from('events').delete().in('id', ids);
+			if (!error) optOutRemoved += ids.length;
+		}
+	}
+	if (optOutRemoved > 0) console.log(`Removed ${optOutRemoved} events from opted-out domains`);
+	console.log();
 
 	// Step 2: Run scrapers
 	console.log(`--- Running scrapers: ${selected.join(', ')} ---\n`);
