@@ -59,9 +59,9 @@
 	<meta name="description" content={description?.slice(0, 160)} />
 	<meta property="og:title" content={`${title} — Gåri`} />
 	<meta property="og:description" content={description?.slice(0, 160)} />
-	{#if event.image_url}
-		<meta property="og:image" content={event.image_url} />
-	{/if}
+	<meta property="og:image" content={`/og/${event.slug}.png`} />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-6">

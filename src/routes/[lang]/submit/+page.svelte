@@ -205,6 +205,9 @@
 	<meta name="description" content={$t('submitDescription')} />
 	<meta property="og:title" content={`${$t('submitTitle')} — Gåri`} />
 	<meta property="og:description" content={$t('submitDescription')} />
+	<meta property="og:image" content="/og/default.png" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">

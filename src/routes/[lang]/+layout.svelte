@@ -34,6 +34,9 @@
 	<meta property="og:locale" content={$lang === 'no' ? 'nb_NO' : 'en_US'} />
 	<meta property="og:locale:alternate" content={$lang === 'no' ? 'en_US' : 'nb_NO'} />
 	<meta property="og:url" content={`${baseUrl}/${$lang}${pathWithoutLang}`} />
+	<meta property="og:image" content={`${baseUrl}/og/default.png`} />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
 
 	<!-- hreflang for bilingual SEO -->
 	<link rel="alternate" hreflang="nb" href={`${baseUrl}/no${pathWithoutLang}`} />

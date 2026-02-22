@@ -123,6 +123,9 @@
 	<meta name="description" content={$lang === 'no' ? 'Finn alle arrangementer i Bergen på ett sted.' : 'Find all events in Bergen in one place.'} />
 	<meta property="og:title" content={`Gåri — ${$t('tagline')}`} />
 	<meta property="og:description" content={$lang === 'no' ? 'Finn alle arrangementer i Bergen på ett sted.' : 'Find all events in Bergen in one place.'} />
+	<meta property="og:image" content="/og/default.png" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
 </svelte:head>
 
 <HeroSection />
