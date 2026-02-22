@@ -41,6 +41,7 @@ import { scrape as scrapeBeyondTheGates } from './scrapers/beyondthegates.js';
 import { scrape as scrapeBrann } from './scrapers/brann.js';
 import { scrape as scrapeKulturhusetIBergen } from './scrapers/kulturhusetibergen.js';
 import { scrape as scrapeVVV } from './scrapers/vvv.js';
+import { scrape as scrapeBymuseet } from './scrapers/bymuseet.js';
 import { removeExpiredEvents } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 
@@ -88,6 +89,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	brann: scrapeBrann,
 	kulturhusetibergen: scrapeKulturhusetIBergen,
 	vvv: scrapeVVV,
+	bymuseet: scrapeBymuseet,
 };
 
 async function main() {

@@ -104,6 +104,19 @@ const VENUE_URLS: Record<string, string> = {
 	'lagshuset': 'https://sammen.no/lagshuset',
 	'tivoli': 'https://kvarteret.no',
 
+	// Bymuseet i Bergen (9 museums)
+	'bymuseet': 'https://bymuseet.no',
+	'bymuseet i bergen': 'https://bymuseet.no',
+	'bryggens museum': 'https://bymuseet.no',
+	'gamle bergen museum': 'https://bymuseet.no',
+	'hordamuseet': 'https://bymuseet.no',
+	'lepramuseet': 'https://bymuseet.no',
+	'schøtstuene': 'https://bymuseet.no',
+	'skolemuseet': 'https://bymuseet.no',
+	'damsgård hovedgård': 'https://bymuseet.no',
+	'damsgård': 'https://bymuseet.no',
+	'rosenkrantztårnet': 'https://bymuseet.no',
+
 	// Historical/outdoor venues
 	'bergenhus festning': 'https://forsvarsbygg.no/festningene/bergenhus-festning',
 	'håkonshallen': 'https://forsvarsbygg.no/festningene/bergenhus-festning',
