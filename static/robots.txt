@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /no/submit
+Disallow: /en/submit
 
 Sitemap: https://gaari.vercel.app/sitemap.xml

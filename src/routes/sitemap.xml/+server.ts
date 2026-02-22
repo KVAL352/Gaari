@@ -2,7 +2,7 @@ import { supabase } from '$lib/supabase';
 
 const BASE = 'https://gaari.vercel.app';
 
-const STATIC_PAGES = ['', '/about', '/submit', '/datainnsamling'];
+const STATIC_PAGES = ['', '/about', '/datainnsamling'];
 
 export async function GET() {
 	const { data: events } = await supabase
