@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
 	import {
 		formatEventDate, formatEventTime, formatPrice, isFreeEvent
@@ -59,7 +60,7 @@
 	<meta name="description" content={description?.slice(0, 160)} />
 	<meta property="og:title" content={`${title} — Gåri`} />
 	<meta property="og:description" content={description?.slice(0, 160)} />
-	<meta property="og:image" content={`/og/${event.slug}.png`} />
+	<meta property="og:image" content={`${$page.url.origin}/og/${event.slug}.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 </svelte:head>
