@@ -68,20 +68,42 @@ function formatDate(dateStr: string): string {
 	return d.toLocaleDateString('nb-NO', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+async function fetchImageAsDataUrl(url: string): Promise<string | null> {
+	try {
+		const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+		if (!res.ok) return null;
+		const contentType = res.headers.get('content-type') || 'image/jpeg';
+		const buffer = await res.arrayBuffer();
+		const base64 = Buffer.from(buffer).toString('base64');
+		return `data:${contentType};base64,${base64}`;
+	} catch {
+		return null;
+	}
+}
+
 export interface OgImageOptions {
 	origin: string;
 	title?: string;
 	date?: string;
 	venue?: string;
 	category?: Category;
+	imageUrl?: string;
 }
 
 export async function generateOgImage(options: OgImageOptions): Promise<Uint8Array> {
 	const fonts = await loadFonts(options.origin);
 	const isEvent = options?.title && options?.category;
 
+	let imageDataUrl: string | null = null;
+	if (isEvent && options.imageUrl) {
+		imageDataUrl = await fetchImageAsDataUrl(options.imageUrl);
+	}
+
 	const markup = isEvent
-		? eventMarkup(options as Required<Pick<OgImageOptions, 'title' | 'category'>> & OgImageOptions)
+		? eventMarkup(
+				options as Required<Pick<OgImageOptions, 'title' | 'category'>> & OgImageOptions,
+				imageDataUrl
+			)
 		: defaultMarkup();
 
 	const svg = await satori(markup, {
@@ -97,7 +119,225 @@ export async function generateOgImage(options: OgImageOptions): Promise<Uint8Arr
 	return resvg.render().asPng();
 }
 
-function eventMarkup(opts: Required<Pick<OgImageOptions, 'title' | 'category'>> & OgImageOptions) {
+function eventMarkup(
+	opts: Required<Pick<OgImageOptions, 'title' | 'category'>> & OgImageOptions,
+	imageDataUrl: string | null
+) {
+	if (imageDataUrl) {
+		return eventWithPhotoMarkup(opts, imageDataUrl);
+	}
+	return eventNoPhotoMarkup(opts);
+}
+
+// Event WITH photo: photo background + dark gradient overlay + branding
+function eventWithPhotoMarkup(
+	opts: Required<Pick<OgImageOptions, 'title' | 'category'>> & OgImageOptions,
+	imageDataUrl: string
+) {
+	const catColor = CATEGORY_COLORS[opts.category] || '#D4D1CA';
+	const catLabel = CATEGORY_LABELS[opts.category] || opts.category;
+	const displayTitle = truncate(opts.title, 55);
+
+	const dateVenueParts: string[] = [];
+	if (opts.date) dateVenueParts.push(formatDate(opts.date));
+	if (opts.venue) dateVenueParts.push(truncate(opts.venue, 35));
+	const dateVenueText = dateVenueParts.join('  \u00b7  ');
+
+	return {
+		type: 'div',
+		props: {
+			style: {
+				display: 'flex',
+				width: '100%',
+				height: '100%',
+				position: 'relative',
+				backgroundColor: '#000'
+			},
+			children: [
+				// Background photo
+				{
+					type: 'img',
+					props: {
+						src: imageDataUrl,
+						style: {
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							width: '100%',
+							height: '100%',
+							objectFit: 'cover',
+							opacity: 0.55
+						}
+					}
+				},
+				// Gradient overlay (bottom)
+				{
+					type: 'div',
+					props: {
+						style: {
+							position: 'absolute',
+							left: 0,
+							right: 0,
+							bottom: 0,
+							height: '70%',
+							background: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.85))'
+						}
+					}
+				},
+				// Content overlay
+				{
+					type: 'div',
+					props: {
+						style: {
+							display: 'flex',
+							flexDirection: 'column',
+							justifyContent: 'space-between',
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							padding: '40px 48px'
+						},
+						children: [
+							// Top bar: Gåri logo
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center'
+									},
+									children: [
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '32px',
+													fontFamily: 'Barlow Condensed',
+													color: WHITE,
+													letterSpacing: '0.02em'
+												},
+												children: 'Gåri'
+											}
+										},
+										// Category pill (top right)
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													backgroundColor: catColor,
+													borderRadius: '20px',
+													padding: '6px 18px',
+													fontSize: '16px',
+													fontFamily: 'Inter',
+													color: TEXT_PRIMARY
+												},
+												children: catLabel
+											}
+										}
+									]
+								}
+							},
+							// Bottom: title + date/venue + Bergen
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '12px'
+									},
+									children: [
+										// Title
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '48px',
+													fontFamily: 'Barlow Condensed',
+													color: WHITE,
+													lineHeight: 1.15,
+													letterSpacing: '-0.01em'
+												},
+												children: displayTitle
+											}
+										},
+										// Date · Venue
+										...(dateVenueText
+											? [
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '22px',
+																fontFamily: 'Inter',
+																color: 'rgba(255,255,255,0.85)'
+															},
+															children: dateVenueText
+														}
+													}
+												]
+											: []),
+										// Bottom line: red accent + Bergen
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'space-between',
+													marginTop: '4px'
+												},
+												children: [
+													// Red accent bar
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																width: '48px',
+																height: '4px',
+																backgroundColor: FUNKIS_RED,
+																borderRadius: '2px'
+															}
+														}
+													},
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '16px',
+																fontFamily: 'Inter',
+																color: 'rgba(255,255,255,0.6)'
+															},
+															children: 'gaari.no  \u00b7  Bergen'
+														}
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				}
+			]
+		}
+	};
+}
+
+// Event WITHOUT photo: white background + category color bar (original design)
+function eventNoPhotoMarkup(
+	opts: Required<Pick<OgImageOptions, 'title' | 'category'>> & OgImageOptions
+) {
 	const catColor = CATEGORY_COLORS[opts.category] || '#D4D1CA';
 	const catLabel = CATEGORY_LABELS[opts.category] || opts.category;
 	const displayTitle = truncate(opts.title, 60);
@@ -178,7 +418,7 @@ function eventMarkup(opts: Required<Pick<OgImageOptions, 'title' | 'category'>> 
 										display: 'flex',
 										fontSize: '28px',
 										fontFamily: 'Barlow Condensed',
-										color: TEXT_MUTED,
+										color: FUNKIS_RED,
 										letterSpacing: '0.02em'
 									},
 									children: 'Gåri'
@@ -239,7 +479,6 @@ function eventMarkup(opts: Required<Pick<OgImageOptions, 'title' | 'category'>> 
 										width: '100%'
 									},
 									children: [
-										// Category pill
 										{
 											type: 'div',
 											props: {
@@ -255,7 +494,6 @@ function eventMarkup(opts: Required<Pick<OgImageOptions, 'title' | 'category'>> 
 												children: catLabel
 											}
 										},
-										// Bergen, NO
 										{
 											type: 'div',
 											props: {
@@ -265,7 +503,7 @@ function eventMarkup(opts: Required<Pick<OgImageOptions, 'title' | 'category'>> 
 													fontFamily: 'Inter',
 													color: TEXT_MUTED
 												},
-												children: 'Bergen, NO'
+												children: 'gaari.no  \u00b7  Bergen'
 											}
 										}
 									]

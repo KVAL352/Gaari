@@ -6,7 +6,7 @@ import type { RequestHandler } from './$types';
 export const GET: RequestHandler = async ({ params, url }) => {
 	const { data: event, error: err } = await supabase
 		.from('events')
-		.select('title_no, date_start, venue_name, category')
+		.select('title_no, date_start, venue_name, category, image_url')
 		.eq('slug', params.slug)
 		.eq('status', 'approved')
 		.single();
@@ -20,7 +20,8 @@ export const GET: RequestHandler = async ({ params, url }) => {
 		title: event.title_no,
 		date: event.date_start,
 		venue: event.venue_name,
-		category: event.category
+		category: event.category,
+		imageUrl: event.image_url || undefined
 	});
 
 	return new Response(png as unknown as BodyInit, {
