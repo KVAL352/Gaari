@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'forumscene';
 const LISTING_URL = 'https://www.forumscene.no/arrangementer';
@@ -147,10 +148,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const bydel = mapBydel('Forum Scene');
 		const offset = bergenOffset(ev.dateISO);
 
+		const aiDesc = await generateDescription({ title: ev.title, venue: 'Forum Scene', category: ev.category, date: new Date(`${ev.dateISO}T20:00:00${offset}`), price: '' });
 		const success = await insertEvent({
 			slug: makeSlug(ev.title, ev.dateISO),
 			title_no: ev.title,
-			description_no: makeDescription(ev.title, 'Forum Scene', ev.category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: ev.category,
 			date_start: new Date(`${ev.dateISO}T20:00:00${offset}`).toISOString(),
 			date_end: ev.endDateISO ? new Date(`${ev.endDateISO}T23:00:00${offset}`).toISOString() : undefined,

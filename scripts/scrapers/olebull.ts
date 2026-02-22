@@ -1,5 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'olebull';
 const GRAPHQL_URL = 'https://olebullhuset.no/graphql/default';
@@ -120,10 +121,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const ticketUrl = firstTime.ticketUrl || sourceUrl;
 		const datePart = firstTime.eventDate.slice(0, 10);
 
+		const aiDesc = await generateDescription({ title: event.title, venue: 'Ole Bull Scene', category, date: dateStart, price: '' });
 		const success = await insertEvent({
 			slug: makeSlug(event.title, datePart),
 			title_no: event.title,
-			description_no: makeDescription(event.title, 'Ole Bull Scene', category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: dateStart,
 			date_end: dateEnd,

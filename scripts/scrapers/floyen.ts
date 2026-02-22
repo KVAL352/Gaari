@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'floyen';
 const BASE_URL = 'https://www.floyen.no/hva-skjer-floyen';
@@ -150,10 +151,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const category = guessCategory(title, '');
 
+		const aiDesc = await generateDescription({ title, venue: 'Fløyen', category, date: new Date(dateStartIso), price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, dateStart),
 			title_no: title,
-			description_no: makeDescription(title, 'Fløyen', category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: dateStartIso,
 			date_end: dateEndIso,

@@ -1,7 +1,8 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'studentbergen';
 const API_URL = 'https://www.studentbergen.no/api/calendar.json';
@@ -74,10 +75,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const datePart = event.start.slice(0, 10);
 
+		const aiDesc = await generateDescription({ title: event.title, venue: event.location || 'Bergen', category, date: new Date(event.start), price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(event.title, datePart),
 			title_no: event.title,
-			description_no: makeDescription(event.title, event.location || 'Bergen', category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: new Date(event.start).toISOString(),
 			date_end: event.end ? new Date(event.end).toISOString() : undefined,

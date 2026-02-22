@@ -1,4 +1,5 @@
-import { makeSlug, eventExists, insertEvent, delay, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'festspillene';
 const STORYBLOK_TOKEN = '9GLqtx9xc3ueOm5rVi0sZgtt';
@@ -164,12 +165,14 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const price = formatPrice(c.SyncPricing, c.SyncFreeEvent);
 		const imageUrl = production?.thumbnail?.filename || production?.mobileThumbnail?.filename;
 		const venue = c.SyncScene || 'Festspillene i Bergen';
-		const description = `Festspillene i Bergen: ${makeDescription(title, venue, category)}`;
+
+		const aiDesc = await generateDescription({ title, venue, category, date: startDate.toISOString(), price: price || '' });
 
 		const success = await insertEvent({
 			slug: makeSlug(title, dateOnly),
 			title_no: title,
-			description_no: description,
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: startDate.toISOString(),
 			date_end: dateEnd,

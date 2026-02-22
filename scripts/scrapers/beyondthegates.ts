@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'beyondthegates';
 const BASE_URL = 'https://beyondthegates.no';
@@ -90,10 +91,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 				const title = `Beyond the Gates: ${artist}`;
 
+				const aiDesc = await generateDescription({ title: artist, venue: stage, category: 'music', date: dateStart, price: '' });
+
 				const success = await insertEvent({
 					slug: makeSlug(artist, date),
 					title_no: title,
-					description_no: `${artist} spiller på ${stage} under Beyond the Gates-festivalen i Bergen`,
+					description_no: aiDesc.no,
+					description_en: aiDesc.en,
 					category: 'music',
 					date_start: dateStart,
 					date_end: dateEnd,

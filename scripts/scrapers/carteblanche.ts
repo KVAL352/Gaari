@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'carteblanche';
 const PROGRAM_URL = 'https://carteblanche.no/forestillinger-og-arrangement/';
@@ -141,10 +142,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			: title.toLowerCase().includes('familie') ? 'family'
 			: 'theatre';
 
+		const aiDesc = await generateDescription({ title: `Carte Blanche: ${title}`, venue: location || 'Studio Bergen', category, date: startDate, price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, firstDate),
 			title_no: `Carte Blanche: ${title}`,
-			description_no: makeDescription(`Carte Blanche: ${title}`, location || 'Studio Bergen', category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: startDate.toISOString(),
 			date_end: dateEnd,

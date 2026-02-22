@@ -1,4 +1,5 @@
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'harmonien';
 const BASE_URL = 'https://harmonien.no/program/';
@@ -89,10 +90,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const category = guessCategory(title);
 
+		const aiDesc = await generateDescription({ title, venue: 'Grieghallen', category, date: startDate, price: '' });
 		const success = await insertEvent({
 			slug: makeSlug(title, first.date.slice(0, 10)),
 			title_no: title,
-			description_no: makeDescription(title, 'Grieghallen', category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: startDate.toISOString(),
 			date_end: dateEnd,

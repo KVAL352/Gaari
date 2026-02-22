@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'kunsthall';
 const BASE_URL = 'https://kunsthall.no';
@@ -94,10 +95,13 @@ async function scrapeEvents(): Promise<{ found: number; inserted: number }> {
 		const datePart = dateStart.slice(0, 10);
 		const imageUrl = img ? `${BASE_URL}${img}` : undefined;
 
+		const aiDesc = await generateDescription({ title, venue: venueName, category, date: dateStart, price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, datePart),
 			title_no: title,
-			description_no: title,
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: dateStart,
 			venue_name: venueName,
@@ -184,10 +188,13 @@ async function scrapeExhibitions(): Promise<{ found: number; inserted: number }>
 		const datePart = dateStart.slice(0, 10);
 		const imageUrl = img ? `${BASE_URL}${img}` : undefined;
 
+		const aiDesc = await generateDescription({ title, venue: venueName, category: 'culture', date: dateStart, price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, datePart),
 			title_no: title,
-			description_no: `Utstilling: ${title}`,
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: 'culture',
 			date_start: dateStart,
 			date_end: dateEnd,

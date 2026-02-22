@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'litthusbergen';
 const BASE_URL = 'https://www.litthusbergen.no/program';
@@ -136,10 +137,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				dateEnd = isNaN(end.getTime()) ? undefined : end.toISOString();
 			}
 
+			const aiDesc = await generateDescription({ title: ev.title, venue: 'Litteraturhuset i Bergen', category, date: startDate, price: ev.isFree ? 'Gratis' : '' });
 			const success = await insertEvent({
 				slug: makeSlug(ev.title, ev.dateStart),
 				title_no: ev.title,
-				description_no: makeDescription(ev.title, 'Litteraturhuset i Bergen', category),
+				description_no: aiDesc.no,
+				description_en: aiDesc.en,
 				category,
 				date_start: dateStart,
 				date_end: dateEnd,

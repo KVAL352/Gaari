@@ -1,5 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'eventbrite';
 const BASE_URL = 'https://www.eventbrite.com/d/norway--bergen/all-events/';
@@ -138,10 +139,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const description = event.summary || event.name;
 			const imageUrl = event.image?.original?.url || undefined;
 
+			const aiDesc = await generateDescription({ title: event.name, venue: venueName, category, date: dateStart, price: '' });
 			const success = await insertEvent({
 				slug: makeSlug(event.name, event.start_date),
 				title_no: event.name,
-				description_no: makeDescription(event.name, venueName, category),
+				description_no: aiDesc.no,
+				description_en: aiDesc.en,
 				category,
 				date_start: dateStart,
 				date_end: dateEnd,

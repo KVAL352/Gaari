@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay, parseNorwegianDate } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'nordnessjobad';
 
@@ -134,10 +135,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const bydel = mapBydel(venueName);
 		const datePart = dateTime.start.slice(0, 10);
 
+		const aiDesc = await generateDescription({ title: e.title, venue: venueName, category, date: dateTime.start, price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(e.title, datePart),
 			title_no: e.title,
-			description_no: e.title,
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: dateTime.start,
 			date_end: dateTime.end,

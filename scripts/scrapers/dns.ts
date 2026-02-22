@@ -1,5 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'dns';
 const API_URL = 'https://dns.no/wp-content/plugins/mrk-dns/dns_events.php';
@@ -92,10 +93,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			? new Date(`${last.dateISO}T${last.startTime}:00${bergenOffset(last.dateISO)}`).toISOString()
 			: undefined;
 
+		const aiDesc = await generateDescription({ title: first.title, venue: first.theater, category, date: dateStart, price: '' });
 		const success = await insertEvent({
 			slug: makeSlug(first.title, first.dateISO),
 			title_no: first.title,
-			description_no: makeDescription(first.title, first.theater, category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: dateStart,
 			date_end: dateEnd,

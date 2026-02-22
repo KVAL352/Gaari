@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bitteater';
 const BASE_URL = 'https://bitteater.no/program/';
@@ -127,10 +128,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			? new Date(`${parsed.end}T22:00:00${bergenOffset(parsed.end)}`).toISOString()
 			: undefined;
 
+		const aiDesc = await generateDescription({ title: fullTitle, venue: venue || 'BIT Teatergarasjen', category: gariCategory, date: startDate, price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, parsed.start),
 			title_no: fullTitle,
-			description_no: makeDescription(fullTitle, venue || 'BIT Teatergarasjen', gariCategory),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: gariCategory,
 			date_start: dateStart,
 			date_end: dateEnd,

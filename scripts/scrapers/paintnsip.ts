@@ -1,5 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'paintnsip';
 const GRAPHQL_URL = 'https://booking-hasura.askeladden.co/v1/graphql';
@@ -109,10 +110,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			? `https://ik.imagekit.io/cthprr3yru/${ORG_ID}/${event.asset.url}`
 			: undefined;
 
+		const aiDesc = await generateDescription({ title, venue: venueName, category: 'workshop', date: new Date(event.start_time), price: priceStr });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, datePart),
 			title_no: title,
-			description_no: makeDescription(title, venueName, 'workshop'),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: 'workshop',
 			date_start: dateStart,
 			date_end: dateEnd,

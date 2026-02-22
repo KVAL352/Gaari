@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bjorgvinblues';
 const BASE_URL = 'https://www.bjorgvinblues.no/Konserter';
@@ -48,10 +49,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const eventKey = `${BASE_URL}#${date}-${makeSlug(title, date)}`;
 		if (await eventExists(eventKey)) continue;
 
+		const aiDesc = await generateDescription({ title, venue: 'Madam Felle', category: 'music', date: startDate, price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, date),
 			title_no: `Bjørgvin Blues: ${title}`,
-			description_no: makeDescription(title, 'Madam Felle', 'music'),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: 'music',
 			date_start: startDate.toISOString(),
 			venue_name: 'Madam Felle',

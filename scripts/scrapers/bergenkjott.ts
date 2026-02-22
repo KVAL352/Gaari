@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenkjott';
 const BASE_URL = 'https://bergenkjott.org';
@@ -152,10 +153,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			? `${jsonLd.location.address.streetAddress}, ${jsonLd.location.address.addressLocality || 'Bergen'}`
 			: ADDRESS;
 
+		const aiDesc = await generateDescription({ title, venue: venueName, category, date: startDate, price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, datePart),
 			title_no: title,
-			description_no: makeDescription(title, venueName, category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: dateStart,
 			date_end: dateEnd,

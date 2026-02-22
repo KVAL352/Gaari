@@ -256,7 +256,7 @@ export async function removeExpiredEvents(): Promise<number> {
 }
 
 // Generate a factual description from event metadata (avoids copying copyrighted text)
-const CATEGORY_LABELS_NO: Record<string, string> = {
+export const CATEGORY_LABELS_NO: Record<string, string> = {
 	music: 'Konsert',
 	culture: 'Kulturarrangement',
 	theatre: 'Teater/scenekunst',

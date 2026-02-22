@@ -1,5 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bek';
 const API_URL = 'https://www.bek.no/wp-json/wp/v2/posts';
@@ -179,10 +180,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const category = guessCategory(title, content);
 		const bydel = mapBydel(VENUE);
 
+		const aiDesc = await generateDescription({ title, venue: VENUE, category, date: new Date(dateStart), price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, dateStart),
 			title_no: title,
-			description_no: makeDescription(title, VENUE, category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: dateStart,
 			date_end: dateEnd,

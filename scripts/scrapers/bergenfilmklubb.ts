@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenfilmklubb';
 const BASE_URL = 'https://bergenfilmklubb.no';
@@ -73,10 +74,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const address = ADDRESS;
 		const bydel = mapBydel(venueName);
 
+		const aiDesc = await generateDescription({ title, venue: venueName, category: 'culture', date: dateStart, price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, dateStr),
 			title_no: title,
-			description_no: makeDescription(title, venueName, 'culture'),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: 'culture',
 			date_start: dateStart,
 			date_end: dateEnd,

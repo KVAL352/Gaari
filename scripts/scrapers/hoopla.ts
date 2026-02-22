@@ -1,6 +1,7 @@
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
-import { makeSlug, eventExists, insertEvent, delay, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'hoopla';
 
@@ -113,10 +114,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const datePart = event.start.slice(0, 10);
 			const imageUrl = buildImageUrl(event.images);
 
+			const aiDesc = await generateDescription({ title: event.name, venue: venueName, category, date: new Date(event.start), price: '' });
+
 			const success = await insertEvent({
 				slug: makeSlug(event.name, datePart),
 				title_no: event.name,
-				description_no: makeDescription(event.name, venueName, category),
+				description_no: aiDesc.no,
+				description_en: aiDesc.en,
 				category,
 				date_start: new Date(event.start).toISOString(),
 				date_end: event.end ? new Date(event.end).toISOString() : undefined,

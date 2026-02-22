@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, parseNorwegianDate, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, parseNorwegianDate } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenchamber';
 const LIST_URL = 'https://bergen-chamber.no/arrangementer';
@@ -126,10 +127,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const venueName = detail.venue || 'Bergen Næringsråd';
 		const bydel = mapBydel(venueName);
 
+		const aiDesc = await generateDescription({ title: event.title, venue: detail.venue || 'Bergen Næringsråd', category: 'culture', date: dateStart, price: detail.price || '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(event.title, datePart),
 			title_no: event.title,
-			description_no: makeDescription(event.title, detail.venue || 'Bergen Næringsråd', 'culture'),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: 'workshop',
 			date_start: dateStart,
 			date_end: dateEnd,

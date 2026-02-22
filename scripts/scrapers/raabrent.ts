@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'raabrent';
 const BASE_URL = 'https://www.raabrent.no';
@@ -110,10 +111,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			? new Date(`${product.datePart}T${time.end}:00+01:00`).toISOString()
 			: undefined;
 
+		const aiDesc = await generateDescription({ title: product.title, venue: VENUE, category: 'workshop', date: dateStart, price: product.price });
+
 		const success = await insertEvent({
 			slug: makeSlug(product.title, product.datePart),
 			title_no: product.title,
-			description_no: product.title,
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: 'workshop',
 			date_start: dateStart,
 			date_end: dateEnd,

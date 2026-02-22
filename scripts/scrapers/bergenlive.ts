@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenlive';
 const URL = 'https://www.bergenlive.no/konsertkalender';
@@ -55,10 +56,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const bydel = mapBydel(venue);
 
+		const aiDesc = await generateDescription({ title, venue, category: 'music', date: dateStart, price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, dateStart),
 			title_no: title,
-			description_no: `${title} — ${venue}`,
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: 'music',
 			date_start: dateStart,
 			venue_name: venue,

@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenfest';
 const BASE_URL = 'https://www.bergenfest.no';
@@ -61,10 +62,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const sourceUrl = `${BASE_URL}${link}`;
 		if (await eventExists(sourceUrl)) continue;
 
+		const aiDesc = await generateDescription({ title, venue: 'Bergenhus Festning', category: 'festival', date: new Date(`${date}T18:00:00+02:00`), price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(title, date),
 			title_no: `Bergenfest: ${title}`,
-			description_no: makeDescription(title, 'Bergenhus Festning', 'festival'),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: 'festival',
 			date_start: new Date(`${date}T18:00:00+02:00`).toISOString(),
 			venue_name: 'Bergenhus Festning',

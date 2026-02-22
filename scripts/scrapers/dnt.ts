@@ -1,5 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'dnt';
 const API_URL = 'https://www.dnt.no/api/activities';
@@ -120,10 +121,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const bydel = mapBydel(venue);
 			const datePart = vm.start.slice(0, 10);
 
+			const aiDesc = await generateDescription({ title: activity.pageTitle, venue, category, date: vm.start, price: '' });
+
 			const success = await insertEvent({
 				slug: makeSlug(activity.pageTitle, datePart),
 				title_no: activity.pageTitle,
-				description_no: buildDescription(activity),
+				description_no: aiDesc.no,
+				description_en: aiDesc.en,
 				category,
 				date_start: new Date(vm.start).toISOString(),
 				date_end: vm.end ? new Date(vm.end).toISOString() : undefined,

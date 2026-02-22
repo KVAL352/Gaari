@@ -1,5 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'brettspill';
 const API_URL = 'https://bergenbrettspill.no/api/events';
@@ -43,10 +44,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const dateStart = new Date(event.time).toISOString();
 		const datePart = dateStart.slice(0, 10);
 
+		const aiDesc = await generateDescription({ title: event.name, venue: VENUE, category: 'culture', date: dateStart, price: '0' });
+
 		const success = await insertEvent({
 			slug: makeSlug(event.name, datePart),
 			title_no: event.name,
-			description_no: `Brettspillklubb: ${event.name}. Gratis, åpent for alle. Ta med egne spill eller lån fra samlingen.`,
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: 'culture',
 			date_start: dateStart,
 			venue_name: VENUE,

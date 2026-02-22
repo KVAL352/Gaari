@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'dvrtvest';
 const BASE_URL = 'https://www.detvestnorsketeateret.no';
@@ -161,10 +162,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const venueName = scene ? `${VENUE} – ${scene}` : VENUE;
 		const bydel = mapBydel(VENUE);
 
+		const aiDesc = await generateDescription({ title: event.title, venue: VENUE, category, date: dateStart, price: '' });
 		const success = await insertEvent({
 			slug: makeSlug(event.title, datePart),
 			title_no: event.title,
-			description_no: makeDescription(event.title, VENUE, category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: dateStart,
 			venue_name: venueName,

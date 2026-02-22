@@ -1,5 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'mediacity';
 const ICAL_URL = 'https://mediacitybergen.no/ical/events-feed';
@@ -129,10 +130,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const venueName = event.location || VENUE;
 		const bydel = mapBydel(venueName);
 
+		const aiDesc = await generateDescription({ title: event.summary, venue: venueName, category: 'workshop', date: new Date(dateStart), price: '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(event.summary, datePart),
 			title_no: event.summary,
-			description_no: makeDescription(event.summary, venueName, 'workshop'),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category: 'workshop',
 			date_start: dateStart,
 			date_end: dateEnd,

@@ -1,5 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'grieghallen';
 const LISTING_URL = 'https://www.grieghallen.no/arrangementer';
@@ -106,10 +107,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const datePart = event.firstEventDate.slice(0, 10);
 		const imageUrl = event.image ? `${CDN_BASE}${event.image}` : undefined;
 
+		const aiDesc = await generateDescription({ title: event.name, venue: 'Grieghallen', category, date: firstDate, price: '' });
 		const success = await insertEvent({
 			slug: makeSlug(event.name, datePart),
 			title_no: event.name,
-			description_no: makeDescription(event.name, 'Grieghallen', category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: firstDate.toISOString(),
 			date_end: event.lastEventDate && event.lastEventDate !== event.firstEventDate

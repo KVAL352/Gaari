@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'barnasnorge';
 const BASE_URL = 'https://www.barnasnorge.no';
@@ -243,10 +244,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Link directly to venue page, not BarnasNorge
 		const ticketUrl = venueInfo.venueUrl || resolveTicketUrl(venue, event.detailUrl) || event.detailUrl;
 
+		const aiDesc = await generateDescription({ title: event.title, venue, category, date: datePart, price: event.isFree ? '0' : '' });
+
 		const success = await insertEvent({
 			slug: makeSlug(event.title, datePart),
 			title_no: event.title,
-			description_no: event.title,
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: new Date(dateStart).toISOString(),
 			venue_name: venue,

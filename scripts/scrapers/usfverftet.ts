@@ -1,5 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, makeDescription } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'usfverftet';
 const LISTING_URL = 'https://usf.no/program';
@@ -135,10 +136,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Price from coverCharge (e.g. "240/200")
 		const priceStr = cf.coverCharge ? `${cf.coverCharge} kr` : (cf.freeEntry ? 'Gratis' : '');
 
+		const aiDesc = await generateDescription({ title: post.name, venue: venueName, category, date: new Date(post.start_time), price: priceStr });
+
 		const success = await insertEvent({
 			slug: makeSlug(post.name, datePart),
 			title_no: post.name,
-			description_no: makeDescription(post.name, venueName, category),
+			description_no: aiDesc.no,
+			description_en: aiDesc.en,
 			category,
 			date_start: post.start_time ? new Date(post.start_time).toISOString() : new Date().toISOString(),
 			date_end: cf.end_time ? new Date(cf.end_time).toISOString() : undefined,
