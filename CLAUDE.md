@@ -195,7 +195,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 
 ## CSS theming (`src/app.css`)
 
-Funkis design system inspired by Sundt building (Bergen, 1938). Custom properties for colors: `--color-primary` (accent red #C82D2D), `--color-text-primary` (#141414, 7.88:1 contrast), `--color-text-secondary` (#4D4D4D, 6.96:1), `--color-text-muted` (#595959, 7.01:1), `--color-bg-surface`, `--color-border`. All pass WCAG AA at all text sizes. Status badge tokens: `--color-cancelled` (#4A4843, 6.35:1), `--color-lasttickets-bg` (#FAECD0) + `--color-lasttickets-text` (#7A4F00, 5.2:1 on bg). Category-specific placeholder colors. Typography: Barlow Condensed (display), Inter (body).
+Funkis design system inspired by Sundt building (Bergen, 1938). Custom properties for colors: `--color-primary` (accent red #C82D2D), `--color-text-primary` (#141414, 7.88:1 contrast), `--color-text-secondary` (#4D4D4D, 6.96:1), `--color-text-muted` (#595959, 7.01:1), `--color-bg-surface`, `--color-border`. All pass WCAG AA at all text sizes. Status badge tokens: `--color-cancelled` (#4A4843, 6.35:1), `--color-lasttickets-bg` (#FAECD0) + `--color-lasttickets-text` (#7A4F00, 5.2:1 on bg). Category-specific placeholder colors. Typography: Barlow Condensed (display), Inter (body). **Fonts are self-hosted** as woff2 in `static/fonts/` with `@font-face` declarations in `app.css` (`font-display: swap`). Only weights actually used: Inter 400/500/600, Barlow Condensed 500/700. TTF files (`Inter-Regular.ttf`, `BarlowCondensed-Bold.ttf`) kept for Satori OG image generation.
 
 ## Accessibility (WCAG 2.2 Level AA)
 
@@ -228,7 +228,10 @@ EAA (European Accessibility Act) applies to Norway via EEA. The site meets WCAG 
 - **ISR caching**: Homepage sets `s-maxage=300, stale-while-revalidate=600` (5min fresh, 10min stale-while-revalidate). Vercel serves cached responses at CDN edge.
 - **Prerendered pages**: `/[lang]/about/` built as static HTML at deploy time (zero server compute).
 - **Keyed each blocks**: `EventGrid.svelte` uses `{#each ... (event.id)}` for efficient DOM reuse on filter changes.
-- **Already optimized**: Font preload + `font-display: swap`, image `aspect-[16/9]` + explicit dimensions (CLS prevention), eager/lazy loading split, `data-sveltekit-preload-data="hover"`, Tailwind CSS 4 auto-purge, lucide-svelte tree-shaking.
+- **Self-hosted fonts**: 5 woff2 files in `static/fonts/` (Inter 400/500/600, Barlow Condensed 500/700), `@font-face` in `app.css` with `font-display: swap`. Inter 400 and Barlow Condensed 700 preloaded in `app.html`. No external Google Fonts requests — CSP `font-src` and `style-src` only allow `'self'`.
+- **Event limit**: Homepage query limited to 100 events (was 500). Displays 12 per page, 100 covers 8+ pages of Load More. Reduces HTML payload ~80%.
+- **Already optimized**: Image `aspect-[16/9]` + explicit dimensions (CLS prevention), eager/lazy loading split, `data-sveltekit-preload-data="hover"`, Tailwind CSS 4 auto-purge, lucide-svelte tree-shaking.
+- **Lighthouse mobile** (Feb 23, 2026): Performance **95**, FCP **1.7s** (good), LCP **2.6s** (needs-improvement by 0.1s), TBT 10ms (good), CLS 0.003 (good), Speed Index 3.3s (good).
 
 ## SEO & web health
 
