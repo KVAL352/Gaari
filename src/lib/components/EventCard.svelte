@@ -110,7 +110,8 @@
 				{event.venue_name}, {event.bydel}
 			</p>
 		</div>
-		<div class="relative z-20 flex items-center justify-between border-t border-[var(--color-border)] px-4 py-3">
+		<div class="relative z-20 border-t border-[var(--color-border)] px-4 py-3">
+			<div class="flex items-center justify-between">
 			<span class="tabular-nums text-sm font-semibold">{priceText}</span>
 			<div class="flex items-center gap-1">
 				<CalendarDropdown event={calendarData} compact />
@@ -122,6 +123,8 @@
 					<Send size={18} />
 				</button>
 			</div>
+			</div>
+			<p class="mt-1 text-[0.625rem] italic text-[var(--color-text-muted)]">{$t('priceDisclaimer')}</p>
 		</div>
 	</article>
 </li>

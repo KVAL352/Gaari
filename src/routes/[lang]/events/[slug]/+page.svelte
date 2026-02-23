@@ -126,6 +126,7 @@
 			<div>
 				<h2 class="text-sm font-semibold">{$t('priceLabel')}</h2>
 				<p class="tabular-nums text-sm text-[var(--color-text-secondary)]">{formatPrice(event.price, $lang)}</p>
+				<p class="mt-0.5 text-[0.625rem] italic text-[var(--color-text-muted)]">{$t('priceDisclaimer')}</p>
 			</div>
 		</div>
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
