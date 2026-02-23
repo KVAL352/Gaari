@@ -159,23 +159,21 @@
 			{#if day === null}
 				<span class="cal-empty"></span>
 			{:else}
-				<div class="cal-cell">
-					<button
-						type="button"
-						class="cal-day"
-						class:past={isPast(day)}
-						class:today={day === todayStr}
-						class:selected={isSelected(day)}
-						class:range-edge={isRangeEdge(day)}
-						class:range-start={rangeStart === day}
-						disabled={isPast(day)}
-						onclick={() => handleDayClick(day)}
-						aria-label={new Date(day + 'T12:00:00').toLocaleDateString(lang === 'no' ? 'nb-NO' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-						aria-pressed={isSelected(day)}
-					>
-						{Number(day.slice(8, 10))}
-					</button>
-				</div>
+				<button
+					type="button"
+					class="cal-day"
+					class:past={isPast(day)}
+					class:today={day === todayStr}
+					class:selected={isSelected(day)}
+					class:range-edge={isRangeEdge(day)}
+					class:range-start={rangeStart === day}
+					disabled={isPast(day)}
+					onclick={() => handleDayClick(day)}
+					aria-label={new Date(day + 'T12:00:00').toLocaleDateString(lang === 'no' ? 'nb-NO' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+					aria-pressed={isSelected(day)}
+				>
+					{Number(day.slice(8, 10))}
+				</button>
 			{/if}
 		{/each}
 	</div>
@@ -237,8 +235,9 @@
 
 	.cal-grid {
 		display: grid;
-		grid-template-columns: repeat(7, 1fr);
+		grid-template-columns: repeat(7, minmax(0, 1fr));
 		gap: 2px;
+		overflow: hidden;
 	}
 
 	.cal-weekdays {
@@ -252,31 +251,21 @@
 		color: var(--color-text-muted);
 		text-transform: uppercase;
 		padding: 0.25rem 0;
-	}
-
-	.cal-cell,
-	.cal-empty {
-		position: relative;
 		min-width: 0;
+		overflow: hidden;
 	}
 
-	.cal-cell::before,
-	.cal-empty::before {
-		content: '';
-		display: block;
-		padding-bottom: 100%;
+	.cal-empty {
+		min-width: 0;
 	}
 
 	.cal-day {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		width: 100%;
 		min-width: 0;
+		padding: 0.625rem 0;
 		border: none;
 		background: none;
 		border-radius: 50%;
@@ -285,6 +274,8 @@
 		color: var(--color-text-primary);
 		font-variant-numeric: tabular-nums;
 		transition: background-color 0.1s;
+		-webkit-appearance: none;
+		appearance: none;
 	}
 
 	.cal-day:hover:not(:disabled):not(.selected) {
