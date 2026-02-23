@@ -272,68 +272,59 @@
 			</fieldset>
 		{/if}
 
-		<!-- More filters (bydel + price) — expandable -->
-		{#if dateSelected}
-			<div class="more-filters-row">
+		<!-- More filters (bydel + price) — always available -->
+		<div class="more-filters-row">
+			<button
+				type="button"
+				class="more-filters-toggle"
+				onclick={() => { showMoreFilters = !showMoreFilters; }}
+				aria-expanded={showMoreFilters}
+			>
+				{$t('moreFilters')}
+				<span class="toggle-arrow" class:open={showMoreFilters}>&#9662;</span>
+			</button>
+
+			{#if hasActiveFilters}
 				<button
 					type="button"
-					class="more-filters-toggle"
-					onclick={() => { showMoreFilters = !showMoreFilters; }}
-					aria-expanded={showMoreFilters}
+					onclick={onClearAll}
+					class="clear-all-btn"
 				>
-					{$t('moreFilters')}
-					<span class="toggle-arrow" class:open={showMoreFilters}>&#9662;</span>
+					{$t('clearAll')}
 				</button>
-
-				{#if hasActiveFilters}
-					<button
-						type="button"
-						onclick={onClearAll}
-						class="clear-all-btn"
-					>
-						{$t('clearAll')}
-					</button>
-				{/if}
-
-				<!-- Event count -->
-				<p class="event-count" aria-live="polite" role="status">
-					<span class="tabular-nums font-semibold">{eventCount}</span>
-					{$t('eventsFound')}
-				</p>
-			</div>
-
-			{#if showMoreFilters}
-				<div class="more-filters-content" transition:slide={{ duration: 200 }}>
-					<div class="filter-dropdowns">
-						<select
-							value={bydel}
-							onchange={handleBydelSelect}
-							class="filter-select"
-						>
-							<option value="">{$t('allAreas')}</option>
-							{#each BYDELER as b}
-								<option value={b}>{b}</option>
-							{/each}
-						</select>
-
-						<select
-							value={price}
-							onchange={handlePriceSelect}
-							class="filter-select"
-						>
-							{#each priceOptions as opt}
-								<option value={opt.value}>{$t(opt.labelKey)}</option>
-							{/each}
-						</select>
-					</div>
-				</div>
 			{/if}
-		{:else}
-			<!-- Simple count when no date selected -->
+
 			<p class="event-count" aria-live="polite" role="status">
 				<span class="tabular-nums font-semibold">{eventCount}</span>
 				{$t('eventsFound')}
 			</p>
+		</div>
+
+		{#if showMoreFilters}
+			<div class="more-filters-content" transition:slide={{ duration: 200 }}>
+				<div class="filter-dropdowns">
+					<select
+						value={bydel}
+						onchange={handleBydelSelect}
+						class="filter-select"
+					>
+						<option value="">{$t('allAreas')}</option>
+						{#each BYDELER as b}
+							<option value={b}>{b}</option>
+						{/each}
+					</select>
+
+					<select
+						value={price}
+						onchange={handlePriceSelect}
+						class="filter-select"
+					>
+						{#each priceOptions as opt}
+							<option value={opt.value}>{$t(opt.labelKey)}</option>
+						{/each}
+					</select>
+				</div>
+			</div>
 		{/if}
 	</div>
 </section>
