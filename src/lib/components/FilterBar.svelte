@@ -55,7 +55,7 @@
 	}
 </script>
 
-<div class="border-b border-[var(--color-border)] bg-white">
+<div class="border-b border-[var(--color-border)] bg-[var(--color-bg-surface)]">
 	<div class="mx-auto max-w-7xl px-4 py-3">
 		<!-- Top row: counts + dropdowns -->
 		<div class="flex flex-wrap items-center gap-3">

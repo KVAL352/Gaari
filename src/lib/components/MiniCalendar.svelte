@@ -214,14 +214,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 32px;
-		height: 32px;
+		width: 44px;
+		height: 44px;
 		border: none;
 		background: none;
 		border-radius: 50%;
 		cursor: pointer;
 		color: var(--color-text-secondary);
 		font-size: 1rem;
+		transition: background-color 0.15s;
 	}
 
 	.cal-nav:hover:not(:disabled) {

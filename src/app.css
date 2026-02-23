@@ -77,8 +77,8 @@
 	--font-body:    'Inter', system-ui, sans-serif;
 }
 
-/* Dark mode disabled — components use hardcoded bg-white in many places.
-   TODO: implement full dark mode by replacing all bg-white with bg-[var(--color-bg-surface)] */
+/* Dark mode disabled — all bg-white replaced with bg-[var(--color-bg-surface)] tokens.
+   To enable dark mode: override --color-bg-surface and other tokens in a @media (prefers-color-scheme: dark) block. */
 
 html {
 	font-family: var(--font-body);

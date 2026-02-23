@@ -36,5 +36,5 @@
 	style="background-color: {bgColor}"
 	aria-hidden="true"
 >
-	<IconComponent {size} strokeWidth={1.5} color="#141414" />
+	<IconComponent {size} strokeWidth={1.5} color="var(--color-text-primary)" />
 </div>

@@ -71,7 +71,7 @@
 		<button
 			onclick={toggle}
 			aria-expanded={open}
-			class="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-6 py-3 text-sm font-semibold transition-colors hover:bg-[var(--color-surface)]"
+			class="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-6 py-3 text-sm font-semibold transition-colors hover:bg-[var(--color-surface)]"
 		>
 			<CalendarPlus size={16} />
 			{$t('addToCalendar')}

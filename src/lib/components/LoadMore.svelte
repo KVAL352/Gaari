@@ -17,7 +17,7 @@
 		</p>
 		<button
 			onclick={onLoadMore}
-			class="rounded-xl border border-[#141414] bg-white px-8 py-3 text-sm font-semibold text-[#141414] transition-colors hover:bg-[#141414] hover:text-white"
+			class="rounded-xl border border-[var(--color-text-primary)] bg-[var(--color-bg-surface)] px-8 py-3 text-sm font-semibold text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-text-primary)] hover:text-white"
 		>
 			{$t('loadMore')}
 		</button>

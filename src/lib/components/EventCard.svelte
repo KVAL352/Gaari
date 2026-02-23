@@ -71,7 +71,7 @@
 </script>
 
 <li class="group list-none">
-	<article class="relative flex h-full flex-col overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+	<article class="relative flex h-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
 		<!-- Full-card link (z-10 covers image + text, action bar sits at z-20) -->
 		<a href={eventUrl} class="absolute inset-0 z-10" aria-label={title}></a>
 

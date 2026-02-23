@@ -43,6 +43,10 @@
 		border-color: var(--color-border-strong);
 	}
 
+	.filter-pill:active:not(:disabled) {
+		transform: scale(0.97);
+	}
+
 	.filter-pill:focus-visible {
 		outline: 2px solid var(--color-accent);
 		outline-offset: 2px;

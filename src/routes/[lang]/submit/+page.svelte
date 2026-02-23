@@ -231,7 +231,7 @@
 			<p class="mt-2 text-white/85">
 				{$lang === 'no' ? 'Arrangementet ditt er sendt inn til gjennomgang.' : 'Your event has been submitted for review.'}
 			</p>
-			<a href="/{$lang}" class="mt-6 inline-block rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-[var(--color-accent)] transition-colors hover:bg-white/90">
+			<a href="/{$lang}" class="mt-6 inline-block rounded-full bg-[var(--color-bg-surface)] px-6 py-2.5 text-sm font-semibold text-[var(--color-accent)] transition-colors hover:bg-[var(--color-surface)]">
 				← {$lang === 'no' ? 'Tilbake til arrangementer' : 'Back to events'}
 			</a>
 		</div>
@@ -241,14 +241,14 @@
 			<div>
 				<label for="title-no" class="mb-1 block text-sm font-medium">{$t('titleNo')} *</label>
 				<input id="title-no" name="title-no" type="text" required
-					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 			</div>
 
 			<!-- Title EN -->
 			<div>
 				<label for="title-en" class="mb-1 block text-sm font-medium">{$t('titleEn')}</label>
 				<input id="title-en" name="title-en" type="text"
-					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 			</div>
 
 			<!-- Category -->
@@ -267,12 +267,12 @@
 				<div>
 					<label for="date-start" class="mb-1 block text-sm font-medium">{$t('startDate')} *</label>
 					<input id="date-start" name="date-start" type="date" required
-						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 				</div>
 				<div>
 					<label for="time-start" class="mb-1 block text-sm font-medium">{$lang === 'no' ? 'Klokkeslett start' : 'Start time'} *</label>
 					<input id="time-start" name="time-start" type="time" required value="19:00"
-						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 				</div>
 			</div>
 
@@ -281,12 +281,12 @@
 				<div>
 					<label for="date-end" class="mb-1 block text-sm font-medium">{$t('endDate')}</label>
 					<input id="date-end" name="date-end" type="date"
-						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 				</div>
 				<div>
 					<label for="time-end" class="mb-1 block text-sm font-medium">{$lang === 'no' ? 'Klokkeslett slutt' : 'End time'}</label>
 					<input id="time-end" name="time-end" type="time"
-						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 				</div>
 			</div>
 
@@ -295,12 +295,12 @@
 				<div>
 					<label for="venue" class="mb-1 block text-sm font-medium">{$t('venueName')} *</label>
 					<input id="venue" name="venue" type="text" required
-						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 				</div>
 				<div>
 					<label for="address" class="mb-1 block text-sm font-medium">{$t('address')} *</label>
 					<input id="address" name="address" type="text" required
-						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 				</div>
 			</div>
 
@@ -319,26 +319,26 @@
 			<div>
 				<label for="price" class="mb-1 block text-sm font-medium">{$t('priceLabel')}</label>
 				<input id="price" name="price" type="text" placeholder={$lang === 'no' ? '0 = gratis' : '0 = free'}
-					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 			</div>
 
 			<!-- Descriptions -->
 			<div>
 				<label for="desc-no" class="mb-1 block text-sm font-medium">{$t('descriptionNo')} *</label>
 				<textarea id="desc-no" name="desc-no" rows="4" required
-					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20"></textarea>
+					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20"></textarea>
 			</div>
 			<div>
 				<label for="desc-en" class="mb-1 block text-sm font-medium">{$t('descriptionEn')}</label>
 				<textarea id="desc-en" name="desc-en" rows="4"
-					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20"></textarea>
+					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20"></textarea>
 			</div>
 
 			<!-- Ticket URL -->
 			<div>
 				<label for="ticket-url" class="mb-1 block text-sm font-medium">{$t('ticketUrl')}</label>
 				<input id="ticket-url" name="ticket-url" type="text" placeholder={$lang === 'no' ? 'grieghallen.no/billetter' : 'ticketmaster.no/event'}
-					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[#141414] focus:outline-none focus:ring-2 focus:ring-[#141414]/20" />
+					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 			</div>
 
 			<!-- Image upload -->
@@ -368,7 +368,7 @@
 					{/if}
 				{:else}
 					<label
-						class="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-[var(--color-border)] p-6 text-center transition-colors hover:border-[#141414] hover:bg-[var(--color-surface)]"
+						class="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-[var(--color-border)] p-6 text-center transition-colors hover:border-[var(--color-text-primary)] hover:bg-[var(--color-surface)]"
 					>
 						<Upload size={24} class="text-[var(--color-text-muted)]" />
 						<span class="text-sm text-[var(--color-text-secondary)]">

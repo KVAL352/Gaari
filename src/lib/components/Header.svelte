@@ -4,7 +4,7 @@
 	import { Plus } from 'lucide-svelte';
 </script>
 
-<header class="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/95 backdrop-blur-sm">
+<header class="sticky top-0 z-50 border-b border-[var(--color-border)] backdrop-blur-sm" style="background: color-mix(in srgb, var(--color-bg-surface) 95%, transparent)">
 	<a href="#events" class="skip-link">{$t('skipToEvents')}</a>
 	<div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
 		<!-- Logo -->
