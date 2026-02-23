@@ -152,6 +152,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - **Key components**: `FilterPill.svelte` (reusable pill button), `MiniCalendar.svelte` (inline date picker), `EventDiscovery.svelte` (main component)
 - **18+ audience filter** excludes family events (not just explicitly tagged 18+ events)
 - **Category filter** supports comma-separated multi-select (`?category=music,culture`)
+- **Time-of-day filter uses Oslo timezone**: `matchesTimeOfDay()` in `+page.svelte` converts UTC timestamps to Oslo local hours via `toLocaleString('sv-SE', { timeZone: 'Europe/Oslo' })` before comparing against time ranges. Handles CET/CEST automatically.
 
 ## Price disclaimer policy
 
@@ -229,7 +230,7 @@ EAA (European Accessibility Act) applies to Norway via EEA. The site meets WCAG 
 - **Prerendered pages**: `/[lang]/about/` built as static HTML at deploy time (zero server compute).
 - **Keyed each blocks**: `EventGrid.svelte` uses `{#each ... (event.id)}` for efficient DOM reuse on filter changes.
 - **Self-hosted fonts**: 5 woff2 files in `static/fonts/` (Inter 400/500/600, Barlow Condensed 500/700), `@font-face` in `app.css` with `font-display: swap`. Inter 400 and Barlow Condensed 700 preloaded in `app.html`. No external Google Fonts requests — CSP `font-src` and `style-src` only allow `'self'`.
-- **Event limit**: Homepage query limited to 100 events (was 500). Displays 12 per page, 100 covers 8+ pages of Load More. Reduces HTML payload ~80%.
+- **Event limit**: Homepage query loads 500 events. Displays 12 per page with Load More.
 - **Already optimized**: Image `aspect-[16/9]` + explicit dimensions (CLS prevention), eager/lazy loading split, `data-sveltekit-preload-data="hover"`, Tailwind CSS 4 auto-purge, lucide-svelte tree-shaking.
 - **Lighthouse mobile** (Feb 23, 2026): Performance **95**, FCP **1.7s** (good), LCP **2.6s** (needs-improvement by 0.1s), TBT 10ms (good), CLS 0.003 (good), Speed Index 3.3s (good).
 
