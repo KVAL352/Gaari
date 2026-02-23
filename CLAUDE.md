@@ -7,7 +7,10 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 ## Architecture
 
 - **Frontend**: SvelteKit 2 with Svelte 5 runes (`$state`, `$derived`, `$effect`). Tailwind CSS 4. Language routing via `/[lang]/` (no, en).
-- **Database**: Supabase with `events` and `opt_out_requests` tables. Anon key for frontend reads, service role key for scraper writes.
+- **Data loading**: Server-side via `+page.server.ts` — Supabase SDK runs only on the server for all main pages. Data arrives pre-rendered in HTML (no client-side fetch waterfall). Only `/submit` still uses client-side Supabase (for image uploads).
+- **Supabase client**: `$lib/server/supabase.ts` (server-only, enforced by SvelteKit `$lib/server/` convention). `$lib/supabase.ts` exists only for the submit page's client-side usage.
+- **Database**: Supabase with `events`, `opt_out_requests`, and `edit_suggestions` tables. Anon key for reads, service role key for scraper writes.
+- **Form actions**: Correction form (event detail) and opt-out form (datainnsamling) use SvelteKit form actions with `use:enhance` — no client-side Supabase needed.
 - **Scrapers**: Standalone TypeScript in `scripts/`, separate `package.json`. Uses Cheerio for HTML parsing. Runs via GitHub Actions cron (twice daily at 6 AM & 6 PM UTC).
 - **AI Descriptions**: Gemini 2.5 Flash generates bilingual summaries (<160 chars each) from event metadata. Fallback to template if API unavailable.
 
@@ -130,7 +133,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 ## Opt-out system
 
 - Supabase table: `opt_out_requests` (org, domain, email, reason, status, created_at)
-- Form on `/datainnsamling` → client-side Supabase insert (anon key)
+- Form on `/datainnsamling` → SvelteKit form action (`?/optout`) with server-side Supabase insert, honeypot spam protection
 - Workflow: venue submits → `status: 'pending'` → admin approves in Supabase dashboard → `'approved'`
 - Scraper pipeline: `loadOptOuts()` caches approved domains, `insertEvent()` checks `isOptedOut(source_url)`, pipeline step 1b deletes existing events from opted-out domains
 
@@ -162,11 +165,11 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 
 ## Frontend routes
 
-- `/[lang]/` — Main event listing with EventDiscovery filter (When/Time/Who/What pills + bydel/price)
-- `/[lang]/about/` — About page
-- `/[lang]/datainnsamling/` — Data transparency page (43 sources listed, opt-out form)
-- `/[lang]/submit/` — Event submission form (blocked from search engines)
-- `/[lang]/events/[slug]/` — Event detail page with related events and OG image
+- `/[lang]/` — Main event listing with EventDiscovery filter. **Server-side loaded** (`+page.server.ts`), ISR cached (`s-maxage=300, stale-while-revalidate=600`).
+- `/[lang]/about/` — About page. **Prerendered** at build time (both `/no/about` and `/en/about`).
+- `/[lang]/datainnsamling/` — Data transparency page (43 sources listed, opt-out form). Form action `?/optout` in `+page.server.ts`.
+- `/[lang]/submit/` — Event submission form (blocked from search engines). Only page that ships Supabase SDK to client (for image uploads).
+- `/[lang]/events/[slug]/` — Event detail page with related events and OG image. **Server-side loaded**, correction form action `?/correction` in `+page.server.ts`.
 - `/api/health` — Health check endpoint (Supabase connection, event count, scrape freshness). Returns healthy/degraded/unhealthy, 5min cache, 503 on unhealthy.
 - `/og/[slug].png` — Per-event OG image generation (Satori + ResvgJS)
 - `/sitemap.xml` — Dynamic sitemap with hreflang (static pages + all approved events, 1h cache)
@@ -177,7 +180,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `Footer.svelte` — Footer with links (about, datainnsamling, contact)
 - `HeroSection.svelte` — Compact hero with tagline
 - `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer
-- `EventGrid.svelte` — Date-grouped event grid layout
+- `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates)
 - `EventDiscovery.svelte` — Progressive 4-step filter (When/Time/Who/What) with inline calendar + bydel/price
 - `FilterPill.svelte` — Reusable pill/chip button (aria-pressed, 44px touch targets, Funkis styling)
 - `MiniCalendar.svelte` — Inline month-grid date picker (single date + range selection, bilingual). Proper ARIA grid structure: `role="grid"` > `role="row"` > `role="gridcell"` with chunked weeks.
@@ -216,6 +219,17 @@ EAA (European Accessibility Act) applies to Norway via EEA. The site meets WCAG 
 
 **Touch targets:** FilterPill and nav buttons `min-height: 44px`. Filter selects `min-height: 44px` (WCAG 2.5.8).
 
+## Performance (Core Web Vitals)
+
+**Server-side data loading** (Feb 2026): All main pages use `+page.server.ts` — data arrives pre-rendered in HTML, eliminating the client-side waterfall (Load JS → Init Supabase → Fetch → Render). The Supabase JS SDK (`@supabase/supabase-js`) is NOT included in client bundles except for the `/submit` page.
+
+- **Server-only Supabase**: `$lib/server/supabase.ts` — used by all `+page.server.ts` files, `+server.ts` endpoints (health, og, sitemap). SvelteKit enforces server-only import boundary.
+- **Form actions**: Correction form and opt-out form use native `<form method="POST">` with `use:enhance` — no client-side SDK needed.
+- **ISR caching**: Homepage sets `s-maxage=300, stale-while-revalidate=600` (5min fresh, 10min stale-while-revalidate). Vercel serves cached responses at CDN edge.
+- **Prerendered pages**: `/[lang]/about/` built as static HTML at deploy time (zero server compute).
+- **Keyed each blocks**: `EventGrid.svelte` uses `{#each ... (event.id)}` for efficient DOM reuse on filter changes.
+- **Already optimized**: Font preload + `font-display: swap`, image `aspect-[16/9]` + explicit dimensions (CLS prevention), eager/lazy loading split, `data-sveltekit-preload-data="hover"`, Tailwind CSS 4 auto-purge, lucide-svelte tree-shaking.
+
 ## SEO & web health
 
 - Open Graph tags on all pages, per-event og:image generation
@@ -234,7 +248,7 @@ EAA (European Accessibility Act) applies to Norway via EEA. The site meets WCAG 
 
 ## Observability
 
-- **Error logging**: `hooks.server.ts` exports `handleError` — structured JSON (type, timestamp, status, message, stack, url, method, userAgent) parsed by Vercel's log system. `hooks.client.ts` mirrors the format for browser DevTools.
+- **Error logging**: `hooks.server.ts` exports `handleError` — structured JSON (type, timestamp, status, message, stack, url, method, userAgent) parsed by Vercel's log system. `hooks.client.ts` mirrors the format for browser DevTools. Rate limiting in `handle` hook uses try/catch around `getClientAddress()` to support prerendering.
 - **Health endpoint**: `GET /api/health` — three checks: `supabase_connection`, `events_exist` (count > 0), `recent_scrape` (events created in last 24h). Monitorable by UptimeRobot or similar.
 - **Scraper summary**: Pipeline outputs JSON summary to `SUMMARY_FILE` env var. GitHub Actions job summary step reads it with `jq` and writes a markdown table to `$GITHUB_STEP_SUMMARY`.
 
