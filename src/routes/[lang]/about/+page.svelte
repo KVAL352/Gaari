@@ -20,7 +20,8 @@
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content={`${$t('aboutTitle')} — Gåri`} />
 	<meta name="twitter:description" content={$t('aboutText')} />
-	{@html `<script type="application/ld+json">${orgJsonLd}</script>`}
+	<!-- eslint-disable svelte/no-at-html-tags -->
+	{@html '<script type="application/ld+json">' + orgJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">

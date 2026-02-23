@@ -237,7 +237,8 @@
 	<meta name="twitter:title" content={`Gåri — ${$t('tagline')}`} />
 	<meta name="twitter:description" content={$lang === 'no' ? 'Finn alle arrangementer i Bergen på ett sted.' : 'Find all events in Bergen in one place.'} />
 	<meta name="twitter:image" content={`${$page.url.origin}/og/default.png`} />
-	{@html `<script type="application/ld+json">${websiteJsonLd}</script>`}
+	<!-- eslint-disable svelte/no-at-html-tags -->
+	{@html '<script type="application/ld+json">' + websiteJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <HeroSection />

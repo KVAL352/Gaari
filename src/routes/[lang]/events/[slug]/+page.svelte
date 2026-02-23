@@ -77,8 +77,9 @@
 	<meta name="twitter:title" content={`${title} — Gåri`} />
 	<meta name="twitter:description" content={description?.slice(0, 160)} />
 	<meta name="twitter:image" content={`${$page.url.origin}/og/${event.slug}.png`} />
-	{@html `<script type="application/ld+json">${eventJsonLd}</script>`}
-	{@html `<script type="application/ld+json">${breadcrumbJsonLd}</script>`}
+	<!-- eslint-disable svelte/no-at-html-tags -->
+	{@html '<script type="application/ld+json">' + eventJsonLd + '</scr' + 'ipt>'}
+	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-6">

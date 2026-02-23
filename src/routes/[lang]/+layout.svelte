@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { lang, setLang, detectLanguage } from '$lib/i18n';
+	import { lang, setLang } from '$lib/i18n';
 	import type { Lang } from '$lib/types';
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
