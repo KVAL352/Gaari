@@ -3,4 +3,4 @@ Allow: /
 Disallow: /no/submit
 Disallow: /en/submit
 
-Sitemap: https://gaari.vercel.app/sitemap.xml
+Sitemap: https://gaari.no/sitemap.xml

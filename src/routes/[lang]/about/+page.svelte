@@ -1,17 +1,26 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
+	import { generateOrganizationJsonLd, getCanonicalUrl } from '$lib/seo';
 	import { Mail } from 'lucide-svelte';
+
+	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/about`));
+	let orgJsonLd = generateOrganizationJsonLd();
 </script>
 
 <svelte:head>
 	<title>{$t('aboutTitle')} — Gåri</title>
 	<meta name="description" content={$t('aboutText')} />
+	<link rel="canonical" href={canonicalUrl} />
 	<meta property="og:title" content={`${$t('aboutTitle')} — Gåri`} />
 	<meta property="og:description" content={$t('aboutText')} />
 	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content={`${$t('aboutTitle')} — Gåri`} />
+	<meta name="twitter:description" content={$t('aboutText')} />
+	{@html `<script type="application/ld+json">${orgJsonLd}</script>`}
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">

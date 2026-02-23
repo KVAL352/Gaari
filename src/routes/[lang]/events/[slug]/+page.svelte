@@ -5,6 +5,7 @@
 		formatEventDate, formatEventTime, formatPrice, isFreeEvent
 	} from '$lib/utils';
 	import type { GaariEvent } from '$lib/types';
+	import { generateEventJsonLd, generateBreadcrumbJsonLd, getCanonicalUrl } from '$lib/seo';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
 	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
@@ -27,6 +28,13 @@
 	let correctionReason = $state('');
 	let correctionSubmitted = $state(false);
 	let correctionSubmitting = $state(false);
+
+	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/events/${event.slug}`));
+	let eventJsonLd = $derived(generateEventJsonLd(event, $lang, canonicalUrl));
+	let breadcrumbJsonLd = $derived(generateBreadcrumbJsonLd([
+		{ name: 'Gåri', url: getCanonicalUrl(`/${$lang}`) },
+		{ name: title }
+	]));
 
 	let calendarData = $derived({
 		title: title,
@@ -58,11 +66,19 @@
 <svelte:head>
 	<title>{title} — Gåri</title>
 	<meta name="description" content={description?.slice(0, 160)} />
+	<link rel="canonical" href={canonicalUrl} />
 	<meta property="og:title" content={`${title} — Gåri`} />
 	<meta property="og:description" content={description?.slice(0, 160)} />
+	<meta property="og:type" content="event" />
 	<meta property="og:image" content={`${$page.url.origin}/og/${event.slug}.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content={`${title} — Gåri`} />
+	<meta name="twitter:description" content={description?.slice(0, 160)} />
+	<meta name="twitter:image" content={`${$page.url.origin}/og/${event.slug}.png`} />
+	{@html `<script type="application/ld+json">${eventJsonLd}</script>`}
+	{@html `<script type="application/ld+json">${breadcrumbJsonLd}</script>`}
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-6">

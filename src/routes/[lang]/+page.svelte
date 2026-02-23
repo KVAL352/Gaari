@@ -4,6 +4,7 @@
 	import { lang, t } from '$lib/i18n';
 	import { isFreeEvent } from '$lib/utils';
 	import type { Category, Bydel, GaariEvent, TimeOfDay } from '$lib/types';
+	import { generateWebSiteJsonLd, getCanonicalUrl } from '$lib/seo';
 	import HeroSection from '$lib/components/HeroSection.svelte';
 	import FilterBar from '$lib/components/FilterBar.svelte';
 	import EventDiscovery from '$lib/components/EventDiscovery.svelte';
@@ -218,16 +219,25 @@
 
 	// Popular events for empty state
 	let popularEvents = $derived(allEvents.filter(e => e.status === 'approved').slice(0, 3));
+
+	let websiteJsonLd = $derived(generateWebSiteJsonLd($lang));
+	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}`));
 </script>
 
 <svelte:head>
 	<title>Gåri — {$t('tagline')}</title>
 	<meta name="description" content={$lang === 'no' ? 'Finn alle arrangementer i Bergen på ett sted.' : 'Find all events in Bergen in one place.'} />
+	<link rel="canonical" href={canonicalUrl} />
 	<meta property="og:title" content={`Gåri — ${$t('tagline')}`} />
 	<meta property="og:description" content={$lang === 'no' ? 'Finn alle arrangementer i Bergen på ett sted.' : 'Find all events in Bergen in one place.'} />
 	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content={`Gåri — ${$t('tagline')}`} />
+	<meta name="twitter:description" content={$lang === 'no' ? 'Finn alle arrangementer i Bergen på ett sted.' : 'Find all events in Bergen in one place.'} />
+	<meta name="twitter:image" content={`${$page.url.origin}/og/default.png`} />
+	{@html `<script type="application/ld+json">${websiteJsonLd}</script>`}
 </svelte:head>
 
 <HeroSection />

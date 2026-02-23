@@ -1,6 +1,6 @@
 import { supabase } from '$lib/supabase';
 
-const BASE = 'https://gaari.vercel.app';
+const BASE = 'https://gaari.no';
 
 const STATIC_PAGES = ['', '/about', '/datainnsamling'];
 
@@ -9,7 +9,8 @@ export async function GET() {
 		.from('events')
 		.select('slug, date_start')
 		.in('status', ['approved'])
-		.order('date_start', { ascending: false });
+		.order('date_start', { ascending: false })
+		.limit(5000);
 
 	const today = new Date().toISOString().slice(0, 10);
 
@@ -26,6 +27,7 @@ export async function GET() {
     <priority>${page === '' ? '1.0' : '0.7'}</priority>
     <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}${page}" />
     <xhtml:link rel="alternate" hreflang="${altLang === 'no' ? 'nb' : 'en'}" href="${BASE}/${altLang}${page}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no${page}" />
   </url>\n`;
 		}
 	}
@@ -34,11 +36,15 @@ export async function GET() {
 	for (const event of events || []) {
 		const lastmod = event.date_start?.slice(0, 10) || today;
 		for (const lang of ['no', 'en']) {
+			const altLang = lang === 'no' ? 'en' : 'no';
 			urls += `  <url>
     <loc>${BASE}/${lang}/events/${event.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/events/${event.slug}" />
+    <xhtml:link rel="alternate" hreflang="${altLang === 'no' ? 'nb' : 'en'}" href="${BASE}/${altLang}/events/${event.slug}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/events/${event.slug}" />
   </url>\n`;
 		}
 	}
