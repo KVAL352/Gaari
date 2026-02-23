@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { BadgeType } from '$lib/types';
 	import { t } from '$lib/i18n';
-	import { Check, X, AlertTriangle, Ban } from 'lucide-svelte';
+	import { Check, X, AlertTriangle, Ban, CalendarDays } from 'lucide-svelte';
 
 	interface Props {
 		type: BadgeType;
@@ -25,8 +25,8 @@
 		cancelled: 'cancelled'
 	};
 
-	// Icons for non-today badges only
 	const iconComponents: Partial<Record<BadgeType, typeof Check>> = {
+		today: CalendarDays,
 		free: Check,
 		soldout: X,
 		lasttickets: AlertTriangle,

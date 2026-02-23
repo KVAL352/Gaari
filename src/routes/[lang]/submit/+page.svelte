@@ -379,7 +379,7 @@
 			</div>
 
 			{#if submitError}
-				<p class="text-sm text-red-600">{submitError}</p>
+				<p class="text-sm text-red-600" role="alert">{submitError}</p>
 			{/if}
 
 			<button

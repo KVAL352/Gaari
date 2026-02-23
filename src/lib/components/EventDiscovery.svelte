@@ -306,6 +306,7 @@
 					<select
 						value={bydel}
 						onchange={handleBydelSelect}
+						aria-label={$t('allAreas')}
 						class="filter-select"
 					>
 						<option value="">{$t('allAreas')}</option>
@@ -317,6 +318,7 @@
 					<select
 						value={price}
 						onchange={handlePriceSelect}
+						aria-label={$t('allPrices')}
 						class="filter-select"
 					>
 						{#each priceOptions as opt}

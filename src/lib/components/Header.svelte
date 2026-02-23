@@ -11,7 +11,7 @@
 		<a href="/{$lang}" class="text-[22px] font-bold uppercase tracking-[0.12em] text-[var(--color-accent)]" style="font-family: var(--font-display)">GÅRI</a>
 
 		<!-- Right side: language + CTA -->
-		<div class="flex items-center gap-3">
+		<nav aria-label={$lang === 'no' ? 'Navigasjon' : 'Navigation'} class="flex items-center gap-3">
 			<LanguageSwitch />
 			<a
 				href="/{$lang}/submit"
@@ -21,6 +21,6 @@
 				<span class="hidden sm:inline">{$t('submitEvent')}</span>
 				<span class="sm:hidden">{$lang === 'no' ? 'Send inn' : 'Submit'}</span>
 			</a>
-		</div>
+		</nav>
 	</div>
 </header>

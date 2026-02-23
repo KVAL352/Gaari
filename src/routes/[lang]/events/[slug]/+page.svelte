@@ -78,7 +78,7 @@
 	<!-- Hero image -->
 	<div class="mb-6 aspect-[16/9] overflow-hidden rounded-2xl bg-[var(--color-surface)]">
 		{#if event.image_url}
-			<img src={event.image_url} alt="" class="h-full w-full object-cover" width="800" height="450" />
+			<img src={event.image_url} alt={title} class="h-full w-full object-cover" width="800" height="450" />
 		{:else}
 			<ImagePlaceholder category={event.category} size={64} />
 		{/if}
@@ -107,7 +107,7 @@
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
 			<Calendar size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-text-secondary)]" />
 			<div>
-				<h2 class="text-sm font-semibold">{$t('when')}</h2>
+				<p class="text-sm font-semibold">{$t('when')}</p>
 				<time datetime={event.date_start} class="tabular-nums text-sm text-[var(--color-text-secondary)]">
 					{formatEventDate(event.date_start, $lang)}{formatEventTime(event.date_start, $lang) ? `, ${formatEventTime(event.date_start, $lang)}` : ''}{#if event.date_end && formatEventTime(event.date_end, $lang)} — {formatEventTime(event.date_end, $lang)}{/if}
 				</time>
@@ -116,7 +116,7 @@
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
 			<MapPin size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-text-secondary)]" />
 			<div>
-				<h2 class="text-sm font-semibold">{$t('where')}</h2>
+				<p class="text-sm font-semibold">{$t('where')}</p>
 				<p class="text-sm text-[var(--color-text-secondary)]">{event.venue_name}</p>
 				<p class="text-xs text-[var(--color-text-secondary)]">{event.address}, {event.bydel}</p>
 			</div>
@@ -124,7 +124,7 @@
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
 			<Tag size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-text-secondary)]" />
 			<div>
-				<h2 class="text-sm font-semibold">{$t('priceLabel')}</h2>
+				<p class="text-sm font-semibold">{$t('priceLabel')}</p>
 				<p class="tabular-nums text-sm text-[var(--color-text-secondary)]">{formatPrice(event.price, $lang)}</p>
 				<p class="mt-0.5 text-[0.625rem] italic text-[var(--color-text-muted)]">{$t('priceDisclaimer')}</p>
 			</div>
@@ -132,7 +132,7 @@
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
 			<Clock size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-text-secondary)]" />
 			<div>
-				<h2 class="text-sm font-semibold">{$t('category')}</h2>
+				<p class="text-sm font-semibold">{$t('category')}</p>
 				<p class="text-sm text-[var(--color-text-secondary)]">{$t(`cat.${event.category}` as any)}</p>
 			</div>
 		</div>

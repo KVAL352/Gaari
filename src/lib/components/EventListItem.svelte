@@ -41,7 +41,7 @@
 		<!-- Thumbnail -->
 		<div class="h-16 w-20 flex-shrink-0 overflow-hidden rounded-lg">
 			{#if event.image_url}
-				<img src={event.image_url} alt="" class="h-full w-full object-cover" loading="lazy" width="80" height="64" />
+				<img src={event.image_url} alt={title} class="h-full w-full object-cover" loading="lazy" width="80" height="64" />
 			{:else}
 				<ImagePlaceholder category={event.category} size={24} />
 			{/if}

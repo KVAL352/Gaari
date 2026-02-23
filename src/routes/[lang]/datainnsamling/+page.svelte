@@ -348,7 +348,7 @@
 		</p>
 
 		{#if optOutStatus === 'success'}
-			<div class="rounded-lg border border-green-300 bg-green-50 p-4 text-green-800">
+			<div class="rounded-lg border border-green-300 bg-green-50 p-4 text-green-800" role="status">
 				{$lang === 'no'
 					? 'Forespørselen din er mottatt. Vi behandler den innen 48 timer.'
 					: 'Your request has been received. We\'ll process it within 48 hours.'}
@@ -421,7 +421,7 @@
 					{/if}
 				</button>
 				{#if optOutStatus === 'error'}
-					<p class="text-sm text-red-600">
+					<p class="text-sm text-red-600" role="alert">
 						{$lang === 'no'
 							? 'Noe gikk galt. Prøv igjen eller send e-post til gaari.bergen@proton.me.'
 							: 'Something went wrong. Please try again or email gaari.bergen@proton.me.'}

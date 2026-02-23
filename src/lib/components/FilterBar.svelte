@@ -64,6 +64,7 @@
 			<select
 				value={category}
 				onchange={(e) => handleSelect('category', e)}
+				aria-label={$t('allCategories')}
 				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				<option value="">{$t('allCategories')}</option>
@@ -76,6 +77,7 @@
 			<select
 				value={bydel}
 				onchange={(e) => handleSelect('bydel', e)}
+				aria-label={$t('allAreas')}
 				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				<option value="">{$t('allAreas')}</option>
@@ -87,6 +89,7 @@
 			<select
 				value={price}
 				onchange={(e) => handleSelect('price', e)}
+				aria-label={$t('allPrices')}
 				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				{#each priceOptions as opt}
@@ -98,6 +101,7 @@
 			<select
 				value={audience}
 				onchange={(e) => handleSelect('audience', e)}
+				aria-label={$t('allAudiences')}
 				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				{#each audienceOptions as opt}

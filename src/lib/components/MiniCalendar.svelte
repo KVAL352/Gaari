@@ -259,6 +259,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		min-width: 44px;
+		min-height: 44px;
 		aspect-ratio: 1;
 		border: none;
 		background: none;

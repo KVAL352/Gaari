@@ -81,7 +81,7 @@
 			{#if event.image_url && !imgError}
 				<img
 					src={event.image_url}
-					alt=""
+					alt={title}
 					loading={eager ? 'eager' : 'lazy'}
 					width="400"
 					height="225"

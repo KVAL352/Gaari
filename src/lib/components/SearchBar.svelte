@@ -23,8 +23,10 @@
 </script>
 
 <form onsubmit={handleSubmit} class="relative w-full">
+	<label for="event-search" class="sr-only">{$t('searchPlaceholder')}</label>
 	<Search size={18} class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" />
 	<input
+		id="event-search"
 		type="search"
 		bind:value={query}
 		placeholder={$t('searchPlaceholder')}

@@ -13,7 +13,7 @@
 			</div>
 
 			<!-- Categories -->
-			<div>
+			<nav aria-label={$t('categories')}>
 				<h4 class="mb-2 text-sm font-semibold">{$t('categories')}</h4>
 				<ul class="space-y-1">
 					{#each CATEGORIES.slice(0, 6) as cat}
@@ -27,7 +27,7 @@
 						</li>
 					{/each}
 				</ul>
-			</div>
+			</nav>
 
 			<!-- More categories -->
 			<div>
@@ -47,7 +47,7 @@
 			</div>
 
 			<!-- Links -->
-			<div>
+			<nav aria-label={$lang === 'no' ? 'Om Gåri' : 'About Gåri'}>
 				<h4 class="mb-2 text-sm font-semibold">Gåri</h4>
 				<ul class="space-y-1">
 					<li><a href="/{$lang}/about" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{$t('about')}</a></li>
@@ -55,7 +55,7 @@
 					<li><a href="/{$lang}/submit" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{$t('submitEvent')}</a></li>
 					<li><a href="mailto:gaari.bergen@proton.me" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{$t('contact')}</a></li>
 				</ul>
-			</div>
+			</nav>
 		</div>
 		<div class="mt-8 border-t border-[var(--color-border)] pt-6 text-center text-xs text-[var(--color-text-secondary)]">
 			© 2026 Gåri. Bergen, Norway.
