@@ -63,17 +63,19 @@
 	}
 
 	function matchesTimeOfDay(dateStart: string, times: string[]): boolean {
-		// Extract hour from date_start
-		const timePart = dateStart.slice(11, 13);
-		if (!timePart) return true; // No time info, include the event
-		const hour = Number(timePart);
+		// Convert UTC timestamp to Oslo local hour
+		const date = new Date(dateStart);
+		if (isNaN(date.getTime())) return true; // No valid time, include the event
+		const osloHour = Number(
+			date.toLocaleString('sv-SE', { timeZone: 'Europe/Oslo', hour: '2-digit', hour12: false }).slice(0, 2)
+		);
 
 		return times.some(t => {
 			switch (t as TimeOfDay) {
-				case 'morning': return hour >= 6 && hour < 12;
-				case 'daytime': return hour >= 12 && hour < 17;
-				case 'evening': return hour >= 17 && hour < 22;
-				case 'night': return hour >= 22 || hour < 6;
+				case 'morning': return osloHour >= 6 && osloHour < 12;
+				case 'daytime': return osloHour >= 12 && osloHour < 17;
+				case 'evening': return osloHour >= 17 && osloHour < 22;
+				case 'night': return osloHour >= 22 || osloHour < 6;
 				default: return false;
 			}
 		});

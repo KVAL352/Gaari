@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ setHeaders }) => {
 			.in('status', ['approved', 'cancelled'])
 			.gte('date_start', now)
 			.order('date_start', { ascending: true })
-			.limit(100);
+			.limit(500);
 
 		if (error) throw error;
 
