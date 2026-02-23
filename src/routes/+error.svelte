@@ -29,7 +29,7 @@
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
-<div class="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
+<main class="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
 	<p class="mb-2 text-6xl font-bold text-[var(--color-text-muted)]">{statusCode}</p>
 	<h1 class="mb-3 text-2xl font-bold">{title}</h1>
 	<p class="mb-8 max-w-md text-[var(--color-text-secondary)]">{message}</p>
@@ -39,4 +39,4 @@
 	>
 		&larr; {homeLabel}
 	</a>
-</div>
+</main>

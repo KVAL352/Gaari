@@ -374,6 +374,7 @@
 						type="text"
 						id="organization"
 						name="organization"
+						aria-required="true"
 						required
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2.5 text-sm"
 						placeholder={$lang === 'no' ? 'F.eks. Bergen Kunsthall' : 'E.g. Bergen Kunsthall'}
@@ -387,6 +388,7 @@
 						type="text"
 						id="domain"
 						name="domain"
+						aria-required="true"
 						required
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2.5 text-sm"
 						placeholder={$lang === 'no' ? 'F.eks. kunsthall.no' : 'E.g. kunsthall.no'}
@@ -400,6 +402,7 @@
 						type="email"
 						id="email"
 						name="email"
+						aria-required="true"
 						required
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2.5 text-sm"
 						placeholder={$lang === 'no' ? 'din@epost.no' : 'your@email.com'}
@@ -419,7 +422,7 @@
 				<button
 					type="submit"
 					disabled={optOutStatus === 'submitting'}
-					class="rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[var(--color-accent-hover)] disabled:opacity-50"
+					class="rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[var(--color-accent-hover)] disabled:opacity-70"
 				>
 					{#if optOutStatus === 'submitting'}
 						{$lang === 'no' ? 'Sender...' : 'Submitting...'}
@@ -443,7 +446,7 @@
 		<h2 class="mb-3 text-xl font-semibold">{$t('contact')}</h2>
 		<a
 			href="mailto:gaari.bergen@proton.me"
-			class="inline-flex items-center gap-2 text-[var(--color-text-primary)] hover:underline"
+			class="inline-flex items-center gap-2 text-[var(--color-text-primary)] underline"
 		>
 			<Mail size={16} />
 			gaari.bergen@proton.me

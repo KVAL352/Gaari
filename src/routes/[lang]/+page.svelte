@@ -250,7 +250,7 @@
 />
 
 
-<div class="mx-auto max-w-7xl px-4 py-6">
+<div class="mx-auto max-w-7xl px-4 py-6" aria-live="polite" aria-atomic="true">
 	{#if filteredEvents.length === 0}
 		<EmptyState
 			{popularEvents}

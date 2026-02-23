@@ -425,9 +425,10 @@
 		border-radius: 0.5rem;
 		border: 1px solid var(--color-border);
 		background: var(--color-bg-surface);
-		padding: 0.375rem 0.625rem;
+		padding: 0.5rem 0.75rem;
 		font-size: 0.8125rem;
 		color: var(--color-text-primary);
+		min-height: 44px;
 	}
 
 	.price-disclaimer {

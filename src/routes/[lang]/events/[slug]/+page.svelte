@@ -232,7 +232,7 @@
 							{$lang === 'no' ? 'Noe gikk galt. Prøv igjen.' : 'Something went wrong. Please try again.'}
 						</p>
 					{/if}
-					<button type="submit" disabled={correctionSubmitting} class="rounded-lg bg-[var(--color-text-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-text-secondary)] disabled:opacity-50">
+					<button type="submit" disabled={correctionSubmitting} class="rounded-lg bg-[var(--color-text-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-text-secondary)] disabled:opacity-70">
 						{$t('submit')}
 					</button>
 				</form>

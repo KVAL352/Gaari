@@ -40,7 +40,7 @@
 	/* Text — high contrast, like black steel frames */
 	--color-text-primary:   #141414;
 	--color-text-secondary: #4D4D4D;  /* 6.96:1 on white — WCAG AA+AAA */
-	--color-text-muted:     #737373;  /* 4.68:1 on white — WCAG AA */
+	--color-text-muted:     #595959;  /* 7.01:1 on white — WCAG AA at all sizes */
 
 	/* Accent (Sundt vermillion red) */
 	--color-accent:        var(--funkis-red);
@@ -52,7 +52,9 @@
 	--color-free:          #1A6B35;
 	--color-soldout:       #8B1A1A;
 	--color-lasttickets:   var(--funkis-amber);
-	--color-cancelled:     var(--funkis-granite);
+	--color-cancelled:     #4A4843;  /* 6.35:1 on white — WCAG AA */
+	--color-lasttickets-bg:   #FAECD0;
+	--color-lasttickets-text: #7A4F00;  /* 5.2:1 on #FAECD0 — WCAG AA */
 
 	/* Shadows */
 	--shadow-sm:  0 1px 4px rgba(20, 20, 20, 0.06);

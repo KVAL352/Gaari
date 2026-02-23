@@ -41,7 +41,7 @@
 		<p class="mt-3 text-sm">
 			<a
 				href="/{$lang}/datainnsamling"
-				class="text-[var(--color-accent)] hover:underline"
+				class="text-[var(--color-accent)] underline"
 			>
 				{$lang === 'no' ? 'Les mer om datainnsamling og juridisk grunnlag' : 'Read more about data collection and legal basis'}
 			</a>
@@ -52,7 +52,7 @@
 		<h2 class="mb-3 text-xl font-semibold">{$t('contact')}</h2>
 		<a
 			href="mailto:gaari.bergen@proton.me"
-			class="inline-flex items-center gap-2 text-[var(--color-text-primary)] hover:underline"
+			class="inline-flex items-center gap-2 text-[var(--color-text-primary)] underline"
 		>
 			<Mail size={16} />
 			gaari.bergen@proton.me

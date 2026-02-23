@@ -64,6 +64,15 @@
 		return days;
 	});
 
+	// Chunk days into weeks (rows of 7) for proper ARIA grid structure
+	let calendarWeeks = $derived.by(() => {
+		const weeks: (string | null)[][] = [];
+		for (let i = 0; i < calendarDays.length; i += 7) {
+			weeks.push(calendarDays.slice(i, i + 7));
+		}
+		return weeks;
+	});
+
 	function isPast(dateStr: string): boolean {
 		return dateStr < todayStr;
 	}
@@ -123,58 +132,66 @@
 	);
 </script>
 
-<div class="mini-calendar" role="application" aria-label={lang === 'no' ? 'Velg dato' : 'Choose date'}>
+<div class="mini-calendar" role="group" aria-label={lang === 'no' ? 'Kalender' : 'Calendar'}>
 	<!-- Month navigation -->
 	<div class="cal-header">
 		<button
 			type="button"
 			onclick={prevMonth}
 			disabled={!canGoPrev}
-			aria-label={lang === 'no' ? 'Forrige måned' : 'Previous month'}
+			aria-disabled={!canGoPrev}
+			aria-label={lang === 'no' ? `Forrige måned` : `Previous month`}
 			class="cal-nav"
 		>
 			&#8592;
 		</button>
-		<span class="cal-month-label">{monthLabel}</span>
+		<span class="cal-month-label" aria-live="polite">{monthLabel}</span>
 		<button
 			type="button"
 			onclick={nextMonth}
-			aria-label={lang === 'no' ? 'Neste måned' : 'Next month'}
+			aria-label={lang === 'no' ? `Neste måned` : `Next month`}
 			class="cal-nav"
 		>
 			&#8594;
 		</button>
 	</div>
 
-	<!-- Weekday headers -->
-	<div class="cal-grid cal-weekdays" role="row">
-		{#each weekdays as day}
-			<span class="cal-weekday" role="columnheader">{day}</span>
-		{/each}
-	</div>
+	<!-- Calendar grid with proper ARIA roles -->
+	<div role="grid" aria-label={monthLabel}>
+		<!-- Weekday headers -->
+		<div class="cal-grid cal-weekdays" role="row">
+			{#each weekdays as day}
+				<span class="cal-weekday" role="columnheader">{day}</span>
+			{/each}
+		</div>
 
-	<!-- Days grid -->
-	<div class="cal-grid" role="grid">
-		{#each calendarDays as day}
-			{#if day === null}
-				<span class="cal-empty"></span>
-			{:else}
-				<button
-					type="button"
-					class="cal-day"
-					class:past={isPast(day)}
-					class:today={day === todayStr}
-					class:selected={isSelected(day)}
-					class:range-edge={isRangeEdge(day)}
-					class:range-start={rangeStart === day}
-					disabled={isPast(day)}
-					onclick={() => handleDayClick(day)}
-					aria-label={new Date(day + 'T12:00:00').toLocaleDateString(lang === 'no' ? 'nb-NO' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-					aria-pressed={isSelected(day)}
-				>
-					{Number(day.slice(8, 10))}
-				</button>
-			{/if}
+		<!-- Day rows -->
+		{#each calendarWeeks as week}
+			<div class="cal-grid" role="row">
+				{#each week as day}
+					<span role="gridcell">
+						{#if day === null}
+							<span class="cal-empty"></span>
+						{:else}
+							<button
+								type="button"
+								class="cal-day"
+								class:past={isPast(day)}
+								class:today={day === todayStr}
+								class:selected={isSelected(day)}
+								class:range-edge={isRangeEdge(day)}
+								class:range-start={rangeStart === day}
+								disabled={isPast(day)}
+								onclick={() => handleDayClick(day)}
+								aria-label={new Date(day + 'T12:00:00').toLocaleDateString(lang === 'no' ? 'nb-NO' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+								aria-pressed={isSelected(day)}
+							>
+								{Number(day.slice(8, 10))}
+							</button>
+						{/if}
+					</span>
+				{/each}
+			</div>
 		{/each}
 	</div>
 
@@ -230,7 +247,7 @@
 	}
 
 	.cal-nav:disabled {
-		opacity: 0.3;
+		opacity: 0.5;
 		cursor: not-allowed;
 	}
 

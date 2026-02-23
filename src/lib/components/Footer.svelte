@@ -20,7 +20,7 @@
 						<li>
 							<a
 								href="/{$lang}?category={cat}"
-								class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+								class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]"
 							>
 								{$t(`cat.${cat}`)}
 							</a>
@@ -37,7 +37,7 @@
 						<li>
 							<a
 								href="/{$lang}?category={cat}"
-								class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+								class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]"
 							>
 								{$t(`cat.${cat}`)}
 							</a>
@@ -50,10 +50,10 @@
 			<nav aria-label={$lang === 'no' ? 'Om Gåri' : 'About Gåri'}>
 				<h4 class="mb-2 text-sm font-semibold">Gåri</h4>
 				<ul class="space-y-1">
-					<li><a href="/{$lang}/about" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{$t('about')}</a></li>
-					<li><a href="/{$lang}/datainnsamling" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{$t('dataCollection')}</a></li>
-					<li><a href="/{$lang}/submit" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{$t('submitEvent')}</a></li>
-					<li><a href="mailto:gaari.bergen@proton.me" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{$t('contact')}</a></li>
+					<li><a href="/{$lang}/about" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('about')}</a></li>
+					<li><a href="/{$lang}/datainnsamling" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('dataCollection')}</a></li>
+					<li><a href="/{$lang}/submit" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('submitEvent')}</a></li>
+					<li><a href="mailto:gaari.bergen@proton.me" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('contact')}</a></li>
 				</ul>
 			</nav>
 		</div>

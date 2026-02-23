@@ -240,7 +240,7 @@
 			<!-- Title NO -->
 			<div>
 				<label for="title-no" class="mb-1 block text-sm font-medium">{$t('titleNo')} *</label>
-				<input id="title-no" name="title-no" type="text" required
+				<input id="title-no" name="title-no" type="text" required aria-required="true"
 					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 			</div>
 
@@ -254,7 +254,7 @@
 			<!-- Category -->
 			<div>
 				<label for="category" class="mb-1 block text-sm font-medium">{$t('category')} *</label>
-				<select id="category" name="category" required
+				<select id="category" name="category" required aria-required="true"
 					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm">
 					{#each CATEGORIES as cat}
 						<option value={cat}>{$t(`cat.${cat}` )}</option>
@@ -266,12 +266,12 @@
 			<div class="grid gap-4 sm:grid-cols-2">
 				<div>
 					<label for="date-start" class="mb-1 block text-sm font-medium">{$t('startDate')} *</label>
-					<input id="date-start" name="date-start" type="date" required
+					<input id="date-start" name="date-start" type="date" required aria-required="true"
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 				</div>
 				<div>
 					<label for="time-start" class="mb-1 block text-sm font-medium">{$lang === 'no' ? 'Klokkeslett start' : 'Start time'} *</label>
-					<input id="time-start" name="time-start" type="time" required value="19:00"
+					<input id="time-start" name="time-start" type="time" required aria-required="true" value="19:00"
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 				</div>
 			</div>
@@ -294,12 +294,12 @@
 			<div class="grid gap-4 sm:grid-cols-2">
 				<div>
 					<label for="venue" class="mb-1 block text-sm font-medium">{$t('venueName')} *</label>
-					<input id="venue" name="venue" type="text" required
+					<input id="venue" name="venue" type="text" required aria-required="true"
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 				</div>
 				<div>
 					<label for="address" class="mb-1 block text-sm font-medium">{$t('address')} *</label>
-					<input id="address" name="address" type="text" required
+					<input id="address" name="address" type="text" required aria-required="true"
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 				</div>
 			</div>
@@ -307,7 +307,7 @@
 			<!-- Bydel -->
 			<div>
 				<label for="bydel" class="mb-1 block text-sm font-medium">{$t('bydel')} *</label>
-				<select id="bydel" name="bydel" required
+				<select id="bydel" name="bydel" required aria-required="true"
 					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm">
 					{#each BYDELER as b}
 						<option value={b}>{b}</option>
@@ -325,7 +325,7 @@
 			<!-- Descriptions -->
 			<div>
 				<label for="desc-no" class="mb-1 block text-sm font-medium">{$t('descriptionNo')} *</label>
-				<textarea id="desc-no" name="desc-no" rows="4" required
+				<textarea id="desc-no" name="desc-no" rows="4" required aria-required="true"
 					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20"></textarea>
 			</div>
 			<div>
@@ -392,7 +392,7 @@
 			<button
 				type="submit"
 				disabled={submitting}
-				class="w-full rounded-xl bg-[var(--color-accent)] py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-50"
+				class="w-full rounded-xl bg-[var(--color-accent)] py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-70"
 			>
 				{submitting ? ($lang === 'no' ? 'Sender inn...' : 'Submitting...') : $t('submit')}
 			</button>
