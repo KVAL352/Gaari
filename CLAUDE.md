@@ -180,9 +180,9 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `EventGrid.svelte` — Date-grouped event grid layout
 - `EventDiscovery.svelte` — Progressive 4-step filter (When/Time/Who/What) with inline calendar + bydel/price
 - `FilterPill.svelte` — Reusable pill/chip button (aria-pressed, 44px touch targets, Funkis styling)
-- `MiniCalendar.svelte` — Inline month-grid date picker (single date + range selection, bilingual)
+- `MiniCalendar.svelte` — Inline month-grid date picker (single date + range selection, bilingual). Proper ARIA grid structure: `role="grid"` > `role="row"` > `role="gridcell"` with chunked weeks.
 - `FilterBar.svelte` — Dropdown filter row (hidden on homepage when EventDiscovery is active, has `hideFields` prop)
-- `CalendarDropdown.svelte` — "Add to Calendar" dropdown (event detail pages, NOT a date picker)
+- `CalendarDropdown.svelte` — "Add to Calendar" dropdown (event detail pages, NOT a date picker). Full WAI-ARIA menu keyboard nav (ArrowUp/Down, Home/End, Escape, Tab), focus management on open/close.
 - `StatusBadge.svelte` — Display badges: Today, Trolig gratis, Sold Out, Last Tickets, Cancelled
 - `LoadMore.svelte` — "Load more events" button
 - `EmptyState.svelte` — "No events found" message
@@ -192,7 +192,29 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 
 ## CSS theming (`src/app.css`)
 
-Funkis design system inspired by Sundt building (Bergen, 1938). Custom properties for colors: `--color-primary` (accent red #C82D2D), `--color-text-primary` (#141414, 7.88:1 contrast), `--color-text-secondary`, `--color-text-muted`, `--color-bg-surface`, `--color-border`. WCAG AA compliant. Category-specific placeholder colors. Typography: Barlow Condensed (display), Inter (body).
+Funkis design system inspired by Sundt building (Bergen, 1938). Custom properties for colors: `--color-primary` (accent red #C82D2D), `--color-text-primary` (#141414, 7.88:1 contrast), `--color-text-secondary` (#4D4D4D, 6.96:1), `--color-text-muted` (#595959, 7.01:1), `--color-bg-surface`, `--color-border`. All pass WCAG AA at all text sizes. Status badge tokens: `--color-cancelled` (#4A4843, 6.35:1), `--color-lasttickets-bg` (#FAECD0) + `--color-lasttickets-text` (#7A4F00, 5.2:1 on bg). Category-specific placeholder colors. Typography: Barlow Condensed (display), Inter (body).
+
+## Accessibility (WCAG 2.2 Level AA)
+
+EAA (European Accessibility Act) applies to Norway via EEA. The site meets WCAG 2.2 Level AA.
+
+**Already built in:**
+- Skip link (`.skip-link` → `#events`), `:focus-visible` 2px outline on all interactive elements
+- Dynamic `lang` attribute on `<html>`, `prefers-reduced-motion` media query
+- `.sr-only` class, `aria-pressed` on FilterPill, `datetime` on `<time>` elements
+- Semantic `<header>`/`<nav>`/`<main>` landmarks
+
+**Contrast:** All text tokens pass 4.5:1 minimum — `--color-text-muted` #595959 (7.01:1), `--color-text-secondary` #4D4D4D (6.96:1). Status badges: cancelled #4A4843 (6.35:1 on white), lasttickets #7A4F00 on #FAECD0 (5.2:1).
+
+**Keyboard navigation:** CalendarDropdown implements full WAI-ARIA menu pattern (ArrowUp/Down, Home/End, Escape returns focus to trigger, Tab closes menu). FilterPill groups support ArrowLeft/Right.
+
+**ARIA structure:** MiniCalendar uses `role="group"` wrapper with `role="grid"` > `role="row"` > `role="gridcell"`. Month label has `aria-live="polite"`. Error page uses `<main>` landmark. Homepage results wrapper has `aria-live="polite" aria-atomic="true"`.
+
+**Forms:** All required fields have `aria-required="true"` (8 on submit, 3 on opt-out). Disabled buttons use `opacity-70` (not 0.5). Error messages use `role="alert"`.
+
+**Links:** Footer and inline text links always show `underline` (not just on hover) per WCAG 1.4.1.
+
+**Touch targets:** FilterPill and nav buttons `min-height: 44px`. Filter selects `min-height: 44px` (WCAG 2.5.8).
 
 ## SEO & web health
 
