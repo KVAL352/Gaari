@@ -38,12 +38,12 @@ const securityHeaders: Record<string, string> = {
 	'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
 };
 
-// CSP: allow self, inline scripts/styles (SvelteKit needs these), Google Fonts, and any HTTPS images
+// CSP: allow self, inline scripts/styles (SvelteKit needs these), and any HTTPS images
 const csp = [
 	"default-src 'self'",
 	"script-src 'self' 'unsafe-inline'",
-	"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-	"font-src 'self' https://fonts.gstatic.com",
+	"style-src 'self' 'unsafe-inline'",
+	"font-src 'self'",
 	"img-src 'self' data: https:",
 	"connect-src 'self' https://*.supabase.co",
 	"frame-ancestors 'none'",
