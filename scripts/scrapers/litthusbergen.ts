@@ -83,7 +83,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const endRaw = item.find('input.event-end-date').attr('value') || '';
 			const dateStart = parseEnglishDate(startRaw);
 			if (!dateStart) return;
-			const dateEnd = parseEnglishDate(endRaw);
+			const dateEnd = parseEnglishDate(endRaw) || undefined;
 
 			// Extract time from h3 text (e.g. "Fre.20.0219:00–20:15Title")
 			// The h3 concatenates day+date+month+time without spaces.

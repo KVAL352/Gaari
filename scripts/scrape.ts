@@ -41,9 +41,12 @@ import { scrape as scrapeBrann } from './scrapers/brann.js';
 import { scrape as scrapeKulturhusetIBergen } from './scrapers/kulturhusetibergen.js';
 import { scrape as scrapeVVV } from './scrapers/vvv.js';
 import { scrape as scrapeBymuseet } from './scrapers/bymuseet.js';
-import { removeExpiredEvents, loadOptOuts } from './lib/utils.js';
+import { removeExpiredEvents, loadOptOuts, getOptOutDomains } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 import { supabase } from './lib/supabase.js';
+
+// Pipeline deadline — stop starting new scrapers after 13 minutes (2 min buffer for dedup + summary)
+const PIPELINE_DEADLINE_MS = 13 * 60 * 1000;
 
 const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
 	bergenlive: scrapeBergenLive,
@@ -92,6 +95,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 };
 
 async function main() {
+	const startTime = Date.now();
 	const args = process.argv.slice(2);
 	const selected = args.length > 0 ? args : Object.keys(scrapers);
 
@@ -99,30 +103,41 @@ async function main() {
 	console.log(`${new Date().toISOString()}\n`);
 
 	// Step 1: Remove expired events
-	console.log('--- Cleaning expired events ---');
-	const expired = await removeExpiredEvents();
-	console.log(`Removed ${expired} expired events\n`);
+	let expired = 0;
+	try {
+		console.log('--- Cleaning expired events ---');
+		expired = await removeExpiredEvents();
+		console.log(`Removed ${expired} expired events\n`);
+	} catch (err: any) {
+		console.error(`Failed to remove expired events: ${err.message}`);
+		console.log('Continuing with scrapers...\n');
+	}
 
 	// Step 1b: Load opt-outs and remove existing events from opted-out domains
-	console.log('--- Loading opt-outs ---');
-	await loadOptOuts();
-	const { data: optOuts } = await supabase
-		.from('opt_out_requests')
-		.select('domain')
-		.eq('status', 'approved');
 	let optOutRemoved = 0;
-	for (const { domain } of optOuts || []) {
-		const { data: matching } = await supabase
-			.from('events')
-			.select('id, source_url')
-			.ilike('source_url', `%${domain}%`);
-		if (matching && matching.length > 0) {
-			const ids = matching.map(e => e.id);
-			const { error } = await supabase.from('events').delete().in('id', ids);
-			if (!error) optOutRemoved += ids.length;
+	try {
+		console.log('--- Loading opt-outs ---');
+		await loadOptOuts();
+
+		// Reuse loaded domains (no duplicate query)
+		const domains = getOptOutDomains();
+		for (const domain of domains) {
+			const escapedDomain = domain.replace(/%/g, '\\%').replace(/_/g, '\\_');
+			const { data: matching } = await supabase
+				.from('events')
+				.select('id, source_url')
+				.ilike('source_url', `%${escapedDomain}%`);
+			if (matching && matching.length > 0) {
+				const ids = matching.map(e => e.id);
+				const { error } = await supabase.from('events').delete().in('id', ids);
+				if (!error) optOutRemoved += ids.length;
+			}
 		}
+		if (optOutRemoved > 0) console.log(`Removed ${optOutRemoved} events from opted-out domains`);
+	} catch (err: any) {
+		console.error(`Failed to process opt-outs: ${err.message}`);
+		console.log('Continuing with scrapers...\n');
 	}
-	if (optOutRemoved > 0) console.log(`Removed ${optOutRemoved} events from opted-out domains`);
 	console.log();
 
 	// Step 2: Run scrapers
@@ -130,6 +145,12 @@ async function main() {
 	const results: Record<string, { found: number; inserted: number }> = {};
 
 	for (const name of selected) {
+		// Check deadline before starting each scraper
+		if (Date.now() - startTime > PIPELINE_DEADLINE_MS) {
+			console.warn(`\nPipeline deadline reached (${Math.round(PIPELINE_DEADLINE_MS / 60000)}min) — skipping remaining scrapers`);
+			break;
+		}
+
 		const scraper = scrapers[name];
 		if (!scraper) {
 			console.error(`Unknown scraper: ${name}`);
@@ -146,9 +167,14 @@ async function main() {
 	}
 
 	// Step 3: Deduplicate across sources
-	console.log('\n--- Deduplicating ---');
-	const dupsRemoved = await deduplicate();
-	console.log(`Removed ${dupsRemoved} duplicate events\n`);
+	let dupsRemoved = 0;
+	try {
+		console.log('\n--- Deduplicating ---');
+		dupsRemoved = await deduplicate();
+		console.log(`Removed ${dupsRemoved} duplicate events\n`);
+	} catch (err: any) {
+		console.error(`Deduplication failed: ${err.message}\n`);
+	}
 
 	// Summary
 	console.log('=== Summary ===');
@@ -160,6 +186,7 @@ async function main() {
 	console.log(`\nTotal new events: ${totalInserted}`);
 	console.log(`Expired removed: ${expired}`);
 	console.log(`Duplicates removed: ${dupsRemoved}`);
+	console.log(`Pipeline time: ${Math.round((Date.now() - startTime) / 1000)}s`);
 }
 
 main().catch(console.error);

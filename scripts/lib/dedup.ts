@@ -72,15 +72,23 @@ function titlesMatch(a: string, b: string): boolean {
 	if (a === b) return true;
 	if (a.length < 5 || b.length < 5) return false;
 
-	// Check if one contains the other
-	if (a.includes(b) || b.includes(a)) return true;
+	// Check if one contains the other — with length ratio guard
+	// Prevents short generic titles (e.g. "konsert") matching inside longer specific ones
+	if (a.includes(b) || b.includes(a)) {
+		const shorter = a.length < b.length ? a : b;
+		const longer = a.length < b.length ? b : a;
+		if (shorter.length >= longer.length * 0.6) return true;
+	}
 
-	// Check 80% prefix overlap
+	// Check 90% prefix overlap with similar length requirement
 	if (a.length >= 8 && b.length >= 8) {
 		const shorter = a.length < b.length ? a : b;
 		const longer = a.length < b.length ? b : a;
-		if (longer.includes(shorter.slice(0, Math.floor(shorter.length * 0.8)))) {
-			return true;
+		// Require similar length (no more than 30% difference)
+		if (longer.length <= shorter.length * 1.3) {
+			if (longer.includes(shorter.slice(0, Math.floor(shorter.length * 0.9)))) {
+				return true;
+			}
 		}
 	}
 

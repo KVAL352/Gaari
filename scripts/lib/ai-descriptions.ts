@@ -1,11 +1,11 @@
 import { GoogleGenAI } from '@google/genai';
-import { makeDescription, CATEGORY_LABELS_NO } from './utils.js';
+import { makeDescription, makeDescriptionEn, CATEGORY_LABELS_NO } from './utils.js';
 
 interface EventMeta {
 	title: string;
 	venue: string;
 	category: string;
-	date?: string;
+	date?: string | Date;
 	price?: string;
 }
 
@@ -52,7 +52,7 @@ function buildPrompt(event: EventMeta): string {
 function fallback(event: EventMeta): BilingualDescription {
 	return {
 		no: makeDescription(event.title, event.venue, event.category),
-		en: '',
+		en: makeDescriptionEn(event.title, event.venue, event.category),
 	};
 }
 

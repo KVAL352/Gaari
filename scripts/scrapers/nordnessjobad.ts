@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, parseNorwegianDate } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, parseNorwegianDate, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'nordnessjobad';
@@ -32,8 +32,10 @@ function parseEventDateTime(timeText: string): { start: string; end: string | un
 		const startIso = parseNorwegianDate(multiDay[1]);
 		const endIso = parseNorwegianDate(multiDay[3]);
 		if (startIso && endIso) {
-			const start = new Date(`${toDatePart(startIso)}T${multiDay[2]}:00+01:00`).toISOString();
-			const end = new Date(`${toDatePart(endIso)}T${multiDay[4]}:00+01:00`).toISOString();
+			const startDate = toDatePart(startIso);
+			const endDate = toDatePart(endIso);
+			const start = new Date(`${startDate}T${multiDay[2]}:00${bergenOffset(startDate)}`).toISOString();
+			const end = new Date(`${endDate}T${multiDay[4]}:00${bergenOffset(endDate)}`).toISOString();
 			return { start, end };
 		}
 	}
@@ -44,8 +46,9 @@ function parseEventDateTime(timeText: string): { start: string; end: string | un
 		const dateIso = parseNorwegianDate(singleDay[1]);
 		if (dateIso) {
 			const dp = toDatePart(dateIso);
-			const start = new Date(`${dp}T${singleDay[2]}:00+01:00`).toISOString();
-			const end = new Date(`${dp}T${singleDay[3]}:00+01:00`).toISOString();
+			const offset = bergenOffset(dp);
+			const start = new Date(`${dp}T${singleDay[2]}:00${offset}`).toISOString();
+			const end = new Date(`${dp}T${singleDay[3]}:00${offset}`).toISOString();
 			return { start, end };
 		}
 	}
@@ -55,7 +58,8 @@ function parseEventDateTime(timeText: string): { start: string; end: string | un
 	if (dateOnly) {
 		const dateIso = parseNorwegianDate(dateOnly[1]);
 		if (dateIso) {
-			return { start: new Date(`${toDatePart(dateIso)}T00:00:00+01:00`).toISOString(), end: undefined };
+			const dp = toDatePart(dateIso);
+			return { start: new Date(`${dp}T00:00:00${bergenOffset(dp)}`).toISOString(), end: undefined };
 		}
 	}
 

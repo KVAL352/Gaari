@@ -33,7 +33,14 @@ function resolveVenue(sectionTitle: string): { venue: string; address: string; s
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
-	console.log(`\n[${SOURCE}] Fetching Beyond the Gates 2026 lineup...`);
+	// Warn if all festival dates are in the past (needs manual update for next year)
+	const allPast = Object.values(DAY_MAP).every(d => new Date(d) < new Date());
+	if (allPast) {
+		console.warn(`[${SOURCE}] All festival dates are in the past — scraper needs date update for next year`);
+		return { found: 0, inserted: 0 };
+	}
+
+	console.log(`\n[${SOURCE}] Fetching Beyond the Gates lineup...`);
 
 	const html = await fetchHTML(LINEUP_URL);
 	if (!html) {

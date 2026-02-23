@@ -6,7 +6,7 @@ import { generateDescription } from '../lib/ai-descriptions.js';
 const SOURCE = 'vvv';
 const BASE_URL = 'https://www.varmerevaterevillere.no';
 const PROGRAM_URL = `${BASE_URL}/program`;
-const YEAR = 2026;
+const YEAR = new Date().getFullYear();
 
 function guessCategory(title: string, venue: string): string {
 	const text = `${title} ${venue}`.toLowerCase();

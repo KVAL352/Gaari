@@ -186,7 +186,6 @@ const VENUE_URLS: Record<string, string> = {
 
 	// Film/theater
 	'bergen filmklubb': 'https://bergenfilmklubb.no',
-	'tivoli': 'https://kvarteret.no',
 };
 
 /**
@@ -198,9 +197,9 @@ export function getVenueUrl(venueName: string): string | null {
 	// Direct match
 	if (VENUE_URLS[lower]) return VENUE_URLS[lower];
 
-	// Partial match — same pattern as mapBydel
+	// Partial match — only check if input contains the key (NOT reverse)
 	for (const [key, url] of Object.entries(VENUE_URLS)) {
-		if (lower.includes(key) || key.includes(lower)) return url;
+		if (lower.includes(key)) return url;
 	}
 
 	return null;

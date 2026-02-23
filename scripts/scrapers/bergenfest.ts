@@ -15,7 +15,14 @@ const COLOR_TO_DATE: Record<string, string> = {
 };
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
-	console.log(`\n[${SOURCE}] Fetching Bergenfest 2026 artists...`);
+	// Warn if all festival dates are in the past (needs manual update for next year)
+	const allPast = Object.values(COLOR_TO_DATE).every(d => new Date(d) < new Date());
+	if (allPast) {
+		console.warn(`[${SOURCE}] All festival dates are in the past — scraper needs date update for next year`);
+		return { found: 0, inserted: 0 };
+	}
+
+	console.log(`\n[${SOURCE}] Fetching Bergenfest artists...`);
 
 	const html = await fetchHTML(ARTISTS_URL);
 	if (!html) {

@@ -1,5 +1,5 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'eventbrite';
@@ -87,7 +87,7 @@ function mapCategory(tags: EBEvent['tags']): string {
 
 function buildDateTime(date: string, time: string): string {
 	// date: "2026-02-25", time: "17:00"
-	return new Date(`${date}T${time}:00+01:00`).toISOString();
+	return new Date(`${date}T${time}:00${bergenOffset(date)}`).toISOString();
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {

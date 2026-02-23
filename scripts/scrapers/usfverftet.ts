@@ -130,7 +130,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const address = place ? `${place.address}, ${place.city}` : 'Georgernes Verft 12, Bergen';
 		const category = mapCategory(cf.type || '', post.tags || []);
 		const bydel = mapBydel(venueName);
-		const datePart = post.start_time?.slice(0, 10) || '';
+		if (!post.start_time) continue; // Skip events with no date
+		const datePart = post.start_time.slice(0, 10);
 		const ticketUrl = cf.ticketUrl || summary.ticketLink || sourceUrl;
 
 		// Price from coverCharge (e.g. "240/200")
@@ -144,7 +145,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
 			category,
-			date_start: post.start_time ? new Date(post.start_time).toISOString() : new Date().toISOString(),
+			date_start: new Date(post.start_time).toISOString(),
 			date_end: cf.end_time ? new Date(cf.end_time).toISOString() : undefined,
 			venue_name: venueName,
 			address,

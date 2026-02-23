@@ -1,6 +1,6 @@
 // Map source category names → Gåri categories
 const CATEGORY_MAP: Record<string, string> = {
-	// Norwegian
+	// Norwegian (longer/specific keys first due to sorted iteration)
 	'konserter': 'music',
 	'konsert': 'music',
 	'musikk': 'music',
@@ -14,17 +14,22 @@ const CATEGORY_MAP: Record<string, string> = {
 	'marked': 'festival',
 	'markeder': 'festival',
 	'julemarked': 'festival',
+	'teater/musikal': 'theatre',
 	'teater': 'theatre',
 	'theater': 'theatre',
 	'scenekunst': 'theatre',
 	'opera': 'theatre',
 	'dans': 'theatre',
 	'revy': 'theatre',
+	'musikal': 'theatre',
 	'standup': 'nightlife',
 	'stand-up': 'nightlife',
 	'uteliv': 'nightlife',
 	'nattklubb': 'nightlife',
 	'klubb': 'nightlife',
+	'quiz': 'nightlife',
+	'pub': 'nightlife',
+	'humor': 'nightlife',
 	'kunst': 'culture',
 	'kultur': 'culture',
 	'utstilling': 'culture',
@@ -32,15 +37,22 @@ const CATEGORY_MAP: Record<string, string> = {
 	'galleri': 'culture',
 	'museum': 'culture',
 	'literatur': 'culture',
-	'mat': 'food',
+	'kino': 'culture',
+	'film': 'culture',
+	'foredrag': 'culture',
+	'debatt': 'culture',
+	'lesning': 'culture',
+	'annet': 'culture',
 	'mat og drikke': 'food',
 	'restaurant': 'food',
+	'mat': 'food',
 	'vin': 'food',
 	'smak': 'food',
-	'barn': 'family',
-	'familie': 'family',
-	'barneaktiviteter': 'family',
 	'familieaktiviteter': 'family',
+	'barneaktiviteter': 'family',
+	'familie/barn': 'family',
+	'familie': 'family',
+	'barn': 'family',
 	'sport': 'sports',
 	'idrett': 'sports',
 	'fotball': 'sports',
@@ -48,53 +60,42 @@ const CATEGORY_MAP: Record<string, string> = {
 	'turgåing': 'sports',
 	'vandring': 'sports',
 	'yoga': 'sports',
-	'tur': 'tours',
 	'omvisning': 'tours',
 	'guidet': 'tours',
 	'sightseeing': 'tours',
+	'tur': 'tours',
 	'kurs': 'workshop',
 	'workshop': 'workshop',
 	'verksted': 'workshop',
 	'student': 'student',
-	'familie/barn': 'family',
-	'mat og drikke': 'food',
-	'kino': 'culture',
-	'film': 'culture',
-	'foredrag': 'culture',
-	'debatt': 'culture',
-	'lesning': 'culture',
-	'quiz': 'nightlife',
-	'pub': 'nightlife',
-	'humor': 'nightlife',
-	'teater/musikal': 'theatre',
-	'musikal': 'theatre',
-	'annet': 'culture',
 	// English
 	'concerts': 'music',
 	'concert': 'music',
 	'music': 'music',
 	'festivals': 'festival',
 	'markets': 'festival',
-	'theatre': 'theatre',
 	'performing arts': 'theatre',
+	'theatre': 'theatre',
 	'nightlife': 'nightlife',
 	'comedy': 'nightlife',
 	'arts': 'culture',
 	'culture': 'culture',
 	'exhibition': 'culture',
 	'exhibitions': 'culture',
-	'food': 'food',
 	'food & drink': 'food',
+	'food': 'food',
 	'family': 'family',
 	'kids': 'family',
 	'children': 'family',
 	'sports': 'sports',
 	'outdoors': 'sports',
 	'tours': 'tours',
-	'sightseeing': 'tours',
 	'workshops': 'workshop',
 	'classes': 'workshop',
 };
+
+// Pre-sort entries by key length descending so longer/more specific keys match first
+const SORTED_CATEGORY_ENTRIES = Object.entries(CATEGORY_MAP).sort((a, b) => b[0].length - a[0].length);
 
 export function mapCategory(sourceCategory: string): string {
 	const lower = sourceCategory.toLowerCase().trim();
@@ -102,9 +103,9 @@ export function mapCategory(sourceCategory: string): string {
 	// Direct match
 	if (CATEGORY_MAP[lower]) return CATEGORY_MAP[lower];
 
-	// Partial match
-	for (const [key, value] of Object.entries(CATEGORY_MAP)) {
-		if (lower.includes(key) || key.includes(lower)) return value;
+	// Partial match — only check if input contains the key (NOT reverse)
+	for (const [key, value] of SORTED_CATEGORY_ENTRIES) {
+		if (lower.includes(key)) return value;
 	}
 
 	// Default
@@ -132,6 +133,8 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'siljustol': 'Fana',
 	'bergen kino': 'Sentrum',
 	'media city bergen': 'Sentrum',
+	'media city': 'Sentrum',
+	'medieklyngen': 'Sentrum',
 	'byparken': 'Sentrum',
 	'festplassen': 'Sentrum',
 	'fisketorget': 'Sentrum',
@@ -156,10 +159,16 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'fløyen': 'Sentrum',
 	'laksevåg kultursenter': 'Laksevåg',
 	'fyllingsdalen arena': 'Fyllingsdalen',
+	'fyllingsdalen bibliotek': 'Fyllingsdalen',
+	'fyllingsdalen': 'Fyllingsdalen',
 	'åsane bibliotek': 'Åsane',
 	'åsane kulturhus': 'Åsane',
+	'skyland': 'Åsane',
 	'fana kulturhus': 'Fana',
+	'fana bibliotek': 'Fana',
+	'hordamuseet': 'Fana',
 	'arna stasjon': 'Arna',
+	'ytre arna bibliotek': 'Arna',
 	'vilvite': 'Sentrum',
 	'torbjørns konserthall': 'Sentrum',
 	'madam felle': 'Sentrum',
@@ -167,7 +176,6 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'cornerhagen': 'Sentrum',
 	'litteraturhuset': 'Sentrum',
 	'cinemateket': 'Sentrum',
-	'permanenten': 'Sentrum',
 	'landmark': 'Sentrum',
 	'frille': 'Sentrum',
 	'dyvekes': 'Sentrum',
@@ -177,8 +185,6 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'bergen kjøtt': 'Sentrum',
 	'studio bergen': 'Sentrum',
 	'oseana': 'Os',
-	'skyland': 'Åsane',
-	'fyllingsdalen': 'Fyllingsdalen',
 	's12 galleri': 'Sentrum',
 	'7fjell': 'Sentrum',
 	'7 fjell': 'Sentrum',
@@ -195,10 +201,15 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'sardinen usf': 'Bergenhus',
 	'det vestnorske teateret': 'Sentrum',
 	'logen': 'Sentrum',
-	'bergen kunsthall': 'Sentrum',
 	'nordnes bydelshus': 'Bergenhus',
-	'media city': 'Sentrum',
-	'medieklyngen': 'Sentrum',
+	'ny-krohnborg kultursenter': 'Bergenhus',
+	'ny krohnborg kultursenter': 'Bergenhus',
+	'loddefjord bibliotek': 'Laksevåg',
+	'landås bibliotek': 'Bergenhus',
+	'gamle bergen museum': 'Bergenhus',
+	'damsgård hovedgård': 'Laksevåg',
+	'damsgård': 'Laksevåg',
+	'ytrebygda kultursenter': 'Ytrebygda',
 };
 
 export function mapBydel(venueName: string): string {
@@ -207,9 +218,9 @@ export function mapBydel(venueName: string): string {
 	// Direct match
 	if (VENUE_BYDEL_MAP[lower]) return VENUE_BYDEL_MAP[lower];
 
-	// Partial match
+	// Partial match — only check if input contains the key (NOT reverse)
 	for (const [key, value] of Object.entries(VENUE_BYDEL_MAP)) {
-		if (lower.includes(key) || key.includes(lower)) return value;
+		if (lower.includes(key)) return value;
 	}
 
 	// Default — most Bergen events are central

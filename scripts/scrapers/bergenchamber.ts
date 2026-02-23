@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, parseNorwegianDate } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, parseNorwegianDate, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenchamber';
@@ -93,7 +93,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Fetch detail page for time, venue, price, description
 		await delay(3000);
 		const detailHtml = await fetchHTML(sourceUrl);
-		let detail = { time: undefined as string | undefined, venue: undefined as string | undefined, price: undefined as string | undefined, description: undefined as string | undefined };
+		let detail: { time?: string; venue?: string; price?: string; description?: string } = {};
 		if (detailHtml) {
 			const d$ = cheerio.load(detailHtml);
 			detail = parseDetailPage(d$);
@@ -116,12 +116,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		}
 
 		const datePart = dateIso.slice(0, 10);
+		const offset = bergenOffset(datePart);
 		const timeParts = detail.time?.match(/(\d{2}:\d{2})-(\d{2}:\d{2})/);
 		const dateStart = timeParts
-			? new Date(`${datePart}T${timeParts[1]}:00+01:00`).toISOString()
+			? new Date(`${datePart}T${timeParts[1]}:00${offset}`).toISOString()
 			: new Date(dateIso).toISOString();
 		const dateEnd = timeParts
-			? new Date(`${datePart}T${timeParts[2]}:00+01:00`).toISOString()
+			? new Date(`${datePart}T${timeParts[2]}:00${offset}`).toISOString()
 			: undefined;
 
 		const venueName = detail.venue || 'Bergen Næringsråd';
