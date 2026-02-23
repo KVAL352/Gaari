@@ -1,5 +1,5 @@
 import { error, redirect } from '@sveltejs/kit';
-import { supabase } from '$lib/supabase';
+import { supabase } from '$lib/server/supabase';
 import { generateOgImage } from '$lib/og/og-image';
 import type { RequestHandler } from './$types';
 

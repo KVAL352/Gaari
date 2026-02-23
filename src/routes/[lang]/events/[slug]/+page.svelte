@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { enhance } from '$app/forms';
 	import { lang, t } from '$lib/i18n';
 	import {
 		formatEventDate, formatEventTime, formatPrice, isFreeEvent
@@ -11,7 +12,6 @@
 	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
 	import CalendarDropdown from '$lib/components/CalendarDropdown.svelte';
 	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquare } from 'lucide-svelte';
-	import { supabase } from '$lib/supabase';
 
 	let { data } = $props();
 	let event: GaariEvent = $derived(data.event);
@@ -23,9 +23,6 @@
 	let isCancelled = $derived(event.status === 'cancelled');
 
 	let showCorrectionForm = $state(false);
-	let correctionField = $state('');
-	let correctionValue = $state('');
-	let correctionReason = $state('');
 	let correctionSubmitted = $state(false);
 	let correctionSubmitting = $state(false);
 	let correctionError = $state(false);
@@ -45,30 +42,6 @@
 		venue_name: event.venue_name,
 		address: event.address
 	});
-
-	async function handleCorrectionSubmit(e: SubmitEvent) {
-		e.preventDefault();
-		correctionSubmitting = true;
-		correctionError = false;
-
-		const { error } = await supabase.from('edit_suggestions').insert({
-			event_id: event.id,
-			field: correctionField,
-			suggested_value: correctionValue,
-			reason: correctionReason || null,
-			status: 'pending'
-		});
-
-		correctionSubmitting = false;
-
-		if (error) {
-			correctionError = true;
-			return;
-		}
-
-		correctionSubmitted = true;
-		showCorrectionForm = false;
-	}
 </script>
 
 <svelte:head>
@@ -202,12 +175,30 @@
 				{$t('suggestCorrection')}
 			</button>
 			{#if showCorrectionForm}
-				<form onsubmit={handleCorrectionSubmit} class="mt-4 space-y-3 rounded-xl border border-[var(--color-border)] p-4">
+				<form
+					method="POST"
+					action="?/correction"
+					use:enhance={() => {
+						correctionSubmitting = true;
+						correctionError = false;
+						return async ({ result }) => {
+							correctionSubmitting = false;
+							if (result.type === 'success') {
+								correctionSubmitted = true;
+								showCorrectionForm = false;
+							} else {
+								correctionError = true;
+							}
+						};
+					}}
+					class="mt-4 space-y-3 rounded-xl border border-[var(--color-border)] p-4"
+				>
+					<input type="hidden" name="event_id" value={event.id} />
 					<div>
 						<label for="correction-field" class="mb-1 block text-sm font-medium">
 							{$lang === 'no' ? 'Hva bør endres?' : 'What should be changed?'}
 						</label>
-						<select id="correction-field" bind:value={correctionField} class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm">
+						<select id="correction-field" name="field" class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm">
 							<option value="date">{$t('date')}</option>
 							<option value="price">{$t('priceLabel')}</option>
 							<option value="venue">{$lang === 'no' ? 'Sted' : 'Venue'}</option>
@@ -219,13 +210,13 @@
 						<label for="correction-value" class="mb-1 block text-sm font-medium">
 							{$lang === 'no' ? 'Riktig verdi' : 'Correct value'}
 						</label>
-						<input id="correction-value" bind:value={correctionValue} class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm" />
+						<input id="correction-value" name="suggested_value" class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm" />
 					</div>
 					<div>
 						<label for="correction-reason" class="mb-1 block text-sm font-medium">
 							{$lang === 'no' ? 'Begrunnelse (valgfritt)' : 'Reason (optional)'}
 						</label>
-						<textarea id="correction-reason" bind:value={correctionReason} rows="2" class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm"></textarea>
+						<textarea id="correction-reason" name="reason" rows="2" class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm"></textarea>
 					</div>
 					{#if correctionError}
 						<p class="text-sm text-red-600" role="alert">

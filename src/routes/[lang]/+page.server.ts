@@ -1,9 +1,11 @@
-import { supabase } from '$lib/supabase';
+import { supabase } from '$lib/server/supabase';
 import { seedEvents } from '$lib/data/seed-events';
 import type { GaariEvent } from '$lib/types';
-import type { PageLoad } from './$types';
+import type { PageServerLoad } from './$types';
 
-export const load: PageLoad = async () => {
+export const load: PageServerLoad = async ({ setHeaders }) => {
+	setHeaders({ 'cache-control': 's-maxage=300, stale-while-revalidate=600' });
+
 	try {
 		// Use Norwegian time so Vercel (UTC) filters correctly
 		const nowOslo = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Oslo' }).replace(' ', 'T');

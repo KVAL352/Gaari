@@ -29,7 +29,7 @@
 			</span>
 		</div>
 		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each dayEvents as event, i}
+			{#each dayEvents as event, i (event.id)}
 				<EventCard {event} eager={groupIdx === 0 && i < 4} />
 			{/each}
 		</ul>

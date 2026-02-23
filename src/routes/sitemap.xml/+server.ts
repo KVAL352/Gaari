@@ -1,4 +1,4 @@
-import { supabase } from '$lib/supabase';
+import { supabase } from '$lib/server/supabase';
 
 const BASE = 'https://gaari.no';
 

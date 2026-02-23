@@ -1,8 +1,8 @@
-import { error } from '@sveltejs/kit';
-import { supabase } from '$lib/supabase';
+import { error, fail } from '@sveltejs/kit';
+import { supabase } from '$lib/server/supabase';
 import { seedEvents } from '$lib/data/seed-events';
 import type { GaariEvent } from '$lib/types';
-import type { PageLoad } from './$types';
+import type { PageServerLoad, Actions } from './$types';
 
 const EVENT_COLUMNS = 'id,slug,title_no,title_en,description_no,description_en,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status';
 
@@ -14,7 +14,7 @@ function mapPrice(e: Record<string, unknown>): GaariEvent {
 	} as GaariEvent;
 }
 
-export const load: PageLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params }) => {
 	try {
 		// Fetch event by slug
 		const { data: event, error: err } = await supabase
@@ -53,5 +53,30 @@ export const load: PageLoad = async ({ params }) => {
 			.slice(0, 4);
 
 		return { event, related };
+	}
+};
+
+export const actions: Actions = {
+	correction: async ({ request }) => {
+		const data = await request.formData();
+		const event_id = data.get('event_id');
+		const field = data.get('field');
+		const suggested_value = data.get('suggested_value');
+		const reason = data.get('reason') || null;
+
+		if (!event_id || !field || !suggested_value) {
+			return fail(400, { correctionError: true });
+		}
+
+		const { error: err } = await supabase.from('edit_suggestions').insert({
+			event_id,
+			field,
+			suggested_value,
+			reason,
+			status: 'pending'
+		});
+
+		if (err) return fail(500, { correctionError: true });
+		return { correctionSuccess: true };
 	}
 };

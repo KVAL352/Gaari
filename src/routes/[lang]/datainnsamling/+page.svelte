@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { enhance } from '$app/forms';
 	import { lang, t } from '$lib/i18n';
 	import { getCanonicalUrl } from '$lib/seo';
 	import { Mail } from 'lucide-svelte';
-	import { supabase } from '$lib/supabase';
 
 	let optOutStatus: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
 
@@ -12,35 +12,6 @@
 	let metaDesc = $derived($lang === 'no'
 		? 'Hvordan Gåri samler inn eventdata fra 44 kilder i Bergen. Juridisk grunnlag, prinsipper og opt-out for arrangører.'
 		: 'How Gåri collects event data from 44 sources in Bergen. Legal basis, principles, and opt-out for organizers.');
-
-	async function handleOptOut(e: SubmitEvent) {
-		e.preventDefault();
-		const form = e.target as HTMLFormElement;
-		const fd = new FormData(form);
-
-		optOutStatus = 'submitting';
-
-		// Honeypot — bots fill this hidden field, real users don't
-		if (fd.get('website')) {
-			optOutStatus = 'success';
-			return;
-		}
-
-		const { error } = await supabase.from('opt_out_requests').insert({
-			organization: fd.get('organization') as string,
-			domain: (fd.get('domain') as string).replace(/^https?:\/\//, '').replace(/\/.*$/, ''),
-			contact_email: fd.get('email') as string,
-			reason: (fd.get('reason') as string) || null
-		});
-
-		if (error) {
-			console.error('Opt-out submission error:', error.message);
-			optOutStatus = 'error';
-		} else {
-			optOutStatus = 'success';
-			form.reset();
-		}
-	}
 </script>
 
 <svelte:head>
@@ -361,7 +332,21 @@
 					: 'Your request has been received. We\'ll process it within 48 hours.'}
 			</div>
 		{:else}
-			<form onsubmit={handleOptOut} class="space-y-5 rounded-lg border border-[var(--color-border)] p-5">
+			<form
+				method="POST"
+				action="?/optout"
+				use:enhance={() => {
+					optOutStatus = 'submitting';
+					return async ({ result }) => {
+						if (result.type === 'success') {
+							optOutStatus = 'success';
+						} else {
+							optOutStatus = 'error';
+						}
+					};
+				}}
+				class="space-y-5 rounded-lg border border-[var(--color-border)] p-5"
+			>
 				<!-- Honeypot field — hidden from users, bots will fill it -->
 				<div class="absolute -left-[9999px]" aria-hidden="true">
 					<input type="text" name="website" tabindex="-1" autocomplete="off" />

@@ -82,14 +82,18 @@ export const handleError: HandleServerError = ({ error, event, status, message }
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
-	// Rate limit form pages
+	// Rate limit form pages (skip during prerendering — no client address available)
 	if (shouldRateLimit(event.url.pathname)) {
-		const ip = event.getClientAddress();
-		if (isRateLimited(ip)) {
-			return new Response('Too many requests. Please try again later.', {
-				status: 429,
-				headers: { 'Retry-After': '60' }
-			});
+		try {
+			const ip = event.getClientAddress();
+			if (isRateLimited(ip)) {
+				return new Response('Too many requests. Please try again later.', {
+					status: 429,
+					headers: { 'Retry-After': '60' }
+				});
+			}
+		} catch {
+			// getClientAddress() throws during prerendering — skip rate limiting
 		}
 	}
 
