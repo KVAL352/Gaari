@@ -5,6 +5,7 @@
 	import { isFreeEvent } from '$lib/utils';
 	import type { Category, Bydel, GaariEvent, TimeOfDay } from '$lib/types';
 	import { generateWebSiteJsonLd, getCanonicalUrl } from '$lib/seo';
+	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import HeroSection from '$lib/components/HeroSection.svelte';
 	import FilterBar from '$lib/components/FilterBar.svelte';
 	import EventDiscovery from '$lib/components/EventDiscovery.svelte';
@@ -236,6 +237,12 @@
 	<meta name="twitter:title" content={`Gåri — ${$t('tagline')}`} />
 	<meta name="twitter:description" content={$lang === 'no' ? 'Finn alle arrangementer i Bergen på ett sted.' : 'Find all events in Bergen in one place.'} />
 	<meta name="twitter:image" content={`${$page.url.origin}/og/default.png`} />
+	{#if displayedEvents[0]?.image_url}
+		<link rel="preload" as="image"
+			href={optimizedSrc(displayedEvents[0].image_url, 400)}
+			imagesrcset={optimizedSrcset(displayedEvents[0].image_url, [400, 600, 800])}
+			imagesizes="(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc(50vw - 2.5rem), 400px" />
+	{/if}
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + websiteJsonLd + '</scr' + 'ipt>'}
 </svelte:head>

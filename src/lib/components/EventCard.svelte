@@ -6,6 +6,7 @@
 	import ImagePlaceholder from './ImagePlaceholder.svelte';
 	import CalendarDropdown from './CalendarDropdown.svelte';
 	import { Send } from 'lucide-svelte';
+	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 
 	interface Props {
 		event: GaariEvent;
@@ -78,7 +79,9 @@
 		<div class="relative aspect-[16/9] overflow-hidden bg-[var(--color-surface)]">
 			{#if event.image_url && !imgError}
 				<img
-					src={event.image_url}
+					src={optimizedSrc(event.image_url, 400)}
+					srcset={optimizedSrcset(event.image_url, [400, 600, 800])}
+					sizes="(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc(50vw - 2.5rem), 400px"
 					alt={title}
 					loading={eager ? 'eager' : 'lazy'}
 					fetchpriority={eager ? 'high' : 'auto'}

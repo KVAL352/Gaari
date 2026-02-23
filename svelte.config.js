@@ -5,7 +5,15 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	preprocess: vitePreprocess(),
 	kit: {
-		adapter: adapter(),
+		adapter: adapter({
+			images: {
+				sizes: [400, 600, 800, 1200],
+				domains: [],
+				remotePatterns: [{ protocol: 'https', hostname: '**' }],
+				formats: ['image/avif', 'image/webp'],
+				minimumCacheTTL: 86400
+			}
+		}),
 		alias: {
 			$components: 'src/lib/components',
 			$lib: 'src/lib'
