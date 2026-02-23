@@ -24,8 +24,10 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 1. `removeExpiredEvents()` — deletes past events
 1b. `loadOptOuts()` — loads approved opt-out domains, deletes events from opted-out sources
-2. Run scrapers — each checks `eventExists(source_url)` before inserting, generates AI descriptions via Gemini
+2. Run scrapers — each checks `eventExists(source_url)` before inserting, generates AI descriptions via Gemini (13-min pipeline deadline skips remaining scrapers)
 3. `deduplicate()` — removes cross-source duplicates by normalized title + same date, keeps highest-scored variant
+4. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
+5. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
 ## Scraper sources (43 total)
 
@@ -165,6 +167,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `/[lang]/datainnsamling/` — Data transparency page (43 sources listed, opt-out form)
 - `/[lang]/submit/` — Event submission form (blocked from search engines)
 - `/[lang]/events/[slug]/` — Event detail page with related events and OG image
+- `/api/health` — Health check endpoint (Supabase connection, event count, scrape freshness). Returns healthy/degraded/unhealthy, 5min cache, 503 on unhealthy.
 - `/og/[slug].png` — Per-event OG image generation (Satori + ResvgJS)
 - `/sitemap.xml` — Dynamic sitemap with hreflang (static pages + all approved events, 1h cache)
 
@@ -207,7 +210,21 @@ Funkis design system inspired by Sundt building (Bergen, 1938). Custom propertie
   - `gåri.no` (`xn--gri-ula.no` punycode) + `www.gåri.no` — same DNS config
   - SSL provisioned automatically by Vercel (Let's Encrypt)
 
+## Observability
+
+- **Error logging**: `hooks.server.ts` exports `handleError` — structured JSON (type, timestamp, status, message, stack, url, method, userAgent) parsed by Vercel's log system. `hooks.client.ts` mirrors the format for browser DevTools.
+- **Health endpoint**: `GET /api/health` — three checks: `supabase_connection`, `events_exist` (count > 0), `recent_scrape` (events created in last 24h). Monitorable by UptimeRobot or similar.
+- **Scraper summary**: Pipeline outputs JSON summary to `SUMMARY_FILE` env var. GitHub Actions job summary step reads it with `jq` and writes a markdown table to `$GITHUB_STEP_SUMMARY`.
+
+## Database indexes
+
+Key indexes on `events` table (managed via `supabase/migrations/`):
+- `idx_events_slug` (UNIQUE), `idx_events_source_url` (UNIQUE)
+- `idx_events_date_start`, `idx_events_status_date` (composite: status + date_start)
+- `idx_events_approved_upcoming` (partial: date_start WHERE status = 'approved')
+- `idx_events_category`, `idx_events_bydel`, `idx_events_created_at`
+
 ## GitHub Actions
 
-- **CI** (`ci.yml`): lint, type-check, build on push/PR to master
-- **Scrape** (`scrape.yml`): cron 6 AM & 6 PM UTC, 15min timeout, secrets: SUPABASE keys + GEMINI_API_KEY
+- **CI** (`ci.yml`): lint, type-check, build on push/PR to master. Supabase env vars passed to type check step for `$env/static/public` resolution.
+- **Scrape** (`scrape.yml`): cron 6 AM & 6 PM UTC, 15min job timeout, npm cache, 2min install timeout, `SUMMARY_FILE` env var, job summary step with health status (healthy/partial/critical). Secrets: SUPABASE keys + GEMINI_API_KEY.
