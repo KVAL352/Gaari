@@ -4,7 +4,7 @@
 **Owner:** Kjersti Valland Therkildsen
 **Repo:** github.com/KVAL352/Gaari
 **Location:** `C:\Users\kjers\Projects\Gaari\`
-**Live:** Vercel hosting (SvelteKit)
+**Live:** Vercel hosting (SvelteKit) — gaari.no / gåri.no
 **Full technical docs:** `C:\Users\kjers\Projects\Gaari\CLAUDE.md`
 
 ---
@@ -83,6 +83,13 @@ Key new components (Feb 23):
 - `EventDiscovery.svelte` — Progressive 4-step filter with inline calendar
 - `FilterPill.svelte` — Reusable pill button (44px touch targets, aria-pressed)
 - `MiniCalendar.svelte` — Inline month-grid date picker (single + range, bilingual)
+
+### Hosting & Domains
+
+- **Hosting:** Vercel (SvelteKit adapter)
+- **Domains:** `gaari.no`, `www.gaari.no`, `gåri.no` (IDN, punycode: `xn--gri-ula.no`), `www.gåri.no`
+- **DNS:** Domeneshop → Vercel (A record `76.76.21.21`, CNAME `cname.vercel-dns.com`)
+- **SSL:** Auto-provisioned by Vercel (Let's Encrypt)
 
 ### GitHub Actions
 

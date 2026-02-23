@@ -204,6 +204,14 @@ Funkis design system inspired by Sundt building (Bergen, 1938). Custom propertie
 - robots.txt blocks /submit pages
 - Dynamic sitemap with hreflang and priority weighting
 
+## Hosting & Domains
+
+- **Hosting:** Vercel (SvelteKit adapter)
+- **Domains (Domeneshop → Vercel):**
+  - `gaari.no` + `www.gaari.no` — A record → `76.76.21.21`, CNAME www → `cname.vercel-dns.com`
+  - `gåri.no` (`xn--gri-ula.no` punycode) + `www.gåri.no` — same DNS config
+  - SSL provisioned automatically by Vercel (Let's Encrypt)
+
 ## GitHub Actions
 
 - **CI** (`ci.yml`): lint, type-check, build on push/PR to master
