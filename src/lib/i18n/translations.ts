@@ -2,7 +2,7 @@ export const translations = {
 	no: {
 		// General
 		siteName: 'Gåri',
-		tagline: 'Ke\u2019 det går i Bergen?',
+		tagline: 'Ke\u2019 det går i, Bergen?',
 
 		// Navigation
 		explore: 'Utforsk',

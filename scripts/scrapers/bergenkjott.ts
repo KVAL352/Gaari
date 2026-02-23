@@ -4,7 +4,7 @@ import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/uti
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenkjott';
-const BASE_URL = 'https://bergenkjott.org';
+const BASE_URL = 'https://www.bergenkjott.org';
 const LIST_URL = `${BASE_URL}/kalendar`;
 const VENUE = 'Bergen Kjøtt';
 const ADDRESS = 'Skutevikstorget 1, Bergen';

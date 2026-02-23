@@ -15,7 +15,7 @@ A bilingual (Norwegian/English) event aggregator for Bergen, Norway. The name co
 
 - **Frontend:** SvelteKit 2 + Svelte 5, Tailwind CSS 4, Funkis design system
 - **Backend:** Supabase PostgreSQL
-- **Scrapers:** 44 automated TypeScript scrapers (Cheerio), runs twice daily via GitHub Actions
+- **Scrapers:** 43 automated TypeScript scrapers (Cheerio), runs twice daily via GitHub Actions
 - **AI:** Gemini 2.5 Flash generates bilingual event descriptions
 
 ## Current State (Feb 23, 2026)

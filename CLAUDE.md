@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 44 automated scrapers collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 43 automated scrapers collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -27,13 +27,12 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 2. Run scrapers — each checks `eventExists(source_url)` before inserting, generates AI descriptions via Gemini
 3. `deduplicate()` — removes cross-source duplicates by normalized title + same date, keeps highest-scored variant
 
-## Scraper sources (44 total)
+## Scraper sources (43 total)
 
 ### General aggregators
 | Source | File | Method |
 |--------|------|--------|
 | Visit Bergen | `visitbergen.ts` | HTML pagination, Cheerio |
-| Kultur i Kveld | `kulturikveld.ts` | Webflow CMS pagination |
 | Bergen Kommune | `bergenkommune.ts` | AJAX `GetFilteredEventList` + detail pages |
 | BarnasNorge | `barnasnorge.ts` | HTML + JSON-LD, follows `offers.url` |
 | StudentBergen | `studentbergen.ts` | JSON API `/api/calendar.json` |
@@ -163,7 +162,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 
 - `/[lang]/` — Main event listing with EventDiscovery filter (When/Time/Who/What pills + bydel/price)
 - `/[lang]/about/` — About page
-- `/[lang]/datainnsamling/` — Data transparency page (44 sources listed, opt-out form)
+- `/[lang]/datainnsamling/` — Data transparency page (43 sources listed, opt-out form)
 - `/[lang]/submit/` — Event submission form (blocked from search engines)
 - `/[lang]/events/[slug]/` — Event detail page with related events and OG image
 - `/og/[slug].png` — Per-event OG image generation (Satori + ResvgJS)
