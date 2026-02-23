@@ -1,4 +1,4 @@
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 
 // ── Rate limiting (in-memory, per-IP) ──
 
@@ -58,6 +58,28 @@ const RATE_LIMITED_PATHS = ['/submit', '/datainnsamling'];
 function shouldRateLimit(pathname: string): boolean {
 	return RATE_LIMITED_PATHS.some(p => pathname.endsWith(p));
 }
+
+// ── Structured error logging (parsed by Vercel's log system) ──
+
+export const handleError: HandleServerError = ({ error, event, status, message }) => {
+	const err = error instanceof Error ? error : new Error(String(error));
+	const stack = err.stack?.split('\n').slice(0, 5).join('\n');
+
+	console.error(
+		JSON.stringify({
+			type: 'server_error',
+			timestamp: new Date().toISOString(),
+			status,
+			message: err.message,
+			stack,
+			url: event.url.pathname,
+			method: event.request.method,
+			userAgent: event.request.headers.get('user-agent') ?? undefined
+		})
+	);
+
+	return { message: 'An unexpected error occurred. Please try again later.' };
+};
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// Rate limit form pages

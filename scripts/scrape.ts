@@ -41,6 +41,7 @@ import { scrape as scrapeBrann } from './scrapers/brann.js';
 import { scrape as scrapeKulturhusetIBergen } from './scrapers/kulturhusetibergen.js';
 import { scrape as scrapeVVV } from './scrapers/vvv.js';
 import { scrape as scrapeBymuseet } from './scrapers/bymuseet.js';
+import { writeFileSync } from 'fs';
 import { removeExpiredEvents, loadOptOuts, getOptOutDomains } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 import { supabase } from './lib/supabase.js';
@@ -182,11 +183,44 @@ async function main() {
 		console.log(`  ${name}: found ${result.found}, inserted ${result.inserted} new`);
 	}
 
+	const totalFound = Object.values(results).reduce((sum, r) => sum + r.found, 0);
 	const totalInserted = Object.values(results).reduce((sum, r) => sum + r.inserted, 0);
 	console.log(`\nTotal new events: ${totalInserted}`);
 	console.log(`Expired removed: ${expired}`);
 	console.log(`Duplicates removed: ${dupsRemoved}`);
 	console.log(`Pipeline time: ${Math.round((Date.now() - startTime) / 1000)}s`);
+
+	// Structured JSON summary for GitHub Actions
+	const failedScrapers = Object.entries(results)
+		.filter(([, r]) => r.found === 0 && r.inserted === 0)
+		.map(([name]) => name);
+	const durationSeconds = Math.round((Date.now() - startTime) / 1000);
+
+	const summary = {
+		scrapersRun: Object.keys(results).length,
+		totalFound,
+		totalInserted,
+		failedScrapers,
+		failedCount: failedScrapers.length,
+		expiredRemoved: expired,
+		optOutRemoved,
+		duplicatesRemoved: dupsRemoved,
+		durationSeconds
+	};
+
+	console.log('\n' + JSON.stringify(summary));
+
+	const summaryFile = process.env.SUMMARY_FILE;
+	if (summaryFile) {
+		writeFileSync(summaryFile, JSON.stringify(summary, null, 2));
+		console.log(`Summary written to ${summaryFile}`);
+	}
+
+	// Health check: if nothing was inserted and many scrapers failed, something is very wrong
+	if (totalInserted === 0 && failedScrapers.length > 5) {
+		console.error('\nCRITICAL: No events inserted and multiple scrapers failed');
+		process.exit(1);
+	}
 }
 
 main().catch(console.error);

@@ -18,15 +18,68 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
 
       - name: Install scraper dependencies
         working-directory: scripts
         run: npm ci
+        timeout-minutes: 2
 
       - name: Run scrapers
+        id: scrape
         working-directory: scripts
         env:
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SUMMARY_FILE: ${{ runner.temp }}/scrape-summary.json
         run: npx tsx scrape.ts
+
+      - name: Generate job summary
+        if: always()
+        run: |
+          SUMMARY_FILE="${{ runner.temp }}/scrape-summary.json"
+          if [ ! -f "$SUMMARY_FILE" ]; then
+            echo "## Scrape Summary" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "> No summary file found — scraper may have crashed before completion." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          SCRAPERS_RUN=$(jq '.scrapersRun' "$SUMMARY_FILE")
+          TOTAL_FOUND=$(jq '.totalFound' "$SUMMARY_FILE")
+          TOTAL_INSERTED=$(jq '.totalInserted' "$SUMMARY_FILE")
+          FAILED_COUNT=$(jq '.failedCount' "$SUMMARY_FILE")
+          EXPIRED=$(jq '.expiredRemoved' "$SUMMARY_FILE")
+          OPTOUT=$(jq '.optOutRemoved' "$SUMMARY_FILE")
+          DUPES=$(jq '.duplicatesRemoved' "$SUMMARY_FILE")
+          DURATION=$(jq '.durationSeconds' "$SUMMARY_FILE")
+          FAILED_LIST=$(jq -r '.failedScrapers | join(", ")' "$SUMMARY_FILE")
+
+          if [ "$TOTAL_INSERTED" -eq 0 ] && [ "$FAILED_COUNT" -gt 5 ]; then
+            STATUS="critical"
+          elif [ "$FAILED_COUNT" -gt 0 ]; then
+            STATUS="partial"
+          else
+            STATUS="healthy"
+          fi
+
+          echo "## Scrape Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Status | **${STATUS}** |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scrapers run | ${SCRAPERS_RUN} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Events found | ${TOTAL_FOUND} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Events inserted | ${TOTAL_INSERTED} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Failed scrapers | ${FAILED_COUNT} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Expired removed | ${EXPIRED} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Opt-out removed | ${OPTOUT} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Duplicates removed | ${DUPES} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Duration | ${DURATION}s |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -n "$FAILED_LIST" ]; then
+            echo "**Failed scrapers:** ${FAILED_LIST}" >> "$GITHUB_STEP_SUMMARY"
+          fi
