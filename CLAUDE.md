@@ -15,6 +15,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 - **Norwegian first**: `title_no` and `description_no` are required. English fields are optional.
 - **Categories**: music, culture, theatre, family, food, festival, sports, nightlife, workshop, student, tours (defined in `src/lib/types.ts`)
+- **TimeOfDay**: morning, daytime, evening, night (defined in `src/lib/types.ts`, used by EventDiscovery time filter)
 - **Bydeler**: Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna
 - **Slugs**: `slugify(title)-YYYY-MM-DD` format
 - **Event status**: All scraped events are inserted as `approved`. User-submitted events start as `pending`.
@@ -111,7 +112,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 ## Important rules
 
 - **No traffic to aggregators**: ticket_url should point to actual venue/ticket pages, not visitbergen.com or barnasnorge.no. Aggregator domains are blocked in `venues.ts`.
-- **No kindergarten events**: Events for barnehager (kindergartens) are excluded — checked via title keywords AND detail page text.
+- **No non-public events**: Events for barnehager (kindergartens), SFO (after-school care), school visits, etc. are excluded — checked via title keywords AND detail page text. Keywords: `barnehage`, `barnehagebarn`, `sfo`, `skoleklasse`, `skolebesøk`, `klassebesøk`, `kun for`.
 - **Rate limiting**: All scrapers use 1-1.5s delays between requests. Eventbrite uses 3s. AI descriptions use 200ms + backoff.
 - **Honest User-Agent**: `Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)`
 - **No dark mode**: Disabled because components use hardcoded `bg-white`. TODO: full dark mode implementation.
@@ -132,9 +133,35 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - Workflow: venue submits → `status: 'pending'` → admin approves in Supabase dashboard → `'approved'`
 - Scraper pipeline: `loadOptOuts()` caches approved domains, `insertEvent()` checks `isOptedOut(source_url)`, pipeline step 1b deletes existing events from opted-out domains
 
+## EventDiscovery filter system (Feb 2026)
+
+The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) instead of traditional dropdowns. It guides users step by step: **When → Time of Day → Who → What**.
+
+- **Step 1 (When?)** — Always visible. Pills: I dag, I morgen, Denne helgen, Denne uken, Velg dato (opens inline MiniCalendar)
+- **Steps 2–4** — Slide in after a date is selected (progressive disclosure)
+- **Step 2 (Time)** — Multi-select pills: Morgen (6–12), Dagtid (12–17), Kveld (17–22), Natt (22–6)
+- **Step 3 (Who)** — Single-select pills: Alle, Familie & Barn, Studenter, 18+, Turister
+- **Step 4 (What)** — Multi-select category pills (first 5 shown, expandable)
+- **Flere filtre** — Expandable toggle for bydel + price dropdowns
+- **FilterBar is hidden** from the homepage when EventDiscovery is active (a date is selected). EventDiscovery is the sole filter UI on the homepage.
+- **URL is the single source of truth** — all filters read/write URL search params (`when`, `time`, `audience`, `category`, `bydel`, `price`). Shareable, back-button works.
+- **Key components**: `FilterPill.svelte` (reusable pill button), `MiniCalendar.svelte` (inline date picker), `EventDiscovery.svelte` (main component)
+- **18+ audience filter** excludes family events (not just explicitly tagged 18+ events)
+- **Category filter** supports comma-separated multi-select (`?category=music,culture`)
+
+## Price disclaimer policy
+
+- Scraped prices may be inaccurate. All price displays use **soft language**: "Trolig gratis" / "Likely free" instead of asserting "Gratis" / "Free"
+- **Disclaimer text** ("Sjekk alltid pris hos arrangør" / "Always verify price with organizer") appears on:
+  - Every event card that has a known price (free or paid)
+  - Event detail pages (price section)
+  - The "Flere filtre" dropdown in EventDiscovery
+- Events with unknown prices show "Se pris" / "See price" (no disclaimer needed — already implies checking)
+- `isFreeEvent()` in `utils.ts` only matches `0`, `'0'`, `'Free'`, `'Gratis'` — strict to avoid false positives
+
 ## Frontend routes
 
-- `/[lang]/` — Main event listing with filters (category, bydel, price, audience, search, date)
+- `/[lang]/` — Main event listing with EventDiscovery filter (When/Time/Who/What pills + bydel/price)
 - `/[lang]/about/` — About page
 - `/[lang]/datainnsamling/` — Data transparency page (44 sources listed, opt-out form)
 - `/[lang]/submit/` — Event submission form (blocked from search engines)
@@ -147,15 +174,18 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - `Header.svelte` — Sticky header with language switch
 - `Footer.svelte` — Footer with links (about, datainnsamling, contact)
 - `HeroSection.svelte` — Compact hero with tagline
-- `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price
+- `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer
 - `EventListItem.svelte` — List row variant
 - `EventGrid.svelte` — Date-grouped event grid layout
-- `FilterBar.svelte` — Mobile filter row (category pills, dropdowns)
+- `EventDiscovery.svelte` — Progressive 4-step filter (When/Time/Who/What) with inline calendar + bydel/price
+- `FilterPill.svelte` — Reusable pill/chip button (aria-pressed, 44px touch targets, Funkis styling)
+- `MiniCalendar.svelte` — Inline month-grid date picker (single date + range selection, bilingual)
+- `FilterBar.svelte` — Dropdown filter row (hidden on homepage when EventDiscovery is active, has `hideFields` prop)
 - `FilterSidebar.svelte` — Desktop sticky sidebar (categories, bydel, price, audience)
 - `SearchBar.svelte` — Event title/venue search input
-- `CalendarDropdown.svelte` — Date range filter
-- `DateQuickFilters.svelte` — Buttons: Today, This Weekend, Next 7 Days
-- `StatusBadge.svelte` — Display badges: Today, Free, Sold Out, Last Tickets, Cancelled
+- `CalendarDropdown.svelte` — "Add to Calendar" dropdown (event detail pages, NOT a date picker)
+- `DateQuickFilters.svelte` — Legacy date buttons (unused, replaced by EventDiscovery step 1)
+- `StatusBadge.svelte` — Display badges: Today, Trolig gratis, Sold Out, Last Tickets, Cancelled
 - `LoadMore.svelte` — "Load more events" button
 - `EmptyState.svelte` — "No events found" message
 - `BackToTop.svelte` — Sticky button to scroll to top
