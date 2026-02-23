@@ -168,8 +168,8 @@
 			);
 		}
 
-		// Sort by date
-		events.sort((a, b) => new Date(a.date_start).getTime() - new Date(b.date_start).getTime());
+		// Sort by date (ISO strings are lexicographically sortable — no Date allocation needed)
+		events.sort((a, b) => a.date_start < b.date_start ? -1 : a.date_start > b.date_start ? 1 : 0);
 
 		return events;
 	});

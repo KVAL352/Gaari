@@ -4,37 +4,40 @@ import { seedEvents } from '$lib/data/seed-events';
 import type { GaariEvent } from '$lib/types';
 import type { PageLoad } from './$types';
 
+const EVENT_COLUMNS = 'id,slug,title_no,title_en,description_no,description_en,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status';
+
+function mapPrice(e: any): GaariEvent {
+	return {
+		...e,
+		price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
+	};
+}
+
 export const load: PageLoad = async ({ params }) => {
 	try {
 		// Fetch event by slug
 		const { data: event, error: err } = await supabase
 			.from('events')
-			.select('*')
+			.select(EVENT_COLUMNS)
 			.eq('slug', params.slug)
 			.single();
 
 		if (err) throw err;
 
-		// Map price
-		const mapped: GaariEvent = {
-			...event,
-			price: event.price === '' || event.price === null ? '' : isNaN(Number(event.price)) ? event.price : Number(event.price)
-		};
+		const mapped = mapPrice(event);
 
-		// Related events: same category, excluding current
-		const { data: relatedData } = await supabase
+		// Fetch related events in parallel (don't await sequentially)
+		const relatedPromise = supabase
 			.from('events')
-			.select('*')
+			.select(EVENT_COLUMNS)
 			.eq('category', mapped.category)
 			.eq('status', 'approved')
 			.neq('id', mapped.id)
 			.order('date_start', { ascending: true })
 			.limit(4);
 
-		const related: GaariEvent[] = (relatedData || []).map(e => ({
-			...e,
-			price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
-		}));
+		const { data: relatedData } = await relatedPromise;
+		const related: GaariEvent[] = (relatedData || []).map(mapPrice);
 
 		return { event: mapped, related };
 	} catch {

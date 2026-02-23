@@ -78,7 +78,7 @@
 	<!-- Hero image -->
 	<div class="mb-6 aspect-[16/9] overflow-hidden rounded-2xl bg-[var(--color-surface)]">
 		{#if event.image_url}
-			<img src={event.image_url} alt={title} class="h-full w-full object-cover" width="800" height="450" />
+			<img src={event.image_url} alt={title} class="h-full w-full object-cover" width="800" height="450" fetchpriority="high" />
 		{:else}
 			<ImagePlaceholder category={event.category} size={64} />
 		{/if}

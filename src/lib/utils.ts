@@ -130,8 +130,8 @@ export function slugify(text: string): string {
 // ── Date grouping ──
 
 export function getDateKey(dateStr: string): string {
-	const date = new Date(dateStr);
-	return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+	// ISO date strings (YYYY-MM-DDTHH:mm) — slice is faster than Date constructor
+	return dateStr.slice(0, 10);
 }
 
 export function groupEventsByDate<T extends { date_start: string }>(events: T[]): Map<string, T[]> {

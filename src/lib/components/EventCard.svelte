@@ -21,19 +21,17 @@
 	let priceText = $derived(formatPrice(event.price, $lang));
 	let eventUrl = $derived(`/${$lang}/events/${event.slug}`);
 
+	// Compute today string once per component (not per render), using Oslo timezone
+	const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+
 	let badges = $derived.by(() => {
 		const b: BadgeType[] = [];
 		if (event.status === 'cancelled') {
 			b.push('cancelled');
 			return b;
 		}
-		const now = new Date();
-		const eventDay = new Date(event.date_start);
-		if (
-			eventDay.getFullYear() === now.getFullYear() &&
-			eventDay.getMonth() === now.getMonth() &&
-			eventDay.getDate() === now.getDate()
-		) {
+		// String comparison — no Date allocations per card
+		if (event.date_start.slice(0, 10) === todayStr) {
 			b.push('today');
 		}
 		if (isFreeEvent(event.price)) {
@@ -83,6 +81,8 @@
 					src={event.image_url}
 					alt={title}
 					loading={eager ? 'eager' : 'lazy'}
+					fetchpriority={eager ? 'high' : 'auto'}
+					decoding={eager ? 'sync' : 'async'}
 					width="400"
 					height="225"
 					class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
