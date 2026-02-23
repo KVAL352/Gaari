@@ -59,7 +59,7 @@ export function formatDateSectionHeader(dateStr: string, locale: 'no' | 'en' = '
 
 export function formatPrice(price: string | number | null, locale: 'no' | 'en' = 'no'): string {
 	if (isFreeEvent(price)) {
-		return locale === 'no' ? 'Gratis' : 'Free';
+		return locale === 'no' ? 'Trolig gratis' : 'Likely free';
 	}
 	if (price === null || price === undefined || price === '') {
 		return locale === 'no' ? 'Se pris' : 'See price';

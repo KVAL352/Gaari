@@ -26,6 +26,7 @@ export const translations = {
 		price: 'Pris',
 		audience: 'For hvem',
 		moreFilters: 'Flere filtre',
+		priceDisclaimer: 'Sjekk alltid pris hos arrangør',
 		allCategories: 'Alle kategorier',
 		allAreas: 'Alle bydeler',
 		allPrices: 'Alle priser',
@@ -41,7 +42,7 @@ export const translations = {
 
 		// Status badges
 		todayBadge: 'I dag',
-		freeBadge: 'Gratis',
+		freeBadge: 'Trolig gratis',
 		soldOut: 'Utsolgt',
 		lastTickets: 'Siste billetter',
 		cancelled: 'Avlyst',
@@ -174,6 +175,7 @@ export const translations = {
 		price: 'Price',
 		audience: 'Audience',
 		moreFilters: 'More Filters',
+		priceDisclaimer: 'Always verify price with organizer',
 		allCategories: 'All Categories',
 		allAreas: 'All Areas',
 		allPrices: 'All Prices',
@@ -187,7 +189,7 @@ export const translations = {
 		freeEvents: 'Free Events',
 
 		todayBadge: 'Today',
-		freeBadge: 'Free',
+		freeBadge: 'Likely free',
 		soldOut: 'Sold Out',
 		lastTickets: 'Last Tickets',
 		cancelled: 'Cancelled',

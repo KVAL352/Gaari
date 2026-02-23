@@ -324,6 +324,7 @@
 						{/each}
 					</select>
 				</div>
+				<p class="price-disclaimer">{$t('priceDisclaimer')}</p>
 			</div>
 		{/if}
 	</div>
@@ -425,6 +426,13 @@
 		padding: 0.375rem 0.625rem;
 		font-size: 0.8125rem;
 		color: var(--color-text-primary);
+	}
+
+	.price-disclaimer {
+		font-size: 0.6875rem;
+		color: var(--color-text-muted);
+		font-style: italic;
+		margin-top: 0.25rem;
 	}
 
 	/* Mobile: horizontal scroll for pill rows */
