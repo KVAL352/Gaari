@@ -190,6 +190,7 @@
 		width: 100%;
 		max-width: 320px;
 		padding: 0.75rem;
+		overflow: hidden;
 		background: var(--color-bg-surface);
 		border: 1px solid var(--color-border);
 		border-radius: 0.75rem;
@@ -253,14 +254,15 @@
 
 	.cal-empty {
 		aspect-ratio: 1;
+		min-width: 0;
 	}
 
 	.cal-day {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		min-height: 44px;
 		aspect-ratio: 1;
+		min-width: 0; /* Allow grid item to shrink below aspect-ratio width on iOS Safari */
 		border: none;
 		background: none;
 		border-radius: 50%;
