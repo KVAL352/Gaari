@@ -3,9 +3,10 @@
 	import { goto } from '$app/navigation';
 	import { lang, t } from '$lib/i18n';
 	import { isFreeEvent } from '$lib/utils';
-	import type { Category, Bydel, GaariEvent } from '$lib/types';
+	import type { Category, Bydel, GaariEvent, TimeOfDay } from '$lib/types';
 	import HeroSection from '$lib/components/HeroSection.svelte';
 	import FilterBar from '$lib/components/FilterBar.svelte';
+	import EventDiscovery from '$lib/components/EventDiscovery.svelte';
 
 	import EventGrid from '$lib/components/EventGrid.svelte';
 	import LoadMore from '$lib/components/LoadMore.svelte';
@@ -17,20 +18,119 @@
 	const PAGE_SIZE = 12;
 
 	// Read filters from URL
-	let category = $derived(($page.url.searchParams.get('category') || '') as Category | '');
+	let category = $derived($page.url.searchParams.get('category') || '');
 	let bydel = $derived(($page.url.searchParams.get('bydel') || '') as Bydel | '');
 	let price = $derived($page.url.searchParams.get('price') || '');
 	let audience = $derived($page.url.searchParams.get('audience') || '');
+	let when = $derived($page.url.searchParams.get('when') || '');
+	let time = $derived($page.url.searchParams.get('time') || '');
 	let q = $derived($page.url.searchParams.get('q') || '');
 	let pageNum = $derived(Number($page.url.searchParams.get('page') || '1'));
+
+	// Hide category/audience dropdowns from FilterBar when EventDiscovery has a date selected
+	let discoveryActive = $derived(!!when);
+	let filterBarHideFields = $derived(discoveryActive ? ['category', 'audience'] : []);
+
+	// ── Date helper functions ──
+
+	function getOsloNow(): Date {
+		// Get current time in Oslo timezone
+		const str = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Oslo' });
+		return new Date(str.replace(' ', 'T'));
+	}
+
+	function toOsloDateStr(date: Date): string {
+		return date.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+	}
+
+	function isSameDay(dateStr: string, refDateStr: string): boolean {
+		return dateStr.slice(0, 10) === refDateStr;
+	}
+
+	function getWeekendDates(now: Date): { start: string; end: string } {
+		const day = now.getDay(); // 0=Sun, 6=Sat
+		const daysToSat = day === 0 ? -1 : 6 - day; // if Sunday, Saturday was yesterday
+		const sat = new Date(now);
+		sat.setDate(now.getDate() + daysToSat);
+		const sun = new Date(sat);
+		sun.setDate(sat.getDate() + 1);
+		return {
+			start: day === 5 ? toOsloDateStr(now) : toOsloDateStr(sat), // Include Friday if today is Friday
+			end: toOsloDateStr(sun)
+		};
+	}
+
+	function matchesTimeOfDay(dateStart: string, times: string[]): boolean {
+		// Extract hour from date_start
+		const timePart = dateStart.slice(11, 13);
+		if (!timePart) return true; // No time info, include the event
+		const hour = Number(timePart);
+
+		return times.some(t => {
+			switch (t as TimeOfDay) {
+				case 'morning': return hour >= 6 && hour < 12;
+				case 'daytime': return hour >= 12 && hour < 17;
+				case 'evening': return hour >= 17 && hour < 22;
+				case 'night': return hour >= 22 || hour < 6;
+				default: return false;
+			}
+		});
+	}
 
 	// Filter events
 	let filteredEvents = $derived.by(() => {
 		let events = allEvents.filter(e => e.status !== 'cancelled' && e.status !== 'expired');
 
-		// Category filter
+		// When filter (date)
+		if (when) {
+			const now = getOsloNow();
+			const todayStr = toOsloDateStr(now);
+
+			if (when === 'today') {
+				events = events.filter(e => isSameDay(e.date_start, todayStr));
+			} else if (when === 'tomorrow') {
+				const tmrw = new Date(now);
+				tmrw.setDate(now.getDate() + 1);
+				const tmrwStr = toOsloDateStr(tmrw);
+				events = events.filter(e => isSameDay(e.date_start, tmrwStr));
+			} else if (when === 'weekend') {
+				const { start, end } = getWeekendDates(now);
+				events = events.filter(e => {
+					const d = e.date_start.slice(0, 10);
+					return d >= start && d <= end;
+				});
+			} else if (when === 'week') {
+				const endOfWeek = new Date(now);
+				const daysToSunday = 7 - now.getDay();
+				endOfWeek.setDate(now.getDate() + (now.getDay() === 0 ? 0 : daysToSunday));
+				const endStr = toOsloDateStr(endOfWeek);
+				events = events.filter(e => {
+					const d = e.date_start.slice(0, 10);
+					return d >= todayStr && d <= endStr;
+				});
+			} else if (when.includes(':')) {
+				// Range: YYYY-MM-DD:YYYY-MM-DD
+				const [from, to] = when.split(':');
+				events = events.filter(e => {
+					const d = e.date_start.slice(0, 10);
+					return d >= from && d <= to;
+				});
+			} else {
+				// Single date: YYYY-MM-DD
+				events = events.filter(e => e.date_start.startsWith(when));
+			}
+		}
+
+		// Time of day filter
+		if (time) {
+			const times = time.split(',');
+			events = events.filter(e => matchesTimeOfDay(e.date_start, times));
+		}
+
+		// Category filter — handle comma-separated multi-select
 		if (category) {
-			events = events.filter(e => e.category === category);
+			const cats = category.split(',');
+			events = events.filter(e => cats.includes(e.category));
 		}
 
 		// Bydel filter
@@ -52,6 +152,8 @@
 			events = events.filter(e => e.age_group === 'students' || e.category === 'student');
 		} else if (audience === 'tourist') {
 			events = events.filter(e => e.language === 'en' || e.language === 'both');
+		} else if (audience === 'adult') {
+			events = events.filter(e => e.age_group !== 'family' && e.category !== 'family');
 		} else if (audience === 'free') {
 			events = events.filter(e => isFreeEvent(e.price));
 		}
@@ -130,16 +232,25 @@
 
 <HeroSection />
 
+<EventDiscovery
+	lang={$lang}
+	eventCount={filteredEvents.length}
+	onFilterChange={handleFilterChange}
+	onClearAll={handleClearAll}
+/>
+
+{#if !discoveryActive}
 <FilterBar
-	{category}
 	{bydel}
 	{price}
-	{audience}
+	category={category as any}
+	audience={audience}
 	{todayCount}
 	{thisWeekCount}
 	onFilterChange={handleFilterChange}
 	onClearAll={handleClearAll}
 />
+{/if}
 
 <div class="mx-auto max-w-7xl px-4 py-6">
 	{#if filteredEvents.length === 0}

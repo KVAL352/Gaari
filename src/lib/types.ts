@@ -13,6 +13,7 @@ export const BYDELER = [
 export type Bydel = (typeof BYDELER)[number];
 
 export type AgeGroup = 'all' | 'family' | '18+' | 'students';
+export type TimeOfDay = 'morning' | 'daytime' | 'evening' | 'night';
 export type EventStatus = 'pending' | 'approved' | 'expired' | 'cancelled';
 export type EventLanguage = 'no' | 'en' | 'both';
 export type Lang = 'no' | 'en';

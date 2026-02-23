@@ -133,7 +133,23 @@ export const translations = {
 		sortByDate: 'Dato',
 
 		// Skip link
-		skipToEvents: 'Hopp til arrangementer'
+		skipToEvents: 'Hopp til arrangementer',
+
+		// EventDiscovery
+		whenLabel: 'Når?',
+		timeLabel: 'Tid',
+		whoLabel: 'Hvem',
+		whatLabel: 'Hva',
+		morning: 'Morgen',
+		daytime: 'Dagtid',
+		evening: 'Kveld',
+		night: 'Natt',
+		everyone: 'Alle',
+		adults: '18+',
+		tourists: 'Turister',
+		students: 'Studenter',
+		moreCategories: 'til',
+		eventDiscovery: 'Oppdag arrangementer'
 	},
 	en: {
 		siteName: 'Gåri',
@@ -253,7 +269,23 @@ export const translations = {
 		listView: 'List',
 		sortByDate: 'Date',
 
-		skipToEvents: 'Skip to events'
+		skipToEvents: 'Skip to events',
+
+		// EventDiscovery
+		whenLabel: 'When?',
+		timeLabel: 'Time',
+		whoLabel: 'Who',
+		whatLabel: 'What',
+		morning: 'Morning',
+		daytime: 'Daytime',
+		evening: 'Evening',
+		night: 'Night',
+		everyone: 'Everyone',
+		adults: '18+',
+		tourists: 'Tourists',
+		students: 'Students',
+		moreCategories: 'more',
+		eventDiscovery: 'Discover events'
 	}
 } as const;
 

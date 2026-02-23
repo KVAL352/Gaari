@@ -9,6 +9,7 @@
 		audience?: string;
 		todayCount?: number;
 		thisWeekCount?: number;
+		hideFields?: string[];
 		onFilterChange?: (key: string, value: string) => void;
 		onClearAll?: () => void;
 	}
@@ -20,9 +21,13 @@
 		audience = '',
 		todayCount = 0,
 		thisWeekCount = 0,
+		hideFields = [],
 		onFilterChange,
 		onClearAll
 	}: Props = $props();
+
+	let showCategory = $derived(!hideFields.includes('category'));
+	let showAudience = $derived(!hideFields.includes('audience'));
 
 	let hasActiveFilters = $derived(!!category || !!bydel || !!price || !!audience);
 
@@ -54,16 +59,8 @@
 	<div class="mx-auto max-w-7xl px-4 py-3">
 		<!-- Top row: counts + dropdowns -->
 		<div class="flex flex-wrap items-center gap-3">
-			<!-- Event counts -->
-			<p class="mr-auto text-sm">
-				<span class="tabular-nums font-semibold">{todayCount}</span>
-				<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'i dag' : 'today'}</span>
-				<span class="mx-1 text-[var(--color-text-muted)]">&middot;</span>
-				<span class="tabular-nums font-semibold">{thisWeekCount}</span>
-				<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'denne uken' : 'this week'}</span>
-			</p>
-
 			<!-- Dropdowns -->
+			{#if showCategory}
 			<select
 				value={category}
 				onchange={(e) => handleSelect('category', e)}
@@ -74,6 +71,7 @@
 					<option value={cat}>{$t(`cat.${cat}` as any)}</option>
 				{/each}
 			</select>
+			{/if}
 
 			<select
 				value={bydel}
@@ -96,6 +94,7 @@
 				{/each}
 			</select>
 
+			{#if showAudience}
 			<select
 				value={audience}
 				onchange={(e) => handleSelect('audience', e)}
@@ -105,6 +104,7 @@
 					<option value={opt.value}>{$t(opt.label)}</option>
 				{/each}
 			</select>
+			{/if}
 
 			{#if hasActiveFilters}
 				<button
