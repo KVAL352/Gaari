@@ -28,6 +28,7 @@
 	let correctionReason = $state('');
 	let correctionSubmitted = $state(false);
 	let correctionSubmitting = $state(false);
+	let correctionError = $state(false);
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/events/${event.slug}`));
 	let eventJsonLd = $derived(generateEventJsonLd(event, $lang, canonicalUrl));
@@ -48,8 +49,9 @@
 	async function handleCorrectionSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		correctionSubmitting = true;
+		correctionError = false;
 
-		await supabase.from('edit_suggestions').insert({
+		const { error } = await supabase.from('edit_suggestions').insert({
 			event_id: event.id,
 			field: correctionField,
 			suggested_value: correctionValue,
@@ -58,6 +60,12 @@
 		});
 
 		correctionSubmitting = false;
+
+		if (error) {
+			correctionError = true;
+			return;
+		}
+
 		correctionSubmitted = true;
 		showCorrectionForm = false;
 	}
@@ -110,7 +118,7 @@
 			<StatusBadge type="free" />
 		{/if}
 		<span class="rounded-full bg-[var(--color-surface)] px-3 py-0.5 text-xs font-medium">
-			{$t(`cat.${event.category}` as any)}
+			{$t(`cat.${event.category}` )}
 		</span>
 	</div>
 
@@ -150,7 +158,7 @@
 			<Clock size={20} class="mt-0.5 flex-shrink-0 text-[var(--color-text-secondary)]" />
 			<div>
 				<p class="text-sm font-semibold">{$t('category')}</p>
-				<p class="text-sm text-[var(--color-text-secondary)]">{$t(`cat.${event.category}` as any)}</p>
+				<p class="text-sm text-[var(--color-text-secondary)]">{$t(`cat.${event.category}` )}</p>
 			</div>
 		</div>
 	</div>
@@ -219,6 +227,11 @@
 						</label>
 						<textarea id="correction-reason" bind:value={correctionReason} rows="2" class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm"></textarea>
 					</div>
+					{#if correctionError}
+						<p class="text-sm text-red-600" role="alert">
+							{$lang === 'no' ? 'Noe gikk galt. Prøv igjen.' : 'Something went wrong. Please try again.'}
+						</p>
+					{/if}
 					<button type="submit" class="rounded-lg bg-[#141414] px-4 py-2 text-sm font-medium text-white hover:bg-[#2a2a2a]">
 						{$t('submit')}
 					</button>

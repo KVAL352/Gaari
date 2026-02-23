@@ -36,10 +36,10 @@
 
 <span
 	class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium {colorClasses[type]}"
-	aria-label={$t(labelKeys[type] as any)}
+	aria-label={$t(labelKeys[type])}
 >
 	{#if iconComponents[type]}
 		<svelte:component this={iconComponents[type]} size={12} strokeWidth={2} aria-hidden="true" />
 	{/if}
-	{$t(labelKeys[type] as any)}
+	{$t(labelKeys[type])}
 </span>

@@ -107,8 +107,8 @@
 			imageWarning = warning;
 			if (imagePreview) URL.revokeObjectURL(imagePreview);
 			imagePreview = URL.createObjectURL(blob);
-		} catch (err: any) {
-			submitError = err.message;
+		} catch (err: unknown) {
+			submitError = err instanceof Error ? err.message : 'Failed to process image';
 			input.value = '';
 		}
 	}
@@ -257,7 +257,7 @@
 				<select id="category" name="category" required
 					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm">
 					{#each CATEGORIES as cat}
-						<option value={cat}>{$t(`cat.${cat}` as any)}</option>
+						<option value={cat}>{$t(`cat.${cat}` )}</option>
 					{/each}
 				</select>
 			</div>

@@ -22,7 +22,7 @@
 								href="/{$lang}?category={cat}"
 								class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
 							>
-								{$t(`cat.${cat}` as any)}
+								{$t(`cat.${cat}`)}
 							</a>
 						</li>
 					{/each}
@@ -39,7 +39,7 @@
 								href="/{$lang}?category={cat}"
 								class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
 							>
-								{$t(`cat.${cat}` as any)}
+								{$t(`cat.${cat}`)}
 							</a>
 						</li>
 					{/each}

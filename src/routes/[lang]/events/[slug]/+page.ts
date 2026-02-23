@@ -6,11 +6,12 @@ import type { PageLoad } from './$types';
 
 const EVENT_COLUMNS = 'id,slug,title_no,title_en,description_no,description_en,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status';
 
-function mapPrice(e: any): GaariEvent {
+function mapPrice(e: Record<string, unknown>): GaariEvent {
+	const price = e.price;
 	return {
 		...e,
-		price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
-	};
+		price: price === '' || price === null ? '' : isNaN(Number(price)) ? price : Number(price)
+	} as GaariEvent;
 }
 
 export const load: PageLoad = async ({ params }) => {

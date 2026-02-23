@@ -69,7 +69,7 @@
 			>
 				<option value="">{$t('allCategories')}</option>
 				{#each CATEGORIES as cat}
-					<option value={cat}>{$t(`cat.${cat}` as any)}</option>
+					<option value={cat}>{$t(`cat.${cat}`)}</option>
 				{/each}
 			</select>
 			{/if}

@@ -5,8 +5,8 @@ import type { Lang } from '$lib/types';
 export const lang = writable<Lang>('no');
 
 export const t = derived(lang, ($lang) => {
-	return (key: TranslationKey): string => {
-		const value = translations[$lang]?.[key];
+	return (key: TranslationKey | (string & {})): string => {
+		const value = translations[$lang]?.[key as TranslationKey];
 		if (value === undefined) {
 			console.warn(`Missing translation: ${key} for lang: ${$lang}`);
 			return key;

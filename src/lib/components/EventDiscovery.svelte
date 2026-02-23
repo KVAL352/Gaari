@@ -256,7 +256,7 @@
 				<div class="pill-row" role="group" aria-label={$t('whatLabel')} onkeydown={handlePillKeydown}>
 					{#each visibleCategories as cat}
 						<FilterPill
-							label={$t(`cat.${cat}` as any)}
+							label={$t(`cat.${cat}`)}
 							selected={selectedCategories.includes(cat)}
 							onclick={() => handleCategoryToggle(cat)}
 						/>
