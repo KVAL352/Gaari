@@ -124,7 +124,9 @@
 				</button>
 			</div>
 			</div>
-			<p class="mt-1 text-[0.625rem] italic text-[var(--color-text-muted)]">{$t('priceDisclaimer')}</p>
+			{#if event.price !== null && event.price !== undefined && event.price !== ''}
+				<p class="mt-1 text-[0.625rem] italic text-[var(--color-text-muted)]">{$t('priceDisclaimer')}</p>
+			{/if}
 		</div>
 	</article>
 </li>
