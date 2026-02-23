@@ -280,8 +280,47 @@ export function delay(ms: number): Promise<void> {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Fetch HTML with error handling
+// SSRF protection: block requests to private/internal networks
+function isPrivateUrl(urlStr: string): boolean {
+	try {
+		const parsed = new URL(urlStr);
+
+		// Only allow http(s)
+		if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return true;
+
+		const hostname = parsed.hostname.toLowerCase();
+
+		// Block localhost variants
+		if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') return true;
+		if (hostname.endsWith('.local') || hostname.endsWith('.internal')) return true;
+
+		// Block private IPv4 ranges and cloud metadata
+		const ipv4Match = hostname.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+		if (ipv4Match) {
+			const [, a, b] = ipv4Match.map(Number);
+			if (a === 10) return true;                          // 10.0.0.0/8
+			if (a === 172 && b >= 16 && b <= 31) return true;   // 172.16.0.0/12
+			if (a === 192 && b === 168) return true;             // 192.168.0.0/16
+			if (a === 169 && b === 254) return true;             // link-local / cloud metadata
+			if (a === 0) return true;                            // 0.0.0.0/8
+		}
+
+		return false;
+	} catch {
+		return true; // Invalid URL = block
+	}
+}
+
+// Fetch HTML with error handling, SSRF protection, and timeout
 export async function fetchHTML(url: string): Promise<string | null> {
+	if (isPrivateUrl(url)) {
+		console.error(`  Blocked private/internal URL: ${url}`);
+		return null;
+	}
+
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 15_000); // 15s timeout
+
 	try {
 		const res = await fetch(url, {
 			headers: {
@@ -289,14 +328,29 @@ export async function fetchHTML(url: string): Promise<string | null> {
 				'Accept': 'text/html',
 				'Accept-Language': 'nb-NO,nb;q=0.9,no;q=0.8,en;q=0.5',
 			},
+			redirect: 'follow',
+			signal: controller.signal,
 		});
+
+		// Check final URL after redirects for SSRF
+		if (res.url && isPrivateUrl(res.url)) {
+			console.error(`  Blocked redirect to private URL: ${res.url}`);
+			return null;
+		}
+
 		if (!res.ok) {
 			console.error(`  HTTP ${res.status} for ${url}`);
 			return null;
 		}
 		return await res.text();
 	} catch (err: any) {
-		console.error(`  Fetch error for ${url}:`, err.message);
+		if (err.name === 'AbortError') {
+			console.error(`  Timeout fetching ${url}`);
+		} else {
+			console.error(`  Fetch error for ${url}:`, err.message);
+		}
 		return null;
+	} finally {
+		clearTimeout(timeoutId);
 	}
 }

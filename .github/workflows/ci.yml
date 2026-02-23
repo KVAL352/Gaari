@@ -31,5 +31,5 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          PUBLIC_SUPABASE_URL: https://rilwtpluofguyjpzdezi.supabase.co
-          PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpbHd0cGx1b2ZndXlqcHpkZXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MzIwNDgsImV4cCI6MjA4NzAwODA0OH0.xHnbz1Pz1KTIy6drBsSXMDdNaqumRJPy8GYuyOQtUV4
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
