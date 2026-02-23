@@ -239,18 +239,6 @@
 	onClearAll={handleClearAll}
 />
 
-{#if !discoveryActive}
-<FilterBar
-	{bydel}
-	{price}
-	category={category as any}
-	audience={audience}
-	{todayCount}
-	{thisWeekCount}
-	onFilterChange={handleFilterChange}
-	onClearAll={handleClearAll}
-/>
-{/if}
 
 <div class="mx-auto max-w-7xl px-4 py-6">
 	{#if filteredEvents.length === 0}
