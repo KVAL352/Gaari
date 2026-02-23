@@ -256,19 +256,26 @@
 
 	.cal-cell,
 	.cal-empty {
-		aspect-ratio: 1;
+		position: relative;
 		min-width: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+	}
+
+	.cal-cell::before,
+	.cal-empty::before {
+		content: '';
+		display: block;
+		padding-bottom: 100%;
 	}
 
 	.cal-day {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 100%;
-		height: 100%;
 		min-width: 0;
 		border: none;
 		background: none;
