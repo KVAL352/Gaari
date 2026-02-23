@@ -159,21 +159,23 @@
 			{#if day === null}
 				<span class="cal-empty"></span>
 			{:else}
-				<button
-					type="button"
-					class="cal-day"
-					class:past={isPast(day)}
-					class:today={day === todayStr}
-					class:selected={isSelected(day)}
-					class:range-edge={isRangeEdge(day)}
-					class:range-start={rangeStart === day}
-					disabled={isPast(day)}
-					onclick={() => handleDayClick(day)}
-					aria-label={new Date(day + 'T12:00:00').toLocaleDateString(lang === 'no' ? 'nb-NO' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-					aria-pressed={isSelected(day)}
-				>
-					{Number(day.slice(8, 10))}
-				</button>
+				<div class="cal-cell">
+					<button
+						type="button"
+						class="cal-day"
+						class:past={isPast(day)}
+						class:today={day === todayStr}
+						class:selected={isSelected(day)}
+						class:range-edge={isRangeEdge(day)}
+						class:range-start={rangeStart === day}
+						disabled={isPast(day)}
+						onclick={() => handleDayClick(day)}
+						aria-label={new Date(day + 'T12:00:00').toLocaleDateString(lang === 'no' ? 'nb-NO' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+						aria-pressed={isSelected(day)}
+					>
+						{Number(day.slice(8, 10))}
+					</button>
+				</div>
 			{/if}
 		{/each}
 	</div>
@@ -252,17 +254,22 @@
 		padding: 0.25rem 0;
 	}
 
+	.cal-cell,
 	.cal-empty {
 		aspect-ratio: 1;
 		min-width: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.cal-day {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		aspect-ratio: 1;
-		min-width: 0; /* Allow grid item to shrink below aspect-ratio width on iOS Safari */
+		width: 100%;
+		height: 100%;
+		min-width: 0;
 		border: none;
 		background: none;
 		border-radius: 50%;
