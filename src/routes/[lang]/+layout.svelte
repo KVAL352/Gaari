@@ -2,7 +2,6 @@
 	import { page } from '$app/stores';
 	import { lang, setLang, detectLanguage } from '$lib/i18n';
 	import type { Lang } from '$lib/types';
-	import { getCanonicalUrl } from '$lib/seo';
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import BackToTop from '$lib/components/BackToTop.svelte';
@@ -12,7 +11,7 @@
 
 	// SEO: hreflang + OG URL — always use gaari.no as the canonical base
 	let pathWithoutLang = $derived($page.url.pathname.replace(/^\/(no|en)/, ''));
-	let baseUrl = $derived('https://gaari.no');
+	const baseUrl = 'https://gaari.no';
 
 	// Sync lang store with URL param + update html lang attribute
 	$effect(() => {
