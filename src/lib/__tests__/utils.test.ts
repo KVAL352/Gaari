@@ -33,6 +33,30 @@ describe('isFreeEvent', () => {
 	it('returns false for numeric price', () => {
 		expect(isFreeEvent(50)).toBe(false);
 	});
+
+	it('is case-insensitive', () => {
+		expect(isFreeEvent('gratis')).toBe(true);
+		expect(isFreeEvent('GRATIS')).toBe(true);
+		expect(isFreeEvent('free')).toBe(true);
+		expect(isFreeEvent('FREE')).toBe(true);
+	});
+
+	it('handles Norwegian zero-price formats', () => {
+		expect(isFreeEvent('0 kr')).toBe(true);
+		expect(isFreeEvent('0,-')).toBe(true);
+		expect(isFreeEvent('0,00')).toBe(true);
+		expect(isFreeEvent('0,00 kr')).toBe(true);
+		expect(isFreeEvent('0 NOK')).toBe(true);
+	});
+
+	it('trims whitespace', () => {
+		expect(isFreeEvent(' Gratis ')).toBe(true);
+		expect(isFreeEvent(' 0 ')).toBe(true);
+	});
+
+	it('rejects partial matches', () => {
+		expect(isFreeEvent('Fra 0 kr')).toBe(false);
+	});
 });
 
 describe('formatPrice', () => {
@@ -60,6 +84,12 @@ describe('formatPrice', () => {
 		expect(formatPrice(null, 'no')).toBe('Se pris');
 		expect(formatPrice(null, 'en')).toBe('See price');
 		expect(formatPrice('', 'no')).toBe('Se pris');
+	});
+
+	it('detects Norwegian zero-price formats as free', () => {
+		expect(formatPrice('0 kr', 'no')).toBe('Trolig gratis');
+		expect(formatPrice('0,-', 'no')).toBe('Trolig gratis');
+		expect(formatPrice('0,00 kr', 'en')).toBe('Likely free');
 	});
 });
 

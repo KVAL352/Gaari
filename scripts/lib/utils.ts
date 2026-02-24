@@ -169,6 +169,13 @@ export function isOptedOut(sourceUrl: string): boolean {
 	}
 }
 
+// Detect free events from title/description text when price field is empty
+const FREE_KEYWORDS = /\b(gratis|fri inngang|free entry|free admission|free event|ingen inngangspenger|kostnadsfritt)\b/i;
+
+export function detectFreeFromText(title: string, description: string): boolean {
+	return FREE_KEYWORDS.test(title) || FREE_KEYWORDS.test(description);
+}
+
 // Insert an event into Supabase
 export interface ScrapedEvent {
 	slug: string;
@@ -236,6 +243,12 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 	if (isOptedOut(event.source_url)) {
 		return false;
 	}
+
+	// Infer free price from title/description when price is empty
+	if (!event.price && detectFreeFromText(event.title_no, event.description_no)) {
+		event.price = 'Gratis';
+	}
+
 	const { error } = await supabase.from('events').insert(event);
 	if (error) {
 		// Duplicate slug — skip silently

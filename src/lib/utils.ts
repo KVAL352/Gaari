@@ -72,7 +72,11 @@ export function formatPrice(price: string | number | null, locale: 'no' | 'en' =
 }
 
 export function isFreeEvent(price: string | number | null): boolean {
-	return price === 0 || price === '0' || price === 'Free' || price === 'Gratis';
+	if (price === 0) return true;
+	if (typeof price !== 'string' || price === '') return false;
+	const normalized = price.trim().toLowerCase();
+	if (normalized === '0' || normalized === 'free' || normalized === 'gratis') return true;
+	return /^0\s*(kr|nok|,-|,00(\s*kr)?)$/i.test(normalized);
 }
 
 // ── Category helpers ──

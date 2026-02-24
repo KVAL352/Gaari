@@ -545,52 +545,68 @@ function defaultMarkup() {
 				width: '100%',
 				height: '100%',
 				backgroundColor: WHITE,
-				position: 'relative',
-				flexDirection: 'column',
-				justifyContent: 'center',
-				alignItems: 'center'
+				position: 'relative'
 			},
 			children: [
-				// Gåri title
+				// Left red accent bar
 				{
 					type: 'div',
 					props: {
 						style: {
-							display: 'flex',
-							fontSize: '80px',
-							fontFamily: 'Barlow Condensed',
-							color: FUNKIS_RED,
-							letterSpacing: '-0.02em'
-						},
-						children: 'Gåri'
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							bottom: 0,
+							width: '12px',
+							backgroundColor: FUNKIS_RED
+						}
 					}
 				},
-				// Tagline
+				// Main content
 				{
 					type: 'div',
 					props: {
 						style: {
 							display: 'flex',
-							fontSize: '32px',
-							fontFamily: 'Barlow Condensed',
-							color: TEXT_SECONDARY,
-							marginTop: '12px'
+							flexDirection: 'column',
+							justifyContent: 'center',
+							marginLeft: '12px',
+							padding: '48px 56px 48px 48px',
+							width: '100%',
+							height: '100%',
+							gap: '24px'
 						},
-						children: 'Alt som skjer i Bergen p\u00e5 ett sted'
-					}
-				},
-				// Location
-				{
-					type: 'div',
-					props: {
-						style: {
-							display: 'flex',
-							fontSize: '20px',
-							fontFamily: 'Inter',
-							color: TEXT_MUTED,
-							marginTop: '24px'
-						},
-						children: 'Bergen, Norway'
+						children: [
+							// Gåri title
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										fontSize: '140px',
+										fontFamily: 'Barlow Condensed',
+										color: FUNKIS_RED,
+										letterSpacing: '-0.02em',
+										lineHeight: 1
+									},
+									children: 'Gåri'
+								}
+							},
+							// Tagline
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										fontSize: '48px',
+										fontFamily: 'Barlow Condensed',
+										color: TEXT_SECONDARY,
+										lineHeight: 1.2
+									},
+									children: 'Alt som skjer i Bergen p\u00e5 ett sted'
+								}
+							}
+						]
 					}
 				},
 				// Bottom accent line

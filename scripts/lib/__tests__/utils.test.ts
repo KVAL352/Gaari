@@ -19,7 +19,8 @@ import {
 	stripHtml,
 	makeDescription,
 	makeDescriptionEn,
-	isOptedOut
+	isOptedOut,
+	detectFreeFromText
 } from '../utils.js';
 
 describe('parseNorwegianDate', () => {
@@ -197,6 +198,49 @@ describe('makeDescriptionEn', () => {
 		const longTitle = 'A'.repeat(200);
 		const result = makeDescriptionEn(longTitle, 'Venue', 'music');
 		expect(result.length).toBeLessThanOrEqual(160);
+	});
+});
+
+describe('detectFreeFromText', () => {
+	it('detects "gratis" in title', () => {
+		expect(detectFreeFromText('Gratis konsert i parken', '')).toBe(true);
+	});
+
+	it('detects "gratis" in description', () => {
+		expect(detectFreeFromText('Konsert', 'Arrangementet er gratis.')).toBe(true);
+	});
+
+	it('detects "fri inngang" in title', () => {
+		expect(detectFreeFromText('Jazz — fri inngang', '')).toBe(true);
+	});
+
+	it('detects "free entry" in description', () => {
+		expect(detectFreeFromText('Concert', 'Free entry for all')).toBe(true);
+	});
+
+	it('detects "free admission"', () => {
+		expect(detectFreeFromText('Open day — free admission', '')).toBe(true);
+	});
+
+	it('detects "free event"', () => {
+		expect(detectFreeFromText('', 'This is a free event for everyone')).toBe(true);
+	});
+
+	it('is case-insensitive', () => {
+		expect(detectFreeFromText('GRATIS konsert', '')).toBe(true);
+		expect(detectFreeFromText('', 'FRI INNGANG')).toBe(true);
+	});
+
+	it('returns false when no free keywords present', () => {
+		expect(detectFreeFromText('Konsert med DJ', 'Billetter fra 200 kr')).toBe(false);
+	});
+
+	it('returns false for empty strings', () => {
+		expect(detectFreeFromText('', '')).toBe(false);
+	});
+
+	it('does not match partial words', () => {
+		expect(detectFreeFromText('Gratiskonserter', '')).toBe(false);
 	});
 });
 
