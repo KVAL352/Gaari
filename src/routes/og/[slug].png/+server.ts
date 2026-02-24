@@ -16,7 +16,7 @@ export const GET: RequestHandler = async ({ params, url }) => {
 	}
 
 	try {
-		const png = await generateOgImage({
+		const result = await generateOgImage({
 			origin: url.origin,
 			title: event.title_no,
 			date: event.date_start,
@@ -25,9 +25,9 @@ export const GET: RequestHandler = async ({ params, url }) => {
 			imageUrl: event.image_url || undefined
 		});
 
-		return new Response(png as unknown as BodyInit, {
+		return new Response(result.data as unknown as BodyInit, {
 			headers: {
-				'Content-Type': 'image/png',
+				'Content-Type': result.contentType,
 				'Cache-Control': 'public, max-age=86400'
 			}
 		});

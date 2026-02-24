@@ -1,5 +1,6 @@
 import satori, { type Font } from 'satori';
 import { Resvg } from '@resvg/resvg-js';
+import sharp from 'sharp';
 import type { Category } from '$lib/types';
 
 // Hex values matching CSS custom properties in app.css
@@ -96,7 +97,12 @@ export interface OgImageOptions {
 	imageUrl?: string;
 }
 
-export async function generateOgImage(options: OgImageOptions): Promise<Uint8Array> {
+export interface OgImageResult {
+	data: Uint8Array;
+	contentType: 'image/png' | 'image/jpeg';
+}
+
+export async function generateOgImage(options: OgImageOptions): Promise<OgImageResult> {
 	const fonts = await loadFonts(options.origin);
 	const isEvent = options?.title && options?.category;
 
@@ -122,7 +128,15 @@ export async function generateOgImage(options: OgImageOptions): Promise<Uint8Arr
 		fitTo: { mode: 'width', value: WIDTH }
 	});
 
-	return resvg.render().asPng();
+	const png = resvg.render().asPng();
+
+	// Photo-based images: convert to JPEG for ~10x smaller files
+	if (imageDataUrl) {
+		const jpeg = await sharp(png).jpeg({ quality: 80 }).toBuffer();
+		return { data: new Uint8Array(jpeg), contentType: 'image/jpeg' };
+	}
+
+	return { data: png, contentType: 'image/png' };
 }
 
 function eventMarkup(
