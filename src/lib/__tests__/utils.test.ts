@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isFreeEvent, formatPrice, slugify } from '../utils';
+import { isFreeEvent, formatPrice, slugify, buildOutboundUrl } from '../utils';
 
 describe('isFreeEvent', () => {
 	it('returns true for 0 (number)', () => {
@@ -118,5 +118,50 @@ describe('slugify', () => {
 
 	it('handles empty string', () => {
 		expect(slugify('')).toBe('');
+	});
+});
+
+describe('buildOutboundUrl', () => {
+	it('appends UTM params to a basic URL', () => {
+		const result = buildOutboundUrl('https://example.com/tickets', 'event_detail', 'Grieghallen', 'konsert-2026-03-01');
+		const u = new URL(result);
+		expect(u.searchParams.get('utm_source')).toBe('gaari');
+		expect(u.searchParams.get('utm_medium')).toBe('event_detail');
+		expect(u.searchParams.get('utm_campaign')).toBe('grieghallen');
+		expect(u.searchParams.get('utm_content')).toBe('konsert-2026-03-01');
+	});
+
+	it('preserves existing query params', () => {
+		const result = buildOutboundUrl('https://example.com/tickets?ref=123', 'event_detail', 'USF Verftet', 'jazz-natt');
+		const u = new URL(result);
+		expect(u.searchParams.get('ref')).toBe('123');
+		expect(u.searchParams.get('utm_source')).toBe('gaari');
+		expect(u.searchParams.get('utm_campaign')).toBe('usf-verftet');
+	});
+
+	it('preserves URL fragment', () => {
+		const result = buildOutboundUrl('https://example.com/page#section', 'event_detail', 'Venue', 'slug');
+		const u = new URL(result);
+		expect(u.hash).toBe('#section');
+		expect(u.searchParams.get('utm_source')).toBe('gaari');
+	});
+
+	it('omits campaign/content when venue/event missing', () => {
+		const result = buildOutboundUrl('https://example.com', 'collection');
+		const u = new URL(result);
+		expect(u.searchParams.get('utm_source')).toBe('gaari');
+		expect(u.searchParams.get('utm_medium')).toBe('collection');
+		expect(u.searchParams.has('utm_campaign')).toBe(false);
+		expect(u.searchParams.has('utm_content')).toBe(false);
+	});
+
+	it('slugifies venue name with Norwegian characters', () => {
+		const result = buildOutboundUrl('https://example.com', 'event_detail', 'Bjørgvin Blues Club', 'event-slug');
+		const u = new URL(result);
+		expect(u.searchParams.get('utm_campaign')).toBe('bjorgvin-blues-club');
+	});
+
+	it('returns original URL for invalid input', () => {
+		expect(buildOutboundUrl('not-a-url', 'event_detail')).toBe('not-a-url');
 	});
 });

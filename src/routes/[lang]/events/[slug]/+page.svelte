@@ -3,7 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { lang, t } from '$lib/i18n';
 	import {
-		formatEventDate, formatEventTime, formatPrice, isFreeEvent
+		formatEventDate, formatEventTime, formatPrice, isFreeEvent, buildOutboundUrl
 	} from '$lib/utils';
 	import type { GaariEvent } from '$lib/types';
 	import { generateEventJsonLd, generateBreadcrumbJsonLd, getCanonicalUrl } from '$lib/seo';
@@ -150,7 +150,7 @@
 	<div class="mb-8 flex flex-wrap gap-3">
 		{#if event.ticket_url && !isCancelled}
 			<a
-				href={event.ticket_url}
+				href={buildOutboundUrl(event.ticket_url, 'event_detail', event.venue_name, event.slug)}
 				target="_blank"
 				rel="noopener noreferrer"
 				class="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"

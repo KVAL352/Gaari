@@ -41,11 +41,11 @@ const securityHeaders: Record<string, string> = {
 // CSP: allow self, inline scripts/styles (SvelteKit needs these), and any HTTPS images
 const csp = [
 	"default-src 'self'",
-	"script-src 'self' 'unsafe-inline'",
+	"script-src 'self' 'unsafe-inline' https://plausible.io",
 	"style-src 'self' 'unsafe-inline'",
 	"font-src 'self'",
 	"img-src 'self' data: https:",
-	"connect-src 'self' https://*.supabase.co",
+	"connect-src 'self' https://*.supabase.co https://plausible.io",
 	"frame-ancestors 'none'",
 	"base-uri 'self'",
 	"form-action 'self'"

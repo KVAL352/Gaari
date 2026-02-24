@@ -223,6 +223,26 @@ export function generateICS(event: CalendarEventData): string {
 	return lines.join('\r\n');
 }
 
+// ── Outbound UTM tracking ──
+
+export function buildOutboundUrl(
+	url: string,
+	context: string,
+	venueSlug?: string,
+	eventSlug?: string
+): string {
+	try {
+		const u = new URL(url);
+		u.searchParams.set('utm_source', 'gaari');
+		u.searchParams.set('utm_medium', context);
+		if (venueSlug) u.searchParams.set('utm_campaign', slugify(venueSlug));
+		if (eventSlug) u.searchParams.set('utm_content', eventSlug);
+		return u.toString();
+	} catch {
+		return url;
+	}
+}
+
 export function downloadICS(event: CalendarEventData) {
 	const ics = generateICS(event);
 	const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
