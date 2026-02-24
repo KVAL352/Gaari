@@ -11,6 +11,13 @@ const AGGREGATOR_DOMAINS = [
 	'billett.bergen.kommune.no',
 	'studentbergen.no',
 	'bergenlive.no',
+	// Non-ticket sites scrapers sometimes pick up
+	'miljofyrtarn.no',
+	'facebook.com',
+	'instagram.com',
+	'twitter.com',
+	'linkedin.com',
+	'youtube.com',
 ];
 
 // Venue name → website URL
@@ -139,8 +146,8 @@ const VENUE_URLS: Record<string, string> = {
 	'thormøhlens gate 51': 'https://vilvite.no',
 	'muséplass 3': 'https://kfrb.no',
 	'rasmus meyers allé 5': 'https://kfrb.no',
-	'nordahl bruns gate 9': 'https://grieghallen.no',
-	'nordahl brun gate 9': 'https://grieghallen.no',
+	'nordahl bruns gate 9': 'https://kodebergen.no',
+	'nordahl brun gate 9': 'https://kodebergen.no',
 	'engen 21': 'https://dns.no',
 	'strandgaten 250': 'https://usf.no',
 	'olav kyrres gate 49': 'https://bergenbibliotek.no',
