@@ -150,7 +150,10 @@ export const translations = {
 		tourists: 'Turister',
 		students: 'Studenter',
 		moreCategories: 'til',
-		eventDiscovery: 'Oppdag arrangementer'
+		eventDiscovery: 'Oppdag arrangementer',
+
+		// Collections
+		seeAllEvents: 'Se alle arrangementer'
 	},
 	en: {
 		siteName: 'Gåri',
@@ -287,7 +290,10 @@ export const translations = {
 		tourists: 'Tourists',
 		students: 'Students',
 		moreCategories: 'more',
-		eventDiscovery: 'Discover events'
+		eventDiscovery: 'Discover events',
+
+		// Collections
+		seeAllEvents: 'See all events'
 	}
 } as const;
 

@@ -139,6 +139,161 @@ export async function generateOgImage(options: OgImageOptions): Promise<OgImageR
 	return { data: png, contentType: 'image/png' };
 }
 
+export interface CollectionOgImageOptions {
+	origin: string;
+	title: string;
+	subtitle: string;
+}
+
+export async function generateCollectionOgImage(options: CollectionOgImageOptions): Promise<OgImageResult> {
+	const fonts = await loadFonts(options.origin);
+	const markup = collectionMarkup(options.title, options.subtitle);
+
+	const svg = await satori(markup, {
+		width: WIDTH,
+		height: HEIGHT,
+		fonts
+	});
+
+	const resvg = new Resvg(svg, {
+		fitTo: { mode: 'width', value: WIDTH }
+	});
+
+	const png = resvg.render().asPng();
+	return { data: png, contentType: 'image/png' };
+}
+
+function collectionMarkup(title: string, subtitle: string) {
+	return {
+		type: 'div',
+		props: {
+			style: {
+				display: 'flex',
+				width: '100%',
+				height: '100%',
+				backgroundColor: WHITE,
+				position: 'relative'
+			},
+			children: [
+				// Left red accent bar
+				{
+					type: 'div',
+					props: {
+						style: {
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							bottom: 0,
+							width: '12px',
+							backgroundColor: FUNKIS_RED
+						}
+					}
+				},
+				// Main content
+				{
+					type: 'div',
+					props: {
+						style: {
+							display: 'flex',
+							flexDirection: 'column',
+							justifyContent: 'center',
+							marginLeft: '12px',
+							padding: '48px 56px 48px 48px',
+							width: '100%',
+							height: '100%',
+							gap: '28px'
+						},
+						children: [
+							// Collection title
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										fontSize: '72px',
+										fontFamily: 'Barlow Condensed',
+										color: TEXT_PRIMARY,
+										lineHeight: 1.1,
+										letterSpacing: '-0.01em'
+									},
+									children: title
+								}
+							},
+							// Subtitle
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										fontSize: '28px',
+										fontFamily: 'Inter',
+										color: TEXT_MUTED,
+										lineHeight: 1.4
+									},
+									children: subtitle
+								}
+							},
+							// Gåri branding
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										alignItems: 'baseline',
+										gap: '12px',
+										marginTop: '16px'
+									},
+									children: [
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '40px',
+													fontFamily: 'Barlow Condensed',
+													color: FUNKIS_RED,
+													letterSpacing: '0.02em'
+												},
+												children: 'Gåri'
+											}
+										},
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '20px',
+													fontFamily: 'Barlow Condensed',
+													color: TEXT_MUTED
+												},
+												children: 'gaari.no'
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				},
+				// Bottom accent line
+				{
+					type: 'div',
+					props: {
+						style: {
+							position: 'absolute',
+							left: 0,
+							right: 0,
+							bottom: 0,
+							height: '6px',
+							backgroundColor: FUNKIS_RED
+						}
+					}
+				}
+			]
+		}
+	};
+}
+
 function eventMarkup(
 	opts: Required<Pick<OgImageOptions, 'title' | 'category'>> & OgImageOptions,
 	imageDataUrl: string | null

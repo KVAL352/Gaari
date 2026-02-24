@@ -1,4 +1,5 @@
 import { supabase } from '$lib/server/supabase';
+import { getAllCollectionSlugs } from '$lib/collections';
 
 const BASE = 'https://gaari.no';
 
@@ -28,6 +29,22 @@ export async function GET() {
     <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}${page}" />
     <xhtml:link rel="alternate" hreflang="${altLang === 'no' ? 'nb' : 'en'}" href="${BASE}/${altLang}${page}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no${page}" />
+  </url>\n`;
+		}
+	}
+
+	// Collection pages in both languages
+	for (const slug of getAllCollectionSlugs()) {
+		for (const lang of ['no', 'en']) {
+			const altLang = lang === 'no' ? 'en' : 'no';
+			urls += `  <url>
+    <loc>${BASE}/${lang}/${slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${slug}" />
+    <xhtml:link rel="alternate" hreflang="${altLang === 'no' ? 'nb' : 'en'}" href="${BASE}/${altLang}/${slug}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/${slug}" />
   </url>\n`;
 		}
 	}

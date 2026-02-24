@@ -1,4 +1,5 @@
 import type { GaariEvent, Lang } from './types';
+import type { Collection } from './collections';
 import { isFreeEvent } from './utils';
 
 const BASE_URL = 'https://gaari.no';
@@ -145,6 +146,29 @@ export function generateWebSiteJsonLd(lang: Lang): string {
 				urlTemplate: `${BASE_URL}/${lang}?q={search_term_string}`
 			},
 			'query-input': 'required name=search_term_string'
+		}
+	};
+
+	return safeJsonLd(jsonLd);
+}
+
+export function generateCollectionJsonLd(
+	collection: Pick<Collection, 'title' | 'description' | 'slug'>,
+	lang: Lang,
+	pageUrl: string,
+	eventCount: number
+): string {
+	const jsonLd = {
+		'@context': 'https://schema.org',
+		'@type': 'CollectionPage',
+		name: collection.title[lang],
+		description: collection.description[lang],
+		url: pageUrl,
+		numberOfItems: eventCount,
+		isPartOf: {
+			'@type': 'WebSite',
+			name: 'Gåri',
+			url: BASE_URL
 		}
 	};
 
