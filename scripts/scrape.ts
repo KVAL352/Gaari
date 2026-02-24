@@ -1,7 +1,9 @@
 import { scrape as scrapeBergenLive } from './scrapers/bergenlive.js';
 import { scrape as scrapeVisitBergen } from './scrapers/visitbergen.js';
 import { scrape as scrapeBergenKommune } from './scrapers/bergenkommune.js';
-import { scrape as scrapeBarnasNorge } from './scrapers/barnasnorge.js';
+// BarnasNorge disabled — all its venues are covered by dedicated scrapers with better data quality.
+// Issues: AI-generated stock images, address-based venue names, complex URL resolution.
+// import { scrape as scrapeBarnasNorge } from './scrapers/barnasnorge.js';
 import { scrape as scrapeStudentBergen } from './scrapers/studentbergen.js';
 import { scrape as scrapeDNT } from './scrapers/dnt.js';
 import { scrape as scrapeEventbrite } from './scrapers/eventbrite.js';
@@ -53,7 +55,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	bergenlive: scrapeBergenLive,
 	visitbergen: scrapeVisitBergen,
 	bergenkommune: scrapeBergenKommune,
-	barnasnorge: scrapeBarnasNorge,
+	// barnasnorge: scrapeBarnasNorge, // Disabled — see import comment above
 	studentbergen: scrapeStudentBergen,
 	dnt: scrapeDNT,
 	eventbrite: scrapeEventbrite,

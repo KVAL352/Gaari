@@ -12,6 +12,22 @@ const PAGE_PARAM = '8e773ef3_page';
 const MAX_PAGES = 10;
 const DELAY_MS = 3000;
 
+// BarnasNorge's Webflow site ID — images from this CDN path are often AI-generated stock photos
+const BARNASNORGE_WEBFLOW_ID = '692c6fd0eef187d258f25153';
+
+// Image URLs to reject — logos, stock photos, social media thumbnails
+function isLowQualityImage(url: string): boolean {
+	const lower = url.toLowerCase();
+	return (
+		lower.includes(`website-files.com/${BARNASNORGE_WEBFLOW_ID}`) || // BarnasNorge AI/stock images
+		lower.includes('logo.png') ||            // Generic website logos
+		lower.includes('/logo') ||               // Logo paths
+		lower.includes('lookaside.fbsbx.com') || // Facebook CDN scraped thumbnails
+		lower.includes('facebook.com') ||
+		lower.includes('placeholder')
+	);
+}
+
 // Keywords indicating kindergarten-only events (not public)
 const KINDERGARTEN_KEYWORDS = [
 	'barnehage', 'barnehagebarn', 'barnehagens ansatte',
@@ -58,8 +74,9 @@ function parseListPage(html: string): BarnEvent[] {
 
 		const isFree = $card.find('.filter-gratis').text().trim().toLowerCase() === 'gratis';
 
+		// Skip BarnasNorge's own list images — often AI-generated stock photos from Webflow CDN
 		const imgSrc = $card.find('img.event-item_image').attr('src') || '';
-		const imageUrl = imgSrc && !imgSrc.includes('placeholder') ? imgSrc : undefined;
+		const imageUrl = imgSrc && !imgSrc.includes('placeholder') && !isLowQualityImage(imgSrc) ? imgSrc : undefined;
 
 		events.push({
 			title: title.slice(0, 200),
@@ -239,8 +256,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			continue;
 		}
 
-		// Use real image if available, otherwise fall back to BarnasNorge
-		const imageUrl = venueInfo.imageUrl || event.imageUrl;
+		// Use real venue image if available and not a logo/stock image
+		const venueImg = venueInfo.imageUrl && !isLowQualityImage(venueInfo.imageUrl) ? venueInfo.imageUrl : null;
+		const imageUrl = venueImg || event.imageUrl;
 		// Link directly to venue page, not BarnasNorge
 		const ticketUrl = venueInfo.venueUrl || resolveTicketUrl(venue, event.detailUrl) || event.detailUrl;
 

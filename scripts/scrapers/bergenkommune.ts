@@ -1,6 +1,5 @@
 import * as cheerio from 'cheerio';
 import { mapCategory, mapBydel } from '../lib/categories.js';
-import { resolveTicketUrl } from '../lib/venues.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -212,6 +211,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const aiDesc = await generateDescription({ title: event.title, venue: event.venue, category, date: dateStart, price: detail?.price || '' });
 
+		// Use billett detail URL directly — it IS the specific event registration page.
+		// resolveTicketUrl would replace it with a generic venue homepage since
+		// billett.bergen.kommune.no is in the aggregator list.
+		const ticketUrl = event.detailUrl;
+
 		const success = await insertEvent({
 			slug: makeSlug(event.title, event.dateStart),
 			title_no: event.title,
@@ -224,7 +228,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address,
 			bydel,
 			price: detail?.price || '',
-			ticket_url: resolveTicketUrl(event.venue, event.detailUrl),
+			ticket_url: ticketUrl,
 			source: SOURCE,
 			source_url: event.detailUrl,
 			image_url: event.imageUrl,
