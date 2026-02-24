@@ -65,8 +65,13 @@ describe('formatPrice', () => {
 
 describe('slugify', () => {
 	it('converts Norwegian characters', () => {
-		// å→a, ø→o, æ→ae (no NFD normalization in frontend slugify)
 		expect(slugify('Blå ørret på åsen')).toBe('bla-orret-pa-asen');
+	});
+
+	it('reduces accented characters via NFD normalization', () => {
+		expect(slugify('Café événement')).toBe('cafe-evenement');
+		expect(slugify('Über Müller')).toBe('uber-muller');
+		expect(slugify('El Niño')).toBe('el-nino');
 	});
 
 	it('replaces spaces with dashes', () => {
