@@ -123,6 +123,8 @@ export function slugify(text: string): string {
 		.replace(/[æ]/g, 'ae')
 		.replace(/[ø]/g, 'o')
 		.replace(/[å]/g, 'a')
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '') // Remove accents
 		.replace(/[^a-z0-9]+/g, '-')
 		.replace(/(^-|-$)/g, '');
 }
