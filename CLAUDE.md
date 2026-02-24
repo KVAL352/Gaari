@@ -123,7 +123,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 ## Shared utilities (`scripts/lib/`)
 
-- `utils.ts` — slugify, makeSlug, parseNorwegianDate, eventExists, insertEvent, findDuplicate, normalizeTitle, removeExpiredEvents, fetchHTML, delay, loadOptOuts, isOptedOut, makeDescription, CATEGORY_LABELS_NO
+- `utils.ts` — slugify, makeSlug, parseNorwegianDate, eventExists, insertEvent, findDuplicate, normalizeTitle, removeExpiredEvents, fetchHTML, delay, loadOptOuts, isOptedOut, detectFreeFromText, makeDescription, CATEGORY_LABELS_NO
 - `categories.ts` — mapCategory (source category → Gåri category, 50+ terms), mapBydel (venue name → bydel, 100+ mappings)
 - `dedup.ts` — deduplicate across sources with scoring (source rank + image + ticket URL + description length). Exports `titlesMatch`, `scoreEvent`, `EventRow` for unit testing.
 - `venues.ts` — 190+ venue entries mapping names → websites, aggregator domain detection, resolveTicketUrl
@@ -163,7 +163,8 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
   - Event detail pages (price section)
   - The "Flere filtre" dropdown in EventDiscovery
 - Events with unknown prices show "Se pris" / "See price" (no disclaimer needed — already implies checking)
-- `isFreeEvent()` in `utils.ts` only matches `0`, `'0'`, `'Free'`, `'Gratis'` — strict to avoid false positives
+- `isFreeEvent()` in `utils.ts` matches `0`, `'0'`, `'Free'`, `'Gratis'` (case-insensitive, trimmed) plus Norwegian zero-price formats (`0 kr`, `0,-`, `0,00`, `0 NOK`)
+- `detectFreeFromText()` in `scripts/lib/utils.ts` infers free price from title/description keywords (`gratis`, `fri inngang`, `free entry`, `free admission`, etc.) — called automatically by `insertEvent()` when price is empty
 
 ## Frontend routes
 
@@ -237,7 +238,8 @@ EAA (European Accessibility Act) applies to Norway via EEA. The site meets WCAG 
 
 ## SEO & web health
 
-- Open Graph tags on all pages, per-event og:image generation
+- **Favicon**: Red "G" (#C82D2D) in Barlow Condensed Bold. SVG primary (`favicon.svg`), 32x32 PNG fallback (`favicon.png`). PNG generated via `scripts/generate-favicon.ts` (Satori + resvg-js).
+- Open Graph tags on all pages, per-event og:image generation. Default OG image uses left-aligned layout with 140px "Gåri" title and 48px tagline for chat thumbnail legibility.
 - hreflang nb/en/x-default on all pages
 - Meta descriptions on all pages (<160 chars)
 - robots.txt blocks /submit pages
@@ -267,13 +269,13 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (98 tests, runs in <250ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (123 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
 - `src/lib/__tests__/event-filters.test.ts` — 18 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (all days of week), `isSameDay`, `toOsloDateStr` (date boundary)
-- `src/lib/__tests__/utils.test.ts` — 19 tests: `isFreeEvent` (all truthy/falsy cases), `formatPrice` (both locales, numeric, string, null), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases)
+- `src/lib/__tests__/utils.test.ts` — 24 tests: `isFreeEvent` (all truthy/falsy cases, case-insensitive, Norwegian zero-price formats, whitespace trimming), `formatPrice` (both locales, numeric, string, null, zero-price format propagation), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases)
 - `src/lib/__tests__/seo.test.ts` — 11 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, cancelled status, language fallback), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions)
-- `scripts/lib/__tests__/utils.test.ts` — 33 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `isOptedOut`
+- `scripts/lib/__tests__/utils.test.ts` — 43 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `detectFreeFromText` (Norwegian/English keywords, case-insensitive, partial-word rejection), `isOptedOut`
 - `scripts/lib/__tests__/dedup.test.ts` — 17 tests: `titlesMatch` (exact, containment with 0.6 ratio guard, 90% prefix with 1.3 ratio, short titles, real-world normalized), `scoreEvent` (source rank, image/ticket/description bonuses, aggregator URL exclusion)
 
 **Config:** Vitest reads from `vite.config.ts` (`test.include: ['src/**/*.test.ts', 'scripts/**/*.test.ts']`). Scraper tests mock `supabase.js` and `venues.js` via `vi.mock()`.
