@@ -8,7 +8,8 @@ import { readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
 const FONT_PATH = resolve('static/fonts/BarlowCondensed-Bold.ttf');
-const OUT_PATH = resolve('static/favicon.png');
+const OUT_PNG = resolve('static/favicon.png');
+const OUT_SVG = resolve('static/favicon.svg');
 const SIZE = 32;
 
 const fontData = readFileSync(FONT_PATH);
@@ -50,10 +51,15 @@ async function main() {
 		fonts: [{ name: 'Barlow Condensed', data: fontData, weight: 700, style: 'normal' }]
 	});
 
+	// SVG with text converted to paths (no font dependency)
+	writeFileSync(OUT_SVG, svg);
+	console.log(`Wrote ${OUT_SVG} (${svg.length} bytes)`);
+
+	// PNG rasterized at 32x32
 	const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: SIZE } });
 	const png = resvg.render().asPng();
-	writeFileSync(OUT_PATH, png);
-	console.log(`Wrote ${OUT_PATH} (${png.length} bytes)`);
+	writeFileSync(OUT_PNG, png);
+	console.log(`Wrote ${OUT_PNG} (${png.length} bytes)`);
 }
 
 main().catch(console.error);

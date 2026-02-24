@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="8" fill="#C82D2D"/>
-  <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle"
-    font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="700"
-    font-size="52" fill="#FFFFFF">G</text>
-</svg>
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><mask id="satori_om-id"><rect x="0" y="0" width="32" height="32" fill="#fff"/></mask><path x="0" y="0" width="32" height="32" fill="#C82D2D" d="M4,0 h24 a4,4 0 0 1 4,4 v24 a4,4 0 0 1 -4,4 h-24 a4,4 0 0 1 -4,-4 v-24 a4,4 0 0 1 4,-4"/><mask id="satori_om-id-0"><rect x="9" y="-1" width="14" height="34" fill="#fff"/></mask><g  ><path fill="#FFFFFF" d="M15.5 27.2Q13.0 27.2 11.5 25.8Q10.0 24.3 10.0 21.9L10.0 21.9L10.0 12.5Q10.0 10.1 11.5 8.6Q13.0 7.2 15.5 7.2L15.5 7.2Q18.0 7.2 19.6 8.6Q21.1 10.1 21.1 12.5L21.1 12.5L21.1 13.6Q21.1 13.7 21.0 13.8Q20.9 13.9 20.8 13.9L20.8 13.9L17.5 13.9Q17.4 13.9 17.3 13.8Q17.2 13.7 17.2 13.6L17.2 13.6L17.2 12.4Q17.2 11.6 16.7 11.1Q16.3 10.6 15.5 10.6L15.5 10.6Q14.8 10.6 14.3 11.1Q13.9 11.6 13.9 12.4L13.9 12.4L13.9 22.0Q13.9 22.8 14.3 23.3Q14.8 23.8 15.5 23.8L15.5 23.8Q16.3 23.8 16.7 23.3Q17.2 22.8 17.2 22.0L17.2 22.0L17.2 19.7Q17.2 19.6 17.0 19.6L17.0 19.6L15.8 19.6Q15.7 19.6 15.6 19.5Q15.5 19.4 15.5 19.2L15.5 19.2L15.5 16.8Q15.5 16.6 15.6 16.5Q15.7 16.4 15.8 16.4L15.8 16.4L20.8 16.4Q20.9 16.4 21.0 16.5Q21.1 16.6 21.1 16.8L21.1 16.8L21.1 21.9Q21.1 24.3 19.6 25.8Q18.0 27.2 15.5 27.2L15.5 27.2Z "/></g></svg>
