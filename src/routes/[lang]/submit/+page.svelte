@@ -207,6 +207,7 @@
 <svelte:head>
 	<title>{$t('submitTitle')} — Gåri</title>
 	<meta name="description" content={$t('submitDescription')} />
+	<meta name="robots" content="noindex, nofollow" />
 	<link rel="canonical" href={canonicalUrl} />
 	<meta property="og:title" content={`${$t('submitTitle')} — Gåri`} />
 	<meta property="og:description" content={$t('submitDescription')} />
