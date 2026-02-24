@@ -228,7 +228,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			source: SOURCE,
 			source_url: event.detailUrl,
 			image_url: event.imageUrl,
-			age_group: category === 'family' ? 'family' : 'all',
+			age_group: category === 'family' || /familie|barnelørdag|barnas\s|for\s+barn/i.test(event.title) ? 'family' : 'all',
 			language: 'no',
 			status: 'approved',
 		});

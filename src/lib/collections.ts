@@ -2,6 +2,8 @@ import type { GaariEvent, Lang } from './types';
 import { isFreeEvent } from './utils';
 import { isSameDay, getWeekendDates, matchesTimeOfDay, toOsloDateStr, getEndOfWeekDateStr, addDays } from './event-filters';
 
+const FAMILY_TITLE_RE = /familie|barnelørdag|barnas\s|for\s+barn|barneforestilling/i;
+
 export interface Collection {
 	id: string;
 	slug: string;
@@ -121,7 +123,8 @@ const collections: Collection[] = [
 			const { start, end } = getWeekendDates(now);
 			return events.filter(e => {
 				const d = e.date_start.slice(0, 10);
-				return d >= start && d <= end && e.age_group === 'family';
+				if (d < start || d > end) return false;
+				return e.age_group === 'family' || e.category === 'family' || FAMILY_TITLE_RE.test(e.title_no);
 			});
 		}
 	},

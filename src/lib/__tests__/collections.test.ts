@@ -199,23 +199,33 @@ describe('today filter (today-in-bergen)', () => {
 describe('family weekend filter (familiehelg)', () => {
 	const collection = getCollection('familiehelg')!;
 
-	it('includes only family events on the weekend', () => {
+	it('includes family events by age_group, category, or title keywords', () => {
 		// Friday Feb 27, 2026
 		const now = new Date('2026-02-27T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-02-28T14:00:00Z', age_group: 'family' }),  // Sat family
-			makeEvent({ id: '2', date_start: '2026-02-28T14:00:00Z', age_group: 'all' }),      // Sat, not family
-			makeEvent({ id: '3', date_start: '2026-03-01T10:00:00Z', age_group: 'family' }),   // Sun family
-			makeEvent({ id: '4', date_start: '2026-03-02T10:00:00Z', age_group: 'family' })    // Mon — excluded
+			makeEvent({ id: '1', date_start: '2026-02-28T14:00:00Z', age_group: 'family' }),  // age_group match
+			makeEvent({ id: '2', date_start: '2026-02-28T14:00:00Z', category: 'family', age_group: 'all' }),  // category match
+			makeEvent({ id: '3', date_start: '2026-03-01T10:00:00Z', title_no: 'Familielørdag: Teater', age_group: 'all', category: 'theatre' }),  // title match
+			makeEvent({ id: '4', date_start: '2026-02-28T14:00:00Z', age_group: 'all', category: 'theatre' }),  // no match
+			makeEvent({ id: '5', date_start: '2026-03-02T10:00:00Z', age_group: 'family' })    // Mon — excluded
 		];
 		const result = collection.filterEvents(events, now);
-		expect(result.map(e => e.id)).toEqual(['1', '3']);
+		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
+	});
+
+	it('matches barnelørdag and barnas in title', () => {
+		const now = new Date('2026-02-27T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-28T10:00:00Z', title_no: 'Barnelørdag: Konsert', age_group: 'all', category: 'music' }),
+			makeEvent({ id: '2', date_start: '2026-02-28T10:00:00Z', title_no: 'Barnas kulturhus: SANS', age_group: 'all', category: 'theatre' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(2);
 	});
 
 	it('returns empty when no family events on weekend', () => {
 		const now = new Date('2026-02-27T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-02-28T14:00:00Z', age_group: 'all' })
+			makeEvent({ id: '1', date_start: '2026-02-28T14:00:00Z', age_group: 'all', category: 'theatre' })
 		];
 		expect(collection.filterEvents(events, now)).toHaveLength(0);
 	});
