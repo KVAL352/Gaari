@@ -267,7 +267,7 @@ function eventSlideWithImage(
 ) {
 	const catColor = CATEGORY_COLORS[category] || '#D4D1CA';
 	const catLabel = CATEGORY_LABELS[category] || category;
-	const displayTitle = truncate(title, 55);
+	const displayTitle = truncate(title, 40);
 	const venueTime = time ? `${venue}  \u00b7  kl. ${time}` : venue;
 
 	return {
@@ -306,8 +306,8 @@ function eventSlideWithImage(
 							left: 0,
 							right: 0,
 							bottom: 0,
-							height: '60%',
-							background: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.75))'
+							height: '65%',
+							background: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.8))'
 						}
 					}
 				},
@@ -317,8 +317,8 @@ function eventSlideWithImage(
 					props: {
 						style: {
 							position: 'absolute',
-							top: '36px',
-							left: '36px',
+							top: '40px',
+							left: '40px',
 							display: 'flex'
 						},
 						children: [
@@ -328,9 +328,9 @@ function eventSlideWithImage(
 									style: {
 										display: 'flex',
 										backgroundColor: catColor,
-										borderRadius: '24px',
-										padding: '10px 28px',
-										fontSize: '22px',
+										borderRadius: '32px',
+										padding: '16px 40px',
+										fontSize: '36px',
 										fontFamily: 'Inter',
 										color: TEXT_PRIMARY
 									},
@@ -346,12 +346,12 @@ function eventSlideWithImage(
 					props: {
 						style: {
 							position: 'absolute',
-							bottom: '48px',
-							left: '48px',
-							right: '48px',
+							bottom: '56px',
+							left: '56px',
+							right: '56px',
 							display: 'flex',
 							flexDirection: 'column',
-							gap: '16px'
+							gap: '20px'
 						},
 						children: [
 							{
@@ -359,12 +359,12 @@ function eventSlideWithImage(
 								props: {
 									style: {
 										display: 'flex',
-										fontSize: '48px',
+										fontSize: '84px',
 										fontFamily: 'Barlow Condensed',
 										color: WHITE,
-										lineHeight: 1.15,
+										lineHeight: 1.1,
 										letterSpacing: '-0.01em',
-										textShadow: '0 2px 12px rgba(0,0,0,0.5)'
+										textShadow: '0 3px 16px rgba(0,0,0,0.6)'
 									},
 									children: displayTitle
 								}
@@ -374,11 +374,11 @@ function eventSlideWithImage(
 								props: {
 									style: {
 										display: 'flex',
-										fontSize: '26px',
+										fontSize: '44px',
 										fontFamily: 'Inter',
-										color: 'rgba(255,255,255,0.85)',
-										lineHeight: 1.4,
-										textShadow: '0 1px 6px rgba(0,0,0,0.5)'
+										color: 'rgba(255,255,255,0.9)',
+										lineHeight: 1.3,
+										textShadow: '0 2px 8px rgba(0,0,0,0.5)'
 									},
 									children: venueTime
 								}
@@ -395,7 +395,7 @@ function eventSlideWithImage(
 							left: 0,
 							right: 0,
 							bottom: 0,
-							height: '6px',
+							height: '8px',
 							backgroundColor: FUNKIS_RED
 						}
 					}
@@ -413,7 +413,7 @@ function eventSlideFallback(
 ) {
 	const catColor = CATEGORY_COLORS[category] || '#D4D1CA';
 	const catLabel = CATEGORY_LABELS[category] || category;
-	const displayTitle = truncate(title, 50);
+	const displayTitle = truncate(title, 40);
 	const venueTime = time ? `${venue}  \u00b7  kl. ${time}` : venue;
 
 	return {
@@ -436,7 +436,7 @@ function eventSlideFallback(
 							left: 0,
 							top: 0,
 							bottom: 0,
-							width: '12px',
+							width: '16px',
 							backgroundColor: catColor
 						}
 					}
@@ -449,11 +449,11 @@ function eventSlideFallback(
 							display: 'flex',
 							flexDirection: 'column',
 							justifyContent: 'center',
-							marginLeft: '12px',
+							marginLeft: '16px',
 							padding: '64px 56px 64px 48px',
 							width: '100%',
 							height: '100%',
-							gap: '28px'
+							gap: '36px'
 						},
 						children: [
 							{
@@ -461,10 +461,10 @@ function eventSlideFallback(
 								props: {
 									style: {
 										display: 'flex',
-										fontSize: '48px',
+										fontSize: '84px',
 										fontFamily: 'Barlow Condensed',
 										color: TEXT_PRIMARY,
-										lineHeight: 1.15,
+										lineHeight: 1.1,
 										letterSpacing: '-0.01em'
 									},
 									children: displayTitle
@@ -475,10 +475,10 @@ function eventSlideFallback(
 								props: {
 									style: {
 										display: 'flex',
-										fontSize: '24px',
+										fontSize: '44px',
 										fontFamily: 'Inter',
 										color: TEXT_SECONDARY,
-										lineHeight: 1.4
+										lineHeight: 1.3
 									},
 									children: venueTime
 								}
@@ -494,9 +494,9 @@ function eventSlideFallback(
 												style: {
 													display: 'flex',
 													backgroundColor: catColor,
-													borderRadius: '24px',
-													padding: '10px 28px',
-													fontSize: '22px',
+													borderRadius: '32px',
+													padding: '16px 40px',
+													fontSize: '36px',
 													fontFamily: 'Inter',
 													color: TEXT_PRIMARY
 												},

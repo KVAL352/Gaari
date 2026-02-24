@@ -108,7 +108,9 @@ function formatDateRange(now: Date, slug: string): string {
 }
 
 async function fetchEvents(): Promise<GaariEvent[]> {
-	const nowOslo = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Oslo' }).replace(' ', 'T');
+	// Use start of today (Oslo) so evening events are included even when run late
+	const todayOslo = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+	const nowOslo = `${todayOslo}T00:00:00`;
 
 	const { data, error } = await supabase
 		.from('events')
