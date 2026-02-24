@@ -20,7 +20,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - **Categories**: music, culture, theatre, family, food, festival, sports, nightlife, workshop, student, tours (defined in `src/lib/types.ts`)
 - **TimeOfDay**: morning, daytime, evening, night (defined in `src/lib/types.ts`, used by EventDiscovery time filter)
 - **Bydeler**: Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna
-- **Slugs**: `slugify(title)-YYYY-MM-DD` format
+- **Slugs**: `slugify(title)-YYYY-MM-DD` format. Both frontend and scraper `slugify` replace Norwegian chars (æ→ae, ø→o, å→a) before NFD normalization, so accented characters (é, ü, ñ) are also reduced to base letters.
 - **Event status**: All scraped events are inserted as `approved`. User-submitted events start as `pending`.
 
 ## Scraper pipeline (`scripts/scrape.ts`)
@@ -267,11 +267,11 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (97 tests, runs in <250ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (98 tests, runs in <250ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
 - `src/lib/__tests__/event-filters.test.ts` — 18 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (all days of week), `isSameDay`, `toOsloDateStr` (date boundary)
-- `src/lib/__tests__/utils.test.ts` — 18 tests: `isFreeEvent` (all truthy/falsy cases), `formatPrice` (both locales, numeric, string, null), `slugify` (Norwegian chars, special chars, edge cases)
+- `src/lib/__tests__/utils.test.ts` — 19 tests: `isFreeEvent` (all truthy/falsy cases), `formatPrice` (both locales, numeric, string, null), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases)
 - `src/lib/__tests__/seo.test.ts` — 11 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, cancelled status, language fallback), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions)
 - `scripts/lib/__tests__/utils.test.ts` — 33 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `isOptedOut`
 - `scripts/lib/__tests__/dedup.test.ts` — 17 tests: `titlesMatch` (exact, containment with 0.6 ratio guard, 90% prefix with 1.3 ratio, short titles, real-world normalized), `scoreEvent` (source rank, image/ticket/description bonuses, aggregator URL exclusion)
