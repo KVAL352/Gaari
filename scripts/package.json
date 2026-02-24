@@ -11,13 +11,16 @@
     "scrape:kulturikveld": "tsx scrape.ts kulturikveld",
     "scrape:barnasnorge": "tsx scrape.ts barnasnorge",
     "fix:barnas-images": "tsx fix-barnas-images.ts",
-    "scrape:studentbergen": "tsx scrape.ts studentbergen"
+    "scrape:studentbergen": "tsx scrape.ts studentbergen",
+    "social": "tsx social/generate-posts.ts"
   },
   "dependencies": {
     "@google/genai": "^1.42.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@supabase/supabase-js": "^2.97.0",
     "cheerio": "^1.0.0",
-    "dotenv": "^16.4.0"
+    "dotenv": "^16.4.0",
+    "satori": "^0.12.1"
   },
   "devDependencies": {
     "tsx": "^4.7.0",

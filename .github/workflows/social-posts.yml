@@ -1,0 +1,79 @@
+name: Generate Social Posts
+
+on:
+  schedule:
+    # Run daily at 07:00 UTC (08:00 CET), 1 hour after scraper
+    - cron: '0 7 * * *'
+  workflow_dispatch: # Manual trigger from GitHub UI
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install dependencies
+        working-directory: scripts
+        run: npm ci
+        timeout-minutes: 2
+
+      - name: Generate social posts
+        id: generate
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUMMARY_FILE: ${{ runner.temp }}/social-summary.json
+        run: npx tsx social/generate-posts.ts
+
+      - name: Generate job summary
+        if: always()
+        run: |
+          SUMMARY_FILE="${{ runner.temp }}/social-summary.json"
+          if [ ! -f "$SUMMARY_FILE" ]; then
+            echo "## Social Posts Summary" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "> No summary file found — script may have crashed before completion." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          DATE=$(jq -r '.date' "$SUMMARY_FILE")
+          SCHEDULED=$(jq '.collectionsScheduled' "$SUMMARY_FILE")
+          GENERATED=$(jq '.collectionsGenerated' "$SUMMARY_FILE")
+          FAILED=$(jq '.collectionsFailed' "$SUMMARY_FILE")
+          DURATION=$(jq '.durationSeconds' "$SUMMARY_FILE")
+
+          if [ "$FAILED" -gt 0 ]; then
+            STATUS="partial"
+          elif [ "$GENERATED" -eq 0 ]; then
+            STATUS="skipped"
+          else
+            STATUS="healthy"
+          fi
+
+          echo "## Social Posts Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Status | **${STATUS}** |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Date | ${DATE} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Collections scheduled | ${SCHEDULED} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Collections generated | ${GENERATED} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Collections failed | ${FAILED} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Duration | ${DURATION}s |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          # List per-collection results
+          echo "### Per-collection results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Collection | Events | Slides | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-----------|--------|--------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          jq -r '.results | to_entries[] | "| \(.key) | \(.value.eventCount) | \(.value.slideCount) | \(if .value.success then "ok" else "FAILED" end) |"' "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"

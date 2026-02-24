@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /no/submit
 Disallow: /en/submit
+Disallow: /admin/
 
 Sitemap: https://gaari.no/sitemap.xml
