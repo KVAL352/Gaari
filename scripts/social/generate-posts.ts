@@ -220,7 +220,8 @@ async function main() {
 				title: e.title_no,
 				venue: e.venue_name,
 				time: formatEventTime(e.date_start, lang),
-				category: e.category
+				category: e.category,
+				imageUrl: e.image_url || undefined
 			}));
 
 			// Build caption event data

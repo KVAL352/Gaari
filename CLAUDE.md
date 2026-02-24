@@ -13,6 +13,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - **Form actions**: Correction form (event detail) and opt-out form (datainnsamling) use SvelteKit form actions with `use:enhance` — no client-side Supabase needed.
 - **Scrapers**: Standalone TypeScript in `scripts/`, separate `package.json`. Uses Cheerio for HTML parsing. Runs via GitHub Actions cron (twice daily at 6 AM & 6 PM UTC).
 - **AI Descriptions**: Gemini 2.5 Flash generates bilingual summaries (<160 chars each) from event metadata. Fallback to template if API unavailable.
+- **Collection pages**: Curated landing pages via `$lib/collections.ts` config + single dynamic `[lang]/[collection]/` route. 4 collections: `denne-helgen` (weekend), `i-kveld` (tonight), `gratis` (free this week), `today-in-bergen` (today, EN-primary). Each has `filterEvents(events, now)` using existing event-filter helpers, bilingual title/description/ogSubtitle. `getCollection(slug)` returns config or undefined (404). `getAllCollectionSlugs()` for sitemap. Static routes (`about/`, `events/`, etc.) resolve before the `[collection]` param — no conflicts.
 
 ## Key conventions
 
@@ -173,9 +174,11 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `/[lang]/datainnsamling/` — Data transparency page (43 sources listed, opt-out form). Form action `?/optout` in `+page.server.ts`.
 - `/[lang]/submit/` — Event submission form (blocked from search engines). Only page that ships Supabase SDK to client (for image uploads).
 - `/[lang]/events/[slug]/` — Event detail page with related events and OG image. **Server-side loaded**, correction form action `?/correction` in `+page.server.ts`.
+- `/[lang]/[collection]/` — Curated collection landing pages (denne-helgen, i-kveld, gratis, today-in-bergen). **Server-side loaded** with collection-specific filtering, ISR cached. Dynamic `[collection]` route — config in `$lib/collections.ts`, unknown slugs return 404. No EventDiscovery filter UI — clean hero + EventGrid. JSON-LD `CollectionPage` schema, custom OG images.
 - `/api/health` — Health check endpoint (Supabase connection, event count, scrape freshness). Returns healthy/degraded/unhealthy, 5min cache, 503 on unhealthy.
 - `/og/[slug].png` — Per-event OG image generation (Satori + ResvgJS)
-- `/sitemap.xml` — Dynamic sitemap with hreflang (static pages + all approved events, 1h cache)
+- `/og/c/[collection].png` — Collection-branded OG images (Funkis design: red accent bar, 72px title, subtitle, Gåri branding). 24h cache.
+- `/sitemap.xml` — Dynamic sitemap with hreflang (static pages + collection pages + all approved events, 1h cache)
 
 ## Frontend components (`src/lib/components/`)
 
@@ -269,12 +272,13 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (123 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (147 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
 - `src/lib/__tests__/event-filters.test.ts` — 18 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (all days of week), `isSameDay`, `toOsloDateStr` (date boundary)
 - `src/lib/__tests__/utils.test.ts` — 24 tests: `isFreeEvent` (all truthy/falsy cases, case-insensitive, Norwegian zero-price formats, whitespace trimming), `formatPrice` (both locales, numeric, string, null, zero-price format propagation), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases)
 - `src/lib/__tests__/seo.test.ts` — 11 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, cancelled status, language fallback), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions)
+- `src/lib/__tests__/collections.test.ts` — 18 tests: `getCollection` (valid/invalid slug, all slugs, bilingual metadata), weekend filter (Fri–Sun, Wed→Sat–Sun, empty), tonight filter (evening/night today only), free filter (this week, various price formats), today filter (same day only, empty)
 - `scripts/lib/__tests__/utils.test.ts` — 43 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `detectFreeFromText` (Norwegian/English keywords, case-insensitive, partial-word rejection), `isOptedOut`
 - `scripts/lib/__tests__/dedup.test.ts` — 17 tests: `titlesMatch` (exact, containment with 0.6 ratio guard, 90% prefix with 1.3 ratio, short titles, real-world normalized), `scoreEvent` (source rank, image/ticket/description bonuses, aggregator URL exclusion)
 

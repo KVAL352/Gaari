@@ -96,14 +96,17 @@
 					</div>
 
 					<!-- Slide thumbnails -->
-					<div style="padding: 16px 20px; display: flex; gap: 8px; overflow-x: auto;">
+					<div class="slide-row">
 						{#each post.image_urls as url, i}
-							<img
-								src={url}
-								alt="Slide {i + 1}"
-								style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e5e5; flex-shrink: 0;"
-								loading="lazy"
-							/>
+							<a href={url} target="_blank" rel="noopener noreferrer" class="slide-link">
+								<img
+									src={url}
+									alt="Slide {i + 1}"
+									width="140"
+									height="140"
+									class="slide-thumb"
+								/>
+							</a>
 						{/each}
 					</div>
 
@@ -124,3 +127,33 @@
 		</div>
 	{/if}
 </main>
+
+<style>
+	.slide-row {
+		padding: 16px 20px;
+		display: flex;
+		gap: 8px;
+		overflow-x: auto;
+	}
+
+	.slide-link {
+		flex-shrink: 0;
+		display: block;
+		width: 140px;
+		height: 140px;
+	}
+
+	.slide-thumb {
+		width: 140px;
+		height: 140px;
+		min-width: 140px;
+		min-height: 140px;
+		max-width: 140px;
+		max-height: 140px;
+		object-fit: cover;
+		border-radius: 8px;
+		border: 1px solid #d0d0d0;
+		background: #f5f5f5;
+		display: block;
+	}
+</style>
