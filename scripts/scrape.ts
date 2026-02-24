@@ -43,6 +43,7 @@ import { scrape as scrapeBrann } from './scrapers/brann.js';
 import { scrape as scrapeKulturhusetIBergen } from './scrapers/kulturhusetibergen.js';
 import { scrape as scrapeVVV } from './scrapers/vvv.js';
 import { scrape as scrapeBymuseet } from './scrapers/bymuseet.js';
+import { scrape as scrapeMuseumVest } from './scrapers/museumvest.js';
 import { writeFileSync } from 'fs';
 import { removeExpiredEvents, loadOptOuts, getOptOutDomains } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
@@ -95,6 +96,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	kulturhusetibergen: scrapeKulturhusetIBergen,
 	vvv: scrapeVVV,
 	bymuseet: scrapeBymuseet,
+	museumvest: scrapeMuseumVest,
 };
 
 async function main() {
