@@ -180,11 +180,18 @@ async function main() {
 		console.log(`  ${filtered.length} events matched, using ${topEvents.length} for carousel`);
 
 		try {
+			const isEnglish = schedule.slug === 'today-in-bergen';
+			const lang = isEnglish ? 'en' as const : 'no' as const;
+			const title = isEnglish ? collection.title.en : collection.title.no;
+			const collectionUrl = isEnglish
+				? 'gaari.no/en/today-in-bergen'
+				: `gaari.no/no/${schedule.slug}`;
+
 			// Build carousel event data
 			const carouselEvents: CarouselEvent[] = topEvents.map(e => ({
 				title: e.title_no,
 				venue: e.venue_name,
-				time: formatEventTime(e.date_start, 'no'),
+				time: formatEventTime(e.date_start, lang),
 				category: e.category
 			}));
 
@@ -197,24 +204,23 @@ async function main() {
 			}));
 
 			const dateRange = formatDateRange(now, schedule.slug);
-			const collectionUrl = schedule.slug === 'today-in-bergen'
-				? 'gaari.no/en/today-in-bergen'
-				: `gaari.no/no/${schedule.slug}`;
 
-			// Generate carousel images
+			// Generate carousel images (pass total event count for hook + CTA)
 			const slides = await generateCarousel(
-				collection.title.no,
+				title,
 				dateRange,
 				carouselEvents,
-				collectionUrl
+				collectionUrl,
+				filtered.length
 			);
 
 			// Generate caption
 			const caption = generateCaption(
-				collection.title.no,
+				title,
 				captionEvents,
-				schedule.slug,
-				schedule.hashtags
+				collectionUrl,
+				schedule.hashtags,
+				lang
 			);
 
 			// Upload to Supabase Storage

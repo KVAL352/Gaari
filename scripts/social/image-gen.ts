@@ -489,12 +489,13 @@ export async function generateCarousel(
 	collectionTitle: string,
 	dateRange: string,
 	events: CarouselEvent[],
-	collectionUrl: string
+	collectionUrl: string,
+	totalEventCount: number
 ): Promise<Buffer[]> {
 	const slides: Buffer[] = [];
 
-	// Slide 1: Hook
-	slides.push(await renderSlide(hookSlideMarkup(collectionTitle, dateRange, events.length)));
+	// Slide 1: Hook (shows total event count)
+	slides.push(await renderSlide(hookSlideMarkup(collectionTitle, dateRange, totalEventCount)));
 
 	// Slides 2–N: Events
 	for (const event of events) {
@@ -503,8 +504,8 @@ export async function generateCarousel(
 		);
 	}
 
-	// Last slide: CTA
-	slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, events.length)));
+	// Last slide: CTA (shows total event count)
+	slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount)));
 
 	return slides;
 }
