@@ -12,7 +12,6 @@
 	let submitted = $state(false);
 	let submitting = $state(false);
 	let submitError = $state('');
-	let imageFile = $state<File | null>(null);
 	let imagePreview = $state('');
 	let imageWarning = $state('');
 	let processedBlob = $state<Blob | null>(null);
@@ -103,7 +102,6 @@
 		try {
 			const { blob, warning } = await processImage(file);
 			processedBlob = blob;
-			imageFile = file;
 			imageWarning = warning;
 			if (imagePreview) URL.revokeObjectURL(imagePreview);
 			imagePreview = URL.createObjectURL(blob);
@@ -114,7 +112,6 @@
 	}
 
 	function removeImage() {
-		imageFile = null;
 		processedBlob = null;
 		imageWarning = '';
 		if (imagePreview) URL.revokeObjectURL(imagePreview);
@@ -257,7 +254,7 @@
 				<label for="category" class="mb-1 block text-sm font-medium">{$t('category')} *</label>
 				<select id="category" name="category" required aria-required="true"
 					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm">
-					{#each CATEGORIES as cat}
+					{#each CATEGORIES as cat (cat)}
 						<option value={cat}>{$t(`cat.${cat}` )}</option>
 					{/each}
 				</select>
@@ -310,7 +307,7 @@
 				<label for="bydel" class="mb-1 block text-sm font-medium">{$t('bydel')} *</label>
 				<select id="bydel" name="bydel" required aria-required="true"
 					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm">
-					{#each BYDELER as b}
+					{#each BYDELER as b (b)}
 						<option value={b}>{b}</option>
 					{/each}
 				</select>

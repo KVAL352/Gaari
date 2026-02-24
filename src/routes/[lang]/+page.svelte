@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { lang, t } from '$lib/i18n';
 	import { isFreeEvent } from '$lib/utils';
-	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay } from '$lib/event-filters';
+	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString } from '$lib/event-filters';
 	import type { Bydel, GaariEvent } from '$lib/types';
 	import { generateWebSiteJsonLd, getCanonicalUrl } from '$lib/seo';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
@@ -41,9 +41,7 @@
 			if (when === 'today') {
 				events = events.filter(e => isSameDay(e.date_start, todayStr));
 			} else if (when === 'tomorrow') {
-				const tmrw = new Date(now);
-				tmrw.setDate(now.getDate() + 1);
-				const tmrwStr = toOsloDateStr(tmrw);
+				const tmrwStr = toOsloDateStr(addDays(now, 1));
 				events = events.filter(e => isSameDay(e.date_start, tmrwStr));
 			} else if (when === 'weekend') {
 				const { start, end } = getWeekendDates(now);
@@ -52,10 +50,7 @@
 					return d >= start && d <= end;
 				});
 			} else if (when === 'week') {
-				const endOfWeek = new Date(now);
-				const daysToSunday = 7 - now.getDay();
-				endOfWeek.setDate(now.getDate() + (now.getDay() === 0 ? 0 : daysToSunday));
-				const endStr = toOsloDateStr(endOfWeek);
+				const endStr = getEndOfWeekDateStr(now);
 				events = events.filter(e => {
 					const d = e.date_start.slice(0, 10);
 					return d >= todayStr && d <= endStr;
@@ -131,15 +126,7 @@
 
 	// URL update helper
 	function updateParam(key: string, value: string) {
-		const params = new URLSearchParams($page.url.search);
-		if (value) {
-			params.set(key, value);
-		} else {
-			params.delete(key);
-		}
-		// Reset page when changing filters
-		if (key !== 'page') params.delete('page');
-		goto(`?${params.toString()}`, { replaceState: true, noScroll: true });
+		goto(`?${buildQueryString($page.url.search, key, value)}`, { replaceState: true, noScroll: true });
 	}
 
 	function handleFilterChange(key: string, value: string) {

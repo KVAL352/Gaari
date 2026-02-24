@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { matchesTimeOfDay, getWeekendDates, isSameDay, toOsloDateStr } from '../event-filters';
+import { matchesTimeOfDay, getWeekendDates, isSameDay, toOsloDateStr, addDays, getEndOfWeekDateStr, buildQueryString } from '../event-filters';
 
 describe('matchesTimeOfDay', () => {
 	// Winter (CET, UTC+1): 19:00 UTC = 20:00 Oslo = evening
@@ -104,5 +104,63 @@ describe('toOsloDateStr', () => {
 		const d = new Date('2026-01-15T23:30:00Z');
 		// UTC+1: 23:30 UTC = 00:30 Jan 16 Oslo
 		expect(toOsloDateStr(d)).toBe('2026-01-16');
+	});
+});
+
+describe('addDays', () => {
+	it('adds one day', () => {
+		const d = new Date('2026-02-24T12:00:00');
+		const result = addDays(d, 1);
+		expect(result.getDate()).toBe(25);
+	});
+
+	it('does not mutate the original date', () => {
+		const d = new Date('2026-02-24T12:00:00');
+		addDays(d, 5);
+		expect(d.getDate()).toBe(24);
+	});
+
+	it('crosses month boundary', () => {
+		const d = new Date('2026-02-28T12:00:00');
+		const result = addDays(d, 1);
+		expect(result.getMonth()).toBe(2); // March (0-indexed)
+		expect(result.getDate()).toBe(1);
+	});
+});
+
+describe('getEndOfWeekDateStr', () => {
+	it('Monday returns Sunday', () => {
+		const mon = new Date('2026-02-23T12:00:00'); // Monday
+		expect(getEndOfWeekDateStr(mon)).toBe('2026-03-01');
+	});
+
+	it('Sunday returns same Sunday', () => {
+		const sun = new Date('2026-03-01T12:00:00'); // Sunday
+		expect(getEndOfWeekDateStr(sun)).toBe('2026-03-01');
+	});
+
+	it('Saturday returns next day Sunday', () => {
+		const sat = new Date('2026-02-28T12:00:00'); // Saturday
+		expect(getEndOfWeekDateStr(sat)).toBe('2026-03-01');
+	});
+});
+
+describe('buildQueryString', () => {
+	it('sets a new parameter', () => {
+		expect(buildQueryString('', 'when', 'today')).toBe('when=today');
+	});
+
+	it('removes a parameter when value is empty', () => {
+		expect(buildQueryString('when=today&category=music', 'when', '')).toBe('category=music');
+	});
+
+	it('resets page when changing a non-page filter', () => {
+		expect(buildQueryString('when=today&page=3', 'category', 'music')).toBe('when=today&category=music');
+	});
+
+	it('does not reset page when changing page itself', () => {
+		const result = buildQueryString('when=today', 'page', '2');
+		expect(result).toContain('page=2');
+		expect(result).toContain('when=today');
 	});
 });

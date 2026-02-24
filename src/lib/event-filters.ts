@@ -27,6 +27,31 @@ export function getWeekendDates(now: Date): { start: string; end: string } {
 	};
 }
 
+export function addDays(date: Date, days: number): Date {
+	const result = new Date(date.getTime());
+	result.setDate(result.getDate() + days);
+	return result;
+}
+
+export function getEndOfWeekDateStr(now: Date): string {
+	const day = now.getDay();
+	const daysToSunday = day === 0 ? 0 : 7 - day;
+	const endOfWeek = new Date(now.getTime());
+	endOfWeek.setDate(now.getDate() + daysToSunday);
+	return toOsloDateStr(endOfWeek);
+}
+
+export function buildQueryString(search: string, key: string, value: string): string {
+	const params = new URLSearchParams(search);
+	if (value) {
+		params.set(key, value);
+	} else {
+		params.delete(key);
+	}
+	if (key !== 'page') params.delete('page');
+	return params.toString();
+}
+
 export function matchesTimeOfDay(dateStart: string, times: string[]): boolean {
 	// Convert UTC timestamp to Oslo local hour
 	const date = new Date(dateStart);
