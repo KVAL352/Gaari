@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenbibliotek';
@@ -64,6 +64,15 @@ function libraryBydel(location: string): string {
 	if (lower.includes('landås')) return 'Bergenhus';
 	if (lower.includes('nesttun')) return 'Fana';
 	return 'Sentrum';
+}
+
+async function fetchEventImage(url: string): Promise<string | undefined> {
+	const html = await fetchHTML(url);
+	if (!html) return undefined;
+	const $ = cheerio.load(html);
+	const img = $('img[src*="@@images/"]').first().attr('src');
+	if (!img) return undefined;
+	return img.startsWith('http') ? img : `https://bergenbibliotek.no${img}`;
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
@@ -137,6 +146,10 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const bydel = libraryBydel(location);
 		const dateStart = eventDate.toISOString();
 
+		// Fetch event detail page for image
+		await delay(1500);
+		const imageUrl = await fetchEventImage(sourceUrl);
+
 		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, price: tag.toLowerCase() === 'gratis' ? 'Gratis' : '' });
 
 		const success = await insertEvent({
@@ -154,7 +167,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
-			image_url: undefined,
+			image_url: imageUrl,
 			age_group: category === 'family' ? 'family' : 'all',
 			language: 'no',
 			status: 'approved',

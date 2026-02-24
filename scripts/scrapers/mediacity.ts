@@ -1,5 +1,6 @@
-import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import * as cheerio from 'cheerio';
+import { mapBydel, mapCategory } from '../lib/categories.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'mediacity';
@@ -89,6 +90,54 @@ function parseICalEvents(ical: string): ICalEvent[] {
 	return events;
 }
 
+/**
+ * Fetch the medieklyngen events listing page once,
+ * then look up ticket/detail URLs for individual events by title match.
+ */
+async function fetchEventDetailUrls(): Promise<Map<string, { detailUrl: string; ticketUrl?: string }>> {
+	const map = new Map<string, { detailUrl: string; ticketUrl?: string }>();
+	const html = await fetchHTML('https://medieklyngen.no/events/');
+	if (!html) return map;
+
+	const $ = cheerio.load(html);
+
+	// Each event link on the listing page
+	$('a[href*="/events/"]').each((_, el) => {
+		const href = $(el).attr('href');
+		if (!href || href === '/events/' || href === 'https://medieklyngen.no/events/') return;
+
+		const title = $(el).text().trim().toLowerCase();
+		if (!title) return;
+
+		const fullUrl = href.startsWith('http') ? href : `https://medieklyngen.no${href}`;
+		map.set(title, { detailUrl: fullUrl });
+	});
+
+	return map;
+}
+
+/**
+ * Fetch a detail page and look for an external ticket link (e.g. checkin.no, eventbrite.com)
+ */
+async function fetchTicketUrl(detailUrl: string): Promise<string | undefined> {
+	const html = await fetchHTML(detailUrl);
+	if (!html) return undefined;
+
+	const $ = cheerio.load(html);
+
+	// Look for links to ticket platforms
+	const ticketDomains = ['checkin.no', 'eventbrite', 'ticketco', 'ticketmaster', 'hoopla'];
+	const links = $('a[href]').toArray();
+	for (const link of links) {
+		const href = $(link).attr('href') || '';
+		if (ticketDomains.some(d => href.includes(d))) {
+			return href;
+		}
+	}
+
+	return undefined;
+}
+
 export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`\n[${SOURCE}] Fetching Media City Bergen events (iCal)...`);
 
@@ -114,12 +163,14 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 	console.log(`[${SOURCE}] Found ${futureEvents.length} upcoming events`);
 
+	// Fetch listing page once to map titles → detail URLs
+	const detailMap = await fetchEventDetailUrls();
+
 	let found = futureEvents.length;
 	let inserted = 0;
 
 	for (const event of futureEvents) {
-		const sourceUrl = `https://medieklyngen.no/events/`;
-		const eventUrl = `${sourceUrl}#${event.uid}`;
+		const eventUrl = `https://medieklyngen.no/events/#${event.uid}`;
 		if (await eventExists(eventUrl)) continue;
 
 		const dateStart = parseICalDate(event.dtstart);
@@ -130,21 +181,36 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const venueName = event.location || VENUE;
 		const bydel = mapBydel(venueName);
 
-		const aiDesc = await generateDescription({ title: event.summary, venue: venueName, category: 'workshop', date: new Date(dateStart), price: '' });
+		// Dynamic category from title + description
+		const category = mapCategory(`${event.summary} ${event.description || ''}`);
+
+		// Look up detail page URL by matching title
+		const titleLower = event.summary.toLowerCase();
+		const detail = detailMap.get(titleLower);
+		let ticketUrl = detail?.detailUrl || 'https://medieklyngen.no/events/';
+
+		// If we have a detail page, check for external ticket links
+		if (detail?.detailUrl) {
+			await delay(1500);
+			const externalTicket = await fetchTicketUrl(detail.detailUrl);
+			if (externalTicket) ticketUrl = externalTicket;
+		}
+
+		const aiDesc = await generateDescription({ title: event.summary, venue: venueName, category, date: new Date(dateStart), price: '' });
 
 		const success = await insertEvent({
 			slug: makeSlug(event.summary, datePart),
 			title_no: event.summary,
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
-			category: 'workshop',
+			category,
 			date_start: dateStart,
 			date_end: dateEnd,
 			venue_name: venueName,
 			address: event.location || ADDRESS,
 			bydel,
 			price: '',
-			ticket_url: 'https://medieklyngen.no/events/',
+			ticket_url: ticketUrl,
 			source: SOURCE,
 			source_url: eventUrl,
 			age_group: 'all',
@@ -153,7 +219,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		});
 
 		if (success) {
-			console.log(`  + ${event.summary} (${datePart})`);
+			console.log(`  + ${event.summary} (${datePart}) [${category}]`);
 			inserted++;
 		}
 	}

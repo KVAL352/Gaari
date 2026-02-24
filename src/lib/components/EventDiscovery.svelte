@@ -29,7 +29,6 @@
 	// Local UI state
 	let showCalendar = $state(false);
 	let showAllCategories = $state(false);
-	let showMoreFilters = $state(false);
 
 	// Progressive disclosure: show steps 2-4 when a date is selected
 	let dateSelected = $derived(!!when);
@@ -110,7 +109,7 @@
 	);
 	let hiddenCount = CATEGORIES.length - INITIAL_SHOW;
 
-	// ── More filters: Bydel + Price ──
+	// ── Step 5: Where & Price (Bydel + Price) ──
 	const priceOptions = [
 		{ value: '', labelKey: 'allPrices' },
 		{ value: 'free', labelKey: 'free' },
@@ -129,11 +128,6 @@
 
 	// Any filter active? (for showing clear all)
 	let hasActiveFilters = $derived(!!when || !!time || !!audience || !!category || !!bydel || !!price);
-
-	// Auto-expand more filters if bydel or price are set via URL
-	$effect(() => {
-		if (bydel || price) showMoreFilters = true;
-	});
 
 	function handleCategoryToggle(cat: string) {
 		const current = selectedCategories.includes(cat)
@@ -264,38 +258,10 @@
 					{/if}
 				</div>
 			</fieldset>
-		{/if}
 
-		<!-- More filters (bydel + price) — always available -->
-		<div class="more-filters-row">
-			<button
-				type="button"
-				class="more-filters-toggle"
-				onclick={() => { showMoreFilters = !showMoreFilters; }}
-				aria-expanded={showMoreFilters}
-			>
-				{$t('moreFilters')}
-				<span class="toggle-arrow" class:open={showMoreFilters}>&#9662;</span>
-			</button>
-
-			{#if hasActiveFilters}
-				<button
-					type="button"
-					onclick={onClearAll}
-					class="clear-all-btn"
-				>
-					{$t('clearAll')}
-				</button>
-			{/if}
-
-			<p class="event-count" aria-live="polite" role="status">
-				<span class="tabular-nums font-semibold">{eventCount}</span>
-				{$t('eventsFound')}
-			</p>
-		</div>
-
-		{#if showMoreFilters}
-			<div class="more-filters-content" transition:slide={{ duration: 200 }}>
+			<!-- Step 5: Where & Price -->
+			<fieldset class="discovery-step" aria-label={$t('whereAndPrice')} transition:slide={{ duration: 250 }}>
+				<legend class="label-caps">{$t('whereAndPrice')}</legend>
 				<div class="filter-dropdowns">
 					<select
 						value={bydel}
@@ -321,8 +287,26 @@
 					</select>
 				</div>
 				<p class="price-disclaimer">{$t('priceDisclaimer')}</p>
-			</div>
+			</fieldset>
 		{/if}
+
+		<!-- Results row: Clear All + event count -->
+		<div class="results-row">
+			{#if hasActiveFilters}
+				<button
+					type="button"
+					onclick={onClearAll}
+					class="clear-all-btn"
+				>
+					{$t('clearAll')}
+				</button>
+			{/if}
+
+			<p class="event-count" aria-live="polite" role="status">
+				<span class="tabular-nums font-semibold">{eventCount}</span>
+				{$t('eventsFound')}
+			</p>
+		</div>
 	</div>
 </section>
 
@@ -353,37 +337,12 @@
 		gap: 0.5rem;
 	}
 
-	.more-filters-row {
+	.results-row {
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
 		padding-top: 0.5rem;
 		border-top: 1px solid var(--color-border-subtle);
-	}
-
-	.more-filters-toggle {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.25rem;
-		background: none;
-		border: none;
-		font-size: 0.8125rem;
-		color: var(--color-text-secondary);
-		cursor: pointer;
-		padding: 0.25rem 0;
-	}
-
-	.more-filters-toggle:hover {
-		color: var(--color-text-primary);
-	}
-
-	.toggle-arrow {
-		font-size: 0.625rem;
-		transition: transform 0.2s;
-	}
-
-	.toggle-arrow.open {
-		transform: rotate(180deg);
 	}
 
 	.clear-all-btn {
@@ -404,10 +363,6 @@
 		font-size: 0.8125rem;
 		color: var(--color-text-muted);
 		margin-left: auto;
-	}
-
-	.more-filters-content {
-		padding-top: 0.25rem;
 	}
 
 	.filter-dropdowns {

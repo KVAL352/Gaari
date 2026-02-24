@@ -111,6 +111,11 @@ const VENUE_URLS: Record<string, string> = {
 	'lagshuset': 'https://sammen.no/lagshuset',
 	'tivoli': 'https://kvarteret.no',
 
+	// Museum Vest
+	'norges fiskerimuseum': 'https://fiskerimuseum.museumvest.no',
+	'fiskerimuseet': 'https://fiskerimuseum.museumvest.no',
+	'sandviksboder 23': 'https://fiskerimuseum.museumvest.no',
+
 	// Bymuseet i Bergen (9 museums)
 	'bymuseet': 'https://bymuseet.no',
 	'bymuseet i bergen': 'https://bymuseet.no',

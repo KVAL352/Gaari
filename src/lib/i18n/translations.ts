@@ -150,6 +150,7 @@ export const translations = {
 		tourists: 'Turister',
 		students: 'Studenter',
 		moreCategories: 'til',
+		whereAndPrice: 'Hvor & Pris',
 		eventDiscovery: 'Oppdag arrangementer',
 
 		// Collections
@@ -290,6 +291,7 @@ export const translations = {
 		tourists: 'Tourists',
 		students: 'Students',
 		moreCategories: 'more',
+		whereAndPrice: 'Where & Price',
 		eventDiscovery: 'Discover events',
 
 		// Collections
