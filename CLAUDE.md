@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 43 automated scrapers collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 42 automated scrapers collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -13,7 +13,8 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - **Form actions**: Correction form (event detail) and opt-out form (datainnsamling) use SvelteKit form actions with `use:enhance` — no client-side Supabase needed.
 - **Scrapers**: Standalone TypeScript in `scripts/`, separate `package.json`. Uses Cheerio for HTML parsing. Runs via GitHub Actions cron (twice daily at 6 AM & 6 PM UTC).
 - **AI Descriptions**: Gemini 2.5 Flash generates bilingual summaries (<160 chars each) from event metadata. Fallback to template if API unavailable.
-- **Collection pages**: Curated landing pages via `$lib/collections.ts` config + single dynamic `[lang]/[collection]/` route. 4 collections: `denne-helgen` (weekend), `i-kveld` (tonight), `gratis` (free this week), `today-in-bergen` (today, EN-primary). Each has `filterEvents(events, now)` using existing event-filter helpers, bilingual title/description/ogSubtitle. `getCollection(slug)` returns config or undefined (404). `getAllCollectionSlugs()` for sitemap. Static routes (`about/`, `events/`, etc.) resolve before the `[collection]` param — no conflicts.
+- **Collection pages**: Curated landing pages via `$lib/collections.ts` config + single dynamic `[lang]/[collection]/` route. 8 collections: `denne-helgen` (weekend), `i-kveld` (tonight), `gratis` (free this week), `today-in-bergen` (today, EN), `familiehelg` (family weekend), `konserter` (concerts this week), `studentkveld` (student nightlife), `this-weekend` (weekend, EN). Each has `filterEvents(events, now)` using existing event-filter helpers, bilingual title/description/ogSubtitle. `getCollection(slug)` returns config or undefined (404). `getAllCollectionSlugs()` for sitemap. Static routes (`about/`, `events/`, etc.) resolve before the `[collection]` param — no conflicts.
+- **Social post pipeline**: `scripts/social/` generates Instagram carousel images (Satori/Resvg, 1080x1080 PNG) + captions for scheduled collections. GHA cron at 07:00 UTC daily. Admin review at `/admin/social`. Content generation only — no social accounts or API posting yet.
 
 ## Key conventions
 
@@ -33,16 +34,19 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 4. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
 5. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
-## Scraper sources (43 total)
+## Scraper sources (42 active)
 
 ### General aggregators
 | Source | File | Method |
 |--------|------|--------|
 | Visit Bergen | `visitbergen.ts` | HTML pagination, Cheerio |
-| Bergen Kommune | `bergenkommune.ts` | AJAX `GetFilteredEventList` + detail pages |
-| BarnasNorge | `barnasnorge.ts` | HTML + JSON-LD, follows `offers.url` |
+| Bergen Kommune | `bergenkommune.ts` | AJAX `GetFilteredEventList` + detail pages. Uses billett detail URLs directly as ticket_url (not resolveTicketUrl). |
 | StudentBergen | `studentbergen.ts` | JSON API `/api/calendar.json` |
 | Bergen Live | `bergenlive.ts` | HTML scrape |
+
+**Disabled scrapers:**
+- ~~BarnasNorge~~ (`barnasnorge.ts`) — disabled Feb 25, 2026. All venues covered by dedicated scrapers. Issues: AI-generated stock images from Webflow CDN, address-based venue names, complex URL resolution.
+- ~~Kulturikveld~~ — removed earlier (unreliable).
 
 ### Ticket platforms
 | Source | File | Method |
@@ -116,7 +120,8 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 ## Important rules
 
-- **No traffic to aggregators**: ticket_url should point to actual venue/ticket pages, not visitbergen.com or barnasnorge.no. Aggregator domains are blocked in `venues.ts`.
+- **No traffic to aggregators**: ticket_url should point to actual venue/ticket pages, not visitbergen.com or barnasnorge.no. Aggregator domains are blocked in `venues.ts`. Exception: bergenkommune scraper uses billett.bergen.kommune.no detail URLs directly (they ARE the specific event pages).
+- **No copied descriptions (åndsverksloven)**: Event descriptions must ALWAYS be AI-generated originals (<160 chars) or template-generated. NEVER store raw text scraped from source pages — this violates Norwegian Copyright Act (åndsverksloven). All scrapers use `generateDescription()` from `ai-descriptions.ts`.
 - **No non-public events**: Events for barnehager (kindergartens), SFO (after-school care), school visits, etc. are excluded — checked via title keywords AND detail page text. Keywords: `barnehage`, `barnehagebarn`, `sfo`, `skoleklasse`, `skolebesøk`, `klassebesøk`, `kun for`.
 - **Rate limiting**: All scrapers use 1-1.5s delays between requests. Eventbrite uses 3s. AI descriptions use 200ms + backoff.
 - **Honest User-Agent**: `Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)`
@@ -140,14 +145,14 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 ## EventDiscovery filter system (Feb 2026)
 
-The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) instead of traditional dropdowns. It guides users step by step: **When → Time of Day → Who → What**.
+The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) instead of traditional dropdowns. It guides users step by step: **When → Time of Day → Who → What → Where & Price**.
 
 - **Step 1 (When?)** — Always visible. Pills: I dag, I morgen, Denne helgen, Denne uken, Velg dato (opens inline MiniCalendar)
-- **Steps 2–4** — Slide in after a date is selected (progressive disclosure)
+- **Steps 2–5** — Slide in after a date is selected (progressive disclosure)
 - **Step 2 (Time)** — Multi-select pills: Morgen (6–12), Dagtid (12–17), Kveld (17–22), Natt (22–6)
 - **Step 3 (Who)** — Single-select pills: Alle, Familie & Barn, Studenter, 18+, Turister
 - **Step 4 (What)** — Multi-select category pills (first 5 shown, expandable)
-- **Flere filtre** — Expandable toggle for bydel + price dropdowns
+- **Step 5 (Where & Price)** — Bydel + price dropdowns, inline within the progressive flow (gated by date selection). No separate toggle.
 - **FilterBar is hidden** from the homepage when EventDiscovery is active (a date is selected). EventDiscovery is the sole filter UI on the homepage.
 - **URL is the single source of truth** — all filters read/write URL search params (`when`, `time`, `audience`, `category`, `bydel`, `price`). Shareable, back-button works.
 - **Key components**: `FilterPill.svelte` (reusable pill button), `MiniCalendar.svelte` (inline date picker), `EventDiscovery.svelte` (main component)
@@ -175,6 +180,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `/[lang]/submit/` — Event submission form (blocked from search engines). Only page that ships Supabase SDK to client (for image uploads).
 - `/[lang]/events/[slug]/` — Event detail page with related events and OG image. **Server-side loaded**, correction form action `?/correction` in `+page.server.ts`.
 - `/[lang]/[collection]/` — Curated collection landing pages (denne-helgen, i-kveld, gratis, today-in-bergen). **Server-side loaded** with collection-specific filtering, ISR cached. Dynamic `[collection]` route — config in `$lib/collections.ts`, unknown slugs return 404. No EventDiscovery filter UI — clean hero + EventGrid. JSON-LD `CollectionPage` schema, custom OG images.
+- `/admin/social` — Social post review page (internal tool, noindex). Shows generated carousel slides + captions. Copy button for captions.
 - `/api/health` — Health check endpoint (Supabase connection, event count, scrape freshness). Returns healthy/degraded/unhealthy, 5min cache, 503 on unhealthy.
 - `/og/[slug].png` — Per-event OG image generation (Satori + ResvgJS)
 - `/og/c/[collection].png` — Collection-branded OG images (Funkis design: red accent bar, 72px title, subtitle, Gåri branding). 24h cache.
@@ -187,7 +193,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `HeroSection.svelte` — Compact hero with tagline
 - `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer
 - `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates)
-- `EventDiscovery.svelte` — Progressive 4-step filter (When/Time/Who/What) with inline calendar + bydel/price
+- `EventDiscovery.svelte` — Progressive 5-step filter (When/Time/Who/What/Where & Price) with inline calendar
 - `FilterPill.svelte` — Reusable pill/chip button (aria-pressed, 44px touch targets, Funkis styling)
 - `MiniCalendar.svelte` — Inline month-grid date picker (single date + range selection, bilingual). Proper ARIA grid structure: `role="grid"` > `role="row"` > `role="gridcell"` with chunked weeks.
 - `FilterBar.svelte` — Dropdown filter row (hidden on homepage when EventDiscovery is active, has `hideFields` prop)
@@ -272,7 +278,7 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (147 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (156 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
 - `src/lib/__tests__/event-filters.test.ts` — 18 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (all days of week), `isSameDay`, `toOsloDateStr` (date boundary)
