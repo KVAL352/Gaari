@@ -1,4 +1,4 @@
-import satori from 'satori';
+import satori, { type Font } from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 import type { Category } from '$lib/types';
 
@@ -40,7 +40,7 @@ const TEXT_MUTED = '#737373';
 const WIDTH = 1200;
 const HEIGHT = 630;
 
-let fontsCache: { name: string; data: ArrayBuffer; weight: number; style: string }[] | null = null;
+let fontsCache: Font[] | null = null;
 
 async function loadFonts(origin: string) {
 	if (fontsCache) return fontsCache;
@@ -115,7 +115,7 @@ export async function generateOgImage(options: OgImageOptions): Promise<Uint8Arr
 	const svg = await satori(markup, {
 		width: WIDTH,
 		height: HEIGHT,
-		fonts: fonts as any
+		fonts
 	});
 
 	const resvg = new Resvg(svg, {

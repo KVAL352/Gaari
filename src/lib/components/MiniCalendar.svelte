@@ -160,15 +160,15 @@
 	<div role="grid" aria-label={monthLabel}>
 		<!-- Weekday headers -->
 		<div class="cal-grid cal-weekdays" role="row">
-			{#each weekdays as day}
+			{#each weekdays as day (day)}
 				<span class="cal-weekday" role="columnheader">{day}</span>
 			{/each}
 		</div>
 
 		<!-- Day rows -->
-		{#each calendarWeeks as week}
+		{#each calendarWeeks as week, weekIdx (weekIdx)}
 			<div class="cal-grid" role="row">
-				{#each week as day}
+				{#each week as day, dayIdx (day ?? `empty-${dayIdx}`)}
 					<span role="gridcell">
 						{#if day === null}
 							<span class="cal-empty"></span>

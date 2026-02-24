@@ -16,7 +16,7 @@
 			<nav aria-label={$t('categories')}>
 				<h4 class="mb-2 text-sm font-semibold">{$t('categories')}</h4>
 				<ul class="space-y-1">
-					{#each CATEGORIES.slice(0, 6) as cat}
+					{#each CATEGORIES.slice(0, 6) as cat (cat)}
 						<li>
 							<a
 								href="/{$lang}?category={cat}"
@@ -33,7 +33,7 @@
 			<div>
 				<div class="mb-2 h-5"></div>
 				<ul class="space-y-1">
-					{#each CATEGORIES.slice(6) as cat}
+					{#each CATEGORIES.slice(6) as cat (cat)}
 						<li>
 							<a
 								href="/{$lang}?category={cat}"

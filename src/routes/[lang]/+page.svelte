@@ -4,11 +4,10 @@
 	import { lang, t } from '$lib/i18n';
 	import { isFreeEvent } from '$lib/utils';
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay } from '$lib/event-filters';
-	import type { Category, Bydel, GaariEvent, TimeOfDay } from '$lib/types';
+	import type { Bydel, GaariEvent } from '$lib/types';
 	import { generateWebSiteJsonLd, getCanonicalUrl } from '$lib/seo';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import HeroSection from '$lib/components/HeroSection.svelte';
-	import FilterBar from '$lib/components/FilterBar.svelte';
 	import EventDiscovery from '$lib/components/EventDiscovery.svelte';
 
 	import EventGrid from '$lib/components/EventGrid.svelte';
@@ -29,10 +28,6 @@
 	let time = $derived($page.url.searchParams.get('time') || '');
 	let q = $derived($page.url.searchParams.get('q') || '');
 	let pageNum = $derived(Number($page.url.searchParams.get('page') || '1'));
-
-	// Hide category/audience dropdowns from FilterBar when EventDiscovery has a date selected
-	let discoveryActive = $derived(!!when);
-	let filterBarHideFields = $derived(discoveryActive ? ['category', 'audience'] : []);
 
 	// Filter events
 	let filteredEvents = $derived.by(() => {
