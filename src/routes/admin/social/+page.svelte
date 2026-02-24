@@ -11,7 +11,11 @@
 		'denne-helgen': 'Denne helgen i Bergen',
 		'i-kveld': 'I kveld i Bergen',
 		'gratis': 'Gratis i Bergen denne uken',
-		'today-in-bergen': 'Today in Bergen'
+		'today-in-bergen': 'Today in Bergen',
+		'familiehelg': 'Familiehelg i Bergen',
+		'konserter': 'Konserter i Bergen denne uken',
+		'studentkveld': 'Studentkveld i Bergen',
+		'this-weekend': 'This Weekend in Bergen'
 	};
 
 	function formatDate(dateStr: string): string {

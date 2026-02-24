@@ -1,6 +1,6 @@
 import type { GaariEvent, Lang } from './types';
 import { isFreeEvent } from './utils';
-import { isSameDay, getWeekendDates, matchesTimeOfDay, toOsloDateStr, getEndOfWeekDateStr } from './event-filters';
+import { isSameDay, getWeekendDates, matchesTimeOfDay, toOsloDateStr, getEndOfWeekDateStr, addDays } from './event-filters';
 
 export interface Collection {
 	id: string;
@@ -100,6 +100,102 @@ const collections: Collection[] = [
 		filterEvents: (events, now) => {
 			const todayStr = toOsloDateStr(now);
 			return events.filter(e => isSameDay(e.date_start, todayStr));
+		}
+	},
+	{
+		id: 'family-weekend',
+		slug: 'familiehelg',
+		title: {
+			no: 'Familiehelg i Bergen',
+			en: 'Family Weekend in Bergen'
+		},
+		description: {
+			no: 'Helgens beste arrangementer for barn og familier i Bergen.',
+			en: "This weekend's best events for kids and families in Bergen."
+		},
+		ogSubtitle: {
+			no: 'For hele familien',
+			en: 'For the whole family'
+		},
+		filterEvents: (events, now) => {
+			const { start, end } = getWeekendDates(now);
+			return events.filter(e => {
+				const d = e.date_start.slice(0, 10);
+				return d >= start && d <= end && e.age_group === 'family';
+			});
+		}
+	},
+	{
+		id: 'concerts',
+		slug: 'konserter',
+		title: {
+			no: 'Konserter i Bergen denne uken',
+			en: 'Concerts in Bergen This Week'
+		},
+		description: {
+			no: 'Alle konserter og livemusikk i Bergen denne uken.',
+			en: 'All concerts and live music in Bergen this week.'
+		},
+		ogSubtitle: {
+			no: 'Livemusikk denne uken',
+			en: 'Live music this week'
+		},
+		filterEvents: (events, now) => {
+			const todayStr = toOsloDateStr(now);
+			const endStr = getEndOfWeekDateStr(now);
+			return events.filter(e => {
+				const d = e.date_start.slice(0, 10);
+				return d >= todayStr && d <= endStr && e.category === 'music';
+			});
+		}
+	},
+	{
+		id: 'student',
+		slug: 'studentkveld',
+		title: {
+			no: 'Studentkveld i Bergen',
+			en: 'Student Night in Bergen'
+		},
+		description: {
+			no: 'Kveldens arrangementer for studenter i Bergen — fester, quiz, konserter og mer.',
+			en: "Tonight's events for students in Bergen — parties, quizzes, concerts and more."
+		},
+		ogSubtitle: {
+			no: 'For studenter i kveld',
+			en: "Tonight's student events"
+		},
+		filterEvents: (events, now) => {
+			const todayStr = toOsloDateStr(now);
+			const tomorrowStr = toOsloDateStr(addDays(now, 1));
+			return events.filter(e => {
+				const d = e.date_start.slice(0, 10);
+				return (d === todayStr || d === tomorrowStr) &&
+					matchesTimeOfDay(e.date_start, ['evening', 'night']) &&
+					(e.age_group === 'students' || e.category === 'student' || e.category === 'nightlife');
+			});
+		}
+	},
+	{
+		id: 'this-weekend',
+		slug: 'this-weekend',
+		title: {
+			no: 'Denne helgen i Bergen',
+			en: 'This Weekend in Bergen'
+		},
+		description: {
+			no: 'Alle arrangementer i Bergen denne helgen — konserter, utstillinger, mat og mer.',
+			en: 'Everything happening in Bergen this weekend — concerts, exhibitions, food and more.'
+		},
+		ogSubtitle: {
+			no: 'Helgens arrangementer',
+			en: "This weekend's events"
+		},
+		filterEvents: (events, now) => {
+			const { start, end } = getWeekendDates(now);
+			return events.filter(e => {
+				const d = e.date_start.slice(0, 10);
+				return d >= start && d <= end;
+			});
 		}
 	}
 ];

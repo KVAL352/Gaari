@@ -41,6 +41,30 @@ const SCHEDULES: CollectionSchedule[] = [
 		days: [], // Daily
 		postTime: '09:00',
 		hashtags: ['#bergen', '#whattodo', '#todayinbergen', '#visitbergen']
+	},
+	{
+		slug: 'familiehelg',
+		days: [4], // Thursday
+		postTime: '10:00',
+		hashtags: ['#bergen', '#hvaskjer', '#barnibergen', '#familiehelg']
+	},
+	{
+		slug: 'konserter',
+		days: [1], // Monday
+		postTime: '10:00',
+		hashtags: ['#bergen', '#hvaskjer', '#konsert', '#livemusikk', '#bergenmusikk']
+	},
+	{
+		slug: 'studentkveld',
+		days: [3, 4], // Wednesday + Thursday
+		postTime: '15:00',
+		hashtags: ['#bergen', '#hvaskjer', '#student', '#studentbergen', '#uteliv']
+	},
+	{
+		slug: 'this-weekend',
+		days: [4], // Thursday
+		postTime: '10:00',
+		hashtags: ['#bergen', '#whattodo', '#thisweekend', '#visitbergen']
 	}
 ];
 
@@ -50,33 +74,37 @@ function shouldGenerateToday(schedule: CollectionSchedule, dayOfWeek: number): b
 	return schedule.days.length === 0 || schedule.days.includes(dayOfWeek);
 }
 
-function formatDateRange(now: Date, slug: string): string {
-	const opts: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' };
-	const locale = slug === 'today-in-bergen' ? 'en-GB' : 'nb-NO';
+const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
-	if (slug === 'denne-helgen') {
-		// Show "fredag 28. feb – søndag 2. mars" style
+function formatDateRange(now: Date, slug: string): string {
+	const isEnSlug = ENGLISH_SLUGS.has(slug);
+	const locale = isEnSlug ? 'en-GB' : 'nb-NO';
+
+	// Weekend collections: show "fredag 28. feb – søndag 2. mars" range
+	if (slug === 'denne-helgen' || slug === 'familiehelg' || slug === 'this-weekend') {
 		const day = now.getDay();
 		const daysToFri = day <= 5 ? 5 - day : 5 - day + 7;
 		const fri = new Date(now);
 		fri.setDate(now.getDate() + daysToFri);
 		const sun = new Date(fri);
 		sun.setDate(fri.getDate() + 2);
-		const friStr = fri.toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'short' });
-		const sunStr = sun.toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'short' });
+		const dateOpts: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'short' };
+		const friStr = fri.toLocaleDateString(locale, dateOpts);
+		const sunStr = sun.toLocaleDateString(locale, dateOpts);
 		return `${friStr} \u2013 ${sunStr}`;
 	}
 
-	if (slug === 'gratis') {
+	// Week-range collections
+	if (slug === 'gratis' || slug === 'konserter') {
 		const endOfWeek = new Date(now);
 		const daysToSun = now.getDay() === 0 ? 0 : 7 - now.getDay();
 		endOfWeek.setDate(now.getDate() + daysToSun);
-		const nowStr = now.toLocaleDateString('nb-NO', { day: 'numeric', month: 'short' });
-		const endStr = endOfWeek.toLocaleDateString('nb-NO', { day: 'numeric', month: 'short' });
+		const nowStr = now.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+		const endStr = endOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
 		return `${nowStr} \u2013 ${endStr}`;
 	}
 
-	return now.toLocaleDateString(locale, opts);
+	return now.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 async function fetchEvents(): Promise<GaariEvent[]> {
@@ -180,11 +208,11 @@ async function main() {
 		console.log(`  ${filtered.length} events matched, using ${topEvents.length} for carousel`);
 
 		try {
-			const isEnglish = schedule.slug === 'today-in-bergen';
+			const isEnglish = ENGLISH_SLUGS.has(schedule.slug);
 			const lang = isEnglish ? 'en' as const : 'no' as const;
 			const title = isEnglish ? collection.title.en : collection.title.no;
 			const collectionUrl = isEnglish
-				? 'gaari.no/en/today-in-bergen'
+				? `gaari.no/en/${schedule.slug}`
 				: `gaari.no/no/${schedule.slug}`;
 
 			// Build carousel event data
