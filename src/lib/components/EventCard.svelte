@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { GaariEvent, BadgeType, Lang } from '$lib/types';
+	import type { GaariEvent, BadgeType } from '$lib/types';
 	import { lang, t } from '$lib/i18n';
 	import { formatEventDate, formatEventTime, formatPrice, isFreeEvent } from '$lib/utils';
 	import StatusBadge from './StatusBadge.svelte';
@@ -96,7 +96,7 @@
 			{/if}
 			{#if badges.length > 0}
 				<div class="absolute left-2 top-2 flex flex-col gap-1">
-					{#each badges as badge}
+					{#each badges as badge (badge)}
 						<StatusBadge type={badge} />
 					{/each}
 				</div>

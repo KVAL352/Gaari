@@ -38,7 +38,7 @@
 		<div class="mt-12 w-full max-w-5xl">
 			<h3 class="mb-4 text-lg font-semibold">{$t('popularNow')}</h3>
 			<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-				{#each popularEvents.slice(0, 3) as event}
+				{#each popularEvents.slice(0, 3) as event (event.id)}
 					<EventCard {event} />
 				{/each}
 			</ul>

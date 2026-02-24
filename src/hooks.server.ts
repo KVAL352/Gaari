@@ -61,7 +61,7 @@ function shouldRateLimit(pathname: string): boolean {
 
 // ── Structured error logging (parsed by Vercel's log system) ──
 
-export const handleError: HandleServerError = ({ error, event, status, message }) => {
+export const handleError: HandleServerError = ({ error, event, status }) => {
 	const err = error instanceof Error ? error : new Error(String(error));
 	const stack = err.stack?.split('\n').slice(0, 5).join('\n');
 

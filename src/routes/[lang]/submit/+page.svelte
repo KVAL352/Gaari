@@ -344,9 +344,9 @@
 
 			<!-- Image upload -->
 			<div>
-				<label class="mb-1 block text-sm font-medium">
+				<p class="mb-1 block text-sm font-medium">
 					{$lang === 'no' ? 'Bilde (valgfritt)' : 'Image (optional)'}
-				</label>
+				</p>
 				<p class="mb-2 text-xs text-[var(--color-text-muted)]">
 					{$lang === 'no' ? 'Anbefalt: liggende format (16:9). Min 800px bredde, maks 5 MB. Bilder skaleres automatisk.' : 'Recommended: landscape (16:9). Min 800px wide, max 5 MB. Images are auto-resized.'}
 				</p>

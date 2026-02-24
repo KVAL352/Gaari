@@ -1,6 +1,6 @@
 import type { HandleClientError } from '@sveltejs/kit';
 
-export const handleError: HandleClientError = ({ error, status, message }) => {
+export const handleError: HandleClientError = ({ error, status }) => {
 	const err = error instanceof Error ? error : new Error(String(error));
 	const stack = err.stack?.split('\n').slice(0, 5).join('\n');
 

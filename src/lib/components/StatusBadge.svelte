@@ -39,7 +39,8 @@
 	aria-label={$t(labelKeys[type])}
 >
 	{#if iconComponents[type]}
-		<svelte:component this={iconComponents[type]} size={12} strokeWidth={2} aria-hidden="true" />
+		{@const Icon = iconComponents[type]}
+		<Icon size={12} strokeWidth={2} aria-hidden="true" />
 	{/if}
 	{$t(labelKeys[type])}
 </span>

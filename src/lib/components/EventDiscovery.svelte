@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { t } from '$lib/i18n';
 	import { CATEGORIES, BYDELER } from '$lib/types';
-	import type { Lang, TimeOfDay, Bydel } from '$lib/types';
+	import type { Lang, TimeOfDay } from '$lib/types';
 	import FilterPill from './FilterPill.svelte';
 	import MiniCalendar from './MiniCalendar.svelte';
 	import { slide } from 'svelte/transition';
@@ -78,17 +78,14 @@
 	let selectedTimes = $derived(time ? time.split(',') as TimeOfDay[] : []);
 
 	function handleTimeToggle(value: TimeOfDay) {
-		const current = new Set(selectedTimes);
-		if (current.has(value)) {
-			current.delete(value);
-		} else {
-			current.add(value);
-		}
+		const current = selectedTimes.includes(value)
+			? selectedTimes.filter(t => t !== value)
+			: [...selectedTimes, value];
 		// If all selected, clear (= no filter)
-		if (current.size === timeOptions.length) {
+		if (current.length === timeOptions.length) {
 			onFilterChange('time', '');
 		} else {
-			onFilterChange('time', Array.from(current).join(','));
+			onFilterChange('time', current.join(','));
 		}
 	}
 
@@ -139,13 +136,10 @@
 	});
 
 	function handleCategoryToggle(cat: string) {
-		const current = new Set(selectedCategories);
-		if (current.has(cat)) {
-			current.delete(cat);
-		} else {
-			current.add(cat);
-		}
-		onFilterChange('category', Array.from(current).join(','));
+		const current = selectedCategories.includes(cat)
+			? selectedCategories.filter(c => c !== cat)
+			: [...selectedCategories, cat];
+		onFilterChange('category', current.join(','));
 	}
 
 	// Arrow key navigation within pill groups
@@ -191,7 +185,7 @@
 			<legend class="label-caps">{$t('whenLabel')}</legend>
 			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 			<div class="pill-row" role="group" aria-label={$t('whenLabel')} onkeydown={handlePillKeydown}>
-				{#each whenOptions as opt}
+				{#each whenOptions as opt (opt.value)}
 					<FilterPill
 						label={$t(opt.labelKey)}
 						selected={when === opt.value}
@@ -224,7 +218,7 @@
 				<legend class="label-caps">{$t('timeLabel')}</legend>
 				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 				<div class="pill-row" role="group" aria-label={$t('timeLabel')} onkeydown={handlePillKeydown}>
-					{#each timeOptions as opt}
+					{#each timeOptions as opt (opt.value)}
 						<FilterPill
 							label={$t(opt.labelKey)}
 							selected={selectedTimes.includes(opt.value)}
@@ -239,7 +233,7 @@
 				<legend class="label-caps">{$t('whoLabel')}</legend>
 				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 				<div class="pill-row" role="group" aria-label={$t('whoLabel')} onkeydown={handlePillKeydown}>
-					{#each audienceOptions as opt}
+					{#each audienceOptions as opt (opt.value)}
 						<FilterPill
 							label={$t(opt.labelKey)}
 							selected={opt.value === '' ? audience === '' : audience === opt.value}
@@ -254,7 +248,7 @@
 				<legend class="label-caps">{$t('whatLabel')}</legend>
 				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 				<div class="pill-row" role="group" aria-label={$t('whatLabel')} onkeydown={handlePillKeydown}>
-					{#each visibleCategories as cat}
+					{#each visibleCategories as cat (cat)}
 						<FilterPill
 							label={$t(`cat.${cat}`)}
 							selected={selectedCategories.includes(cat)}
@@ -310,7 +304,7 @@
 						class="filter-select"
 					>
 						<option value="">{$t('allAreas')}</option>
-						{#each BYDELER as b}
+						{#each BYDELER as b (b)}
 							<option value={b}>{b}</option>
 						{/each}
 					</select>
@@ -321,7 +315,7 @@
 						aria-label={$t('allPrices')}
 						class="filter-select"
 					>
-						{#each priceOptions as opt}
+						{#each priceOptions as opt (opt.value)}
 							<option value={opt.value}>{$t(opt.labelKey)}</option>
 						{/each}
 					</select>
