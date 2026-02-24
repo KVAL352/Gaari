@@ -21,7 +21,9 @@ const markup = {
 			width: '100%',
 			height: '100%',
 			justifyContent: 'center',
-			alignItems: 'center'
+			alignItems: 'center',
+			backgroundColor: '#C82D2D',
+			borderRadius: '4px'
 		},
 		children: [
 			{
@@ -32,7 +34,7 @@ const markup = {
 						fontFamily: 'Barlow Condensed',
 						fontSize: '28px',
 						fontWeight: 700,
-						color: '#C82D2D'
+						color: '#FFFFFF'
 					},
 					children: 'G'
 				}
