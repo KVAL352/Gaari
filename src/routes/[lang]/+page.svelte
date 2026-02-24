@@ -131,19 +131,6 @@
 		return events;
 	});
 
-	// Count today / this week (use Oslo timezone for consistency)
-	let todayCount = $derived.by(() => {
-		const todayStr = toOsloDateStr(getOsloNow());
-		return filteredEvents.filter(e => e.date_start.slice(0, 10) === todayStr).length;
-	});
-	let thisWeekCount = $derived.by(() => {
-		const now = getOsloNow();
-		const endOfWeek = new Date(now);
-		endOfWeek.setDate(now.getDate() + (7 - now.getDay()));
-		const endStr = toOsloDateStr(endOfWeek);
-		return filteredEvents.filter(e => e.date_start.slice(0, 10) <= endStr).length;
-	});
-
 	// Pagination
 	let displayedEvents = $derived(filteredEvents.slice(0, pageNum * PAGE_SIZE));
 

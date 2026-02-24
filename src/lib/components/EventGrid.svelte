@@ -15,10 +15,9 @@
 		return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
 	});
 
-	let cardIndex = 0;
 </script>
 
-{#each grouped as [dateKey, dayEvents], groupIdx}
+{#each grouped as [dateKey, dayEvents], groupIdx (dateKey)}
 	<section class="mb-8">
 		<div class="mb-5 flex items-center gap-3 border-l-4 border-[var(--color-text-primary)] pl-3.5">
 			<h2 class="text-lg font-semibold text-[var(--color-text-primary)]" style="font-family: var(--font-display)">

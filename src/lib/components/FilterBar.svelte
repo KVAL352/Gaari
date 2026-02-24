@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { t, lang } from '$lib/i18n';
+	import { t } from '$lib/i18n';
 	import { CATEGORIES, BYDELER, type Category, type Bydel } from '$lib/types';
 
 	interface Props {
@@ -7,8 +7,6 @@
 		bydel?: Bydel | '';
 		price?: string;
 		audience?: string;
-		todayCount?: number;
-		thisWeekCount?: number;
 		hideFields?: string[];
 		onFilterChange?: (key: string, value: string) => void;
 		onClearAll?: () => void;
@@ -19,8 +17,6 @@
 		bydel = '',
 		price = '',
 		audience = '',
-		todayCount = 0,
-		thisWeekCount = 0,
 		hideFields = [],
 		onFilterChange,
 		onClearAll
@@ -49,10 +45,6 @@
 		const select = e.target as HTMLSelectElement;
 		onFilterChange?.(key, select.value);
 	}
-
-	function toggleCategory(cat: Category) {
-		onFilterChange?.('category', category === cat ? '' : cat);
-	}
 </script>
 
 <div class="border-b border-[var(--color-border)] bg-[var(--color-bg-surface)]">
@@ -68,7 +60,7 @@
 				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				<option value="">{$t('allCategories')}</option>
-				{#each CATEGORIES as cat}
+				{#each CATEGORIES as cat (cat)}
 					<option value={cat}>{$t(`cat.${cat}`)}</option>
 				{/each}
 			</select>
@@ -81,7 +73,7 @@
 				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				<option value="">{$t('allAreas')}</option>
-				{#each BYDELER as b}
+				{#each BYDELER as b (b)}
 					<option value={b}>{b}</option>
 				{/each}
 			</select>
@@ -92,7 +84,7 @@
 				aria-label={$t('allPrices')}
 				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
-				{#each priceOptions as opt}
+				{#each priceOptions as opt (opt.value)}
 					<option value={opt.value}>{$t(opt.label)}</option>
 				{/each}
 			</select>
@@ -104,7 +96,7 @@
 				aria-label={$t('allAudiences')}
 				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
-				{#each audienceOptions as opt}
+				{#each audienceOptions as opt (opt.value)}
 					<option value={opt.value}>{$t(opt.label)}</option>
 				{/each}
 			</select>
