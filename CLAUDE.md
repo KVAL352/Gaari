@@ -125,7 +125,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 - `utils.ts` — slugify, makeSlug, parseNorwegianDate, eventExists, insertEvent, findDuplicate, normalizeTitle, removeExpiredEvents, fetchHTML, delay, loadOptOuts, isOptedOut, makeDescription, CATEGORY_LABELS_NO
 - `categories.ts` — mapCategory (source category → Gåri category, 50+ terms), mapBydel (venue name → bydel, 100+ mappings)
-- `dedup.ts` — deduplicate across sources with scoring (source rank + image + ticket URL + description length)
+- `dedup.ts` — deduplicate across sources with scoring (source rank + image + ticket URL + description length). Exports `titlesMatch`, `scoreEvent`, `EventRow` for unit testing.
 - `venues.ts` — 190+ venue entries mapping names → websites, aggregator domain detection, resolveTicketUrl
 - `ai-descriptions.ts` — Gemini 2.5 Flash integration, rate limiting, fallback to makeDescription template
 - `supabase.ts` — Supabase client with service role key
@@ -152,7 +152,8 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - **Key components**: `FilterPill.svelte` (reusable pill button), `MiniCalendar.svelte` (inline date picker), `EventDiscovery.svelte` (main component)
 - **18+ audience filter** excludes family events (not just explicitly tagged 18+ events)
 - **Category filter** supports comma-separated multi-select (`?category=music,culture`)
-- **Time-of-day filter uses Oslo timezone**: `matchesTimeOfDay()` in `+page.svelte` converts UTC timestamps to Oslo local hours via `toLocaleString('sv-SE', { timeZone: 'Europe/Oslo' })` before comparing against time ranges. Handles CET/CEST automatically.
+- **Time-of-day filter uses Oslo timezone**: `matchesTimeOfDay()` in `$lib/event-filters.ts` converts UTC timestamps to Oslo local hours via `toLocaleString('sv-SE', { timeZone: 'Europe/Oslo' })` before comparing against time ranges. Handles CET/CEST automatically.
+- **Event filter helpers**: Date/time filter functions (`getOsloNow`, `toOsloDateStr`, `isSameDay`, `getWeekendDates`, `matchesTimeOfDay`) are extracted to `src/lib/event-filters.ts` for testability.
 
 ## Price disclaimer policy
 
@@ -264,7 +265,20 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 - `idx_events_approved_upcoming` (partial: date_start WHERE status = 'approved')
 - `idx_events_category`, `idx_events_bydel`, `idx_events_created_at`
 
+## Testing
+
+**Vitest** unit test suite (97 tests, runs in <250ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+
+**Test files:**
+- `src/lib/__tests__/event-filters.test.ts` — 18 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (all days of week), `isSameDay`, `toOsloDateStr` (date boundary)
+- `src/lib/__tests__/utils.test.ts` — 18 tests: `isFreeEvent` (all truthy/falsy cases), `formatPrice` (both locales, numeric, string, null), `slugify` (Norwegian chars, special chars, edge cases)
+- `src/lib/__tests__/seo.test.ts` — 11 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, cancelled status, language fallback), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions)
+- `scripts/lib/__tests__/utils.test.ts` — 33 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `isOptedOut`
+- `scripts/lib/__tests__/dedup.test.ts` — 17 tests: `titlesMatch` (exact, containment with 0.6 ratio guard, 90% prefix with 1.3 ratio, short titles, real-world normalized), `scoreEvent` (source rank, image/ticket/description bonuses, aggregator URL exclusion)
+
+**Config:** Vitest reads from `vite.config.ts` (`test.include: ['src/**/*.test.ts', 'scripts/**/*.test.ts']`). Scraper tests mock `supabase.js` and `venues.js` via `vi.mock()`.
+
 ## GitHub Actions
 
-- **CI** (`ci.yml`): lint, type-check, build on push/PR to master. Supabase env vars passed to type check step for `$env/static/public` resolution.
+- **CI** (`ci.yml`): lint, type-check, test, build on push/PR to master. Supabase env vars passed to type check step for `$env/static/public` resolution.
 - **Scrape** (`scrape.yml`): cron 6 AM & 6 PM UTC, 15min job timeout, npm cache, 2min install timeout, `SUMMARY_FILE` env var, job summary step with health status (healthy/partial/critical). Secrets: SUPABASE keys + GEMINI_API_KEY.
