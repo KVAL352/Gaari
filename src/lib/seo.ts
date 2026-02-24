@@ -7,7 +7,7 @@ export function getCanonicalUrl(path: string): string {
 	return `${BASE_URL}${path}`;
 }
 
-function safeJsonLd(obj: Record<string, unknown>): string {
+export function safeJsonLd(obj: Record<string, unknown>): string {
 	return JSON.stringify(obj).replace(/</g, '\\u003c');
 }
 

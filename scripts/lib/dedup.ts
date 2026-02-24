@@ -50,7 +50,7 @@ const SOURCE_RANK: Record<string, number> = {
 	visitbergen: 1,
 };
 
-interface EventRow {
+export interface EventRow {
 	id: string;
 	title_no: string;
 	date_start: string;
@@ -60,7 +60,7 @@ interface EventRow {
 	description_no: string | null;
 }
 
-function scoreEvent(e: EventRow): number {
+export function scoreEvent(e: EventRow): number {
 	let score = SOURCE_RANK[e.source] || 0;
 	if (e.image_url) score += 2;
 	if (e.ticket_url && !isAggregatorUrl(e.ticket_url)) score += 2;
@@ -68,7 +68,7 @@ function scoreEvent(e: EventRow): number {
 	return score;
 }
 
-function titlesMatch(a: string, b: string): boolean {
+export function titlesMatch(a: string, b: string): boolean {
 	if (a === b) return true;
 	if (a.length < 5 || b.length < 5) return false;
 

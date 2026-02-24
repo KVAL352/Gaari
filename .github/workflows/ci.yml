@@ -30,6 +30,9 @@ jobs:
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
           PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
 
+      - name: Test
+        run: npm test
+
       - name: Build
         run: npm run build
         env:
