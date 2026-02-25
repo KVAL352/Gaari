@@ -154,7 +154,10 @@ export const translations = {
 		eventDiscovery: 'Oppdag arrangementer',
 
 		// Collections
-		seeAllEvents: 'Se alle arrangementer'
+		seeAllEvents: 'Se alle arrangementer',
+
+		// Event card
+		readMore: 'Les mer'
 	},
 	en: {
 		siteName: 'Gåri',
@@ -295,7 +298,10 @@ export const translations = {
 		eventDiscovery: 'Discover events',
 
 		// Collections
-		seeAllEvents: 'See all events'
+		seeAllEvents: 'See all events',
+
+		// Event card
+		readMore: 'Read more'
 	}
 } as const;
 
