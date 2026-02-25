@@ -1,6 +1,6 @@
 # Gåri — Copy Guidelines
 
-**Last updated:** 2026-02-23
+**Last updated:** 2026-02-26
 
 ---
 
@@ -116,6 +116,57 @@ Example: "Konsert på Grieghallen"
 
 ---
 
+## Answer Capsules (Collection Pages)
+
+Every collection page includes 3–5 answer capsules for SEO and AI search citation. These are the #1 driver of ChatGPT citations.
+
+### Format
+- **H2 heading**: A natural-language question matching a real search query
+- **Paragraph immediately below**: A direct answer in 20–25 words, containing zero links
+- **Expansion**: Additional detail below the answer capsule (optional)
+
+### Rules
+1. The H2 must be a question someone would actually search for
+2. The answer paragraph must be self-contained — an AI engine should be able to extract it as a complete answer
+3. No links inside the answer paragraph (links break AI extraction)
+4. Include concrete numbers when possible (event counts, injected server-side via `data.events.length`)
+5. Write in the collection page's language (Norwegian for NO collections, English for EN)
+6. Keep answers factual — no hype, no superlatives
+
+### Example (Norwegian — `denne-helgen` collection)
+```html
+<h2>Hva skjer i Bergen denne helgen?</h2>
+<p>Bergen har {eventCount} arrangementer denne helgen, inkludert konserter, kunstutstillinger, familieaktiviteter og mye mer.</p>
+```
+
+### Example (English — `this-weekend` collection)
+```html
+<h2>What's happening in Bergen this weekend?</h2>
+<p>Bergen has {eventCount} events this weekend, including concerts, exhibitions, family activities, and more.</p>
+```
+
+### Per-collection question targets
+
+| Collection | Target query (H2) |
+|------------|-------------------|
+| `denne-helgen` | Hva skjer i Bergen denne helgen? |
+| `i-kveld` | Hva skjer i Bergen i kveld? |
+| `gratis` | Finnes det gratis arrangementer i Bergen? |
+| `i-dag` | Hva skjer i Bergen i dag? |
+| `familiehelg` | Hva kan barn gjøre i Bergen denne helgen? |
+| `konserter` | Hvilke konserter er i Bergen denne uken? |
+| `studentkveld` | Hva skjer for studenter i Bergen i kveld? |
+| `regndagsguide` | Hva kan man gjøre i Bergen når det regner? |
+| `sentrum` | Hva skjer i Bergen sentrum? |
+| `voksen` | Hva skjer for voksne i Bergen? |
+| `today-in-bergen` | What's happening in Bergen today? |
+| `this-weekend` | What's happening in Bergen this weekend? |
+| `free-things-to-do-bergen` | Are there free things to do in Bergen? |
+
+Each collection should have 3–5 answer capsules targeting related queries (e.g., `gratis` also targets "Er det gratis konserter i Bergen?" and "Gratis aktiviteter for barn i Bergen").
+
+---
+
 ## Slug Format
 
 ```
@@ -169,3 +220,4 @@ Every badge uses color + icon + text (never color alone — WCAG requirement).
 - See `BRAND-VOICE.md` for tone and personality
 - See `ai-descriptions.ts` for the Gemini prompt and fallback logic
 - See `utils.ts` for `makeDescription()`, `slugify()`, `CATEGORY_LABELS_NO`
+- See `seo-ai-playbook.md` for the full SEO and AI search strategy
