@@ -4,35 +4,51 @@ import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'oseana';
 const BASE_URL = 'https://www.oseana.no/program/';
+const VENUE = 'Oseana';
+const ADDRESS = 'Oseana, Os';
 
 const NORWEGIAN_MONTHS: Record<string, number> = {
 	'januar': 1, 'februar': 2, 'mars': 3, 'april': 4, 'mai': 5, 'juni': 6,
 	'juli': 7, 'august': 8, 'september': 9, 'oktober': 10, 'november': 11, 'desember': 12,
 };
 
+const MONTH_PATTERN = '(?:januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)';
+
 function bergenOffset(dateStr: string): string {
 	const month = parseInt(dateStr.slice(5, 7));
 	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
 }
 
-/** Parse "Søndag 8. mars 2026 - Kl. 13:00" → { date, time } */
+function buildDate(day: number, month: number, year: number): string {
+	return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function inferYear(month: number): number {
+	const now = new Date();
+	const currentYear = now.getFullYear();
+	const currentMonth = now.getMonth() + 1;
+	// If month is more than 2 months in the past, assume next year
+	return (month < currentMonth - 2) ? currentYear + 1 : currentYear;
+}
+
+/**
+ * Parse Oseana date formats:
+ * - "Torsdag 5. mars 2026 - Kl. 19:00" (single date with year and time)
+ * - "Torsdag 21. mai - Kl. 19:30" (single date without year)
+ * - "Onsdag 17. september 2025 - søndag 5. april 2026" (range, both years)
+ * - "Søndag 11. januar - søndag 28. juni 2026" (range, year only on end)
+ * - "Onsdag 11. februar - søndag 5. april 2026" (range, year only on end)
+ */
 function parseOseanaDate(text: string): { date: string; time: string; endDate?: string } | null {
 	const clean = text.replace(/\s+/g, ' ').trim();
 
-	// Match "DD. month YYYY" with optional "Kl. HH:MM"
-	const m = clean.match(/(\d{1,2})\.\s*(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\s*(\d{4})(?:\s*-\s*(?:Kl\.\s*)?(\d{2}:\d{2}))?/i);
-	if (m) {
-		const day = parseInt(m[1]);
-		const month = NORWEGIAN_MONTHS[m[2].toLowerCase()];
-		const year = parseInt(m[3]);
-		const time = m[4] || '19:00';
-		if (!month) return null;
-		const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-		return { date, time };
-	}
-
-	// Date range: "DD. month YYYY - DD. month YYYY" or "DD. month - DD. month YYYY"
-	const range = clean.match(/(\d{1,2})\.\s*(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\s*(\d{4})?\s*-\s*\w*\s*(\d{1,2})\.\s*(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\s*(\d{4})/i);
+	// Try date range FIRST (must come before single-date to avoid grabbing end date only)
+	// Use \S* instead of \w* to match Norwegian day names containing ø, å, etc.
+	const rangeRe = new RegExp(
+		`(\\d{1,2})\\.\\s*(${MONTH_PATTERN})\\s*(\\d{4})?\\s*-\\s*\\S*\\s*(\\d{1,2})\\.\\s*(${MONTH_PATTERN})\\s*(\\d{4})`,
+		'i'
+	);
+	const range = clean.match(rangeRe);
 	if (range) {
 		const day1 = parseInt(range[1]);
 		const month1 = NORWEGIAN_MONTHS[range[2].toLowerCase()];
@@ -42,22 +58,62 @@ function parseOseanaDate(text: string): { date: string; time: string; endDate?: 
 		const year2 = parseInt(range[6]);
 		if (!month1 || !month2) return null;
 
-		const date = `${year1}-${String(month1).padStart(2, '0')}-${String(day1).padStart(2, '0')}`;
-		const endDate = `${year2}-${String(month2).padStart(2, '0')}-${String(day2).padStart(2, '0')}`;
+		const date = buildDate(day1, month1, year1);
+		const endDate = buildDate(day2, month2, year2);
 		return { date, time: '12:00', endDate };
+	}
+
+	// Single date with year: "5. mars 2026" with optional "- Kl. HH:MM"
+	const withYear = new RegExp(
+		`(\\d{1,2})\\.\\s*(${MONTH_PATTERN})\\s*(\\d{4})(?:\\s*-\\s*(?:Kl\\.\\s*)?(\\d{1,2}[:.:]\\d{2}))?`,
+		'i'
+	);
+	const m = clean.match(withYear);
+	if (m) {
+		const day = parseInt(m[1]);
+		const month = NORWEGIAN_MONTHS[m[2].toLowerCase()];
+		const year = parseInt(m[3]);
+		const time = m[4]?.replace('.', ':') || '19:00';
+		if (!month) return null;
+		return { date: buildDate(day, month, year), time };
+	}
+
+	// Single date without year: "21. mai - Kl. 19:30"
+	const noYear = new RegExp(
+		`(\\d{1,2})\\.\\s*(${MONTH_PATTERN})(?:\\s*-\\s*(?:Kl\\.\\s*)?(\\d{1,2}[:.:]\\d{2}))?`,
+		'i'
+	);
+	const ny = clean.match(noYear);
+	if (ny) {
+		const day = parseInt(ny[1]);
+		const month = NORWEGIAN_MONTHS[ny[2].toLowerCase()];
+		if (!month) return null;
+		const year = inferYear(month);
+		const time = ny[3]?.replace('.', ':') || '19:00';
+		return { date: buildDate(day, month, year), time };
 	}
 
 	return null;
 }
 
+function extractImage($el: cheerio.Cheerio<cheerio.Element>): string | undefined {
+	const style = $el.find('.image-container').attr('style') || '';
+	const m = style.match(/background-image:\s*url\(([^)]+)\)/);
+	if (!m) return undefined;
+	const url = m[1].trim().replace(/^['"]|['"]$/g, '');
+	if (!url) return undefined;
+	return url.startsWith('http') ? url : `https://www.oseana.no${url}`;
+}
+
 function guessCategory(title: string, classes: string): string {
 	const text = `${title} ${classes}`.toLowerCase();
 	if (text.includes('konsert') || text.includes('musikk') || text.includes('jazz')) return 'music';
-	if (text.includes('barn') || text.includes('familie')) return 'family';
+	if (text.includes('barn') || text.includes('familie') || text.includes('familieverkstad')) return 'family';
 	if (text.includes('teater') || text.includes('framsyning') || text.includes('revy')) return 'theatre';
+	if (text.includes('standup') || text.includes('humor') || text.includes('komikk')) return 'culture';
 	if (text.includes('foredrag') || text.includes('debatt')) return 'culture';
-	if (text.includes('utstilling')) return 'culture';
-	if (text.includes('kurs') || text.includes('workshop')) return 'workshop';
+	if (text.includes('utstilling') || text.includes('omvisning') || text.includes('omvising')) return 'culture';
+	if (text.includes('yoga') || text.includes('kurs') || text.includes('workshop') || text.includes('verkstad')) return 'workshop';
 	if (text.includes('festival')) return 'festival';
 	return 'culture';
 }
@@ -89,28 +145,38 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (!link) continue;
 		const sourceUrl = link.startsWith('http') ? link : `https://www.oseana.no${link}`;
 
-		// Parse date from p text
-		const dateText = $el.find('p').first().text().trim();
+		// Parse date from p.when text
+		const dateText = $el.find('p.when').text().trim();
 		const parsed = parseOseanaDate(dateText);
-		if (!parsed) continue;
+		if (!parsed) {
+			console.log(`  ? Skipped (unparseable date): "${dateText}" — ${title}`);
+			continue;
+		}
 
-		// Skip past events
-		const startDate = new Date(`${parsed.date}T${parsed.time}:00${bergenOffset(parsed.date)}`);
-		if (isNaN(startDate.getTime()) || startDate.getTime() < Date.now() - 86400000) continue;
+		// For date ranges (exhibitions), skip if end date is past
+		if (parsed.endDate) {
+			const endDate = new Date(`${parsed.endDate}T22:00:00${bergenOffset(parsed.endDate)}`);
+			if (!isNaN(endDate.getTime()) && endDate.getTime() < Date.now()) continue;
+		} else {
+			// For single dates, skip if event is past
+			const startDate = new Date(`${parsed.date}T${parsed.time}:00${bergenOffset(parsed.date)}`);
+			if (isNaN(startDate.getTime()) || startDate.getTime() < Date.now() - 86400000) continue;
+		}
 
 		found++;
 		if (await eventExists(sourceUrl)) continue;
 
 		const classes = $el.attr('class') || '';
 		const category = guessCategory(title, classes);
-		const status = $el.find('.status').text().trim().toLowerCase();
-		if (status.includes('utseld') || status.includes('avlyst')) continue;
 
+		const startDate = new Date(`${parsed.date}T${parsed.time}:00${bergenOffset(parsed.date)}`);
 		const dateEnd = parsed.endDate
 			? new Date(`${parsed.endDate}T22:00:00${bergenOffset(parsed.endDate)}`).toISOString()
 			: undefined;
 
-		const aiDesc = await generateDescription({ title, venue: 'Oseana', category, date: startDate, price: '' });
+		const imageUrl = extractImage($el);
+
+		const aiDesc = await generateDescription({ title, venue: VENUE, category, date: startDate, price: '' });
 		const success = await insertEvent({
 			slug: makeSlug(title, parsed.date),
 			title_no: title,
@@ -119,14 +185,14 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			category,
 			date_start: startDate.toISOString(),
 			date_end: dateEnd,
-			venue_name: 'Oseana',
-			address: 'Os, Bergen',
+			venue_name: VENUE,
+			address: ADDRESS,
 			bydel: 'Ytrebygda',
 			price: '',
 			ticket_url: sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
-			image_url: undefined,
+			image_url: imageUrl,
 			age_group: category === 'family' ? 'family' : 'all',
 			language: 'no',
 			status: 'approved',
