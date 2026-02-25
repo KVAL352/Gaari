@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, deleteEventByUrl } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'oseana';
@@ -105,6 +105,40 @@ function extractImage($el: cheerio.Cheerio<cheerio.Element>): string | undefined
 	return url.startsWith('http') ? url : `https://www.oseana.no${url}`;
 }
 
+/** Fetch detail page for price, ticket URL, and sold-out status */
+async function fetchDetailInfo(url: string): Promise<{ price: string; ticketUrl?: string; soldOut: boolean }> {
+	const html = await fetchHTML(url);
+	if (!html) return { price: '', soldOut: false };
+	const $ = cheerio.load(html);
+
+	// Sold-out detection: <span class="sale-status sold_out">
+	const soldOut = $('span.sale-status.sold_out').length > 0;
+
+	// Price from <div class="price-and-actions"> <p><strong>Pris</strong><br/>PRICE</p>
+	const priceP = $('div.price-and-actions p').first().text().trim();
+	let price = '';
+	if (priceP) {
+		// Remove the "Pris" label, keep just the value (e.g. "630,-" or "650 - 695,-")
+		price = priceP.replace(/^Pris\s*/i, '').trim();
+		// Normalize: "650 - 695,-" → "650–695 kr", "630,-" → "630 kr"
+		const range = price.match(/^(\d+)\s*-\s*(\d+)\s*,?-?$/);
+		if (range) {
+			price = `${range[1]}–${range[2]} kr`;
+		} else {
+			const single = price.match(/^(\d+)\s*,?-?$/);
+			if (single) {
+				price = `${single[1]} kr`;
+			}
+		}
+	}
+
+	// Ticket URL from tix.no link
+	const ticketLink = $('a.button.purchase').attr('href');
+	const ticketUrl = ticketLink || undefined;
+
+	return { price, ticketUrl, soldOut };
+}
+
 function guessCategory(title: string, classes: string): string {
 	const text = `${title} ${classes}`.toLowerCase();
 	if (text.includes('konsert') || text.includes('musikk') || text.includes('jazz')) return 'music';
@@ -163,6 +197,15 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			if (isNaN(startDate.getTime()) || startDate.getTime() < Date.now() - 86400000) continue;
 		}
 
+		// Check sold-out from listing badge
+		const listingSoldOut = $el.find('span.sale-status.sold_out').length > 0;
+		if (listingSoldOut) {
+			if (await deleteEventByUrl(sourceUrl)) {
+				console.log(`  [sold-out] Deleted: ${title}`);
+			}
+			continue;
+		}
+
 		found++;
 		if (await eventExists(sourceUrl)) continue;
 
@@ -176,7 +219,15 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const imageUrl = extractImage($el);
 
-		const aiDesc = await generateDescription({ title, venue: VENUE, category, date: startDate, price: '' });
+		// Fetch detail page for price, ticket URL, and sold-out confirmation
+		await delay(1000);
+		const detail = await fetchDetailInfo(sourceUrl);
+		if (detail.soldOut) {
+			console.log(`  [sold-out] Skipped: ${title}`);
+			continue;
+		}
+
+		const aiDesc = await generateDescription({ title, venue: VENUE, category, date: startDate, price: detail.price });
 		const success = await insertEvent({
 			slug: makeSlug(title, parsed.date),
 			title_no: title,
@@ -188,8 +239,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			venue_name: VENUE,
 			address: ADDRESS,
 			bydel: 'Ytrebygda',
-			price: '',
-			ticket_url: sourceUrl,
+			price: detail.price,
+			ticket_url: detail.ticketUrl || sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: imageUrl,
@@ -199,7 +250,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		});
 
 		if (success) {
-			console.log(`  + ${title} (${category})`);
+			console.log(`  + ${title} — ${detail.price || 'no price'} (${category})`);
 			inserted++;
 		}
 	}
