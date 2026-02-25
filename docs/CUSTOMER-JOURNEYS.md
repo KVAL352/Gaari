@@ -1,6 +1,6 @@
 # Gåri — Customer Journeys
 
-**Last updated:** 2026-02-23
+**Last updated:** 2026-02-26
 
 ---
 
@@ -45,16 +45,15 @@
 
 | Step | What he sees | What he feels | What he does |
 |------|--------------|----------------|---------------|
-| 1. **Google "things to do in Bergen today"** | Gåri event detail page or homepage in search results | Hopeful — needs a plan | Clicks through to Gåri |
-| 2. **Language detection** | Site detects `en` from browser → English UI | Relieved — it's in English | Sees "What's going on in Bergen?" |
-| 3. **Quick-filter: "Today"** | Events happening today | Focused — limited time | Scans options quickly |
-| 4. **Browse by area** | Filters to "Sentrum" (he's near Bryggen) | Practical — wants nearby | Finds a walking tour and a Grieghallen concert |
-| 5. **Event detail → calendar export** | Adds event to phone calendar (ICS download) | Organized — has a plan | Heads to the venue |
+| 1. **Search "things to do in Bergen today"** | ChatGPT cites Gåri, or Google AI Overview references it, or a direct search result for `/en/today-in-bergen` or `/en/free-things-to-do-bergen` | Hopeful — needs a plan | Clicks the citation or search result |
+| 2. **Lands on collection page** | `/en/today-in-bergen` — curated list of today's events, English interface, editorial summary | Relieved — exactly what he asked for, in English | Scans the event list |
+| 3. **Browse by area** | Filters to "Sentrum" (he's near Bryggen) | Practical — wants nearby | Finds a walking tour and a Grieghallen concert |
+| 4. **Event detail → calendar export** | Full event page: image, date/time, venue, price, "Get Tickets" link, ICS export | Organized — has a plan | Adds event to phone calendar, heads to venue |
 
 ### Key design moments
-- SEO must work: per-event OG images, hreflang, meta descriptions
-- English must be fully functional — all labels, descriptions, empty states
-- "Today" filter is critical for tourists and cruise passengers
+- Collection pages (`/en/today-in-bergen`, `/en/this-weekend`, `/en/free-things-to-do-bergen`) are the primary SEO landing pages for tourist queries — not the homepage
+- Answer capsules on these pages (always-visible H2+p FAQ) are what AI engines extract and cite
+- English must be fully functional — all labels, descriptions, empty states, collection editorial copy
 - Bydel filter helps orient visitors who know "Sentrum" but not "Fyllingsdalen"
 
 ---
@@ -67,12 +66,13 @@
 
 | Step | What she sees | What she feels | What she does |
 |------|--------------|----------------|---------------|
-| 1. **Arrives via StudentBergen link or word of mouth** | Homepage with all events | Overwhelmed — too many options | Looks for student-relevant filters |
+| 1. **Arrives via `/no/studentkveld` collection or StudentBergen link or word of mouth** | Curated student nightlife events, or the homepage | Focused — wants options that fit her budget and schedule | Scans the list or looks for student-relevant filters |
 | 2. **Filters: "Gratis" + "Studentarrangementer"** | Free student events this week | Excited — affordable options | Browses event cards |
 | 3. **Spots a quiz night at Kvarteret** | Event card: free, tonight, Sentrum | Interested — wants details | Taps the card |
 | 4. **Event detail page** | Full info, description in both languages, free admission noted | Decided — she's going | Shares link with friends via URL |
 
 ### Key design moments
+- `/no/studentkveld` collection page targets "studentarrangementer bergen" and similar queries directly — student discovery without needing to filter the homepage
 - Price filter ("Gratis" / "Free") is high value for students
 - Student category maps from multiple sources (StudentBergen, TicketCo/Kvarteret)
 - Share-friendly URLs — every filter state is in the URL
@@ -87,15 +87,16 @@
 
 | Step | What they see | What they feel | What they do |
 |------|--------------|----------------|---------------|
-| 1. **Open Gåri on phone** | Homepage, scrolls to Saturday events | Planning mode — need to fill the day | Looks for family filters |
+| 1. **Search "familiehelg bergen" or land on `/no/familiehelg`** | Curated family weekend events, or the homepage | Planning mode — need to fill the day | Scans the list or looks for family filters |
 | 2. **Filter: "Familie & Barn" + "Denne helgen"** | Family events this weekend | Relieved — filtered to relevant options | Scans cards — checks images and prices |
 | 3. **Compare options** | Multiple events with images, prices, locations | Weighing — which one fits? | Opens 2–3 event details in new tabs |
 | 4. **Decide and plan** | Event detail with address, times, price for family | Confident — have a plan | Adds to calendar (ICS), notes the address |
 
 ### Key design moments
-- Family category pulls from BarnasNorge, Bergen Kommune, venue calendars
+- Family category pulls from Bergen Kommune, Akvariet, KODE, Bymuseet, Fløyen, and venue calendars
+- `/no/familiehelg` and `/no/regndagsguide` are the primary landing pages for family search queries — "familiehelg bergen", "hva gjøre i bergen når det regner"
 - Price display must be clear — families budget for multiple tickets
-- Indoor/outdoor info matters (Bergen rain) — Tier 3 filter, deferred to v2
+- Rainy-day / indoor filtering is handled by the `regndagsguide` collection page, not a UI filter (Bergen has 231 rain days/year)
 - Load More (not infinite scroll) — parents often return to the list after checking details
 
 ---
@@ -143,6 +144,28 @@
 
 ---
 
+## Journey 7: AI Search Discovery
+
+**Persona:** Emma, 32, Bergen local. Asks ChatGPT "what's happening in Bergen this weekend?"
+
+### Steps
+
+| Step | What she sees | What she feels | What she does |
+|------|--------------|----------------|---------------|
+| 1. **Ask AI** | ChatGPT or Perplexity response citing Gåri with a link | Trusting — AI recommended it | Clicks the citation link |
+| 2. **Land on collection page** | `/no/denne-helgen` with weekend events, editorial summary, structured list | Impressed — exactly what she asked for | Browses the curated event list |
+| 3. **Find an event** | Event card with title, date, venue, price, "Fremhevet" badge if promoted | Decided — this looks good | Clicks through to event detail |
+| 4. **Get tickets** | External ticket link on event detail page | Satisfied | Completes purchase on venue site |
+
+### Key design moments
+- Answer capsules on collection pages (always-visible H2+p FAQ) are what AI engines extract and cite — these must be accurate and complete
+- Bing indexing via IndexNow is critical — ChatGPT uses Bing's search infrastructure as its primary web source
+- Collection pages must render server-side and load fast — AI crawlers don't execute JavaScript
+- Fresh content updated twice daily increases citation likelihood and answer relevance
+- The citation flow bypasses the homepage entirely — collection pages must stand alone as entry points
+
+---
+
 ## Cross-Cutting Patterns
 
 ### All journeys share:
@@ -151,6 +174,7 @@
 - **Load More, not infinite scroll** — preserves scroll position, keyboard navigation, footer access
 - **External tickets** — Gåri never sells tickets; all "buy" actions link to venue/platform
 - **Bilingual** — language toggle always accessible in header; auto-detected on first visit
+- **AI-discoverable** — collection pages have answer capsules, structured data (CollectionPage + ItemList + FAQPage JSON-LD), and are indexed in both Google and Bing for AI search citation
 
 ---
 
