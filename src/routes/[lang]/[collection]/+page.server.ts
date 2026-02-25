@@ -53,6 +53,7 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 			title: collection.title,
 			description: collection.description,
 			ogSubtitle: collection.ogSubtitle,
+			editorial: collection.editorial,
 			faq: collection.faq
 		},
 		events: filtered,

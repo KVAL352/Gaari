@@ -23,6 +23,7 @@
 		{ name: title }
 	]));
 
+	let editorial = $derived(data.collection.editorial?.[$lang] ?? []);
 	let faqItems = $derived(data.collection.faq?.[$lang] ?? []);
 	let faqJsonLd = $derived(faqItems.length > 0 ? generateFaqJsonLdFromItems(faqItems) : null);
 
@@ -88,21 +89,27 @@
 	{/if}
 </div>
 
-{#if faqItems.length > 0}
-<section class="mx-auto max-w-7xl px-4 pb-12 pt-4">
-	<h2 class="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">
-		{$lang === 'no' ? 'Ofte stilte spørsmål' : 'Frequently asked questions'}
-	</h2>
-	<dl class="space-y-2">
-		{#each faqItems as item}
-			<details class="group rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
-				<summary class="flex cursor-pointer list-none items-center justify-between px-5 py-4 font-medium text-[var(--color-text-primary)] hover:text-[var(--color-accent)]">
-					<span>{item.q}</span>
-					<span class="ml-4 shrink-0 text-[var(--color-text-muted)] transition-transform group-open:rotate-180" aria-hidden="true">↓</span>
-				</summary>
-				<p class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed">{item.a}</p>
-			</details>
-		{/each}
-	</dl>
+{#if editorial.length > 0 || faqItems.length > 0}
+<section class="mx-auto max-w-7xl px-4 pb-16 pt-8 border-t border-[var(--color-border)]">
+	<div class="max-w-2xl">
+		{#if editorial.length > 0}
+		<div class="mb-10 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+			{#each editorial as para}
+			<p>{para}</p>
+			{/each}
+		</div>
+		{/if}
+
+		{#if faqItems.length > 0}
+		<div class="space-y-6">
+			{#each faqItems as item}
+			<div>
+				<h2 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">{item.q}</h2>
+				<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">{item.a}</p>
+			</div>
+			{/each}
+		</div>
+		{/if}
+	</div>
 </section>
 {/if}
