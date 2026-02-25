@@ -65,27 +65,26 @@ async function scrapeEvents(): Promise<{ found: number; inserted: number }> {
 		const timestamp = timeEl.attr('datetime');
 		if (!timestamp) continue;
 
-		let dateStart: string;
-		if (timestamp.match(/^\d{10,}$/)) {
-			// Unix timestamp (seconds)
-			dateStart = new Date(parseInt(timestamp) * 1000).toISOString();
-		} else {
-			// ISO date string
-			dateStart = new Date(timestamp).toISOString();
-		}
-
 		// Time and location from text after <time>
 		// Full text is like "Tir 20. mai 18:00, Sal I-V"
 		const infoDiv = link.find('div.khb-card-text > div');
 		const infoText = infoDiv.text().trim();
-
-		// Extract time (HH:MM) and location after comma
 		const timeMatch = infoText.match(/(\d{1,2}:\d{2})/);
-		if (timeMatch) {
-			const [hour, min] = timeMatch[1].split(':').map(Number);
-			const d = new Date(dateStart);
-			d.setUTCHours(hour - 1, min, 0, 0); // CET = UTC+1
-			dateStart = d.toISOString();
+		const eventTime = timeMatch ? timeMatch[1] : '12:00';
+
+		// Parse date: timestamp is Unix seconds representing midnight CET of the event day
+		let dateStart: string;
+		if (timestamp.match(/^\d{10,}$/)) {
+			// Unix timestamp — convert to Oslo local date string
+			const utcDate = new Date(parseInt(timestamp) * 1000);
+			const osloDateStr = utcDate.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+			// osloDateStr is "YYYY-MM-DD" in Oslo timezone
+			const month = parseInt(osloDateStr.slice(5, 7));
+			const offset = (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
+			dateStart = new Date(`${osloDateStr}T${eventTime}:00${offset}`).toISOString();
+		} else {
+			// ISO date string
+			dateStart = new Date(timestamp).toISOString();
 		}
 
 		const locationMatch = infoText.match(/,\s*(.+)$/);
