@@ -1,20 +1,22 @@
 import { supabase } from '$lib/server/supabase';
 import { seedEvents } from '$lib/data/seed-events';
+import { computeCanonical } from '$lib/seo';
 import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ setHeaders }) => {
+export const load: PageServerLoad = async ({ setHeaders, url, params }) => {
 	setHeaders({ 'cache-control': 's-maxage=300, stale-while-revalidate=600' });
+
+	const lang = params.lang === 'en' ? 'en' : 'no';
 
 	try {
 		// Use Norwegian time so Vercel (UTC) filters correctly
 		const nowOslo = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Oslo' }).replace(' ', 'T');
-		const now = nowOslo;
 		const { data, error } = await supabase
 			.from('events')
 			.select('id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status')
 			.in('status', ['approved', 'cancelled'])
-			.gte('date_start', now)
+			.gte('date_start', nowOslo)
 			.order('date_start', { ascending: true })
 			.limit(500);
 
@@ -26,14 +28,36 @@ export const load: PageServerLoad = async ({ setHeaders }) => {
 				...e,
 				price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
 			}));
-			return { events, source: 'supabase' as const };
+			const { canonical, noindex } = computeCanonical(url, lang, countFiltered(events, url));
+			return { events, source: 'supabase' as const, canonical, noindex };
 		}
 
 		// Empty table — fall back to seed data
-		return { events: seedEvents, source: 'seed' as const };
+		const { canonical, noindex } = computeCanonical(url, lang, seedEvents.length);
+		return { events: seedEvents, source: 'seed' as const, canonical, noindex };
 	} catch (err) {
 		// Supabase unreachable — fall back to seed data
 		console.error('Supabase load failed:', err);
-		return { events: seedEvents, source: 'seed' as const };
+		const { canonical, noindex } = computeCanonical(url, lang, seedEvents.length);
+		return { events: seedEvents, source: 'seed' as const, canonical, noindex };
 	}
 };
+
+/**
+ * Count events matching the indexable filters (category + bydel) for the
+ * canonical/noindex decision. Time/date filters are excluded — they're too
+ * volatile for a meaningful thin-content check.
+ */
+function countFiltered(events: GaariEvent[], url: URL): number {
+	const category = url.searchParams.get('category') || '';
+	const bydel = url.searchParams.get('bydel') || '';
+	let filtered = events.filter(e => e.status !== 'cancelled');
+	if (category) {
+		const cats = category.split(',');
+		filtered = filtered.filter(e => cats.includes(e.category));
+	}
+	if (bydel) {
+		filtered = filtered.filter(e => e.bydel === bydel);
+	}
+	return filtered.length;
+}

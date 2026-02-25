@@ -5,7 +5,7 @@
 	import { isFreeEvent } from '$lib/utils';
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString } from '$lib/event-filters';
 	import type { Bydel, GaariEvent } from '$lib/types';
-	import { generateWebSiteJsonLd, getCanonicalUrl } from '$lib/seo';
+	import { generateWebSiteJsonLd } from '$lib/seo';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import HeroSection from '$lib/components/HeroSection.svelte';
 	import EventDiscovery from '$lib/components/EventDiscovery.svelte';
@@ -143,13 +143,13 @@
 	let popularEvents = $derived(allEvents.filter(e => e.status === 'approved').slice(0, 3));
 
 	let websiteJsonLd = $derived(generateWebSiteJsonLd($lang));
-	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}`));
 </script>
 
 <svelte:head>
 	<title>Gåri — {$t('tagline')}</title>
 	<meta name="description" content={$lang === 'no' ? 'Finn alle arrangementer i Bergen på ett sted.' : 'Find all events in Bergen in one place.'} />
-	<link rel="canonical" href={canonicalUrl} />
+	<link rel="canonical" href={data.canonical} />
+	{#if data.noindex}<meta name="robots" content="noindex, follow" />{/if}
 	<meta property="og:title" content={`Gåri — ${$t('tagline')}`} />
 	<meta property="og:description" content={$lang === 'no' ? 'Finn alle arrangementer i Bergen på ett sted.' : 'Find all events in Bergen in one place.'} />
 	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { safeJsonLd, generateEventJsonLd, generateBreadcrumbJsonLd, toBergenIso, generateCollectionJsonLd } from '../seo';
+import { safeJsonLd, generateEventJsonLd, generateBreadcrumbJsonLd, toBergenIso, generateCollectionJsonLd, computeCanonical } from '../seo';
 import type { GaariEvent } from '../types';
 
 describe('safeJsonLd', () => {
@@ -178,6 +178,129 @@ const testCollection = {
 function makeEvents(count: number): GaariEvent[] {
 	return Array.from({ length: count }, (_, i) => makeEvent({ slug: `event-${i + 1}-2026-06-20` }));
 }
+
+describe('computeCanonical', () => {
+	function url(search: string): URL {
+		return new URL(`https://gaari.no/no${search}`);
+	}
+
+	// Default — no filters
+	it('returns base URL with no params', () => {
+		const { canonical, noindex } = computeCanonical(url(''), 'no', 100);
+		expect(canonical).toBe('https://gaari.no/no');
+		expect(noindex).toBe(false);
+	});
+
+	// Rules 1–3: single indexable filter
+	it('self-referencing canonical for single category', () => {
+		const { canonical, noindex } = computeCanonical(url('?category=music'), 'no', 50);
+		expect(canonical).toBe('https://gaari.no/no?category=music');
+		expect(noindex).toBe(false);
+	});
+
+	it('self-referencing canonical for multi-category', () => {
+		const { canonical } = computeCanonical(url('?category=music,culture'), 'no', 80);
+		expect(canonical).toBe('https://gaari.no/no?category=music%2Cculture');
+	});
+
+	it('self-referencing canonical for single bydel', () => {
+		const { canonical, noindex } = computeCanonical(url('?bydel=Sentrum'), 'no', 30);
+		expect(canonical).toBe('https://gaari.no/no?bydel=Sentrum');
+		expect(noindex).toBe(false);
+	});
+
+	// Rule 4: combined category + bydel → canonical to category version
+	it('canonicals to category when both category and bydel are set', () => {
+		const { canonical, noindex } = computeCanonical(url('?category=music&bydel=Sentrum'), 'no', 20);
+		expect(canonical).toBe('https://gaari.no/no?category=music');
+		expect(noindex).toBe(false);
+	});
+
+	// Rule 5: pagination
+	it('keeps page param for paginated unfiltered view', () => {
+		const { canonical, noindex } = computeCanonical(url('?page=2'), 'no', 500);
+		expect(canonical).toBe('https://gaari.no/no?page=2');
+		expect(noindex).toBe(false);
+	});
+
+	it('includes page param in canonical for paginated category view', () => {
+		const { canonical } = computeCanonical(url('?category=music&page=3'), 'no', 40);
+		expect(canonical).toBe('https://gaari.no/no?category=music&page=3');
+	});
+
+	it('strips noise params (time, price, audience) from canonical', () => {
+		const { canonical } = computeCanonical(url('?time=evening&price=free&audience=family'), 'no', 100);
+		expect(canonical).toBe('https://gaari.no/no');
+	});
+
+	it('strips noise params but keeps category', () => {
+		const { canonical } = computeCanonical(url('?category=music&time=evening'), 'no', 50);
+		expect(canonical).toBe('https://gaari.no/no?category=music');
+	});
+
+	// Rule 6: ?when= with collection page equivalent
+	it('canonicals ?when=weekend to /no/denne-helgen', () => {
+		const { canonical, noindex } = computeCanonical(url('?when=weekend'), 'no', 30);
+		expect(canonical).toBe('https://gaari.no/no/denne-helgen');
+		expect(noindex).toBe(false);
+	});
+
+	it('canonicals ?when=today to /no/i-dag', () => {
+		const { canonical } = computeCanonical(url('?when=today'), 'no', 20);
+		expect(canonical).toBe('https://gaari.no/no/i-dag');
+	});
+
+	it('canonicals ?when=weekend to /en/this-weekend for English', () => {
+		const { canonical } = computeCanonical(new URL('https://gaari.no/en?when=weekend'), 'en', 30);
+		expect(canonical).toBe('https://gaari.no/en/this-weekend');
+	});
+
+	it('canonicals ?when=today to /en/today-in-bergen for English', () => {
+		const { canonical } = computeCanonical(new URL('https://gaari.no/en?when=today'), 'en', 20);
+		expect(canonical).toBe('https://gaari.no/en/today-in-bergen');
+	});
+
+	it('self-referencing for ?when=tomorrow (no collection)', () => {
+		const { canonical } = computeCanonical(url('?when=tomorrow'), 'no', 15);
+		expect(canonical).toBe('https://gaari.no/no');
+	});
+
+	it('self-referencing for ?when=week (no collection)', () => {
+		const { canonical } = computeCanonical(url('?when=week'), 'no', 60);
+		expect(canonical).toBe('https://gaari.no/no');
+	});
+
+	it('?when=weekend with category → canonical to category (not collection)', () => {
+		const { canonical } = computeCanonical(url('?when=weekend&category=music'), 'no', 10);
+		expect(canonical).toBe('https://gaari.no/no?category=music');
+	});
+
+	// Rule 7: noindex for thin content
+	it('sets noindex when event count < 5 for category filter', () => {
+		const { noindex } = computeCanonical(url('?category=music'), 'no', 4);
+		expect(noindex).toBe(true);
+	});
+
+	it('sets noindex when event count < 5 for combined filter canonical', () => {
+		const { noindex } = computeCanonical(url('?category=music&bydel=Åsane'), 'no', 2);
+		expect(noindex).toBe(true);
+	});
+
+	it('does not set noindex when event count is exactly 5', () => {
+		const { noindex } = computeCanonical(url('?category=music'), 'no', 5);
+		expect(noindex).toBe(false);
+	});
+
+	it('never sets noindex for unfiltered view', () => {
+		const { noindex } = computeCanonical(url(''), 'no', 0);
+		expect(noindex).toBe(false);
+	});
+
+	it('never sets noindex for ?when collection redirect', () => {
+		const { noindex } = computeCanonical(url('?when=weekend'), 'no', 1);
+		expect(noindex).toBe(false);
+	});
+});
 
 describe('generateCollectionJsonLd', () => {
 	it('includes mainEntity ItemList with event URLs', () => {

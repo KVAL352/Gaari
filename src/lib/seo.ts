@@ -37,6 +37,83 @@ export function getCanonicalUrl(path: string): string {
 	return `${BASE_URL}${path}`;
 }
 
+// Maps ?when= values to their collection page slug, per language.
+// Only 'weekend' and 'today' have collection equivalents.
+const WHEN_COLLECTION: Record<string, Record<string, string>> = {
+	no: { weekend: 'denne-helgen', today: 'i-dag' },
+	en: { weekend: 'this-weekend', today: 'today-in-bergen' }
+};
+
+/**
+ * Computes the canonical URL and noindex flag for a homepage URL.
+ *
+ * Rules:
+ *  1–3. Single category or bydel → self-referencing canonical
+ *  4.   Both category + bydel → canonical to category-only version (more content)
+ *  5.   Pagination without meaningful filters → keep page param, strip sort/noise
+ *  6.   ?when=weekend or ?when=today (alone) → canonical to collection page
+ *  7.   <5 results → noindex (thin content)
+ *
+ * Noise params (time, price, audience, q) are stripped from the canonical.
+ */
+export function computeCanonical(
+	url: URL,
+	lang: string,
+	eventCount: number
+): { canonical: string; noindex: boolean } {
+	const params = url.searchParams;
+	const category = params.get('category') || '';
+	const bydel = params.get('bydel') || '';
+	const when = params.get('when') || '';
+	const page = params.get('page') || '';
+	const pageNum = Number(page) || 1;
+
+	// Rule 6: ?when=today or ?when=weekend, alone → collection page canonical
+	if (when && !category && !bydel) {
+		const slug = WHEN_COLLECTION[lang]?.[when];
+		if (slug) {
+			return { canonical: `${BASE_URL}/${lang}/${slug}`, noindex: false };
+		}
+		// Other when values (tomorrow, week, specific date, range) — fall through
+	}
+
+	// Rule 4: category + bydel both set → canonical to category version
+	if (category && bydel) {
+		const sp = new URLSearchParams({ category });
+		if (pageNum > 1) sp.set('page', page);
+		return {
+			canonical: `${BASE_URL}/${lang}?${sp}`,
+			noindex: eventCount < 5
+		};
+	}
+
+	// Rules 1–3: single category or bydel → self-referencing
+	if (category || bydel) {
+		const sp = new URLSearchParams();
+		if (category) sp.set('category', category);
+		if (bydel) sp.set('bydel', bydel);
+		if (pageNum > 1) sp.set('page', page);
+		return {
+			canonical: `${BASE_URL}/${lang}?${sp}`,
+			noindex: eventCount < 5
+		};
+	}
+
+	// Rule 5: pagination only → keep page param, strip sort/noise
+	if (pageNum > 1) {
+		return {
+			canonical: `${BASE_URL}/${lang}?page=${page}`,
+			noindex: false
+		};
+	}
+
+	// Default: no indexable filter state → base URL canonical
+	return {
+		canonical: `${BASE_URL}/${lang}`,
+		noindex: false
+	};
+}
+
 export function safeJsonLd(obj: Record<string, unknown>): string {
 	return JSON.stringify(obj).replace(/</g, '\\u003c');
 }

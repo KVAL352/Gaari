@@ -92,8 +92,8 @@ Currently only on event detail pages. Add to collection page `+page.svelte`:
 `Home > Konserter i Bergen` / `Home > Denne helgen i Bergen` etc.
 `generateBreadcrumbJsonLd()` is already in `seo.ts` — just needs to be called.
 
-**9. Canonical strategy for filtered homepage views**
-`?category=music` and `?bydel=Sentrum` produce substantially different content and should be indexable. Currently they use `replaceState` (no canonical tag change). Each should have a self-referencing canonical. Sort-order variants should canonical to unsorted. Filter combos producing <5 results should use `noindex`.
+**9. Canonical strategy for filtered homepage views ✅ Done (2026-02-26)**
+`computeCanonical()` in `seo.ts` + `+page.server.ts`. Rules: single category/bydel → self-referencing canonical; category+bydel combined → canonical to category version; ?when=weekend/today → canonical to collection page; pagination → keep page param; noise params (time, price, audience) stripped. noindex when filtered event count <5 (thin content). 21 tests in `seo.test.ts`.
 
 ---
 
