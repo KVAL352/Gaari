@@ -22,8 +22,8 @@ const collections: Collection[] = [
 			en: 'This Weekend in Bergen'
 		},
 		description: {
-			no: 'Alle arrangementer i Bergen denne helgen — konserter, utstillinger, mat og mer.',
-			en: 'All events in Bergen this weekend — concerts, exhibitions, food and more.'
+			no: 'Hva skjer i Bergen denne helgen? Finn konserter, utstillinger, mat og ting å gjøre — alt på ett sted.',
+			en: 'What to do in Bergen this weekend? Find concerts, exhibitions, food and more — all in one place.'
 		},
 		ogSubtitle: {
 			no: 'Helgens beste arrangementer',
@@ -68,8 +68,8 @@ const collections: Collection[] = [
 			en: 'Free Events in Bergen This Week'
 		},
 		description: {
-			no: 'Gratis arrangementer i Bergen denne uken — utstillinger, konserter, turer og mer.',
-			en: 'Free events in Bergen this week — exhibitions, concerts, tours and more.'
+			no: 'Gratis ting å gjøre i Bergen denne uken — utstillinger, konserter, turer og mer. Ingen billett nødvendig.',
+			en: 'Free things to do in Bergen this week — exhibitions, concerts, tours and more. No ticket needed.'
 		},
 		ogSubtitle: {
 			no: 'Gratis arrangementer denne uken',
@@ -92,8 +92,8 @@ const collections: Collection[] = [
 			en: 'Today in Bergen'
 		},
 		description: {
-			no: 'Alle arrangementer i Bergen i dag — konserter, utstillinger, mat og mer.',
-			en: "Everything happening in Bergen today — concerts, exhibitions, food and more."
+			no: 'Hva skjer i Bergen i dag? Finn alle arrangementer — konserter, utstillinger, mat og mer.',
+			en: "What's on in Bergen today? Find concerts, exhibitions, food and things to do — all in one place."
 		},
 		ogSubtitle: {
 			no: 'Dagens arrangementer',
@@ -136,8 +136,8 @@ const collections: Collection[] = [
 			en: 'Concerts in Bergen This Week'
 		},
 		description: {
-			no: 'Alle konserter og livemusikk i Bergen denne uken.',
-			en: 'All concerts and live music in Bergen this week.'
+			no: 'Alle konserter og livemusikk i Bergen denne uken — finn billetter og oppmøtesteder.',
+			en: 'All concerts and live music in Bergen this week — find tickets and venues.'
 		},
 		ogSubtitle: {
 			no: 'Livemusikk denne uken',
@@ -186,8 +186,8 @@ const collections: Collection[] = [
 			en: 'This Weekend in Bergen'
 		},
 		description: {
-			no: 'Alle arrangementer i Bergen denne helgen — konserter, utstillinger, mat og mer.',
-			en: 'Everything happening in Bergen this weekend — concerts, exhibitions, food and more.'
+			no: 'Hva skjer i Bergen denne helgen? Finn konserter, utstillinger, mat og ting å gjøre — alt på ett sted.',
+			en: 'Things to do in Bergen this weekend — concerts, exhibitions, food and more. Updated daily.'
 		},
 		ogSubtitle: {
 			no: 'Helgens arrangementer',
