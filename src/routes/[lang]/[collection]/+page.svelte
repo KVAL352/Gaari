@@ -15,7 +15,7 @@
 	let description = $derived(data.collection.description[$lang]);
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/${data.collection.slug}`));
 	let collectionJsonLd = $derived(
-		generateCollectionJsonLd(data.collection, $lang, canonicalUrl, data.events.length)
+		generateCollectionJsonLd(data.collection, $lang, canonicalUrl, data.events)
 	);
 
 	let nextPageHref = $derived(`?page=${pageNum + 1}`);

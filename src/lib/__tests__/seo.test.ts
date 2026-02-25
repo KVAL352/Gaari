@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { safeJsonLd, generateEventJsonLd, generateBreadcrumbJsonLd, toBergenIso } from '../seo';
+import { safeJsonLd, generateEventJsonLd, generateBreadcrumbJsonLd, toBergenIso, generateCollectionJsonLd } from '../seo';
 import type { GaariEvent } from '../types';
 
 describe('safeJsonLd', () => {
@@ -166,5 +166,70 @@ describe('generateBreadcrumbJsonLd', () => {
 		const data = JSON.parse(json);
 		expect(data.itemListElement[0].position).toBe(1);
 		expect(data.itemListElement[1].position).toBe(2);
+	});
+});
+
+const testCollection = {
+	title: { no: 'Denne helgen i Bergen', en: 'This weekend in Bergen' },
+	description: { no: 'Helgens arrangementer', en: 'Weekend events' },
+	slug: 'denne-helgen'
+};
+
+function makeEvents(count: number): GaariEvent[] {
+	return Array.from({ length: count }, (_, i) => makeEvent({ slug: `event-${i + 1}-2026-06-20` }));
+}
+
+describe('generateCollectionJsonLd', () => {
+	it('includes mainEntity ItemList with event URLs', () => {
+		const events = makeEvents(3);
+		const data = JSON.parse(
+			generateCollectionJsonLd(testCollection, 'no', 'https://gaari.no/no/denne-helgen', events)
+		);
+		expect(data.mainEntity['@type']).toBe('ItemList');
+		expect(data.mainEntity.itemListElement).toHaveLength(3);
+		expect(data.mainEntity.itemListElement[0]).toMatchObject({
+			'@type': 'ListItem',
+			position: 1,
+			url: 'https://gaari.no/no/events/event-1-2026-06-20'
+		});
+	});
+
+	it('positions are 1-indexed', () => {
+		const events = makeEvents(2);
+		const data = JSON.parse(
+			generateCollectionJsonLd(testCollection, 'no', 'https://gaari.no/no/denne-helgen', events)
+		);
+		expect(data.mainEntity.itemListElement[0].position).toBe(1);
+		expect(data.mainEntity.itemListElement[1].position).toBe(2);
+	});
+
+	it('uses lang prefix in event URLs', () => {
+		const events = makeEvents(1);
+		const dataNo = JSON.parse(
+			generateCollectionJsonLd(testCollection, 'no', 'https://gaari.no/no/denne-helgen', events)
+		);
+		const dataEn = JSON.parse(
+			generateCollectionJsonLd(testCollection, 'en', 'https://gaari.no/en/this-weekend', events)
+		);
+		expect(dataNo.mainEntity.itemListElement[0].url).toContain('/no/events/');
+		expect(dataEn.mainEntity.itemListElement[0].url).toContain('/en/events/');
+	});
+
+	it('caps ItemList at 50 items but reports full numberOfItems', () => {
+		const events = makeEvents(80);
+		const data = JSON.parse(
+			generateCollectionJsonLd(testCollection, 'no', 'https://gaari.no/no/denne-helgen', events)
+		);
+		expect(data.mainEntity.itemListElement).toHaveLength(50);
+		expect(data.mainEntity.numberOfItems).toBe(50);
+		expect(data.numberOfItems).toBe(80);
+	});
+
+	it('works with empty events list', () => {
+		const data = JSON.parse(
+			generateCollectionJsonLd(testCollection, 'no', 'https://gaari.no/no/denne-helgen', [])
+		);
+		expect(data.mainEntity.itemListElement).toHaveLength(0);
+		expect(data.numberOfItems).toBe(0);
 	});
 });

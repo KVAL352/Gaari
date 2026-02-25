@@ -295,19 +295,29 @@ export function generateCollectionJsonLd(
 	collection: Pick<Collection, 'title' | 'description' | 'slug'>,
 	lang: Lang,
 	pageUrl: string,
-	eventCount: number
+	events: GaariEvent[]
 ): string {
+	const listed = events.slice(0, 50);
 	const jsonLd = {
 		'@context': 'https://schema.org',
 		'@type': 'CollectionPage',
 		name: collection.title[lang],
 		description: collection.description[lang],
 		url: pageUrl,
-		numberOfItems: eventCount,
+		numberOfItems: events.length,
 		isPartOf: {
 			'@type': 'WebSite',
 			name: 'Gåri',
 			url: BASE_URL
+		},
+		mainEntity: {
+			'@type': 'ItemList',
+			numberOfItems: listed.length,
+			itemListElement: listed.map((event, i) => ({
+				'@type': 'ListItem',
+				position: i + 1,
+				url: `${BASE_URL}/${lang}/events/${event.slug}`
+			}))
 		}
 	};
 
