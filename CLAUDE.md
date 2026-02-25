@@ -179,9 +179,11 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `/[lang]/` — Main event listing with EventDiscovery filter. **Server-side loaded** (`+page.server.ts`), ISR cached (`s-maxage=300, stale-while-revalidate=600`).
 - `/[lang]/about/` — About page. **Prerendered** at build time (both `/no/about` and `/en/about`).
 - `/[lang]/datainnsamling/` — Data transparency page (43 sources listed, opt-out form). Form action `?/optout` in `+page.server.ts`.
+- `/[lang]/personvern/` — Privacy policy (GDPR). Bilingual inline, no server load, in sitemap.
+- `/[lang]/tilgjengelighet/` — Accessibility statement (EAA/WCAG 2.2 AA). Bilingual inline, no server load, in sitemap.
 - `/[lang]/submit/` — Event submission form (blocked from search engines). Only page that ships Supabase SDK to client (for image uploads).
 - `/[lang]/events/[slug]/` — Event detail page with related events and OG image. **Server-side loaded**, correction form action `?/correction` in `+page.server.ts`.
-- `/[lang]/[collection]/` — 12 curated collection landing pages. **Server-side loaded** with collection-specific filtering, ISR cached. Dynamic `[collection]` route — config in `$lib/collections.ts`, unknown slugs return 404. No EventDiscovery filter UI — clean hero + EventGrid + editorial copy + FAQ answer capsules (H2+p). JSON-LD `CollectionPage` + `ItemList` + `BreadcrumbList` + `FAQPage` schema, custom OG images. All 12 in sitemap (priority 0.8, daily). Promoted placement logic runs after filtering — bubbles paying venue's events to the top and returns `promotedEventIds` to the page.
+- `/[lang]/[collection]/` — 13 curated collection landing pages. **Server-side loaded** with collection-specific filtering, ISR cached. Dynamic `[collection]` route — config in `$lib/collections.ts`, unknown slugs return 404. No EventDiscovery filter UI — clean hero + EventGrid + editorial copy + FAQ answer capsules (H2+p). JSON-LD `CollectionPage` + `ItemList` + `BreadcrumbList` + `FAQPage` schema, custom OG images. All 13 in sitemap (priority 0.8, daily). Promoted placement logic runs after filtering — bubbles paying venue's events to the top and returns `promotedEventIds` to the page.
 - `/admin/social` — Social post review page (internal tool, noindex). Shows generated carousel slides + captions. Copy button for captions.
 - `/admin/promotions` — Promoted placement management (internal tool, noindex). Table of all paying venues with monthly impression totals, active toggle, and add-placement form. Tiers: Basis 1 500/mo (15% slot), Standard 3 500/mo (25%), Partner 7 000/mo (35%).
 - `/admin/login` — Password login page. Sets HMAC-signed HttpOnly cookie (`gaari_admin`). `secure: true` in production, `false` in dev.
@@ -195,7 +197,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 ## Frontend components (`src/lib/components/`)
 
 - `Header.svelte` — Sticky header with language switch
-- `Footer.svelte` — Footer with links (about, datainnsamling, contact)
+- `Footer.svelte` — Footer with links (about, datainnsamling, personvern, tilgjengelighet, contact)
 - `HeroSection.svelte` — Compact hero with tagline
 - `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer. Accepts `promoted` prop — renders "Fremhevet"/"Featured" badge (markedsføringsloven § 3).
 - `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates). Accepts `promotedEventIds` prop, passes `promoted` flag to each EventCard.
@@ -295,12 +297,12 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (177 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (198 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
 - `src/lib/__tests__/event-filters.test.ts` — 28 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary)
-- `src/lib/__tests__/utils.test.ts` — 24 tests: `isFreeEvent` (all truthy/falsy cases, case-insensitive, Norwegian zero-price formats, whitespace trimming), `formatPrice` (both locales, numeric, string, null, zero-price format propagation), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases)
-- `src/lib/__tests__/seo.test.ts` — 11 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, cancelled status, language fallback), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions)
+- `src/lib/__tests__/utils.test.ts` — 31 tests: `isFreeEvent` (all truthy/falsy cases, case-insensitive, Norwegian zero-price formats, whitespace trimming), `formatPrice` (both locales, numeric, string, null, zero-price format propagation), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases)
+- `src/lib/__tests__/seo.test.ts` — 44 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, cancelled status, language fallback), `toBergenIso` (UTC→CEST/CET, DST boundaries, passthrough, invalid), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions), `generateCollectionJsonLd` (ItemList, positions, lang prefix, 50-item cap), `computeCanonical` (all 7 rules, EN/NO variants, noindex threshold, noise params)
 - `src/lib/__tests__/collections.test.ts` — 35 tests: `getCollection` (valid/invalid slug, all slugs, bilingual metadata), weekend filter (Fri–Sun for Mon–Fri, Wed→Fri–Sun, empty), tonight filter (evening/night today only), free filter (this week, various price formats), today filter (same day only, empty)
 - `scripts/lib/__tests__/utils.test.ts` — 43 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `detectFreeFromText` (Norwegian/English keywords, case-insensitive, partial-word rejection), `isOptedOut`
 - `scripts/lib/__tests__/dedup.test.ts` — 17 tests: `titlesMatch` (exact, containment with 0.6 ratio guard, 90% prefix with 1.3 ratio, short titles, real-world normalized), `scoreEvent` (source rank, image/ticket/description bonuses, aggregator URL exclusion)
