@@ -70,27 +70,40 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	let inserted = 0;
 
 	for (const subdomain of SUBDOMAINS) {
-		const listUrl = `https://${subdomain}.ticketco.events/no/nb?filter_type=all`;
 		console.log(`  [${subdomain}] Fetching...`);
 
-		const html = await fetchHTML(listUrl);
-		if (!html) {
-			console.error(`  [${subdomain}] Failed to fetch`);
-			continue;
-		}
-
-		const $ = cheerio.load(html);
-		const jsonLdBlocks = $('script[type="application/ld+json"]');
+		// Paginate through all pages
 		const events: TCEvent[] = [];
+		for (let page = 1; page <= 10; page++) {
+			const listUrl = `https://${subdomain}.ticketco.events/no/nb?filter_type=all${page > 1 ? `&page=${page}` : ''}`;
 
-		jsonLdBlocks.each((_, el) => {
-			try {
-				const data = JSON.parse($(el).text());
-				if (data['@type'] === 'Event') {
-					events.push(data);
-				}
-			} catch { /* skip malformed JSON-LD */ }
-		});
+			const html = await fetchHTML(listUrl);
+			if (!html) {
+				if (page === 1) console.error(`  [${subdomain}] Failed to fetch`);
+				break;
+			}
+
+			const $ = cheerio.load(html);
+			const pageEvents: TCEvent[] = [];
+
+			$('script[type="application/ld+json"]').each((_, el) => {
+				try {
+					const data = JSON.parse($(el).text());
+					if (data['@type'] === 'Event') {
+						pageEvents.push(data);
+					}
+				} catch { /* skip malformed JSON-LD */ }
+			});
+
+			events.push(...pageEvents);
+
+			// Stop if no events found or no next page link
+			if (pageEvents.length === 0) break;
+			const hasNextPage = $(`a[href*="page=${page + 1}"]`).length > 0;
+			if (!hasNextPage) break;
+
+			await delay(1500);
+		}
 
 		console.log(`  [${subdomain}] Found ${events.length} events`);
 
