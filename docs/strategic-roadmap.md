@@ -1,7 +1,6 @@
 # Gåri — Strategic Roadmap: Progress Tracker
 
 **Last updated:** 2026-02-25
-**Full strategy doc:** See the original `strategic-roadmap-full.md` (in project root or session artifact)
 
 ---
 
@@ -12,7 +11,8 @@
 | A | Analytics + UTM tracking | ✅ Done |
 | B1 | Curated landing pages (8 collections) | ✅ Done |
 | B2 | Social post automation pipeline | ✅ Done |
-| B3 | Hashtag + SEO strategy | 🔄 In progress |
+| B3 | Hashtag + SEO strategy | ✅ Done |
+| B4 | AI & search engine optimization | ✅ Done |
 | C | Promoted placement system | 🔜 Next (weeks 11–16) |
 | D | Optimization (Meta API, newsletter, etc.) | 📅 Future |
 
@@ -24,7 +24,6 @@
 
 - ✅ Plausible Cloud analytics on gaari.no
 - ✅ `buildOutboundUrl()` utility — UTM on all outbound links (`ticket_url`, `source_url`)
-- ✅ Custom events: `outbound-click`, `collection-page-view` (via Plausible)
 - ✅ UTM contexts: `event_card`, `event_detail`, `collection`
 
 **Pending (do when you have 3–4 weeks of data):**
@@ -34,7 +33,7 @@
 
 ---
 
-## Phase B — Content Engine ✅/🔄
+## Phase B — Content Engine ✅
 
 ### B1 — Curated landing pages ✅
 
@@ -59,59 +58,61 @@ All in sitemap with hreflang (priority 0.8, daily). JSON-LD `CollectionPage` sch
 - ✅ `scripts/social/image-gen.ts` — Satori/Resvg 1080x1080 carousel slides
 - ✅ `scripts/social/caption-gen.ts` — bilingual caption templates
 - ✅ GHA cron at 07:00 UTC daily (`.github/workflows/social.yml`)
-- ✅ Supabase Storage bucket `social-posts` — images + caption.txt uploaded per run
+- ✅ Supabase Storage bucket `social-posts` — images + caption.txt per run
 - ✅ `social_posts` table — metadata rows for admin review
 - ✅ Admin review page at `/admin/social`
 
-**Not yet done (Phase D):**
-- [ ] Instagram business account created
-- [ ] Facebook Page created
-- [ ] Meta Graph API automation (Phase D — when posting > 30 min/week)
+**Pending (social accounts):**
+- [ ] Instagram business account (@gaari.bergen) — create when ready
+- [ ] Facebook Page — deferred (no access currently)
+- [ ] Meta Graph API automation — Phase D when posting > 30 min/week
 
-### B3 — Hashtag + SEO strategy 🔄
+### B3 — Hashtag + SEO strategy ✅
 
-**Goal:** Right hashtags per collection + collection pages rank for Bergen search queries.
+- ✅ 10 base hashtags per collection (was 3–5), Bergen-specific and audience-targeted
+- ✅ `getCategoryHashtags()` — dynamically injects up to 2 category-specific tags per post
+- ✅ Final hashtag list deduped and capped at 15
+- ✅ Collection `description` strings updated to target Bergen search queries:
+  - `hva skjer i bergen denne helgen` / `hva skjer i bergen i kveld`
+  - `gratis ting å gjøre i bergen`
+  - `what's on in bergen today` / `things to do in Bergen today`
 
-**Hashtag work:**
-- [ ] Expand per-collection base hashtags from 3–5 → 10–12 tags
-- [ ] Add `getCategoryHashtags()` — dynamic injection based on event categories in post
-- [ ] Cap combined hashtag list at 15 (Instagram algorithm prefers fewer, relevant tags)
-- [ ] Document final hashtag sets per collection
+### B4 — AI & Search Engine Optimization ✅
 
-**SEO work:**
-- [ ] Tighten collection `description` strings to target high-intent local queries
-- [ ] Verify collection pages indexed in Google Search Console (once domain is live long enough)
-
-**Target keywords:**
-- `hva skjer i bergen denne helgen`
-- `ting å gjøre i bergen`
-- `gratis bergen` / `gratis arrangementer bergen`
-- `things to do in Bergen today`
-- `bergen today` / `today in bergen`
+- ✅ `static/llms.txt` — llmstxt.org standard file (Perplexity, ChatGPT, Claude check for this)
+- ✅ `static/robots.txt` — explicit AI crawler allowance: GPTBot, ClaudeBot, Claude-Web, PerplexityBot, ChatGPT-User, anthropic-ai, cohere-ai, GoogleOther
+- ✅ `generateOrganizationJsonLd()` enriched: `alternateName`, `foundingDate`, `areaServed` (Bergen Wikidata Q26693), `knowsAbout` topics, `inLanguage`, `availableLanguage`
+- ✅ `generateWebSiteJsonLd()` enriched: `description` (bilingual), `inLanguage`, `about` (Bergen entity)
+- ✅ `generateFaqJsonLd()` + `getFaqItems()` — 7 Q&A per language (NO + EN) on about page
+- ✅ About page FAQ section — `<details>`/`<summary>` accordion, prerendered static HTML
+- ✅ Google Search Console verified (DNS TXT + meta tag backup in `app.html`)
+- ✅ Sitemap submitted to Google Search Console
+- ✅ Reddit / alternative channels strategy identified (non-code work)
 
 ---
 
 ## Phase C — Promoted Placement 🔜
 
 **Prerequisites before starting sales outreach:**
-- ✅ 6–8 weeks of Plausible click data (start counting from Phase A completion)
+- ✅ Plausible click data accumulating
 - ✅ Collection pages live + indexed
-- ✅ Social media active with 4+ weeks of posts
-- [ ] Venue referral reports sent (Phase A pending item above)
+- ✅ Google Search Console set up
+- [ ] Social media active with 4+ weeks of posts (Instagram account not yet created)
+- [ ] Venue referral reports sent (do after 3–4 weeks of Plausible data)
 
 **What to build:**
 - [ ] Supabase tables: `promoted_placements`, `placement_log`
 - [ ] Placement rotation logic in collection `+page.server.ts`
-- [ ] "Fremhevet" badge on EventCard (conditional)
-- [ ] Social post pipeline: include promoted events, decrement `social_posts_used`
+- [ ] "Fremhevet" badge on EventCard (conditional, labeled per markedsføringsloven § 3)
+- [ ] Social post pipeline: check `promoted_placements`, include qualified events
 - [ ] Monthly report generation script
 - [ ] Admin UI at `/admin/promotions`
 
 **Sales sequence (weeks 11–16):**
-1. Send updated referral reports (with social + collection data) to warm contacts
+1. Send updated referral reports (Plausible data + collection + social) to warm contacts
 2. Pitch meetings with 3–5 venues — bring printed reports
-3. Close first 2–3 early bird clients (3 months free, then regular tier price)
-4. September 2026: early birds convert to paid — use their data as case studies
+3. Close first 2–3 early bird clients (3 months free, then regular tier)
+4. September 2026: early birds convert to paid — data becomes case studies
 
 **Tiers:**
 | Tier | Target | NOK/mo | Top-3 share | Social posts/mo |
@@ -154,20 +155,23 @@ After core business is running (months 5–12):
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Analytics | Plausible Cloud (€9/mo) | Speed over cost; switch to self-hosted Umami later if needed |
+| Analytics | Plausible Cloud (€9/mo) | No cookies, no consent banner, full API for venue reports |
 | Business entity | ENK (already registered) | Can invoice immediately; convert to AS at ~200K NOK/yr |
 | Promoted content labeling | "Fremhevet" | Required by markedsføringsloven § 3 |
 | Pricing visibility | Not public initially | Negotiate with first 2–3 clients to find market rate |
-| Social posting | Manual review from admin page | Practical until posting > 30 min/week; Meta API in Phase D |
-| Sold-out events | Delete from DB | Prevents wasted user intent; handled in 9 scrapers |
+| Social posting | Manual review from `/admin/social` | Practical until posting > 30 min/week; Meta API in Phase D |
+| Sold-out events | Delete from DB | Prevents wasted user intent; 9 scrapers updated |
+| AI search | llms.txt + FAQPage JSON-LD | Low effort, high signal for Perplexity/ChatGPT/Claude |
+| Facebook | Deferred | No access currently; Instagram alone sufficient for now |
 
 ---
 
 ## Open Decisions
 
-1. **Umami vs Plausible long-term?** Currently Plausible Cloud. Revisit when/if costs matter at scale.
-2. **Collection pages at launch count?** 8 live — add more based on social post engagement data.
+1. **Umami vs Plausible long-term?** Plausible Cloud for now. Revisit at scale.
+2. **More collection pages?** Add based on social post engagement data — don't over-build.
 3. **Promoted prices public?** Not yet — negotiate first, publish after 2–3 reference clients.
 4. **ENK → AS conversion?** At ~200K NOK/year revenue.
 5. **Newsletter timing?** After 1,000+ monthly visitors + social pipeline stable.
-6. **Cruise ship day targeting?** `/en/today-in-bergen` weighted toward Sentrum on docking days. Nice-to-have.
+6. **Reddit/forum strategy?** r/Bergen weekly "hva skjer" post — manual for now, could automate.
+7. **Cruise ship day targeting?** `/en/today-in-bergen` weighted toward Sentrum on docking days. Nice-to-have.
