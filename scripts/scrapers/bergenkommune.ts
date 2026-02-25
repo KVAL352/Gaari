@@ -9,8 +9,12 @@ const LIST_URL = `${BASE_URL}/DNComponent/GetFilteredEventList`;
 const MAX_PAGES = 30;
 const DELAY_MS = 3000;
 
-// Skip events targeted at kindergartens (not accessible to general public)
-const KINDERGARTEN_KEYWORDS = ['barnehage', 'barnehager', 'barnehagebarn'];
+// Skip events not accessible to the general public (kindergartens, school visits, etc.)
+const NON_PUBLIC_KEYWORDS = [
+	'barnehage', 'barnehager', 'barnehagebarn',
+	'klassebesøk', 'klassebesok', 'skoleklasse', 'skolebesøk', 'skolebesok',
+	'kun for',
+];
 
 interface ListEvent {
 	eventId: string;
@@ -30,7 +34,7 @@ interface DetailData {
 	time: string;
 	address: string;
 	organizer: string;
-	isKindergarten: boolean;
+	isNonPublic: boolean;
 }
 
 function parseListPage(html: string): ListEvent[] {
@@ -113,11 +117,11 @@ async function fetchDetail(url: string): Promise<DetailData | null> {
 	const organizer = $('b:contains("Arrangør")').parent().text().replace('Arrangør:', '').trim()
 		|| $('.detail-event-shop-name').val() as string || '';
 
-	// Check full page text for kindergarten-only indicators
+	// Check full page text for non-public event indicators
 	const pageText = $('body').text().toLowerCase();
-	const isKindergarten = KINDERGARTEN_KEYWORDS.some(kw => pageText.includes(kw));
+	const isNonPublic = NON_PUBLIC_KEYWORDS.some(kw => pageText.includes(kw));
 
-	return { price, description, time: timeText, address, organizer, isKindergarten };
+	return { price, description, time: timeText, address, organizer, isNonPublic };
 }
 
 // Map Bergen Kommune tag IDs to categories (based on filter analysis)
@@ -172,10 +176,10 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`[${SOURCE}] Total events found: ${found}`);
 
 	for (const event of allEvents) {
-		// Skip kindergarten-only events
+		// Skip non-public events (kindergartens, school visits, etc.)
 		const titleLower = event.title.toLowerCase();
-		if (KINDERGARTEN_KEYWORDS.some(kw => titleLower.includes(kw))) {
-			console.log(`  [skip] ${event.title} (kindergarten)`);
+		if (NON_PUBLIC_KEYWORDS.some(kw => titleLower.includes(kw))) {
+			console.log(`  [skip] ${event.title} (non-public event)`);
 			continue;
 		}
 
@@ -185,9 +189,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		await delay(3000);
 		const detail = await fetchDetail(event.detailUrl);
 
-		// Skip if detail page reveals kindergarten-only content
-		if (detail?.isKindergarten) {
-			console.log(`  [skip] ${event.title} (kindergarten on detail page)`);
+		// Skip if detail page reveals non-public content
+		if (detail?.isNonPublic) {
+			console.log(`  [skip] ${event.title} (non-public on detail page)`);
 			continue;
 		}
 
