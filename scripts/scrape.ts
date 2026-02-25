@@ -54,8 +54,8 @@ import { supabase } from './lib/supabase.js';
 const PIPELINE_DEADLINE_MS = 13 * 60 * 1000;
 
 const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
+	// --- Dedicated venue scrapers first (highest priority) ---
 	bergenlive: scrapeBergenLive,
-	visitbergen: scrapeVisitBergen,
 	bergenkommune: scrapeBergenKommune,
 	// barnasnorge: scrapeBarnasNorge, // Disabled — see import comment above
 	studentbergen: scrapeStudentBergen,
@@ -99,6 +99,8 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	bymuseet: scrapeBymuseet,
 	museumvest: scrapeMuseumVest,
 	akvariet: scrapeAkvariet,
+	// --- Aggregator last (fills gaps, skipped if deadline reached) ---
+	visitbergen: scrapeVisitBergen,
 };
 
 async function main() {
