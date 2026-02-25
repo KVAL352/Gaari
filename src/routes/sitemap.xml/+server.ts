@@ -3,7 +3,7 @@ import { getAllCollectionSlugs } from '$lib/collections';
 
 const BASE = 'https://gaari.no';
 
-const STATIC_PAGES = ['', '/about', '/datainnsamling'];
+const STATIC_PAGES = ['', '/about', '/datainnsamling', '/personvern', '/tilgjengelighet'];
 
 export async function GET() {
 	const { data: events } = await supabase
