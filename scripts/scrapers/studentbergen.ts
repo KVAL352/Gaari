@@ -60,9 +60,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const category = guessCategory(event.title, event.location);
 		const bydel = mapBydel(event.location);
 
-		// Fetch the detail page for a better description
+		// Fetch the detail page for description, price, and ticket URL
 		await delay(3000);
 		let description = event.title;
+		let price = '';
+		let detailTicketUrl = '';
 		const detailHtml = await fetchHTML(event.url);
 		if (detailHtml) {
 			const $ = cheerio.load(detailHtml);
@@ -71,11 +73,26 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			if (metaDesc && metaDesc.length > 20) {
 				description = metaDesc.slice(0, 500);
 			}
+			// Extract price from fa-ticket-alt icon block
+			$('.icon-event-info').each((_, el) => {
+				const $el = $(el);
+				if ($el.find('i.fa-ticket-alt').length) {
+					price = $el.find('p').text().trim();
+				}
+				if ($el.find('i.fa-globe').length) {
+					const link = $el.find('a').attr('href');
+					if (link) detailTicketUrl = link;
+				}
+			});
+			// Normalize price: "Gratis" stays, "250 kr" stays, bare number gets "kr"
+			if (price && !/gratis|free/i.test(price) && /^\d+\s*$/.test(price.trim())) {
+				price = `${price.trim()} kr`;
+			}
 		}
 
 		const datePart = event.start.slice(0, 10);
 
-		const aiDesc = await generateDescription({ title: event.title, venue: event.location || 'Bergen', category, date: new Date(event.start), price: '' });
+		const aiDesc = await generateDescription({ title: event.title, venue: event.location || 'Bergen', category, date: new Date(event.start), price });
 
 		const success = await insertEvent({
 			slug: makeSlug(event.title, datePart),
@@ -88,8 +105,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			venue_name: event.location || 'Bergen',
 			address: event.location || 'Bergen',
 			bydel,
-			price: '',
-			ticket_url: resolveTicketUrl(event.location, event.url),
+			price,
+			ticket_url: detailTicketUrl || resolveTicketUrl(event.location, event.url),
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: event.image || undefined,

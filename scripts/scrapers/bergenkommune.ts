@@ -94,9 +94,24 @@ async function fetchDetail(url: string): Promise<DetailData | null> {
 
 	const $ = cheerio.load(html);
 
-	// Price from hidden input
-	const priceVal = ($('.detail-event-price').val() as string) || '';
-	const price = priceVal === '0' ? '' : priceVal;
+	// Price detection: is-no-price → salesprice inputs → description text
+	const isNoPrice = ($('#is-no-price').val() as string || '').toLowerCase() === 'true';
+	let price = '';
+	if (isNoPrice) {
+		price = 'Gratis';
+	} else {
+		// Extract non-zero ticket prices from salesprice inputs
+		const prices: number[] = [];
+		$('input.salesprice').each((_, el) => {
+			const val = parseInt($(el).val() as string || '0');
+			if (val > 0) prices.push(val);
+		});
+		if (prices.length > 0) {
+			const min = Math.min(...prices);
+			const max = Math.max(...prices);
+			price = min === max ? `${min} kr` : `${min}–${max} kr`;
+		}
+	}
 
 	// Description from .event-description
 	const descHtml = $('.event-description .event-info').first();
