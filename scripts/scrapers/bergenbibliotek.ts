@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenbibliotek';
@@ -66,13 +66,14 @@ function libraryBydel(location: string): string {
 	return 'Sentrum';
 }
 
-async function fetchEventImage(url: string): Promise<string | undefined> {
-	const html = await fetchHTML(url);
-	if (!html) return undefined;
-	const $ = cheerio.load(html);
-	const img = $('img[src*="@@images/"]').first().attr('src');
-	if (!img) return undefined;
-	return img.startsWith('http') ? img : `https://bergenbibliotek.no${img}`;
+/** Extract image URL from the listing link's background-image style */
+function extractListingImage($el: cheerio.Cheerio<cheerio.Element>): string | undefined {
+	const style = $el.attr('style') || '';
+	const m = style.match(/background-image:\s*url\(([^)]+)\)/);
+	if (!m) return undefined;
+	const url = m[1].trim().replace(/^['"]|['"]$/g, '');
+	if (!url || !url.includes('@@images/')) return undefined;
+	return url.startsWith('http') ? url : `https://bergenbibliotek.no${url}`;
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
@@ -146,9 +147,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const bydel = libraryBydel(location);
 		const dateStart = eventDate.toISOString();
 
-		// Fetch event detail page for image
-		await delay(1500);
-		const imageUrl = await fetchEventImage(sourceUrl);
+		// Extract image from listing link's background-image style
+		const imageUrl = extractListingImage($el);
 
 		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, price: tag.toLowerCase() === 'gratis' ? 'Gratis' : '' });
 
