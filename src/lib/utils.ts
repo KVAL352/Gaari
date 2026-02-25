@@ -65,10 +65,15 @@ export function formatPrice(price: string | number | null, locale: 'no' | 'en' =
 		return locale === 'no' ? 'Se pris' : 'See price';
 	}
 	if (typeof price === 'string' && isNaN(Number(price))) {
+		// Already formatted strings (ranges, tiers) — add "fra" if it's a simple "X kr" format
+		const simpleKr = price.match(/^(\d+)\s*kr$/i);
+		if (simpleKr) {
+			return locale === 'no' ? `fra ${price}` : `from ${price}`;
+		}
 		return price;
 	}
 	const amount = typeof price === 'string' ? Number(price) : price;
-	return `kr ${amount}`;
+	return locale === 'no' ? `fra kr ${amount}` : `from kr ${amount}`;
 }
 
 export function isFreeEvent(price: string | number | null): boolean {

@@ -71,12 +71,21 @@ describe('formatPrice', () => {
 		expect(formatPrice('Free', 'en')).toBe('Likely free');
 	});
 
-	it('shows "kr X" for numeric prices', () => {
-		expect(formatPrice(100, 'no')).toBe('kr 100');
-		expect(formatPrice('250', 'en')).toBe('kr 250');
+	it('shows "fra kr X" for numeric prices', () => {
+		expect(formatPrice(100, 'no')).toBe('fra kr 100');
+		expect(formatPrice('250', 'no')).toBe('fra kr 250');
+		expect(formatPrice(100, 'en')).toBe('from kr 100');
+		expect(formatPrice('250', 'en')).toBe('from kr 250');
 	});
 
-	it('returns string price as-is for non-numeric strings', () => {
+	it('adds "fra" prefix for simple "X kr" strings', () => {
+		expect(formatPrice('399 kr', 'no')).toBe('fra 399 kr');
+		expect(formatPrice('399 kr', 'en')).toBe('from 399 kr');
+	});
+
+	it('returns ranges and tiers as-is', () => {
+		expect(formatPrice('200–400 kr', 'no')).toBe('200–400 kr');
+		expect(formatPrice('200 / Gratis', 'no')).toBe('200 / Gratis');
 		expect(formatPrice('Fra kr 200', 'no')).toBe('Fra kr 200');
 	});
 
