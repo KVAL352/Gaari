@@ -79,6 +79,8 @@ All in sitemap with hreflang (priority 0.8, daily). JSON-LD `CollectionPage` sch
 
 ### B4 — AI & Search Engine Optimization ✅
 
+> Full SEO + AI search playbook with gap analysis and implementation order: `docs/seo-ai-playbook.md`
+
 - ✅ `static/llms.txt` — llmstxt.org standard file (Perplexity, ChatGPT, Claude check for this)
 - ✅ `static/robots.txt` — explicit AI crawler allowance: GPTBot, ClaudeBot, Claude-Web, PerplexityBot, ChatGPT-User, anthropic-ai, cohere-ai, GoogleOther
 - ✅ `generateOrganizationJsonLd()` enriched: `alternateName`, `foundingDate`, `areaServed` (Bergen Wikidata Q26693), `knowsAbout` topics, `inLanguage`, `availableLanguage`
@@ -99,6 +101,7 @@ All in sitemap with hreflang (priority 0.8, daily). JSON-LD `CollectionPage` sch
 - ✅ Google Search Console set up
 - [ ] Social media active with 4+ weeks of posts (Instagram account not yet created)
 - [ ] Venue referral reports sent (do after 3–4 weeks of Plausible data)
+- [ ] Bing Webmaster Tools + sitemap submitted (→ enables ChatGPT search citations)
 
 **What to build:**
 - [ ] Supabase tables: `promoted_placements`, `placement_log`

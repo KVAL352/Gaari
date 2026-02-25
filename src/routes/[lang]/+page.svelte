@@ -137,9 +137,7 @@
 		goto(`/${$lang}`, { replaceState: true, noScroll: true });
 	}
 
-	function handleLoadMore() {
-		updateParam('page', String(pageNum + 1));
-	}
+	let nextPageHref = $derived(`?${buildQueryString($page.url.search, 'page', String(pageNum + 1))}`);
 
 	// Popular events for empty state
 	let popularEvents = $derived(allEvents.filter(e => e.status === 'approved').slice(0, 3));
@@ -190,6 +188,6 @@
 		/>
 	{:else}
 		<EventGrid events={displayedEvents} />
-		<LoadMore shown={displayedEvents.length} total={filteredEvents.length} onLoadMore={handleLoadMore} />
+		<LoadMore shown={displayedEvents.length} total={filteredEvents.length} href={nextPageHref} />
 	{/if}
 </div>

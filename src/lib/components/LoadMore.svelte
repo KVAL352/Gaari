@@ -4,10 +4,10 @@
 	interface Props {
 		shown: number;
 		total: number;
-		onLoadMore?: () => void;
+		href: string;
 	}
 
-	let { shown, total, onLoadMore }: Props = $props();
+	let { shown, total, href }: Props = $props();
 </script>
 
 {#if shown < total}
@@ -15,11 +15,13 @@
 		<p class="tabular-nums text-sm text-[var(--color-text-secondary)]">
 			{$t('showingOf')} {shown} {$t('of')} {total} {$t('events')}
 		</p>
-		<button
-			onclick={onLoadMore}
+		<a
+			{href}
+			data-sveltekit-noscroll
+			data-sveltekit-replacestate
 			class="rounded-xl border border-[var(--color-text-primary)] bg-[var(--color-bg-surface)] px-8 py-3 text-sm font-semibold text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-text-primary)] hover:text-white"
 		>
 			{$t('loadMore')}
-		</button>
+		</a>
 	</div>
 {/if}

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
 	import { lang, t } from '$lib/i18n';
 	import { getCanonicalUrl, generateCollectionJsonLd } from '$lib/seo';
 	import EventGrid from '$lib/components/EventGrid.svelte';
@@ -19,11 +18,7 @@
 		generateCollectionJsonLd(data.collection, $lang, canonicalUrl, data.events.length)
 	);
 
-	function handleLoadMore() {
-		const params = new URLSearchParams($page.url.search);
-		params.set('page', String(pageNum + 1));
-		goto(`?${params.toString()}`, { replaceState: true, noScroll: true });
-	}
+	let nextPageHref = $derived(`?page=${pageNum + 1}`);
 </script>
 
 <svelte:head>
@@ -70,7 +65,7 @@
 		</div>
 	{:else}
 		<EventGrid events={displayedEvents} />
-		<LoadMore shown={displayedEvents.length} total={data.events.length} onLoadMore={handleLoadMore} />
+		<LoadMore shown={displayedEvents.length} total={data.events.length} href={nextPageHref} />
 
 		<div class="mt-8 text-center">
 			<a
