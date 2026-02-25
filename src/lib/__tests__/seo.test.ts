@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { safeJsonLd, generateEventJsonLd, generateBreadcrumbJsonLd } from '../seo';
+import { safeJsonLd, generateEventJsonLd, generateBreadcrumbJsonLd, toBergenIso } from '../seo';
 import type { GaariEvent } from '../types';
 
 describe('safeJsonLd', () => {
@@ -97,6 +97,49 @@ describe('generateEventJsonLd', () => {
 		);
 		const data = JSON.parse(json);
 		expect(data.offers.priceCurrency).toBeUndefined();
+	});
+});
+
+describe('toBergenIso', () => {
+	it('converts summer UTC to CEST (+02:00)', () => {
+		// 2026-06-20T16:00:00Z → 18:00 local CEST
+		expect(toBergenIso('2026-06-20T16:00:00.000Z')).toBe('2026-06-20T18:00:00+02:00');
+	});
+
+	it('converts winter UTC to CET (+01:00)', () => {
+		// 2026-12-10T18:00:00Z → 19:00 local CET
+		expect(toBergenIso('2026-12-10T18:00:00.000Z')).toBe('2026-12-10T19:00:00+01:00');
+	});
+
+	it('handles input already with +01:00 offset', () => {
+		// 2026-03-15T19:00:00+01:00 = 18:00 UTC, winter → +01:00 → 19:00 local
+		expect(toBergenIso('2026-03-15T19:00:00+01:00')).toBe('2026-03-15T19:00:00+01:00');
+	});
+
+	it('handles DST boundary — just before switch (CET)', () => {
+		// 2026: last Sunday of March is March 29. DST starts at 01:00 UTC.
+		// 00:59 UTC on March 29 → still CET
+		expect(toBergenIso('2026-03-29T00:59:00.000Z')).toBe('2026-03-29T01:59:00+01:00');
+	});
+
+	it('handles DST boundary — just after switch (CEST)', () => {
+		// 01:00 UTC on March 29 → CEST starts
+		expect(toBergenIso('2026-03-29T01:00:00.000Z')).toBe('2026-03-29T03:00:00+02:00');
+	});
+
+	it('returns original string for invalid date', () => {
+		expect(toBergenIso('not-a-date')).toBe('not-a-date');
+	});
+
+	it('generates startDate with Bergen timezone offset in JSON-LD', () => {
+		// date_start is a summer UTC string — startDate in JSON-LD should have +02:00
+		const json = generateEventJsonLd(
+			makeEvent({ date_start: '2026-06-20T16:00:00.000Z' }),
+			'no',
+			'https://gaari.no/no/events/test'
+		);
+		const data = JSON.parse(json);
+		expect(data.startDate).toBe('2026-06-20T18:00:00+02:00');
 	});
 });
 

@@ -4,6 +4,35 @@ import { isFreeEvent } from './utils';
 
 const BASE_URL = 'https://gaari.no';
 
+/**
+ * Returns Bergen's UTC offset for a given ISO date string.
+ * CET (+01:00) in winter, CEST (+02:00) in summer.
+ * DST: last Sunday of March 01:00 UTC → last Sunday of October 01:00 UTC.
+ */
+function bergenOffset(isoDate: string): '+02:00' | '+01:00' {
+	const d = new Date(isoDate);
+	if (isNaN(d.getTime())) return '+01:00';
+	const year = d.getUTCFullYear();
+	const dstStart = new Date(Date.UTC(year, 2, 31 - new Date(Date.UTC(year, 2, 31)).getUTCDay(), 1));
+	const dstEnd = new Date(Date.UTC(year, 9, 31 - new Date(Date.UTC(year, 9, 31)).getUTCDay(), 1));
+	return (d >= dstStart && d < dstEnd) ? '+02:00' : '+01:00';
+}
+
+/**
+ * Converts a UTC ISO date string to a Bergen local time ISO string with offset.
+ * e.g. "2026-06-20T16:00:00.000Z" → "2026-06-20T18:00:00+02:00"
+ * Required by Google's Event schema validator (ISO 8601 with timezone).
+ */
+export function toBergenIso(dateStr: string): string {
+	const d = new Date(dateStr);
+	if (isNaN(d.getTime())) return dateStr;
+	const offset = bergenOffset(dateStr);
+	const offsetMs = (offset === '+02:00' ? 2 : 1) * 3_600_000;
+	const local = new Date(d.getTime() + offsetMs);
+	const pad = (n: number) => String(n).padStart(2, '0');
+	return `${local.getUTCFullYear()}-${pad(local.getUTCMonth() + 1)}-${pad(local.getUTCDate())}T${pad(local.getUTCHours())}:${pad(local.getUTCMinutes())}:${pad(local.getUTCSeconds())}${offset}`;
+}
+
 export function getCanonicalUrl(path: string): string {
 	return `${BASE_URL}${path}`;
 }
@@ -66,7 +95,7 @@ export function generateEventJsonLd(
 		name: title,
 		description: description,
 		url: pageUrl,
-		startDate: event.date_start,
+		startDate: toBergenIso(event.date_start),
 		location,
 		offers,
 		organizer: {
@@ -81,7 +110,7 @@ export function generateEventJsonLd(
 	};
 
 	if (event.date_end) {
-		jsonLd.endDate = event.date_end;
+		jsonLd.endDate = toBergenIso(event.date_end);
 	}
 
 	if (event.image_url) {
