@@ -19,12 +19,13 @@ export function getWeekendDates(now: Date): { start: string; end: string } {
 	const daysToSat = day === 0 ? -1 : 6 - day; // if Sunday, Saturday was yesterday
 	const sat = new Date(now);
 	sat.setDate(now.getDate() + daysToSat);
+	const fri = new Date(sat);
+	fri.setDate(sat.getDate() - 1);
 	const sun = new Date(sat);
 	sun.setDate(sat.getDate() + 1);
-	return {
-		start: day === 5 ? toOsloDateStr(now) : toOsloDateStr(sat), // Include Friday if today is Friday
-		end: toOsloDateStr(sun)
-	};
+	// Mon–Fri: start from Friday (upcoming or today). Sat/Sun: start from Saturday.
+	const start = (day >= 1 && day <= 5) ? toOsloDateStr(fri) : toOsloDateStr(sat);
+	return { start, end: toOsloDateStr(sun) };
 }
 
 export function addDays(date: Date, days: number): Date {

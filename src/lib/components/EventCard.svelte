@@ -11,9 +11,10 @@
 	interface Props {
 		event: GaariEvent;
 		eager?: boolean;
+		promoted?: boolean;
 	}
 
-	let { event, eager = false }: Props = $props();
+	let { event, eager = false, promoted = false }: Props = $props();
 
 	let title = $derived(($lang === 'en' && event.title_en) ? event.title_en : event.title_no);
 	let description = $derived(($lang === 'en' && event.description_en) ? event.description_en : event.description_no);
@@ -100,6 +101,11 @@
 						<StatusBadge type={badge} />
 					{/each}
 				</div>
+			{/if}
+			{#if promoted}
+				<span class="badge-fremhevet absolute right-2 top-2 rounded-full border border-[var(--color-primary)] bg-[var(--color-bg-surface)] px-2 py-0.5 text-[0.625rem] font-semibold text-[var(--color-text-primary)]">
+					{$lang === 'no' ? 'Fremhevet' : 'Featured'}
+				</span>
 			{/if}
 		</div>
 		<div class="flex flex-1 flex-col p-4">

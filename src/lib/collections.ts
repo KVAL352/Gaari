@@ -583,6 +583,63 @@ const collections: Collection[] = [
 				return d >= todayStr && d <= endStr && e.bydel === 'Sentrum';
 			});
 		}
+	},
+	{
+		id: 'voksen',
+		slug: 'voksen',
+		title: {
+			no: 'Arrangementer for voksne i Bergen',
+			en: 'Events for Adults in Bergen'
+		},
+		description: {
+			no: 'Konserter, teater, omvisninger, utstillinger og kulturopplevelser for voksne i Bergen de neste to ukene.',
+			en: 'Concerts, theatre, guided tours, exhibitions and cultural experiences for adults in Bergen over the next two weeks.'
+		},
+		ogSubtitle: {
+			no: 'Kultur og opplevelser for voksne',
+			en: 'Culture and experiences for adults'
+		},
+		editorial: {
+			no: [
+				'Bergen har et rikt kulturtilbud for voksne — fra klassisk musikk i Grieghallen og jazz på Nattjazz til omvisninger på KODE og foredrag på Litteraturhuset. Bergen Filharmoniske Orkester og Den Nationale Scene legger jevnlig opp til forestillinger og konserter. Bymuseet, Museum Vest og Akvariet tilbyr omvisninger og utstillinger for alle aldre.',
+				'Gåri samler arrangementer innen musikk, kultur, teater, omvisninger, mat og verksteder — alt tilpasset voksne. Listen hentes fra over 40 lokale kilder og oppdateres daglig. Utsolgte arrangementer fjernes fortløpende.',
+				'Bergen er en kompakt kulturby. Mange av arrangementene finner sted i sentrum, i gangavstand fra hverandre. Sjekk gjerne prisene direkte hos arrangøren — mange steder tilbyr rabatter for honnør og studenter.'
+			],
+			en: [
+				'Bergen offers a rich cultural programme for adults — from classical music at Grieghallen and jazz at Nattjazz to guided tours at KODE and talks at Litteraturhuset. Bergen Philharmonic Orchestra and Den Nationale Scene regularly programme concerts and performances. Bymuseet, Museum Vest and Akvariet offer tours and exhibitions for all ages.',
+				'Gåri collects events in music, culture, theatre, guided tours, food and workshops — all suited to adults. Listings are drawn from over 40 local sources and updated daily. Sold-out events are removed as soon as they sell out.',
+				'Bergen is a compact cultural city. Many events take place in the city centre, within walking distance of each other. Check prices directly with the organiser — many venues offer discounts for seniors and students.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hva skjer i Bergen for voksne?', a: 'Gåri viser konserter, teater, omvisninger, utstillinger og kulturopplevelser for voksne i Bergen de neste to ukene.' },
+				{ q: 'Hvilke kulturarrangementer er det i Bergen?', a: 'Bergen tilbyr klassisk musikk på Grieghallen, jazz, teater på DNS, omvisninger på KODE og Bymuseet, foredrag på Litteraturhuset og mye mer.' },
+				{ q: 'Er det gratis arrangementer for voksne i Bergen?', a: 'Ja — Bergen Kunsthall, Bergen Bibliotek og mange gallerier tilbyr gratis inngang. Sjekk Gåri for oversikt over gratis arrangementer.' }
+			],
+			en: [
+				{ q: 'What events are there for adults in Bergen?', a: 'Gåri shows concerts, theatre, guided tours, exhibitions and cultural experiences for adults in Bergen over the next two weeks.' },
+				{ q: 'What cultural events are on in Bergen?', a: 'Bergen offers classical music at Grieghallen, jazz, theatre at DNS, tours at KODE and Bymuseet, talks at Litteraturhuset and much more.' },
+				{ q: 'Are there free events for adults in Bergen?', a: 'Yes — Bergen Kunsthall, Bergen Bibliotek and many galleries offer free entry. Check Gåri for a full list of free events.' }
+			]
+		},
+		filterEvents: (events, now) => {
+			const todayStr = toOsloDateStr(now);
+			const endStr = toOsloDateStr(addDays(now, 13));
+			const adultCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop']);
+			return events.filter(e => {
+				const d = e.date_start.slice(0, 10);
+				return (
+					d >= todayStr &&
+					d <= endStr &&
+					adultCategories.has(e.category) &&
+					e.category !== 'student' &&
+					e.category !== 'nightlife' &&
+					e.category !== 'sports' &&
+					e.category !== 'family'
+				);
+			});
+		}
 	}
 ];
 

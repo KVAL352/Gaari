@@ -1,6 +1,6 @@
 # Gåri — Decision Log
 
-**Last updated:** 2026-02-25
+**Last updated:** 2026-02-25 (late night)
 
 Record of key architectural, design, and strategic decisions. Each entry includes the rationale and alternatives considered.
 
@@ -185,6 +185,30 @@ Each entry: `#N — Date — Decision title`
 - **Decision:** Add `static/llms.txt` per the llmstxt.org standard, explicitly name AI crawlers in `robots.txt` (GPTBot, ClaudeBot, PerplexityBot, etc.), enrich Organization/WebSite JSON-LD with entity data (Wikidata ID for Bergen, areaServed, knowsAbout), and add FAQPage JSON-LD to the about page.
 - **Rationale:** AI search engines (ChatGPT, Perplexity, Claude) are becoming primary discovery channels. Being the source cited for "what's on in Bergen" is high-value. `llms.txt` and FAQPage schema are low-effort, high-impact signals.
 - **Alternatives considered:** No AI optimization (missed opportunity), paid AI search placement (not yet available at meaningful scale).
+- **Status:** Active
+
+### #30 — 2026-02-25 — Promoted placement: 1 event per collection, daily rotation
+- **Decision:** Show exactly one promoted event per collection page (not all venue events), rotating daily through the venue's events using `dayNumber % venueEvents.length`. Per-venue cap of 3 events across the whole collection to prevent flooding.
+- **Rationale:** Showing all events from a paying venue looked spammy (Akvariet had 8 events on the weekend page). One promoted event is clear, fair, and readable. Daily rotation gives the venue variety without randomness — predictable for the client, consistent for all visitors within a day (compatible with 5-min ISR cache).
+- **Alternatives considered:** True per-visit randomization (breaks with ISR cache), showing all venue events promoted (too dominant), weekly rotation (too slow).
+- **Status:** Active
+
+### #31 — 2026-02-25 — Admin password auth (HMAC cookie, no Supabase Auth)
+- **Decision:** Protect `/admin/*` routes with a single shared password stored in `ADMIN_PASSWORD` env var. Session token is HMAC-SHA256 signed with `ADMIN_SESSION_SECRET`, stored as an HttpOnly cookie (7-day TTL). No user accounts or Supabase Auth.
+- **Rationale:** There is only one admin user (the owner). Supabase Auth adds complexity and a dependency for a single-user tool. HMAC-signed cookie is stateless, secure against forgery, and requires zero database queries per request.
+- **Alternatives considered:** Supabase Auth (overkill for 1 user), HTTP Basic Auth (no logout, poor UX), plain password in cookie (forgeable).
+- **Status:** Active
+
+### #32 — 2026-02-25 — getWeekendDates includes Friday (Fri–Sun, not Sat–Sun)
+- **Decision:** The `getWeekendDates()` function now returns Friday–Sunday for Mon–Fri, not Saturday–Sunday. Saturday and Sunday still show only remaining weekend days.
+- **Rationale:** Norwegian "helg" (weekend) culturally includes Friday evening. Venues like Grieghallen have Friday events that belong in the "denne-helgen" collection. Previously they were excluded Mon–Thu, making the collection feel incomplete mid-week.
+- **Alternatives considered:** Keep Sat–Sun only (misses Friday evening culture), show Fri–Sun always including on Saturday (would show already-passed Friday events).
+- **Status:** Active
+
+### #33 — 2026-02-25 — Owner IP filtering for impression logs
+- **Decision:** Add `SKIP_LOG_IPS` env var (comma-separated). If the client IP matches, `logImpression()` is skipped. Checked server-side via `getClientAddress()`.
+- **Rationale:** Owner testing and reviewing collection pages would inflate impression counts for paying clients, making reports misleading. Simple IP filter is sufficient for a single-operator product.
+- **Alternatives considered:** Filter by user-agent (easy to spoof), separate staging environment (overkill), no filtering (misleading reports).
 - **Status:** Active
 
 ---

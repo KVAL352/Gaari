@@ -9,11 +9,11 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - **Frontend**: SvelteKit 2 with Svelte 5 runes (`$state`, `$derived`, `$effect`). Tailwind CSS 4. Language routing via `/[lang]/` (no, en).
 - **Data loading**: Server-side via `+page.server.ts` — Supabase SDK runs only on the server for all main pages. Data arrives pre-rendered in HTML (no client-side fetch waterfall). Only `/submit` still uses client-side Supabase (for image uploads).
 - **Supabase client**: `$lib/server/supabase.ts` (server-only, enforced by SvelteKit `$lib/server/` convention). `$lib/supabase.ts` exists only for the submit page's client-side usage.
-- **Database**: Supabase with `events`, `opt_out_requests`, and `edit_suggestions` tables. Anon key for reads, service role key for scraper writes.
+- **Database**: Supabase with `events`, `opt_out_requests`, `edit_suggestions`, `promoted_placements`, and `placement_log` tables. Anon key for reads, service role key for scraper writes.
 - **Form actions**: Correction form (event detail) and opt-out form (datainnsamling) use SvelteKit form actions with `use:enhance` — no client-side Supabase needed.
 - **Scrapers**: Standalone TypeScript in `scripts/`, separate `package.json`. Uses Cheerio for HTML parsing. Runs via GitHub Actions cron (twice daily at 6 AM & 6 PM UTC).
 - **AI Descriptions**: Gemini 2.5 Flash generates bilingual summaries (<160 chars each) from event metadata. Fallback to template if API unavailable.
-- **Collection pages**: Curated landing pages via `$lib/collections.ts` config + single dynamic `[lang]/[collection]/` route. 12 collections: `denne-helgen` (weekend), `i-kveld` (tonight), `gratis` (free this week), `today-in-bergen` (today, EN), `familiehelg` (family weekend), `konserter` (concerts this week), `studentkveld` (student nightlife), `this-weekend` (weekend, EN), `i-dag` (today, NO), `free-things-to-do-bergen` (free 2 weeks, EN), `regndagsguide` (indoor/rainy day, 2 weeks), `sentrum` (Bergen sentrum bydel, 2 weeks). Each has `filterEvents(events, now)` using existing event-filter helpers, bilingual title/description/ogSubtitle. `getCollection(slug)` returns config or undefined (404). `getAllCollectionSlugs()` for sitemap. Static routes (`about/`, `events/`, etc.) resolve before the `[collection]` param — no conflicts.
+- **Collection pages**: Curated landing pages via `$lib/collections.ts` config + single dynamic `[lang]/[collection]/` route. 13 collections: `denne-helgen` (weekend), `i-kveld` (tonight), `gratis` (free this week), `today-in-bergen` (today, EN), `familiehelg` (family weekend), `konserter` (concerts this week), `studentkveld` (student nightlife), `this-weekend` (weekend, EN), `i-dag` (today, NO), `free-things-to-do-bergen` (free 2 weeks, EN), `regndagsguide` (indoor/rainy day, 2 weeks), `sentrum` (Bergen sentrum bydel, 2 weeks), `voksen` (culture/music/theatre/tours/food/workshop for adults, 2 weeks). Each has `filterEvents(events, now)` using existing event-filter helpers, bilingual title/description/ogSubtitle. `getCollection(slug)` returns config or undefined (404). `getAllCollectionSlugs()` for sitemap. Static routes (`about/`, `events/`, etc.) resolve before the `[collection]` param — no conflicts.
 - **Social post pipeline**: `scripts/social/` generates Instagram carousel images (Satori/Resvg, 1080x1080 PNG) + captions for scheduled collections. GHA cron at 07:00 UTC daily. Admin review at `/admin/social`. Content generation only — no social accounts or API posting yet.
 
 ## Key conventions
@@ -181,8 +181,12 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `/[lang]/datainnsamling/` — Data transparency page (43 sources listed, opt-out form). Form action `?/optout` in `+page.server.ts`.
 - `/[lang]/submit/` — Event submission form (blocked from search engines). Only page that ships Supabase SDK to client (for image uploads).
 - `/[lang]/events/[slug]/` — Event detail page with related events and OG image. **Server-side loaded**, correction form action `?/correction` in `+page.server.ts`.
-- `/[lang]/[collection]/` — Curated collection landing pages (denne-helgen, i-kveld, gratis, today-in-bergen). **Server-side loaded** with collection-specific filtering, ISR cached. Dynamic `[collection]` route — config in `$lib/collections.ts`, unknown slugs return 404. No EventDiscovery filter UI — clean hero + EventGrid. JSON-LD `CollectionPage` schema, custom OG images.
+- `/[lang]/[collection]/` — 12 curated collection landing pages. **Server-side loaded** with collection-specific filtering, ISR cached. Dynamic `[collection]` route — config in `$lib/collections.ts`, unknown slugs return 404. No EventDiscovery filter UI — clean hero + EventGrid + editorial copy + FAQ answer capsules (H2+p). JSON-LD `CollectionPage` + `ItemList` + `BreadcrumbList` + `FAQPage` schema, custom OG images. All 12 in sitemap (priority 0.8, daily). Promoted placement logic runs after filtering — bubbles paying venue's events to the top and returns `promotedEventIds` to the page.
 - `/admin/social` — Social post review page (internal tool, noindex). Shows generated carousel slides + captions. Copy button for captions.
+- `/admin/promotions` — Promoted placement management (internal tool, noindex). Table of all paying venues with monthly impression totals, active toggle, and add-placement form. Tiers: Basis 1 500/mo (15% slot), Standard 3 500/mo (25%), Partner 7 000/mo (35%).
+- `/admin/login` — Password login page. Sets HMAC-signed HttpOnly cookie (`gaari_admin`). `secure: true` in production, `false` in dev.
+- `/admin/logout` — Clears cookie, redirects to login.
+- **All `/admin/*` routes are protected** by `src/routes/admin/+layout.server.ts` which validates the HMAC cookie. Login page is exempt. Auth helpers in `src/lib/server/admin-auth.ts`.
 - `/api/health` — Health check endpoint (Supabase connection, event count, scrape freshness). Returns healthy/degraded/unhealthy, 5min cache, 503 on unhealthy.
 - `/og/[slug].png` — Per-event OG image generation (Satori + ResvgJS)
 - `/og/c/[collection].png` — Collection-branded OG images (Funkis design: red accent bar, 72px title, subtitle, Gåri branding). 24h cache.
@@ -193,8 +197,8 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `Header.svelte` — Sticky header with language switch
 - `Footer.svelte` — Footer with links (about, datainnsamling, contact)
 - `HeroSection.svelte` — Compact hero with tagline
-- `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer
-- `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates)
+- `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer. Accepts `promoted` prop — renders "Fremhevet"/"Featured" badge (markedsføringsloven § 3).
+- `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates). Accepts `promotedEventIds` prop, passes `promoted` flag to each EventCard.
 - `EventDiscovery.svelte` — Progressive 5-step filter (When/Time/Who/What/Where & Price) with inline calendar
 - `FilterPill.svelte` — Reusable pill/chip button (aria-pressed, 44px touch targets, Funkis styling)
 - `MiniCalendar.svelte` — Inline month-grid date picker (single date + range selection, bilingual). Proper ARIA grid structure: `role="grid"` > `role="row"` > `role="gridcell"` with chunked weeks.
@@ -278,15 +282,26 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 - `idx_events_approved_upcoming` (partial: date_start WHERE status = 'approved')
 - `idx_events_category`, `idx_events_bydel`, `idx_events_created_at`
 
+**Promoted placements** (`supabase/migrations/20260226180000_promoted_placements.sql`):
+- `promoted_placements` — one row per paying venue+collection combo. Fields: `venue_name`, `collection_slugs TEXT[]`, `tier` (basis/standard/partner), `slot_share` (15/25/35), `active`, `start_date`, `end_date` (null = open-ended).
+- `placement_log` — daily impression aggregates. UNIQUE on `(placement_id, collection_slug, log_date)`.
+- `log_placement_impression()` SQL function — atomic upsert with `ON CONFLICT DO UPDATE impression_count + 1`.
+- Server helpers in `src/lib/server/promotions.ts`: `getActivePromotions(slug)`, `pickDailyVenue(placements, slug, now)` (deterministic, same venue all day), `logImpression(id, slug, venue)` (fire-and-forget via RPC).
+- Admin writes use `src/lib/server/supabase-admin.ts` (service role key) — anon key only has SELECT on `promoted_placements`.
+- Collection page behaviour: 1 promoted event per page (rotates daily via `dayNumber % venueEvents.length`), venue's remaining events stay in normal chronological order.
+- Per-venue cap: `MAX_PER_VENUE = 3` applied after promotion logic — prevents any venue flooding a collection.
+- Owner IP filtering: `SKIP_LOG_IPS` env var (comma-separated) skips impression logging for owner's IP. Add to `.env` and Vercel env vars.
+- Monthly report CLI: `npx tsx scripts/generate-placement-report.ts [YYYY-MM]`.
+
 ## Testing
 
-**Vitest** unit test suite (156 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (177 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
-- `src/lib/__tests__/event-filters.test.ts` — 18 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (all days of week), `isSameDay`, `toOsloDateStr` (date boundary)
+- `src/lib/__tests__/event-filters.test.ts` — 28 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary)
 - `src/lib/__tests__/utils.test.ts` — 24 tests: `isFreeEvent` (all truthy/falsy cases, case-insensitive, Norwegian zero-price formats, whitespace trimming), `formatPrice` (both locales, numeric, string, null, zero-price format propagation), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases)
 - `src/lib/__tests__/seo.test.ts` — 11 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, cancelled status, language fallback), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions)
-- `src/lib/__tests__/collections.test.ts` — 18 tests: `getCollection` (valid/invalid slug, all slugs, bilingual metadata), weekend filter (Fri–Sun, Wed→Sat–Sun, empty), tonight filter (evening/night today only), free filter (this week, various price formats), today filter (same day only, empty)
+- `src/lib/__tests__/collections.test.ts` — 35 tests: `getCollection` (valid/invalid slug, all slugs, bilingual metadata), weekend filter (Fri–Sun for Mon–Fri, Wed→Fri–Sun, empty), tonight filter (evening/night today only), free filter (this week, various price formats), today filter (same day only, empty)
 - `scripts/lib/__tests__/utils.test.ts` — 43 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `detectFreeFromText` (Norwegian/English keywords, case-insensitive, partial-word rejection), `isOptedOut`
 - `scripts/lib/__tests__/dedup.test.ts` — 17 tests: `titlesMatch` (exact, containment with 0.6 ratio guard, 90% prefix with 1.3 ratio, short titles, real-world normalized), `scoreEvent` (source rank, image/ticket/description bonuses, aggregator URL exclusion)
 

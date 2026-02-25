@@ -32,9 +32,9 @@ describe('getCollection', () => {
 		expect(getCollection('gibberish')).toBeUndefined();
 	});
 
-	it('returns all 12 collections', () => {
+	it('returns all 13 collections', () => {
 		const slugs = getAllCollectionSlugs();
-		expect(slugs).toHaveLength(12);
+		expect(slugs).toHaveLength(13);
 		expect(slugs).toContain('denne-helgen');
 		expect(slugs).toContain('i-kveld');
 		expect(slugs).toContain('gratis');
@@ -47,6 +47,7 @@ describe('getCollection', () => {
 		expect(slugs).toContain('free-things-to-do-bergen');
 		expect(slugs).toContain('regndagsguide');
 		expect(slugs).toContain('sentrum');
+		expect(slugs).toContain('voksen');
 	});
 
 	it('each collection has bilingual title and description', () => {
@@ -76,22 +77,24 @@ describe('weekend filter (denne-helgen)', () => {
 		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
 	});
 
-	it('includes Saturday–Sunday events when now is Wednesday', () => {
+	it('includes Friday–Sunday events when now is Wednesday', () => {
 		// Wednesday Feb 25, 2026
 		const now = new Date('2026-02-25T12:00:00');
 		const events = [
 			makeEvent({ id: '1', date_start: '2026-02-25T19:00:00Z' }), // Wednesday — excluded
-			makeEvent({ id: '2', date_start: '2026-02-28T14:00:00Z' }), // Saturday
-			makeEvent({ id: '3', date_start: '2026-03-01T10:00:00Z' })  // Sunday
+			makeEvent({ id: '2', date_start: '2026-02-27T19:00:00Z' }), // Friday — included
+			makeEvent({ id: '3', date_start: '2026-02-28T14:00:00Z' }), // Saturday
+			makeEvent({ id: '4', date_start: '2026-03-01T10:00:00Z' })  // Sunday
 		];
 		const result = collection.filterEvents(events, now);
-		expect(result.map(e => e.id)).toEqual(['2', '3']);
+		expect(result.map(e => e.id)).toEqual(['2', '3', '4']);
 	});
 
 	it('returns empty array when no weekend events', () => {
 		const now = new Date('2026-02-25T12:00:00'); // Wednesday
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-02-25T19:00:00Z' }) // Wednesday
+			makeEvent({ id: '1', date_start: '2026-02-25T19:00:00Z' }), // Wednesday
+			makeEvent({ id: '2', date_start: '2026-02-26T19:00:00Z' })  // Thursday
 		];
 		expect(collection.filterEvents(events, now)).toHaveLength(0);
 	});

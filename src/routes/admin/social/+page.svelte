@@ -55,13 +55,18 @@
 </svelte:head>
 
 <main style="max-width: 960px; margin: 0 auto; padding: 24px 16px; font-family: Inter, system-ui, sans-serif;">
-	<header style="margin-bottom: 32px;">
-		<h1 style="font-family: 'Barlow Condensed', sans-serif; font-size: 36px; color: #141414; margin: 0 0 8px;">
-			Social Posts
-		</h1>
-		<p style="color: #737373; font-size: 14px; margin: 0;">
-			{new Date().toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-		</p>
+	<header style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-start;">
+		<div>
+			<h1 style="font-family: 'Barlow Condensed', sans-serif; font-size: 36px; color: #141414; margin: 0 0 8px;">
+				Social Posts
+			</h1>
+			<p style="color: #737373; font-size: 14px; margin: 0;">
+				{new Date().toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+			</p>
+		</div>
+		<a href="/admin/logout" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
+			Logg ut
+		</a>
 	</header>
 
 	{#if posts.length === 0}

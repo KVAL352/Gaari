@@ -75,7 +75,7 @@
 			</a>
 		</div>
 	{:else}
-		<EventGrid events={displayedEvents} />
+		<EventGrid events={displayedEvents} promotedEventIds={data.promotedEventIds} />
 		<LoadMore shown={displayedEvents.length} total={data.events.length} href={nextPageHref} />
 
 		<div class="mt-8 text-center">

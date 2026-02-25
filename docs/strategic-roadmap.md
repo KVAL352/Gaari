@@ -1,6 +1,6 @@
 # Gåri — Strategic Roadmap: Progress Tracker
 
-**Last updated:** 2026-02-26 (evening)
+**Last updated:** 2026-02-25 (late night)
 
 ---
 
@@ -13,8 +13,8 @@
 | B2 | Social post pipeline (built, on hold) | ⏸ Paused |
 | B3 | Hashtag + SEO strategy | ✅ Done |
 | B4 | AI & search engine optimization | ✅ Done |
-| B5 | New collection pages (expand inventory) | 🔜 Next |
-| C | Promoted placement system | 🔜 Next |
+| B5 | New collection pages (expand inventory) | ✅ Done |
+| C | Promoted placement system | ✅ Infrastructure done — outreach pending |
 | D | Optimization (newsletter, Stripe, etc.) | 📅 Future |
 
 ---
@@ -92,43 +92,50 @@ Pipeline is built and working (`scripts/social/`), but social media accounts are
 - [ ] Directory citations — Gulesider.no, Proff.no, 1881.no, Bergen Næringsråd (~1 hour)
 - [ ] Venue backlink outreach — 1 email/week, start with USF Verftet, Bergen Kunsthall, Litteraturhuset
 
-### B5 — New collection pages 🔜
+### B5 — New collection pages ✅
 
-More pages = more placement inventory = stronger sales pitch. Build before Phase C outreach.
+4 new collections added (2026-02-26) + 1 demographic collection added (2026-02-26). 13 total. All SEO-optimized (editorial copy, FAQ schema, answer capsules, JSON-LD).
 
-**Priority second wave:**
+| Slug | Language | Target query |
+|------|----------|-------------|
+| `i-dag` | NO | hva skjer i bergen i dag |
+| `free-things-to-do-bergen` | EN | free things to do bergen |
+| `regndagsguide` | NO | hva gjøre i bergen når det regner |
+| `sentrum` | NO | arrangementer bergen sentrum |
+| `voksen` | NO | arrangementer for voksne i bergen |
 
-| Slug | Language | Target query | Placement buyer |
-|------|----------|-------------|-----------------|
-| `i-dag` | NO | hva skjer i bergen i dag | Any venue |
-| `free-things-to-do-bergen` | EN | free things to do bergen | Bergen Kunsthall, Bibliotek |
-| `bydel/sentrum` | NO | arrangementer bergen sentrum | Sentrum venues |
-| `bydel/nordnes` | NO | arrangementer nordnes | USF Verftet, Akvariet |
-| `bergenfest-2026` | NO/EN | bergenfest 2026 program | Bergenfest |
-| `regndagsguide` | NO | hva gjøre i bergen når det regner | Akvariet, VilVite, KODE |
+`voksen`: filter = culture + music + theatre + tours + food + workshop, 2-week window. Excludes sports, student, nightlife, family. Target venues: Grieghallen, KODE, Bymuseet, Litteraturhuset, Bergen Filharmoniske, DNS, Oseana, Fløyen, Bergen Bibliotek.
 
-Architecture: same `[lang]/[collection]/` route, new entries in `collections.ts`.
+Architecture: same `[lang]/[collection]/` route, entries in `collections.ts`.
 
 ---
 
-## Phase C — Promoted Placement 🔜
+## Phase C — Promoted Placement ✅ Infrastructure done
 
-**Revised strategy:** Venues pay for top placement on SEO-optimized collection pages that rank for high-intent Bergen queries and get cited by ChatGPT/Bing. No social media component.
+**Strategy:** Venues pay for top placement on SEO-optimized collection pages that rank for high-intent Bergen queries and get cited by ChatGPT/Bing. No social media component.
+
+**Infrastructure (done 2026-02-25, tested same day):**
+- ✅ Supabase tables: `promoted_placements`, `placement_log` (migration applied)
+- ✅ `log_placement_impression()` SQL function — atomic ON CONFLICT increment
+- ✅ `src/lib/server/promotions.ts` — `getActivePromotions`, `pickDailyVenue`, `logImpression`
+- ✅ `src/lib/server/supabase-admin.ts` — service role client for admin writes
+- ✅ 1 promoted event per collection page, rotating daily through venue's events
+- ✅ Per-venue cap: MAX_PER_VENUE = 3 — prevents any venue flooding a collection
+- ✅ Owner IP filtering via `SKIP_LOG_IPS` env var — own visits don't count as impressions
+- ✅ "Fremhevet"/"Featured" badge on EventCard — red border, dark text (markedsføringsloven § 3)
+- ✅ Admin UI at `/admin/promotions` — table + add form + active toggle
+- ✅ `scripts/generate-placement-report.ts` — monthly markdown report CLI
+- ✅ `getWeekendDates` fixed — now returns Fri–Sun for Mon–Fri (was Sat–Sun)
+- ✅ Admin auth — password-protected `/admin/*` via HMAC cookie. `ADMIN_PASSWORD` + `ADMIN_SESSION_SECRET` in `.env` and Vercel env vars.
 
 **Prerequisites before starting sales outreach:**
-- ✅ Collection pages live + SEO-optimized (editorial copy, answer capsules, FAQ schema)
+- ✅ Collection pages live + SEO-optimized (12 collections)
 - ✅ Google Search Console + Bing Webmaster Tools set up
-- ✅ IndexNow — new events submitted to Bing automatically
+- ✅ IndexNow wired
+- ✅ Google Business Profile done
+- ✅ Infrastructure built and deployed
 - [ ] 3–4 weeks of Plausible click data → venue referral reports
-- [ ] B5 new collection pages built (more inventory = better pitch)
-- [ ] Google Business Profile + directory citations done
-
-**What to build:**
-- [ ] Supabase tables: `promoted_placements`, `placement_log`
-- [ ] Placement rotation logic in collection `+page.server.ts`
-- [ ] "Fremhevet" badge on EventCard (conditional, labeled per markedsføringsloven § 3)
-- [ ] Monthly report generation script
-- [ ] Admin UI at `/admin/promotions`
+- [ ] Directory citations (Gulesider, Proff, 1881)
 
 **Sales pitch (revised):**
 > "Gåri's collection pages rank for the exact queries your audience searches — hva skjer i Bergen denne helgen, konserter i Bergen, gratis Bergen. Your events appear at the top. We track every click we send you and share the report monthly."

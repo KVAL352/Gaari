@@ -6,9 +6,10 @@
 
 	interface Props {
 		events: GaariEvent[];
+		promotedEventIds?: string[];
 	}
 
-	let { events }: Props = $props();
+	let { events, promotedEventIds = [] }: Props = $props();
 
 	let grouped = $derived.by(() => {
 		const groups = groupEventsByDate(events);
@@ -29,7 +30,7 @@
 		</div>
 		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 			{#each dayEvents as event, i (event.id)}
-				<EventCard {event} eager={groupIdx === 0 && i < 4} />
+				<EventCard {event} eager={groupIdx === 0 && i < 4} promoted={promotedEventIds.includes(event.id)} />
 			{/each}
 		</ul>
 	</section>

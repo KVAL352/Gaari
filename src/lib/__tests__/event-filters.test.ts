@@ -54,10 +54,10 @@ describe('matchesTimeOfDay', () => {
 });
 
 describe('getWeekendDates', () => {
-	it('Monday returns upcoming Saturday and Sunday', () => {
+	it('Monday returns upcoming Friday through Sunday', () => {
 		const mon = new Date('2026-02-23T12:00:00'); // Monday
 		const { start, end } = getWeekendDates(mon);
-		expect(start).toBe('2026-02-28'); // Saturday
+		expect(start).toBe('2026-02-27'); // Friday
 		expect(end).toBe('2026-03-01'); // Sunday
 	});
 
