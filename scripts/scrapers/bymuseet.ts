@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bymuseet';
@@ -23,6 +23,29 @@ const LOCATION_MAP: Record<string, string> = {
 	'damsgård': 'Damsgård Hovedgård',
 	'bergenhus': 'Bergenhus Festning',
 };
+
+/** Fetch detail page for price from .prices-cover section */
+async function fetchDetailPrice(url: string): Promise<string> {
+	const html = await fetchHTML(url);
+	if (!html) return '';
+	const $ = cheerio.load(html);
+
+	// Prices in .prices-cover: <div class="value">kr 200</div>
+	const prices: number[] = [];
+	$('.prices-cover .value').each((_, el) => {
+		const text = $(el).text().trim();
+		const m = text.match(/kr\s*(\d+)/);
+		if (m) prices.push(parseInt(m[1]));
+		if (/gratis/i.test(text)) prices.push(0);
+	});
+
+	if (prices.length === 0) return '';
+	const nonZero = prices.filter(p => p > 0);
+	if (nonZero.length === 0) return 'Gratis';
+	const min = Math.min(...nonZero);
+	const max = Math.max(...nonZero);
+	return min === max ? `${min} kr` : `${min}–${max} kr`;
+}
 
 function guessCategory(title: string, location: string): string {
 	const text = `${title} ${location}`.toLowerCase();
@@ -99,7 +122,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const category = guessCategory(title, locationText);
 
-		const aiDesc = await generateDescription({ title, venue: venueName, category, date: dateStart, price: '' });
+		// Fetch detail page for price
+		await delay(1000);
+		const price = await fetchDetailPrice(fullUrl);
+
+		const aiDesc = await generateDescription({ title, venue: venueName, category, date: dateStart, price });
 
 		const success = await insertEvent({
 			slug: makeSlug(title, dateStart),
@@ -111,7 +138,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			venue_name: venueName,
 			address: venueName + ', Bergen',
 			bydel,
-			price: '',
+			price,
 			ticket_url: fullUrl,
 			source: SOURCE,
 			source_url: fullUrl,
