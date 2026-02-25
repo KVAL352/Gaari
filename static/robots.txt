@@ -4,4 +4,29 @@ Disallow: /no/submit
 Disallow: /en/submit
 Disallow: /admin/
 
+# AI crawlers — explicitly allowed for indexing and knowledge base inclusion
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
 Sitemap: https://gaari.no/sitemap.xml

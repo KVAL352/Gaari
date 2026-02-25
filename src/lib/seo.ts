@@ -119,13 +119,29 @@ export function generateOrganizationJsonLd(): string {
 		'@context': 'https://schema.org',
 		'@type': 'Organization',
 		name: 'Gåri',
+		alternateName: 'Gaari',
 		url: BASE_URL,
 		logo: `${BASE_URL}/og/default.png`,
-		description: 'Event aggregator for Bergen, Norway',
+		description: 'Gåri er en gratis arrangementskalender for Bergen, Norge. Vi samler arrangementer fra 44 kilder — konserter, utstillinger, teater, festival, mat og mer — på ett sted. Oppdatert to ganger daglig.',
+		foundingDate: '2026',
+		areaServed: {
+			'@type': 'City',
+			name: 'Bergen',
+			sameAs: 'https://www.wikidata.org/wiki/Q26693'
+		},
+		knowsAbout: [
+			'events in Bergen Norway',
+			'Bergen concerts',
+			'Bergen culture',
+			'hva skjer i Bergen',
+			'Bergen arrangementer'
+		],
+		inLanguage: ['nb', 'en'],
 		contactPoint: {
 			'@type': 'ContactPoint',
 			email: 'gaari.bergen@proton.me',
-			contactType: 'customer service'
+			contactType: 'customer service',
+			availableLanguage: ['Norwegian', 'English']
 		},
 		sameAs: ['https://github.com/KVAL352/Gaari']
 	};
@@ -138,7 +154,17 @@ export function generateWebSiteJsonLd(lang: Lang): string {
 		'@context': 'https://schema.org',
 		'@type': 'WebSite',
 		name: 'Gåri',
-		url: `${BASE_URL}/${lang}`,
+		alternateName: lang === 'no' ? 'Ke det går i Bergen?' : 'What\'s on in Bergen?',
+		url: BASE_URL,
+		description: lang === 'no'
+			? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, utstillinger, teater, mat og mer. Oppdatert to ganger daglig fra 44 kilder.'
+			: 'Gåri aggregates all events in Bergen in one place — concerts, exhibitions, theatre, food and more. Updated twice daily from 44 sources.',
+		inLanguage: ['nb', 'en'],
+		about: {
+			'@type': 'City',
+			name: 'Bergen',
+			sameAs: 'https://www.wikidata.org/wiki/Q26693'
+		},
 		potentialAction: {
 			'@type': 'SearchAction',
 			target: {
