@@ -1,6 +1,6 @@
 # Gåri — Strategic Roadmap: Progress Tracker
 
-**Last updated:** 2026-02-26
+**Last updated:** 2026-02-26 (evening)
 
 ---
 
@@ -101,7 +101,7 @@ All in sitemap with hreflang (priority 0.8, daily). JSON-LD `CollectionPage` sch
 - ✅ **IndexNow integration** — `pingIndexNow()` in `scrape.ts` batch-submits new event URLs to Bing/Yandex after each scrape run. Key file at `static/10b12647d03f9ef9150742d712605119.txt`.
 
 **Remaining (manual or content work):**
-- [ ] **Bing Webmaster Tools** — register gaari.no at bing.com/webmasters, submit sitemap, add `INDEXNOW_KEY` to GHA secrets (value: `10b12647d03f9ef9150742d712605119`). Enables ChatGPT search citations.
+- ✅ **Bing Webmaster Tools** — verified via CNAME, sitemap submitted, `INDEXNOW_KEY` GHA secret added (done 2026-02-26). ChatGPT search citations now enabled.
 - [ ] **Editorial copy + answer capsules** — 150–300 words + 3–5 question H2s with 20–25 word direct answers on each collection page. #1 ChatGPT citation driver per empirical research.
 - [ ] **Google Business Profile** — create as "Event Planning Service", service-area Bergen, link to gaari.no (~30 min)
 - [ ] **Directory citations** — Gulesider.no, Proff.no, 1881.no, Bergen Næringsråd (~1 hour total)
@@ -116,7 +116,7 @@ All in sitemap with hreflang (priority 0.8, daily). JSON-LD `CollectionPage` sch
 - ✅ Google Search Console set up
 - [ ] Social media active with 4+ weeks of posts (Instagram account not yet created)
 - [ ] Venue referral reports sent (do after 3–4 weeks of Plausible data)
-- [ ] Bing Webmaster Tools + sitemap submitted (→ enables ChatGPT search citations) — IndexNow code ready, needs GHA secret + manual signup
+- ✅ Bing Webmaster Tools verified + sitemap submitted + `INDEXNOW_KEY` GHA secret added (→ ChatGPT search citations enabled)
 
 **What to build:**
 - [ ] Supabase tables: `promoted_placements`, `placement_log`

@@ -186,12 +186,11 @@ Ordered by impact-per-effort:
 5. **Editorial copy + answer capsules** on 8 collection pages — content work (ongoing)
 6. ✅ **FAQ schema on collection pages** — `generateFaqJsonLdFromItems()`, 3 Q&A per collection, visible accordion (done 2026-02-26)
 7. **New collection pages** — neighborhood pages, seasonal pages (ongoing)
-8. ✅ **IndexNow integration** — `pingIndexNow()` in `scrape.ts`, key file committed (done 2026-02-26). Needs: GHA secret `INDEXNOW_KEY=10b12647d03f9ef9150742d712605119` + Bing Webmaster Tools manual signup.
+8. ✅ **IndexNow integration** — `pingIndexNow()` in `scrape.ts`, key file committed, GHA secret added (done 2026-02-26).
 9. **Sitemap segmentation** — optional, only needed if event count exceeds 50K
 
 **Manual actions (not code):**
-- [ ] Bing Webmaster Tools setup + sitemap submission (~15 min) — **do this now, unlocks ChatGPT citations**
-- [ ] Add GHA secret `INDEXNOW_KEY = 10b12647d03f9ef9150742d712605119`
+- ✅ Bing Webmaster Tools verified (CNAME) + sitemap submitted + GHA secret added (done 2026-02-26)
 - [ ] Venue backlink outreach (ongoing, ~1 email/week)
 - [ ] Google Business Profile setup (~30 min)
 - [ ] Directory citations: Gulesider.no, Proff.no, 1881.no, Bergen Næringsråd (~1 hour total)
