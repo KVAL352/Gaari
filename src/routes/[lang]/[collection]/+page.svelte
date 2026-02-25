@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
-	import { getCanonicalUrl, generateCollectionJsonLd } from '$lib/seo';
+	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd } from '$lib/seo';
 	import EventGrid from '$lib/components/EventGrid.svelte';
 	import LoadMore from '$lib/components/LoadMore.svelte';
 
@@ -17,6 +17,11 @@
 	let collectionJsonLd = $derived(
 		generateCollectionJsonLd(data.collection, $lang, canonicalUrl, data.events)
 	);
+
+	let breadcrumbJsonLd = $derived(generateBreadcrumbJsonLd([
+		{ name: 'Gåri', url: getCanonicalUrl(`/${$lang}`) },
+		{ name: title }
+	]));
 
 	let nextPageHref = $derived(`?page=${pageNum + 1}`);
 </script>
@@ -36,6 +41,7 @@
 	<meta name="twitter:image" content={`${$page.url.origin}/og/c/${data.collection.slug}.png`} />
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + collectionJsonLd + '</scr' + 'ipt>'}
+	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <!-- Hero section -->
