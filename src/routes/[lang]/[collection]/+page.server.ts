@@ -52,7 +52,8 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 			slug: collection.slug,
 			title: collection.title,
 			description: collection.description,
-			ogSubtitle: collection.ogSubtitle
+			ogSubtitle: collection.ogSubtitle,
+			faq: collection.faq
 		},
 		events: filtered,
 		lang: params.lang as 'no' | 'en'

@@ -274,21 +274,21 @@ export function getFaqItems(lang: Lang): Array<{ q: string; a: string }> {
 	return FAQ_ITEMS[lang];
 }
 
-export function generateFaqJsonLd(lang: Lang): string {
+export function generateFaqJsonLdFromItems(items: Array<{ q: string; a: string }>): string {
 	const jsonLd = {
 		'@context': 'https://schema.org',
 		'@type': 'FAQPage',
-		mainEntity: FAQ_ITEMS[lang].map(item => ({
+		mainEntity: items.map(item => ({
 			'@type': 'Question',
 			name: item.q,
-			acceptedAnswer: {
-				'@type': 'Answer',
-				text: item.a
-			}
+			acceptedAnswer: { '@type': 'Answer', text: item.a }
 		}))
 	};
-
 	return safeJsonLd(jsonLd);
+}
+
+export function generateFaqJsonLd(lang: Lang): string {
+	return generateFaqJsonLdFromItems(FAQ_ITEMS[lang]);
 }
 
 export function generateCollectionJsonLd(

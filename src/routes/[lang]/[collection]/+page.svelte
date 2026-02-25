@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
-	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd } from '$lib/seo';
+	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems } from '$lib/seo';
 	import EventGrid from '$lib/components/EventGrid.svelte';
 	import LoadMore from '$lib/components/LoadMore.svelte';
 
@@ -23,6 +23,9 @@
 		{ name: title }
 	]));
 
+	let faqItems = $derived(data.collection.faq?.[$lang] ?? []);
+	let faqJsonLd = $derived(faqItems.length > 0 ? generateFaqJsonLdFromItems(faqItems) : null);
+
 	let nextPageHref = $derived(`?page=${pageNum + 1}`);
 </script>
 
@@ -42,6 +45,7 @@
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + collectionJsonLd + '</scr' + 'ipt>'}
 	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}
+	{#if faqJsonLd}{@html '<script type="application/ld+json">' + faqJsonLd + '</scr' + 'ipt>'}{/if}
 </svelte:head>
 
 <!-- Hero section -->
@@ -83,3 +87,22 @@
 		</div>
 	{/if}
 </div>
+
+{#if faqItems.length > 0}
+<section class="mx-auto max-w-7xl px-4 pb-12 pt-4">
+	<h2 class="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">
+		{$lang === 'no' ? 'Ofte stilte spørsmål' : 'Frequently asked questions'}
+	</h2>
+	<dl class="space-y-2">
+		{#each faqItems as item}
+			<details class="group rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+				<summary class="flex cursor-pointer list-none items-center justify-between px-5 py-4 font-medium text-[var(--color-text-primary)] hover:text-[var(--color-accent)]">
+					<span>{item.q}</span>
+					<span class="ml-4 shrink-0 text-[var(--color-text-muted)] transition-transform group-open:rotate-180" aria-hidden="true">↓</span>
+				</summary>
+				<p class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed">{item.a}</p>
+			</details>
+		{/each}
+	</dl>
+</section>
+{/if}
