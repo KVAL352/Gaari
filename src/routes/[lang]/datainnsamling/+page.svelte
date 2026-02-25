@@ -10,8 +10,8 @@
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/datainnsamling`));
 
 	let metaDesc = $derived($lang === 'no'
-		? 'Hvordan Gåri samler inn eventdata fra 45 kilder i Bergen. Juridisk grunnlag, prinsipper og opt-out for arrangører.'
-		: 'How Gåri collects event data from 45 sources in Bergen. Legal basis, principles, and opt-out for organizers.');
+		? 'Hvordan Gåri samler inn eventdata fra 46 kilder i Bergen. Juridisk grunnlag, prinsipper og opt-out for arrangører.'
+		: 'How Gåri collects event data from 46 sources in Bergen. Legal basis, principles, and opt-out for organizers.');
 </script>
 
 <svelte:head>
@@ -37,11 +37,11 @@
 		<p class="text-lg leading-relaxed">
 			{#if $lang === 'no'}
 				Vi tror på åpenhet om hvordan vi samler inn eventdata. Gåri aggregerer offentlig tilgjengelig
-				informasjon om arrangementer i Bergen fra {44} kilder, slik at du kan finne alt som skjer på
+				informasjon om arrangementer i Bergen fra {46} kilder, slik at du kan finne alt som skjer på
 				ett sted.
 			{:else}
 				We believe in transparency about how we collect event data. Gåri aggregates publicly
-				available event information from {44} sources across Bergen, so you can find everything
+				available event information from {46} sources across Bergen, so you can find everything
 				happening in one place.
 			{/if}
 		</p>
@@ -192,7 +192,7 @@
 	<section class="mb-10 border-t border-[var(--color-border)] pt-8">
 		<details class="rounded-lg border border-[var(--color-border)] p-5">
 			<summary class="cursor-pointer text-xl font-semibold">
-				{$lang === 'no' ? 'Datakilder (45 kilder)' : 'Data sources (45 sources)'}
+				{$lang === 'no' ? 'Datakilder (46 kilder)' : 'Data sources (46 sources)'}
 			</summary>
 			<div class="mt-4 space-y-5 text-[var(--color-text-secondary)]">
 				<div>
@@ -218,7 +218,7 @@
 						{$lang === 'no' ? 'Kunst & museer' : 'Art & museums'}
 					</h4>
 					<p class="text-sm leading-relaxed">
-						KODE Bergen, Bergen Kunsthall, BEK, Bymuseet i Bergen, Museum Vest,
+						KODE Bergen, Bergen Kunsthall, BEK, Akvariet i Bergen, Bymuseet i Bergen, Museum Vest,
 						Litteraturhuset i Bergen, Bergen Filmklubb
 					</p>
 				</div>
@@ -437,7 +437,7 @@
 			gaari.bergen@proton.me
 		</a>
 		<p class="mt-8 text-sm text-[var(--color-text-muted)]">
-			{$lang === 'no' ? 'Sist oppdatert: 22. februar 2026' : 'Last updated: February 22, 2026'}
+			{$lang === 'no' ? 'Sist oppdatert: 25. februar 2026' : 'Last updated: February 25, 2026'}
 		</p>
 	</section>
 </div>
