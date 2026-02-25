@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenbibliotek';
@@ -64,6 +64,17 @@ function libraryBydel(location: string): string {
 	if (lower.includes('landås')) return 'Bergenhus';
 	if (lower.includes('nesttun')) return 'Fana';
 	return 'Sentrum';
+}
+
+/** Fetch detail page and extract price from <div class="exclude"> (e.g. "GRATIS", "150 kr") */
+async function fetchPrice(url: string): Promise<string> {
+	const html = await fetchHTML(url);
+	if (!html) return 'Gratis'; // Default for library events
+	const $ = cheerio.load(html);
+	const priceText = $('div.exclude').first().text().trim();
+	if (!priceText) return 'Gratis';
+	if (/gratis|free/i.test(priceText)) return 'Gratis';
+	return priceText;
 }
 
 /** Extract image URL from the listing link's background-image style */
@@ -150,7 +161,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Extract image from listing link's background-image style
 		const imageUrl = extractListingImage($el);
 
-		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, price: tag.toLowerCase() === 'gratis' ? 'Gratis' : '' });
+		// Fetch detail page for actual price (most are "GRATIS", but some may cost)
+		await delay(1000);
+		const price = await fetchPrice(sourceUrl);
+
+		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, price });
 
 		const success = await insertEvent({
 			slug: makeSlug(title, parsed.date),
@@ -163,7 +178,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			venue_name: location,
 			address: '',
 			bydel,
-			price: tag.toLowerCase() === 'gratis' ? 'Gratis' : '',
+			price,
 			ticket_url: sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
