@@ -1,6 +1,6 @@
 # Gåri — Strategic Roadmap: Progress Tracker
 
-**Last updated:** 2026-02-25
+**Last updated:** 2026-02-26
 
 ---
 
@@ -81,6 +81,7 @@ All in sitemap with hreflang (priority 0.8, daily). JSON-LD `CollectionPage` sch
 
 > Full SEO + AI search playbook with gap analysis and implementation order: `docs/seo-ai-playbook.md`
 
+**Foundation (2026-02-25):**
 - ✅ `static/llms.txt` — llmstxt.org standard file (Perplexity, ChatGPT, Claude check for this)
 - ✅ `static/robots.txt` — explicit AI crawler allowance: GPTBot, ClaudeBot, Claude-Web, PerplexityBot, ChatGPT-User, anthropic-ai, cohere-ai, GoogleOther
 - ✅ `generateOrganizationJsonLd()` enriched: `alternateName`, `foundingDate`, `areaServed` (Bergen Wikidata Q26693), `knowsAbout` topics, `inLanguage`, `availableLanguage`
@@ -90,6 +91,20 @@ All in sitemap with hreflang (priority 0.8, daily). JSON-LD `CollectionPage` sch
 - ✅ Google Search Console verified (DNS TXT + meta tag backup in `app.html`)
 - ✅ Sitemap submitted to Google Search Console
 - ✅ Reddit / alternative channels strategy identified (non-code work)
+
+**Technical SEO improvements (2026-02-26):**
+- ✅ **Crawlable pagination** — `LoadMore.svelte` changed from `<button onclick>` to `<a href data-sveltekit-noscroll>`. Googlebot can now follow `?page=N` links. Entire event inventory is indexable.
+- ✅ **startDate timezone** — `toBergenIso()` in `seo.ts` converts UTC DB timestamps to Bergen local time with correct CET/CEST offset (`+01:00`/`+02:00`). Required by Google's Event schema validator.
+- ✅ **ItemList in CollectionPage JSON-LD** — `generateCollectionJsonLd()` now adds `mainEntity.ItemList` with up to 50 event URLs. Gives AI engines a machine-readable list of page contents.
+- ✅ **BreadcrumbList on collection pages** — `generateBreadcrumbJsonLd()` now called from `[collection]/+page.svelte` (was only on event detail pages).
+- ✅ **FAQ schema on collection pages** — `generateFaqJsonLdFromItems()` added to `seo.ts`; 3 bilingual Q&A pairs per collection in `collections.ts`; visible `<details>` accordion rendered below events. Targets high-intent Bergen queries.
+- ✅ **IndexNow integration** — `pingIndexNow()` in `scrape.ts` batch-submits new event URLs to Bing/Yandex after each scrape run. Key file at `static/10b12647d03f9ef9150742d712605119.txt`.
+
+**Remaining (manual or content work):**
+- [ ] **Bing Webmaster Tools** — register gaari.no at bing.com/webmasters, submit sitemap, add `INDEXNOW_KEY` to GHA secrets (value: `10b12647d03f9ef9150742d712605119`). Enables ChatGPT search citations.
+- [ ] **Editorial copy + answer capsules** — 150–300 words + 3–5 question H2s with 20–25 word direct answers on each collection page. #1 ChatGPT citation driver per empirical research.
+- [ ] **Google Business Profile** — create as "Event Planning Service", service-area Bergen, link to gaari.no (~30 min)
+- [ ] **Directory citations** — Gulesider.no, Proff.no, 1881.no, Bergen Næringsråd (~1 hour total)
 
 ---
 
@@ -101,7 +116,7 @@ All in sitemap with hreflang (priority 0.8, daily). JSON-LD `CollectionPage` sch
 - ✅ Google Search Console set up
 - [ ] Social media active with 4+ weeks of posts (Instagram account not yet created)
 - [ ] Venue referral reports sent (do after 3–4 weeks of Plausible data)
-- [ ] Bing Webmaster Tools + sitemap submitted (→ enables ChatGPT search citations)
+- [ ] Bing Webmaster Tools + sitemap submitted (→ enables ChatGPT search citations) — IndexNow code ready, needs GHA secret + manual signup
 
 **What to build:**
 - [ ] Supabase tables: `promoted_placements`, `placement_log`

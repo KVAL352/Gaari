@@ -1,6 +1,7 @@
 # Gåri — SEO & AI Search Playbook
 
 **Created:** 2026-02-25
+**Updated:** 2026-02-26
 **Source:** Claude Desktop strategy analysis (full strategy in session artifact)
 **Purpose:** Prioritized action plan for traditional SEO + AI search visibility
 
@@ -178,18 +179,19 @@ Events filtered by bydel as proper landing pages with editorial copy. Bergen's b
 
 Ordered by impact-per-effort:
 
-1. **Crawlable pagination** — `LoadMore.svelte` → `<a href>` (30 min, high impact)
-2. **ItemList in CollectionPage JSON-LD** — update `generateCollectionJsonLd()` (30 min, medium impact)
-3. **startDate timezone normalization** in `generateEventJsonLd()` (1 hour, required for schema validation)
-4. **BreadcrumbList on collection pages** — call existing function (20 min, low effort)
+1. ✅ **Crawlable pagination** — `LoadMore.svelte` → `<a href data-sveltekit-noscroll>` (done 2026-02-26)
+2. ✅ **startDate timezone normalization** — `toBergenIso()` in `seo.ts`, applied to Event JSON-LD (done 2026-02-26)
+3. ✅ **ItemList in CollectionPage JSON-LD** — `generateCollectionJsonLd()` accepts events[], adds mainEntity (done 2026-02-26)
+4. ✅ **BreadcrumbList on collection pages** — called from `[collection]/+page.svelte` (done 2026-02-26)
 5. **Editorial copy + answer capsules** on 8 collection pages — content work (ongoing)
-6. **FAQ schema on collection pages** — extend existing FAQ system (1 hour)
+6. ✅ **FAQ schema on collection pages** — `generateFaqJsonLdFromItems()`, 3 Q&A per collection, visible accordion (done 2026-02-26)
 7. **New collection pages** — neighborhood pages, seasonal pages (ongoing)
-8. **IndexNow integration** — ping Bing on new event inserts (1 hour)
+8. ✅ **IndexNow integration** — `pingIndexNow()` in `scrape.ts`, key file committed (done 2026-02-26). Needs: GHA secret `INDEXNOW_KEY=10b12647d03f9ef9150742d712605119` + Bing Webmaster Tools manual signup.
 9. **Sitemap segmentation** — optional, only needed if event count exceeds 50K
 
 **Manual actions (not code):**
-- Bing Webmaster Tools setup + sitemap submission (~15 min)
-- Venue backlink outreach (ongoing, ~1 email/week)
-- Google Business Profile setup (~30 min)
-- Directory citations (~1 hour total)
+- [ ] Bing Webmaster Tools setup + sitemap submission (~15 min) — **do this now, unlocks ChatGPT citations**
+- [ ] Add GHA secret `INDEXNOW_KEY = 10b12647d03f9ef9150742d712605119`
+- [ ] Venue backlink outreach (ongoing, ~1 email/week)
+- [ ] Google Business Profile setup (~30 min)
+- [ ] Directory citations: Gulesider.no, Proff.no, 1881.no, Bergen Næringsråd (~1 hour total)
