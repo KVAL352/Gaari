@@ -32,9 +32,9 @@ describe('getCollection', () => {
 		expect(getCollection('gibberish')).toBeUndefined();
 	});
 
-	it('returns all 8 collections', () => {
+	it('returns all 12 collections', () => {
 		const slugs = getAllCollectionSlugs();
-		expect(slugs).toHaveLength(8);
+		expect(slugs).toHaveLength(12);
 		expect(slugs).toContain('denne-helgen');
 		expect(slugs).toContain('i-kveld');
 		expect(slugs).toContain('gratis');
@@ -43,6 +43,10 @@ describe('getCollection', () => {
 		expect(slugs).toContain('konserter');
 		expect(slugs).toContain('studentkveld');
 		expect(slugs).toContain('this-weekend');
+		expect(slugs).toContain('i-dag');
+		expect(slugs).toContain('free-things-to-do-bergen');
+		expect(slugs).toContain('regndagsguide');
+		expect(slugs).toContain('sentrum');
 	});
 
 	it('each collection has bilingual title and description', () => {
@@ -299,5 +303,90 @@ describe('this-weekend filter (English)', () => {
 		];
 		const result = collection.filterEvents(events, now);
 		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
+	});
+});
+
+describe('today filter Norwegian (i-dag)', () => {
+	const collection = getCollection('i-dag')!;
+
+	it('includes only today events', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-24T10:00:00Z' }), // Today ✓
+			makeEvent({ id: '2', date_start: '2026-02-24T20:00:00Z' }), // Today ✓
+			makeEvent({ id: '3', date_start: '2026-02-25T10:00:00Z' })  // Tomorrow — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('returns empty when no events today', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		expect(collection.filterEvents([makeEvent({ date_start: '2026-02-25T10:00:00Z' })], now)).toHaveLength(0);
+	});
+});
+
+describe('free events English (free-things-to-do-bergen)', () => {
+	const collection = getCollection('free-things-to-do-bergen')!;
+
+	it('includes free events within 2 weeks', () => {
+		// Feb 24 (Monday) — addDays(now,13) = Mar 9 = last included day
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', price: 0 }),        // Free, day 2 ✓
+			makeEvent({ id: '2', date_start: '2026-03-09T18:00:00Z', price: 0 }),        // Free, day 14 ✓
+			makeEvent({ id: '3', date_start: '2026-03-10T18:00:00Z', price: 0 }),        // Free, day 15 — excluded
+			makeEvent({ id: '4', date_start: '2026-02-25T18:00:00Z', price: 250 })       // Paid — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('returns empty when no free events', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		expect(collection.filterEvents([makeEvent({ price: 200 })], now)).toHaveLength(0);
+	});
+});
+
+describe('rainy day filter (regndagsguide)', () => {
+	const collection = getCollection('regndagsguide')!;
+
+	it('includes indoor category events within 2 weeks', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'music' }),     // Indoor ✓
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', category: 'theatre' }),   // Indoor ✓
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'tours' }),     // Outdoor — excluded
+			makeEvent({ id: '4', date_start: '2026-02-25T18:00:00Z', category: 'sports' }),    // Outdoor — excluded
+			makeEvent({ id: '5', date_start: '2026-03-10T18:00:00Z', category: 'music' })      // Day 15 — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('returns empty when no indoor events', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		expect(collection.filterEvents([makeEvent({ category: 'tours' })], now)).toHaveLength(0);
+	});
+});
+
+describe('sentrum filter', () => {
+	const collection = getCollection('sentrum')!;
+
+	it('includes Sentrum bydel events within 2 weeks', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', bydel: 'Sentrum' }),     // Sentrum ✓
+			makeEvent({ id: '2', date_start: '2026-03-09T18:00:00Z', bydel: 'Sentrum' }),     // Day 14, Sentrum ✓
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', bydel: 'Bergenhus' }),   // Wrong bydel — excluded
+			makeEvent({ id: '4', date_start: '2026-03-10T18:00:00Z', bydel: 'Sentrum' })      // Day 15 — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('returns empty when no Sentrum events', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		expect(collection.filterEvents([makeEvent({ bydel: 'Fana' })], now)).toHaveLength(0);
 	});
 });

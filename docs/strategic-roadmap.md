@@ -88,7 +88,7 @@ Pipeline is built and working (`scripts/social/`), but social media accounts are
 - ✅ Editorial copy (150–200 words) + answer capsules on all 8 collection pages
 
 **Remaining manual:**
-- [ ] Google Business Profile — "Event Planning Service", Bergen area (~30 min)
+- ✅ Google Business Profile — created, logo + cover uploaded, verified (done 2026-02-26)
 - [ ] Directory citations — Gulesider.no, Proff.no, 1881.no, Bergen Næringsråd (~1 hour)
 - [ ] Venue backlink outreach — 1 email/week, start with USF Verftet, Bergen Kunsthall, Litteraturhuset
 
