@@ -61,10 +61,12 @@ Fix: Update `generateCollectionJsonLd()` in `seo.ts` to accept an `events` array
 }
 ```
 
-**5. AI referral tracking in Plausible**
-Need to see which AI platforms send traffic. In Plausible, create a custom event `ai-referral` triggered when `document.referrer` matches known AI domains: `chat.openai.com`, `chatgpt.com`, `perplexity.ai`, `claude.ai`, `gemini.google.com`, `copilot.microsoft.com`.
+**5. AI referral tracking in Plausible ✅ Done (2026-02-26)**
+Inline script in `app.html` checks `document.referrer` against 9 AI domains and fires `window.plausible('ai-referral', { props: { source: domain } })`. Runs immediately after the Plausible queue stub so events are queued even before the async Plausible script loads. Domains tracked: chatgpt.com, chat.openai.com, perplexity.ai, claude.ai, gemini.google.com, copilot.microsoft.com, deepseek.com, you.com, phind.com.
 
-Add to `app.html` as a small inline script, or use Plausible's Goals to track via UTM source matching. Note: free ChatGPT users don't send referrer — AI traffic is always underreported.
+**Manual step still needed:** Add "ai-referral" goal in Plausible dashboard → Settings → Goals → Add goal → Custom event → name: `ai-referral`.
+
+**Important caveat:** Free ChatGPT users don't send referrer data (ChatGPT app opens links without a referrer header). AI traffic is always underreported in analytics — treat numbers as a floor, not a ceiling.
 
 ---
 

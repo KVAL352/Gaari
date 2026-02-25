@@ -11,6 +11,8 @@
 	<!-- Privacy-friendly analytics by Plausible -->
 		<script async src="https://plausible.io/js/pa-X1Q0N-DZISUO8l_eKq9ya.js"></script>
 		<script>window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()</script>
+		<!-- AI referral tracking: fires custom event when visitor arrives from an AI search platform -->
+		<script>(function(){var r=document.referrer;if(!r)return;var d=['chatgpt.com','chat.openai.com','perplexity.ai','claude.ai','gemini.google.com','copilot.microsoft.com','deepseek.com','you.com','phind.com'];for(var i=0;i<d.length;i++){if(r.indexOf(d[i])!==-1){window.plausible('ai-referral',{props:{source:d[i]}});break;}}})()</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
