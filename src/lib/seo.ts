@@ -178,6 +178,90 @@ export function generateWebSiteJsonLd(lang: Lang): string {
 	return safeJsonLd(jsonLd);
 }
 
+const FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
+	no: [
+		{
+			q: 'Hva er Gåri?',
+			a: 'Gåri er en gratis arrangementskalender for Bergen som samler arrangementer fra 44 kilder — konsertsteder, teatre, museer, biblioteker, festivaler og billettsider — på ett sted. Oppdatert to ganger daglig.'
+		},
+		{
+			q: 'Hva skjer i Bergen denne helgen?',
+			a: 'Bruk siden «Denne helgen i Bergen» på gaari.no/no/denne-helgen for en fullstendig oversikt over helgens arrangementer — konserter, utstillinger, familieaktiviteter og mer.'
+		},
+		{
+			q: 'Finnes det gratis arrangementer i Bergen?',
+			a: 'Ja. Gåri har en egen side for gratis arrangementer i Bergen denne uken på gaari.no/no/gratis. Mange museer, biblioteker og utendørsarrangementer har gratis inngang.'
+		},
+		{
+			q: 'Er Gåri gratis å bruke?',
+			a: 'Ja, Gåri er helt gratis. Du trenger ingen konto eller registrering for å se arrangementer.'
+		},
+		{
+			q: 'Hvilke områder i Bergen dekker Gåri?',
+			a: 'Gåri dekker arrangementer i hele Bergen kommune — Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane og Arna.'
+		},
+		{
+			q: 'Hvilke typer arrangementer finner jeg på Gåri?',
+			a: 'Musikk og konserter, kunst og kultur, teater og scenekunst, familie og barn, mat og drikke, festivaler og markeder, sport og friluft, uteliv, kurs og workshops, studentarrangementer og turer.'
+		},
+		{
+			q: 'Hvordan sender jeg inn et arrangement til Gåri?',
+			a: 'Bruk innsendingsskjemaet på gaari.no. Alle innsendte arrangementer gjennomgås manuelt før publisering.'
+		}
+	],
+	en: [
+		{
+			q: 'What is Gåri?',
+			a: 'Gåri is a free event calendar for Bergen, Norway, collecting events from 44 sources — concert venues, theatres, museums, libraries, festivals and ticket platforms — in one place. Updated twice daily.'
+		},
+		{
+			q: 'What\'s on in Bergen this weekend?',
+			a: 'Visit gaari.no/en/this-weekend for a complete overview of this weekend\'s events in Bergen — concerts, exhibitions, family activities and more.'
+		},
+		{
+			q: 'Are there free events in Bergen?',
+			a: 'Yes. Gåri has a dedicated page for free events in Bergen this week at gaari.no/en/... Many museums, libraries and outdoor events have free admission.'
+		},
+		{
+			q: 'Is Gåri free to use?',
+			a: 'Yes, completely free. No account or registration required to browse events.'
+		},
+		{
+			q: 'What areas of Bergen does Gåri cover?',
+			a: 'Gåri covers events across all of Bergen municipality — Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane and Arna.'
+		},
+		{
+			q: 'What types of events does Gåri list?',
+			a: 'Music and concerts, arts and culture, theatre and performing arts, family and kids, food and drink, festivals and markets, sports and outdoors, nightlife, workshops and classes, student events, and tours.'
+		},
+		{
+			q: 'How do I submit an event to Gåri?',
+			a: 'Use the submission form at gaari.no. All submitted events are reviewed before publishing.'
+		}
+	]
+};
+
+export function getFaqItems(lang: Lang): Array<{ q: string; a: string }> {
+	return FAQ_ITEMS[lang];
+}
+
+export function generateFaqJsonLd(lang: Lang): string {
+	const jsonLd = {
+		'@context': 'https://schema.org',
+		'@type': 'FAQPage',
+		mainEntity: FAQ_ITEMS[lang].map(item => ({
+			'@type': 'Question',
+			name: item.q,
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: item.a
+			}
+		}))
+	};
+
+	return safeJsonLd(jsonLd);
+}
+
 export function generateCollectionJsonLd(
 	collection: Pick<Collection, 'title' | 'description' | 'slug'>,
 	lang: Lang,

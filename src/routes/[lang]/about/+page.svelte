@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
-	import { generateOrganizationJsonLd, getCanonicalUrl } from '$lib/seo';
+	import { generateOrganizationJsonLd, generateFaqJsonLd, getFaqItems, getCanonicalUrl } from '$lib/seo';
 	import { Mail } from 'lucide-svelte';
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/about`));
 	let orgJsonLd = generateOrganizationJsonLd();
+	let faqJsonLd = $derived(generateFaqJsonLd($lang));
+	let faqItems = $derived(getFaqItems($lang));
 </script>
 
 <svelte:head>
@@ -22,6 +24,7 @@
 	<meta name="twitter:description" content={$t('aboutText')} />
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + orgJsonLd + '</scr' + 'ipt>'}
+	{@html '<script type="application/ld+json">' + faqJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">
@@ -46,6 +49,25 @@
 				{$lang === 'no' ? 'Les mer om datainnsamling og juridisk grunnlag' : 'Read more about data collection and legal basis'}
 			</a>
 		</p>
+	</section>
+
+	<section class="mb-8">
+		<h2 class="mb-4 text-xl font-semibold">
+			{$lang === 'no' ? 'Ofte stilte spørsmål' : 'Frequently asked questions'}
+		</h2>
+		<dl class="space-y-2">
+			{#each faqItems as item}
+				<details class="group rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+					<summary class="flex cursor-pointer list-none items-center justify-between px-5 py-4 font-medium text-[var(--color-text-primary)] hover:text-[var(--color-accent)]">
+						<span>{item.q}</span>
+						<span class="ml-4 shrink-0 text-[var(--color-text-muted)] transition-transform group-open:rotate-180" aria-hidden="true">↓</span>
+					</summary>
+					<p class="px-5 pb-4 text-[var(--color-text-secondary)] leading-relaxed">
+						{item.a}
+					</p>
+				</details>
+			{/each}
+		</dl>
 	</section>
 
 	<section class="mb-8">
