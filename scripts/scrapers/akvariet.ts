@@ -1,5 +1,4 @@
 import * as cheerio from 'cheerio';
-import { mapCategory } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -44,9 +43,10 @@ function isRecurring(title: string): boolean {
 
 function guessCategory(title: string): string {
 	const lower = title.toLowerCase();
+	if (/konsert|concert/.test(lower)) return 'music';
 	if (/film|kino|prince|prinsen|dokumentar/.test(lower)) return 'culture';
 	if (/workshop|kurs|lær/.test(lower)) return 'workshop';
-	return mapCategory(title) || 'family';
+	return 'family';
 }
 
 /**
