@@ -1,6 +1,6 @@
 # DESIGN BRIEF: Gåri — Bergen Event Discovery
 
-**Updated: February 18, 2026**
+**Updated: February 26, 2026**
 **Status: Reconciled with project-strategy.md — ready to build**
 
 This document specifies how the frontend should look and behave. For product scope, data sources, moderation, and launch plan, see `project-strategy.md`.
@@ -25,9 +25,9 @@ Build a Bergen, Norway event discovery website.
 | Layer | Technology | Notes |
 |-------|-----------|-------|
 | Framework | SvelteKit | Easiest step from vanilla JS, real HTML templates |
-| Components | shadcn-svelte | Svelte port of shadcn/ui — same patterns, native Svelte |
+| Components | Custom Funkis system | Design tokens in app.css, inspired by Bergen's Sundt building (1938) |
 | Styling | Tailwind CSS | Utility-first, works great with SvelteKit |
-| Font | Inter (variable, Google Fonts) | Clean, tabular numbers for dates/prices |
+| Font | Inter + Barlow Condensed (self-hosted woff2) | Body + display. No external font requests. |
 | Icons | Lucide Svelte | Same icon set as Lucide React, Svelte-native |
 | Backend/DB | Supabase (PostgreSQL) | Auth, API, storage — free tier |
 | Hosting | Vercel | Auto-deploy, SvelteKit adapter included |
@@ -464,11 +464,10 @@ Norwegian date format: `nb-NO` locale, 24-hour clock, DD.MM.YYYY.
 
 ## TYPOGRAPHY
 
-Font: **Inter** (load from Google Fonts as variable font)
+Fonts: **Inter** (body) + **Barlow Condensed** (display), self-hosted woff2 in `static/fonts/`. No external font requests.
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-
+/* Fonts declared via @font-face in app.css — no Google Fonts import */
 :root {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
