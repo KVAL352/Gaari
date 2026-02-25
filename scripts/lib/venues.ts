@@ -50,8 +50,8 @@ const VENUE_URLS: Record<string, string> = {
 	'kvarteret': 'https://kvarteret.no',
 	'det akademiske kvarter': 'https://kvarteret.no',
 	'landmark': 'https://landmark.no',
-	'victoria': 'https://victoria.no',
-	'vic': 'https://victoria.no',
+	'victoria': 'https://www.victoriapub.no',
+	'vic': 'https://www.victoriapub.no',
 
 	// Cultural institutions
 	'bergen kunsthall': 'https://bergenkunsthall.no',

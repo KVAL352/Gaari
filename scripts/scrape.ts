@@ -45,6 +45,7 @@ import { scrape as scrapeVVV } from './scrapers/vvv.js';
 import { scrape as scrapeBymuseet } from './scrapers/bymuseet.js';
 import { scrape as scrapeMuseumVest } from './scrapers/museumvest.js';
 import { scrape as scrapeAkvariet } from './scrapers/akvariet.js';
+import { scrape as scrapeKvarteret } from './scrapers/kvarteret.js';
 import { writeFileSync } from 'fs';
 import { removeExpiredEvents, loadOptOuts, getOptOutDomains } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
@@ -99,6 +100,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	bymuseet: scrapeBymuseet,
 	museumvest: scrapeMuseumVest,
 	akvariet: scrapeAkvariet,
+	kvarteret: scrapeKvarteret,
 	// --- Aggregator last (fills gaps, skipped if deadline reached) ---
 	visitbergen: scrapeVisitBergen,
 };
