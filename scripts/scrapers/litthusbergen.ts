@@ -7,6 +7,32 @@ const SOURCE = 'litthusbergen';
 const BASE_URL = 'https://www.litthusbergen.no/program';
 const PAGE_PARAM = '90422230_page';
 
+/** Fetch detail page for price and ticket URL */
+async function fetchDetailPrice(url: string): Promise<{ price: string; ticketUrl?: string }> {
+	const html = await fetchHTML(url);
+	if (!html) return { price: '' };
+	const $ = cheerio.load(html);
+
+	// Ticket URL from "Kjøp billett" button linking to TicketCo
+	const ticketLink = $('a.button-kjop-billett:not(.w-condition-invisible)').attr('href');
+	const ticketUrl = ticketLink || undefined;
+
+	// Price from bold text in rich text body (e.g. "60,–" or "100,–")
+	let price = '';
+	$('.rich-text-block-2 strong').each((_, el) => {
+		const text = $(el).text().trim();
+		const m = text.match(/^(\d+)\s*,[-–]?\s*$/);
+		if (m) price = `${m[1]} kr`;
+	});
+
+	// Also check for "Gratis" badge being visible on detail page
+	if (!price && $('.event-gratis:not(.w-condition-invisible)').length > 0) {
+		price = 'Gratis';
+	}
+
+	return { price, ticketUrl };
+}
+
 function bergenOffset(dateStr: string): string {
 	const month = parseInt(dateStr.slice(5, 7));
 	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
@@ -65,6 +91,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			sourceUrl: string;
 			imageUrl: string | undefined;
 			isFree: boolean;
+			hasTicketButton: boolean;
 		}> = [];
 
 		items.each((_, el) => {
@@ -103,8 +130,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				if (tag) tags.push(tag);
 			});
 
-			// Free indicator
-			const isFree = item.text().includes('Gratis');
+			// Free indicator: check visible Gratis badge (not hidden by w-condition-invisible)
+			const isFree = item.find('.event-gratis:not(.w-condition-invisible)').length > 0;
+			const hasTicketButton = item.find('.button-kjop-billett:not(.w-condition-invisible)').length > 0;
 
 			// Image
 			const img = item.find('img').first();
@@ -112,7 +140,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 			const sourceUrl = `https://www.litthusbergen.no${link}`;
 
-			pageEvents.push({ title, dateStart, dateEnd, time, room, tags, sourceUrl, imageUrl, isFree });
+			pageEvents.push({ title, dateStart, dateEnd, time, room, tags, sourceUrl, imageUrl, isFree, hasTicketButton });
 		});
 
 		for (const ev of pageEvents) {
@@ -137,7 +165,17 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				dateEnd = isNaN(end.getTime()) ? undefined : end.toISOString();
 			}
 
-			const aiDesc = await generateDescription({ title: ev.title, venue: 'Litteraturhuset i Bergen', category, date: startDate, price: ev.isFree ? 'Gratis' : '' });
+			// Fetch detail page for price and ticket URL
+			let price = ev.isFree ? 'Gratis' : '';
+			let ticketUrl = ev.sourceUrl;
+			if (!ev.isFree) {
+				await delay(1000);
+				const detail = await fetchDetailPrice(ev.sourceUrl);
+				if (detail.price) price = detail.price;
+				if (detail.ticketUrl) ticketUrl = detail.ticketUrl;
+			}
+
+			const aiDesc = await generateDescription({ title: ev.title, venue: 'Litteraturhuset i Bergen', category, date: startDate, price });
 			const success = await insertEvent({
 				slug: makeSlug(ev.title, ev.dateStart),
 				title_no: ev.title,
@@ -149,8 +187,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				venue_name: ev.room || 'Litteraturhuset i Bergen',
 				address: 'Østre Skostredet 5-7, Bergen',
 				bydel,
-				price: ev.isFree ? 'Gratis' : '',
-				ticket_url: ev.sourceUrl,
+				price,
+				ticket_url: ticketUrl,
 				source: SOURCE,
 				source_url: ev.sourceUrl,
 				image_url: ev.imageUrl,
