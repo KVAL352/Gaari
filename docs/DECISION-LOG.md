@@ -1,6 +1,6 @@
 # Gåri — Decision Log
 
-**Last updated:** 2026-02-23
+**Last updated:** 2026-02-25
 
 Record of key architectural, design, and strategic decisions. Each entry includes the rationale and alternatives considered.
 
@@ -133,6 +133,60 @@ Each entry: `#N — Date — Decision title`
 - **Rationale:** Barlow Condensed has a modernist, functionalist feel matching the Funkis system. Inter is highly legible for body text and supports tabular numbers for dates/prices.
 - **Status:** Active
 
+### #21 — 2026-02-25 — Delete sold-out events from DB
+- **Decision:** When a scraper detects a sold-out event, it calls `deleteEventByUrl(source_url)` to remove it from the DB and skips insertion. Applied to 9 scrapers.
+- **Rationale:** Prevents sending users to events they can't attend. Handles both "never insert" and "remove events that sold out between runs". Simpler than a `sold_out` status field.
+- **Alternatives considered:** `sold_out` status (kept in DB but hidden — adds complexity, still wastes scraper time), marking as cancelled (wrong semantic).
+- **Status:** Active
+
+### #22 — 2026-02-25 — Server-side data loading, no client Supabase
+- **Decision:** All main pages use `+page.server.ts`. Supabase SDK runs only on the server (`$lib/server/supabase.ts`). Only `/submit` uses client-side Supabase (for image uploads).
+- **Rationale:** Eliminates the client-side waterfall (Load JS → Init Supabase → Fetch → Render). Data arrives pre-rendered in HTML. Improves Core Web Vitals significantly (Lighthouse Performance 77 → 95).
+- **Alternatives considered:** Client-side loading (was the original approach — replaced), hybrid (unnecessary complexity).
+- **Status:** Active
+
+### #23 — 2026-02-25 — Self-hosted fonts (no Google Fonts)
+- **Decision:** 5 woff2 font files in `static/fonts/`. `@font-face` in `app.css`. No external font CDN.
+- **Rationale:** Google Fonts requests were blocking page load and counted as third-party requests. Self-hosting eliminates the DNS lookup + connection + download waterfall. Also tightens CSP headers. FCP improved 3.8s → 1.7s.
+- **Alternatives considered:** Google Fonts (convenient but performance cost), system fonts (no brand identity).
+- **Status:** Active
+
+### #24 — 2026-02-25 — Business model: cross-subsidized promoted placement
+- **Decision:** Revenue from promoted placement tiers (Grasrot free → Basis 1 500 → Standard 3 500 → Partner 7 000 NOK/mo). Large venues subsidize small ones. Content stays editorially independent.
+- **Rationale:** Based on Hotelling's Law / agglomeration economics — a shared Bergen town square benefits all venues more than fragmented promotion. DICE data shows >40% of tickets sold through discovery platforms. Bundled "7 ting å gjøre denne helgen" content has 5–7 hooks vs. a solo ad's one.
+- **Alternatives considered:** Advertising (undermines editorial trust), ticketing commission (requires venue contracts + payment processing), freemium (wrong audience), data licensing (Phase D, not primary).
+- **Status:** Active — implementation in Phase C (weeks 11–16)
+
+### #25 — 2026-02-25 — Plausible Cloud for analytics
+- **Decision:** Use Plausible Cloud (€9/month) rather than self-hosted Umami.
+- **Rationale:** No cookies, no consent banner required (GDPR-compliant). €9/month is trivial vs. ops overhead of self-hosting. Full API access for venue referral reports. UTM tracking built in.
+- **Alternatives considered:** Umami self-hosted (free but ops overhead), Google Analytics (cookies, GDPR issues, heavy script), no analytics (can't prove value to venues).
+- **Status:** Active — revisit self-hosted Umami if costs become relevant at scale
+
+### #26 — 2026-02-25 — EventDiscovery progressive filter (replaces FilterBar on homepage)
+- **Decision:** Homepage uses a 5-step progressive discovery filter (When → Time → Who → What → Where & Price) instead of traditional dropdown FilterBar. URL params are single source of truth.
+- **Rationale:** Standard multi-dropdown filters are overwhelming on first visit. Progressive disclosure guides users step-by-step. URL-based state makes filters shareable and back-button safe.
+- **Alternatives considered:** Keeping FilterBar (retained on non-homepage routes), search-first (search autocomplete is v2), faceted sidebar (desktop-only pattern, poor mobile UX).
+- **Status:** Active
+
+### #27 — 2026-02-25 — 8 curated collection landing pages
+- **Decision:** Build dedicated server-rendered routes for curated event collections (denne-helgen, i-kveld, gratis, today-in-bergen, familiehelg, konserter, studentkveld, this-weekend).
+- **Rationale:** Collection pages serve two purposes: SEO (rank for high-intent local queries like "hva skjer i bergen denne helgen") and social media destinations (Instagram posts link to these pages, not the homepage). ISR-cached, JSON-LD CollectionPage schema, custom OG images.
+- **Alternatives considered:** Client-side filter redirects (no SEO benefit, no canonical URL), static pre-generated pages (too many, can't be dynamic), query param URLs (not shareable as "clean" social links).
+- **Status:** Active
+
+### #28 — 2026-02-25 — Social post automation: generate-only pipeline, no API posting
+- **Decision:** GitHub Actions cron generates Instagram carousel images + captions daily and stores them in Supabase Storage. Admin reviews at `/admin/social` and posts manually. No Meta Graph API automation yet.
+- **Rationale:** Meta Graph API requires business account + app review process. Manual posting takes ~5 min/day. Full automation is Phase D when posting exceeds 30 min/week.
+- **Alternatives considered:** Full Meta API from day one (too complex, requires app review), Buffer/Later (third-party dependency, cost), no automation (all manual, no consistency).
+- **Status:** Active — Phase D will add Meta API when volume justifies
+
+### #29 — 2026-02-25 — AI search optimization (llms.txt + explicit crawler permissions)
+- **Decision:** Add `static/llms.txt` per the llmstxt.org standard, explicitly name AI crawlers in `robots.txt` (GPTBot, ClaudeBot, PerplexityBot, etc.), enrich Organization/WebSite JSON-LD with entity data (Wikidata ID for Bergen, areaServed, knowsAbout), and add FAQPage JSON-LD to the about page.
+- **Rationale:** AI search engines (ChatGPT, Perplexity, Claude) are becoming primary discovery channels. Being the source cited for "what's on in Bergen" is high-value. `llms.txt` and FAQPage schema are low-effort, high-impact signals.
+- **Alternatives considered:** No AI optimization (missed opportunity), paid AI search placement (not yet available at meaningful scale).
+- **Status:** Active
+
 ---
 
 ## References
@@ -141,3 +195,4 @@ Each entry: `#N — Date — Decision title`
 - See `design-brief.md` for design decisions #4–6, #16, #20
 - See `project-strategy.md` for product scope decisions #14–15
 - See `next-scrapers.md` for scraper coverage decisions
+- See `strategic-roadmap.md` for business phase decisions #24–28
