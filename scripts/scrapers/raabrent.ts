@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, bergenOffset, deleteEventByUrl } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'raabrent';
@@ -58,12 +58,18 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 	const $ = cheerio.load(html);
 	const products: ProductInfo[] = [];
+	const soldOutUrls: string[] = [];
 
 	$('div.product-list-thumb.product').each((_, el) => {
 		const card = $(el);
 
-		// Skip sold out and coming soon
-		if (card.hasClass('sold') || card.hasClass('soon')) return;
+		// Track sold-out products for DB deletion
+		if (card.hasClass('sold')) {
+			const href = card.find('a.product-list-link').attr('href');
+			if (href) soldOutUrls.push(`${BASE_URL}${href}`);
+			return;
+		}
+		if (card.hasClass('soon')) return;
 
 		const link = card.find('a.product-list-link');
 		const href = link.attr('href');
@@ -94,6 +100,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			datePart,
 		});
 	});
+
+	// Delete sold-out products from DB
+	for (const url of soldOutUrls) {
+		if (await deleteEventByUrl(url)) console.log(`  - Removed sold-out: ${url}`);
+	}
 
 	console.log(`[${SOURCE}] Found ${products.length} upcoming courses`);
 

@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, deleteEventByUrl } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'dvrtvest';
@@ -142,10 +142,14 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	let inserted = 0;
 
 	for (const event of allEvents) {
-		// Skip sold out events
-		if (event.soldOut) continue;
-
 		const sourceUrl = event.ticketUrl || `${BASE_URL}${event.detailPath}`;
+
+		// Delete sold-out events from DB
+		if (event.soldOut) {
+			if (await deleteEventByUrl(sourceUrl)) console.log(`  - Removed sold-out: ${event.title}`);
+			continue;
+		}
+
 		if (await eventExists(sourceUrl)) continue;
 
 		const detail = showDetails.get(event.detailPath) || {};

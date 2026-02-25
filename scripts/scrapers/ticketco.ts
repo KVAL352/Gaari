@@ -110,6 +110,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		for (const event of events) {
 			found++;
 
+			// Note: TicketCo JSON-LD has no sold-out indicator (only EventScheduled/EventCancelled).
+			// Sold-out status is loaded client-side via Angular. TicketCo may remove sold-out events
+			// from listings entirely, which means they naturally expire from our DB.
 			if (event.eventStatus === 'EventCancelled') continue;
 
 			const sourceUrl = event.url;

@@ -43,7 +43,7 @@ export function generateEventJsonLd(
 	const offers: Record<string, unknown> = {
 		'@type': 'Offer',
 		availability: event.status === 'cancelled'
-			? 'https://schema.org/SoldOut'
+			? 'https://schema.org/Discontinued'
 			: 'https://schema.org/InStock',
 		url: event.ticket_url || pageUrl
 	};

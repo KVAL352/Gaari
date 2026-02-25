@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, deleteEventByUrl } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'forumscene';
@@ -79,6 +79,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 	// Parse all cards into a map (dedup by URL)
 	const uniqueEvents = new Map<string, ParsedEvent>();
+	const soldOutUrls: string[] = [];
 
 	cards.each((_, el) => {
 		const card = $(el);
@@ -92,7 +93,10 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		// Check if sold out (button visible = sold out)
 		const soldOutBtn = card.find('a.c-button__disabled');
-		if (soldOutBtn.length > 0 && !soldOutBtn.hasClass('w-condition-invisible')) return;
+		if (soldOutBtn.length > 0 && !soldOutBtn.hasClass('w-condition-invisible')) {
+			soldOutUrls.push(sourceUrl);
+			return;
+		}
 
 		// Extract start date
 		const dateBlocks = card.find('div.x-date');
@@ -137,6 +141,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticketUrl,
 		});
 	});
+
+	// Delete sold-out events from DB
+	for (const url of soldOutUrls) {
+		if (await deleteEventByUrl(url)) console.log(`  - Removed sold-out: ${url}`);
+	}
 
 	const found = uniqueEvents.size;
 	let inserted = 0;

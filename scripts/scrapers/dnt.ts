@@ -1,5 +1,5 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, delay, deleteEventByUrl } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'dnt';
@@ -109,10 +109,14 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			found++;
 			const vm = activity.activityViewModel;
 
-			// Skip cancelled, overdue, or full activities
-			if (vm.isCancelled || vm.isOverdue || vm.isFull) continue;
-
 			const sourceUrl = `https://www.dnt.no${activity.url}`;
+
+			// Skip cancelled/overdue, delete full (sold-out) activities
+			if (vm.isCancelled || vm.isOverdue) continue;
+			if (vm.isFull) {
+				if (await deleteEventByUrl(sourceUrl)) console.log(`  - Removed full: ${activity.pageTitle}`);
+				continue;
+			}
 			if (await eventExists(sourceUrl)) continue;
 
 			const { venue, address } = parseVenue(vm.eventLocation);

@@ -1,5 +1,5 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, deleteEventByUrl } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'dns';
@@ -56,20 +56,34 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 	// Group performances by production — we create one event per production (earliest upcoming performance)
 	const productions = new Map<string, DNSEvent[]>();
+	const soldOutProductions = new Set<string>();
 	const now = new Date();
 
 	for (const event of events) {
-		// Skip sold out
-		if (event.status === '0') continue;
-
 		// Skip past dates
 		const eventDate = new Date(`${event.dateISO}T${event.startTime}:00${bergenOffset(event.dateISO)}`);
 		if (eventDate < now) continue;
+
+		if (event.status === '0') {
+			// Track sold-out performances for deletion
+			soldOutProductions.add(event.productionId);
+			continue;
+		}
+
+		// Available performance — remove from sold-out set (at least one show available)
+		soldOutProductions.delete(event.productionId);
 
 		if (!productions.has(event.productionId)) {
 			productions.set(event.productionId, []);
 		}
 		productions.get(event.productionId)!.push(event);
+	}
+
+	// Delete fully sold-out productions from DB
+	for (const prodId of soldOutProductions) {
+		if (productions.has(prodId)) continue; // Has available shows
+		const eventUrl = `https://www.dns.no/forestillinger/?production=${prodId}`;
+		if (await deleteEventByUrl(eventUrl)) console.log(`  - Removed sold-out production: ${prodId}`);
 	}
 
 	let found = productions.size;

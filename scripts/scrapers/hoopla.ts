@@ -1,6 +1,6 @@
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
-import { makeSlug, eventExists, insertEvent, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, delay, deleteEventByUrl } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'hoopla';
@@ -99,10 +99,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		for (const event of events) {
 			found++;
 
-			if (event.is_cancelled) continue;
-			if (event.availability === 'SOLD_OUT') continue;
-
 			const sourceUrl = `https://${subdomain}.hoopla.no/event/${event.identifier || event.event_id}`;
+
+			if (event.is_cancelled) continue;
+			if (event.availability === 'SOLD_OUT') {
+				if (await deleteEventByUrl(sourceUrl)) console.log(`    - Removed sold-out: ${event.name}`);
+				continue;
+			}
 			if (await eventExists(sourceUrl)) continue;
 
 			const location = event.data?.location;

@@ -1,5 +1,5 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, deleteEventByUrl } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'grieghallen';
@@ -91,15 +91,18 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	let inserted = 0;
 
 	for (const event of events) {
-		// Skip sold out
-		if (event.ticketStatus?.label === 'Utsolgt') continue;
-
 		// Skip past events
 		const firstDate = new Date(event.firstEventDate);
 		const lastDate = event.lastEventDate ? new Date(event.lastEventDate) : firstDate;
 		if (lastDate < now) continue;
 
 		const sourceUrl = `https://www.grieghallen.no${event.url}`;
+
+		// Delete sold-out events from DB
+		if (event.ticketStatus?.label === 'Utsolgt') {
+			if (await deleteEventByUrl(sourceUrl)) console.log(`  - Removed sold-out: ${event.name}`);
+			continue;
+		}
 		if (await eventExists(sourceUrl)) continue;
 
 		const category = mapCategory(event.category, categories, event.name);

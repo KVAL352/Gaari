@@ -1,5 +1,5 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, deleteEventByUrl } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'usfverftet';
@@ -123,8 +123,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const cf = post.custom_fields || {};
 
-		// Skip sold out
-		if (cf.soldOut) continue;
+		// Delete sold-out events from DB
+		if (cf.soldOut) {
+			if (await deleteEventByUrl(sourceUrl)) console.log(`  - Removed sold-out: ${post.name}`);
+			continue;
+		}
 
 		const venueName = cf.zone || place?.name || 'USF Verftet';
 		const address = place ? `${place.address}, ${place.city}` : 'Georgernes Verft 12, Bergen';

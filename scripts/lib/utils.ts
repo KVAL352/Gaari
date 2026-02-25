@@ -130,6 +130,12 @@ export async function eventExists(sourceUrl: string): Promise<boolean> {
 	return (data && data.length > 0) || false;
 }
 
+// Delete a sold-out event by source_url (returns true if an event was deleted)
+export async function deleteEventByUrl(sourceUrl: string): Promise<boolean> {
+	const { data } = await supabase.from('events').delete().eq('source_url', sourceUrl).select('id');
+	return (data && data.length > 0) || false;
+}
+
 // Opt-out filtering — domains that have requested removal
 let optOutDomains: Set<string> | null = null;
 

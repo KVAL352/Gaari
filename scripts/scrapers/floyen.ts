@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, deleteEventByUrl } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'floyen';
@@ -141,7 +141,10 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		// Sold out check — only in the title, not the whole page
 		// (sidebar/nav may mention sold-out events from other pages)
-		if (title.toLowerCase().includes('utsolgt')) continue;
+		if (title.toLowerCase().includes('utsolgt')) {
+			if (await deleteEventByUrl(sourceUrl)) console.log(`  - Removed sold-out: ${title}`);
+			continue;
+		}
 
 		const offset = bergenOffset(dateStart);
 		const dateStartIso = new Date(`${dateStart}T${time}:00${offset}`).toISOString();

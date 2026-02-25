@@ -66,7 +66,7 @@ describe('generateEventJsonLd', () => {
 		);
 		const data = JSON.parse(json);
 		expect(data.eventStatus).toBe('https://schema.org/EventCancelled');
-		expect(data.offers.availability).toBe('https://schema.org/SoldOut');
+		expect(data.offers.availability).toBe('https://schema.org/Discontinued');
 	});
 
 	it('uses English title when lang=en and title_en exists', () => {
