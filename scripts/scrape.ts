@@ -105,6 +105,41 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	visitbergen: scrapeVisitBergen,
 };
 
+async function pingIndexNow(since: number): Promise<number> {
+	const key = process.env.INDEXNOW_KEY;
+	if (!key) return 0;
+
+	try {
+		const sinceIso = new Date(since).toISOString();
+		const { data, error } = await supabase
+			.from('events')
+			.select('slug')
+			.gte('created_at', sinceIso)
+			.eq('status', 'approved');
+
+		if (error || !data || data.length === 0) return 0;
+
+		const urlList = data.map((e: { slug: string }) => `https://gaari.no/no/events/${e.slug}`);
+
+		const res = await fetch('https://api.indexnow.org/indexnow', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json; charset=utf-8' },
+			body: JSON.stringify({
+				host: 'gaari.no',
+				key,
+				keyLocation: `https://gaari.no/${key}.txt`,
+				urlList
+			})
+		});
+
+		console.log(`IndexNow: submitted ${urlList.length} URLs → HTTP ${res.status}`);
+		return urlList.length;
+	} catch (err: any) {
+		console.warn(`IndexNow ping failed: ${err.message}`);
+		return 0;
+	}
+}
+
 async function main() {
 	const startTime = Date.now();
 	const args = process.argv.slice(2);
@@ -187,6 +222,13 @@ async function main() {
 		console.error(`Deduplication failed: ${err.message}\n`);
 	}
 
+	// Step 4: IndexNow ping for newly inserted events
+	let indexNowSubmitted = 0;
+	if (totalInserted > 0) {
+		console.log('--- Pinging IndexNow ---');
+		indexNowSubmitted = await pingIndexNow(startTime);
+	}
+
 	// Summary
 	console.log('=== Summary ===');
 	for (const [name, result] of Object.entries(results)) {
@@ -215,6 +257,7 @@ async function main() {
 		expiredRemoved: expired,
 		optOutRemoved,
 		duplicatesRemoved: dupsRemoved,
+		indexNowSubmitted,
 		durationSeconds
 	};
 

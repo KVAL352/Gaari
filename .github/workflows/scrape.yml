@@ -33,6 +33,7 @@ jobs:
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
           SUMMARY_FILE: ${{ runner.temp }}/scrape-summary.json
         run: npx tsx scrape.ts
 
@@ -54,6 +55,7 @@ jobs:
           EXPIRED=$(jq '.expiredRemoved' "$SUMMARY_FILE")
           OPTOUT=$(jq '.optOutRemoved' "$SUMMARY_FILE")
           DUPES=$(jq '.duplicatesRemoved' "$SUMMARY_FILE")
+          INDEXNOW=$(jq '.indexNowSubmitted' "$SUMMARY_FILE")
           DURATION=$(jq '.durationSeconds' "$SUMMARY_FILE")
           FAILED_LIST=$(jq -r '.failedScrapers | join(", ")' "$SUMMARY_FILE")
 
@@ -77,6 +79,7 @@ jobs:
           echo "| Expired removed | ${EXPIRED} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Opt-out removed | ${OPTOUT} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Duplicates removed | ${DUPES} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| IndexNow submitted | ${INDEXNOW} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Duration | ${DURATION}s |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
