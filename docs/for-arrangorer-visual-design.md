@@ -12,25 +12,34 @@
 
 ## The 6 Visual Elements
 
-### 1. Flow Animation: Venues → Gåri (NEW)
+### 1. StreamingAnimation: Venues → Gåri Hub (BUILT)
 
-**The hero visual for "how it works."** Shows event sources flying into Gåri automatically.
+**The hero visual for "how it works."** 5-layer animation showing events streaming from Bergen venue sources into a central Gåri hub. Component: `src/lib/components/StreamingAnimation.svelte`.
 
-**Implementation:**
-- Container: relative positioning, max-width 320px, aspect-ratio 1.15
-- Central Gåri badge: `--funkis-red` bg, white bold text, rounded-2xl, 64px, absolute centered
-- 6 venue pills positioned around the badge: Grieghallen, DNS, KODE, USF Verftet, Bergen Kjøtt, Oseana
-- Each pill: colored category dot + venue name in pill shape (`--color-bg-surface` bg, 1px border, rounded-full)
-- CSS `@keyframes flyIn`: translates from `var(--from-x), var(--from-y)` to final position, opacity 0→1, scale 0.85→1
-- CSS `@keyframes gaariAppear`: scale 0.7→1, opacity 0→1 (uses `scale` property, not `transform`, to avoid conflict with Tailwind translate)
-- Staggered `animation-delay`: 0s, 0.4s, 0.8s, 1.2s, 1.6s, 2.0s
-- Triggered by IntersectionObserver (threshold 0.3)
-- Respects `prefers-reduced-motion` (shows all elements immediately, no animation)
+**5 Visual Layers:**
+1. **Background grid** — 4 concentric dashed ellipses, opacity 0.08
+2. **12 venue pills** — Positioned in ellipse layout around the hub. Three size variants: lg (Grieghallen, DNS, Festspillene), md (KODE, USF Verftet, Kvarteret, Bergen Bibliotek, Fløyen), sm (Hulen, SK Brann, Colonialen, Lokalt loppemarked). Each pill: colored category dot + venue name, white bg, 1.5px colored border. 4 pills are desktop-only.
+3. **12 flying particles** — Color-matched to their source pill. Burst rhythm: 5 bursts of 2–3 particles across a 22s cycle. Each particle has a glowing trail (::after pseudo-element). Flight occupies 0–11.5% of cycle, invisible remainder.
+4. **Central Gåri hub** — 250×230px (190×180 mobile). Mini browser chrome (3 dots + "gaari.no" URL bar). Red top border (#C82D2D). Centered via `inset: 0; margin: auto`.
+5. **Cycling event cards** — 4 visible at a time from pool of 8. New card every 2.5s. Svelte `in:cardIn` (600ms backOut bounce + color ring), `out:cardOut` (300ms fade up), `animate:flip` for repositioning.
+
+**Animation Timing (staggered startup after scroll-trigger):**
+- 0ms: Hub entrance (scale 0.95→1, opacity 0→1, 0.5s)
+- 200–700ms: Pill entrance (staggered in 6 pairs, 0.4s each, then 22s flash loop synced to particle bursts)
+- 1200ms: Particles start (22s infinite cycle, burst rhythm)
+- 2500ms: Event cards appear (Svelte transitions, 2.5s cycling interval)
+
+**Technical Notes:**
+- Container: `width: 100%; max-width: 600px; height: 420px; overflow: hidden; background: #F5F3EE`
+- Hub centering: `inset: 0; margin: auto` (NOT `translate: -50% -50%` — conflicts with Tailwind CSS 4)
+- Pill dual animation: animation longhand properties (`animation-name`, `animation-duration`, etc.) to avoid CSS var() parsing issues in shorthand. Different fill-modes: `both` for entrance, `none` for flash.
+- IntersectionObserver (threshold 0.3), `.animation--active` class
+- `prefers-reduced-motion`: all animations `none !important`, particles hidden, all elements forced visible
 
 **Placement:**
 - In "Hvordan fungerer dette" section
-- Desktop: text left (50%), animation right (50%)
-- Mobile: animation centered below text
+- Full-width centered below text (not side-by-side)
+- Mobile: scales down, 4 desktop-only pills hidden
 
 ### 2. Product Mockup: "Fremhevet" Card in Context
 

@@ -16,7 +16,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - **Collection pages**: Curated landing pages via `$lib/collections.ts` config + single dynamic `[lang]/[collection]/` route. 13 collections: `denne-helgen` (weekend), `i-kveld` (tonight), `gratis` (free this week), `today-in-bergen` (today, EN), `familiehelg` (family weekend), `konserter` (concerts this week), `studentkveld` (student nightlife), `this-weekend` (weekend, EN), `i-dag` (today, NO), `free-things-to-do-bergen` (free 2 weeks, EN), `regndagsguide` (indoor/rainy day, 2 weeks), `sentrum` (Bergen sentrum bydel, 2 weeks), `voksen` (culture/music/theatre/tours/food/workshop for adults, 2 weeks). Each has `filterEvents(events, now)` using existing event-filter helpers, bilingual title/description/ogSubtitle. `getCollection(slug)` returns config or undefined (404). `getAllCollectionSlugs()` for sitemap. Static routes (`about/`, `events/`, etc.) resolve before the `[collection]` param — no conflicts.
 - **Social post pipeline**: `scripts/social/` generates Instagram carousel images (Satori/Resvg, 1080x1080 PNG) + captions for scheduled collections. GHA cron at 07:00 UTC daily. Admin review at `/admin/social`. Content generation only — no social accounts or API posting yet.
 - **Newsletter**: Weekly "Hva skjer i Bergen" via Buttondown. Subscribe form in footer. Content from collection data engine. Promoted events (Standard/Partner/à la carte) labeled "Fremhevet".
-- **B2B page**: `/[lang]/for-arrangorer/` marketing page for venues. Voice: "Gåri/vi" (never "jeg/meg"). 5-section structure: (1) Hero "Bergens Digitale Bytorg", (2) Hvordan: flow animation (venues→Gåri) + venue lookup with inline add-form, (3) Hvorfor: network effect text + AI pitch (54% SSB stat + animated chat phone mockup), (4) Hva får jeg: 4 feature cards + product/report mockups, (5) Hva nå: transparency + early bird 3mo free + CTA form. 3 scroll-triggered animations (flow, chat, sticky bar), all respect `prefers-reduced-motion`. Contact form inserts into `organizer_inquiries`. No pricing shown — drives inquiry.
+- **B2B page**: `/[lang]/for-arrangorer/` marketing page for venues. **Currently under construction** — temporarily hidden from footer and sitemap. Voice: "Gåri/vi" (never "jeg/meg"), except "Hvem står bak" section which uses first person (Kjersti's personal story). 6-section structure: (1) Hero "Bergens Digitale Bytorg", (2) Hvordan: StreamingAnimation (venues→Gåri hub) + venue lookup with inline add-form, (3) Hvorfor: network effect text + AI pitch (54% SSB stat + animated chat phone mockup), (4) Hva får jeg: 4 feature cards + product/report mockups, (5) Hvem står bak: personal photo + bio, (6) Hva nå: transparency + early bird 3mo free + CTA form. 3 scroll-triggered animations (streaming, chat, sticky bar), all respect `prefers-reduced-motion`. Contact form inserts into `organizer_inquiries`. No pricing shown — drives inquiry. Copy uses "utvalgte" (not "kuraterte") for collection pages.
 
 ## Key conventions
 
@@ -200,7 +200,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 ## Frontend components (`src/lib/components/`)
 
 - `Header.svelte` — Sticky header with language switch
-- `Footer.svelte` — Footer with links (about, datainnsamling, personvern, tilgjengelighet, contact)
+- `Footer.svelte` — Footer with links (about, datainnsamling, personvern, tilgjengelighet, submit, contact). For-arrangorer link temporarily removed while page is under construction.
 - `HeroSection.svelte` — Compact hero with tagline
 - `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer. Accepts `promoted` prop — renders "Fremhevet"/"Featured" badge (markedsføringsloven § 3).
 - `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates). Accepts `promotedEventIds` prop, passes `promoted` flag to each EventCard.
@@ -215,6 +215,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `BackToTop.svelte` — Sticky button to scroll to top
 - `LanguageSwitch.svelte` — NO/EN toggle
 - `ImagePlaceholder.svelte` — Fallback image with category color
+- `StreamingAnimation.svelte` — 5-layer animation showing venue events streaming into Gåri hub. Layers: background grid ellipses, 12 venue pills (lg/md/sm sizes in ellipse layout), 12 color-matched flying particles (burst rhythm, 22s cycle), central Gåri hub with browser chrome + cycling event cards (Svelte transitions + flip animation). IntersectionObserver scroll-trigger with staggered startup (hub 0ms → pills 200-700ms → particles 1200ms → cards 2500ms). Full `prefers-reduced-motion` support. Used on `/for-arrangorer` page.
 
 ## CSS theming (`src/app.css`)
 

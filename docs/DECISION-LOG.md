@@ -1,6 +1,6 @@
 # Gåri — Decision Log
 
-**Last updated:** 2026-02-26
+**Last updated:** 2026-02-27
 
 Record of key architectural, design, and strategic decisions. Each entry includes the rationale and alternatives considered.
 
@@ -250,7 +250,18 @@ Each entry: `#N — Date — Decision title`
 ### #40 — 2026-02-26 — For-arrangorer marketing page (AI search lead)
 - **Decision:** Create `/[lang]/for-arrangorer/` as a B2B marketing page. AI search citation is the primary differentiator. Footer link only — not in main navigation. No pricing visible.
 - **Rationale:** AI search is the genuinely novel selling point. No Bergen competitor can match it. Venue owners don't know their events appear in ChatGPT results — educating them creates demand.
-- **Status:** Ready for implementation
+- **Status:** Active — under construction (temporarily hidden from footer/sitemap)
+
+### #49 — 2026-02-27 — StreamingAnimation: HTML/CSS product mockup (no images)
+- **Decision:** Build the hero animation for `/for-arrangorer` as a 5-layer CSS/Svelte component (`StreamingAnimation.svelte`) rather than using screenshots, videos, or illustration.
+- **Rationale:** Follows Funkis design philosophy — "every visual is a working product mockup built in HTML/CSS." No stock photos, no external image dependencies. The animation demonstrates the product (events flowing from 12 Bergen venues into the Gåri hub) using real venue names and category colors. 12 venue pills in ellipse layout, 12 flying particles in burst rhythm (22s cycle), central hub with browser chrome and cycling event cards. Scroll-triggered with staggered startup. Full `prefers-reduced-motion` support.
+- **Alternatives considered:** Product screenshots (static, quickly outdated), Lottie animation (external dependency, complex toolchain), video (bandwidth, no autoplay on mobile), static illustration (doesn't show interactivity).
+- **Status:** Active
+
+### #50 — 2026-02-27 — B2B copy: "utvalgte" not "kuraterte"
+- **Decision:** Use "utvalgte sider" (selected/curated pages) instead of "kuraterte sider" in all Norwegian B2B copy on `/for-arrangorer`.
+- **Rationale:** "Kuraterte" is a loanword that feels pretentious to many Norwegian readers. "Utvalgte" is plain Norwegian and conveys the same meaning — pages we've carefully selected/built. Aligns with Funkis brand voice: functional, honest, Bergen.
+- **Status:** Active
 
 ### #41 — 2026-02-26 — Early bird: 3 months free before June 2026
 - **Decision:** Venues signing up before 1 June 2026 get 3 months free (full tier access). Stripe `trial_period_days: 90`. No commitment during free period.

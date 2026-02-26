@@ -1,6 +1,6 @@
 # Gåri — Strategic Roadmap v2
 
-**Updated:** 2026-02-26
+**Updated:** 2026-02-27
 **Replaces:** strategic-roadmap.md (v1, 2026-02-24)
 **Target:** 700,000 NOK/year net income run-rate within 12 months
 
@@ -20,8 +20,8 @@ Phases A and B from the original roadmap are **done**:
 - ⏸️ Social media accounts — paused (creation issues)
 
 **What's not built yet:**
-- `/for-arrangorer` marketing page
-- `organizer_inquiries` Supabase table
+- `/for-arrangorer` marketing page — ⏳ under construction (routes, form, animations built; page temporarily hidden from footer/sitemap while copy and visuals are finalized)
+- `organizer_inquiries` Supabase table — ✅ created and deployed
 - Stripe billing integration
 - Weekly newsletter
 - Venue referral reports from Plausible data

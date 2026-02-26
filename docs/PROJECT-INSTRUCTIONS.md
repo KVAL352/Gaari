@@ -1,6 +1,6 @@
 # Gåri — Project Instructions
 
-**Last updated:** 2026-02-26
+**Last updated:** 2026-02-27
 
 ---
 
@@ -39,7 +39,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. One place to find every
 ```
 src/
   lib/
-    components/       # 20 Svelte components
+    components/       # 18 Svelte components (including ForArrangorerPage, StreamingAnimation)
     collections.ts    # 13 curated collection configs (denne-helgen, i-kveld, etc.)
     event-filters.ts  # Date/time filter helpers (extracted for testability)
     types.ts          # Category, Bydel, GaariEvent, FilterState types
@@ -57,7 +57,7 @@ src/
       datainnsamling/ # Data transparency + opt-out form
       events/[slug]/  # Event detail page
       submit/         # Event submission form
-      for-arrangorer/ # B2B marketing page for venues (footer link only)
+      for-arrangorer/ # B2B marketing page for venues (under construction, temporarily hidden)
       [collection]/   # 13 curated landing pages (denne-helgen, i-kveld, gratis, etc.)
     admin/login/      # Password login
     admin/logout/     # Logout + redirect
