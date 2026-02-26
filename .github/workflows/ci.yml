@@ -18,6 +18,9 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Load CI env vars
+        run: cp .env.ci .env
+
       - name: Install dependencies
         run: npm ci
 
@@ -26,25 +29,9 @@ jobs:
 
       - name: Type check
         run: npm run check
-        env:
-          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
-          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: dummy
-          ADMIN_PASSWORD: dummy
-          ADMIN_SESSION_SECRET: dummy
-          SKIP_LOG_IPS: ''
-          RESEND_API_KEY: dummy
 
       - name: Test
         run: npm test
 
       - name: Build
         run: npm run build
-        env:
-          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
-          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: dummy
-          ADMIN_PASSWORD: dummy
-          ADMIN_SESSION_SECRET: dummy
-          SKIP_LOG_IPS: ''
-          RESEND_API_KEY: dummy
