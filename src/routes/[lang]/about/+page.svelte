@@ -56,7 +56,7 @@
 			{$lang === 'no' ? 'Ofte stilte spørsmål' : 'Frequently asked questions'}
 		</h2>
 		<dl class="space-y-2">
-			{#each faqItems as item}
+			{#each faqItems as item (item.q)}
 				<details class="group rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
 					<summary class="flex cursor-pointer list-none items-center justify-between px-5 py-4 font-medium text-[var(--color-text-primary)] hover:text-[var(--color-accent)]">
 						<span>{item.q}</span>

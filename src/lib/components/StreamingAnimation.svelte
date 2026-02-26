@@ -142,7 +142,7 @@
 			{ name: 'Hulen', left: '2%', top: '60%', color: '#9BAED4', entranceDelay: '0.5s', flashDelay: '14.7s', size: 'sm', mobile: false },
 			{ name: 'Festspillene', left: '2%', top: '14%', color: '#F5E0A0', entranceDelay: '0.3s', flashDelay: '10.65s', size: 'lg', mobile: true },
 			{ name: 'Lokalt loppemarked', left: '24%', top: '2%', color: '#F5E0A0', entranceDelay: '0.2s', flashDelay: '19s', size: 'sm', mobile: false }
-		] as pill}
+		] as pill (pill.name)}
 			<div
 				class="venue-pill pill--{pill.size} {pill.mobile ? '' : 'desktop-only'}"
 				style="left: {pill.left}; top: {pill.top}; --pill-color: {pill.color}; --entrance-delay: {pill.entranceDelay}; --flash-delay: {pill.flashDelay};"

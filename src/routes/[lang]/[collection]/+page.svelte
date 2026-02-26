@@ -97,7 +97,7 @@
 	<div class="max-w-2xl">
 		{#if editorial.length > 0}
 		<div class="mb-10 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-			{#each editorial as para}
+			{#each editorial as para, i (i)}
 			<p>{para}</p>
 			{/each}
 		</div>
@@ -105,7 +105,7 @@
 
 		{#if faqItems.length > 0}
 		<div class="space-y-6">
-			{#each faqItems as item}
+			{#each faqItems as item (item.q)}
 			<div>
 				<h2 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">{item.q}</h2>
 				<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">{item.a}</p>

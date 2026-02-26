@@ -102,7 +102,7 @@
 
 					<!-- Slide thumbnails -->
 					<div class="slide-row">
-						{#each post.image_urls as url, i}
+						{#each post.image_urls as url, i (url)}
 							<a href={url} target="_blank" rel="noopener noreferrer" class="slide-link">
 								<img
 									src={url}

@@ -116,7 +116,7 @@
 						Samlingsider <span style="color: #C82D2D;">*</span>
 					</legend>
 					<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-top: 8px;">
-						{#each ALL_COLLECTIONS as col}
+						{#each ALL_COLLECTIONS as col (col.slug)}
 						<label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
 							<input type="checkbox" name="collection_slugs" value={col.slug} style="width: 16px; height: 16px;" />
 							{col.label}

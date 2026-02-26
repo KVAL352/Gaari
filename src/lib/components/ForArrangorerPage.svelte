@@ -41,7 +41,7 @@
 
 	function trackEvent(name: string) {
 		if (typeof window !== 'undefined' && 'plausible' in window) {
-			(window as any).plausible(name);
+			(window as unknown as { plausible: (name: string) => void }).plausible(name);
 		}
 	}
 
@@ -789,7 +789,7 @@
 				{$lang === 'no' ? 'Samler allerede fra 43 kilder i Bergen' : 'Already collecting from 43 sources in Bergen'}
 			</p>
 			<div class="flex flex-wrap justify-center gap-1.5">
-				{#each venues.slice(0, 8) as venue}
+				{#each venues.slice(0, 8) as venue (venue)}
 					<span class="rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-1 text-[12px] text-[var(--color-text-muted)]">
 						{venue}
 					</span>
