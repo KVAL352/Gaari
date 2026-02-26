@@ -319,12 +319,14 @@
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
+		overflow: hidden; /* Prevent horizontal overflow from children on iOS Safari */
 	}
 
 	.discovery-step {
 		border: none;
 		padding: 0;
 		margin: 0;
+		min-width: 0; /* iOS Safari: fieldsets default to min-width:min-content, breaking flex shrink */
 	}
 
 	.discovery-step legend {

@@ -273,6 +273,13 @@
 		overflow: hidden;
 	}
 
+	/* iOS Safari: grid items default to min-width:auto and won't shrink below content width */
+	.cal-grid > [role="gridcell"],
+	.cal-grid > [role="columnheader"] {
+		min-width: 0;
+		overflow: hidden;
+	}
+
 	.cal-empty {
 		min-width: 0;
 	}
