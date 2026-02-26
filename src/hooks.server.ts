@@ -97,7 +97,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 		}
 	}
 
-	const response = await resolve(event);
+	const response = await resolve(event, {
+		// Set <html lang> based on URL so SSR HTML has the correct language attribute
+		transformPageChunk: ({ html }) => {
+			const langMatch = event.url.pathname.match(/^\/(en)\b/);
+			return langMatch ? html.replace('lang="nb"', 'lang="en"') : html;
+		}
+	});
 
 	// Apply security headers to all responses
 	for (const [header, value] of Object.entries(securityHeaders)) {

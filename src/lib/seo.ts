@@ -249,7 +249,7 @@ export function generateOrganizationJsonLd(): string {
 			contactType: 'customer service',
 			availableLanguage: ['Norwegian', 'English']
 		},
-		sameAs: ['https://github.com/KVAL352/Gaari']
+		sameAs: ['https://github.com/KKAL352/Gaari']
 	};
 
 	return safeJsonLd(jsonLd);

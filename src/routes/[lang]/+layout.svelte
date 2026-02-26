@@ -7,13 +7,18 @@
 	import BackToTop from '$lib/components/BackToTop.svelte';
 	import type { Snippet } from 'svelte';
 
-	let { children }: { children: Snippet } = $props();
+	let { data, children }: { data: { lang: Lang }; children: Snippet } = $props();
+
+	// Set lang store synchronously so it's correct during SSR.
+	// $effect only runs client-side, so without this, $lang defaults to 'no'
+	// and all EN pages render Norwegian meta tags/JSON-LD in the SSR HTML.
+	setLang(data.lang);
 
 	// SEO: hreflang + OG URL — always use gaari.no as the canonical base
 	let pathWithoutLang = $derived($page.url.pathname.replace(/^\/(no|en)/, ''));
 	const baseUrl = 'https://gaari.no';
 
-	// Sync lang store with URL param + update html lang attribute
+	// Keep $effect for client-side navigation (SPA-style route changes)
 	$effect(() => {
 		const urlLang = $page.params.lang as Lang;
 		if (urlLang === 'no' || urlLang === 'en') {
