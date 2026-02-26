@@ -57,6 +57,9 @@
 			<a href="/admin/promotions" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
 				Plasseringer
 			</a>
+			<a href="/admin/innsendelser" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
+				Innsendelser
+			</a>
 			<a href="/admin/logout" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
 				Logg ut
 			</a>
