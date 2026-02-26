@@ -8,7 +8,7 @@
 
 	let title = $derived($lang === 'no' ? 'For arrangører — Gåri' : 'For organizers — Gåri');
 	let metaDesc = $derived($lang === 'no'
-		? 'Nå flere i Bergen med Gåri. Synlig i AI-søk, på Google og på 13 kuraterte landingssider. Fremhevet synlighet for arrangører.'
+		? 'Nå flere i Bergen med Gåri. Synlig i AI-søk, på Google og på 13 utvalgte landingssider. Fremhevet synlighet for arrangører.'
 		: 'Reach more people in Bergen with Gåri. Visible in AI search, on Google and across 13 curated landing pages. Promoted visibility for organizers.');
 	let ogDesc = $derived($lang === 'no'
 		? 'Når noen spør ChatGPT hva som skjer i Bergen, er det Gåri som blir sitert. Vi hjelper arrangører å nå flere.'

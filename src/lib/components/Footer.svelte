@@ -55,7 +55,6 @@
 					<li><a href="/{$lang}/personvern" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Personvern' : 'Privacy Policy'}</a></li>
 					<li><a href="/{$lang}/tilgjengelighet" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Tilgjengelighet' : 'Accessibility'}</a></li>
 					<li><a href="/{$lang}/submit" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('submitEvent')}</a></li>
-					<li><a href="/{$lang}/{$lang === 'no' ? 'for-arrangorer' : 'for-organizers'}" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'For arrangører' : 'For organizers'}</a></li>
 					<li><a href="mailto:gaari.bergen@proton.me" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('contact')}</a></li>
 				</ul>
 			</nav>

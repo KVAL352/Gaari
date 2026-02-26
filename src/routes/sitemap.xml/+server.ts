@@ -33,25 +33,7 @@ export async function GET() {
 		}
 	}
 
-	// For arrangører / For organizers (different slug per language)
-	urls += `  <url>
-    <loc>${BASE}/no/for-arrangorer</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="nb" href="${BASE}/no/for-arrangorer" />
-    <xhtml:link rel="alternate" hreflang="en" href="${BASE}/en/for-organizers" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/for-arrangorer" />
-  </url>\n`;
-	urls += `  <url>
-    <loc>${BASE}/en/for-organizers</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="nb" href="${BASE}/no/for-arrangorer" />
-    <xhtml:link rel="alternate" hreflang="en" href="${BASE}/en/for-organizers" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/for-arrangorer" />
-  </url>\n`;
+	// For arrangører / For organizers — temporarily hidden while under construction
 
 	// Collection pages in both languages
 	for (const slug of getAllCollectionSlugs()) {

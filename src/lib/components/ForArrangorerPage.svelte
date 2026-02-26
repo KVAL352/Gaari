@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { lang } from '$lib/i18n';
+	import StreamingAnimation from '$lib/components/StreamingAnimation.svelte';
 
 	let contactStatus: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
 	let heroEl: HTMLElement | undefined = $state(undefined);
@@ -129,28 +130,6 @@
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
-	// Flow animation (events → Gåri)
-	let flowEl: HTMLElement | undefined = $state(undefined);
-	let flowVisible = $state(false);
-
-	$effect(() => {
-		if (!flowEl) return;
-		const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		if (prefersReduced) {
-			flowVisible = true;
-			return;
-		}
-		const flowObserver = new IntersectionObserver(
-			(entries) => {
-				if (entries[0]?.isIntersecting && !flowVisible) {
-					flowVisible = true;
-				}
-			},
-			{ threshold: 0.3 }
-		);
-		flowObserver.observe(flowEl);
-		return () => flowObserver.disconnect();
-	});
 </script>
 
 <!-- === HVA ER DETTE === -->
@@ -197,38 +176,8 @@
 			</p>
 		</div>
 
-		<!-- Flow animation: venues → Gåri -->
-		<div class="flex justify-center" bind:this={flowEl}>
-			<div
-				class="relative w-full {flowVisible ? 'flow-animate' : ''}"
-				style="max-width: 320px; aspect-ratio: 1.15;"
-			>
-				<!-- Gåri badge (center) -->
-				<div class="gaari-target absolute left-1/2 top-1/2 z-10 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl bg-[var(--funkis-red)] text-sm font-bold text-white font-[family-name:var(--font-display)]" style="box-shadow: var(--shadow-lg);">
-					Gåri
-				</div>
-
-				<!-- Source venue pills flying in from edges -->
-				{#each [
-					{ name: 'Grieghallen', left: '2%', top: '6%', fx: '-30px', fy: '-25px', delay: 0, color: 'var(--color-cat-music)' },
-					{ name: 'DNS', left: '62%', top: '2%', fx: '30px', fy: '-25px', delay: 0.4, color: 'var(--color-cat-culture)' },
-					{ name: 'KODE', left: '0%', top: '44%', fx: '-35px', fy: '0px', delay: 0.8, color: 'var(--color-cat-culture)' },
-					{ name: 'USF Verftet', left: '60%', top: '42%', fx: '35px', fy: '0px', delay: 1.2, color: 'var(--color-cat-music)' },
-					{ name: 'Bergen Kjøtt', left: '3%', top: '80%', fx: '-30px', fy: '25px', delay: 1.6, color: 'var(--color-cat-food)' },
-					{ name: 'Oseana', left: '58%', top: '82%', fx: '30px', fy: '25px', delay: 2.0, color: 'var(--color-cat-music)' }
-				] as pill}
-					<div
-						class="flow-pill absolute flex items-center gap-1.5"
-						style="left: {pill.left}; top: {pill.top}; --from-x: {pill.fx}; --from-y: {pill.fy}; animation-delay: {pill.delay}s;"
-					>
-						<span class="h-2 w-2 shrink-0 rounded-full" style="background: {pill.color};"></span>
-						<span class="whitespace-nowrap rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--color-text-secondary)]" style="box-shadow: var(--shadow-sm);">
-							{pill.name}
-						</span>
-					</div>
-				{/each}
-			</div>
-		</div>
+		<!-- Streaming animation: venues → Gåri hub -->
+		<StreamingAnimation />
 	</div>
 
 	<!-- Venue lookup -->
@@ -357,7 +306,7 @@
 			</h2>
 			<p class="mb-4 text-[var(--color-text-secondary)]">
 				{#if $lang === 'no'}
-					Norge er nummer 3 i verden for bruk av KI. Når noen i Bergen spør ChatGPT «hva skjer denne helgen?», jobber vi for at Gåri dukker opp som kilde — med kuraterte sider optimalisert for det folk faktisk spør om.
+					Norge er nummer 3 i verden for bruk av KI. Når noen i Bergen spør ChatGPT «hva skjer denne helgen?», jobber vi for at Gåri dukker opp som kilde — med utvalgte sider tilpasset det folk faktisk spør om.
 				{:else}
 					Norway is number 3 in the world for AI usage. When someone in Bergen asks ChatGPT "what's on this weekend?", we work to make Gåri appear as a source — with curated pages optimized for what people actually ask about.
 				{/if}
@@ -480,7 +429,7 @@
 			</h2>
 			<p class="flex items-baseline justify-center gap-2 text-[var(--color-text-primary)]">
 				<span class="text-[40px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-[56px]">13</span>
-				<span class="text-lg">{$lang === 'no' ? 'kuraterte sider bygget rundt søkevanene til folk i Bergen' : 'curated pages built around how people in Bergen search'}</span>
+				<span class="text-lg">{$lang === 'no' ? 'utvalgte sider bygget rundt søkevanene til folk i Bergen' : 'curated pages built around how people in Bergen search'}</span>
 			</p>
 		</div>
 
@@ -488,10 +437,10 @@
 		<div class="mb-6 grid items-center gap-6 md:grid-cols-[45%_55%]">
 			<!-- Fremhevet synlighet card -->
 			<div class="rounded-xl bg-[var(--color-bg-surface)] p-6" style="border-top: 4px solid var(--funkis-red); box-shadow: var(--shadow-sm);">
-				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Først på kuraterte sider' : 'First on curated pages'}</h3>
+				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Først på utvalgte sider' : 'First on curated pages'}</h3>
 				<p class="text-sm text-[var(--color-text-secondary)]">
 					{$lang === 'no'
-						? 'Arrangementene dine vises øverst på sider som «Denne helgen» og «Konserter denne uken». 13 sider som vokser jevnt. Alltid merket som fremhevet.'
+						? 'Arrangementene dine vises øverst på sider som «Denne helgen» og «Konserter denne uken». 13 utvalgte sider som vokser jevnt. Alltid merket som fremhevet.'
 						: 'Your events appear at the top of pages like "This Weekend" and "Concerts This Week". 13 pages growing steadily. Always labeled as featured.'}
 				</p>
 			</div>
@@ -615,7 +564,7 @@
 					<div class="my-3 border-t border-[var(--color-border)]"></div>
 					<div class="space-y-1.5 text-sm" style="font-variant-numeric: tabular-nums;">
 						<div class="flex justify-between">
-							<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Fra kuraterte sider' : 'From curated pages'}</span>
+							<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Fra utvalgte sider' : 'From curated pages'}</span>
 							<span class="font-medium">198</span>
 						</div>
 						<div class="flex justify-between">
@@ -653,6 +602,38 @@
 					Featured events are always clearly labeled. You always get data on what the placement delivered. No commitment during the trial period.
 				{/if}
 			</p>
+		</div>
+	</div>
+</section>
+
+<!-- Hvem står bak -->
+<section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-20">
+	<div class="mx-auto grid max-w-4xl items-center gap-10 md:grid-cols-[200px_1fr]">
+		<!-- Photo placeholder — replace src with your actual photo -->
+		<div class="flex justify-center">
+			<img
+				src="/images/kjersti.jpg"
+				alt="Kjersti Valland Therkildsen"
+				class="h-44 w-44 rounded-full object-cover border-4 border-[var(--funkis-plaster)]"
+				style="box-shadow: var(--shadow-sm);"
+			/>
+		</div>
+
+		<div>
+			<h2 class="mb-4 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
+				{$lang === 'no' ? 'Hvem står bak' : 'Who\'s behind this'}
+			</h2>
+			<div class="space-y-4 text-[var(--color-text-primary)]">
+				{#if $lang === 'no'}
+					<p>Jeg heter Kjersti Valland Therkildsen. Jeg er mediedesigner fra Bergen, med en mastergrad fra Tokyo.</p>
+					<p>Etter at jeg ble mor oppdaget jeg hvor vanskelig det faktisk er å finne ut hva som skjer i Bergen. Byen har et rikt kulturliv, men det finnes ikke ett sted der alt er samlet. Enten må man følge med på ti ulike nettsider, eller så går ting under radaren.</p>
+					<p>Gåri er mitt svar på det problemet. God design starter med en tydelig utfordring — og dette er min: å samle alt som skjer i Bergen på ett sted, slik at ingen trenger å gå glipp av noe.</p>
+				{:else}
+					<p>My name is Kjersti Valland Therkildsen. I'm a media designer from Bergen, with a master's degree from Tokyo.</p>
+					<p>After becoming a mother, I realized how hard it actually is to find out what's happening in Bergen. The city has a rich cultural scene, but there's no single place where everything is gathered. Either you follow ten different websites, or things slip under the radar.</p>
+					<p>Gåri is my answer to that problem. Good design starts with a clear challenge — and this is mine: gathering everything happening in Bergen in one place, so nobody has to miss out.</p>
+				{/if}
+			</div>
 		</div>
 	</div>
 </section>
@@ -879,45 +860,4 @@
 		40% { opacity: 1; transform: translateY(-4px); }
 	}
 
-	/* Flow animation: venue pills → Gåri */
-	.flow-pill {
-		opacity: 0;
-	}
-	.flow-animate .flow-pill {
-		animation: flyIn 0.6s ease-out forwards;
-	}
-	.gaari-target {
-		opacity: 0;
-	}
-	.flow-animate .gaari-target {
-		animation: gaariAppear 0.5s ease-out 0.1s forwards;
-	}
-	@keyframes flyIn {
-		from {
-			opacity: 0;
-			transform: translate(var(--from-x), var(--from-y)) scale(0.85);
-		}
-		to {
-			opacity: 1;
-			transform: translate(0, 0) scale(1);
-		}
-	}
-	@keyframes gaariAppear {
-		from {
-			opacity: 0;
-			scale: 0.7;
-		}
-		to {
-			opacity: 1;
-			scale: 1;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.flow-pill,
-		.gaari-target {
-			opacity: 1 !important;
-			animation: none !important;
-		}
-	}
 </style>
