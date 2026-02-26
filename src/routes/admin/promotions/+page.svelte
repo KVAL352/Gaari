@@ -56,6 +56,9 @@
 			</p>
 		</div>
 		<div style="display: flex; gap: 8px; align-items: center;">
+		<a href="/admin/submissions" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
+			Innsendelser
+		</a>
 		<a href="/admin/logout" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
 			Logg ut
 		</a>
