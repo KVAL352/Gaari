@@ -229,6 +229,14 @@ async function main() {
 		indexNowSubmitted = await pingIndexNow(startTime);
 	}
 
+	// Step 4b: Ping Google to re-crawl the sitemap
+	try {
+		const res = await fetch('https://www.google.com/ping?sitemap=https://gaari.no/sitemap.xml');
+		console.log(`Google sitemap ping: HTTP ${res.status}`);
+	} catch (err: any) {
+		console.warn(`Google sitemap ping failed: ${err.message}`);
+	}
+
 	// Summary
 	console.log('=== Summary ===');
 	for (const [name, result] of Object.entries(results)) {
