@@ -196,7 +196,7 @@
 ## Architecture Observations
 
 ### Strengths
-- Clean separation: 44 scrapers are independent files with shared utilities in `scripts/lib/`
+- Clean separation: 45 scrapers are independent files with shared utilities in `scripts/lib/`
 - Type safety: centralized types in `src/lib/types.ts`
 - Deduplication pipeline handles cross-source overlap (normalized title + same date, scoring)
 - AI descriptions keep content original (åndsverksloven compliance)

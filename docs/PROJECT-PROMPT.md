@@ -77,8 +77,8 @@ These 8 documents are your governing context. When answering questions or making
 
 ## Quick Reference
 
-- **44 scrapers** in `scripts/scrapers/`
-- **17 components** in `src/lib/components/`
+- **45 scrapers** in `scripts/scrapers/` (43 active, 2 disabled)
+- **20 components** in `src/lib/components/`
 - **7 routes** under `src/routes/`
 - **11 categories:** music, culture, theatre, family, food, festival, sports, nightlife, workshop, student, tours
 - **8 bydeler:** Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna

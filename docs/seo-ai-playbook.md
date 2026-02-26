@@ -136,7 +136,7 @@ After Bing Webmaster Tools is set up, implement IndexNow to auto-notify Bing/Yan
 **14. Sitemap segmentation**
 Current sitemap has all URLs in one file. Segment into:
 - `/sitemap-events.xml` — all events (up to 50K URLs)
-- `/sitemap-collections.xml` — 8 collection pages
+- `/sitemap-collections.xml` — 13 collection pages
 - `/sitemap-static.xml` — about, datainnsamling, homepage
 - `/sitemap-index.xml` — references the above
 

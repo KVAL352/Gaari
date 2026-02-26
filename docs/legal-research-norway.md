@@ -2,7 +2,7 @@
 
 **Utarbeidet: 2026-02-20**
 **Sist oppdatert: 2026-02-22**
-**Status: Full compliance-revisjon — 44 scrapere verifisert**
+**Status: Full compliance-revisjon — 45 scrapere verifisert**
 
 ---
 
@@ -28,7 +28,7 @@ Gåri scraper offentlig tilgjengelige eventdata fra 44 kilder i Bergen. Denne an
 - Alle fotografier, illustrasjoner og kreative tekster er beskyttet
 - Eventbeskrivelser som inneholder kreativ formulering er vernet
 - **Faktaopplysninger** (tittel, dato, sted, pris) er IKKE opphavsrettsbeskyttet
-- **Tiltak:** Alle 44 scrapere bruker enten `makeDescription()` eller egne faktabaserte maler for beskrivelser — ingen kopierer kreativ kildetekst
+- **Tiltak:** Alle 45 scrapere bruker enten `makeDescription()` eller egne faktabaserte maler for beskrivelser — ingen kopierer kreativ kildetekst
 
 **§ 24 — Databasevern (sui generis):**
 - Databaser med "vesentlig investering" i innsamling/presentasjon er beskyttet
@@ -149,7 +149,7 @@ Gåri scraper offentlig tilgjengelige eventdata fra 44 kilder i Bergen. Denne an
 
 ### 4.1 robots.txt-respekt
 - **Fullstendig revisjon av alle 45 domener utført 2026-02-22**
-- Alle 44 scrapere verifisert — ingen aksesserer blokkerte stier
+- Alle 45 scrapere verifisert — ingen aksesserer blokkerte stier
 - **5 scrapere omskrevet** (feb 2026) for å unngå blokkerte stier:
   - Colonialen: `?format=json` → HTML-parsing
   - Bergen Filmklubb: `?format=json` → HTML-parsing

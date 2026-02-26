@@ -202,7 +202,7 @@ All public routes are language-prefixed (`/no/` or `/en/`). Norwegian is the def
 ## 9. Launch Strategy
 
 1. ✅ Build MVP with SvelteKit + Supabase
-2. ✅ Populate with events — 44 scrapers run twice daily, 200+ events at any time
+2. ✅ Populate with events — 45 scrapers (43 active) run twice daily, 200+ events at any time
 3. Soft launch — in progress (waiting for 3–4 weeks of analytics data before venue outreach)
 4. Venue outreach — Phase C infrastructure built; outreach pending Plausible click data (venue referral reports)
 5. ~~Social media~~ — paused (account creation issues); SEO + AI search is primary traffic channel
