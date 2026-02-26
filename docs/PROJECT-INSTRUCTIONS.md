@@ -1,6 +1,6 @@
 # Gåri — Project Instructions
 
-**Last updated:** 2026-02-25
+**Last updated:** 2026-02-26
 
 ---
 
@@ -29,7 +29,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. One place to find every
 | OG images | Satori + ResvgJS | Per-event at `/og/[slug].png`, per-collection at `/og/c/[slug].png` |
 | Social images | Satori + ResvgJS | 1080x1080 Instagram carousels in `scripts/social/` |
 | Analytics | Plausible Cloud | Privacy-friendly, no cookies, UTM tracking on all outbound links |
-| Unit tests | Vitest | 156 tests, runs in <350ms — `npm test` |
+| Unit tests | Vitest | 198 tests, runs in <350ms — `npm test` |
 
 ---
 
@@ -39,12 +39,15 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. One place to find every
 src/
   lib/
     components/       # 20 Svelte components
-    collections.ts    # 8 curated collection configs (denne-helgen, i-kveld, etc.)
+    collections.ts    # 13 curated collection configs (denne-helgen, i-kveld, etc.)
     event-filters.ts  # Date/time filter helpers (extracted for testability)
     types.ts          # Category, Bydel, GaariEvent, FilterState types
     seo.ts            # JSON-LD generators (Event, Organization, WebSite, FAQ, Collection)
     server/
       supabase.ts     # Server-only Supabase client (enforced by SvelteKit)
+      supabase-admin.ts # Service role client for admin writes
+      promotions.ts   # Promoted placement helpers
+      admin-auth.ts   # HMAC cookie auth helpers
   routes/
     [lang]/           # Language-prefixed routes (no, en)
       +page.server.ts # Homepage — server-side loaded, ISR cached
@@ -53,7 +56,10 @@ src/
       datainnsamling/ # Data transparency + opt-out form
       events/[slug]/  # Event detail page
       submit/         # Event submission form
-      [collection]/   # 8 curated landing pages (denne-helgen, i-kveld, gratis, etc.)
+      [collection]/   # 13 curated landing pages (denne-helgen, i-kveld, gratis, etc.)
+    admin/login/      # Password login
+    admin/logout/     # Logout + redirect
+    admin/promotions/ # Promoted placement management
     admin/social/     # Social post review page (internal)
     og/[slug].png     # Per-event OG image generation
     og/c/[slug].png   # Per-collection OG image generation
@@ -64,7 +70,7 @@ src/
 
 scripts/
   scrape.ts           # Main scraper pipeline
-  scrapers/           # 44 individual scraper files (2 disabled)
+  scrapers/           # 45 individual scraper files (2 disabled)
   social/
     generate-posts.ts # Daily social post generation (GHA cron 07:00 UTC)
     image-gen.ts      # Satori carousel image generator (1080x1080)
@@ -120,7 +126,7 @@ Not translated — same in English.
 
 1. `removeExpiredEvents()` — deletes past events
 2. `loadOptOuts()` — loads approved opt-out domains, deletes events from opted-out sources
-3. Run all 44 scrapers — each checks `eventExists(source_url)` before inserting; sold-out events call `deleteEventByUrl()`
+3. Run all 45 scrapers — each checks `eventExists(source_url)` before inserting; sold-out events call `deleteEventByUrl()`
 4. `deduplicate()` — removes cross-source duplicates by normalized title + same date
 5. JSON summary — output to `SUMMARY_FILE` env var for GitHub Actions job summary
 
@@ -132,7 +138,7 @@ Not translated — same in English.
 - **No aggregator ticket URLs:** `ticket_url` points to actual venue/ticket pages
 - **No kindergarten events:** Excluded via title keywords + detail page text
 
-### 44 scrapers by category (42 active, 2 disabled)
+### 45 scrapers by category (43 active, 2 disabled)
 
 **General aggregators (4 active):** visitbergen, bergenkommune, studentbergen, bergenlive
 *(Disabled: kulturikveld — unreliable; barnasnorge — all venues covered by dedicated scrapers)*
@@ -151,13 +157,13 @@ Not translated — same in English.
 
 **Festivals (4):** festspillene, bergenfest, beyondthegates, vvv
 
-**Other (3):** kulturhusetibergen, bergenchamber, oseana
+**Other (4):** kvarteret, kulturhusetibergen, bergenchamber, oseana
 
 ---
 
 ## Collection Pages
 
-8 curated landing pages under `/[lang]/[collection]/`, configured in `src/lib/collections.ts`:
+13 curated landing pages under `/[lang]/[collection]/`, configured in `src/lib/collections.ts`:
 
 | Slug | Lang | Filter |
 |------|------|--------|
@@ -169,8 +175,13 @@ Not translated — same in English.
 | `konserter` | NO | Music this week |
 | `studentkveld` | NO | Student evening/night |
 | `this-weekend` | EN | Weekend events |
+| `i-dag` | NO | All events today |
+| `free-things-to-do-bergen` | EN | Free events (2 weeks) |
+| `regndagsguide` | NO | Indoor/rainy day events (2 weeks) |
+| `sentrum` | NO | Bergen sentrum bydel (2 weeks) |
+| `voksen` | NO | Adult culture/music/theatre (2 weeks) |
 
-All collection pages: server-side loaded, ISR cached, JSON-LD `CollectionPage` schema, custom OG images, in sitemap with hreflang.
+All collection pages: server-side loaded, ISR cached, JSON-LD CollectionPage + ItemList + BreadcrumbList + FAQPage schema, editorial copy with answer capsules, custom OG images, in sitemap with hreflang.
 
 ---
 
@@ -201,27 +212,30 @@ Runs daily via GitHub Actions cron at 07:00 UTC. For each scheduled collection:
 
 ### Current (live)
 - Event listing with EventDiscovery progressive filter (When → Time → Who → What → Where & Price)
-- Event detail pages with external ticket links
+- Event detail pages with external ticket links + Event JSON-LD schema
 - Bilingual NO/EN interface with language toggle
-- Automated scraping (44 sources, twice daily)
-- AI-generated bilingual descriptions
+- Automated scraping (45 scrapers, 43 active, twice daily) + IndexNow ping to Bing/Yandex
+- AI-generated bilingual descriptions (Gemini 2.5 Flash)
 - Event submission form (admin-reviewed)
 - Data transparency page with opt-out form
-- SEO: OG tags, per-event OG images, hreflang, dynamic sitemap, FAQPage JSON-LD
-- AI search: `llms.txt`, explicit AI crawler allowance, rich Organization/WebSite schema
-- Google Search Console verified, sitemap submitted
-- 8 curated collection landing pages
-- Social post automation pipeline (carousels + captions, admin review)
-- Plausible analytics + UTM tracking on all outbound links
+- SEO: Event JSON-LD, CollectionPage + ItemList, BreadcrumbList, FAQPage, Organization + WebSite schema, OG tags, per-event OG images, hreflang, dynamic sitemap, crawlable pagination, canonical URL strategy
+- AI search: `llms.txt`, explicit AI crawler allowance, answer capsules on collection pages, Bing Webmaster Tools + IndexNow, AI referral tracking in Plausible
+- Google Search Console + Bing Webmaster Tools verified, sitemaps submitted
+- Google Business Profile created and verified
+- 13 curated collection landing pages with editorial copy and FAQ schema
+- Promoted placement infrastructure (tables, rotation logic, admin UI, monthly reports)
+- Social post automation pipeline (carousels + captions, admin review) — paused
+- Plausible analytics + UTM tracking + AI referral tracking
 - WCAG 2.2 Level AA accessibility
-- Vitest unit test suite (156 tests)
+- Vitest unit test suite (198 tests)
+- Admin UI at /admin/ with HMAC cookie auth (promotions, social, login/logout)
 
-### Phase C — Promoted placement (coming weeks 11–16)
-- `promoted_placements` + `placement_log` Supabase tables
-- Rotation logic in collection pages (fair share distribution)
-- "Fremhevet" badge on EventCard
-- Monthly reporting for paying clients
-- Sales outreach to Bergen venues (Grieghallen, USF Verftet, KODE, Bergen Kunsthall)
+### Phase C — Promoted placement ✅ Infrastructure done
+- ✅ `promoted_placements` + `placement_log` Supabase tables
+- ✅ Rotation logic, "Fremhevet" badge, per-venue cap
+- ✅ Admin UI at /admin/promotions
+- ✅ Monthly reporting CLI
+- Pending: Sales outreach (waiting for 3–4 weeks of Plausible click data)
 
 ### Phase D — Future optimization
 - Meta Graph API automation (replaces manual Instagram posting)
@@ -259,7 +273,7 @@ Runs daily via GitHub Actions cron at 07:00 UTC. For each scheduled collection:
 - **Scraping:** GitHub Actions cron (`scrape.yml`) — 6 AM & 6 PM UTC, 15-minute timeout
 - **Social posts:** GitHub Actions cron (`social.yml`) — 07:00 UTC daily
 - **CI:** GitHub Actions (`ci.yml`) — lint, type-check, test, build on push/PR to master
-- **Secrets:** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, `GEMINI_API_KEY`
+- **Secrets:** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, `GEMINI_API_KEY`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `INDEXNOW_KEY`
 
 ---
 

@@ -1,6 +1,6 @@
 # Gåri — Decision Log
 
-**Last updated:** 2026-02-25 (late night)
+**Last updated:** 2026-02-26
 
 Record of key architectural, design, and strategic decisions. Each entry includes the rationale and alternatives considered.
 
@@ -209,6 +209,42 @@ Each entry: `#N — Date — Decision title`
 - **Decision:** Add `SKIP_LOG_IPS` env var (comma-separated). If the client IP matches, `logImpression()` is skipped. Checked server-side via `getClientAddress()`.
 - **Rationale:** Owner testing and reviewing collection pages would inflate impression counts for paying clients, making reports misleading. Simple IP filter is sufficient for a single-operator product.
 - **Alternatives considered:** Filter by user-agent (easy to spoof), separate staging environment (overkill), no filtering (misleading reports).
+- **Status:** Active
+
+### #34 — 2026-02-26 — Crawlable pagination (SEO fix)
+- **Decision:** Change LoadMore.svelte from `<button onclick>` to `<a href="?page=N">` styled as a button. Googlebot can now follow pagination links and index the full event inventory.
+- **Rationale:** Googlebot cannot click JavaScript buttons. Events beyond the first ~12 displayed were invisible to search engines. This was likely the biggest hidden SEO problem on the site.
+- **Alternatives considered:** Server-side pagination with separate /page/2 routes (more complex, different URL structure), keeping button-only (invisible to crawlers).
+- **Status:** Active
+
+### #35 — 2026-02-26 — Bing Webmaster Tools + IndexNow
+- **Decision:** Verify gaari.no in Bing Webmaster Tools (CNAME method), submit sitemap, and integrate IndexNow into the scraper pipeline to auto-notify Bing/Yandex of new events.
+- **Rationale:** ChatGPT uses Bing's search infrastructure. Without Bing indexing, Gåri cannot appear in ChatGPT search results. IndexNow ensures new events are discoverable within hours, not days.
+- **Alternatives considered:** Bing-only without IndexNow (slower indexing), Google-only strategy (misses ChatGPT entirely).
+- **Status:** Active
+
+### #36 — 2026-02-26 — Event JSON-LD timezone normalization
+- **Decision:** Create `toBergenIso()` in `seo.ts` that converts UTC timestamps to ISO 8601 with correct Bergen timezone offset (+01:00 CET or +02:00 CEST based on date).
+- **Rationale:** Google requires ISO 8601 with timezone for Event schema startDate/endDate. Without explicit timezone, Google may reject the structured data or misinterpret event times.
+- **Alternatives considered:** Storing timezone in DB (migration complexity), always using +01:00 (wrong during summer), using Z/UTC (Google may display wrong local time).
+- **Status:** Active
+
+### #37 — 2026-02-26 — Canonical URL strategy for filtered views
+- **Decision:** Implement `computeCanonical()` in `seo.ts`. Rules: single category or bydel filter → self-referencing canonical (indexable); combined category+bydel → canonical to category version; `?when=weekend`/`?when=today` → canonical to matching collection page URL; pagination params preserved; noise params (time, price, audience) stripped; filtered views with <5 results get `noindex`.
+- **Rationale:** Without canonicals, Google sees duplicate content across filter combinations. Category and bydel filters produce substantially different content and should rank independently. Time-based filters should consolidate with the dedicated collection pages.
+- **Alternatives considered:** noindex all filtered views (loses ranking opportunity), no canonical strategy (duplicate content risk), separate routes per category (URL clutter).
+- **Status:** Active — 21 tests in seo.test.ts
+
+### #38 — 2026-02-26 — AI referral tracking in Plausible
+- **Decision:** Inline script in `app.html` checks `document.referrer` against 9 AI domains and fires a Plausible custom event (`ai-referral`) with the source domain as a prop.
+- **Rationale:** Need to measure whether AI search optimization is working. Plausible doesn't natively segment AI traffic. Custom event approach works with Plausible's privacy-friendly model.
+- **Alternatives considered:** GA4 custom channel group (requires GA4, cookies), server-side referrer logging (more complex), no tracking (flying blind).
+- **Status:** Active — manual step: add "ai-referral" goal in Plausible dashboard
+
+### #39 — 2026-02-26 — 5 new collection pages (13 total)
+- **Decision:** Add `i-dag`, `free-things-to-do-bergen`, `regndagsguide`, `sentrum`, and `voksen` collection pages. All with editorial copy, answer capsules, FAQ schema, CollectionPage + ItemList JSON-LD.
+- **Rationale:** Each targets a specific underserved search query with zero strong incumbent. `regndagsguide` (rainy day guide) targets Bergen's 231 rain days. `sentrum` targets neighborhood queries. `voksen` targets adult culture. `free-things-to-do-bergen` targets tourist queries in English.
+- **Alternatives considered:** Fewer pages (misses queries), more pages (diminishing returns without data to validate).
 - **Status:** Active
 
 ---

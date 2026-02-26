@@ -5,6 +5,10 @@ This document lists all known websites, platforms, and apps that show what's hap
 
 ---
 
+> **Note (2026-02-26):** This is the original research document from the planning phase. For the actual active scrapers and their current status, see `CLAUDE.md` (scraper sources section) and `scraping-strategy.md`. Not all sources listed here were implemented — some were found to be infeasible (Vue.js SPAs, no structured data), and some platforms (Ticketmaster, Songkick, Bandsintown, Billetto) were not pursued in favor of direct venue scrapers.
+
+---
+
 ## 1. Official / Government Sources
 
 | Name | URL | What it covers | Notes |

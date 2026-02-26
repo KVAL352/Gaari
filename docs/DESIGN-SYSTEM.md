@@ -1,6 +1,6 @@
 # Gåri — Design System
 
-**Last updated:** 2026-02-23
+**Last updated:** 2026-02-26
 **Name:** Funkis — inspired by Sundt building, Bergen (1938, architect Per Grieg)
 
 ---
@@ -46,7 +46,7 @@ Functionality-first. Speed and usability over decoration. Inspired by Bergen's f
 | `--color-border-strong` | var(--funkis-granite) | Emphasis border |
 | `--color-text-primary` | #141414 | Body text (7.88:1 on white) |
 | `--color-text-secondary` | #4D4D4D | Secondary text (6.96:1 — WCAG AA+AAA) |
-| `--color-text-muted` | #737373 | Muted text (4.68:1 — WCAG AA) |
+| `--color-text-muted` | #595959 | Muted text (7.01:1 — WCAG AA at all sizes) |
 | `--color-accent` | var(--funkis-red) | Primary accent / CTA |
 | `--color-accent-hover` | var(--funkis-red-hover) | Accent hover state |
 | `--color-accent-subtle` | var(--funkis-red-subtle) | Accent background tint |
@@ -132,7 +132,7 @@ Card hover: `box-shadow: 0 4px 12px rgba(0,0,0,0.10); transform: translateY(-2px
 
 ---
 
-## Component Inventory (17 components)
+## Component Inventory (20 components)
 
 All components live in `src/lib/components/`.
 
@@ -144,12 +144,15 @@ All components live in `src/lib/components/`.
 | EventCard | `EventCard.svelte` | Grid card: image, title, date, venue, category, price |
 | EventListItem | `EventListItem.svelte` | List row variant (compact) |
 | EventGrid | `EventGrid.svelte` | Date-grouped responsive grid layout |
+| EventDiscovery | `EventDiscovery.svelte` | Progressive 5-step filter (When/Time/Who/What/Where & Price) |
+| FilterPill | `FilterPill.svelte` | Reusable pill/chip button (aria-pressed, 44px touch) |
+| MiniCalendar | `MiniCalendar.svelte` | Inline month-grid date picker (ARIA grid pattern) |
 | FilterBar | `FilterBar.svelte` | Mobile filter row (category pills, dropdowns) |
 | FilterSidebar | `FilterSidebar.svelte` | Desktop sticky sidebar (categories, bydel, price, audience) |
 | SearchBar | `SearchBar.svelte` | Text search across titles and venues |
-| CalendarDropdown | `CalendarDropdown.svelte` | Date range filter |
+| CalendarDropdown | `CalendarDropdown.svelte` | Add to Calendar dropdown (event detail pages, ICS/Google Calendar/Outlook). Full WAI-ARIA menu keyboard nav. |
 | DateQuickFilters | `DateQuickFilters.svelte` | Buttons: Today, This Weekend, Next 7 Days |
-| StatusBadge | `StatusBadge.svelte` | Display badges: Today, Free, Sold Out, Last Tickets, Cancelled |
+| StatusBadge | `StatusBadge.svelte` | Display badges: Today, Trolig gratis/Likely free, Sold Out, Last Tickets, Cancelled, Fremhevet/Featured |
 | LoadMore | `LoadMore.svelte` | "Load more events" button with progress |
 | EmptyState | `EmptyState.svelte` | "No events found" message with suggestions |
 | BackToTop | `BackToTop.svelte` | Sticky scroll-to-top button |
@@ -161,8 +164,9 @@ All components live in `src/lib/components/`.
 - ViewToggle (Grid | List, Map in v2)
 - SortDropdown
 - AppliedFilterChips (removable chips + Clear All)
-- ResultCount (`aria-live`)
 - Bottom navigation bar (mobile)
+
+*Note: Result count announcements are handled inline via `aria-live="polite" aria-atomic="true"` on the homepage results wrapper — no separate ResultCount component needed.*
 
 ---
 
@@ -211,7 +215,7 @@ Breakpoints:
 
 ## Dark Mode
 
-Currently disabled. Components use hardcoded `bg-white`. Full implementation requires replacing all `bg-white` with `bg-[var(--color-bg-surface)]` across all 17 components. Noted as TODO in `app.css`.
+Currently disabled. Components use hardcoded `bg-white`. Full implementation requires replacing all `bg-white` with `bg-[var(--color-bg-surface)]` across multiple components. Noted as TODO in `app.css`.
 
 ---
 

@@ -1,14 +1,14 @@
 # Gåri — Data Quality Audit
 
-**Last updated:** 2026-02-23
+**Last updated:** 2026-02-26
 **Scope:** Current state of the scraper pipeline, data coverage, and known issues.
 
 ---
 
 ## Scraper Coverage Summary
 
-- **Total scrapers:** 44 files in `scripts/scrapers/`
-- **Total sources scraped:** 44 (some cover multiple venues, e.g., TicketCo covers 14 subdomains, Bymuseet covers 9 museums)
+- **Total scrapers:** 45 files in `scripts/scrapers/` (43 active, 2 disabled)
+- **Total sources scraped:** 45 (some cover multiple venues, e.g., TicketCo covers 14 subdomains, Bymuseet covers 9 museums)
 - **Scrape frequency:** Twice daily (6 AM & 6 PM UTC) via GitHub Actions
 - **Pipeline timeout:** 15 minutes
 
@@ -18,10 +18,10 @@
 
 | Category | Primary sources | Coverage quality |
 |----------|----------------|-----------------|
-| Music | harmonien, bergenlive, kulturikveld, ticketco (Hulen, Kvarteret, Victoria), bergenkjott, bjorgvinblues, forumscene | Strong — multiple overlapping sources |
+| Music | harmonien, bergenlive, ticketco (Hulen, Kvarteret, Victoria), bergenkjott, bjorgvinblues, forumscene | Strong — multiple overlapping sources |
 | Culture | kunsthall, kode, bek, kulturhusetibergen, bymuseet, mediacity | Strong — major institutions covered |
 | Theatre | dns, dvrtvest, cornerteateret, bitteater, carteblanche, olebull | Strong — all major theatre venues |
-| Family | barnasnorge, bergenkommune, bergenbibliotek, floyen | Good — dedicated family aggregator + institutions |
+| Family | akvariet, bergenkommune, bergenbibliotek, floyen, bymuseet, kode | Good — major family institutions covered (Akvariet added Feb 2026) |
 | Food | colonialen, raabrent, bergenkjott | Moderate — limited to venues with event listings |
 | Festival | festspillene, bergenfest, beyondthegates, vvv | Good — major festivals covered, seasonal |
 | Sports | brann, dnt | Moderate — SK Brann + DNT hiking; missing smaller clubs |
@@ -56,14 +56,11 @@ Bydel is mapped from venue names via `categories.ts` → `mapBydel()` (100+ venu
 | Bergen Kino | Vue.js SPA — all data loaded via client-side JS, API returns 400 without client context | Missing all cinema showtimes (18 screens) |
 | VilVite | Netflex CMS, JS-rendered program page | Missing science center family events |
 | Kunsthall 3,14 | Wix-based, JS-rendered | Missing contemporary art exhibitions |
-| Akvariet | No structured event listing page | Missing aquarium events |
 | Lydgalleriet | Webflow, only 2–3 exhibitions at a time | Low volume — not worth a scraper |
-| Nattjazz | Not yet scraped (seasonal, May–June) | Missing during festival season |
-| Borealis Festival | Not yet scraped (March) | Missing during festival season |
 | Facebook Events | Requires auth, no public API | Missing informal/community events |
 
 ### Potential additions (researched, ready to build)
-- **Bymuseet i Bergen** — WordPress HTML, 9 museums, 200+ events, event sitemap available. High priority. (See `next-scrapers.md`)
+- **Hulen direct scraper** — Sanity API (project ID `gdx7kxvn`). Currently covered by TicketCo but direct scraper would give richer data (descriptions, images, genre tags).
 
 ---
 
@@ -159,12 +156,12 @@ Full audit completed 2026-02-22:
 
 ## Recommendations
 
-1. **Build Bymuseet scraper** — highest-impact addition (9 museums, 200+ events)
-2. **Set up image proxy** — resolve hotlinking and copyright concerns
-3. **Seek TicketCo/Hoopla/Eventbrite partnerships** — reduce ToS risk
-4. **Improve address extraction** — fill the ~60% gap for future map view
-5. **Track description quality** — log AI vs template ratio to monitor Gemini availability
-6. **Add lat/lng extraction** — prerequisite for v2 map view
+1. **Set up image proxy** — resolve hotlinking and copyright concerns
+2. **Seek TicketCo/Hoopla/Eventbrite partnerships** — reduce ToS risk
+3. **Improve address extraction** — fill the ~60% gap for future map view
+4. **Track description quality** — log AI vs template ratio to monitor Gemini availability
+5. **Add lat/lng extraction** — prerequisite for v2 map view
+6. **Track AI referral sources** via Plausible custom events (implemented Feb 26)
 
 ---
 

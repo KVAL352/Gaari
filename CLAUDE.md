@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 44 automated scrapers collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 45 scrapers (43 active) collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -34,7 +34,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 4. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
 5. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
-## Scraper sources (44 active)
+## Scraper sources (45 total, 43 active, 2 disabled)
 
 ### General aggregators
 | Source | File | Method |
@@ -116,6 +116,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 ### Other
 | Source | File | Method |
 |--------|------|--------|
+| Det Akademiske Kvarter | `kvarteret.ts` | JSON API (`/api/events`), also covered by TicketCo |
 | Kulturhuset i Bergen | `kulturhusetibergen.ts` | Squarespace eventlist |
 | Bergen Chamber | `bergenchamber.ts` | HTML |
 | Oseana | `oseana.ts` | HTML |

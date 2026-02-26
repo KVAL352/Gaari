@@ -1,6 +1,6 @@
 # Gåri scraping-strategi for Bergen
 
-**Sist oppdatert: 2026-02-25**
+**Sist oppdatert: 2026-02-26**
 **Status: 45 aktive scrapere, direkte venue-strategi nesten komplett**
 
 ---

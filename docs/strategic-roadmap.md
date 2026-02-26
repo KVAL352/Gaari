@@ -1,6 +1,6 @@
 # Gåri — Strategic Roadmap: Progress Tracker
 
-**Last updated:** 2026-02-25 (late night)
+**Last updated:** 2026-02-26
 
 ---
 
@@ -51,7 +51,7 @@
 | `studentkveld` | NO | Student evening/night |
 | `this-weekend` | EN | Weekend events |
 
-All in sitemap with hreflang (priority 0.8, daily). JSON-LD `CollectionPage` schema with ItemList. Custom OG images via Satori. Editorial copy + answer capsules on all 8 pages.
+All in sitemap with hreflang (priority 0.8, daily). JSON-LD `CollectionPage` schema with ItemList. Custom OG images via Satori. Editorial copy + answer capsules on all pages. B5 added 5 more collections for 13 total.
 
 ### B2 — Social post pipeline ⏸ Paused
 
@@ -82,10 +82,10 @@ Pipeline is built and working (`scripts/social/`), but social media accounts are
 - ✅ Event JSON-LD timezone — `toBergenIso()` with correct CET/CEST offset
 - ✅ ItemList in CollectionPage JSON-LD — machine-readable event list for AI engines
 - ✅ BreadcrumbList on collection pages
-- ✅ FAQ schema + answer capsules on all 8 collection pages (H2+p, always visible)
+- ✅ FAQ schema + answer capsules on all 13 collection pages (H2+p, always visible)
 - ✅ IndexNow integration — new events pinged to Bing/Yandex after each scrape
 - ✅ Bing Webmaster Tools verified (CNAME) + sitemap submitted + `INDEXNOW_KEY` GHA secret
-- ✅ Editorial copy (150–200 words) + answer capsules on all 8 collection pages
+- ✅ Editorial copy (150–200 words) + answer capsules on all 13 collection pages
 
 **Remaining manual:**
 - ✅ Google Business Profile — created, logo + cover uploaded, verified (done 2026-02-26)
@@ -94,7 +94,7 @@ Pipeline is built and working (`scripts/social/`), but social media accounts are
 
 ### B5 — New collection pages ✅
 
-4 new collections added (2026-02-26) + 1 demographic collection added (2026-02-26). 13 total. All SEO-optimized (editorial copy, FAQ schema, answer capsules, JSON-LD).
+5 new collections added (2026-02-26). 13 total. All SEO-optimized (editorial copy, FAQ schema, answer capsules, JSON-LD).
 
 | Slug | Language | Target query |
 |------|----------|-------------|
@@ -129,7 +129,7 @@ Architecture: same `[lang]/[collection]/` route, entries in `collections.ts`.
 - ✅ Admin auth — password-protected `/admin/*` via HMAC cookie. `ADMIN_PASSWORD` + `ADMIN_SESSION_SECRET` in `.env` and Vercel env vars.
 
 **Prerequisites before starting sales outreach:**
-- ✅ Collection pages live + SEO-optimized (12 collections)
+- ✅ Collection pages live + SEO-optimized (13 collections)
 - ✅ Google Search Console + Bing Webmaster Tools set up
 - ✅ IndexNow wired
 - ✅ Google Business Profile done
@@ -208,13 +208,14 @@ After core business is running (months 5–12):
 | Social media | Paused indefinitely | Account creation issues; SEO/AI search is stronger channel |
 | Promoted placement pitch | Search placement only | Cleaner, measurable value prop without social |
 | Sold-out events | Delete from DB | Prevents wasted user intent; 9 scrapers updated |
-| AI search | Full stack (JSON-LD, IndexNow, answer capsules, Bing) | ChatGPT cites Bing results; now fully wired |
+| AI search | Full stack (Event JSON-LD, IndexNow, answer capsules, Bing, canonical URLs, AI referral tracking) | ChatGPT cites Bing results; now fully wired |
+| Collection page count | 13 (8 original + 5 expansion) | Hub-and-spoke architecture targeting underserved Bergen queries |
 
 ---
 
 ## Open Decisions
 
-1. **More collection pages?** Yes — build B5 wave before Phase C outreach. Priority: `i-dag`, `free-things-to-do-bergen`, `bydel/` pages.
+1. **More collection pages?** Done for now. 13 collections live. Next wave: seasonal pages (`julemarked-bergen`, `bergenfest-2026`, `fadderuke-bergen`) closer to their seasons.
 2. **Promoted prices public?** Not yet — negotiate first, publish after 2–3 reference clients.
 3. **ENK → AS conversion?** At ~200K NOK/year revenue.
 4. **Newsletter timing?** After 1,000+ monthly visitors.
