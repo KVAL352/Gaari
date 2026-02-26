@@ -18,6 +18,7 @@ export const load: PageServerLoad = async () => {
 	const { data: inquiries, error } = await supabaseAdmin
 		.from('organizer_inquiries')
 		.select('*')
+		.neq('status', 'declined')
 		.order('created_at', { ascending: false });
 
 	if (error) {

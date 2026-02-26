@@ -133,11 +133,6 @@
 						<span style="word-break: break-word;">{cleanMessage(inquiry.message)}</span>
 					</td>
 					<td style="padding: 12px; white-space: nowrap;">
-						{#if inquiry.status === 'declined'}
-						<span style="display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: {STATUS_COLORS.declined.bg}; color: {STATUS_COLORS.declined.text};">
-							Avslått
-						</span>
-						{:else}
 						<form method="POST" action="?/updateStatus" use:enhance style="display: inline;">
 							<input type="hidden" name="id" value={inquiry.id} />
 							<select
@@ -150,7 +145,6 @@
 								{/each}
 							</select>
 						</form>
-						{/if}
 					</td>
 					<td style="padding: 12px; min-width: 180px;">
 						<form method="POST" action="?/updateNotes" use:enhance style="display: flex; gap: 4px; align-items: flex-start;">
