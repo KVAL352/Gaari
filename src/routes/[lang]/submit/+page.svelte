@@ -235,7 +235,10 @@
 		const form = e.target as HTMLFormElement;
 		const fd = new FormData(form);
 
-		const url = (fd.get('website-url') as string).trim();
+		let url = (fd.get('website-url') as string).trim();
+		if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+			url = 'https://' + url;
+		}
 
 		if (isFacebookUrl(url)) {
 			websiteError = $lang === 'no'
@@ -337,7 +340,7 @@
 		<form onsubmit={handleWebsiteSubmit} class="space-y-6">
 			<div>
 				<label for="website-url" class="mb-1 block text-sm font-medium">{$t('websiteUrl')} *</label>
-				<input id="website-url" name="website-url" type="url" required aria-required="true"
+				<input id="website-url" name="website-url" type="text" required aria-required="true"
 					placeholder={$t('websiteUrlPlaceholder')}
 					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 			</div>
