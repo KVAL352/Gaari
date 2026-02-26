@@ -89,7 +89,7 @@
 	}
 
 	// Card exit: fade up and shrink
-	function cardOut(node: HTMLElement) {
+	function cardOut(_node: HTMLElement) {
 		if (reducedMotion) return { duration: 0, css: () => '' };
 		return {
 			duration: 300,
