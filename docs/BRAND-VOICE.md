@@ -1,6 +1,6 @@
 # Gåri — Brand Voice
 
-**Last updated:** 2026-02-23
+**Last updated:** 2026-02-26
 
 ---
 
@@ -81,8 +81,13 @@
 | Event descriptions | Factual, concise | "Konsert med Bergen Filharmoniske Orkester på Grieghallen." |
 | Empty states | Helpful, encouraging | "Ingen treff. Prøv å fjerne 'Gratis' eller utvid datoområdet." |
 | Error messages | Calm, solution-oriented | "Noe gikk galt. Prøv igjen om litt." |
-| Legal/data pages | Clear, transparent | "Vi samler inn eventdata fra 44 offentlige kilder i Bergen." |
+| Legal/data pages | Clear, transparent | "Vi samler inn eventdata fra 45 offentlige kilder i Bergen." |
 | About page | Warm, mission-driven | "Gåri samler alt som skjer i Bergen på ett sted." |
+| B2B marketing page | Data-led, novel, no hype | "Når noen spør ChatGPT hva som skjer i Bergen, er det Gåri som blir sitert." |
+| Venue pitch email | Personal, data-first, helpful | "Vi sendte 347 klikk til grieghallen.no forrige måned — gratis." |
+| Activation confirmation | Warm, professional, clear | "Alt er klart! Din første rapport kommer innen 5. mars." |
+| Monthly report | Factual, concise, trend-focused | "483 klikk (+22% fra januar). Mest klikkede: Bergen Filharmoniske." |
+| Newsletter | Curated, friendly, Bergen-local | "Denne helgen har Bergen 34 arrangementer. Her er våre favoritter." |
 
 ---
 

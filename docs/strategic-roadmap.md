@@ -1,223 +1,358 @@
-# Gåri — Strategic Roadmap: Progress Tracker
+# Gåri — Strategic Roadmap v2
 
-**Last updated:** 2026-02-26
-
----
-
-## Phase Status
-
-| Phase | Description | Status |
-|-------|-------------|--------|
-| A | Analytics + UTM tracking | ✅ Done |
-| B1 | Curated landing pages (8 collections) | ✅ Done |
-| B2 | Social post pipeline (built, on hold) | ⏸ Paused |
-| B3 | Hashtag + SEO strategy | ✅ Done |
-| B4 | AI & search engine optimization | ✅ Done |
-| B5 | New collection pages (expand inventory) | ✅ Done |
-| C | Promoted placement system | ✅ Infrastructure done — outreach pending |
-| D | Optimization (newsletter, Stripe, etc.) | 📅 Future |
+**Updated:** 2026-02-26
+**Replaces:** strategic-roadmap.md (v1, 2026-02-24)
+**Target:** 700,000 NOK/year net income run-rate within 12 months
 
 ---
 
-## Phase A — Foundation ✅
+## 1. Where We Are
 
-**Goal:** Measure every click from day one.
+Phases A and B from the original roadmap are **done**:
 
-- ✅ Plausible Cloud analytics on gaari.no
-- ✅ `buildOutboundUrl()` utility — UTM on all outbound links (`ticket_url`, `source_url`)
-- ✅ UTM contexts: `event_card`, `event_detail`, `collection`
+- ✅ Plausible Cloud analytics live
+- ✅ UTM tracking on all outbound links (`buildOutboundUrl()`)
+- ✅ 13 curated collection pages (not 4 — exceeded plan)
+- ✅ Social post generation pipeline built (posting paused — account issues)
+- ✅ Promoted placement infrastructure (tables, rotation, admin UI, reports)
+- ✅ AI search optimization (llms.txt, IndexNow, answer capsules, JSON-LD, Bing Webmaster Tools)
+- ✅ 198 unit tests, Lighthouse 95, WCAG 2.2 AA
+- ⏸️ Social media accounts — paused (creation issues)
 
-**Pending (do when you have 3–4 weeks of data):**
-- [ ] Export Plausible outbound click data by `utm_campaign` (venue)
-- [ ] Generate simple referral reports for top 5–10 venues (trust-building, not a sales pitch)
-- [ ] Note warm contacts for Phase C outreach
-
----
-
-## Phase B — Content Engine
-
-### B1 — Curated landing pages ✅
-
-8 collections live at `/[lang]/[collection]/`:
-
-| Slug | Language | Filter |
-|------|----------|--------|
-| `denne-helgen` | NO | Weekend events |
-| `i-kveld` | NO | Tonight (evening/night) |
-| `gratis` | NO | Free events this week |
-| `today-in-bergen` | EN | All events today |
-| `familiehelg` | NO | Family + weekend |
-| `konserter` | NO | Music this week |
-| `studentkveld` | NO | Student evening/night |
-| `this-weekend` | EN | Weekend events |
-
-All in sitemap with hreflang (priority 0.8, daily). JSON-LD `CollectionPage` schema with ItemList. Custom OG images via Satori. Editorial copy + answer capsules on all pages. B5 added 5 more collections for 13 total.
-
-### B2 — Social post pipeline ⏸ Paused
-
-Pipeline is built and working (`scripts/social/`), but social media accounts are not being created. Strategy pivot: focus on SEO + AI search for organic traffic instead. Social remains an option if accounts become available later.
-
-- ✅ Code complete: image generation, captions, GHA cron, admin review at `/admin/social`
-- ⏸ No Instagram / Facebook accounts — paused indefinitely
-- ⏸ Social post pipeline removed from Phase C prerequisites
-
-### B3 — Hashtag + SEO strategy ✅
-
-- ✅ Collection descriptions target Bergen search queries
-- ✅ `getCategoryHashtags()` for social captions (available when/if social resumes)
-
-### B4 — AI & Search Engine Optimization ✅
-
-> Full SEO + AI search playbook: `docs/seo-ai-playbook.md`
-
-**Foundation (2026-02-25):**
-- ✅ `static/llms.txt`, `static/robots.txt` — AI crawler allowance
-- ✅ Enriched Organization + WebSite JSON-LD (Bergen Wikidata entity)
-- ✅ FAQPage JSON-LD + accordion on about page
-- ✅ Google Search Console verified + sitemap submitted
-- ✅ hreflang nb/en/x-default on all pages
-
-**Technical SEO (2026-02-26):**
-- ✅ Crawlable pagination — `<a href>` instead of `<button>`, full event inventory indexable
-- ✅ Event JSON-LD timezone — `toBergenIso()` with correct CET/CEST offset
-- ✅ ItemList in CollectionPage JSON-LD — machine-readable event list for AI engines
-- ✅ BreadcrumbList on collection pages
-- ✅ FAQ schema + answer capsules on all 13 collection pages (H2+p, always visible)
-- ✅ IndexNow integration — new events pinged to Bing/Yandex after each scrape
-- ✅ Bing Webmaster Tools verified (CNAME) + sitemap submitted + `INDEXNOW_KEY` GHA secret
-- ✅ Editorial copy (150–200 words) + answer capsules on all 13 collection pages
-
-**Remaining manual:**
-- ✅ Google Business Profile — created, logo + cover uploaded, verified (done 2026-02-26)
-- [ ] Directory citations — Gulesider.no, Proff.no, 1881.no, Bergen Næringsråd (~1 hour)
-- [ ] Venue backlink outreach — 1 email/week, start with USF Verftet, Bergen Kunsthall, Litteraturhuset
-
-### B5 — New collection pages ✅
-
-5 new collections added (2026-02-26). 13 total. All SEO-optimized (editorial copy, FAQ schema, answer capsules, JSON-LD).
-
-| Slug | Language | Target query |
-|------|----------|-------------|
-| `i-dag` | NO | hva skjer i bergen i dag |
-| `free-things-to-do-bergen` | EN | free things to do bergen |
-| `regndagsguide` | NO | hva gjøre i bergen når det regner |
-| `sentrum` | NO | arrangementer bergen sentrum |
-| `voksen` | NO | arrangementer for voksne i bergen |
-
-`voksen`: filter = culture + music + theatre + tours + food + workshop, 2-week window. Excludes sports, student, nightlife, family. Target venues: Grieghallen, KODE, Bymuseet, Litteraturhuset, Bergen Filharmoniske, DNS, Oseana, Fløyen, Bergen Bibliotek.
-
-Architecture: same `[lang]/[collection]/` route, entries in `collections.ts`.
+**What's not built yet:**
+- `/for-arrangorer` marketing page
+- `organizer_inquiries` Supabase table
+- Stripe billing integration
+- Weekly newsletter
+- Venue referral reports from Plausible data
 
 ---
 
-## Phase C — Promoted Placement ✅ Infrastructure done
+## 2. The Thesis (unchanged)
 
-**Strategy:** Venues pay for top placement on SEO-optimized collection pages that rank for high-intent Bergen queries and get cited by ChatGPT/Bing. No social media component.
+Gåri is Bergen's digital town square. Clustering all events in one place benefits everyone — large venues reach broader audiences through bundled discovery, small venues become visible by sharing space with the large. Cross-subsidization isn't charity, it's the mechanism that keeps the square vibrant.
 
-**Infrastructure (done 2026-02-25, tested same day):**
-- ✅ Supabase tables: `promoted_placements`, `placement_log` (migration applied)
-- ✅ `log_placement_impression()` SQL function — atomic ON CONFLICT increment
-- ✅ `src/lib/server/promotions.ts` — `getActivePromotions`, `pickDailyVenue`, `logImpression`
-- ✅ `src/lib/server/supabase-admin.ts` — service role client for admin writes
-- ✅ 1 promoted event per collection page, rotating daily through venue's events
-- ✅ Per-venue cap: MAX_PER_VENUE = 3 — prevents any venue flooding a collection
-- ✅ Owner IP filtering via `SKIP_LOG_IPS` env var — own visits don't count as impressions
-- ✅ "Fremhevet"/"Featured" badge on EventCard — red border, dark text (markedsføringsloven § 3)
-- ✅ Admin UI at `/admin/promotions` — table + add form + active toggle
-- ✅ `scripts/generate-placement-report.ts` — monthly markdown report CLI
-- ✅ `getWeekendDates` fixed — now returns Fri–Sun for Mon–Fri (was Sat–Sun)
-- ✅ Admin auth — password-protected `/admin/*` via HMAC cookie. `ADMIN_PASSWORD` + `ADMIN_SESSION_SECRET` in `.env` and Vercel env vars.
-
-**Prerequisites before starting sales outreach:**
-- ✅ Collection pages live + SEO-optimized (13 collections)
-- ✅ Google Search Console + Bing Webmaster Tools set up
-- ✅ IndexNow wired
-- ✅ Google Business Profile done
-- ✅ Infrastructure built and deployed
-- [ ] 3–4 weeks of Plausible click data → venue referral reports
-- [ ] Directory citations (Gulesider, Proff, 1881)
-
-**Sales pitch (revised):**
-> "Gåri's collection pages rank for the exact queries your audience searches — hva skjer i Bergen denne helgen, konserter i Bergen, gratis Bergen. Your events appear at the top. We track every click we send you and share the report monthly."
-
-**Sales sequence:**
-1. Send referral reports to warm contacts (after 3–4 weeks of Plausible data)
-2. Pitch meetings with 3–5 venues — concrete click numbers, no fluff
-3. Close first 2–3 early bird clients (3 months free → paid September 2026)
-4. Use early birds as case studies for remaining outreach
-
-**Tiers (revised — no social posts component):**
-
-| Tier | Target | NOK/mo | Top-3 share |
-|------|--------|-------:|-------------|
-| Grasrot | Volunteer orgs | 0 | — |
-| Basis | Small independent venues | 1 500 | 15% |
-| Standard | Mid-size venues | 3 500 | 25% |
-| Partner | Large institutions | 7 000 | 35% |
-
-**Target first clients:** Grieghallen (Partner), USF Verftet (Standard), KODE (Standard), Bergen Kunsthall (Basis)
-
-**Collection → buyer mapping:**
-
-| Collection | Primary buyer |
-|------------|--------------|
-| `denne-helgen` / `this-weekend` | Grieghallen, USF Verftet |
-| `konserter` | Ole Bull, Forum Scene, Harmonien |
-| `familiehelg` | Akvariet, KODE, VilVite |
-| `studentkveld` | Kvarteret, DNS |
-| `gratis` | Bergen Kunsthall, Bergen Bibliotek |
-| `i-kveld` | Any venue with same-week inventory |
-| `bydel/sentrum` | Grieghallen, Ole Bull, DNS |
-| `bydel/nordnes` | USF Verftet, Akvariet |
+**What changed:** The primary selling point is now **AI search citation**. When someone asks ChatGPT, Perplexity, or Claude "what's happening in Bergen this weekend?", Gåri is cited. This is a novel value proposition with no local competitor. Venues gain visibility not just on gaari.no, but in every AI-powered search result about Bergen events.
 
 ---
 
-## Phase D — Optimization 📅
+## 3. Revenue Model
 
-After core business is running (months 5–12):
+### Pricing (3 tiers + à la carte)
 
-- [ ] Self-serve promoted placement signup + Stripe integration
-- [ ] Newsletter (Buttondown or Resend) — weekly digest, same collection engine
-- [ ] Visit Bergen data licensing pitch (NOK 50–100K/year)
-- [ ] Ticketmaster affiliate program (Impact, ~1% commission)
-- [ ] Social media — revisit if account situation resolves
-- [ ] Additional seasonal collections (julebord, sommeren, innendørs, quiz)
+| Tier | Target | NOK/month (eks. mva) | What's included |
+|------|--------|---------------------:|-----------------|
+| **Grasrot** | Volunteer orgs, <500K budget | Gratis | Standard listing, organic visibility |
+| **Basis** | Small independent venues, bars, cafés | 1 000 | Promoted placement on 1–2 relevant collection pages, monthly click report |
+| **Standard** | Mid-size venues, cultural institutions | 3 500 | Promoted on 3–4 pages, newsletter inclusion, detailed monthly report |
+| **Partner** | Large institutions (Grieghallen, DNS, KODE) | 7 000 | Promoted on all relevant pages, newsletter feature, AI visibility report, quarterly strategy call |
+
+### À la carte (per event)
+
+| Option | Price (eks. mva) | What it includes |
+|--------|-----------------:|-----------------|
+| Single event promotion | 500 | One event promoted on relevant collection pages for its duration + inclusion in weekly newsletter |
+
+**À la carte is for:** Festivals with 2–3 events per year, one-off organizers, venues testing Gåri before committing to a subscription. Priced so that 2+ events/month makes Basis tier cheaper.
+
+### Early bird
+
+Venues that sign up before **1 June 2026** get the first 3 months completely free — full tier access. After the free period, regular tier pricing. Implemented via Stripe `trial_period_days: 90`. No commitment during the free period.
+
+### Path to 700K/year
+
+**Target monthly run-rate by month 12:** 58,333 NOK/month
+
+| Scenario | Partner (7K) | Standard (3.5K) | Basis (1K) | À la carte | Monthly total | Annual |
+|----------|:-----------:|:---------------:|:----------:|:----------:|:------------:|:------:|
+| **Conservative** | 2 | 4 | 8 | 5K | 41,000 | 492K |
+| **Base case** | 3 | 5 | 12 | 5K | 63,500 | 762K |
+| **Target** | 3 | 6 | 10 | 4K | 56,000 | 672K + à la carte buffer |
+
+**Base case requires 20 subscription clients + regular à la carte.** In a market of ~200 addressable venues with personal outreach, this is 10% penetration.
+
+### Revenue timeline with early bird
+
+| Period | What happens | MRR |
+|--------|-------------|----:|
+| Mar–May 2026 | Build, analytics, outreach prep, newsletter launch | 0 |
+| Jun 2026 | First 3–5 early birds sign up (free trial starts) | 0 |
+| Jun–Aug 2026 | Free period. Placement active. Collect data for reports. | 0 |
+| Sep 2026 | Early birds convert to paid. Second wave outreach. | 15,000–25,000 |
+| Oct–Dec 2026 | Steady client acquisition (2–3/month) | 30,000–45,000 |
+| Jan–Feb 2027 | Hit target run-rate | 55,000–65,000 |
+
+**First paid revenue: September 2026.** First 700K run-rate: January–February 2027.
+
+### MVA note
+
+MVA registration required at 50,000 NOK cumulative revenue (likely November 2026). Register proactively. All prices above are eks. mva — Stripe Tax handles the 25% automatically. B2B clients deduct MVA, so it's invisible to them.
 
 ---
 
-## Revenue Targets
+## 4. Acquisition Channels (No Social Media)
 
-| Milestone | Monthly revenue | What it takes |
-|-----------|----------------:|---------------|
-| First revenue | 3 500 NOK | 1 Standard client (Sep 2026 after early bird) |
-| Ramen profitable | 10 500 NOK | 1 Partner + 1 Standard |
-| Sustainable | 28 500 NOK | 2 Partners + 3 Standards + 2 Basis |
+Social media is **paused for the first 6 months.** The social post pipeline is built and ready — it activates when accounts are resolved. Until then, these five channels drive growth:
 
-**Operating costs:** ~100–350 NOK/mo (domains + Plausible). First Basis client covers all costs.
+### Channel 1: Direct outreach with data (PRIMARY)
+
+**The core sales engine.** Personal emails and in-person visits to the top 20–30 venues, each with a custom data packet showing their actual Plausible click data from Gåri.
+
+**Sequence:**
+1. **Month 1 (March):** Build prospect list from 43 scraper sources + Brønnøysundregistrene/Proff.no. Map each source to an organization, contact person, and estimated tier.
+2. **Month 2 (April):** First venue referral reports generated from Plausible data. Unsolicited — email the top 10 venues: "Gåri sendte X klikk til [venue] forrige måned."
+3. **Month 3 (May):** In-person meetings with top 5 prospects. Bring printed data. Pitch early bird: "3 måneder gratis — prøv det, se dataen, bestem etterpå."
+4. **Month 4+ (June):** Close early birds. Continue outreach to next wave.
+
+**Target: 15–20 venues contacted personally by end of month 3.**
+
+Cold email benchmarks for this approach: 48% open rate in event/agency sector, 16% reply rate in Scandinavia. Personalized data ("vi sendte deg 347 klikk") pushes this higher.
+
+### Channel 2: SEO + AI search (ALREADY BUILT)
+
+The 13 collection pages, answer capsules, Event JSON-LD, llms.txt, IndexNow, and Bing indexing are all live. This is the **primary differentiator** in venue pitches:
+
+"Når noen spør ChatGPT 'hva skjer i Bergen denne helgen?', er det Gåri som blir sitert. Dine arrangementer er allerede synlige der — med fremhevet synlighet blir de enda mer fremtredende."
+
+**Action items:**
+- Monitor AI referral tracking in Plausible (custom event already set up)
+- Collect screenshots of AI citations for the pitch deck
+- Build AI visibility reporting into monthly client reports
+
+### Channel 3: Weekly newsletter (NEW — MONTHS 2+)
+
+**Platform:** Buttondown (free up to 100 subscribers, then $9/month)
+
+**Format:** "Hva skjer i Bergen" — curated weekly digest of 10–15 events, same content engine as collection pages. Sent Thursday afternoons (weekend planning).
+
+**Why this matters for B2B:**
+- Subscriber count becomes a selling point: "Vi når X bergensere direkte i innboksen"
+- Newsletter inclusion is a feature in Standard and Partner tiers
+- Newsletter → site traffic → more Plausible data → better venue reports
+
+**Implementation:**
+- Buttondown account with gaari.bergen@proton.me
+- Subscribe form on gaari.no footer + about page + collection pages
+- Content: automated pull from collection data (denne-helgen + highlights), manually curated intro paragraph
+- Week 1: launch with 0 subscribers, grow organically from site traffic
+
+**Claude Code task:** Add email subscribe form (Buttondown embed) to footer and about page.
+
+### Channel 4: PR / data stories (MONTHS 3–4)
+
+**Target:** Bergens Tidende (reaches 7 of 10 Bergen residents)
+
+**The pitch:** "Gåri aggregerer data fra 43 kilder og viser at Bergen har [X] arrangementer per uke — de fleste bergensere kjenner ikke til 70% av dem. Her er hva dataen viser."
+
+Data stories to pitch:
+1. "Bergen's event landscape by the numbers" — first comprehensive data on event volume, categories, seasonal patterns
+2. "What tourists ask AI about Bergen" — AI search query data from Plausible showing what people actually ask
+3. "The free events Bergen doesn't know about" — data on free event discovery
+
+**Secondary PR targets:** NRK Vestland, Shifter.no (startup media), Bergen Næringsråd's magazine *Samspill*
+
+**Triple value:** Consumer awareness (site traffic) + B2B credibility (venues see you in BT) + SEO backlinks
+
+### Channel 5: Bergen Næringsråd (MONTH 2+)
+
+**Action:** Join as member. Attend frokostmøter. Aim for a speaking slot on "Bergen's Event Data" within 6 months.
+
+**Why:** 3,000 members, 200+ meetings/year, 20,000 attendees. Direct access to venue operators and cultural sector decision-makers. Norwegian business culture rewards presence and trust — this is relationship infrastructure, not lead generation.
+
+**Cost:** Membership fee (varies by company size — likely ~2,000–5,000 NOK/year for ENK).
 
 ---
 
-## Key Decisions Made
+## 5. What To Build Next
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Analytics | Plausible Cloud (€9/mo) | No cookies, no consent banner, full API for venue reports |
-| Business entity | ENK (already registered) | Can invoice immediately; convert to AS at ~200K NOK/yr |
-| Promoted content labeling | "Fremhevet" | Required by markedsføringsloven § 3 |
-| Pricing visibility | Not public initially | Negotiate with first 2–3 clients to find market rate |
-| Social media | Paused indefinitely | Account creation issues; SEO/AI search is stronger channel |
-| Promoted placement pitch | Search placement only | Cleaner, measurable value prop without social |
-| Sold-out events | Delete from DB | Prevents wasted user intent; 9 scrapers updated |
-| AI search | Full stack (Event JSON-LD, IndexNow, answer capsules, Bing, canonical URLs, AI referral tracking) | ChatGPT cites Bing results; now fully wired |
-| Collection page count | 13 (8 original + 5 expansion) | Hub-and-spoke architecture targeting underserved Bergen queries |
+### Immediate (March 2026)
+
+| Task | Owner | Notes |
+|------|-------|-------|
+| Build `/for-arrangorer` page | Claude Code | See `for-arrangorer-page-spec.md` |
+| Create `organizer_inquiries` Supabase table + RLS | Claude Code | Schema in page spec |
+| Add Buttondown subscribe form to footer + about page | Claude Code | Simple embed |
+| Create Stripe account (Norwegian registration) | You | stripe.com, 30 minutes |
+| Set up Stripe branding + 3 Products with Prices | You | Basis 1,000 / Standard 3,500 / Partner 7,000 |
+| Build prospect list from 43 sources | You | Spreadsheet: org name, contact, domain, estimated tier |
+
+### April 2026
+
+| Task | Owner | Notes |
+|------|-------|-------|
+| Generate first venue referral reports from Plausible | You | Top 10 venues by outbound clicks |
+| Collect AI citation screenshots for pitch deck | You | Ask ChatGPT/Perplexity about Bergen events, screenshot results |
+| Launch newsletter (issue #1) | You | Buttondown, Thursday send |
+| Join Bergen Næringsråd | You | Membership application |
+| Begin email outreach to top 10 venues | You | Personalized data + early bird offer |
+
+### May 2026
+
+| Task | Owner | Notes |
+|------|-------|-------|
+| In-person meetings with 3–5 top venues | You | Bring printed reports |
+| Pitch data story to Bergens Tidende | You | Email to journalist |
+| Close first early bird clients | You | Target: 3–5 by June 1 |
+| Create Stripe subscriptions for early birds (trial) | You | Dashboard only, no code |
+| Activate placements in Supabase | You | Manual insert |
+
+### June–August 2026
+
+| Task | Owner | Notes |
+|------|-------|-------|
+| Early bird free period — placements active | Automatic | System runs itself |
+| Continue outreach to second wave | You | |
+| Grow newsletter to 200+ subscribers | Organic | From site traffic + PR |
+| Monthly reports for early bird clients | You | Even during free period |
+| Resolve social media accounts (if possible) | You | Unblocks social pipeline |
+
+### September 2026+
+
+| Task | Owner | Notes |
+|------|-------|-------|
+| Early birds convert to paid (Stripe charges automatically) | Automatic | |
+| Third wave outreach with early bird case studies | You | |
+| Evaluate: self-serve signup? | You | If 10+ clients, build it |
+| MVA registration (proactive) | You | Before 50K threshold |
 
 ---
 
-## Open Decisions
+## 6. Target Client List
 
-1. **More collection pages?** Done for now. 13 collections live. Next wave: seasonal pages (`julemarked-bergen`, `bergenfest-2026`, `fadderuke-bergen`) closer to their seasons.
-2. **Promoted prices public?** Not yet — negotiate first, publish after 2–3 reference clients.
-3. **ENK → AS conversion?** At ~200K NOK/year revenue.
-4. **Newsletter timing?** After 1,000+ monthly visitors.
-5. **Reddit/forum strategy?** r/Bergen weekly "hva skjer" post — manual for now.
-6. **Cruise ship day targeting?** `/en/today-in-bergen` weighted toward Sentrum on docking days. Nice-to-have.
+Mapped from the 43 active scraper sources. Categorized by likely tier.
+
+### Partner tier targets (7,000 NOK/month)
+
+| Venue | Why | Events/month | Revenue potential |
+|-------|-----|:------------:|:-----------------:|
+| Grieghallen | Bergen's largest concert venue, high event volume | 15–20 | 84K/year |
+| Den Nationale Scene | National theatre, broad audience | 10–15 | 84K/year |
+| KODE (4 museums) | Major art institution, tourist magnet | 8–12 | 84K/year |
+| Festspillene | 400+ events/year, Bergen's biggest cultural org | Seasonal | 84K/year or à la carte |
+| Bergen Filharmoniske | High-profile concerts, loyal audience | 8–10 | 84K/year |
+
+### Standard tier targets (3,500 NOK/month)
+
+| Venue | Why | Events/month |
+|-------|-----|:------------:|
+| USF Verftet | Major cultural hub, multiple stages | 10–15 |
+| Bergen Kunsthall | Contemporary art, exhibition openings | 4–8 |
+| Ole Bull Huset | Multi-purpose venue, high traffic | 8–12 |
+| Carte Blanche | National dance company | 4–6 |
+| Det Vestnorske Teateret | Regional theatre | 6–10 |
+| Bymuseet (9 museums) | Broad audience, family events | 8–15 |
+| BIT Teatergarasjen | Performing arts, festival host | 4–8 |
+| Litteraturhuset | Literary events, cultural hub | 6–10 |
+
+### Basis tier targets (1,000 NOK/month)
+
+| Venue | Why |
+|-------|-----|
+| Hulen (via TicketCo) | Bergen's oldest rock club, student crowd |
+| Kvarteret (via TicketCo) | Student cultural center, high volume |
+| Bergen Kjøtt | Arts and music venue |
+| Colonialen | Food events, tastings |
+| Garage Bergen (via TicketCo) | Live music, nightlife |
+| Forum Scene | Concerts, comedy |
+| Cornerteateret | Small theatre, community events |
+| Råbrent | Food events, BBQ |
+| Nordnes Sjøbad | Outdoor events, swimming |
+| Paint'n Sip | Workshops |
+| Brettspillcafeen | Gaming events |
+| Bjørgvin Blues Club | Niche music |
+
+### À la carte targets
+
+| Organization | Why |
+|-------------|-----|
+| Bergenfest | Annual festival, 3–4 day event |
+| Beyond the Gates | Annual metal festival |
+| VVV (Vill Vill Vest) | Annual music conference/festival |
+| DNT Bergen | Seasonal hiking events |
+| SK Brann | Match day events |
+| Fløyen | Seasonal activities |
+
+---
+
+## 7. Budget
+
+### Monthly costs
+
+| Item | Cost (NOK/month) |
+|------|------------------:|
+| Domain (gåri.no + gaari.no) | 12 |
+| Vercel hosting | 0 (free tier) |
+| Supabase | 0 (free tier) |
+| Gemini API | 0 (free tier) |
+| GitHub Actions | 0 (free tier) |
+| Plausible Cloud | 90 (~€9) |
+| Buttondown newsletter | 0 (free up to 100 subs), then ~90 |
+| Bergen Næringsråd | ~300 (~3,600/year) |
+| Stripe fees | 1.4% + 1.80 NOK per transaction |
+| **Total before revenue** | **~400–500** |
+
+### Breakeven
+
+First Basis client (1,000 NOK/month) covers all operating costs with margin. This is an extremely capital-efficient business.
+
+---
+
+## 8. Risks
+
+| Risk | Mitigation |
+|------|-----------|
+| Venues don't see value | Free referral reports prove traffic before asking for money. Early bird removes price objection. |
+| AI search citation dries up | Diversified across Google, ChatGPT, Perplexity, Claude. Structured data + freshness is hard to displace. |
+| Too few clients for 700K target | À la carte fills gaps. Lower entry (1,000) casts wider net. 20 clients in 200-venue market is 10%. |
+| Newsletter doesn't grow | Low cost (free). Growth is organic from site traffic. Even 300 subscribers is a data point for pitches. |
+| Social media never gets resolved | Not a dependency for first 6 months. Newsletter + SEO + direct outreach carry the strategy. Revisit in September. |
+| BT doesn't pick up data story | Low cost to pitch. Secondary targets exist. PR is bonus channel, not dependency. |
+| Churn after early bird free period | Reports during free period prove value. If product works, they stay. Budget assumes 5% monthly churn. |
+
+---
+
+## 9. Key Metrics
+
+### Track from day one
+
+| Metric | Tool | Target |
+|--------|------|--------|
+| Monthly unique visitors | Plausible | >2,000 by month 3 |
+| Outbound clicks per venue | Plausible (UTM) | Data for venue reports |
+| AI referrals | Plausible (custom event) | Growing month-over-month |
+| Newsletter subscribers | Buttondown | 100 by month 2, 500 by month 6 |
+| Prospect list size | Spreadsheet | 50+ by month 2 |
+| Venues contacted | Spreadsheet | 20+ by month 3 |
+| Early bird signups | Stripe | 3–5 by June 1 |
+
+### Track from September (first revenue)
+
+| Metric | Tool | Target |
+|--------|------|--------|
+| MRR | Stripe Dashboard | 58,333 by month 12 |
+| Paying clients | Stripe | 20 subscriptions by month 12 |
+| Client retention (monthly) | Stripe | >93% (< 7% churn) |
+| À la carte events/month | Stripe | 5–10 |
+
+---
+
+## 10. Values (unchanged)
+
+1. Organic content always exists in top positions. Minimum 30% organic visibility.
+2. Category relevance mandatory. No irrelevant promoted placements.
+3. Grasrot is always free, never deprioritized.
+4. Transparency permanent. "Fremhevet" label always visible.
+5. No exclusive deals. The town square is shared.
+6. Newsletter position randomized. Inclusion guaranteed, not prominence.
+
+---
+
+## 11. Documents
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| `strategic-roadmap.md` | This document — the master plan | **Current** |
+| `for-arrangorer-page-spec.md` | Marketing page copy + structure | Updated (AI search lead) |
+| `promoted-placement-spec.md` | Product spec: tiers, rotation, schema | Updated (new pricing) |
+| `venue-signup-journey.md` | Payment flow + onboarding | Updated (new tiers, à la carte) |
+| `project-updates.md` | Decision log entries + existing doc changes | New |

@@ -247,6 +247,55 @@ Each entry: `#N — Date — Decision title`
 - **Alternatives considered:** Fewer pages (misses queries), more pages (diminishing returns without data to validate).
 - **Status:** Active
 
+### #40 — 2026-02-26 — For-arrangorer marketing page (AI search lead)
+- **Decision:** Create `/[lang]/for-arrangorer/` as a B2B marketing page. AI search citation is the primary differentiator. Footer link only — not in main navigation. No pricing visible.
+- **Rationale:** AI search is the genuinely novel selling point. No Bergen competitor can match it. Venue owners don't know their events appear in ChatGPT results — educating them creates demand.
+- **Status:** Ready for implementation
+
+### #41 — 2026-02-26 — Early bird: 3 months free before June 2026
+- **Decision:** Venues signing up before 1 June 2026 get 3 months free (full tier access). Stripe `trial_period_days: 90`. No commitment during free period.
+- **Rationale:** Removes price objection for first clients. Free period generates case study data. June deadline creates urgency.
+- **Alternatives:** 50% off first year (devalues), 30% off (not compelling), no discount (harder first sale).
+- **Status:** Active
+
+### #42 — 2026-02-26 — Hybrid venue signup (not self-serve)
+- **Decision:** Interest form → you approve → Stripe payment link. Not self-serve. Self-serve deferred to Phase D.
+- **Rationale:** Controls client quality, enables personalized tier recommendation from traffic data, builds relationships. Large institutions expect conversation.
+- **Status:** Active
+
+### #43 — 2026-02-26 — Stripe for payments (card + Vipps + invoice)
+- **Decision:** Stripe Billing for monthly subscriptions. Card (recurring), Vipps (at checkout, private preview), invoice/faktura (institutions). No code needed for first clients — Stripe Dashboard only.
+- **Rationale:** Norwegian ENK support, MVA automation, hosted invoices, Vipps at checkout.
+- **Status:** Stripe account can be created now
+
+### #44 — 2026-02-26 — No public pricing on marketing page
+- **Decision:** No prices on `/for-arrangorer`. Pricing shared in direct conversation only. Visible in Stripe checkout after agreement.
+- **Rationale:** First 2–3 clients need personalized pitches. Publishing prices before having clients sets anchors without market validation.
+- **Status:** Active — revisit after 5–10 clients
+
+### #45 — 2026-02-26 — Three pricing tiers: 1,000 / 3,500 / 7,000
+- **Decision:** Three paid tiers (Basis 1,000, Standard 3,500, Partner 7,000 NOK/month eks. mva) plus Grasrot (free). Replaces the original 4-tier model (1,500 / 3,500 / 7,000).
+- **Rationale:** Lower entry price (1,000 vs 1,500) converts better in Norwegian SMB market. Round numbers. Three tiers is simpler to explain and sell.
+- **Alternatives:** 4 tiers with 2 mid-points (too complex for 20 clients), lower across the board (requires more clients).
+- **Status:** Active
+
+### #46 — 2026-02-26 — À la carte single-event promotion (500 NOK)
+- **Decision:** Offer one-time event promotion at 500 NOK per event. Promoted on relevant collection pages for the event's duration + newsletter inclusion. Priced to nudge repeat users toward Basis subscription.
+- **Rationale:** Captures revenue from festivals (2–3 events/year), one-off organizers, and venues testing Gåri. Also serves as subscription conversion funnel.
+- **Status:** Active
+
+### #47 — 2026-02-26 — No social media in first 6 months
+- **Decision:** Social media is not a dependency for the first 6 months of sales. Acquisition channels: direct outreach with data, SEO/AI search (already built), weekly newsletter, PR to BT, Bergen Næringsråd networking.
+- **Rationale:** Social accounts are paused (creation issues). AI search citation is the stronger differentiator. Newsletter replaces social as the content distribution channel. The social post pipeline is built and ready — activates when accounts are resolved.
+- **Alternatives:** Wait for social before launching (delays revenue), use social as primary channel (blocked).
+- **Status:** Active — revisit in September 2026
+
+### #48 — 2026-02-26 — Weekly newsletter via Buttondown
+- **Decision:** Launch "Hva skjer i Bergen denne helgen" weekly newsletter via Buttondown. Free tier up to 100 subscribers. Thursday 15:00 CET send time. Content from collection page data engine.
+- **Rationale:** Cheapest option (free → $9/month). Newsletter serves dual purpose: B2C audience growth + B2B selling point (subscriber count, inclusion as tier feature). Replaces social media as content distribution in first 6 months.
+- **Alternatives:** Resend (developer-friendly but more complex), Mailchimp (expensive for what's needed), no newsletter (missed channel).
+- **Status:** Ready for implementation
+
 ---
 
 ## References
@@ -255,4 +304,4 @@ Each entry: `#N — Date — Decision title`
 - See `design-brief.md` for design decisions #4–6, #16, #20
 - See `project-strategy.md` for product scope decisions #14–15
 - See `next-scrapers.md` for scraper coverage decisions
-- See `strategic-roadmap.md` for business phase decisions #24–28
+- See `strategic-roadmap.md` for business phase decisions #24–28, #40–48

@@ -11,7 +11,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. One place to find every
 - **Tagline:** Ke det går i Bergen? ("What's going on in Bergen?" in bergensk dialect)
 - **Domain:** gåri.no / gaari.no
 - **Email:** gaari.bergen@proton.me
-- **Business model:** Free for users. Revenue from promoted placement tiers (Basis 1 500 NOK/mo → Partner 7 000 NOK/mo). See `strategic-roadmap.md`.
+- **Business model:** Free for users. Revenue from promoted placement tiers (Basis 1 000 NOK/mo → Partner 7 000 NOK/mo) and à la carte single-event promotions (500 NOK/event). See `strategic-roadmap.md`.
 
 ---
 
@@ -29,6 +29,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. One place to find every
 | OG images | Satori + ResvgJS | Per-event at `/og/[slug].png`, per-collection at `/og/c/[slug].png` |
 | Social images | Satori + ResvgJS | 1080x1080 Instagram carousels in `scripts/social/` |
 | Analytics | Plausible Cloud | Privacy-friendly, no cookies, UTM tracking on all outbound links |
+| Newsletter | Buttondown | Free tier, weekly "Hva skjer" digest |
 | Unit tests | Vitest | 198 tests, runs in <350ms — `npm test` |
 
 ---
@@ -56,6 +57,7 @@ src/
       datainnsamling/ # Data transparency + opt-out form
       events/[slug]/  # Event detail page
       submit/         # Event submission form
+      for-arrangorer/ # B2B marketing page for venues (footer link only)
       [collection]/   # 13 curated landing pages (denne-helgen, i-kveld, gratis, etc.)
     admin/login/      # Password login
     admin/logout/     # Logout + redirect
@@ -238,11 +240,12 @@ Runs daily via GitHub Actions cron at 07:00 UTC. For each scheduled collection:
 - Pending: Sales outreach (waiting for 3–4 weeks of Plausible click data)
 
 ### Phase D — Future optimization
-- Meta Graph API automation (replaces manual Instagram posting)
-- Self-serve signup + Stripe billing
-- Newsletter (weekly digest)
+- Self-serve signup + Stripe billing (public pricing, tier selection on /for-arrangorer)
+- Meta Graph API automation (when social accounts resolved + posting >30 min/week)
+- Newsletter growth tools (referral program, automated welcome sequence)
 - Additional seasonal collection pages
-- Visit Bergen data licensing
+- Visit Bergen data partnership
+- Bergen Kommune cultural funding application
 
 ### Not planned
 - Ticket sales (Gåri only links externally)
@@ -298,3 +301,5 @@ Runs daily via GitHub Actions cron at 07:00 UTC. For each scheduled collection:
 - `CLAUDE.md` — concise technical project context (root-level, always loaded by Claude Code)
 - `DECISION-LOG.md` — rationale for all key decisions
 - `DESIGN-SYSTEM.md` — color tokens, typography, component inventory
+- `for-arrangorer-page-spec.md` — B2B marketing page copy and structure
+- `venue-signup-journey.md` — Payment flow and onboarding spec

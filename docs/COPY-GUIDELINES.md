@@ -196,6 +196,35 @@ Every badge uses color + icon + text (never color alone — WCAG requirement).
 
 ---
 
+## B2B Copy (Venue Communications)
+
+### Pitch emails
+- Lead with specific data, not features ("Vi sendte X klikk" not "Vi tilbyr synlighet")
+- Include AI citation angle — it's the differentiator
+- Close with soft CTA: "Kan vi ta en prat?" (never "Bestill nå!")
+- Subject: "Gåri sendte [X] klikk til [venue] i [måned]"
+- Keep under 150 words
+
+### Activation emails
+- Confirm exactly what's activated (which collection pages)
+- State when the first report arrives
+- Under 150 words
+
+### Monthly reports
+- Lead with headline number (total clicks)
+- Show trend vs previous month (% change)
+- Top 3 events by clicks
+- AI visibility section (for Standard + Partner)
+- No commentary or upselling in the report itself
+
+### Newsletter
+- Short intro paragraph (2–3 sentences, manually written)
+- 10–15 events with title, venue, time, price
+- Promoted events labeled "Fremhevet"
+- CTA: link to relevant collection page on gaari.no
+
+---
+
 ## Dos and Don'ts
 
 ### Do

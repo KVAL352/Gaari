@@ -166,6 +166,31 @@
 
 ---
 
+## Journey 8: Venue Signup
+
+**Persona:** Kristin, 42, marketing manager at a mid-size Bergen venue. Received an email from Gåri showing her venue's click data.
+
+### Steps
+
+| Step | What she sees | What she feels | What she does |
+|------|---|---|---|
+| 1. **Receives pitch email** | Personal email with venue's click data from Plausible + AI citation screenshots | Curious — someone is already sending traffic, and it shows up in ChatGPT? | Clicks link to /for-arrangorer |
+| 2. **Reads marketing page** | AI search pitch, town square philosophy, early bird offer | Interested — this is genuinely new, not generic advertising | Fills out contact form |
+| 3. **Conversation** | You share detailed traffic report + tier recommendation | Evaluating — comparing cost vs. value | Discusses with colleagues, asks questions |
+| 4. **Agrees to tier** | You explain tier, early bird terms, payment options | Decided — ready to proceed | Confirms tier and payment preference |
+| 5. **Receives Stripe link** | Branded Checkout page or hosted invoice | Professional — looks legitimate | Pays by card/Vipps or processes invoice |
+| 6. **Activation confirmed** | Email confirming what's active + first report date | Satisfied — clear next steps | Tells colleagues about the AI search angle |
+| 7. **Monthly report** | PDF/email with clicks, AI visibility, trends | Validated — sees ROI | Decides to continue |
+
+### Key design moments
+- The pitch email with specific data (not generic marketing) opens the door
+- The AI search citation screenshots are the "aha moment" — most venues don't know this exists
+- The early bird removes price objection entirely (3 months free)
+- The first monthly report determines retention — it must show clear value
+- À la carte is the backup: if Kristin can't commit monthly, she can try one event at 500 NOK
+
+---
+
 ## Cross-Cutting Patterns
 
 ### All journeys share:

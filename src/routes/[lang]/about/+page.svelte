@@ -81,6 +81,44 @@
 		</a>
 	</section>
 
+	<!-- Newsletter -->
+	<section class="mb-8">
+		<h2 class="mb-3 text-xl font-semibold">
+			{$lang === 'no' ? 'Nyhetsbrev' : 'Newsletter'}
+		</h2>
+		<p class="mb-4 text-[var(--color-text-secondary)]">
+			{$lang === 'no'
+				? 'Få ukentlige tips — rett i innboksen.'
+				: 'Weekly tips — straight to your inbox.'}
+		</p>
+		<form
+			action="https://buttondown.com/api/emails/embed-subscribe/gaari"
+			method="post"
+			target="_blank"
+			class="flex max-w-md flex-col gap-2 sm:flex-row"
+		>
+			<label for="about-email" class="sr-only">
+				{$lang === 'no' ? 'E-postadresse' : 'Email address'}
+			</label>
+			<input
+				type="email"
+				name="email"
+				id="about-email"
+				required
+				placeholder={$lang === 'no' ? 'Din e-post' : 'Your email'}
+				class="flex-1 rounded-lg border border-[var(--color-border)] px-3 text-sm"
+				style="height: 44px;"
+			/>
+			<button
+				type="submit"
+				class="rounded-lg bg-[var(--funkis-red)] px-5 text-sm font-semibold text-white hover:opacity-90"
+				style="height: 44px;"
+			>
+				{$lang === 'no' ? 'Abonner' : 'Subscribe'}
+			</button>
+		</form>
+	</section>
+
 	<section>
 		<h2 class="mb-3 text-xl font-semibold">{$t('submitEvent')}</h2>
 		<p class="mb-4 text-[var(--color-text-secondary)]">

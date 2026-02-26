@@ -55,11 +55,42 @@
 					<li><a href="/{$lang}/personvern" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Personvern' : 'Privacy Policy'}</a></li>
 					<li><a href="/{$lang}/tilgjengelighet" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Tilgjengelighet' : 'Accessibility'}</a></li>
 					<li><a href="/{$lang}/submit" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('submitEvent')}</a></li>
+					<li><a href="/{$lang}/{$lang === 'no' ? 'for-arrangorer' : 'for-organizers'}" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'For arrangører' : 'For organizers'}</a></li>
 					<li><a href="mailto:gaari.bergen@proton.me" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('contact')}</a></li>
 				</ul>
 			</nav>
 		</div>
-		<div class="mt-8 border-t border-[var(--color-border)] pt-6 text-center text-xs text-[var(--color-text-secondary)]">
+		<!-- Newsletter signup -->
+		<div class="mt-8 border-t border-[var(--color-border)] pt-6">
+			<form
+				action="https://buttondown.com/api/emails/embed-subscribe/gaari"
+				method="post"
+				target="_blank"
+				class="mx-auto flex max-w-md flex-col gap-2 sm:flex-row"
+			>
+				<label for="footer-email" class="sr-only">
+					{$lang === 'no' ? 'E-postadresse' : 'Email address'}
+				</label>
+				<input
+					type="email"
+					name="email"
+					id="footer-email"
+					required
+					placeholder={$lang === 'no' ? 'Få ukentlige tips — rett i innboksen' : 'Weekly tips — straight to your inbox'}
+					class="flex-1 rounded-lg border border-[var(--color-border)] px-3 text-sm"
+					style="height: 44px;"
+				/>
+				<button
+					type="submit"
+					class="rounded-lg bg-[var(--funkis-red)] px-5 text-sm font-semibold text-white hover:opacity-90"
+					style="height: 44px;"
+				>
+					{$lang === 'no' ? 'Abonner' : 'Subscribe'}
+				</button>
+			</form>
+		</div>
+
+		<div class="mt-6 border-t border-[var(--color-border)] pt-6 text-center text-xs text-[var(--color-text-secondary)]">
 			© 2026 Gåri. Bergen, Norway.
 		</div>
 	</div>
