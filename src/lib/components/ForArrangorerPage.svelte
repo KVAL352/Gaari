@@ -3,21 +3,51 @@
 	import { lang } from '$lib/i18n';
 
 	let contactStatus: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
+	let heroEl: HTMLElement | undefined = $state(undefined);
+	let contactEl: HTMLElement | undefined = $state(undefined);
+	let heroVisible = $state(true);
+	let contactVisible = $state(false);
+	let showStickyBar = $derived(!heroVisible && !contactVisible);
 
 	const venues = [
 		'Grieghallen', 'DNS', 'KODE', 'USF Verftet', 'Bergen Bibliotek',
 		'Festspillene', 'Ole Bull', 'Harmonien', 'Fløyen', 'Bergenfest',
 		'Bergen Kjøtt', 'Bjørgvin Blues Club'
 	];
+
+	function trackEvent(name: string) {
+		if (typeof window !== 'undefined' && 'plausible' in window) {
+			(window as any).plausible(name);
+		}
+	}
+
+	$effect(() => {
+		if (!heroEl || !contactEl) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (entry.target === heroEl) heroVisible = entry.isIntersecting;
+					if (entry.target === contactEl) contactVisible = entry.isIntersecting;
+				}
+			},
+			{ threshold: 0 }
+		);
+
+		observer.observe(heroEl);
+		observer.observe(contactEl);
+
+		return () => observer.disconnect();
+	});
 </script>
 
 <!-- 1. Hero -->
-<section class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-24">
+<section bind:this={heroEl} class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-24">
 	<div class="mx-auto max-w-4xl text-center">
 		<h1 class="mb-6 text-3xl font-bold tracking-tight font-[family-name:var(--font-display)] md:text-[40px] md:leading-tight">
 			{$lang === 'no' ? 'Arrangementene dine i ChatGPT-svar' : 'Your events in ChatGPT answers'}
 		</h1>
-		<p class="mx-auto mb-8 max-w-[600px] text-lg text-[var(--color-text-secondary)]">
+		<p class="mx-auto mb-8 max-w-[600px] text-lg text-[var(--color-text-primary)]">
 			{#if $lang === 'no'}
 				Gåri samler alt som skjer i Bergen — og gjør det synlig i AI-søk, på Google og i ukentlige nyhetsbrev.
 			{:else}
@@ -26,18 +56,20 @@
 		</p>
 		<a
 			href="#contact"
+			data-plausible-event="for-arrangorer-hero-cta"
+			onclick={() => trackEvent('for-arrangorer-hero-cta')}
 			class="inline-block rounded-xl bg-[var(--funkis-red)] px-8 py-3 text-base font-semibold text-white hover:opacity-90"
 			style="min-height: 44px; line-height: 24px;"
 		>
-			{$lang === 'no' ? 'Send meg en melding' : 'Send me a message'}
+			{$lang === 'no' ? 'Ta kontakt' : 'Get in touch'}
 		</a>
 	</div>
 </section>
 
-<!-- 2. AI Search Pitch -->
+<!-- 2. AI Search Pitch — white bg, phone mockup + mid-page CTA -->
 <section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-20">
-	<div class="mx-auto grid max-w-4xl gap-10 md:grid-cols-5">
-		<div class="md:col-span-3">
+	<div class="mx-auto grid max-w-4xl items-center gap-10 md:grid-cols-[55%_45%]">
+		<div>
 			<h2 class="mb-4 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
 				{$lang === 'no' ? 'Visste du dette?' : 'Did you know this?'}
 			</h2>
@@ -48,66 +80,106 @@
 					When someone asks ChatGPT "what's happening in Bergen this weekend?", your events show up. Gåri is one of the sources AI search engines cite — with a link straight to the event.
 				{/if}
 			</p>
-			<p class="text-[var(--color-text-secondary)]">
+			<p class="mb-6 text-[var(--color-text-secondary)]">
 				{#if $lang === 'no'}
 					De fleste arrangører vet ikke at dette skjer. Det er en helt ny kanal, og den vokser raskt.
 				{:else}
 					Most organizers don't know this is happening. It's a completely new channel, and it's growing fast.
 				{/if}
 			</p>
+			<!-- Mid-page CTA — peak motivation point -->
+			<a
+				href="#contact"
+				data-plausible-event="for-arrangorer-mid-cta"
+				onclick={() => trackEvent('for-arrangorer-mid-cta')}
+				class="inline-block rounded-xl bg-[var(--funkis-red)] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+				style="min-height: 44px; line-height: 24px;"
+			>
+				{$lang === 'no' ? 'Vis meg dataen for mine arrangementer' : 'Show me the data for my events'}
+			</a>
 		</div>
-		<div class="flex items-center justify-center md:col-span-2">
-			<div class="w-full rounded-xl border border-[var(--color-border)] bg-[var(--funkis-plaster)] p-6 shadow-md">
-				<div class="mb-3 flex items-center gap-2">
-					<div class="h-3 w-3 rounded-full bg-[var(--funkis-red)]"></div>
-					<span class="text-xs font-medium text-[var(--color-text-muted)]">AI Search</span>
+
+		<!-- Phone mockup -->
+		<div class="flex justify-center">
+			<div
+				class="relative w-full overflow-hidden rounded-[2rem] border-2 border-[var(--funkis-iron)] bg-[var(--color-bg-surface)]"
+				style="max-width: 280px; box-shadow: var(--shadow-lg);"
+			>
+				<!-- Notch -->
+				<div class="flex justify-center pt-2.5 pb-3">
+					<div class="h-[6px] w-20 rounded-full bg-[var(--funkis-iron)]"></div>
 				</div>
-				<p class="mb-2 text-sm italic text-[var(--color-text-secondary)]">
-					"{$lang === 'no' ? 'Hva skjer i Bergen denne helgen?' : 'What\'s on in Bergen this weekend?'}"
-				</p>
-				<div class="rounded-lg bg-white p-3 text-sm text-[var(--color-text-secondary)]">
-					<p class="mb-2">
-						{$lang === 'no'
-							? 'Ifølge Gåri, en lokal arrangementskalender for Bergen, skjer det mye denne helgen...'
-							: 'According to Gåri, a local event calendar for Bergen, there\'s a lot happening this weekend...'}
-					</p>
-					<span class="text-xs text-[var(--funkis-red)] underline">gaari.no</span>
+
+				<!-- Chat messages -->
+				<div class="flex flex-col gap-3 px-4 pb-4">
+					<!-- User message (right-aligned, plaster bg) -->
+					<div class="flex justify-end">
+						<div class="rounded-2xl rounded-br-md bg-[var(--funkis-plaster)] px-3 py-2 text-[13px] text-[var(--color-text-primary)]" style="max-width: 85%;">
+							{$lang === 'no' ? 'Hva skjer i Bergen denne helgen?' : "What's on in Bergen this weekend?"}
+						</div>
+					</div>
+
+					<!-- AI response (left-aligned, white bg) -->
+					<div class="flex items-start gap-2">
+						<div class="mt-1 h-6 w-6 shrink-0 rounded-full bg-[var(--funkis-granite)] ai-avatar"></div>
+						<div class="rounded-2xl rounded-tl-md border border-[var(--color-border-subtle)] bg-white px-3 py-2.5 text-[13px] text-[var(--color-text-primary)]">
+							<p class="mb-2">{$lang === 'no' ? 'Her er noen arrangementer i Bergen denne helgen:' : 'Here are some events in Bergen this weekend:'}</p>
+							<p class="mb-0.5">&#8226; Bergen Filharmoniske</p>
+							<p class="mb-0.5">&#8226; {$lang === 'no' ? 'Kunstutstilling' : 'Art exhibition'} KODE</p>
+							<p class="mb-2">&#8226; {$lang === 'no' ? 'Ølsmaking' : 'Beer tasting'} Bergen Kjøtt</p>
+							<p class="text-[11px] font-medium text-[var(--funkis-red)]">{$lang === 'no' ? 'Kilde' : 'Source'}: gaari.no</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Input bar -->
+				<div class="px-3 pb-4">
+					<div class="rounded-full bg-[var(--color-surface)] px-4 py-2.5 text-[12px] text-[var(--color-text-muted)]">
+						{$lang === 'no' ? 'Spør om hva som helst...' : 'Ask anything...'}
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </section>
 
-<!-- 3. Social Proof -->
+<!-- 3. Social Proof — plaster bg, venue pills -->
 <section class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-20">
 	<div class="mx-auto max-w-4xl text-center">
-		<p class="mb-2 text-5xl font-bold font-[family-name:var(--font-display)] text-[var(--color-text-primary)]">43</p>
+		<p class="mb-2 text-[56px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-[72px]">43</p>
 		<h2 class="mb-4 text-xl font-bold font-[family-name:var(--font-display)]">
 			{$lang === 'no' ? 'kilder. Oppdatert to ganger daglig.' : 'sources. Updated twice daily.'}
 		</h2>
-		<p class="mx-auto mb-8 max-w-[640px] text-[var(--color-text-secondary)]">
+		<p class="mx-auto mb-8 max-w-[640px] text-[var(--color-text-primary)]">
 			{#if $lang === 'no'}
 				Fra Grieghallen og DNS til Bergen Kjøtt og Bjørgvin Blues Club. Dine arrangementer er sannsynligvis allerede på Gåri.
 			{:else}
 				From Grieghallen and DNS to Bergen Kjøtt and Bjørgvin Blues Club. Your events are probably already on Gåri.
 			{/if}
 		</p>
-		<div class="overflow-x-auto">
-			<div class="flex justify-center gap-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)] opacity-60">
-				{#each venues as venue}
-					<span>{venue}</span>
-				{/each}
-			</div>
+		<!-- Venue name pills -->
+		<div class="flex flex-wrap justify-center gap-2">
+			{#each venues as venue}
+				<span class="rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-2 text-[13px] text-[var(--color-text-secondary)] transition-all duration-200 hover:-translate-y-px hover:border-[var(--color-border-strong)]">
+					{venue}
+				</span>
+			{/each}
 		</div>
 	</div>
 </section>
 
-<!-- 4. How It Works -->
+<!-- 4. How It Works — white bg -->
 <section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-20">
 	<div class="mx-auto max-w-4xl">
-		<h2 class="mb-10 text-center text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
-			{$lang === 'no' ? 'Slik fungerer det' : 'How it works'}
-		</h2>
+		<div class="mb-10 text-center">
+			<h2 class="mb-3 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
+				{$lang === 'no' ? 'Slik fungerer det' : 'How it works'}
+			</h2>
+			<div class="flex items-baseline justify-center gap-2">
+				<span class="text-[40px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-[56px]">2&#215;</span>
+				<span class="text-lg text-[var(--color-text-secondary)]">{$lang === 'no' ? 'daglig' : 'daily'}</span>
+			</div>
+		</div>
 		<div class="grid gap-8 md:grid-cols-3">
 			{#each [
 				{
@@ -142,50 +214,176 @@
 	</div>
 </section>
 
-<!-- 5. What You Get -->
+<!-- 5. What You Get — plaster bg, feature cards + mockups -->
 <section class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-20">
 	<div class="mx-auto max-w-4xl">
-		<h2 class="mb-10 text-center text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
-			{$lang === 'no' ? 'Hva du får' : 'What you get'}
-		</h2>
-		<div class="grid gap-6 md:grid-cols-2">
-			{#each [
-				{
-					title: $lang === 'no' ? 'Arrangementene dine i AI-svar' : 'Your events in AI answers',
-					body: $lang === 'no'
-						? 'Når folk spør ChatGPT om Bergen, dukker du opp. Gåri er en av kildene som blir sitert — en kanal de fleste arrangører ikke vet om ennå.'
-						: 'When people ask ChatGPT about Bergen, you show up. Gåri is one of the sources that gets cited — a channel most organizers don\'t know about yet.'
-				},
-				{
-					title: $lang === 'no' ? 'Først på kuraterte sider' : 'First on curated pages',
-					body: $lang === 'no'
+		<!-- Section heading with large 13 -->
+		<div class="mb-10 text-center">
+			<h2 class="mb-3 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
+				{$lang === 'no' ? 'Hva du får' : 'What you get'}
+			</h2>
+			<p class="flex items-baseline justify-center gap-2 text-[var(--color-text-primary)]">
+				<span class="text-[40px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-[56px]">13</span>
+				<span class="text-lg">{$lang === 'no' ? 'kuraterte sider — og mer' : 'curated pages — and more'}</span>
+			</p>
+		</div>
+
+		<!-- Row 1: Fremhevet card + Product mockup -->
+		<div class="mb-6 grid items-center gap-6 md:grid-cols-[45%_55%]">
+			<!-- Fremhevet synlighet card -->
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-6" style="border-top: 4px solid var(--funkis-red); box-shadow: var(--shadow-sm);">
+				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Først på kuraterte sider' : 'First on curated pages'}</h3>
+				<p class="text-sm text-[var(--color-text-secondary)]">
+					{$lang === 'no'
 						? 'Arrangementene dine vises øverst på sider som «Denne helgen» og «Konserter denne uken». 13 sider, tusenvis av besøk. Alltid merket som fremhevet.'
-						: 'Your events appear at the top of pages like "This Weekend" and "Concerts This Week". 13 pages, thousands of visits. Always labeled as featured.'
-				},
-				{
-					title: $lang === 'no' ? 'I nyhetsbrevet hver uke' : 'In the newsletter every week',
-					body: $lang === 'no'
-						? 'Arrangementene dine rett i innboksen til bergensere som planlegger helgen. Sendes hver torsdag.'
-						: 'Your events straight in the inbox of people in Bergen planning their weekend. Sent every Thursday.'
-				},
-				{
-					title: $lang === 'no' ? 'Tall på hva det ga deg' : 'Numbers on what it did for you',
-					body: $lang === 'no'
-						? 'Månedlig rapport med klikk fra Gåri til nettsiden din, hvilke arrangementer som traff best, og AI-synlighetsdata.'
-						: 'Monthly report with clicks from Gåri to your website, which events performed best, and AI visibility data.'
-				}
-			] as feature}
-				<div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-5 shadow-sm">
-					<h3 class="mb-2 text-lg font-bold">{feature.title}</h3>
-					<p class="text-sm text-[var(--color-text-secondary)]">{feature.body}</p>
+						: 'Your events appear at the top of pages like "This Weekend" and "Concerts This Week". 13 pages, thousands of visits. Always labeled as featured.'}
+				</p>
+			</div>
+
+			<!-- Product mockup: Browser frame with event cards -->
+			<div class="flex justify-center md:justify-end">
+				<div class="w-full overflow-hidden rounded-xl" style="max-width: 400px; transform: rotate(-1deg); box-shadow: var(--shadow-lg);">
+					<!-- Browser chrome -->
+					<div class="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--funkis-plaster)] px-3 py-2">
+						<div class="flex gap-1.5">
+							<div class="h-2.5 w-2.5 rounded-full" style="background: #FF5F57;"></div>
+							<div class="h-2.5 w-2.5 rounded-full" style="background: #FFBD2E;"></div>
+							<div class="h-2.5 w-2.5 rounded-full" style="background: #28CA41;"></div>
+						</div>
+						<div class="flex-1 rounded-md bg-white px-2 py-0.5 text-[var(--color-text-muted)]" style="font-size: 10px; font-family: ui-monospace, monospace;">
+							gaari.no/no/denne-helgen
+						</div>
+					</div>
+					<!-- Browser content: event card grid -->
+					<div class="bg-[var(--color-bg)] p-3">
+						<div class="grid grid-cols-2 gap-2">
+							<!-- Card 1: Music — Fremhevet -->
+							<div class="overflow-hidden rounded-lg border border-[var(--color-border)] bg-white">
+								<div class="relative flex h-16 items-end bg-[var(--color-cat-music)] p-1.5">
+									<span class="absolute left-1.5 top-1.5 rounded-full px-1.5 py-0.5 text-[var(--funkis-red)]" style="font-size: 8px; font-weight: 600; background: #F9EEEE;">
+										{$lang === 'no' ? 'Fremhevet' : 'Featured'}
+									</span>
+									<span class="font-bold uppercase text-white/80 font-[family-name:var(--font-display)]" style="font-size: 8px;">
+										{$lang === 'no' ? 'Musikk' : 'Music'}
+									</span>
+								</div>
+								<div class="p-1.5">
+									<p class="font-bold leading-tight" style="font-size: 10px;">Bergen Filharmoniske</p>
+									<p class="text-[var(--color-text-muted)]" style="font-size: 8px;">Grieghallen</p>
+									<p class="text-[var(--color-text-muted)]" style="font-size: 8px;">{$lang === 'no' ? 'Lør 15. mars' : 'Sat 15 Mar'}</p>
+									<p class="font-semibold" style="font-size: 8px;">fra 350 kr</p>
+								</div>
+							</div>
+							<!-- Card 2: Culture -->
+							<div class="overflow-hidden rounded-lg border border-[var(--color-border)] bg-white">
+								<div class="relative flex h-16 items-end bg-[var(--color-cat-culture)] p-1.5">
+									<span class="font-bold uppercase text-white/80 font-[family-name:var(--font-display)]" style="font-size: 8px;">
+										{$lang === 'no' ? 'Kultur' : 'Culture'}
+									</span>
+								</div>
+								<div class="p-1.5">
+									<p class="font-bold leading-tight" style="font-size: 10px;">{$lang === 'no' ? 'Kunstutstilling' : 'Art exhibition'}</p>
+									<p class="text-[var(--color-text-muted)]" style="font-size: 8px;">KODE</p>
+									<p class="text-[var(--color-text-muted)]" style="font-size: 8px;">{$lang === 'no' ? 'Fre 14. mars' : 'Fri 14 Mar'}</p>
+									<p class="font-semibold" style="font-size: 8px;">{$lang === 'no' ? 'Trolig gratis' : 'Likely free'}</p>
+								</div>
+							</div>
+							<!-- Card 3: Food -->
+							<div class="overflow-hidden rounded-lg border border-[var(--color-border)] bg-white">
+								<div class="relative flex h-16 items-end bg-[var(--color-cat-food)] p-1.5">
+									<span class="font-bold uppercase text-white/80 font-[family-name:var(--font-display)]" style="font-size: 8px;">
+										{$lang === 'no' ? 'Mat' : 'Food'}
+									</span>
+								</div>
+								<div class="p-1.5">
+									<p class="font-bold leading-tight" style="font-size: 10px;">{$lang === 'no' ? 'Ølsmaking' : 'Beer tasting'}</p>
+									<p class="text-[var(--color-text-muted)]" style="font-size: 8px;">Bergen Kjøtt</p>
+									<p class="text-[var(--color-text-muted)]" style="font-size: 8px;">{$lang === 'no' ? 'Fre 14. mars' : 'Fri 14 Mar'}</p>
+									<p class="font-semibold" style="font-size: 8px;">fra 200 kr</p>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
-			{/each}
+			</div>
+		</div>
+
+		<!-- Row 2: AI-søk + Nyhetsbrev cards -->
+		<div class="mb-6 grid gap-6 md:grid-cols-2">
+			<!-- AI-søk card -->
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-6" style="border-top: 4px solid var(--color-cat-culture); box-shadow: var(--shadow-sm);">
+				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Arrangementene dine i AI-svar' : 'Your events in AI answers'}</h3>
+				<p class="text-sm text-[var(--color-text-secondary)]">
+					{$lang === 'no'
+						? 'Når folk spør ChatGPT om Bergen, dukker du opp. Gåri er en av kildene som blir sitert — en kanal de fleste arrangører ikke vet om ennå.'
+						: 'When people ask ChatGPT about Bergen, you show up. Gåri is one of the sources that gets cited — a channel most organizers don\'t know about yet.'}
+				</p>
+			</div>
+			<!-- Nyhetsbrev card -->
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-6" style="border-top: 4px solid var(--color-cat-music); box-shadow: var(--shadow-sm);">
+				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'I nyhetsbrevet hver uke' : 'In the newsletter every week'}</h3>
+				<p class="text-sm text-[var(--color-text-secondary)]">
+					{$lang === 'no'
+						? 'Arrangementene dine rett i innboksen til bergensere som planlegger helgen. Sendes hver torsdag.'
+						: 'Your events straight in the inbox of people in Bergen planning their weekend. Sent every Thursday.'}
+				</p>
+			</div>
+		</div>
+
+		<!-- Row 3: Rapport card + Report mockup -->
+		<div class="grid items-center gap-6 md:grid-cols-[55%_45%]">
+			<!-- Rapport card -->
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-6" style="border-top: 4px solid var(--funkis-green); box-shadow: var(--shadow-sm);">
+				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Tall på hva det ga deg' : 'Numbers on what it did for you'}</h3>
+				<p class="text-sm text-[var(--color-text-secondary)]">
+					{$lang === 'no'
+						? 'Månedlig rapport med klikk fra Gåri til nettsiden din, hvilke arrangementer som traff best, og AI-synlighetsdata.'
+						: 'Monthly report with clicks from Gåri to your website, which events performed best, and AI visibility data.'}
+				</p>
+			</div>
+
+			<!-- Report mockup card -->
+			<div class="flex justify-center md:justify-end">
+				<div class="w-full rounded-xl bg-[var(--color-bg-surface)] p-5" style="max-width: 320px; box-shadow: var(--shadow-sm);">
+					<p class="mb-3 text-sm font-bold text-[var(--color-text-primary)]">
+						Grieghallen — {$lang === 'no' ? 'mars' : 'March'} 2026
+					</p>
+					<div class="mb-3 border-t border-[var(--color-border)]"></div>
+					<div class="mb-1 flex items-baseline justify-between">
+						<span class="text-sm text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Klikk fra Gåri' : 'Clicks from Gåri'}</span>
+						<div class="flex items-baseline gap-2">
+							<span class="text-[36px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)]">483</span>
+							<span class="text-sm font-semibold text-[var(--funkis-green)]">+22%</span>
+						</div>
+					</div>
+					<div class="my-3 border-t border-[var(--color-border)]"></div>
+					<div class="space-y-1.5 text-sm" style="font-variant-numeric: tabular-nums;">
+						<div class="flex justify-between">
+							<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Fra kuraterte sider' : 'From curated pages'}</span>
+							<span class="font-medium">198</span>
+						</div>
+						<div class="flex justify-between">
+							<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Fra AI-søk' : 'From AI search'}</span>
+							<span class="font-medium">87</span>
+						</div>
+						<div class="flex justify-between">
+							<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Fra hovedsiden' : 'From homepage'}</span>
+							<span class="font-medium">198</span>
+						</div>
+					</div>
+					<div class="mt-3 border-t border-[var(--color-border)] pt-3">
+						<p class="text-[12px] text-[var(--color-text-muted)]">{$lang === 'no' ? 'Topp arrangement:' : 'Top event:'}</p>
+						<p class="text-sm font-bold">Bergen Filharmoniske</p>
+						<p class="text-[12px] text-[var(--color-text-muted)]">142 {$lang === 'no' ? 'klikk' : 'clicks'}</p>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </section>
 
-<!-- 6. Philosophy -->
-<section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-20">
+<!-- 6. Philosophy — white bg, extra breathing room -->
+<section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-24">
 	<div class="mx-auto max-w-[640px] text-center">
 		<h2 class="mb-6 text-2xl font-bold font-[family-name:var(--font-display)] md:text-[32px]">
 			{$lang === 'no' ? 'Bergens digitale bytorg' : "Bergen's digital town square"}
@@ -200,8 +398,8 @@
 	</div>
 </section>
 
-<!-- 7. Transparency -->
-<section class="bg-[var(--funkis-plaster)] px-4 py-12 md:py-16">
+<!-- 7. Transparency — plaster bg -->
+<section class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-20">
 	<div class="mx-auto max-w-4xl">
 		<div class="rounded-xl border-l-4 border-[var(--color-text-primary)] bg-[var(--color-bg-surface)] p-6 md:p-8">
 			<h2 class="mb-3 text-xl font-bold font-[family-name:var(--font-display)]">
@@ -209,57 +407,39 @@
 			</h2>
 			<p class="text-[var(--color-text-secondary)]">
 				{#if $lang === 'no'}
-					Fremhevede arrangementer er alltid tydelig merket. Du får alltid data på hva plasseringen ga deg.
+					Fremhevede arrangementer er alltid tydelig merket. Du får alltid data på hva plasseringen ga deg. Ingen bindingstid i prøveperioden.
 				{:else}
-					Featured events are always clearly labeled. You always get data on what the placement delivered.
+					Featured events are always clearly labeled. You always get data on what the placement delivered. No commitment during the trial period.
 				{/if}
 			</p>
 		</div>
 	</div>
 </section>
 
-<!-- 8. Early Bird -->
-<section class="px-4 py-16 md:py-20" style="background-color: #F9EEEE;">
-	<div class="mx-auto max-w-4xl text-center">
-		<div class="mx-auto mb-6 h-1 w-16 rounded bg-[var(--funkis-red)]"></div>
-		<h2 class="mb-6 text-2xl font-bold font-[family-name:var(--font-display)] md:text-[32px]">
-			{$lang === 'no' ? '3 måneder gratis' : '3 months free'}
-		</h2>
-		<p class="mx-auto max-w-[600px] text-[var(--color-text-secondary)]">
-			{#if $lang === 'no'}
-				Jeg leter etter de første arrangørene i Bergen som vil prøve dette. Start før 1. juni 2026 — full tilgang, ingen forpliktelser.
-			{:else}
-				I'm looking for the first organizers in Bergen who want to try this. Start before June 1, 2026 — full access, no commitment.
-			{/if}
-		</p>
-		<a
-			href="#contact"
-			class="mt-8 inline-block rounded-xl bg-[var(--funkis-red)] px-8 py-3 text-base font-semibold text-white hover:opacity-90"
-			style="min-height: 44px; line-height: 24px;"
-		>
-			{$lang === 'no' ? 'La meg vise deg tallene' : 'Let me show you the numbers'}
-		</a>
-	</div>
-</section>
-
-<!-- 9. CTA + Contact Form -->
-<section id="contact" class="px-4 py-16 md:py-20" style="background-color: #F9EEEE;">
+<!-- 8+9. Early Bird + CTA (merged) — urgency and action in same space -->
+<section bind:this={contactEl} id="contact" class="px-4 py-16 md:py-20" style="background-color: var(--funkis-red-subtle);">
 	<div class="mx-auto max-w-4xl">
-		<h2 class="mb-4 text-center text-2xl font-bold font-[family-name:var(--font-display)] md:text-[32px]">
-			{$lang === 'no' ? 'Nysgjerrig?' : 'Curious?'}
-		</h2>
-		<p class="mx-auto mb-8 max-w-[600px] text-center text-[var(--color-text-secondary)]">
-			{#if $lang === 'no'}
-				Send meg en e-post — så viser jeg deg dataen for dine arrangementer på Gåri.
-			{:else}
-				Send me an email — I'll show you the data for your events on Gåri.
-			{/if}
-		</p>
-
-		<!-- Email button -->
+		<!-- Early bird header -->
 		<div class="mb-10 text-center">
+			<div class="mx-auto mb-4 h-1 w-16 rounded bg-[var(--funkis-red)]"></div>
+			<h2 class="mb-4 text-2xl font-bold text-[var(--funkis-iron)] font-[family-name:var(--font-display)] md:text-[32px]">
+				{$lang === 'no' ? '3 måneder gratis' : '3 months free'}
+			</h2>
+			<p class="mx-auto max-w-[600px] text-[var(--funkis-steel)]">
+				{#if $lang === 'no'}
+					Jeg leter etter de første arrangørene i Bergen som vil prøve dette. Start før 1. juni 2026 — full tilgang, ingen bindingstid.
+				{:else}
+					I'm looking for the first organizers in Bergen who want to try this. Start before June 1, 2026 — full access, no commitment.
+				{/if}
+			</p>
+		</div>
+
+		<!-- Email option — equally prominent -->
+		<div class="mb-8 text-center">
 			<a
 				href="mailto:gaari.bergen@proton.me?subject={$lang === 'no' ? 'Fremhevet synlighet på Gåri' : 'Promoted visibility on Gåri'}"
+				data-plausible-event="for-arrangorer-email-click"
+				onclick={() => trackEvent('for-arrangorer-email-click')}
 				class="inline-block rounded-xl bg-[var(--funkis-red)] px-8 py-3 text-base font-semibold text-white hover:opacity-90"
 				style="min-height: 44px; line-height: 24px;"
 			>
@@ -267,12 +447,12 @@
 			</a>
 		</div>
 
-		<!-- Divider -->
-		<p class="mb-8 text-center text-sm text-[var(--color-text-muted)]">
-			{$lang === 'no' ? 'Eller legg igjen kontaktinfo, så tar jeg kontakt.' : "Or leave your contact info and I'll be in touch."}
+		<!-- Divider — framing the form as a quick message -->
+		<p class="mb-6 text-center text-sm text-[var(--funkis-granite)]">
+			{$lang === 'no' ? 'Eller send en rask melding:' : 'Or send a quick message:'}
 		</p>
 
-		<!-- Contact form -->
+		<!-- Contact form — lightweight feel -->
 		{#if contactStatus === 'success'}
 			<div role="status" class="mx-auto max-w-md rounded-xl border border-green-200 bg-green-50 p-6 text-center">
 				<p class="text-lg font-semibold text-green-800">
@@ -288,12 +468,14 @@
 					return async ({ result }) => {
 						if (result.type === 'success') {
 							contactStatus = 'success';
+							trackEvent('for-arrangorer-form-submit');
 						} else {
 							contactStatus = 'error';
 						}
 					};
 				}}
-				class="mx-auto max-w-md space-y-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-6"
+				class="mx-auto max-w-md space-y-4 rounded-xl bg-[var(--color-bg-surface)] p-6"
+				style="box-shadow: var(--shadow-sm);"
 			>
 				<!-- Honeypot -->
 				<div class="absolute -left-[9999px]" aria-hidden="true">
@@ -301,7 +483,7 @@
 				</div>
 
 				<div>
-					<label for="contact-name" class="mb-1.5 block text-sm font-medium">
+					<label for="contact-name" class="mb-1 block text-sm font-medium">
 						{$lang === 'no' ? 'Navn' : 'Name'}
 					</label>
 					<input
@@ -310,12 +492,13 @@
 						name="name"
 						required
 						aria-required="true"
+						placeholder={$lang === 'no' ? 'Ola Nordmann' : 'Your name'}
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2.5 text-sm"
 					/>
 				</div>
 
 				<div>
-					<label for="contact-org" class="mb-1.5 block text-sm font-medium">
+					<label for="contact-org" class="mb-1 block text-sm font-medium">
 						{$lang === 'no' ? 'Organisasjon' : 'Organization'}
 					</label>
 					<input
@@ -324,12 +507,13 @@
 						name="organization"
 						required
 						aria-required="true"
+						placeholder={$lang === 'no' ? 'Grieghallen, USF Verftet...' : 'Grieghallen, USF Verftet...'}
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2.5 text-sm"
 					/>
 				</div>
 
 				<div>
-					<label for="contact-email" class="mb-1.5 block text-sm font-medium">
+					<label for="contact-email" class="mb-1 block text-sm font-medium">
 						{$lang === 'no' ? 'E-post' : 'Email'}
 					</label>
 					<input
@@ -338,18 +522,20 @@
 						name="email"
 						required
 						aria-required="true"
+						placeholder="navn@organisasjon.no"
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2.5 text-sm"
 					/>
 				</div>
 
 				<div>
-					<label for="contact-message" class="mb-1.5 block text-sm font-medium">
+					<label for="contact-message" class="mb-1 block text-sm font-medium">
 						{$lang === 'no' ? 'Melding (valgfritt)' : 'Message (optional)'}
 					</label>
 					<textarea
 						id="contact-message"
 						name="message"
-						rows="3"
+						rows="2"
+						placeholder={$lang === 'no' ? 'Fortell meg litt om hva dere arrangerer...' : 'Tell me a bit about what you organize...'}
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2.5 text-sm"
 					></textarea>
 				</div>
@@ -374,5 +560,61 @@
 				</button>
 			</form>
 		{/if}
+
+		<!-- Social proof near form -->
+		<div class="mt-10 text-center">
+			<p class="mb-3 text-sm text-[var(--funkis-granite)]">
+				{$lang === 'no' ? 'Samler allerede fra 43 kilder i Bergen' : 'Already collecting from 43 sources in Bergen'}
+			</p>
+			<div class="flex flex-wrap justify-center gap-1.5">
+				{#each venues.slice(0, 8) as venue}
+					<span class="rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-1 text-[12px] text-[var(--color-text-muted)]">
+						{venue}
+					</span>
+				{/each}
+			</div>
+		</div>
 	</div>
 </section>
+
+<!-- 10. Testimonial placeholder -->
+<section class="bg-[var(--color-bg-surface)] px-4 py-12 md:py-16">
+	<div class="mx-auto max-w-4xl text-center">
+		<h2 class="mb-3 text-xl font-bold font-[family-name:var(--font-display)]">
+			{$lang === 'no' ? 'Hva arrangører sier' : 'What organizers say'}
+		</h2>
+		<p class="text-sm italic text-[var(--color-text-muted)]">
+			{$lang === 'no'
+				? 'Gåri er i oppstartsfasen — de første tilbakemeldingene kommer snart.'
+				: 'Gåri is in its early stages — the first feedback is coming soon.'}
+		</p>
+	</div>
+</section>
+
+<!-- Sticky mobile CTA bar -->
+<div
+	class="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+	style="transform: {showStickyBar ? 'translateY(0)' : 'translateY(100%)'}; transition: transform 200ms ease-out;"
+>
+	<div class="bg-[var(--funkis-red)] px-4 py-2" style="box-shadow: 0 -2px 8px rgba(0,0,0,0.15);">
+		<a
+			href="#contact"
+			data-plausible-event="for-arrangorer-sticky-cta"
+			onclick={() => trackEvent('for-arrangorer-sticky-cta')}
+			class="flex items-center justify-center text-base font-semibold text-white"
+			style="min-height: 40px;"
+		>
+			{$lang === 'no' ? 'Ta kontakt' : 'Get in touch'}
+		</a>
+	</div>
+</div>
+
+<style>
+	@keyframes ai-breathe {
+		0%, 100% { box-shadow: 0 0 0 0 rgba(107, 104, 98, 0.3); }
+		50% { box-shadow: 0 0 8px 2px rgba(107, 104, 98, 0.15); }
+	}
+	.ai-avatar {
+		animation: ai-breathe 3s ease-in-out infinite;
+	}
+</style>
