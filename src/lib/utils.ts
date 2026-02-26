@@ -9,41 +9,41 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatEventDate(dateStr: string, locale: 'no' | 'en' = 'no'): string {
 	const date = new Date(dateStr);
-	const now = new Date();
-	const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-	const eventDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-	const diffDays = Math.round((eventDay.getTime() - todayStart.getTime()) / 86400000);
+	// Use Oslo timezone so SSR (UTC) and client (CET/CEST) produce identical output
+	const osloDate = date.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+	const nowOslo = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+	const diffDays = Math.round((new Date(osloDate).getTime() - new Date(nowOslo).getTime()) / 86400000);
 
 	if (diffDays === 0) return locale === 'no' ? 'I dag' : 'Today';
 	if (diffDays === 1) return locale === 'no' ? 'I morgen' : 'Tomorrow';
 	if (diffDays >= 2 && diffDays <= 6) {
-		return date.toLocaleDateString(locale === 'no' ? 'nb-NO' : 'en-GB', { weekday: 'long' });
+		return date.toLocaleDateString(locale === 'no' ? 'nb-NO' : 'en-GB', { weekday: 'long', timeZone: 'Europe/Oslo' });
 	}
 	return date.toLocaleDateString(locale === 'no' ? 'nb-NO' : 'en-GB', {
 		weekday: 'short',
 		day: 'numeric',
-		month: 'short'
+		month: 'short',
+		timeZone: 'Europe/Oslo'
 	});
 }
 
 export function formatEventTime(dateStr: string, locale: 'no' | 'en' = 'no'): string {
 	const date = new Date(dateStr);
-	// Don't show time if it's the default 12:00 placeholder (scraped events without real times)
-	const hours = date.getHours();
-	const minutes = date.getMinutes();
-	if (hours === 12 && minutes === 0) return '';
+	// Don't show time if it's the default 12:00 UTC placeholder (scraped events without real times)
+	if (date.getUTCHours() === 12 && date.getUTCMinutes() === 0) return '';
+	// Use Oslo timezone explicitly so SSR (UTC) and client (CET/CEST) produce identical output
 	return date.toLocaleTimeString(locale === 'no' ? 'nb-NO' : 'en-GB', {
 		hour: '2-digit',
-		minute: '2-digit'
+		minute: '2-digit',
+		timeZone: 'Europe/Oslo'
 	});
 }
 
 export function formatDateSectionHeader(dateStr: string, locale: 'no' | 'en' = 'no'): string {
 	const date = new Date(dateStr);
-	const now = new Date();
-	const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-	const eventDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-	const diffDays = Math.round((eventDay.getTime() - todayStart.getTime()) / 86400000);
+	const osloDate = date.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+	const nowOslo = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+	const diffDays = Math.round((new Date(osloDate).getTime() - new Date(nowOslo).getTime()) / 86400000);
 
 	if (diffDays === 0) return locale === 'no' ? 'I dag' : 'Today';
 	if (diffDays === 1) return locale === 'no' ? 'I morgen' : 'Tomorrow';
@@ -51,7 +51,8 @@ export function formatDateSectionHeader(dateStr: string, locale: 'no' | 'en' = '
 	return date.toLocaleDateString(locale === 'no' ? 'nb-NO' : 'en-GB', {
 		weekday: 'long',
 		day: 'numeric',
-		month: 'long'
+		month: 'long',
+		timeZone: 'Europe/Oslo'
 	});
 }
 
