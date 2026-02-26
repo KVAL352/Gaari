@@ -49,6 +49,7 @@
 		"bits-ui": "^1.0.0",
 		"clsx": "^2.1.0",
 		"lucide-svelte": "^0.474.0",
+		"resend": "^6.9.2",
 		"satori": "^0.19.2",
 		"sharp": "^0.34.5",
 		"tailwind-merge": "^3.0.0",

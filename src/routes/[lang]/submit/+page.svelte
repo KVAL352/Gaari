@@ -168,6 +168,8 @@
 		// Upload image if provided
 		let imageUrl = await uploadImage(slug);
 
+		const submitterEmail = (fd.get('submitter-email') as string)?.trim() || null;
+
 		const { error } = await supabase.from('events').insert({
 			slug,
 			title_no: titleNo,
@@ -183,6 +185,7 @@
 			description_en: (fd.get('desc-en') as string) || null,
 			ticket_url: normalizeUrl(fd.get('ticket-url') as string),
 			image_url: imageUrl,
+			submitter_email: submitterEmail,
 			age_group: 'all',
 			language: 'both',
 			status: 'pending'
@@ -339,7 +342,14 @@
 					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
 			</div>
 
-			<!-- Image upload -->
+			<!-- Submitter email -->
+		<div>
+			<label for="submitter-email" class="mb-1 block text-sm font-medium">{$t('submitterEmail')}</label>
+			<input id="submitter-email" name="submitter-email" type="email" placeholder={$t('submitterEmailPlaceholder')}
+				class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
+		</div>
+
+		<!-- Image upload -->
 			<div>
 				<p class="mb-1 block text-sm font-medium">
 					{$lang === 'no' ? 'Bilde (valgfritt)' : 'Image (optional)'}

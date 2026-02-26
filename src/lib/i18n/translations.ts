@@ -112,6 +112,8 @@ export const translations = {
 		address: 'Adresse',
 		ticketUrl: 'Billettlenke',
 		imageUrl: 'Bildelenke',
+		submitterEmail: 'Din e-post (valgfritt)',
+		submitterEmailPlaceholder: 'For tilbakemelding hvis arrangementet ikke godkjennes',
 		submit: 'Send inn',
 
 		// About
@@ -260,6 +262,8 @@ export const translations = {
 		address: 'Address',
 		ticketUrl: 'Ticket URL',
 		imageUrl: 'Image URL',
+		submitterEmail: 'Your email (optional)',
+		submitterEmailPlaceholder: 'For feedback if your event is not approved',
 		submit: 'Submit',
 
 		aboutTitle: 'About Gåri',
