@@ -128,19 +128,42 @@
 	function sleep(ms: number): Promise<void> {
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
+
+	// Flow animation (events → Gåri)
+	let flowEl: HTMLElement | undefined = $state(undefined);
+	let flowVisible = $state(false);
+
+	$effect(() => {
+		if (!flowEl) return;
+		const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (prefersReduced) {
+			flowVisible = true;
+			return;
+		}
+		const flowObserver = new IntersectionObserver(
+			(entries) => {
+				if (entries[0]?.isIntersecting && !flowVisible) {
+					flowVisible = true;
+				}
+			},
+			{ threshold: 0.3 }
+		);
+		flowObserver.observe(flowEl);
+		return () => flowObserver.disconnect();
+	});
 </script>
 
-<!-- 1. Hero -->
+<!-- === HVA ER DETTE === -->
 <section bind:this={heroEl} class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-24">
 	<div class="mx-auto max-w-4xl text-center">
 		<h1 class="mb-6 text-3xl font-bold tracking-tight font-[family-name:var(--font-display)] md:text-[40px] md:leading-tight">
-			{$lang === 'no' ? 'Arrangementene dine i ChatGPT-svar' : 'Your events in ChatGPT answers'}
+			{$lang === 'no' ? 'Bergens Digitale Bytorg' : "Bergen's Digital Town Square"}
 		</h1>
-		<p class="mx-auto mb-8 max-w-[600px] text-lg text-[var(--color-text-primary)]">
+		<p class="mx-auto mb-8 max-w-[640px] text-lg text-[var(--color-text-primary)]">
 			{#if $lang === 'no'}
-				Gåri samler alt som skjer i Bergen — og gjør det synlig i AI-søk, på Google og i ukentlige nyhetsbrev.
+				Gåri er et digitalt bytorg for Bergen. Alt som skjer, samlet på ett sted.
 			{:else}
-				Gåri brings together everything happening in Bergen — and makes it visible in AI search, on Google and in weekly newsletters.
+				Gåri is a digital town square for Bergen. Everything happening, gathered in one place.
 			{/if}
 		</p>
 		<a
@@ -155,7 +178,174 @@
 	</div>
 </section>
 
-<!-- 2. AI Search Pitch — white bg, phone mockup + mid-page CTA -->
+<!-- === HVORDAN FUNGERER DETTE === -->
+<section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-20">
+	<div class="mx-auto grid max-w-4xl items-center gap-10 md:grid-cols-[50%_50%]">
+		<div>
+			<h2 class="mb-4 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
+				{$lang === 'no' ? 'Gåri henter arrangementene — automatisk' : 'Gåri fetches events — automatically'}
+			</h2>
+			<p class="text-[var(--color-text-secondary)]">
+				{#if $lang === 'no'}
+					To ganger om dagen besøker Gåri nettsidene til steder som arrangerer ting i Bergen. Når noe nytt dukker opp — en konsert, en utstilling, en quiz-kveld — tar Gåri det med tilbake og viser det frem på bytorget.
+				{:else}
+					Twice a day, Gåri visits the websites of venues organizing things in Bergen. When something new appears — a concert, an exhibition, a quiz night — Gåri brings it back and displays it on the town square.
+				{/if}
+			</p>
+			<p class="mt-3 text-sm font-medium text-[var(--color-text-primary)]">
+				{$lang === 'no' ? 'Du trenger ikke gjøre noe.' : "You don't need to do anything."}
+			</p>
+		</div>
+
+		<!-- Flow animation: venues → Gåri -->
+		<div class="flex justify-center" bind:this={flowEl}>
+			<div
+				class="relative w-full {flowVisible ? 'flow-animate' : ''}"
+				style="max-width: 320px; aspect-ratio: 1.15;"
+			>
+				<!-- Gåri badge (center) -->
+				<div class="gaari-target absolute left-1/2 top-1/2 z-10 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl bg-[var(--funkis-red)] text-sm font-bold text-white font-[family-name:var(--font-display)]" style="box-shadow: var(--shadow-lg);">
+					Gåri
+				</div>
+
+				<!-- Source venue pills flying in from edges -->
+				{#each [
+					{ name: 'Grieghallen', left: '2%', top: '6%', fx: '-30px', fy: '-25px', delay: 0, color: 'var(--color-cat-music)' },
+					{ name: 'DNS', left: '62%', top: '2%', fx: '30px', fy: '-25px', delay: 0.4, color: 'var(--color-cat-culture)' },
+					{ name: 'KODE', left: '0%', top: '44%', fx: '-35px', fy: '0px', delay: 0.8, color: 'var(--color-cat-culture)' },
+					{ name: 'USF Verftet', left: '60%', top: '42%', fx: '35px', fy: '0px', delay: 1.2, color: 'var(--color-cat-music)' },
+					{ name: 'Bergen Kjøtt', left: '3%', top: '80%', fx: '-30px', fy: '25px', delay: 1.6, color: 'var(--color-cat-food)' },
+					{ name: 'Oseana', left: '58%', top: '82%', fx: '30px', fy: '25px', delay: 2.0, color: 'var(--color-cat-music)' }
+				] as pill}
+					<div
+						class="flow-pill absolute flex items-center gap-1.5"
+						style="left: {pill.left}; top: {pill.top}; --from-x: {pill.fx}; --from-y: {pill.fy}; animation-delay: {pill.delay}s;"
+					>
+						<span class="h-2 w-2 shrink-0 rounded-full" style="background: {pill.color};"></span>
+						<span class="whitespace-nowrap rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--color-text-secondary)]" style="box-shadow: var(--shadow-sm);">
+							{pill.name}
+						</span>
+					</div>
+				{/each}
+			</div>
+		</div>
+	</div>
+
+	<!-- Venue lookup -->
+	<div class="mx-auto mt-12 max-w-sm text-center">
+		<label for="venue-check" class="mb-2 block text-sm font-medium text-[var(--color-text-secondary)]">
+			{$lang === 'no' ? 'Sjekk om du allerede er på Gåri:' : 'Check if you\'re already on Gåri:'}
+		</label>
+		<input
+			type="text"
+			id="venue-check"
+			bind:value={venueSearch}
+			placeholder={$lang === 'no' ? 'Skriv navnet på stedet ditt...' : 'Type your venue name...'}
+			class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-2.5 text-sm"
+			style="min-height: 44px;"
+		/>
+		{#if venueMatch}
+			<p class="mt-2 text-sm font-semibold text-[var(--funkis-green)]">
+				&#10003; {venueMatch} {$lang === 'no' ? 'er allerede på Gåri!' : 'is already on Gåri!'}
+			</p>
+		{:else if venueMatch === false}
+			<p class="mt-2 text-sm text-[var(--color-text-secondary)]">
+				{$lang === 'no'
+					? 'Fant ikke et treff — men det er helt gratis å bli lagt til. Vi ønsker å promotere det rike kulturlivet i Bergen.'
+					: "Didn't find a match — but getting added is completely free. We want to promote Bergen's rich cultural life."}
+			</p>
+
+			{#if addVenueStatus === 'success'}
+				<p class="mt-3 text-sm font-semibold text-[var(--funkis-green)]">
+					&#10003; {$lang === 'no' ? 'Takk! Vi sjekker nettsiden og tar kontakt.' : "Thanks! We'll check your website and get back to you."}
+				</p>
+			{:else}
+				<form
+					method="POST"
+					action="?/contact"
+					use:enhance={({ formData }) => {
+						const venueUrl = formData.get('venue_url');
+						formData.set('message', `Ønsker å bli lagt til på Gåri. Nettside: ${venueUrl}`);
+						formData.delete('venue_url');
+						addVenueStatus = 'submitting';
+						return async ({ result }) => {
+							if (result.type === 'success') {
+								addVenueStatus = 'success';
+								trackEvent('for-arrangorer-add-venue');
+							} else {
+								addVenueStatus = 'error';
+							}
+						};
+					}}
+					class="mx-auto mt-3 flex max-w-sm flex-col gap-2"
+				>
+					<input type="hidden" name="name" value={venueSearch} />
+					<input type="hidden" name="organization" value={venueSearch} />
+					<!-- Honeypot -->
+					<div class="absolute -left-[9999px]" aria-hidden="true">
+						<input type="text" name="website" tabindex="-1" autocomplete="off" />
+					</div>
+
+					<input
+						type="url"
+						name="venue_url"
+						required
+						placeholder={$lang === 'no' ? 'https://dittsted.no' : 'https://yourvenue.com'}
+						class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-sm"
+						style="min-height: 44px;"
+					/>
+					<input
+						type="email"
+						name="email"
+						required
+						placeholder={$lang === 'no' ? 'din@epost.no' : 'your@email.com'}
+						class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-sm"
+						style="min-height: 44px;"
+					/>
+					<button
+						type="submit"
+						disabled={addVenueStatus === 'submitting'}
+						class="rounded-xl bg-[var(--funkis-red)] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-70"
+						style="min-height: 44px;"
+					>
+						{#if addVenueStatus === 'submitting'}
+							{$lang === 'no' ? 'Sender...' : 'Sending...'}
+						{:else}
+							{$lang === 'no' ? 'Sjekk nettsiden min' : 'Check my website'}
+						{/if}
+					</button>
+					{#if addVenueStatus === 'error'}
+						<p class="text-sm text-red-600">
+							{$lang === 'no' ? 'Noe gikk galt. Prøv igjen.' : 'Something went wrong. Try again.'}
+						</p>
+					{/if}
+				</form>
+			{/if}
+		{/if}
+	</div>
+</section>
+
+<!-- === HVORFOR DETTE FUNGERER === -->
+
+<!-- Network effect — the town square argument -->
+<section class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-20">
+	<div class="mx-auto max-w-[640px] space-y-4 text-[var(--color-text-primary)]">
+		<h2 class="mb-6 text-center text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
+			{$lang === 'no' ? 'Hvorfor dette fungerer' : 'Why this works'}
+		</h2>
+		{#if $lang === 'no'}
+			<p>Et bytorg med tre boder er ikke et bytorg. Det er først når bredden er der — konserter, teater, matfestivaler, quizkvelder, gratisarrangementer — at folk begynner å sjekke innom som vane.</p>
+			<p>Gratis arrangementer trekker folk inn. Betalte arrangementer tjener på trafikken. Studenten som finner en gratis quizkveld i dag, kjøper konsertbillett neste uke. Uten det første besøket hadde det andre aldri skjedd.</p>
+			<p>Jo mer som er samlet på torget, jo flere grunner har folk til å komme tilbake. Jo oftere de kommer tilbake, jo mer ser de av dine arrangementer.</p>
+		{:else}
+			<p>A town square with three stalls isn't a town square. It's only when the breadth is there — concerts, theatre, food festivals, quiz nights, free events — that people start checking in as a habit.</p>
+			<p>Free events draw people in. Paid events benefit from the traffic. The student who finds a free quiz night today buys a concert ticket next week. Without the first visit, the second would never have happened.</p>
+			<p>The more that's gathered on the square, the more reasons people have to come back. The more often they come back, the more they see of your events.</p>
+		{/if}
+	</div>
+</section>
+
+<!-- AI search pitch — phone mockup + mid-page CTA -->
 <section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-20">
 	<div class="mx-auto grid max-w-4xl items-center gap-10 md:grid-cols-[55%_45%]">
 		<div>
@@ -280,163 +470,7 @@
 	</div>
 </section>
 
-<!-- 3. Zero Setup — plaster bg -->
-<section class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-20">
-	<div class="mx-auto max-w-4xl text-center">
-		<h2 class="mb-4 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
-			{$lang === 'no' ? 'Du trenger ikke gjøre noe' : "You don't need to do anything"}
-		</h2>
-		<p class="mx-auto mb-8 max-w-[640px] text-[var(--color-text-primary)]">
-			{#if $lang === 'no'}
-				Gåri er et system som finner arrangementene dine der du allerede legger dem ut — på nettsiden din, i billettplattformen, eller i kalenderen. Du trenger ikke endre arbeidsvanene dine. Alt skjer automatisk, to ganger daglig.
-			{:else}
-				Gåri is a system that finds your events where you already publish them — on your website, in your ticketing platform, or in your calendar. You don't need to change your workflow. Everything happens automatically, twice daily.
-			{/if}
-		</p>
-
-		<!-- Venue lookup -->
-		<div class="mx-auto mb-8 max-w-sm">
-			<label for="venue-check" class="mb-2 block text-sm font-medium text-[var(--color-text-primary)]">
-				{$lang === 'no' ? 'Sjekk om du allerede er på Gåri:' : 'Check if you\'re already on Gåri:'}
-			</label>
-			<input
-				type="text"
-				id="venue-check"
-				bind:value={venueSearch}
-				placeholder={$lang === 'no' ? 'Skriv navnet på stedet ditt...' : 'Type your venue name...'}
-				class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-2.5 text-sm"
-				style="min-height: 44px;"
-			/>
-			{#if venueMatch}
-				<p class="mt-2 text-sm font-semibold text-[var(--funkis-green)]">
-					&#10003; {venueMatch} {$lang === 'no' ? 'er allerede på Gåri!' : 'is already on Gåri!'}
-				</p>
-			{:else if venueMatch === false}
-				<p class="mt-2 text-sm text-[var(--color-text-secondary)]">
-					{$lang === 'no'
-						? 'Fant ikke et treff — men det er helt gratis å bli lagt til. Vi ønsker å promotere det rike kulturlivet i Bergen. Legg inn nettsiden din, så sjekker vi om det er mulig å sette opp automatisk.'
-						: "Didn't find a match — but getting added is completely free. We want to promote Bergen's rich cultural life. Enter your website and we'll check if automatic setup is possible."}
-				</p>
-
-				{#if addVenueStatus === 'success'}
-					<p class="mt-3 text-sm font-semibold text-[var(--funkis-green)]">
-						&#10003; {$lang === 'no' ? 'Takk! Vi sjekker nettsiden og tar kontakt.' : "Thanks! We'll check your website and get back to you."}
-					</p>
-				{:else}
-					<form
-						method="POST"
-						action="?/contact"
-						use:enhance={({ formData }) => {
-							const venueUrl = formData.get('venue_url');
-							formData.set('message', `Ønsker å bli lagt til på Gåri. Nettside: ${venueUrl}`);
-							formData.delete('venue_url');
-							addVenueStatus = 'submitting';
-							return async ({ result }) => {
-								if (result.type === 'success') {
-									addVenueStatus = 'success';
-									trackEvent('for-arrangorer-add-venue');
-								} else {
-									addVenueStatus = 'error';
-								}
-							};
-						}}
-						class="mx-auto mt-3 flex max-w-sm flex-col gap-2"
-					>
-						<input type="hidden" name="name" value={venueSearch} />
-						<input type="hidden" name="organization" value={venueSearch} />
-						<!-- Honeypot -->
-						<div class="absolute -left-[9999px]" aria-hidden="true">
-							<input type="text" name="website" tabindex="-1" autocomplete="off" />
-						</div>
-
-						<input
-							type="url"
-							name="venue_url"
-							required
-							placeholder={$lang === 'no' ? 'https://dittspillested.no' : 'https://yourvenue.com'}
-							class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-sm"
-							style="min-height: 44px;"
-						/>
-						<input
-							type="email"
-							name="email"
-							required
-							placeholder={$lang === 'no' ? 'din@epost.no' : 'your@email.com'}
-							class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-sm"
-							style="min-height: 44px;"
-						/>
-						<button
-							type="submit"
-							disabled={addVenueStatus === 'submitting'}
-							class="rounded-xl bg-[var(--funkis-red)] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-70"
-							style="min-height: 44px;"
-						>
-							{#if addVenueStatus === 'submitting'}
-								{$lang === 'no' ? 'Sender...' : 'Sending...'}
-							{:else}
-								{$lang === 'no' ? 'Sjekk nettsiden min' : 'Check my website'}
-							{/if}
-						</button>
-						{#if addVenueStatus === 'error'}
-							<p class="text-sm text-red-600">
-								{$lang === 'no' ? 'Noe gikk galt. Prøv igjen.' : 'Something went wrong. Try again.'}
-							</p>
-						{/if}
-					</form>
-				{/if}
-			{/if}
-		</div>
-
-	</div>
-</section>
-
-<!-- 4. How It Works — white bg -->
-<section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-20">
-	<div class="mx-auto max-w-4xl">
-		<div class="mb-10 text-center">
-			<h2 class="mb-3 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
-				{$lang === 'no' ? 'Slik fungerer det' : 'How it works'}
-			</h2>
-			<div class="flex items-baseline justify-center gap-2">
-				<span class="text-[40px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-[56px]">2&#215;</span>
-				<span class="text-lg text-[var(--color-text-secondary)]">{$lang === 'no' ? 'daglig' : 'daily'}</span>
-			</div>
-		</div>
-		<div class="grid gap-8 md:grid-cols-3">
-			{#each [
-				{
-					num: '1',
-					title: $lang === 'no' ? 'Gåri samler alt' : 'Gåri collects everything',
-					body: $lang === 'no'
-						? 'Konserter, teater, mat, festivaler, familieaktiviteter, turer — 43 kilder i Bergen, oppdatert kl. 06 og 18 hver dag.'
-						: 'Concerts, theatre, food, festivals, family activities, tours — 43 sources in Bergen, updated at 06:00 and 18:00 every day.'
-				},
-				{
-					num: '2',
-					title: $lang === 'no' ? 'Folk finner deg' : 'People find you',
-					body: $lang === 'no'
-						? 'Gjennom AI-søk, Google, 13 kuraterte sider på gaari.no og ukentlige nyhetsbrev. Mange oppdager ting de aldri ville søkt etter.'
-						: 'Through AI search, Google, 13 curated pages on gaari.no and weekly newsletters. Many discover things they\'d never have searched for.'
-				},
-				{
-					num: '3',
-					title: $lang === 'no' ? 'Klikket går til deg' : 'The click goes to you',
-					body: $lang === 'no'
-						? 'Hvert arrangement linker til din billettside. Gåri selger aldri billetter — vi sender publikum videre til deg.'
-						: 'Every event links to your ticket page. Gåri never sells tickets — we send audiences your way.'
-				}
-			] as step}
-				<div>
-					<p class="mb-2 text-5xl font-bold font-[family-name:var(--font-display)] text-[var(--funkis-red)]">{step.num}</p>
-					<h3 class="mb-2 text-lg font-bold">{step.title}</h3>
-					<p class="text-[var(--color-text-secondary)]">{step.body}</p>
-				</div>
-			{/each}
-		</div>
-	</div>
-</section>
-
-<!-- 5. What You Get — plaster bg, feature cards + mockups -->
+<!-- === HVA FÅR JEG === -->
 <section class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-20">
 	<div class="mx-auto max-w-4xl">
 		<!-- Section heading with large 13 -->
@@ -604,23 +638,8 @@
 	</div>
 </section>
 
-<!-- 6. Philosophy — white bg, extra breathing room -->
-<section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-24">
-	<div class="mx-auto max-w-[640px] text-center">
-		<h2 class="mb-6 text-2xl font-bold font-[family-name:var(--font-display)] md:text-[32px]">
-			{$lang === 'no' ? 'Bergens digitale bytorg' : "Bergen's digital town square"}
-		</h2>
-		<p class="text-lg leading-relaxed text-[var(--color-text-secondary)]" style="line-height: 1.7;">
-			{#if $lang === 'no'}
-				Den store konserthallen trekker folk til torget. Den lille bokklubben blir oppdaget av noen som bare kom for konserten. Det er ikke veldedighet — det er god forretning for alle.
-			{:else}
-				The big concert hall draws people to the square. The small book club gets discovered by someone who just came for the concert. It's not charity — it's good business for everyone.
-			{/if}
-		</p>
-	</div>
-</section>
-
-<!-- 7. Transparency — plaster bg -->
+<!-- === HVA NÅ === -->
+<!-- Transparency -->
 <section class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-20">
 	<div class="mx-auto max-w-4xl">
 		<div class="rounded-xl border-l-4 border-[var(--color-text-primary)] bg-[var(--color-bg-surface)] p-6 md:p-8">
@@ -638,7 +657,7 @@
 	</div>
 </section>
 
-<!-- 8+9. Early Bird + CTA (merged) — urgency and action in same space -->
+<!-- Early Bird + CTA -->
 <section bind:this={contactEl} id="contact" class="px-4 py-16 md:py-20" style="background-color: var(--funkis-red-subtle);">
 	<div class="mx-auto max-w-4xl">
 		<!-- Early bird header -->
@@ -858,5 +877,47 @@
 	@keyframes dot-bounce {
 		0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
 		40% { opacity: 1; transform: translateY(-4px); }
+	}
+
+	/* Flow animation: venue pills → Gåri */
+	.flow-pill {
+		opacity: 0;
+	}
+	.flow-animate .flow-pill {
+		animation: flyIn 0.6s ease-out forwards;
+	}
+	.gaari-target {
+		opacity: 0;
+	}
+	.flow-animate .gaari-target {
+		animation: gaariAppear 0.5s ease-out 0.1s forwards;
+	}
+	@keyframes flyIn {
+		from {
+			opacity: 0;
+			transform: translate(var(--from-x), var(--from-y)) scale(0.85);
+		}
+		to {
+			opacity: 1;
+			transform: translate(0, 0) scale(1);
+		}
+	}
+	@keyframes gaariAppear {
+		from {
+			opacity: 0;
+			scale: 0.7;
+		}
+		to {
+			opacity: 1;
+			scale: 1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.flow-pill,
+		.gaari-target {
+			opacity: 1 !important;
+			animation: none !important;
+		}
 	}
 </style>

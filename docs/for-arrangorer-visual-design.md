@@ -6,300 +6,153 @@
 
 **Constraints:** Solo project, no photography budget, no external image dependencies. Everything built in Svelte/HTML/CSS using existing Funkis tokens.
 
----
-
-## The 5 Visual Elements (in build priority order)
-
-### 1. Product Mockup: "Fremhevet" Card in Context
-
-**This is the single most important visual on the page.** It shows what promoted placement actually looks like.
-
-Build a simplified browser-frame mockup showing 3 event cards in a grid — the way they appear on a real Gåri collection page. The top card has the "Fremhevet" badge. This IS the product you're selling.
-
-```
-┌──────────────────────────────────────────────────┐
-│ ● ● ●    gaari.no/no/denne-helgen                │
-├──────────────────────────────────────────────────┤
-│                                                  │
-│  ┌─────────────────┐  ┌─────────────────┐       │
-│  │ ★ Fremhevet     │  │                 │       │
-│  │ ┌─────────────┐ │  │ ┌─────────────┐ │       │
-│  │ │  ♪ MUSIC    │ │  │ │  🎭 CULTURE │ │       │
-│  │ │  (blue bg)  │ │  │ │  (purple bg)│ │       │
-│  │ └─────────────┘ │  │ └─────────────┘ │       │
-│  │ Bergen Filhar.  │  │ Kunstutstilling │       │
-│  │ Grieghallen     │  │ KODE            │       │
-│  │ Lør 15. mars    │  │ Fre 14. mars    │       │
-│  │ 350 kr          │  │ Gratis          │       │
-│  └─────────────────┘  └─────────────────┘       │
-│                                                  │
-│  ┌─────────────────┐                            │
-│  │ ┌─────────────┐ │                            │
-│  │ │ 🍽 FOOD     │ │                            │
-│  │ │ (warm bg)   │ │                            │
-│  │ └─────────────┘ │                            │
-│  │ Ølsmaking       │                            │
-│  │ Bergen Kjøtt    │                            │
-│  │ Fre 14. mars    │                            │
-│  │ 200 kr          │                            │
-│  └─────────────────┘                            │
-│                                                  │
-└──────────────────────────────────────────────────┘
-```
-
-**Implementation:**
-- Build entirely in HTML/CSS — no images
-- Browser chrome: rounded top corners (#F5F3EE background), three dots (●●● in red/yellow/green), URL bar with `gaari.no/no/denne-helgen` in monospace
-- Event cards: simplified versions of actual EventCard component
-  - Card image area: colored rectangle using category colors from DESIGN-SYSTEM.md (`--color-cat-music`, `--color-cat-culture`, `--color-cat-food`)
-  - Category label: small uppercase text (Barlow Condensed)
-  - Title: Inter 16px bold
-  - Venue + date: Inter 14px, `--color-text-secondary`
-  - Price: Inter 13px bold
-- The "Fremhevet" card: has a `StatusBadge`-style label in top-left of image area. Red text (#C82D2D) on subtle red bg (#F9EEEE), rounded pill. Text: "Fremhevet"
-- Outer frame: `--shadow-lg`, rounded-xl (12px), slight rotation `transform: rotate(-1deg)` for depth
-- 2-column card grid inside the frame (fits 2 cards per row + 1 below)
-
-**Placement:**
-- In the "Hva du får" section, specifically adjacent to the "Fremhevet synlighet" feature block
-- Desktop: feature text left (45%), mockup right (55%), with mockup slightly overlapping the section edge
-- Mobile: full-width below the feature text, max-width 400px, centered
-
-**Why this works:** The venue owner sees exactly what their event would look like promoted. No explanation needed — the visual IS the explanation.
+> **Updated 2026-02-27:** Page restructured into 5 sections: Hva er dette → Hvordan fungerer dette → Hvorfor dette fungerer → Hva får jeg → Hva nå. Visual elements placed within this new structure.
 
 ---
 
-### 2. AI Chat Mockup (polished)
+## The 6 Visual Elements
 
-The page already has an AI chat mockup concept. Polish it to look like a real AI conversation, framed inside a phone shape.
+### 1. Flow Animation: Venues → Gåri (NEW)
 
-```
-┌────────────────────────┐
-│    ┌──┐                │  ← phone notch
-│                        │
-│         ○ AI           │
-│    ┌──────────────┐    │
-│    │ Her er noen   │    │
-│    │ arrangementer │    │
-│    │ i Bergen      │    │
-│    │ denne helgen: │    │
-│    │               │    │
-│    │ • Bergen Fil..│    │
-│    │ • Kunstutst...│    │
-│    │               │    │
-│    │ Kilde: gaari. │    │  ← red link text
-│    │ no            │    │
-│    └──────────────┘    │
-│                        │
-│    ┌──────────────┐    │
-│    │Hva skjer i   │  ← │  user message (right-aligned)
-│    │Bergen denne   │    │
-│    │helgen?        │    │
-│    └──────────────┘    │
-│                        │
-│  ┌──────────────────┐  │
-│  │ Ask anything...  │  │  ← input bar
-│  └──────────────────┘  │
-└────────────────────────┘
-```
+**The hero visual for "how it works."** Shows event sources flying into Gåri automatically.
 
 **Implementation:**
-- Phone frame: rounded-[2rem], `--shadow-lg`, `--funkis-iron` border (2px), aspect-ratio similar to phone (roughly 9:19.5)
-- Notch: small rounded rectangle centered at top
-- Messages: 
-  - User bubble (right-aligned): `--funkis-plaster` background, rounded-2xl, 14px Inter
-  - AI response (left-aligned): white background, rounded-2xl, 14px Inter
-  - Small circle avatar for AI (just a colored dot, `--funkis-granite`, 24px)
-- The citation line "Kilde: gaari.no" must be in `--funkis-red` — that's the punchline
-- Input bar at bottom: `--color-bg-surface` background, rounded-full, placeholder text
-- Optional: subtle CSS pulsing animation on the AI avatar (a breathing glow, 3s cycle) to suggest "alive"
-- Max-width: 280px on desktop, 260px on mobile
+- Container: relative positioning, max-width 320px, aspect-ratio 1.15
+- Central Gåri badge: `--funkis-red` bg, white bold text, rounded-2xl, 64px, absolute centered
+- 6 venue pills positioned around the badge: Grieghallen, DNS, KODE, USF Verftet, Bergen Kjøtt, Oseana
+- Each pill: colored category dot + venue name in pill shape (`--color-bg-surface` bg, 1px border, rounded-full)
+- CSS `@keyframes flyIn`: translates from `var(--from-x), var(--from-y)` to final position, opacity 0→1, scale 0.85→1
+- CSS `@keyframes gaariAppear`: scale 0.7→1, opacity 0→1 (uses `scale` property, not `transform`, to avoid conflict with Tailwind translate)
+- Staggered `animation-delay`: 0s, 0.4s, 0.8s, 1.2s, 1.6s, 2.0s
+- Triggered by IntersectionObserver (threshold 0.3)
+- Respects `prefers-reduced-motion` (shows all elements immediately, no animation)
 
 **Placement:**
-- In the AI search section (section 2)
+- In "Hvordan fungerer dette" section
+- Desktop: text left (50%), animation right (50%)
+- Mobile: animation centered below text
+
+### 2. Product Mockup: "Fremhevet" Card in Context
+
+**Shows what promoted placement actually looks like.**
+
+Browser-frame mockup showing 3 event cards in a grid. Top card has "Fremhevet" badge.
+
+**Implementation:**
+- Browser chrome: `--funkis-plaster` bg, three colored dots, monospace URL bar (`gaari.no/no/denne-helgen`)
+- 2-column card grid (3 cards total)
+- Card image areas: category colors (`--color-cat-music`, `--color-cat-culture`, `--color-cat-food`)
+- "Fremhevet" badge: red text (#C82D2D) on #F9EEEE, rounded pill
+- Outer frame: `--shadow-lg`, rounded-xl, slight `rotate(-1deg)`
+
+**Placement:**
+- In "Hva får jeg" section, adjacent to "Først på kuraterte sider" card
+- Desktop: feature text left (45%), mockup right (55%)
+- Mobile: full-width below text, max-width 400px
+
+### 3. AI Chat Mockup (animated)
+
+**Phone-framed AI conversation showing Gåri being cited.**
+
+**Implementation:**
+- Phone frame: rounded-[2rem], `--funkis-iron` border (2px), `--shadow-lg`
+- Notch: small rounded rectangle at top
+- User bubble (right): `--funkis-plaster` bg, typewriter animation
+- AI response (left): white bg, progressive line-by-line reveal
+- AI avatar: `--funkis-granite` circle with `ai-breathe` CSS animation
+- "Kilde: gaari.no" in `--funkis-red` — the punchline
+- Thinking dots with `dot-bounce` animation
+- Max-width: 280px
+
+**Placement:**
+- In "Hvorfor dette fungerer" → AI pitch subsection
 - Desktop: text left (55%), phone mockup right (45%)
-- Mobile: phone mockup centered below text, max-width 260px
+- Mobile: centered below text
 
-**Why this works:** Most venue owners have used ChatGPT. When they see a familiar chat interface with "gaari.no" cited in red, they immediately understand the value — no explanation needed.
+### 4. Report Mockup Card
 
----
-
-### 3. Report Mockup Card
-
-Make "you get a monthly report" concrete by showing what one looks like.
-
-```
-┌─────────────────────────────┐
-│  Grieghallen — mars 2026    │
-│  ─────────────────────────  │
-│                             │
-│  Klikk fra Gåri      483   │  ← large number
-│                    ↑ 22%    │  ← green accent
-│                             │
-│  Fra kuraterte sider  198   │
-│  Fra AI-søk            87   │
-│  Fra hovedsiden       198   │
-│  ─────────────────────────  │
-│                             │
-│  Topp arrangement:          │
-│  Bergen Filharmoniske       │
-│  142 klikk                  │
-│                             │
-└─────────────────────────────┘
-```
+**Concrete monthly report showing what venues get.**
 
 **Implementation:**
-- Card: white background, `--shadow-sm`, rounded-xl, p-5, max-width 320px
-- Title: Inter 14px bold, `--color-text-primary`
-- Separator: 1px `--color-border`
-- "483" number: Barlow Condensed 36px, `--funkis-red`
-- "+22%" badge: `--funkis-green` text, small, inline
-- Data rows: Inter 14px, tabular-nums, right-aligned numbers
-- "Topp arrangement" label: Inter 12px, `--color-text-muted`
-- Top event name: Inter 14px bold
+- Card: white bg, `--shadow-sm`, rounded-xl, p-5, max-width 320px
+- "483" click number: Barlow Condensed 36px, `--funkis-red`
+- "+22%" badge: `--funkis-green` text
+- Data rows: tabular-nums, right-aligned
+- "Topp arrangement" section with event name and click count
 
 **Placement:**
-- In the "Hva du får" section, adjacent to the "Månedlig rapport" feature block
-- Desktop: floats right of the text
+- In "Hva får jeg" section, adjacent to "Tall på hva det ga deg" card
+- Desktop: floats right of text
 - Mobile: full-width below text
 
-**Why this works:** Concrete beats abstract. "Du får en rapport" = vague. Seeing actual numbers with green arrows = "I want that."
+### 5. Venue Name Pills
 
----
-
-### 4. Venue Name Pills
-
-The current horizontal text list of venue names needs visual treatment. Transform into interactive-looking pills.
-
-```
-┌──────────────┐ ┌─────┐ ┌──────────┐ ┌───────────────┐
-│ Grieghallen  │ │ DNS │ │   KODE   │ │ USF Verftet   │
-└──────────────┘ └─────┘ └──────────┘ └───────────────┘
-┌─────────────────┐ ┌─────────────┐ ┌──────────┐
-│ Bergen Bibliotek │ │ Festspillene│ │ Ole Bull │
-└─────────────────┘ └─────────────┘ └──────────┘
-┌───────────┐ ┌──────────────┐ ┌───────┐ ┌──────────────┐
-│ Harmonien │ │ Carte Blanche│ │ Fløyen│ │ Bergenfest   │
-└───────────┘ └──────────────┘ └───────┘ └──────────────┘
-```
+Social proof near the CTA form.
 
 **Implementation:**
-- Each name in a pill: `--color-bg-surface` background, 1px `--color-border` border, rounded-full, px-4 py-2
-- Font: Inter 13px, `--color-text-secondary`
-- Layout: `flex flex-wrap gap-2 justify-center`
-- Show 12 names (the most recognizable venues from the 43 sources)
-- Desktop: wrapped into 2-3 rows, centered
-- Mobile: same wrapping, tighter gaps
-- NO horizontal scroll — just flow naturally
-- Subtle hover: slightly darker border + translateY(-1px) — feels alive even though they're not links
+- 8 venue names in pills: `--color-bg-surface` bg, 1px border, rounded-full
+- `flex flex-wrap gap-1.5 justify-center`
+- Font: 12px, `--color-text-muted`
 
 **Placement:**
-- In the "43 kilder" social proof section, below the text
+- Below the CTA form in "Hva nå" section
 
-**Why this works:** Recognizable names create trust. A venue owner sees Grieghallen and DNS and thinks "if they're on there, we should be too." The pill treatment makes them feel like tags/badges, not a boring text list.
+### 6. Large Number Highlights
 
----
-
-### 5. Large Number Highlights
-
-Use oversized numbers as visual anchors that the eye lands on when scanning.
-
-**Numbers to highlight:**
-- **43** — sources (already in the "Allerede på Gåri" section)
-- **13** — curated pages (in the "Hva du får" intro or "Fremhevet" block)
-- **2×** — daily updates (in the "Slik fungerer det" section)
+Oversized numbers as visual anchors: 54% (AI stat), 13 (curated pages).
 
 **Implementation:**
-- Number: Barlow Condensed, 56-72px, `--funkis-red`
-- Accompanying text: Inter 16px, `--color-text-primary`, directly below or beside
-- Example layout:
-  ```
-  43
-  kilder i Bergen
-  ```
-- These should feel like typographic landmarks — the things your eye hits when scrolling fast
-
-**Why this works:** Numbers are scannable. A venue owner scrolling quickly sees "43... 13... 2×..." and gets the scale immediately. It breaks up the text wall and creates visual rhythm.
+- Barlow Condensed, 40–72px, `--funkis-red`
+- Accompanying text directly below or beside
 
 ---
 
-## Section-Level Layout & Spacing
-
-### Background alternation (creates visual separation without decoration)
+## Section Background Alternation
 
 | Section | Background | Purpose |
 |---------|-----------|---------|
-| Hero | `--funkis-plaster` (#F5F3EE) | Warm entry |
-| AI search (section 2) | White (#FFFFFF) | Clean for mockup |
-| 43 kilder (section 3) | `--funkis-plaster` (#F5F3EE) | Contrast with pills |
-| Slik fungerer det | White (#FFFFFF) | Clean for numbers |
-| Hva du får | `--funkis-plaster` (#F5F3EE) | Cards pop on warm bg |
-| Bytorget | White (#FFFFFF) | Breathing room |
-| Transparent | `--funkis-plaster` (#F5F3EE) | Short callout |
-| Early bird | `--funkis-red-subtle` (#F9EEEE) | ONLY section with this color — special |
-| CTA / form | White (#FFFFFF) | Clean for form |
+| Hero (Hva er dette) | `--funkis-plaster` | Warm entry |
+| Hvordan fungerer dette | White | Clean for animation |
+| Network effect | `--funkis-plaster` | Contrast, breathing room |
+| AI pitch | White | Clean for phone mockup |
+| Hva får jeg | `--funkis-plaster` | Cards pop on warm bg |
+| Transparency | `--funkis-plaster` | Short callout |
+| Early bird + CTA | `--funkis-red-subtle` (#F9EEEE) | ONLY section with this color |
+| Testimonial | White | Clean |
 
-### Section padding
+## Section Padding
 - Desktop: `py-16` (64px) minimum per section
 - Mobile: `py-10` (40px) minimum
-- The bytorget section gets extra: `py-20` on desktop — it needs to breathe
-
-### Feature blocks ("Hva du får")
-- 2×2 grid on desktop, stacked on mobile
-- Each block: white card, `--shadow-sm`, rounded-xl (12px), p-6
-- 4px colored top accent bar per card:
-  - Fremhevet synlighet: `--funkis-red`
-  - AI-søk: `--color-cat-culture` (purple)
-  - Månedlig rapport: `--funkis-green`
-  - Nyhetsbrev: `--color-cat-music` (blue)
-- The product mockup (element 1) sits adjacent to the Fremhevet card
-- The report mockup (element 3) sits adjacent to the Rapport card
 
 ---
 
 ## Contrast Rules (WCAG 2.2 AA)
 
-- On `--funkis-plaster` (#F5F3EE): ALL body text → `--color-text-primary` (#141414), NOT `--color-text-secondary`
+- On `--funkis-plaster` (#F5F3EE): ALL body text → `--color-text-primary` (#141414)
 - On white (#FFFFFF): body text → either primary or secondary OK
-- On `--funkis-red-subtle` (#F9EEEE, early bird only): body text → `--funkis-steel` (#3A3A3C)
+- On `--funkis-red-subtle` (#F9EEEE): body text → `--funkis-steel` (#3A3A3C)
 - Headlines everywhere: `--funkis-iron` (#1C1C1E) or `--color-text-primary`
-- Large accent numbers: `--funkis-red` (#C82D2D) — these are decorative, not body text
+- Large accent numbers: `--funkis-red` (#C82D2D) — decorative, not body text
 
 ---
 
 ## What NOT to Add
 
-- **No stock photography** — feels generic, costs nothing but adds nothing
+- **No stock photography** — feels generic
 - **No abstract illustrations or blob shapes** — doesn't match Funkis
 - **No decorative icons** that don't communicate specific information
 - **No gradients** — Funkis is flat, honest materials
-- **No parallax or scroll animations** — keep it fast, keep it functional
+- **No parallax or scroll animations** — keep it fast, functional
 - **No carousel or slider** — static content is more trustworthy for B2B
-- **No Bergen tourism photos** (Bryggen, Fløibanen) — this isn't a tourist page, it's a business conversation
-- **No logo wall** — venue logos are copyrighted and we don't have permission; text pills work better
-
----
-
-## Build Order for Claude Code
-
-1. **Product mockup** (browser frame + Fremhevet card) — highest visual impact, most persuasive element
-2. **AI chat mockup in phone frame** — already partially exists, polish it
-3. **Report mockup card** — simple HTML/CSS, builds trust
-4. **Feature block card treatment** — CSS only, big layout improvement
-5. **Section spacing + contrast fixes** — CSS only
-6. **Venue name pills** — restyle existing text
-7. **Number highlights** — typography changes
-8. **Background alternation** — CSS only
-
-Each element is independent — if one is hard to get right, skip it and move on. The product mockup alone transforms the page.
+- **No Bergen tourism photos** — this isn't a tourist page
+- **No logo wall** — venue logos are copyrighted; text pills work better
 
 ---
 
 ## Reference Files
 
-- Design system: `docs/DESIGN-SYSTEM.md` (all color tokens, typography, shadows)
-- Brand voice: `docs/BRAND-VOICE.md` (warm, functional, Bergen)
-- Page spec: `docs/for-arrangorer-page-spec-v2.md` (section structure)
+- Design system: `docs/DESIGN-SYSTEM.md`
+- Brand voice: `docs/BRAND-VOICE.md`
+- Page spec: `docs/for-arrangorer-page-spec-v2.md`
+- Copy rewrite: `docs/for-arrangorer-copy-rewrite.md`
 - Live page: `gaari.no/no/for-arrangorer`
-
-Edit the actual Svelte component files directly. Build mockups as Svelte components if they're reusable, or inline if they're one-off.
