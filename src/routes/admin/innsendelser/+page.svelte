@@ -33,6 +33,19 @@
 		converted: { bg: '#D1FAE5', text: '#065F46' },
 		declined: { bg: '#FEE2E2', text: '#991B1B' }
 	};
+
+	let decliningId = $state<string | null>(null);
+
+	function handleStatusChange(e: Event, inquiry: InquiryRow) {
+		const select = e.currentTarget as HTMLSelectElement;
+		if (select.value === 'declined') {
+			// Don't auto-submit — open the decline feedback form instead
+			select.value = inquiry.status;
+			decliningId = inquiry.id;
+		} else {
+			select.form?.requestSubmit();
+		}
+	}
 </script>
 
 <svelte:head>
@@ -120,11 +133,16 @@
 						<span style="word-break: break-word;">{cleanMessage(inquiry.message)}</span>
 					</td>
 					<td style="padding: 12px; white-space: nowrap;">
+						{#if inquiry.status === 'declined'}
+						<span style="display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: {STATUS_COLORS.declined.bg}; color: {STATUS_COLORS.declined.text};">
+							Avslått
+						</span>
+						{:else}
 						<form method="POST" action="?/updateStatus" use:enhance style="display: inline;">
 							<input type="hidden" name="id" value={inquiry.id} />
 							<select
 								name="status"
-								onchange={(e) => e.currentTarget.form?.requestSubmit()}
+								onchange={(e) => handleStatusChange(e, inquiry)}
 								style="padding: 4px 8px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 12px; font-weight: 600; min-height: 32px; cursor: pointer; background: {STATUS_COLORS[inquiry.status]?.bg ?? '#f0f0f0'}; color: {STATUS_COLORS[inquiry.status]?.text ?? '#4d4d4d'};"
 							>
 								{#each Object.entries(STATUS_LABELS) as [value, label] (value)}
@@ -132,6 +150,7 @@
 								{/each}
 							</select>
 						</form>
+						{/if}
 					</td>
 					<td style="padding: 12px; min-width: 180px;">
 						<form method="POST" action="?/updateNotes" use:enhance style="display: flex; gap: 4px; align-items: flex-start;">
@@ -151,6 +170,49 @@
 						</form>
 					</td>
 				</tr>
+				{#if decliningId === inquiry.id}
+				<tr style="border-bottom: 1px solid #f0f0f0; background: #fef2f2;">
+					<td colspan="8" style="padding: 16px 12px;">
+						<form method="POST" action="?/decline" use:enhance={() => {
+							return async ({ update }) => {
+								decliningId = null;
+								await update();
+							};
+						}}>
+							<input type="hidden" name="id" value={inquiry.id} />
+							<div style="max-width: 600px;">
+								<p style="font-size: 14px; font-weight: 600; color: #141414; margin: 0 0 8px;">
+									Avslå henvendelse fra {inquiry.name}
+								</p>
+								<p style="font-size: 13px; color: #737373; margin: 0 0 12px;">
+									Skriv en tilbakemelding som sendes til {inquiry.email}.
+								</p>
+								<textarea
+									name="feedback"
+									rows="3"
+									placeholder="Forklar hvorfor henvendelsen avslås..."
+									style="width: 100%; border: 1px solid #e5e5e5; border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: Inter, system-ui, sans-serif; resize: vertical; box-sizing: border-box; margin-bottom: 12px;"
+								></textarea>
+								<div style="display: flex; gap: 8px;">
+									<button
+										type="submit"
+										style="padding: 10px 24px; border-radius: 8px; border: none; background: #dc2626; color: #fff; cursor: pointer; font-size: 14px; font-weight: 600; min-height: 44px;"
+									>
+										Avslå og send e-post
+									</button>
+									<button
+										type="button"
+										onclick={() => decliningId = null}
+										style="padding: 10px 24px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #4D4D4D; cursor: pointer; font-size: 14px; font-weight: 600; min-height: 44px;"
+									>
+										Avbryt
+									</button>
+								</div>
+							</div>
+						</form>
+					</td>
+				</tr>
+				{/if}
 				{/each}
 			</tbody>
 		</table>

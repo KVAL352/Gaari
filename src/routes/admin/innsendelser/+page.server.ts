@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '$lib/server/supabase-admin';
+import { sendInquiryDeclineEmail } from '$lib/server/email';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
@@ -71,6 +72,45 @@ export const actions: Actions = {
 
 		if (error) {
 			console.error('Failed to update inquiry notes:', error);
+			return fail(500, { error: 'Database error: ' + error.message });
+		}
+
+		return { success: true };
+	},
+
+	decline: async ({ request }) => {
+		const form = await request.formData();
+		const id = String(form.get('id') ?? '').trim();
+		const feedback = String(form.get('feedback') ?? '').trim();
+
+		if (!id) {
+			return fail(400, { error: 'id is required' });
+		}
+
+		// Fetch inquiry for email
+		const { data: inquiry } = await supabaseAdmin
+			.from('organizer_inquiries')
+			.select('email, name')
+			.eq('id', id)
+			.single();
+
+		// Send decline email if feedback was provided
+		if (inquiry?.email && feedback) {
+			try {
+				await sendInquiryDeclineEmail(inquiry.email, inquiry.name, feedback);
+			} catch (err) {
+				console.error('Failed to send decline email:', err);
+				// Continue with status update even if email fails
+			}
+		}
+
+		const { error } = await supabaseAdmin
+			.from('organizer_inquiries')
+			.update({ status: 'declined' })
+			.eq('id', id);
+
+		if (error) {
+			console.error('Failed to decline inquiry:', error);
 			return fail(500, { error: 'Database error: ' + error.message });
 		}
 

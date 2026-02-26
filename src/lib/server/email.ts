@@ -28,3 +28,27 @@ export async function sendRejectionEmail(
 		].join('\n')
 	});
 }
+
+export async function sendInquiryDeclineEmail(
+	to: string,
+	name: string,
+	feedback: string
+): Promise<void> {
+	await resend.emails.send({
+		from: 'Gåri <noreply@gaari.no>',
+		to,
+		subject: `Angående din henvendelse til Gåri`,
+		text: [
+			`Hei ${name},`,
+			``,
+			`Takk for at du tok kontakt med Gåri.`,
+			``,
+			feedback,
+			``,
+			`Ta gjerne kontakt igjen dersom du har spørsmål.`,
+			``,
+			`Vennlig hilsen`,
+			`Gåri — gaari.no`
+		].join('\n')
+	});
+}
