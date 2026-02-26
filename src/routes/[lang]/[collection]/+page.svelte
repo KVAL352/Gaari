@@ -11,20 +11,23 @@
 	let pageNum = $derived(Number($page.url.searchParams.get('page') || '1'));
 	let displayedEvents = $derived(data.events.slice(0, pageNum * PAGE_SIZE));
 
-	let title = $derived(data.collection.title[$lang]);
-	let description = $derived(data.collection.description[$lang]);
-	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/${data.collection.slug}`));
+	// Use server-provided lang for SSR-critical values (JSON-LD, meta tags).
+	// $lang store only syncs via $effect (client-only), so it defaults to 'no' during SSR.
+	let ssrLang = $derived(data.lang);
+	let title = $derived(data.collection.title[ssrLang]);
+	let description = $derived(data.collection.description[ssrLang]);
+	let canonicalUrl = $derived(getCanonicalUrl(`/${ssrLang}/${data.collection.slug}`));
 	let collectionJsonLd = $derived(
-		generateCollectionJsonLd(data.collection, $lang, canonicalUrl, data.events)
+		generateCollectionJsonLd(data.collection, ssrLang, canonicalUrl, data.events)
 	);
 
 	let breadcrumbJsonLd = $derived(generateBreadcrumbJsonLd([
-		{ name: 'Gåri', url: getCanonicalUrl(`/${$lang}`) },
+		{ name: 'Gåri', url: getCanonicalUrl(`/${ssrLang}`) },
 		{ name: title }
 	]));
 
-	let editorial = $derived(data.collection.editorial?.[$lang] ?? []);
-	let faqItems = $derived(data.collection.faq?.[$lang] ?? []);
+	let editorial = $derived(data.collection.editorial?.[ssrLang] ?? []);
+	let faqItems = $derived(data.collection.faq?.[ssrLang] ?? []);
 	let faqJsonLd = $derived(faqItems.length > 0 ? generateFaqJsonLdFromItems(faqItems) : null);
 
 	let nextPageHref = $derived(`?page=${pageNum + 1}`);

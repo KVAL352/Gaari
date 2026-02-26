@@ -135,7 +135,7 @@ const collections: Collection[] = [
 			en: [
 				'Bergen has a rich cultural offering that costs nothing. The city\'s libraries run free talks, exhibitions and concerts throughout the week. KODE and Bergen Kunsthall offer open exhibition days and vernissages. Fløyen and DNT organise free mountain hikes and outdoor experiences. The university and student community contribute open lectures, debates and social evenings.',
 				'Gåri collects all free events in Bergen from 44 local sources and updates the listing daily. Here you find free concerts, exhibitions, hikes and activities — all this week, no ticket required.',
-				'\"Likely free\" means the organiser has not listed a price in their source, and we cannot guarantee the event is cost-free. Always verify the price with the organiser before attending. That said, Bergen is known for generous free cultural provision — many of the best experiences, from opening exhibitions to park concerts, are completely free.'
+				'"Likely free" means the organiser has not listed a price in their source, and we cannot guarantee the event is cost-free. Always verify the price with the organiser before attending. That said, Bergen is known for generous free cultural provision — many of the best experiences, from opening exhibitions to park concerts, are completely free.'
 			]
 		},
 		faq: {
