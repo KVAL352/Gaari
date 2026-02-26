@@ -6,22 +6,23 @@
 **Purpose:** B2B marketing page. Drives venue contact inquiries. Leads with AI search citation.
 **CTA:** "Ta kontakt" / "Get in touch" → email or contact form
 **Tone:** Data-led, novel, values-forward. No hype, no pricing on page.
+**Voice:** "Gåri" as product subject, "vi" for collective actions. Never "jeg/meg" (first person).
 
 ---
 
 ## Page Structure
 
 ```
-1. Hero — AI search hook + CTA
-2. "Synlig i AI-søk" — the AI search citation pitch (THE differentiator)
-3. "Allerede på Gåri" — social proof (43 sources, venue names)
-4. "Slik fungerer det" — how Gåri works (3 steps)
-5. "Hva du får" — what promoted placement includes (feature blocks)
-6. "Bytorget" — the philosophy (town square, redistribution)
-7. "Transparent alltid" — the Fremhevet label, no hidden tricks
-8. "Bli med tidlig" — early bird offer (3 months free before June 2026)
-9. CTA section — contact form or email link
-10. Footer (standard)
+1. Hero — "Arrangementene dine i ChatGPT-svar" + CTA
+2. AI search — 54% stat + animated phone mockup + mid-page CTA
+3. Zero setup — "Du trenger ikke gjøre noe" + venue lookup + inline add-form
+4. "Slik fungerer det" — how Gåri works (3 steps, "Gåri" as subject)
+5. "Hva du får" — feature cards + product mockup + report mockup
+6. "Bytorget" — the philosophy (town square, 3 sentences)
+7. "Ingen skjulte triks" — transparency callout
+8+9. Early bird + CTA — merged: "3 måneder gratis" + email + contact form
+10. Testimonial placeholder (awaiting first clients)
+11. Sticky mobile CTA bar (visible between hero and contact)
 ```
 
 ---
@@ -32,116 +33,121 @@
 
 ### Norwegian
 ```
-Synlig der folk faktisk søker
+Arrangementene dine i ChatGPT-svar
 
-Når noen spør ChatGPT, Google eller Perplexity
-«hva skjer i Bergen?» — er det Gåri som blir sitert.
-Vi hjelper arrangører å nå folk som søker med AI,
-på Google, og direkte på gaari.no.
+Gåri samler alt som skjer i Bergen — og gjør det
+synlig i AI-søk, på Google og i ukentlige nyhetsbrev.
 
 [Ta kontakt]
 ```
 
 ### English
 ```
-Visible where people actually search
+Your events in ChatGPT answers
 
-When someone asks ChatGPT, Google or Perplexity
-"what's happening in Bergen?" — Gåri is the source
-they cite. We help organizers reach people searching
-with AI, on Google, and directly on gaari.no.
+Gåri brings together everything happening in Bergen — and makes it
+visible in AI search, on Google and in weekly newsletters.
 
 [Get in touch]
 ```
 
 **Design notes:**
-- H1: "Synlig der folk faktisk søker" — Barlow Condensed, 32–40px, `--color-text-primary`
-- Subtext: Inter, 18px, `--color-text-secondary`, max-width 600px
+- H1: "Arrangementene dine i ChatGPT-svar" — Barlow Condensed, 32–40px, `--color-text-primary`
+- Subtext: Inter, 18px, `--color-text-primary`, max-width 600px
 - CTA button: `--funkis-red` background, white text, 44px min height
 - No hero image — keep it clean and fast-loading
 
 ---
 
-## 2. The AI Search Pitch: "Synlig i AI-søk"
+## 2. AI Search Pitch: "54% av nordmenn bruker KI-verktøy"
 
-**This is the most important section on the page.** It's the novel selling point that no competitor can match. It should feel like a genuine revelation to the venue owner reading it.
+**This is the most important section on the page.** Leads with hard SSB data, then explains what it means for venues.
 
-**Layout:** Two-column on desktop (text left, illustration/screenshot right). Full-width stacked on mobile.
+**Layout:** Two-column on desktop (text 55% left, animated phone mockup 45% right). Full-width stacked on mobile.
 
 ### Norwegian
 ```
-Bergen's arrangementer i AI-søk
+54%
+av nordmenn bruker KI-verktøy
 
-Stadig flere finner ut hva som skjer i Bergen ved å spørre
-ChatGPT, Perplexity eller Google AI. Når de gjør det, er
-Gåri en av kildene som blir sitert — med lenke tilbake til
-arrangementene.
+Norge er nummer 3 i verden for bruk av KI. Når noen i Bergen
+spør ChatGPT «hva skjer denne helgen?», jobber vi for at Gåri
+dukker opp som kilde — med kuraterte sider optimalisert for
+det folk faktisk spør om.
 
-Dette er en helt ny kanal som de fleste arrangører ikke
-kjenner til ennå. Dine arrangementer er allerede synlige
-der — med fremhevet synlighet blir de enda mer fremtredende.
+Kilder: SSB 2025 · Microsoft AI Diffusion Report 2025 · Arbeidsliv i Norden · ChatGPT Statistics
+
+[Vis meg dataen for mine arrangementer]  ← mid-page CTA
 ```
 
 ### English
 ```
-Bergen's events in AI search
+54%
+of Norwegians use AI tools
 
-More and more people find out what's happening in Bergen
-by asking ChatGPT, Perplexity or Google AI. When they do,
-Gåri is one of the sources that gets cited — with a link
-back to the events.
+Norway is number 3 in the world for AI usage. When someone
+in Bergen asks ChatGPT "what's on this weekend?", we work to
+make Gåri appear as a source — with curated pages optimized
+for what people actually ask about.
 
-This is a completely new channel that most organizers don't
-know about yet. Your events are already visible there —
-with promoted visibility they become even more prominent.
+Sources: Statistics Norway 2025 · Microsoft AI Diffusion Report 2025 · Nordic Labour Journal · ChatGPT Statistics
+
+[Show me the data for my events]  ← mid-page CTA
 ```
 
-**Right-side visual:** A styled screenshot mockup showing a ChatGPT or Perplexity response about Bergen events with Gåri cited as the source. This can be:
-- A real screenshot (preferred — take one when available)
-- A styled mockup using the Funkis design language (card with AI chat bubble, citation link)
+**Right-side visual:** Animated phone mockup showing an AI chat conversation. Typewriter animation: user types "Hva skjer i Bergen denne helgen?", thinking dots appear, AI response reveals line by line, "Kilde: gaari.no" appears last in red. Animation triggers on scroll (IntersectionObserver, threshold 0.3). Respects `prefers-reduced-motion`.
 
 **Design notes:**
 - Section background: `--color-bg-surface` (white)
-- Left column: 60% width on desktop
-- Right column: 40% width, screenshot/mockup with `--shadow-md` and 12px border-radius
-- Key phrase "en av kildene som blir sitert" could be highlighted with `--funkis-red-subtle` background
-- No technical jargon. No "AI optimization" or "GEO" or "LLM." Just: "people ask AI, Gåri gets cited, your events are visible."
+- "54%" as giant red number: Barlow Condensed, 40–56px, `--funkis-red`
+- Source citations: linked to original articles (SSB, Microsoft mynewsdesk, etc.)
+- Phone mockup: rounded-[2rem], `--funkis-iron` border, `--shadow-lg`, max-width 280px
+- No technical jargon. No "AI optimization" or "GEO" or "LLM."
 
 ---
 
-## 3. Social Proof: "Allerede på Gåri"
+## 3. Zero Setup: "Du trenger ikke gjøre noe"
 
-**Layout:** Centered section with count + scrollable name row
+**Layout:** Centered section with body text, venue lookup input, and inline add-venue form.
 
 ### Norwegian
 ```
-43 kilder i Bergen — oppdatert hver dag
+Du trenger ikke gjøre noe
 
-Gåri samler arrangementer fra 43 aktive kilder i Bergen,
-fra Grieghallen og DNS til Bergen Bibliotek og lokale klubber.
-Dine arrangementer er sannsynligvis allerede på Gåri.
+Gåri er et system som finner arrangementene dine der du
+allerede legger dem ut — på nettsiden din, i billettplattformen,
+eller i kalenderen. Du trenger ikke endre arbeidsvanene dine.
+Alt skjer automatisk, to ganger daglig.
+
+[Sjekk om du allerede er på Gåri: _______________]
+
+→ Match found: "✓ [Venue name] er allerede på Gåri!"
+→ No match: message about free onboarding + inline form
+  (nettside-URL + e-post + "Sjekk nettsiden min" button)
 ```
 
 ### English
 ```
-43 sources in Bergen — updated daily
+You don't need to do anything
 
-Gåri collects events from 43 active sources across Bergen,
-from Grieghallen and DNS to Bergen Public Library and local clubs.
-Your events are probably already on Gåri.
+Gåri is a system that finds your events where you already
+publish them — on your website, in your ticketing platform,
+or in your calendar. You don't need to change your workflow.
+Everything happens automatically, twice daily.
+
+[Check if you're already on Gåri: _______________]
 ```
 
-**Below the text:** Horizontal scrolling row of venue/source names (grayscale, muted):
-
-```
-Grieghallen · DNS · KODE · USF Verftet · Bergen Bibliotek · Festspillene · Ole Bull · Harmonien · Fløyen · Bergenfest · Carte Blanche · BIT
-```
+**Venue lookup:** Client-side search against ~40 known venue names. Three states:
+- No input (< 2 chars): nothing shown
+- Match found: green checkmark + venue name
+- No match: "Fant ikke et treff — men det er helt gratis å bli lagt til. Vi ønsker å promotere det rike kulturlivet i Bergen." + inline form (website URL + email) → submits to `organizer_inquiries`
 
 **Design notes:**
 - Section background: `--funkis-plaster`
-- "43" as large/bold visual anchor (Barlow Condensed, 48px)
-- Name row: `overflow-x: auto`, horizontal scroll mobile, all visible desktop
-- Grayscale opacity (0.6)
+- Input: 44px min-height, rounded-lg, Funkis border styling
+- Inline add-form: same `?/contact` action as main form, message auto-constructed from URL
+- No venue name pills in this section
 
 ---
 
@@ -151,25 +157,25 @@ Grieghallen · DNS · KODE · USF Verftet · Bergen Bibliotek · Festspillene ·
 
 ### Norwegian
 
-**1. Vi samler**
-Alt som skjer i Bergen — konserter, teater, familieaktiviteter, festivaler, turer og mer. 43 kilder, oppdatert to ganger daglig.
+**1. Gåri samler alt**
+Konserter, teater, mat, festivaler, familieaktiviteter, turer — 43 kilder i Bergen, oppdatert kl. 06 og 18 hver dag.
 
-**2. Folk oppdager**
-Bergensere, studenter, turister og familier finner arrangementer gjennom AI-søk, Google, kuraterte sider på gaari.no og vårt ukentlige nyhetsbrev.
+**2. Folk finner deg**
+Gjennom AI-søk, Google, 13 kuraterte sider på gaari.no og ukentlige nyhetsbrev. Mange oppdager ting de aldri ville søkt etter.
 
-**3. Vi sender dem til deg**
-Hvert arrangement linker direkte til din billettside eller nettside. Vi selger aldri billetter — vi sender publikum til deg.
+**3. Klikket går til deg**
+Hvert arrangement linker til din billettside. Gåri selger aldri billetter — vi sender publikum videre til deg.
 
 ### English
 
-**1. We collect**
-Everything happening in Bergen — concerts, theatre, family activities, festivals, tours and more. 43 sources, updated twice daily.
+**1. Gåri collects everything**
+Concerts, theatre, food, festivals, family activities, tours — 43 sources in Bergen, updated at 06:00 and 18:00 every day.
 
-**2. People discover**
-Locals, students, tourists and families find events through AI search, Google, curated pages on gaari.no and our weekly newsletter.
+**2. People find you**
+Through AI search, Google, 13 curated pages on gaari.no and weekly newsletters. Many discover things they'd never have searched for.
 
-**3. We send them to you**
-Every event links directly to your ticket page or website. We never sell tickets — we send audiences to you.
+**3. The click goes to you**
+Every event links to your ticket page. Gåri never sells tickets — we send audiences your way.
 
 **Design notes:**
 - Numbers: Large Barlow Condensed (48–64px), `--funkis-red` color
@@ -263,26 +269,24 @@ It's not charity. It's good business for everyone.
 
 ---
 
-## 7. Transparency: "Transparent alltid"
+## 7. Transparency: "Ingen skjulte triks"
 
 ### Norwegian
 ```
-Transparent alltid
+Ingen skjulte triks
 
-Alle fremhevede arrangementer er tydelig merket. Vi flytter
-aldri organisk innhold for å gjøre plass — fremhevet synlighet
-er en tilleggsposisjon, ikke en erstatning. Og du får alltid
-data på hva plasseringen ga deg.
+Fremhevede arrangementer er alltid tydelig merket.
+Du får alltid data på hva plasseringen ga deg.
+Ingen bindingstid i prøveperioden.
 ```
 
 ### English
 ```
-Transparent always
+No hidden tricks
 
-All promoted events are clearly labeled. We never push organic
-content aside to make room — promoted visibility is an additional
-position, not a replacement. And you always get data on what
-the placement delivered.
+Featured events are always clearly labeled.
+You always get data on what the placement delivered.
+No commitment during the trial period.
 ```
 
 **Design notes:**
@@ -292,115 +296,61 @@ the placement delivered.
 
 ---
 
-## 8. Early Bird: "Bli med tidlig"
+## 8+9. Early Bird + CTA (merged)
+
+Sections 8 and 9 are merged — urgency and action in the same space.
 
 ### Norwegian
 ```
-Bli med tidlig — 3 måneder gratis
+3 måneder gratis
 
-Vi leter etter de første arrangørene som vil teste fremhevet
-synlighet på Gåri. De som starter samarbeid før 1. juni 2026
-får de første tre månedene helt gratis — med full tilgang.
+Vi leter etter de første arrangørene i Bergen som vil
+prøve dette. Start før 1. juni 2026 — full tilgang,
+ingen bindingstid.
 
-Etter gratisperioden fortsetter du til ordinær pris,
-med full fleksibilitet.
+[Send e-post til gaari.bergen@proton.me]
 
-[Ta kontakt før 1. juni]
-```
+Eller send en rask melding:
 
-### English
-```
-Join early — 3 months free
-
-We're looking for the first organizers who want to try
-promoted visibility on Gåri. Those who start before
-June 1, 2026 get the first three months completely
-free — with full access.
-
-After the free period, you continue at the regular price,
-with full flexibility.
-
-[Get in touch before June 1]
-```
-
-**Design notes:**
-- Section background: `--funkis-red-subtle` (#F9EEEE) with `--funkis-red` accent (left border or top bar)
-- "3 måneder gratis" visually prominent
-- "Før 1. juni 2026" visible
-- CTA button: same `--funkis-red` style, scrolls to contact form
-- After June 1, 2026: replace with testimonial/case study section
-
----
-
-## 9. CTA Section
-
-### Norwegian
-```
-Vil du nå flere i Bergen?
-
-Send oss en e-post, så tar vi en prat om hvordan
-Gåri kan fungere for deg.
-
-[Send e-post]                    [gaari.bergen@proton.me]
-
-Eller fyll ut skjemaet under, så tar vi kontakt.
-
-[Navn / Name]
-[Organisasjon / Organization]
-[E-post / Email]
-[Kort melding / Short message (valgfritt)]
-
+[Navn]
+[Organisasjon]
+[E-post]
+[Melding (valgfritt)]
 [Send]
 ```
 
 ### English
 ```
-Want to reach more people in Bergen?
+3 months free
 
-Send us an email and we'll talk about how Gåri
-can work for you.
+We're looking for the first organizers in Bergen who want
+to try this. Start before June 1, 2026 — full access,
+no commitment.
 
-[Send email]                     [gaari.bergen@proton.me]
+[Email gaari.bergen@proton.me]
 
-Or fill out the form below and we'll be in touch.
+Or send a quick message:
 
 [Name]
 [Organization]
 [Email]
-[Short message (optional)]
-
+[Message (optional)]
 [Send]
 ```
 
 **Email button:** `mailto:gaari.bergen@proton.me?subject=Fremhevet synlighet på Gåri`
-
-**Contact form:** Insert into Supabase `organizer_inquiries` table:
-
-```sql
-create table organizer_inquiries (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  organization text not null,
-  email text not null,
-  message text,
-  status text default 'new' check (status in ('new', 'contacted', 'converted', 'declined')),
-  notes text,
-  created_at timestamptz default now()
-);
-
--- RLS: anon can insert, only service role can read/update
-create policy "Anyone can submit" on organizer_inquiries
-  for insert to anon with check (true);
-```
-
+**Contact form:** Insert into Supabase `organizer_inquiries` table (same schema as before).
 **Success message:** "Takk! Vi tar kontakt snart." / "Thanks! We'll be in touch soon."
+**Social proof near form:** Venue name pills (8 names) + "Samler allerede fra 43 kilder i Bergen"
 
 **Design notes:**
 - Section background: `--funkis-red-subtle` (#F9EEEE)
-- Title: Barlow Condensed, 28–32px
-- Email button: `--funkis-red` background, white text
-- Form inputs: standard Funkis styling (border, 44px height, Inter)
-- Submit button: `--funkis-red`
+- Red divider bar above "3 måneder gratis"
+- Email button: `--funkis-red` background, white text, equally prominent as form
+- Form: white card with `--shadow-sm`, lightweight feel
+- Honeypot spam protection (hidden `website` field)
+- `use:enhance` for seamless UX
+- After June 1, 2026: replace early bird text with testimonials
 
 ---
 
@@ -410,9 +360,9 @@ create policy "Anyone can submit" on organizer_inquiries
 
 ```html
 <title>For arrangører — Gåri</title>
-<meta name="description" content="Nå flere i Bergen med Gåri. Synlig i AI-søk, på Google og på 13 kuraterte landingssider. Fremhevet synlighet for arrangører." />
+<meta name="description" content="Nå flere i Bergen med Gåri. Synlig i AI-søk, på Google og på 13 kuraterte landingssider. 54% av nordmenn bruker KI-verktøy." />
 <meta property="og:title" content="For arrangører — Gåri" />
-<meta property="og:description" content="Når noen spør ChatGPT hva som skjer i Bergen, er det Gåri som blir sitert. Vi hjelper arrangører å nå flere." />
+<meta property="og:description" content="Arrangementene dine i ChatGPT-svar. Gåri samler alt som skjer i Bergen — og gjør det synlig i AI-søk, på Google og i ukentlige nyhetsbrev." />
 <meta property="og:image" content="/og/for-arrangorer.png" />
 ```
 
@@ -420,9 +370,9 @@ create policy "Anyone can submit" on organizer_inquiries
 
 ```html
 <title>For organizers — Gåri</title>
-<meta name="description" content="Reach more people in Bergen with Gåri. Visible in AI search, on Google and across 13 curated landing pages. Promoted visibility for organizers." />
+<meta name="description" content="Reach more people in Bergen with Gåri. Visible in AI search, on Google and across 13 curated landing pages. 54% of Norwegians use AI tools." />
 <meta property="og:title" content="For organizers — Gåri" />
-<meta property="og:description" content="When someone asks ChatGPT what's on in Bergen, Gåri is cited. We help organizers reach more people." />
+<meta property="og:description" content="Your events in ChatGPT answers. Gåri brings together everything happening in Bergen — and makes it visible in AI search, on Google and in weekly newsletters." />
 <meta property="og:image" content="/og/for-organizers.png" />
 ```
 

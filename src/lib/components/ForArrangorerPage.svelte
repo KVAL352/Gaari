@@ -15,6 +15,29 @@
 		'Bergen Kjøtt', 'Bjørgvin Blues Club'
 	];
 
+	// Expanded list for venue lookup (display names people would recognize)
+	const allVenues = [
+		'Grieghallen', 'Den Nationale Scene', 'KODE', 'USF Verftet',
+		'Bergen Bibliotek', 'Festspillene', 'Ole Bull Huset', 'Bergen Filharmoniske',
+		'Fløyen', 'Bergenfest', 'Bergen Kjøtt', 'Bjørgvin Blues Club',
+		'Cornerteateret', 'Det Vestnorske Teateret', 'BIT Teatergarasjen',
+		'Carte Blanche', 'Bergen Kunsthall', 'Litteraturhuset', 'Akvariet',
+		'Bymuseet', 'Museum Vest', 'Forum Scene', 'Colonialen', 'Råbrent',
+		'SK Brann', 'DNT Bergen', 'Beyond the Gates', 'Oseana',
+		'Det Akademiske Kvarter', 'Kulturhuset i Bergen', 'Nordnes Sjøbad',
+		'Media City Bergen', 'BEK', 'Bergen Filmklubb', 'Hulen',
+		'Madam Felle', 'Brettspillcafeen', 'VVV', 'Bergen Kammermusikkforening',
+		'Paint\'n Sip Bergen'
+	];
+
+	let venueSearch = $state('');
+	let addVenueStatus: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
+	let venueMatch = $derived(
+		venueSearch.length < 2
+			? null
+			: allVenues.find(v => v.toLowerCase().includes(venueSearch.toLowerCase())) ?? false
+	);
+
 	function trackEvent(name: string) {
 		if (typeof window !== 'undefined' && 'plausible' in window) {
 			(window as any).plausible(name);
@@ -39,6 +62,72 @@
 
 		return () => observer.disconnect();
 	});
+
+	// Chat animation
+	let phoneEl: HTMLElement | undefined = $state(undefined);
+	let chatPhase: 'idle' | 'typing' | 'sent' | 'thinking' | 'responding' | 'done' = $state('idle');
+	let typedLen = $state(0);
+	let aiLines = $state(0);
+	let chatAnimated = $state(false);
+
+	const chatUserMsg = $derived(
+		$lang === 'no' ? 'Hva skjer i Bergen denne helgen?' : "What's on in Bergen this weekend?"
+	);
+
+	$effect(() => {
+		if (!phoneEl) return;
+
+		const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (prefersReduced) {
+			chatPhase = 'done';
+			typedLen = chatUserMsg.length;
+			aiLines = 5;
+			return;
+		}
+
+		const phoneObserver = new IntersectionObserver(
+			(entries) => {
+				if (entries[0]?.isIntersecting && !chatAnimated) {
+					chatAnimated = true;
+					runChatAnimation();
+				}
+			},
+			{ threshold: 0.3 }
+		);
+
+		phoneObserver.observe(phoneEl);
+		return () => phoneObserver.disconnect();
+	});
+
+	async function runChatAnimation() {
+		await sleep(400);
+
+		chatPhase = 'typing';
+		for (let i = 0; i <= chatUserMsg.length; i++) {
+			typedLen = i;
+			await sleep(45 + Math.random() * 30);
+		}
+
+		await sleep(300);
+		chatPhase = 'sent';
+
+		await sleep(600);
+		chatPhase = 'thinking';
+		await sleep(1200);
+
+		chatPhase = 'responding';
+		for (let i = 1; i <= 5; i++) {
+			aiLines = i;
+			await sleep(400);
+		}
+
+		await sleep(200);
+		chatPhase = 'done';
+	}
+
+	function sleep(ms: number): Promise<void> {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	}
 </script>
 
 <!-- 1. Hero -->
@@ -70,21 +159,36 @@
 <section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-20">
 	<div class="mx-auto grid max-w-4xl items-center gap-10 md:grid-cols-[55%_45%]">
 		<div>
+			<p class="mb-3 text-[40px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-[56px]">
+				54%
+			</p>
 			<h2 class="mb-4 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
-				{$lang === 'no' ? 'Visste du dette?' : 'Did you know this?'}
+				{$lang === 'no' ? 'av nordmenn bruker KI-verktøy' : 'of Norwegians use AI tools'}
 			</h2>
 			<p class="mb-4 text-[var(--color-text-secondary)]">
 				{#if $lang === 'no'}
-					Når noen spør ChatGPT «hva skjer i Bergen denne helgen?», dukker arrangementene dine opp. Gåri er en av kildene AI-søkemotorene siterer — med lenke rett til arrangementet.
+					Norge er nummer 3 i verden for bruk av KI. Når noen i Bergen spør ChatGPT «hva skjer denne helgen?», jobber vi for at Gåri dukker opp som kilde — med kuraterte sider optimalisert for det folk faktisk spør om.
 				{:else}
-					When someone asks ChatGPT "what's happening in Bergen this weekend?", your events show up. Gåri is one of the sources AI search engines cite — with a link straight to the event.
+					Norway is number 3 in the world for AI usage. When someone in Bergen asks ChatGPT "what's on this weekend?", we work to make Gåri appear as a source — with curated pages optimized for what people actually ask about.
 				{/if}
 			</p>
-			<p class="mb-6 text-[var(--color-text-secondary)]">
+			<p class="mb-6 text-xs text-[var(--color-text-muted)]">
 				{#if $lang === 'no'}
-					De fleste arrangører vet ikke at dette skjer. Det er en helt ny kanal, og den vokser raskt.
+					<a href="https://www.ssb.no/teknologi-og-innovasjon/informasjons-og-kommunikasjonsteknologi-ikt/artikler/slik-bruker-nordmenn-kunstig-intelligens" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--color-text-secondary)]">SSB 2025</a>
+					·
+					<a href="https://www.mynewsdesk.com/no/microsoft-norge/pressreleases/norge-paa-pallen-i-global-ai-undersoekelse-3415347" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--color-text-secondary)]">Microsoft AI Diffusion Report 2025</a>
+					·
+					<a href="https://www.arbeidslivinorden.org/naeringslivet-oker-bruken-av-ai-verktoyer/" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--color-text-secondary)]">Arbeidsliv i Norden</a>
+					·
+					<a href="https://www.superlines.io/articles/chatgpt-statistics/" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--color-text-secondary)]">ChatGPT Statistics</a>
 				{:else}
-					Most organizers don't know this is happening. It's a completely new channel, and it's growing fast.
+					<a href="https://www.ssb.no/teknologi-og-innovasjon/informasjons-og-kommunikasjonsteknologi-ikt/artikler/slik-bruker-nordmenn-kunstig-intelligens" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--color-text-secondary)]">Statistics Norway 2025</a>
+					·
+					<a href="https://www.mynewsdesk.com/no/microsoft-norge/pressreleases/norge-paa-pallen-i-global-ai-undersoekelse-3415347" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--color-text-secondary)]">Microsoft AI Diffusion Report 2025</a>
+					·
+					<a href="https://www.arbeidslivinorden.org/naeringslivet-oker-bruken-av-ai-verktoyer/" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--color-text-secondary)]">Nordic Labour Journal</a>
+					·
+					<a href="https://www.superlines.io/articles/chatgpt-statistics/" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--color-text-secondary)]">ChatGPT Statistics</a>
 				{/if}
 			</p>
 			<!-- Mid-page CTA — peak motivation point -->
@@ -99,9 +203,10 @@
 			</a>
 		</div>
 
-		<!-- Phone mockup -->
+		<!-- Phone mockup (animated) -->
 		<div class="flex justify-center">
 			<div
+				bind:this={phoneEl}
 				class="relative w-full overflow-hidden rounded-[2rem] border-2 border-[var(--funkis-iron)] bg-[var(--color-bg-surface)]"
 				style="max-width: 280px; box-shadow: var(--shadow-lg);"
 			>
@@ -111,25 +216,57 @@
 				</div>
 
 				<!-- Chat messages -->
-				<div class="flex flex-col gap-3 px-4 pb-4">
-					<!-- User message (right-aligned, plaster bg) -->
-					<div class="flex justify-end">
-						<div class="rounded-2xl rounded-br-md bg-[var(--funkis-plaster)] px-3 py-2 text-[13px] text-[var(--color-text-primary)]" style="max-width: 85%;">
-							{$lang === 'no' ? 'Hva skjer i Bergen denne helgen?' : "What's on in Bergen this weekend?"}
+				<div class="flex flex-col gap-3 px-4 pb-4" style="min-height: 220px;">
+					{#if chatPhase !== 'idle'}
+						<!-- User typing / sent message -->
+						<div class="flex justify-end">
+							<div class="rounded-2xl rounded-br-md bg-[var(--funkis-plaster)] px-3 py-2 text-[13px] text-[var(--color-text-primary)]" style="max-width: 85%;">
+								{#if chatPhase === 'typing'}
+									{chatUserMsg.slice(0, typedLen)}<span class="chat-cursor">|</span>
+								{:else}
+									{chatUserMsg}
+								{/if}
+							</div>
 						</div>
-					</div>
+					{/if}
 
-					<!-- AI response (left-aligned, white bg) -->
-					<div class="flex items-start gap-2">
-						<div class="mt-1 h-6 w-6 shrink-0 rounded-full bg-[var(--funkis-granite)] ai-avatar"></div>
-						<div class="rounded-2xl rounded-tl-md border border-[var(--color-border-subtle)] bg-white px-3 py-2.5 text-[13px] text-[var(--color-text-primary)]">
-							<p class="mb-2">{$lang === 'no' ? 'Her er noen arrangementer i Bergen denne helgen:' : 'Here are some events in Bergen this weekend:'}</p>
-							<p class="mb-0.5">&#8226; Bergen Filharmoniske</p>
-							<p class="mb-0.5">&#8226; {$lang === 'no' ? 'Kunstutstilling' : 'Art exhibition'} KODE</p>
-							<p class="mb-2">&#8226; {$lang === 'no' ? 'Ølsmaking' : 'Beer tasting'} Bergen Kjøtt</p>
-							<p class="text-[11px] font-medium text-[var(--funkis-red)]">{$lang === 'no' ? 'Kilde' : 'Source'}: gaari.no</p>
+					{#if chatPhase === 'thinking'}
+						<!-- AI thinking dots -->
+						<div class="flex items-start gap-2">
+							<div class="mt-1 h-6 w-6 shrink-0 rounded-full bg-[var(--funkis-granite)] ai-avatar"></div>
+							<div class="rounded-2xl rounded-tl-md border border-[var(--color-border-subtle)] bg-white px-3 py-2.5">
+								<div class="flex gap-1">
+									<span class="thinking-dot" style="animation-delay: 0ms;">●</span>
+									<span class="thinking-dot" style="animation-delay: 200ms;">●</span>
+									<span class="thinking-dot" style="animation-delay: 400ms;">●</span>
+								</div>
+							</div>
 						</div>
-					</div>
+					{/if}
+
+					{#if chatPhase === 'responding' || chatPhase === 'done'}
+						<!-- AI response (progressive reveal) -->
+						<div class="flex items-start gap-2">
+							<div class="mt-1 h-6 w-6 shrink-0 rounded-full bg-[var(--funkis-granite)] ai-avatar"></div>
+							<div class="rounded-2xl rounded-tl-md border border-[var(--color-border-subtle)] bg-white px-3 py-2.5 text-[13px] text-[var(--color-text-primary)]">
+								{#if aiLines >= 1}
+									<p class="mb-2">{$lang === 'no' ? 'Her er noen arrangementer i Bergen denne helgen:' : 'Here are some events in Bergen this weekend:'}</p>
+								{/if}
+								{#if aiLines >= 2}
+									<p class="mb-0.5">&#8226; Bergen Filharmoniske</p>
+								{/if}
+								{#if aiLines >= 3}
+									<p class="mb-0.5">&#8226; {$lang === 'no' ? 'Kunstutstilling' : 'Art exhibition'} KODE</p>
+								{/if}
+								{#if aiLines >= 4}
+									<p class="mb-2">&#8226; {$lang === 'no' ? 'Ølsmaking' : 'Beer tasting'} Bergen Kjøtt</p>
+								{/if}
+								{#if aiLines >= 5}
+									<p class="text-[11px] font-medium text-[var(--funkis-red)]">{$lang === 'no' ? 'Kilde' : 'Source'}: gaari.no</p>
+								{/if}
+							</div>
+						</div>
+					{/if}
 				</div>
 
 				<!-- Input bar -->
@@ -143,28 +280,113 @@
 	</div>
 </section>
 
-<!-- 3. Social Proof — plaster bg, venue pills -->
+<!-- 3. Zero Setup — plaster bg -->
 <section class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-20">
 	<div class="mx-auto max-w-4xl text-center">
-		<p class="mb-2 text-[56px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-[72px]">43</p>
-		<h2 class="mb-4 text-xl font-bold font-[family-name:var(--font-display)]">
-			{$lang === 'no' ? 'kilder. Oppdatert to ganger daglig.' : 'sources. Updated twice daily.'}
+		<h2 class="mb-4 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
+			{$lang === 'no' ? 'Du trenger ikke gjøre noe' : "You don't need to do anything"}
 		</h2>
 		<p class="mx-auto mb-8 max-w-[640px] text-[var(--color-text-primary)]">
 			{#if $lang === 'no'}
-				Fra Grieghallen og DNS til Bergen Kjøtt og Bjørgvin Blues Club. Dine arrangementer er sannsynligvis allerede på Gåri.
+				Gåri er et system som finner arrangementene dine der du allerede legger dem ut — på nettsiden din, i billettplattformen, eller i kalenderen. Du trenger ikke endre arbeidsvanene dine. Alt skjer automatisk, to ganger daglig.
 			{:else}
-				From Grieghallen and DNS to Bergen Kjøtt and Bjørgvin Blues Club. Your events are probably already on Gåri.
+				Gåri is a system that finds your events where you already publish them — on your website, in your ticketing platform, or in your calendar. You don't need to change your workflow. Everything happens automatically, twice daily.
 			{/if}
 		</p>
-		<!-- Venue name pills -->
-		<div class="flex flex-wrap justify-center gap-2">
-			{#each venues as venue}
-				<span class="rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-2 text-[13px] text-[var(--color-text-secondary)] transition-all duration-200 hover:-translate-y-px hover:border-[var(--color-border-strong)]">
-					{venue}
-				</span>
-			{/each}
+
+		<!-- Venue lookup -->
+		<div class="mx-auto mb-8 max-w-sm">
+			<label for="venue-check" class="mb-2 block text-sm font-medium text-[var(--color-text-primary)]">
+				{$lang === 'no' ? 'Sjekk om du allerede er på Gåri:' : 'Check if you\'re already on Gåri:'}
+			</label>
+			<input
+				type="text"
+				id="venue-check"
+				bind:value={venueSearch}
+				placeholder={$lang === 'no' ? 'Skriv navnet på stedet ditt...' : 'Type your venue name...'}
+				class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-2.5 text-sm"
+				style="min-height: 44px;"
+			/>
+			{#if venueMatch}
+				<p class="mt-2 text-sm font-semibold text-[var(--funkis-green)]">
+					&#10003; {venueMatch} {$lang === 'no' ? 'er allerede på Gåri!' : 'is already on Gåri!'}
+				</p>
+			{:else if venueMatch === false}
+				<p class="mt-2 text-sm text-[var(--color-text-secondary)]">
+					{$lang === 'no'
+						? 'Fant ikke et treff — men det er helt gratis å bli lagt til. Vi ønsker å promotere det rike kulturlivet i Bergen. Legg inn nettsiden din, så sjekker vi om det er mulig å sette opp automatisk.'
+						: "Didn't find a match — but getting added is completely free. We want to promote Bergen's rich cultural life. Enter your website and we'll check if automatic setup is possible."}
+				</p>
+
+				{#if addVenueStatus === 'success'}
+					<p class="mt-3 text-sm font-semibold text-[var(--funkis-green)]">
+						&#10003; {$lang === 'no' ? 'Takk! Vi sjekker nettsiden og tar kontakt.' : "Thanks! We'll check your website and get back to you."}
+					</p>
+				{:else}
+					<form
+						method="POST"
+						action="?/contact"
+						use:enhance={({ formData }) => {
+							const venueUrl = formData.get('venue_url');
+							formData.set('message', `Ønsker å bli lagt til på Gåri. Nettside: ${venueUrl}`);
+							formData.delete('venue_url');
+							addVenueStatus = 'submitting';
+							return async ({ result }) => {
+								if (result.type === 'success') {
+									addVenueStatus = 'success';
+									trackEvent('for-arrangorer-add-venue');
+								} else {
+									addVenueStatus = 'error';
+								}
+							};
+						}}
+						class="mx-auto mt-3 flex max-w-sm flex-col gap-2"
+					>
+						<input type="hidden" name="name" value={venueSearch} />
+						<input type="hidden" name="organization" value={venueSearch} />
+						<!-- Honeypot -->
+						<div class="absolute -left-[9999px]" aria-hidden="true">
+							<input type="text" name="website" tabindex="-1" autocomplete="off" />
+						</div>
+
+						<input
+							type="url"
+							name="venue_url"
+							required
+							placeholder={$lang === 'no' ? 'https://dittspillested.no' : 'https://yourvenue.com'}
+							class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-sm"
+							style="min-height: 44px;"
+						/>
+						<input
+							type="email"
+							name="email"
+							required
+							placeholder={$lang === 'no' ? 'din@epost.no' : 'your@email.com'}
+							class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-sm"
+							style="min-height: 44px;"
+						/>
+						<button
+							type="submit"
+							disabled={addVenueStatus === 'submitting'}
+							class="rounded-xl bg-[var(--funkis-red)] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-70"
+							style="min-height: 44px;"
+						>
+							{#if addVenueStatus === 'submitting'}
+								{$lang === 'no' ? 'Sender...' : 'Sending...'}
+							{:else}
+								{$lang === 'no' ? 'Sjekk nettsiden min' : 'Check my website'}
+							{/if}
+						</button>
+						{#if addVenueStatus === 'error'}
+							<p class="text-sm text-red-600">
+								{$lang === 'no' ? 'Noe gikk galt. Prøv igjen.' : 'Something went wrong. Try again.'}
+							</p>
+						{/if}
+					</form>
+				{/if}
+			{/if}
 		</div>
+
 	</div>
 </section>
 
@@ -184,7 +406,7 @@
 			{#each [
 				{
 					num: '1',
-					title: $lang === 'no' ? 'Jeg samler alt' : 'I collect everything',
+					title: $lang === 'no' ? 'Gåri samler alt' : 'Gåri collects everything',
 					body: $lang === 'no'
 						? 'Konserter, teater, mat, festivaler, familieaktiviteter, turer — 43 kilder i Bergen, oppdatert kl. 06 og 18 hver dag.'
 						: 'Concerts, theatre, food, festivals, family activities, tours — 43 sources in Bergen, updated at 06:00 and 18:00 every day.'
@@ -200,8 +422,8 @@
 					num: '3',
 					title: $lang === 'no' ? 'Klikket går til deg' : 'The click goes to you',
 					body: $lang === 'no'
-						? 'Hvert arrangement linker til din billettside. Jeg selger aldri billetter — jeg sender publikum videre.'
-						: 'Every event links to your ticket page. I never sell tickets — I send audiences your way.'
+						? 'Hvert arrangement linker til din billettside. Gåri selger aldri billetter — vi sender publikum videre til deg.'
+						: 'Every event links to your ticket page. Gåri never sells tickets — we send audiences your way.'
 				}
 			] as step}
 				<div>
@@ -224,7 +446,7 @@
 			</h2>
 			<p class="flex items-baseline justify-center gap-2 text-[var(--color-text-primary)]">
 				<span class="text-[40px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-[56px]">13</span>
-				<span class="text-lg">{$lang === 'no' ? 'kuraterte sider — og mer' : 'curated pages — and more'}</span>
+				<span class="text-lg">{$lang === 'no' ? 'kuraterte sider bygget rundt søkevanene til folk i Bergen' : 'curated pages built around how people in Bergen search'}</span>
 			</p>
 		</div>
 
@@ -235,8 +457,8 @@
 				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Først på kuraterte sider' : 'First on curated pages'}</h3>
 				<p class="text-sm text-[var(--color-text-secondary)]">
 					{$lang === 'no'
-						? 'Arrangementene dine vises øverst på sider som «Denne helgen» og «Konserter denne uken». 13 sider, tusenvis av besøk. Alltid merket som fremhevet.'
-						: 'Your events appear at the top of pages like "This Weekend" and "Concerts This Week". 13 pages, thousands of visits. Always labeled as featured.'}
+						? 'Arrangementene dine vises øverst på sider som «Denne helgen» og «Konserter denne uken». 13 sider som vokser jevnt. Alltid merket som fremhevet.'
+						: 'Your events appear at the top of pages like "This Weekend" and "Concerts This Week". 13 pages growing steadily. Always labeled as featured.'}
 				</p>
 			</div>
 
@@ -315,8 +537,8 @@
 				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Arrangementene dine i AI-svar' : 'Your events in AI answers'}</h3>
 				<p class="text-sm text-[var(--color-text-secondary)]">
 					{$lang === 'no'
-						? 'Når folk spør ChatGPT om Bergen, dukker du opp. Gåri er en av kildene som blir sitert — en kanal de fleste arrangører ikke vet om ennå.'
-						: 'When people ask ChatGPT about Bergen, you show up. Gåri is one of the sources that gets cited — a channel most organizers don\'t know about yet.'}
+						? 'Vi optimaliserer for at Gåri skal dukke opp når folk spør ChatGPT om Bergen — en kanal de fleste arrangører ikke vet om ennå.'
+						: 'We optimize for Gåri to appear when people ask ChatGPT about Bergen — a channel most organizers don\'t know about yet.'}
 				</p>
 			</div>
 			<!-- Nyhetsbrev card -->
@@ -427,9 +649,9 @@
 			</h2>
 			<p class="mx-auto max-w-[600px] text-[var(--funkis-steel)]">
 				{#if $lang === 'no'}
-					Jeg leter etter de første arrangørene i Bergen som vil prøve dette. Start før 1. juni 2026 — full tilgang, ingen bindingstid.
+					Vi leter etter de første arrangørene i Bergen som vil prøve dette. Start før 1. juni 2026 — full tilgang, ingen bindingstid.
 				{:else}
-					I'm looking for the first organizers in Bergen who want to try this. Start before June 1, 2026 — full access, no commitment.
+					We're looking for the first organizers in Bergen who want to try this. Start before June 1, 2026 — full access, no commitment.
 				{/if}
 			</p>
 		</div>
@@ -456,7 +678,7 @@
 		{#if contactStatus === 'success'}
 			<div role="status" class="mx-auto max-w-md rounded-xl border border-green-200 bg-green-50 p-6 text-center">
 				<p class="text-lg font-semibold text-green-800">
-					{$lang === 'no' ? 'Takk! Jeg tar kontakt snart.' : "Thanks! I'll be in touch soon."}
+					{$lang === 'no' ? 'Takk! Vi tar kontakt snart.' : "Thanks! We'll be in touch soon."}
 				</p>
 			</div>
 		{:else}
@@ -535,7 +757,7 @@
 						id="contact-message"
 						name="message"
 						rows="2"
-						placeholder={$lang === 'no' ? 'Fortell meg litt om hva dere arrangerer...' : 'Tell me a bit about what you organize...'}
+						placeholder={$lang === 'no' ? 'Fortell oss litt om hva dere arrangerer...' : 'Tell us a bit about what you organize...'}
 						class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2.5 text-sm"
 					></textarea>
 				</div>
@@ -616,5 +838,25 @@
 	}
 	.ai-avatar {
 		animation: ai-breathe 3s ease-in-out infinite;
+	}
+
+	.chat-cursor {
+		animation: blink 0.7s step-end infinite;
+		font-weight: normal;
+		color: var(--color-text-primary);
+	}
+	@keyframes blink {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0; }
+	}
+
+	.thinking-dot {
+		font-size: 8px;
+		color: var(--funkis-granite);
+		animation: dot-bounce 1.4s ease-in-out infinite;
+	}
+	@keyframes dot-bounce {
+		0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+		40% { opacity: 1; transform: translateY(-4px); }
 	}
 </style>
