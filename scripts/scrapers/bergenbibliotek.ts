@@ -112,6 +112,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (seen.has(href)) continue;
 		seen.add(href);
 
+		// Skip filter/category pages — these are branch listings, not events
+		if (href.includes('/arrangement/filter/')) {
+			continue;
+		}
+
 		// Title from h2
 		const title = $el.find('h2').first().text().trim();
 		if (!title) continue;
