@@ -5,16 +5,40 @@
 	import { getCanonicalUrl } from '$lib/seo';
 	import { supabase } from '$lib/supabase';
 	import { slugify } from '$lib/utils';
-	import { Upload, AlertTriangle } from 'lucide-svelte';
+	import { Upload, AlertTriangle, CalendarPlus, Globe } from 'lucide-svelte';
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/submit`));
 
+	// Which form to show: null = choice screen, 'event' = single event, 'website' = website form
+	let mode = $state<'event' | 'website' | null>(null);
+
+	// Event form state
 	let submitted = $state(false);
 	let submitting = $state(false);
 	let submitError = $state('');
 	let imagePreview = $state('');
 	let imageWarning = $state('');
 	let processedBlob = $state<Blob | null>(null);
+
+	// Website form state
+	let websiteSubmitted = $state(false);
+	let websiteSubmitting = $state(false);
+	let websiteError = $state('');
+
+	function goBack() {
+		mode = null;
+		submitError = '';
+		websiteError = '';
+	}
+
+	function isFacebookUrl(url: string): boolean {
+		try {
+			const hostname = new URL(url).hostname.toLowerCase().replace(/^www\./, '');
+			return hostname === 'facebook.com' || hostname === 'fb.com' || hostname.endsWith('.facebook.com');
+		} catch {
+			return /facebook\.com|fb\.com/i.test(url);
+		}
+	}
 
 	function normalizeUrl(url: string): string | null {
 		if (!url) return null;
@@ -202,6 +226,51 @@
 
 		submitted = true;
 	}
+
+	async function handleWebsiteSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		websiteSubmitting = true;
+		websiteError = '';
+
+		const form = e.target as HTMLFormElement;
+		const fd = new FormData(form);
+
+		const url = (fd.get('website-url') as string).trim();
+
+		if (isFacebookUrl(url)) {
+			websiteError = $lang === 'no'
+				? 'Vi kan dessverre ikke hente arrangementer fra Facebook. Du kan i stedet legge inn arrangementer enkeltvis — gå tilbake og velg «Enkeltarrangement».'
+				: 'Unfortunately we cannot import events from Facebook. You can add events individually instead — go back and choose "Single event".';
+			websiteSubmitting = false;
+			return;
+		}
+
+		const name = (fd.get('contact-name') as string).trim();
+		const email = (fd.get('contact-email') as string).trim();
+		const note = (fd.get('website-note') as string)?.trim() || '';
+
+		const message = note
+			? `Nettside-innsendelse\n\n${note}`
+			: 'Nettside-innsendelse';
+
+		const { error } = await supabase.from('organizer_inquiries').insert({
+			name,
+			organization: url,
+			email,
+			message
+		});
+
+		websiteSubmitting = false;
+
+		if (error) {
+			websiteError = $lang === 'no'
+				? 'Noe gikk galt. Prøv igjen.'
+				: 'Something went wrong. Please try again.';
+			return;
+		}
+
+		websiteSubmitted = true;
+	}
 </script>
 
 <svelte:head>
@@ -220,11 +289,112 @@
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">
-	<p class="mb-8 text-sm text-[var(--color-text-secondary)]">
-		{$lang === 'no' ? 'Alle innsendte arrangementer gjennomgås før publisering.' : 'All submitted events are reviewed before publishing.'}
-	</p>
 
-	{#if submitted}
+	{#if mode === null && !submitted && !websiteSubmitted}
+		<!-- Choice screen -->
+		<p class="mb-8 text-sm text-[var(--color-text-secondary)]">
+			{$t('submitDescription')}
+		</p>
+
+		<div class="grid gap-4 sm:grid-cols-2">
+			<button
+				onclick={() => mode = 'event'}
+				class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-[var(--color-border)] p-8 text-center transition-all hover:border-[var(--color-accent)] hover:shadow-md"
+			>
+				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] transition-colors group-hover:bg-[var(--color-accent)]/20">
+					<CalendarPlus size={24} />
+				</div>
+				<span class="text-lg font-semibold">{$t('submitChoiceSingle')}</span>
+				<span class="text-sm text-[var(--color-text-secondary)]">{$t('submitChoiceSingleDesc')}</span>
+			</button>
+
+			<button
+				onclick={() => mode = 'website'}
+				class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-[var(--color-border)] p-8 text-center transition-all hover:border-[var(--color-accent)] hover:shadow-md"
+			>
+				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] transition-colors group-hover:bg-[var(--color-accent)]/20">
+					<Globe size={24} />
+				</div>
+				<span class="text-lg font-semibold">{$t('submitChoiceWebsite')}</span>
+				<span class="text-sm text-[var(--color-text-secondary)]">{$t('submitChoiceWebsiteDesc')}</span>
+			</button>
+		</div>
+
+	{:else if mode === 'website' && !websiteSubmitted}
+		<!-- Website form -->
+		<button
+			onclick={goBack}
+			class="mb-6 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
+		>
+			← {$t('back')}
+		</button>
+
+		<h2 class="mb-2 text-xl font-bold">{$t('submitChoiceWebsite')}</h2>
+		<p class="mb-8 text-sm text-[var(--color-text-secondary)]">
+			{$t('submitChoiceWebsiteDesc')}
+		</p>
+
+		<form onsubmit={handleWebsiteSubmit} class="space-y-6">
+			<div>
+				<label for="website-url" class="mb-1 block text-sm font-medium">{$t('websiteUrl')} *</label>
+				<input id="website-url" name="website-url" type="url" required aria-required="true"
+					placeholder={$t('websiteUrlPlaceholder')}
+					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
+			</div>
+
+			<div>
+				<label for="contact-name" class="mb-1 block text-sm font-medium">{$t('contactName')} *</label>
+				<input id="contact-name" name="contact-name" type="text" required aria-required="true"
+					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
+			</div>
+
+			<div>
+				<label for="contact-email" class="mb-1 block text-sm font-medium">{$t('contactEmail')} *</label>
+				<input id="contact-email" name="contact-email" type="email" required aria-required="true"
+					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
+			</div>
+
+			<div>
+				<label for="website-note" class="mb-1 block text-sm font-medium">{$t('websiteNote')}</label>
+				<textarea id="website-note" name="website-note" rows="3"
+					placeholder={$t('websiteNotePlaceholder')}
+					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20"></textarea>
+			</div>
+
+			<p class="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+				<AlertTriangle size={16} class="shrink-0" />
+				{$t('websiteNoFacebook')}
+			</p>
+
+			{#if websiteError}
+				<p class="text-sm text-red-600" role="alert">{websiteError}</p>
+			{/if}
+
+			<button
+				type="submit"
+				disabled={websiteSubmitting}
+				class="w-full rounded-xl bg-[var(--color-accent)] py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-70"
+			>
+				{websiteSubmitting ? ($lang === 'no' ? 'Sender inn...' : 'Submitting...') : $t('submit')}
+			</button>
+		</form>
+
+	{:else if websiteSubmitted}
+		<!-- Website success -->
+		<div class="rounded-2xl bg-[var(--color-accent)] p-8 text-center text-white shadow-lg">
+			<p class="text-2xl font-bold">
+				{$lang === 'no' ? 'Takk!' : 'Thank you!'}
+			</p>
+			<p class="mt-2 text-white/85">
+				{$t('websiteSubmitted')}
+			</p>
+			<a href="/{$lang}" class="mt-6 inline-block rounded-full bg-[var(--color-bg-surface)] px-6 py-2.5 text-sm font-semibold text-[var(--color-accent)] transition-colors hover:bg-[var(--color-surface)]">
+				← {$lang === 'no' ? 'Tilbake til arrangementer' : 'Back to events'}
+			</a>
+		</div>
+
+	{:else if submitted}
+		<!-- Event success -->
 		<div class="rounded-2xl bg-[var(--color-accent)] p-8 text-center text-white shadow-lg">
 			<p class="text-2xl font-bold">
 				{$lang === 'no' ? 'Takk!' : 'Thank you!'}
@@ -236,7 +406,20 @@
 				← {$lang === 'no' ? 'Tilbake til arrangementer' : 'Back to events'}
 			</a>
 		</div>
+
 	{:else}
+		<!-- Single event form -->
+		<button
+			onclick={goBack}
+			class="mb-6 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
+		>
+			← {$t('back')}
+		</button>
+
+		<p class="mb-8 text-sm text-[var(--color-text-secondary)]">
+			{$lang === 'no' ? 'Alle innsendte arrangementer gjennomgås før publisering.' : 'All submitted events are reviewed before publishing.'}
+		</p>
+
 		<form onsubmit={handleSubmit} class="space-y-6">
 			<!-- Title NO -->
 			<div>
@@ -343,13 +526,13 @@
 			</div>
 
 			<!-- Submitter email -->
-		<div>
-			<label for="submitter-email" class="mb-1 block text-sm font-medium">{$t('submitterEmail')}</label>
-			<input id="submitter-email" name="submitter-email" type="email" placeholder={$t('submitterEmailPlaceholder')}
-				class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
-		</div>
+			<div>
+				<label for="submitter-email" class="mb-1 block text-sm font-medium">{$t('submitterEmail')}</label>
+				<input id="submitter-email" name="submitter-email" type="email" placeholder={$t('submitterEmailPlaceholder')}
+					class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:border-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-primary)]/20" />
+			</div>
 
-		<!-- Image upload -->
+			<!-- Image upload -->
 			<div>
 				<p class="mb-1 block text-sm font-medium">
 					{$lang === 'no' ? 'Bilde (valgfritt)' : 'Image (optional)'}

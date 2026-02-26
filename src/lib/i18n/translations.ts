@@ -116,6 +116,24 @@ export const translations = {
 		submitterEmailPlaceholder: 'For tilbakemelding hvis arrangementet ikke godkjennes',
 		submit: 'Send inn',
 
+		// Submit — choice screen
+		submitChoiceSingle: 'Enkeltarrangement',
+		submitChoiceSingleDesc: 'Legg til ett arrangement manuelt',
+		submitChoiceWebsite: 'Nettside med kalender',
+		submitChoiceWebsiteDesc: 'Send oss nettsiden din — vi setter opp automatisk henting av arrangementer. Helt gratis.',
+
+		// Submit — website form
+		websiteUrl: 'Nettside-URL',
+		websiteUrlPlaceholder: 'https://dittsted.no/program',
+		contactName: 'Kontaktperson',
+		contactEmail: 'E-post',
+		websiteNote: 'Kommentar (valgfritt)',
+		websiteNotePlaceholder: 'F.eks. «arrangementer ligger under /program» eller «vi bruker Ticketmaster»',
+		websiteNoFacebook: 'Facebook-sider kan dessverre ikke hentes automatisk.',
+		websiteFacebookError: 'Vi kan dessverre ikke hente arrangementer fra Facebook. Du kan i stedet legge inn arrangementer enkeltvis — gå tilbake og velg «Enkeltarrangement».',
+		websiteSubmitted: 'Takk! Vi ser på nettsiden din og tar kontakt.',
+		back: 'Tilbake',
+
 		// About
 		aboutTitle: 'Om Gåri',
 		aboutText: 'Gåri samler alle arrangementer i Bergen på ett sted — fra store konserter til små nabolagshendelser. Navnet kommer fra bergensk: «Ke\u2019 det går i?» betyr «Hva skjer?»',
@@ -265,6 +283,24 @@ export const translations = {
 		submitterEmail: 'Your email (optional)',
 		submitterEmailPlaceholder: 'For feedback if your event is not approved',
 		submit: 'Submit',
+
+		// Submit — choice screen
+		submitChoiceSingle: 'Single event',
+		submitChoiceSingleDesc: 'Add one event manually',
+		submitChoiceWebsite: 'Website with calendar',
+		submitChoiceWebsiteDesc: 'Send us your website — we\'ll set up automatic event imports. Completely free.',
+
+		// Submit — website form
+		websiteUrl: 'Website URL',
+		websiteUrlPlaceholder: 'https://yourvenue.no/events',
+		contactName: 'Contact name',
+		contactEmail: 'Email',
+		websiteNote: 'Note (optional)',
+		websiteNotePlaceholder: 'E.g. "events are on /program" or "we use Ticketmaster"',
+		websiteNoFacebook: 'Facebook pages cannot be imported automatically.',
+		websiteFacebookError: 'Unfortunately we cannot import events from Facebook. You can add events individually instead — go back and choose "Single event".',
+		websiteSubmitted: 'Thank you! We\'ll review your website and get in touch.',
+		back: 'Back',
 
 		aboutTitle: 'About Gåri',
 		aboutText: 'Gåri gathers all events in Bergen in one place — from big concerts to small neighbourhood happenings. The name comes from the Bergen dialect: «Ke\u2019 det går i?» means «What\u2019s going on?»',
