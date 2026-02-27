@@ -157,7 +157,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - **Step 1 (When?)** — Always visible. Pills: I dag, I morgen, Denne helgen, Denne uken, Velg dato (opens inline MiniCalendar)
 - **Steps 2–5** — Slide in after a date is selected (progressive disclosure)
 - **Step 2 (Time)** — Multi-select pills: Morgen (6–12), Dagtid (12–17), Kveld (17–22), Natt (22–6)
-- **Step 3 (Who)** — Single-select pills: Alle, Familie & Barn, Studenter, 18+, Turister
+- **Step 3 (Who)** — Single-select pills: Familie, Ungdom (13-18, excludes 18+/nightlife/food, matches title+description keywords), Voksen, Student, 18+, Turist
 - **Step 4 (What)** — Multi-select category pills (first 5 shown, expandable)
 - **Step 5 (Where & Price)** — Bydel + price dropdowns, inline within the progressive flow (gated by date selection). No separate toggle.
 - **FilterBar is hidden** from the homepage when EventDiscovery is active (a date is selected). EventDiscovery is the sole filter UI on the homepage.
