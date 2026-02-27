@@ -47,12 +47,28 @@ export default ts.config(
 		},
 	},
 	{
+		// Scripts-specific overrides (scrapers use patterns that trigger false positives)
+		files: ['scripts/**/*.ts'],
+		rules: {
+			'@typescript-eslint/no-explicit-any': 'off',
+			'@typescript-eslint/no-unused-vars': ['warn', {
+				argsIgnorePattern: '^_',
+				varsIgnorePattern: '^_',
+			}],
+			// Counter initialization (`let found = 0`) triggers false positives
+			'no-useless-assignment': 'off',
+			// Intentional control char stripping in scrapers (JSON-LD cleanup)
+			'no-control-regex': 'off',
+		},
+	},
+	{
 		ignores: [
 			'build/',
 			'.svelte-kit/',
+			'.vercel/',
 			'dist/',
 			'node_modules/',
-			'scripts/',
+			'scripts/node_modules/',
 		],
 	}
 );

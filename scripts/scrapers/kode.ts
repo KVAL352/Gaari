@@ -80,7 +80,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	const events: KODEEvent[] = json.result || [];
 	console.log(`[${SOURCE}] Found ${events.length} upcoming events`);
 
-	let found = events.length;
+	const found = events.length;
 	let inserted = 0;
 
 	for (const event of events) {

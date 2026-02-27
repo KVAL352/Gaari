@@ -100,7 +100,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	const eventSummaries = heroContent.filter(e => e.type === 'event');
 	console.log(`[${SOURCE}] Found ${eventSummaries.length} upcoming events`);
 
-	let found = eventSummaries.length;
+	const found = eventSummaries.length;
 	let inserted = 0;
 
 	// Step 2: For each event, check if exists, then fetch detail page

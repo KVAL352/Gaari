@@ -129,7 +129,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`[${SOURCE}] Fetched ${productions.size} production details`);
 
 	// Step 3: Insert events
-	let found = future.length;
+	const found = future.length;
 	let inserted = 0;
 
 	for (const event of future) {

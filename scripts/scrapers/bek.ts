@@ -62,7 +62,7 @@ function extractDate(text: string, postYear: number): { year: number; month: num
  * Extract time from content. Patterns: "kl. 19:00", "19:00–23:00", "kl 14:00-18:00"
  */
 function extractTime(text: string): { startHour: number; startMin: number; endHour?: number; endMin?: number } | null {
-	const timeMatch = text.match(/(?:kl\.?\s*)?(\d{1,2})[:.:](\d{2})\s*[–\-]\s*(\d{1,2})[:.:](\d{2})/);
+	const timeMatch = text.match(/(?:kl\.?\s*)?(\d{1,2})[:.:](\d{2})\s*[–-]\s*(\d{1,2})[:.:](\d{2})/);
 	if (timeMatch) {
 		return {
 			startHour: parseInt(timeMatch[1]),

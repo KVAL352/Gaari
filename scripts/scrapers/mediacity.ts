@@ -166,7 +166,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	// Fetch listing page once to map titles → detail URLs
 	const detailMap = await fetchEventDetailUrls();
 
-	let found = futureEvents.length;
+	const found = futureEvents.length;
 	let inserted = 0;
 
 	for (const event of futureEvents) {

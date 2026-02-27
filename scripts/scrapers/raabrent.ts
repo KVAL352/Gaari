@@ -108,7 +108,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 	console.log(`[${SOURCE}] Found ${products.length} upcoming courses`);
 
-	let found = products.length;
+	const found = products.length;
 	let inserted = 0;
 
 	for (const product of products) {

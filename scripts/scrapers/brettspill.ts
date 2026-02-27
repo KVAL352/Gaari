@@ -34,7 +34,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	const futureEvents = events.filter(e => new Date(e.time) > now);
 	console.log(`[${SOURCE}] Found ${futureEvents.length} upcoming events`);
 
-	let found = futureEvents.length;
+	const found = futureEvents.length;
 	let inserted = 0;
 
 	for (const event of futureEvents) {

@@ -86,7 +86,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (await deleteEventByUrl(eventUrl)) console.log(`  - Removed sold-out production: ${prodId}`);
 	}
 
-	let found = productions.size;
+	const found = productions.size;
 	let inserted = 0;
 
 	for (const [, perfs] of productions) {

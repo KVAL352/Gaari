@@ -29,7 +29,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	const articles = $('article.eventlist-event--upcoming');
 	console.log(`[${SOURCE}] Found ${articles.length} upcoming events`);
 
-	let found = articles.length;
+	const found = articles.length;
 	let inserted = 0;
 
 	for (let i = 0; i < articles.length; i++) {

@@ -72,7 +72,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	const events = json.data?.bookable_events || [];
 	console.log(`[${SOURCE}] Found ${events.length} upcoming Bergen events`);
 
-	let found = events.length;
+	const found = events.length;
 	let inserted = 0;
 
 	for (const event of events) {

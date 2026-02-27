@@ -86,7 +86,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`[${SOURCE}] Found ${events.length} events`);
 
 	const now = new Date();
-	let found = events.length;
+	const found = events.length;
 	let inserted = 0;
 
 	for (const event of events) {

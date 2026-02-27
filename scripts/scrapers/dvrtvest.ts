@@ -138,7 +138,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	}
 
 	// Step 3: Insert events
-	let found = allEvents.length;
+	const found = allEvents.length;
 	let inserted = 0;
 
 	for (const event of allEvents) {

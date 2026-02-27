@@ -12,8 +12,6 @@
 		"scrape:bergenlive": "cd scripts && npx tsx scrape.ts bergenlive",
 		"scrape:visitbergen": "cd scripts && npx tsx scrape.ts visitbergen",
 		"scrape:bergenkommune": "cd scripts && npx tsx scrape.ts bergenkommune",
-		"scrape:kulturikveld": "cd scripts && npx tsx scrape.ts kulturikveld",
-		"scrape:barnasnorge": "cd scripts && npx tsx scrape.ts barnasnorge",
 		"scrape:studentbergen": "cd scripts && npx tsx scrape.ts studentbergen",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
@@ -24,7 +22,6 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
-		"@sveltejs/adapter-auto": "^4.0.0",
 		"@sveltejs/adapter-vercel": "^6.3.2",
 		"@sveltejs/kit": "^2.21.0",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",

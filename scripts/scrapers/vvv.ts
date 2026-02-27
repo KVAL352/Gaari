@@ -67,7 +67,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		let endTime: string | undefined;
 
 		if (timeText) {
-			const timeMatch = timeText.match(/(\d{1,2}:\d{2})\s*[–\-]\s*(\d{1,2}:\d{2})/);
+			const timeMatch = timeText.match(/(\d{1,2}:\d{2})\s*[–-]\s*(\d{1,2}:\d{2})/);
 			if (timeMatch) {
 				startTime = timeMatch[1].padStart(5, '0');
 				endTime = timeMatch[2].padStart(5, '0');
