@@ -13,6 +13,7 @@
 	import CalendarDropdown from '$lib/components/CalendarDropdown.svelte';
 	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquare } from 'lucide-svelte';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
+	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 
 	let { data } = $props();
 	let event: GaariEvent = $derived(data.event);
@@ -169,6 +170,11 @@
 			<p class="whitespace-pre-line">{description}</p>
 		</div>
 	</section>
+
+	<!-- Newsletter CTA -->
+	<div class="mb-8">
+		<NewsletterCTA id="event-detail" variant="card" />
+	</div>
 
 	<!-- Suggest correction -->
 	<section class="mb-12">

@@ -4,6 +4,23 @@
 	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems } from '$lib/seo';
 	import EventGrid from '$lib/components/EventGrid.svelte';
 	import LoadMore from '$lib/components/LoadMore.svelte';
+	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
+
+	const collectionCTAHeadings: Record<string, { no: string; en: string }> = {
+		'denne-helgen': { no: 'Få helgens beste tips hver torsdag', en: 'Get weekend picks every Thursday' },
+		'this-weekend': { no: 'Få helgens beste tips hver torsdag', en: 'Get weekend picks every Thursday' },
+		'i-kveld': { no: 'Gå aldri tom for kveldsplaner', en: 'Never run out of evening plans' },
+		'today-in-bergen': { no: 'Få daglige tips rett i innboksen', en: 'Get daily picks in your inbox' },
+		'i-dag': { no: 'Få daglige tips rett i innboksen', en: 'Get daily picks in your inbox' },
+		'gratis': { no: 'Finn gratisopplevelser hver uke', en: 'Find free events every week' },
+		'free-things-to-do-bergen': { no: 'Finn gratisopplevelser hver uke', en: 'Find free events every week' },
+		'familiehelg': { no: 'Aldri gå tom for familieaktiviteter', en: 'Never run out of family activities' },
+		'konserter': { no: 'Få ukas konserttips hver torsdag', en: 'Get concert picks every Thursday' },
+		'studentkveld': { no: 'Studenttips rett i innboksen', en: 'Student picks in your inbox' },
+		'regndagsguide': { no: 'Få tips til ting å gjøre i Bergen', en: 'Get Bergen activity tips weekly' },
+		'sentrum': { no: 'Få tips til ting å gjøre i sentrum', en: 'Get city centre event tips' },
+		'voksen': { no: 'Kulturelle tips for voksne, hver torsdag', en: 'Cultural picks for adults, every Thursday' },
+	};
 
 	let { data } = $props();
 
@@ -91,6 +108,17 @@
 		</div>
 	{/if}
 </div>
+
+<!-- Newsletter CTA -->
+{#if data.events.length > 0}
+<div class="mx-auto max-w-7xl px-4 pt-4">
+	<NewsletterCTA
+		id="collection"
+		variant="card"
+		heading={collectionCTAHeadings[data.collection.slug]}
+	/>
+</div>
+{/if}
 
 {#if editorial.length > 0 || faqItems.length > 0}
 <section class="mx-auto max-w-7xl px-4 pb-16 pt-8 border-t border-[var(--color-border)]">

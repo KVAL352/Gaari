@@ -3,6 +3,7 @@
 	import { lang, t } from '$lib/i18n';
 	import { generateOrganizationJsonLd, generateFaqJsonLd, getFaqItems, getCanonicalUrl } from '$lib/seo';
 	import { Mail } from 'lucide-svelte';
+	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/about`));
 	let orgJsonLd = generateOrganizationJsonLd();
@@ -83,43 +84,10 @@
 
 	<!-- Newsletter -->
 	<section class="mb-8">
-		<h2 class="mb-3 text-xl font-semibold">
+		<h2 class="mb-4 text-xl font-semibold">
 			{$lang === 'no' ? 'Nyhetsbrev' : 'Newsletter'}
 		</h2>
-		<p class="mb-4 text-[var(--color-text-secondary)]">
-			{$lang === 'no'
-				? 'Få ukentlige tips — rett i innboksen.'
-				: 'Weekly tips — straight to your inbox.'}
-		</p>
-		<form
-			action="https://assets.mailerlite.com/jsonp/2147587/forms/180557317318641022/subscribe"
-			method="post"
-			target="_blank"
-			class="flex max-w-md flex-col gap-2 sm:flex-row"
-		>
-			<label for="about-email" class="sr-only">
-				{$lang === 'no' ? 'E-postadresse' : 'Email address'}
-			</label>
-			<input
-				type="email"
-				name="fields[email]"
-				id="about-email"
-				required
-				autocomplete="email"
-				placeholder={$lang === 'no' ? 'Din e-post' : 'Your email'}
-				class="flex-1 rounded-lg border border-[var(--color-border)] px-3 text-sm"
-				style="height: 44px;"
-			/>
-			<input type="hidden" name="ml-submit" value="1" />
-			<input type="hidden" name="anticsrf" value="true" />
-			<button
-				type="submit"
-				class="rounded-lg bg-[var(--funkis-red)] px-5 text-sm font-semibold text-white hover:opacity-90"
-				style="height: 44px;"
-			>
-				{$lang === 'no' ? 'Abonner' : 'Subscribe'}
-			</button>
-		</form>
+		<NewsletterCTA id="about" variant="card" />
 	</section>
 
 	<section>

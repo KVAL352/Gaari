@@ -32,7 +32,8 @@ export const translations = {
 		allPrices: 'Alle priser',
 		allAudiences: 'Alle arrangementer',
 		free: 'Gratis',
-		paid: 'Betalt',
+		likelyFree: 'Trolig gratis',
+		paid: 'Koster penger',
 
 		// Audience options
 		touristHighlights: 'Turisthøydepunkter',
@@ -157,10 +158,12 @@ export const translations = {
 		skipToEvents: 'Hopp til arrangementer',
 
 		// EventDiscovery
+		findEvents: 'Finn arrangementer',
 		whenLabel: 'Når?',
+		categoryLabel: 'Kategori',
 		timeLabel: 'Tid',
-		whoLabel: 'Hvem',
-		whatLabel: 'Hva',
+		whoLabel: 'Hvem er du?',
+		whatLabel: 'Hva vil du oppleve?',
 		morning: 'Morgen',
 		daytime: 'Dagtid',
 		evening: 'Kveld',
@@ -171,14 +174,25 @@ export const translations = {
 		tourists: 'Turister',
 		students: 'Studenter',
 		moreCategories: 'til',
-		whereAndPrice: 'Hvor & Pris',
+		whereAndPrice: 'Hvor',
+		whereLabel: 'Hvor i Bergen?',
+		resetFilters: 'Nullstill filtre',
+		removeFilter: 'Fjern filter',
+		arrangementer: 'arrangementer',
 		eventDiscovery: 'Oppdag arrangementer',
 
 		// Collections
 		seeAllEvents: 'Se alle arrangementer',
 
 		// Event card
-		readMore: 'Les mer'
+		readMore: 'Les mer',
+
+		// Newsletter CTA
+		nlHeading: 'Nyhetsbrev fra Gåri',
+		nlSubtext: 'Kuratert fra 44 kilder. En e-post, hver torsdag.',
+		nlMicrocopy: 'Gratis — ingen spam. Kun det beste fra Bergen.',
+		nlPlaceholder: 'Din e-post',
+		nlSubscribe: 'Abonner'
 	},
 	en: {
 		siteName: 'Gåri',
@@ -209,7 +223,8 @@ export const translations = {
 		allPrices: 'All Prices',
 		allAudiences: 'All Events',
 		free: 'Free',
-		paid: 'Paid',
+		likelyFree: 'Likely free',
+		paid: 'Costs money',
 
 		touristHighlights: 'Tourist Highlights',
 		studentDeals: 'Student Deals',
@@ -322,10 +337,12 @@ export const translations = {
 		skipToEvents: 'Skip to events',
 
 		// EventDiscovery
+		findEvents: 'Find events',
 		whenLabel: 'When?',
+		categoryLabel: 'Category',
 		timeLabel: 'Time',
-		whoLabel: 'Who',
-		whatLabel: 'What',
+		whoLabel: 'Who are you?',
+		whatLabel: 'What do you want to experience?',
 		morning: 'Morning',
 		daytime: 'Daytime',
 		evening: 'Evening',
@@ -336,14 +353,25 @@ export const translations = {
 		tourists: 'Tourists',
 		students: 'Students',
 		moreCategories: 'more',
-		whereAndPrice: 'Where & Price',
+		whereAndPrice: 'Where',
+		whereLabel: 'Where in Bergen?',
+		resetFilters: 'Reset filters',
+		removeFilter: 'Remove filter',
+		arrangementer: 'events',
 		eventDiscovery: 'Discover events',
 
 		// Collections
 		seeAllEvents: 'See all events',
 
 		// Event card
-		readMore: 'Read more'
+		readMore: 'Read more',
+
+		// Newsletter CTA
+		nlHeading: 'Gåri Newsletter',
+		nlSubtext: 'Curated from 44 sources. One email, every Thursday.',
+		nlMicrocopy: 'Free — no spam. Only the best from Bergen.',
+		nlPlaceholder: 'Your email',
+		nlSubscribe: 'Subscribe'
 	}
 } as const;
 
