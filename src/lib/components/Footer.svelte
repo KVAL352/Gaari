@@ -71,7 +71,7 @@
 		<!-- Newsletter signup -->
 		<div class="mt-8 border-t border-[var(--color-border)] pt-6">
 			<form
-				action="https://buttondown.com/api/emails/embed-subscribe/Gaari"
+				action="https://assets.mailerlite.com/jsonp/2147587/forms/180557317318641022/subscribe"
 				method="post"
 				target="_blank"
 				class="mx-auto flex max-w-md flex-col gap-2 sm:flex-row"
@@ -81,13 +81,16 @@
 				</label>
 				<input
 					type="email"
-					name="email"
+					name="fields[email]"
 					id="footer-email"
 					required
+					autocomplete="email"
 					placeholder={$lang === 'no' ? 'Få ukentlige tips — rett i innboksen' : 'Weekly tips — straight to your inbox'}
 					class="flex-1 rounded-lg border border-[var(--color-border)] px-3 text-sm"
 					style="height: 44px;"
 				/>
+				<input type="hidden" name="ml-submit" value="1" />
+				<input type="hidden" name="anticsrf" value="true" />
 				<button
 					type="submit"
 					class="rounded-lg bg-[var(--funkis-red)] px-5 text-sm font-semibold text-white hover:opacity-90"

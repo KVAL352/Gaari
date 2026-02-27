@@ -92,7 +92,7 @@
 				: 'Weekly tips — straight to your inbox.'}
 		</p>
 		<form
-			action="https://buttondown.com/api/emails/embed-subscribe/Gaari"
+			action="https://assets.mailerlite.com/jsonp/2147587/forms/180557317318641022/subscribe"
 			method="post"
 			target="_blank"
 			class="flex max-w-md flex-col gap-2 sm:flex-row"
@@ -102,13 +102,16 @@
 			</label>
 			<input
 				type="email"
-				name="email"
+				name="fields[email]"
 				id="about-email"
 				required
+				autocomplete="email"
 				placeholder={$lang === 'no' ? 'Din e-post' : 'Your email'}
 				class="flex-1 rounded-lg border border-[var(--color-border)] px-3 text-sm"
 				style="height: 44px;"
 			/>
+			<input type="hidden" name="ml-submit" value="1" />
+			<input type="hidden" name="anticsrf" value="true" />
 			<button
 				type="submit"
 				class="rounded-lg bg-[var(--funkis-red)] px-5 text-sm font-semibold text-white hover:opacity-90"
