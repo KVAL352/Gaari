@@ -53,8 +53,26 @@
 	<p class="mb-8 text-[var(--color-text-secondary)]">{$t('nlPrefsDesc')}</p>
 
 	{#if !data.email}
-		<div class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-6 text-center">
-			<p class="text-[var(--color-text-secondary)]">{$t('nlPrefsNoEmail')}</p>
+		<div class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-6">
+			<p class="mb-4 text-[var(--color-text-secondary)]">{$t('nlPrefsNoEmail')}</p>
+			<form method="GET" class="flex gap-2">
+				<input
+					type="email"
+					name="email"
+					required
+					aria-required="true"
+					placeholder={$lang === 'no' ? 'din@epost.no' : 'your@email.com'}
+					class="flex-1 rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-text-primary)]"
+					style="min-height:44px;"
+				/>
+				<button
+					type="submit"
+					class="rounded-lg px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+					style="min-height:44px;background:#C82D2D;"
+				>
+					{$lang === 'no' ? 'Hent' : 'Fetch'}
+				</button>
+			</form>
 		</div>
 	{:else}
 		<form

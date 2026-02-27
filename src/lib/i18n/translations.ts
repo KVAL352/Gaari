@@ -213,7 +213,7 @@ export const translations = {
 		nlPrefsSaved: 'Preferansene dine er oppdatert!',
 		nlPrefsError: 'Noe gikk galt. Prøv igjen.',
 		nlPrefsLang: 'Språk for nyhetsbrev',
-		nlPrefsNoEmail: 'Mangler e-postadresse. Åpne denne lenken fra nyhetsbrevet ditt.'
+		nlPrefsNoEmail: 'Skriv inn e-postadressen du abonnerer med for å hente preferansene dine.'
 	},
 	en: {
 		siteName: 'Gåri',
@@ -413,7 +413,7 @@ export const translations = {
 		nlPrefsSaved: 'Your preferences have been updated!',
 		nlPrefsError: 'Something went wrong. Please try again.',
 		nlPrefsLang: 'Newsletter language',
-		nlPrefsNoEmail: 'Missing email address. Please open this link from your newsletter.'
+		nlPrefsNoEmail: 'Enter the email address you subscribed with to load your preferences.'
 	}
 } as const;
 
