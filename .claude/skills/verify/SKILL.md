@@ -22,7 +22,7 @@ Run these sequentially — stop on first failure:
    - Common issue: missing env vars in `.env` — check against `.env.ci` for required vars
 
 3. **Tests**: `npm test`
-   - All 198 tests must pass
+   - All 208 tests must pass
    - Test files are in `src/lib/__tests__/` and `scripts/lib/__tests__/`
 
 4. **Build**: `npm run build`
@@ -35,7 +35,7 @@ Run these sequentially — stop on first failure:
 Summarize results:
 - Lint: PASS/FAIL (X errors, Y warnings)
 - Type check: PASS/FAIL (X errors)
-- Tests: PASS/FAIL (X/198 passed)
+- Tests: PASS/FAIL (X/208 passed)
 - Build: PASS/FAIL
 
 If all pass: "Ready to deploy."
