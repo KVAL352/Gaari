@@ -141,7 +141,11 @@ async function fetchDetail(url: string): Promise<DetailData | null> {
 
 // Map Bergen Kommune tag IDs to categories (based on filter analysis)
 function guessCategory(title: string, subtitle: string, tags: string): string {
+	const titleLower = title.toLowerCase();
 	const text = `${title} ${subtitle}`.toLowerCase();
+
+	// Family keywords in the title take priority — "Barnas kulturhus" is family even if subtitle says "forestilling"
+	if (/barnas\s|for\s+barn|barnelørdag|barneforestilling/.test(titleLower) || titleLower.includes('familie')) return 'family';
 
 	if (text.includes('konsert') || text.includes('musikk') || text.includes('jazz') || text.includes('kor')) return 'music';
 	if (text.includes('teater') || text.includes('revy') || text.includes('forestilling') || text.includes('opera')) return 'theatre';

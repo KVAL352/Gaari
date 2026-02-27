@@ -93,8 +93,9 @@
 		}
 
 		// Audience filter
+		const familyTitleRe = /familie|barnelørdag|barnas\s|for\s+barn|barneforestilling/i;
 		if (audience === 'family') {
-			events = events.filter(e => e.age_group === 'family');
+			events = events.filter(e => e.age_group === 'family' || e.category === 'family' || familyTitleRe.test(e.title_no));
 		} else if (audience === 'ungdom') {
 			const youthCategories = new Set(['music', 'culture', 'sports', 'workshop', 'festival', 'student']);
 			const youthRe = /\bungdom|\btenåring|\bfor\s+unge?\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
