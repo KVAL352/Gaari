@@ -158,7 +158,7 @@ export const translations = {
 		skipToEvents: 'Hopp til arrangementer',
 
 		// EventDiscovery
-		findEvents: 'Finn arrangementer',
+		findEvents: 'Finn dine arrangementer',
 		whenLabel: 'Når?',
 		categoryLabel: 'Kategori',
 		timeLabel: 'Tid',
@@ -169,10 +169,11 @@ export const translations = {
 		evening: 'Kveld',
 		night: 'Natt',
 		everyone: 'Alle',
-		grownups: 'Voksne',
+		familyShort: 'Familie',
+		grownups: 'Voksen',
 		adults: '18+',
-		tourists: 'Turister',
-		students: 'Studenter',
+		tourists: 'Turist',
+		students: 'Student',
 		moreCategories: 'til',
 		whereAndPrice: 'Hvor',
 		whereLabel: 'Hvor i Bergen?',
@@ -189,7 +190,7 @@ export const translations = {
 
 		// Newsletter CTA
 		nlHeading: 'Nyhetsbrev fra Gåri',
-		nlSubtext: 'Kuratert fra 44 kilder. En e-post, hver torsdag.',
+		nlSubtext: 'En e-post, rett i nebbet, hver torsdag.',
 		nlMicrocopy: 'Gratis — ingen spam. Kun det beste fra Bergen.',
 		nlPlaceholder: 'Din e-post',
 		nlSubscribe: 'Abonner'
@@ -337,7 +338,7 @@ export const translations = {
 		skipToEvents: 'Skip to events',
 
 		// EventDiscovery
-		findEvents: 'Find events',
+		findEvents: 'Find your events',
 		whenLabel: 'When?',
 		categoryLabel: 'Category',
 		timeLabel: 'Time',
@@ -348,10 +349,11 @@ export const translations = {
 		evening: 'Evening',
 		night: 'Night',
 		everyone: 'Everyone',
-		grownups: 'Adults',
+		familyShort: 'Family',
+		grownups: 'Adult',
 		adults: '18+',
-		tourists: 'Tourists',
-		students: 'Students',
+		tourists: 'Tourist',
+		students: 'Student',
 		moreCategories: 'more',
 		whereAndPrice: 'Where',
 		whereLabel: 'Where in Bergen?',
@@ -368,7 +370,7 @@ export const translations = {
 
 		// Newsletter CTA
 		nlHeading: 'Gåri Newsletter',
-		nlSubtext: 'Curated from 44 sources. One email, every Thursday.',
+		nlSubtext: 'One email, straight to you, every Thursday.',
 		nlMicrocopy: 'Free — no spam. Only the best from Bergen.',
 		nlPlaceholder: 'Your email',
 		nlSubscribe: 'Subscribe'

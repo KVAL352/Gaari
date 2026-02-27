@@ -171,11 +171,6 @@
 		</div>
 	</section>
 
-	<!-- Newsletter CTA -->
-	<div class="mb-8">
-		<NewsletterCTA id="event-detail" variant="card" />
-	</div>
-
 	<!-- Suggest correction -->
 	<section class="mb-12">
 		{#if correctionSubmitted}
@@ -246,6 +241,11 @@
 			{/if}
 		{/if}
 	</section>
+
+	<!-- Newsletter CTA -->
+	<div class="mb-8">
+		<NewsletterCTA id="event-detail" variant="card" />
+	</div>
 
 	<!-- Related events -->
 	{#if related.length > 0}
