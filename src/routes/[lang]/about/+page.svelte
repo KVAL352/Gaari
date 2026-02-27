@@ -74,11 +74,11 @@
 	<section class="mb-8">
 		<h2 class="mb-3 text-xl font-semibold">{$t('contact')}</h2>
 		<a
-			href="mailto:gaari.bergen@proton.me"
+			href="mailto:post@gaari.no"
 			class="inline-flex items-center gap-2 text-[var(--color-text-primary)] underline"
 		>
 			<Mail size={16} />
-			gaari.bergen@proton.me
+			post@gaari.no
 		</a>
 	</section>
 

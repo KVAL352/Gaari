@@ -418,8 +418,8 @@
 				{#if optOutStatus === 'error'}
 					<p class="text-sm text-red-600" role="alert">
 						{$lang === 'no'
-							? 'Noe gikk galt. Prøv igjen eller send e-post til gaari.bergen@proton.me.'
-							: 'Something went wrong. Please try again or email gaari.bergen@proton.me.'}
+							? 'Noe gikk galt. Prøv igjen eller send e-post til post@gaari.no.'
+							: 'Something went wrong. Please try again or email post@gaari.no.'}
 					</p>
 				{/if}
 			</form>
@@ -430,11 +430,11 @@
 	<section class="border-t border-[var(--color-border)] pt-8">
 		<h2 class="mb-3 text-xl font-semibold">{$t('contact')}</h2>
 		<a
-			href="mailto:gaari.bergen@proton.me"
+			href="mailto:post@gaari.no"
 			class="inline-flex items-center gap-2 text-[var(--color-text-primary)] underline"
 		>
 			<Mail size={16} />
-			gaari.bergen@proton.me
+			post@gaari.no
 		</a>
 		<p class="mt-8 text-sm text-[var(--color-text-muted)]">
 			{$lang === 'no' ? 'Sist oppdatert: 25. februar 2026' : 'Last updated: February 25, 2026'}

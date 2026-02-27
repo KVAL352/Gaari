@@ -30,11 +30,11 @@
 			{#if $lang === 'no'}
 				Gåri er en gratis arrangementsaggregator for Bergen, drevet som et personlig prosjekt.
 				Vi samler automatisk informasjon om offentlige arrangementer fra lokale arrangører og viser dem på ett sted.
-				Kontakt: <a href="mailto:gaari.bergen@proton.me" class="text-[var(--color-accent)] underline">gaari.bergen@proton.me</a>
+				Kontakt: <a href="mailto:post@gaari.no" class="text-[var(--color-accent)] underline">post@gaari.no</a>
 			{:else}
 				Gåri is a free event aggregator for Bergen, operated as a personal project.
 				We automatically collect information about public events from local organizers and display them in one place.
-				Contact: <a href="mailto:gaari.bergen@proton.me" class="text-[var(--color-accent)] underline">gaari.bergen@proton.me</a>
+				Contact: <a href="mailto:post@gaari.no" class="text-[var(--color-accent)] underline">post@gaari.no</a>
 			{/if}
 		</p>
 	</section>
@@ -124,7 +124,7 @@
 			{$lang === 'no'
 				? 'For å utøve dine rettigheter, kontakt oss på'
 				: 'To exercise your rights, contact us at'}
-			<a href="mailto:gaari.bergen@proton.me" class="text-[var(--color-accent)] underline">gaari.bergen@proton.me</a>.
+			<a href="mailto:post@gaari.no" class="text-[var(--color-accent)] underline">post@gaari.no</a>.
 			{$lang === 'no'
 				? 'Du kan også klage til Datatilsynet (datatilsynet.no).'
 				: 'You can also file a complaint with the Norwegian Data Protection Authority (datatilsynet.no).'}

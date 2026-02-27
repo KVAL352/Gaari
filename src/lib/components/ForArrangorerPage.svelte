@@ -659,13 +659,13 @@
 		<!-- Email option — equally prominent -->
 		<div class="mb-8 text-center">
 			<a
-				href="mailto:gaari.bergen@proton.me?subject={$lang === 'no' ? 'Fremhevet synlighet på Gåri' : 'Promoted visibility on Gåri'}"
+				href="mailto:post@gaari.no?subject={$lang === 'no' ? 'Fremhevet synlighet på Gåri' : 'Promoted visibility on Gåri'}"
 				data-plausible-event="for-arrangorer-email-click"
 				onclick={() => trackEvent('for-arrangorer-email-click')}
 				class="inline-block rounded-xl bg-[var(--funkis-red)] px-8 py-3 text-base font-semibold text-white hover:opacity-90"
 				style="min-height: 44px; line-height: 24px;"
 			>
-				{$lang === 'no' ? 'Send e-post til gaari.bergen@proton.me' : 'Email gaari.bergen@proton.me'}
+				{$lang === 'no' ? 'Send e-post til post@gaari.no' : 'Email post@gaari.no'}
 			</a>
 		</div>
 

@@ -224,6 +224,19 @@
 			return;
 		}
 
+		fetch('/api/notify-submission', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				type: 'event',
+				title: titleNo,
+				venue: fd.get('venue') as string,
+				dateStart,
+				ticketUrl: normalizeUrl(fd.get('ticket-url') as string),
+				submitterEmail
+			})
+		}).catch(() => {});
+
 		submitted = true;
 	}
 
@@ -271,6 +284,18 @@
 				: 'Something went wrong. Please try again.';
 			return;
 		}
+
+		fetch('/api/notify-submission', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				type: 'website',
+				name,
+				organization: url,
+				email,
+				message
+			})
+		}).catch(() => {});
 
 		websiteSubmitted = true;
 	}

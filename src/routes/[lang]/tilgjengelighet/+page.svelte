@@ -130,7 +130,7 @@
 			{$lang === 'no'
 				? 'Opplever du tilgjengelighetsproblemer på Gåri? Ta kontakt på'
 				: 'Do you experience accessibility issues on Gåri? Contact us at'}
-			<a href="mailto:gaari.bergen@proton.me" class="text-[var(--color-accent)] underline">gaari.bergen@proton.me</a>.
+			<a href="mailto:post@gaari.no" class="text-[var(--color-accent)] underline">post@gaari.no</a>.
 			{$lang === 'no'
 				? 'Vi tar alle tilbakemeldinger på alvor og svarer innen rimelig tid.'
 				: 'We take all feedback seriously and respond within a reasonable time.'}

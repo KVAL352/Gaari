@@ -205,6 +205,8 @@
 					class="mt-4 space-y-3 rounded-xl border border-[var(--color-border)] p-4"
 				>
 					<input type="hidden" name="event_id" value={event.id} />
+					<input type="hidden" name="event_title" value={event.title_no || event.title_en} />
+					<input type="hidden" name="event_slug" value={event.slug} />
 					<div>
 						<label for="correction-field" class="mb-1 block text-sm font-medium">
 							{$lang === 'no' ? 'Hva bør endres?' : 'What should be changed?'}

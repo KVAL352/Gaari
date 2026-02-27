@@ -245,7 +245,7 @@ export function generateOrganizationJsonLd(): string {
 		inLanguage: ['nb', 'en'],
 		contactPoint: {
 			'@type': 'ContactPoint',
-			email: 'gaari.bergen@proton.me',
+			email: 'post@gaari.no',
 			contactType: 'customer service',
 			availableLanguage: ['Norwegian', 'English']
 		},

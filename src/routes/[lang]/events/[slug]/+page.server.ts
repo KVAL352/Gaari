@@ -1,5 +1,6 @@
 import { error, fail } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
+import { notifyCorrection } from '$lib/server/email';
 import { seedEvents } from '$lib/data/seed-events';
 import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad, Actions } from './$types';
@@ -77,6 +78,17 @@ export const actions: Actions = {
 		});
 
 		if (err) return fail(500, { correctionError: true });
+
+		const eventTitle = (data.get('event_title') as string) || 'Unknown event';
+		const eventSlug = (data.get('event_slug') as string) || '';
+		notifyCorrection({
+			eventTitle,
+			eventSlug,
+			field: field as string,
+			suggestedValue: suggested_value as string,
+			reason: reason as string | null
+		}).catch((err) => console.error('Failed to send correction notification:', err));
+
 		return { correctionSuccess: true };
 	}
 };

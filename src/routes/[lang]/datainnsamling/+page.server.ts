@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
+import { notifyOptOut } from '$lib/server/email';
 import type { Actions } from './$types';
 
 export const actions: Actions = {
@@ -28,6 +29,12 @@ export const actions: Actions = {
 		});
 
 		if (error) return fail(500, { optoutError: true });
+
+		const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+		notifyOptOut({ organization, domain: cleanDomain, contactEmail: email, reason }).catch((err) =>
+			console.error('Failed to send opt-out notification:', err)
+		);
+
 		return { success: true };
 	}
 };
