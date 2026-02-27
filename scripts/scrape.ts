@@ -128,7 +128,10 @@ async function pingIndexNow(since: number): Promise<number> {
 
 		if (error || !data || data.length === 0) return 0;
 
-		const urlList = data.map((e: { slug: string }) => `https://gaari.no/no/events/${e.slug}`);
+		const urlList = data.flatMap((e: { slug: string }) => [
+			`https://gaari.no/no/events/${e.slug}`,
+			`https://gaari.no/en/events/${e.slug}`
+		]);
 
 		const res = await fetch('https://api.indexnow.org/indexnow', {
 			method: 'POST',
@@ -141,7 +144,7 @@ async function pingIndexNow(since: number): Promise<number> {
 			})
 		});
 
-		console.log(`IndexNow: submitted ${urlList.length} URLs → HTTP ${res.status}`);
+		console.log(`IndexNow: submitted ${urlList.length} URLs (${data.length} events × 2 langs) → HTTP ${res.status}`);
 		return urlList.length;
 	} catch (err: any) {
 		console.warn(`IndexNow ping failed: ${err.message}`);

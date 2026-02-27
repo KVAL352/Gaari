@@ -15,7 +15,7 @@ function mapPrice(e: Record<string, unknown>): GaariEvent {
 	} as GaariEvent;
 }
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, setHeaders }) => {
 	try {
 		// Fetch event by slug
 		const { data: event, error: err } = await supabase
@@ -40,6 +40,10 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		const { data: relatedData } = await relatedPromise;
 		const related: GaariEvent[] = (relatedData || []).map(mapPrice);
+
+		setHeaders({
+			'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200'
+		});
 
 		return { event: mapped, related };
 	} catch {

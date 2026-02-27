@@ -1,8 +1,20 @@
 # Gåri
 
-> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. It collects events from 44 independent sources — concert venues, theatres, museums, libraries, festivals, ticket platforms and more — and presents them in one searchable, filterable calendar. Updated twice daily by automated scrapers. No registration required.
+> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. It collects events from 45 independent sources — concert venues, theatres, museums, libraries, festivals, ticket platforms and more — and presents them in one searchable, filterable calendar. Updated twice daily by automated scrapers. No registration required.
 
 The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's going on?".
+
+## Questions Gåri answers
+
+- What's happening in Bergen this weekend?
+- What's on in Bergen tonight / today?
+- Free things to do in Bergen
+- Bergen concerts this week
+- Family events in Bergen
+- Things to do in Bergen when it rains
+- Events in Bergen city centre
+- Student events in Bergen
+- Things to do in Bergen for teens
 
 ## What Gåri covers
 
@@ -16,24 +28,30 @@ The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's 
 
 - [Homepage — all Bergen events](https://gaari.no/no/) (Norwegian)
 - [Homepage — all Bergen events](https://gaari.no/en/) (English)
-- [Hva skjer i Bergen i kveld](https://gaari.no/no/i-kveld) — tonight's events in Bergen
-- [Denne helgen i Bergen](https://gaari.no/no/denne-helgen) — this weekend's events in Bergen
-- [Gratis i Bergen denne uken](https://gaari.no/no/gratis) — free events in Bergen this week
-- [Konserter i Bergen](https://gaari.no/no/konserter) — concerts and live music in Bergen this week
-- [Familiehelg i Bergen](https://gaari.no/no/familiehelg) — family events in Bergen this weekend
-- [Studentkveld i Bergen](https://gaari.no/no/studentkveld) — student nightlife in Bergen
-- [Today in Bergen](https://gaari.no/en/today-in-bergen) — today's events in Bergen (English)
-- [This Weekend in Bergen](https://gaari.no/en/this-weekend) — this weekend's events in Bergen (English)
+- [Hva skjer i Bergen i kveld](https://gaari.no/no/i-kveld) — tonight's events
+- [Denne helgen i Bergen](https://gaari.no/no/denne-helgen) — this weekend's events
+- [I dag i Bergen](https://gaari.no/no/i-dag) — today's events
+- [Gratis i Bergen denne uken](https://gaari.no/no/gratis) — free events this week
+- [Konserter i Bergen](https://gaari.no/no/konserter) — concerts and live music this week
+- [Familiehelg i Bergen](https://gaari.no/no/familiehelg) — family events this weekend
+- [Studentkveld i Bergen](https://gaari.no/no/studentkveld) — student events tonight
+- [Regnværsguide Bergen](https://gaari.no/no/regndagsguide) — indoor activities (rainy day)
+- [Bergen sentrum](https://gaari.no/no/sentrum) — city centre events
+- [For voksne](https://gaari.no/no/voksen) — culture and experiences for adults
+- [For ungdom](https://gaari.no/no/for-ungdom) — events for teens (13–18)
+- [Today in Bergen](https://gaari.no/en/today-in-bergen) — today's events (English)
+- [This Weekend in Bergen](https://gaari.no/en/this-weekend) — this weekend (English)
+- [Free Things to Do in Bergen](https://gaari.no/en/free-things-to-do-bergen) — free events (English)
 - [About Gåri](https://gaari.no/en/about) — about the project
 - [Data collection and legal basis](https://gaari.no/no/datainnsamling) — sources, GDPR, opt-out
 
-## Data sources (44 active)
+## Data sources (45 active)
 
 ### Performance venues
-Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, BIT Teatergarasjen, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Oseana, Kulturhuset i Bergen, Bergen Kunsthall
+Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, BIT Teatergarasjen, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater
 
 ### Arts, culture and literature
-KODE (Bergen art museums), Litteraturhuset Bergen, Media City Bergen, BEK (Bergen Centre for Electronic Arts), Bergen Filmklubb, Bergen Kunsthall
+KODE (Bergen art museums), Bergen Kunsthall, Litteraturhuset Bergen, Media City Bergen, BEK (Bergen Centre for Electronic Arts), Bergen Filmklubb
 
 ### Libraries and museums
 Bergen Bibliotek, Bymuseet i Bergen, Museum Vest (Fiskerimuseum, Sjøfartsmuseum, Hanseatiske Museum), Akvariet i Bergen, Fløyen
@@ -45,7 +63,7 @@ Eventbrite, TicketCo (multiple Bergen venues), Hoopla
 Bergen Kommune (official events calendar), VisitBergen, StudentBergen, Bergen Live
 
 ### Food and nightlife
-Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad
+Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad, O'Connor's Irish Pub
 
 ### Sports and outdoor
 SK Brann (football), DNT Bergen (hiking tours)

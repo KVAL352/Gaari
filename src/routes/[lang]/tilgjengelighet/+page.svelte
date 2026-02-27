@@ -1,16 +1,28 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { lang } from '$lib/i18n';
 	import { getCanonicalUrl } from '$lib/seo';
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/tilgjengelighet`));
+
+	let pageTitle = $derived($lang === 'no' ? 'Tilgjengelighetserklæring' : 'Accessibility Statement');
+	let metaDesc = $derived($lang === 'no'
+		? 'Tilgjengelighetserklæring for Gåri. Vi følger WCAG 2.2 nivå AA og EAA-kravene som gjelder i Norge.'
+		: 'Accessibility statement for Gåri. We follow WCAG 2.2 level AA and the EAA requirements applicable in Norway.');
 </script>
 
 <svelte:head>
-	<title>{$lang === 'no' ? 'Tilgjengelighetserklæring' : 'Accessibility Statement'} — Gåri</title>
-	<meta name="description" content={$lang === 'no'
-		? 'Tilgjengelighetserklæring for Gåri. Vi følger WCAG 2.2 nivå AA og EAA-kravene som gjelder i Norge.'
-		: 'Accessibility statement for Gåri. We follow WCAG 2.2 level AA and the EAA requirements applicable in Norway.'} />
+	<title>{pageTitle} — Gåri</title>
+	<meta name="description" content={metaDesc} />
 	<link rel="canonical" href={canonicalUrl} />
+	<meta property="og:title" content={`${pageTitle} — Gåri`} />
+	<meta property="og:description" content={metaDesc} />
+	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content={`${pageTitle} — Gåri`} />
+	<meta name="twitter:description" content={metaDesc} />
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">

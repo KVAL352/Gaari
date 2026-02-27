@@ -52,5 +52,28 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ error: 'Subscription failed' }, { status: 500 });
 	}
 
+	// Send welcome email via Resend (fire-and-forget)
+	if (env.RESEND_API_KEY) {
+		const isEn = langPref === 'en';
+		fetch('https://api.resend.com/emails', {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				from: 'Gåri <noreply@gaari.no>',
+				to: [email],
+				reply_to: 'post@gaari.no',
+				subject: isEn
+					? 'Welcome to the Gåri newsletter!'
+					: 'Velkommen til Gåri-nyhetsbrevet!',
+				text: isEn
+					? 'Hi!\n\nThanks for signing up. You\'ll receive weekly updates about what\'s happening in Bergen — concerts, exhibitions, food, family events and more.\n\nThe newsletter is sent every Thursday.\n\nBest,\nGåri\nhttps://gaari.no'
+					: 'Hei!\n\nTakk for at du meldte deg på. Du får ukentlige oppdateringer om hva som skjer i Bergen — konserter, utstillinger, mat, familie og mer.\n\nNyhetsbrevet sendes ut hver torsdag.\n\nHilsen Gåri\nhttps://gaari.no'
+			})
+		}).catch((err) => console.error('Welcome email failed:', err));
+	}
+
 	return json({ success: true });
 };

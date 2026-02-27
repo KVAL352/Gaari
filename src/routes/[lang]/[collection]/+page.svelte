@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
 	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems } from '$lib/seo';
+	import { getCollection, type Collection } from '$lib/collections';
 	import EventGrid from '$lib/components/EventGrid.svelte';
 	import LoadMore from '$lib/components/LoadMore.svelte';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
@@ -20,6 +21,7 @@
 		'regndagsguide': { no: 'Få tips til ting å gjøre i Bergen', en: 'Get Bergen activity tips weekly' },
 		'sentrum': { no: 'Få tips til ting å gjøre i sentrum', en: 'Get city centre event tips' },
 		'voksen': { no: 'Kulturelle tips for voksne, hver torsdag', en: 'Cultural picks for adults, every Thursday' },
+		'for-ungdom': { no: 'Tips for ungdom i Bergen', en: 'Teen event picks in Bergen' },
 	};
 
 	let { data } = $props();
@@ -46,6 +48,13 @@
 	let editorial = $derived(data.collection.editorial?.[ssrLang] ?? []);
 	let faqItems = $derived(data.collection.faq?.[ssrLang] ?? []);
 	let faqJsonLd = $derived(faqItems.length > 0 ? generateFaqJsonLdFromItems(faqItems) : null);
+	let quickAnswer = $derived(data.collection.quickAnswer?.[ssrLang] ?? '');
+
+	let relatedCollections: Collection[] = $derived(
+		(data.collection.relatedSlugs ?? [])
+			.map((slug: string) => getCollection(slug))
+			.filter((c: Collection | undefined): c is Collection => c != null)
+	);
 
 	let nextPageHref = $derived(`?page=${pageNum + 1}`);
 </script>
@@ -80,6 +89,11 @@
 	<p class="mt-1 text-sm text-[var(--color-text-muted)]">
 		{data.events.length} {$t('events')}
 	</p>
+	{#if quickAnswer}
+	<p class="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">
+		{quickAnswer}
+	</p>
+	{/if}
 </section>
 
 <div class="mx-auto max-w-7xl px-4 py-6" aria-live="polite" aria-atomic="true">
@@ -120,7 +134,7 @@
 </div>
 {/if}
 
-{#if editorial.length > 0 || faqItems.length > 0}
+{#if editorial.length > 0 || faqItems.length > 0 || relatedCollections.length > 0}
 <section class="mx-auto max-w-7xl px-4 pb-16 pt-8 border-t border-[var(--color-border)]">
 	<div class="max-w-2xl">
 		{#if editorial.length > 0}
@@ -140,6 +154,26 @@
 			</div>
 			{/each}
 		</div>
+		{/if}
+
+		{#if relatedCollections.length > 0}
+		<nav class="mt-10" aria-label={ssrLang === 'no' ? 'Relaterte samlinger' : 'Related collections'}>
+			<h2 class="mb-3 text-base font-semibold text-[var(--color-text-primary)]">
+				{ssrLang === 'no' ? 'Utforsk også' : 'Also explore'}
+			</h2>
+			<ul class="flex flex-wrap gap-2">
+				{#each relatedCollections as related (related.slug)}
+				<li>
+					<a
+						href="/{ssrLang}/{related.slug}"
+						class="inline-block rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
+					>
+						{related.title[ssrLang]}
+					</a>
+				</li>
+				{/each}
+			</ul>
+		</nav>
 		{/if}
 	</div>
 </section>

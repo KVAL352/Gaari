@@ -98,7 +98,9 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			description: collection.description,
 			ogSubtitle: collection.ogSubtitle,
 			editorial: collection.editorial,
-			faq: collection.faq
+			faq: collection.faq,
+			relatedSlugs: collection.relatedSlugs,
+			quickAnswer: collection.quickAnswer
 		},
 		events: filtered,
 		promotedEventIds,

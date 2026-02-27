@@ -1,16 +1,28 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { lang } from '$lib/i18n';
 	import { getCanonicalUrl } from '$lib/seo';
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/personvern`));
+
+	let pageTitle = $derived($lang === 'no' ? 'Personvern' : 'Privacy Policy');
+	let metaDesc = $derived($lang === 'no'
+		? 'Personvernerklæring for Gåri — arrangementsaggregator for Bergen. Vi samler ikke persondata ved vanlig bruk.'
+		: 'Privacy policy for Gåri — event aggregator for Bergen. We collect no personal data during normal use.');
 </script>
 
 <svelte:head>
-	<title>{$lang === 'no' ? 'Personvern' : 'Privacy Policy'} — Gåri</title>
-	<meta name="description" content={$lang === 'no'
-		? 'Personvernerklæring for Gåri — arrangementsaggregator for Bergen. Vi samler ikke persondata ved vanlig bruk.'
-		: 'Privacy policy for Gåri — event aggregator for Bergen. We collect no personal data during normal use.'} />
+	<title>{pageTitle} — Gåri</title>
+	<meta name="description" content={metaDesc} />
 	<link rel="canonical" href={canonicalUrl} />
+	<meta property="og:title" content={`${pageTitle} — Gåri`} />
+	<meta property="og:description" content={metaDesc} />
+	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content={`${pageTitle} — Gåri`} />
+	<meta name="twitter:description" content={metaDesc} />
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">

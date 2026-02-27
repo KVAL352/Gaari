@@ -8,7 +8,7 @@ const STATIC_PAGES = ['', '/about', '/datainnsamling', '/personvern', '/tilgjeng
 export async function GET() {
 	const { data: events } = await supabase
 		.from('events')
-		.select('slug, date_start')
+		.select('slug, date_start, created_at')
 		.in('status', ['approved'])
 		.order('date_start', { ascending: false })
 		.limit(5000);
@@ -53,7 +53,7 @@ export async function GET() {
 
 	// Event pages in both languages
 	for (const event of events || []) {
-		const lastmod = event.date_start?.slice(0, 10) || today;
+		const lastmod = event.created_at?.slice(0, 10) || today;
 		for (const lang of ['no', 'en']) {
 			const altLang = lang === 'no' ? 'en' : 'no';
 			urls += `  <url>

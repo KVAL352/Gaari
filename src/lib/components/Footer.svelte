@@ -42,6 +42,9 @@
 						<li><a href="/no/konserter" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Konserter</a></li>
 						<li><a href="/no/familiehelg" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Familiehelg</a></li>
 						<li><a href="/no/voksen" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">For voksne</a></li>
+						<li><a href="/no/for-ungdom" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">For ungdom</a></li>
+						<li><a href="/no/studentkveld" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Studentkveld</a></li>
+						<li><a href="/no/sentrum" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Sentrum</a></li>
 						<li><a href="/no/regndagsguide" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Regnværsguide</a></li>
 					{:else}
 						<li><a href="/en/this-weekend" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">This weekend</a></li>
@@ -51,6 +54,8 @@
 						<li><a href="/en/konserter" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Concerts</a></li>
 						<li><a href="/en/familiehelg" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Family weekend</a></li>
 						<li><a href="/en/sentrum" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">City centre</a></li>
+						<li><a href="/en/for-ungdom" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">For youth</a></li>
+						<li><a href="/en/studentkveld" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Student nights</a></li>
 						<li><a href="/en/regndagsguide" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Rainy day guide</a></li>
 					{/if}
 				</ul>

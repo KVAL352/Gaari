@@ -1,8 +1,20 @@
-import type { GaariEvent, Lang } from './types';
+import type { GaariEvent, Lang, Category } from './types';
 import type { Collection } from './collections';
 import { isFreeEvent } from './utils';
 
 const BASE_URL = 'https://gaari.no';
+
+const EVENT_TYPE_MAP: Partial<Record<Category, string>> = {
+	music: 'MusicEvent',
+	theatre: 'TheaterEvent',
+	sports: 'SportsEvent',
+	food: 'FoodEvent',
+	festival: 'Festival'
+};
+
+function getEventSchemaType(category?: string): string {
+	return (category && EVENT_TYPE_MAP[category as Category]) || 'Event';
+}
 
 /**
  * Returns Bergen's UTC offset for a given ISO date string.
@@ -168,7 +180,7 @@ export function generateEventJsonLd(
 
 	const jsonLd: Record<string, unknown> = {
 		'@context': 'https://schema.org',
-		'@type': 'Event',
+		'@type': getEventSchemaType(event.category),
 		name: title,
 		description: description,
 		url: pageUrl,
@@ -228,7 +240,7 @@ export function generateOrganizationJsonLd(): string {
 		alternateName: 'Gaari',
 		url: BASE_URL,
 		logo: `${BASE_URL}/og/default.png`,
-		description: 'Gåri er en gratis arrangementskalender for Bergen, Norge. Vi samler arrangementer fra 44 kilder — konserter, utstillinger, teater, festival, mat og mer — på ett sted. Oppdatert to ganger daglig.',
+		description: 'Gåri er en gratis arrangementskalender for Bergen, Norge. Vi samler arrangementer fra 45 kilder — konserter, utstillinger, teater, festival, mat og mer — på ett sted. Oppdatert to ganger daglig.',
 		foundingDate: '2026',
 		areaServed: {
 			'@type': 'City',
@@ -263,8 +275,8 @@ export function generateWebSiteJsonLd(lang: Lang): string {
 		alternateName: lang === 'no' ? 'Ke det går i Bergen?' : 'What\'s on in Bergen?',
 		url: BASE_URL,
 		description: lang === 'no'
-			? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, utstillinger, teater, mat og mer. Oppdatert to ganger daglig fra 44 kilder.'
-			: 'Gåri aggregates all events in Bergen in one place — concerts, exhibitions, theatre, food and more. Updated twice daily from 44 sources.',
+			? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, utstillinger, teater, mat og mer. Oppdatert to ganger daglig fra 45 kilder.'
+			: 'Gåri aggregates all events in Bergen in one place — concerts, exhibitions, theatre, food and more. Updated twice daily from 45 sources.',
 		inLanguage: ['nb', 'en'],
 		about: {
 			'@type': 'City',
@@ -288,7 +300,7 @@ const FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
 	no: [
 		{
 			q: 'Hva er Gåri?',
-			a: 'Gåri er en gratis arrangementskalender for Bergen som samler arrangementer fra 44 kilder — konsertsteder, teatre, museer, biblioteker, festivaler og billettsider — på ett sted. Oppdatert to ganger daglig.'
+			a: 'Gåri er en gratis arrangementskalender for Bergen som samler arrangementer fra 45 kilder — konsertsteder, teatre, museer, biblioteker, festivaler og billettsider — på ett sted. Oppdatert to ganger daglig.'
 		},
 		{
 			q: 'Hva skjer i Bergen denne helgen?',
@@ -318,7 +330,7 @@ const FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
 	en: [
 		{
 			q: 'What is Gåri?',
-			a: 'Gåri is a free event calendar for Bergen, Norway, collecting events from 44 sources — concert venues, theatres, museums, libraries, festivals and ticket platforms — in one place. Updated twice daily.'
+			a: 'Gåri is a free event calendar for Bergen, Norway, collecting events from 45 sources — concert venues, theatres, museums, libraries, festivals and ticket platforms — in one place. Updated twice daily.'
 		},
 		{
 			q: 'What\'s on in Bergen this weekend?',
@@ -326,7 +338,7 @@ const FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
 		},
 		{
 			q: 'Are there free events in Bergen?',
-			a: 'Yes. Gåri has a dedicated page for free events in Bergen this week at gaari.no/en/... Many museums, libraries and outdoor events have free admission.'
+			a: 'Yes. Gåri has a dedicated page for free events in Bergen this week at gaari.no/en/free-things-to-do-bergen. Many museums, libraries and outdoor events have free admission.'
 		},
 		{
 			q: 'Is Gåri free to use?',
