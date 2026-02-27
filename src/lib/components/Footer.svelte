@@ -71,7 +71,7 @@
 		<!-- Newsletter signup -->
 		<div class="mt-8 border-t border-[var(--color-border)] pt-6">
 			<form
-				action="https://buttondown.com/api/emails/embed-subscribe/gaari"
+				action="https://buttondown.com/api/emails/embed-subscribe/Gaari"
 				method="post"
 				target="_blank"
 				class="mx-auto flex max-w-md flex-col gap-2 sm:flex-row"

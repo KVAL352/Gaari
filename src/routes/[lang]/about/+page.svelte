@@ -92,7 +92,7 @@
 				: 'Weekly tips — straight to your inbox.'}
 		</p>
 		<form
-			action="https://buttondown.com/api/emails/embed-subscribe/gaari"
+			action="https://buttondown.com/api/emails/embed-subscribe/Gaari"
 			method="post"
 			target="_blank"
 			class="flex max-w-md flex-col gap-2 sm:flex-row"
