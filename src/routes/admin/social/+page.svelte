@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AdminNav from '$lib/components/AdminNav.svelte';
 	import type { PageData } from './$types';
 	import type { SocialPost } from './+page.server';
 
@@ -64,9 +65,7 @@
 				{new Date().toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
 			</p>
 		</div>
-		<a href="/admin/logout" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
-			Logg ut
-		</a>
+		<AdminNav />
 	</header>
 
 	{#if posts.length === 0}

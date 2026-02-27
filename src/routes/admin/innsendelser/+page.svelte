@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import AdminNav from '$lib/components/AdminNav.svelte';
 	import type { PageData } from './$types';
 	import type { InquiryRow } from './+page.server';
 
@@ -63,17 +64,8 @@
 				Henvendelser fra arrangører og nettside-innsendelser
 			</p>
 		</div>
-		<div style="display: flex; gap: 8px; align-items: center;">
-			<a href="/admin/promotions" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
-				Plasseringer
-			</a>
-			<a href="/admin/submissions" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
-				Arrangementer
-			</a>
-			<a href="/admin/logout" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
-				Logg ut
-			</a>
-		</div>
+		<AdminNav />
+
 	</header>
 
 	{#if inquiries.length === 0}

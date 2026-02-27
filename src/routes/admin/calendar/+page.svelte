@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import AdminNav from '$lib/components/AdminNav.svelte';
 	import type { PageData } from './$types';
 	import type { CalendarItem } from './+page.server';
 
@@ -100,15 +101,7 @@
 			</p>
 		</div>
 		<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-			<a href="/admin/promotions" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
-				Plasseringer
-			</a>
-			<a href="/admin/submissions" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
-				Arrangementer
-			</a>
-			<a href="/admin/logout" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; color: #737373; font-size: 13px; text-decoration: none; min-height: 44px; display: flex; align-items: center;">
-				Logg ut
-			</a>
+			<AdminNav />
 			<button
 				onclick={() => { showForm = !showForm; }}
 				style="padding: 10px 20px; border-radius: 8px; border: none; background: #C82D2D; color: #fff; cursor: pointer; font-size: 14px; font-weight: 600; min-height: 44px;"
