@@ -83,32 +83,82 @@ function escapeHtml(str: string): string {
 	return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function introText(data: NewsletterData): string {
+interface IntroContent {
+	heading: string;
+	body: string;
+}
+
+const AUDIENCE_LABELS_NO: Record<string, string> = {
+	family: 'familien', student: 'studenter', voksen: 'kulturinteresserte',
+	adult: 'voksne', tourist: 'deg som besøker Bergen', ungdom: 'ungdom'
+};
+
+const AUDIENCE_LABELS_EN: Record<string, string> = {
+	family: 'families', student: 'students', voksen: 'culture lovers',
+	adult: 'adults', tourist: 'visitors to Bergen', ungdom: 'young people'
+};
+
+function introContent(data: NewsletterData): IntroContent {
 	const { lang, preferences, events } = data;
 	const count = events.length;
+	const isNo = lang === 'no';
+	const labels = isNo ? CATEGORY_LABELS_NO : CATEGORY_LABELS_EN;
 
-	if (!preferences?.audience && !preferences?.categories && !preferences?.bydel) {
-		return lang === 'no'
-			? `Vi har funnet ${count} arrangementer for deg denne uken.`
-			: `We found ${count} events for you this week.`;
-	}
+	// Heading
+	const heading = isNo ? 'Sjekk hva som skjer!' : 'See what\u2019s happening!';
 
-	const parts: string[] = [];
-	if (preferences.categories) {
-		const cats = preferences.categories.split(',');
-		const labels = lang === 'no' ? CATEGORY_LABELS_NO : CATEGORY_LABELS_EN;
-		if (cats.length === 1) {
-			parts.push(labels[cats[0]]?.toLowerCase() || cats[0]);
+	// Build descriptive parts
+	const audienceLabel = preferences?.audience
+		? (isNo ? AUDIENCE_LABELS_NO : AUDIENCE_LABELS_EN)[preferences.audience] || ''
+		: '';
+
+	const catLabels: string[] = [];
+	if (preferences?.categories) {
+		for (const c of preferences.categories.split(',').slice(0, 3)) {
+			const label = labels[c];
+			if (label) catLabels.push(label.toLowerCase());
 		}
 	}
-	if (preferences.bydel) {
-		parts.push(lang === 'no' ? `i ${preferences.bydel}` : `in ${preferences.bydel}`);
+
+	const isFree = preferences?.price === 'free';
+	const bydel = preferences?.bydel || '';
+
+	// Build body
+	let body: string;
+
+	if (audienceLabel || catLabels.length > 0 || isFree || bydel) {
+		// Personalized
+		const parts: string[] = [];
+
+		if (audienceLabel) {
+			parts.push(isNo ? `for ${audienceLabel}` : `for ${audienceLabel}`);
+		}
+
+		if (catLabels.length > 0) {
+			const catStr = catLabels.length <= 2
+				? catLabels.join(isNo ? ' og ' : ' and ')
+				: catLabels.slice(0, -1).join(', ') + (isNo ? ' og ' : ' and ') + catLabels[catLabels.length - 1];
+			parts.push(isNo ? `innen ${catStr}` : `in ${catStr}`);
+		}
+
+		if (bydel) {
+			parts.push(isNo ? `i ${bydel}` : `in ${bydel}`);
+		}
+
+		const desc = parts.join(' ');
+		const freeStr = isFree ? (isNo ? ', og alt er gratis' : ', and it\u2019s all free') : '';
+
+		body = isNo
+			? `Det skjer mye gøy ${desc} denne uken${freeStr}! Her er ${count} utvalgte arrangementer basert på dine preferanser.`
+			: `Lots happening ${desc} this week${freeStr}! Here are ${count} curated events based on your preferences.`;
+	} else {
+		// Generic
+		body = isNo
+			? `Det skjer mye gøy i Bergen denne uken! Her er ${count} utvalgte arrangementer for deg.`
+			: `Lots happening in Bergen this week! Here are ${count} curated events for you.`;
 	}
 
-	const desc = parts.length > 0 ? parts.join(' ') : '';
-	return lang === 'no'
-		? `${count} ${desc ? desc + '-' : ''}arrangementer denne uken.`
-		: `${count} ${desc ? desc + ' ' : ''}events this week.`;
+	return { heading, body };
 }
 
 function eventCardCell(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: string, utmParams: string): string {
@@ -177,7 +227,7 @@ function buildEventGrid(events: NewsletterEvent[], lang: 'no' | 'en', baseUrl: s
 export function generateNewsletterHtml(data: NewsletterData): string {
 	const baseUrl = 'https://gaari.no';
 	const utmParams = `utm_source=gaari&utm_medium=newsletter&utm_campaign=weekly-${data.weekLabel}`;
-	const intro = introText(data);
+	const intro = introContent(data);
 	const maxEvents = 9;
 	const events = data.events.slice(0, maxEvents);
 	const lang = data.lang;
@@ -251,8 +301,13 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 
 					<!-- Intro -->
 					<tr>
-						<td style="padding:16px 32px 28px;">
-							<p style="margin:0;color:#4D4D4D;font-size:16px;line-height:1.6;">${escapeHtml(intro)}</p>
+						<td style="padding:16px 32px 8px;">
+							<p style="margin:0;color:#141414;font-size:22px;font-weight:700;line-height:1.3;">${escapeHtml(intro.heading)}</p>
+						</td>
+					</tr>
+					<tr>
+						<td style="padding:4px 32px 28px;">
+							<p style="margin:0;color:#4D4D4D;font-size:15px;line-height:1.6;">${escapeHtml(intro.body)}</p>
 						</td>
 					</tr>
 
