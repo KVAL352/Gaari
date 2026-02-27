@@ -1,5 +1,5 @@
 import { supabase } from '$lib/server/supabase';
-import { ADMIN_SESSION_SECRET } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
 
 function escapeICS(text: string): string {
@@ -30,9 +30,9 @@ const CATEGORY_MAP: Record<string, string> = {
 };
 
 export const GET: RequestHandler = async ({ url }) => {
-	// Simple token auth — reuse the admin session secret as the feed token
+	// Simple token auth via dedicated feed token
 	const token = url.searchParams.get('token');
-	if (token !== ADMIN_SESSION_SECRET) {
+	if (!env.CALENDAR_FEED_TOKEN || token !== env.CALENDAR_FEED_TOKEN) {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
