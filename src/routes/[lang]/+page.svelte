@@ -99,6 +99,9 @@
 			events = events.filter(e => e.age_group === 'students' || e.category === 'student');
 		} else if (audience === 'tourist') {
 			events = events.filter(e => e.language === 'en' || e.language === 'both');
+		} else if (audience === 'voksen') {
+			const adultCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop']);
+			events = events.filter(e => adultCategories.has(e.category));
 		} else if (audience === 'adult') {
 			events = events.filter(e => e.age_group !== 'family' && e.category !== 'family');
 		} else if (audience === 'free') {

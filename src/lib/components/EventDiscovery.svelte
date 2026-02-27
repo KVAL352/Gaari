@@ -92,6 +92,7 @@
 	const audienceOptions = [
 		{ value: '', labelKey: 'everyone' },
 		{ value: 'family', labelKey: 'familyFriendly' },
+		{ value: 'voksen', labelKey: 'grownups' },
 		{ value: 'student', labelKey: 'students' },
 		{ value: 'adult', labelKey: 'adults' },
 		{ value: 'tourist', labelKey: 'tourists' }
