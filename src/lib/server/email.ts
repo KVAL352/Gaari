@@ -1,14 +1,24 @@
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 
-const resend = new Resend(env.RESEND_API_KEY);
+let resend: Resend;
+
+function getResend(): Resend {
+	if (!resend) {
+		if (!env.RESEND_API_KEY) {
+			throw new Error('RESEND_API_KEY is not set');
+		}
+		resend = new Resend(env.RESEND_API_KEY);
+	}
+	return resend;
+}
 
 export async function sendRejectionEmail(
 	to: string,
 	eventTitle: string,
 	feedback: string
 ): Promise<void> {
-	await resend.emails.send({
+	await getResend().emails.send({
 		from: 'Gåri <noreply@gaari.no>',
 		to,
 		subject: `Arrangementet ditt «${eventTitle}» ble ikke publisert`,
@@ -34,7 +44,7 @@ export async function sendInquiryDeclineEmail(
 	name: string,
 	feedback: string
 ): Promise<void> {
-	await resend.emails.send({
+	await getResend().emails.send({
 		from: 'Gåri <noreply@gaari.no>',
 		to,
 		subject: `Angående din henvendelse til Gåri`,

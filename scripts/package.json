@@ -12,7 +12,9 @@
     "scrape:barnasnorge": "tsx scrape.ts barnasnorge",
     "fix:barnas-images": "tsx fix-barnas-images.ts",
     "scrape:studentbergen": "tsx scrape.ts studentbergen",
-    "social": "tsx social/generate-posts.ts"
+    "social": "tsx social/generate-posts.ts",
+    "newsletter": "tsx send-newsletter.ts",
+    "newsletter:dry": "tsx send-newsletter.ts --dry-run"
   },
   "dependencies": {
     "@google/genai": "^1.42.0",

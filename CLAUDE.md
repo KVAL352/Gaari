@@ -194,6 +194,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `/admin/logout` — Clears cookie, redirects to login.
 - **All `/admin/*` routes are protected** by `src/routes/admin/+layout.server.ts` which validates the HMAC cookie. Login page is exempt. Auth helpers in `src/lib/server/admin-auth.ts`.
 - `/api/health` — Health check endpoint (Supabase connection, event count, scrape freshness). Returns healthy/degraded/unhealthy, 5min cache, 503 on unhealthy.
+- `/api/newsletter` — POST endpoint for newsletter subscriptions. Accepts `email` via FormData, calls MailerLite REST API (`connect.mailerlite.com/api/subscribers`). Returns `{success: true}` on success, handles duplicates (MailerLite upsert). Requires `MAILERLITE_API_KEY` env var.
 - `/og/[slug].png` — Per-event OG image generation (Satori + ResvgJS)
 - `/og/c/[collection].png` — Collection-branded OG images (Funkis design: red accent bar, 72px title, subtitle, Gåri branding). 24h cache.
 - `/sitemap.xml` — Dynamic sitemap with hreflang (static pages + collection pages + all approved events, 1h cache)
@@ -201,7 +202,8 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 ## Frontend components (`src/lib/components/`)
 
 - `Header.svelte` — Sticky header with language switch
-- `Footer.svelte` — Footer with links (about, datainnsamling, personvern, tilgjengelighet, submit, contact). For-arrangorer link temporarily removed while page is under construction.
+- `Footer.svelte` — Footer with links (about, datainnsamling, personvern, tilgjengelighet, submit, contact) + inline NewsletterCTA. For-arrangorer link temporarily removed while page is under construction.
+- `NewsletterCTA.svelte` — Newsletter subscribe form (card + inline variants). Props: `id` (unique suffix), `variant`, optional `heading`/`subtext` overrides. Client-side fetch to `/api/newsletter`, success/error states. Placed in footer (inline), about page, collection pages (contextual headings), event detail pages (card).
 - `HeroSection.svelte` — Compact hero with tagline
 - `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer. Accepts `promoted` prop — renders "Fremhevet"/"Featured" badge (markedsføringsloven § 3).
 - `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates). Accepts `promotedEventIds` prop, passes `promoted` flag to each EventCard.

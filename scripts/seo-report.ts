@@ -21,7 +21,7 @@ import * as fs from 'fs';
 const SITE_ID = 'gaari.no';
 const SITE_URL = 'https://gaari.no';
 const GSC_SITE = 'sc-domain:gaari.no'; // Domain property in GSC (not URL prefix)
-const period = process.argv.includes('--period') ? process.argv[process.argv.indexOf('--period') + 1] : '30d';
+const period = process.argv.includes('--period') ? process.argv[process.argv.indexOf('--period') + 1] : 'day';
 
 // ─── Helpers ────────────────────────────────────────────────────────
 

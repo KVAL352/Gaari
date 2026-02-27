@@ -175,6 +175,20 @@ Data stories to pitch:
 | Create Stripe account (Norwegian registration) | You | stripe.com, 30 minutes |
 | Set up Stripe branding + 3 Products with Prices | You | Basis 1,000 / Standard 3,500 / Partner 7,000 |
 | Build prospect list from 43 sources | You | Spreadsheet: org name, contact, domain, estimated tier |
+| Add Tikkio scraper | Claude Code | See note below |
+
+#### Tikkio scraper
+
+**Why:** Community request — small organizers without own websites use Tikkio for ticketing. Currently ~15-20 Bergen events on Tikkio from venues NOT covered by existing scrapers (Pappa, Bryggen Nightclub, Dr. Wiesener, Terminus Hall, Biblioteket bar, FOLK Kultursenter, Torbjørns Konserthall).
+
+**Feasibility: HIGH.** Server-rendered (Laravel), rich JSON-LD on `tikkio.com/in/bergen-norway` — one HTTP request gives all events with title, dates, venue, price, image, ticket URL. Comparable effort to `studentbergen.ts`.
+
+**Steps:**
+1. Email Tikkio for permission (robots.txt has a warning header, but `/in/` and `/events/` paths are not Disallowed). Pitch: Gåri drives traffic to their ticket pages.
+2. Build scraper: parse JSON-LD `ItemList` from `/in/bergen-norway`, filter to Bergen-proper venues by address.
+3. Map venues to bydeler, add to `categories.ts` mappings.
+
+**Note:** Tikkio is already recognized in the codebase (`scripts/fix-visitbergen-links.ts` line 69 as a known ticket platform domain).
 
 ### April 2026
 
