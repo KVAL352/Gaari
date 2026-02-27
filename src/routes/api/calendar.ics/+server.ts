@@ -1,4 +1,5 @@
 import { supabase } from '$lib/server/supabase';
+import { ADMIN_SESSION_SECRET } from '$env/static/private';
 import type { RequestHandler } from './$types';
 
 function escapeICS(text: string): string {
@@ -6,11 +7,9 @@ function escapeICS(text: string): string {
 }
 
 function toICSDate(dateStr: string): string {
-	// Convert YYYY-MM-DD to YYYYMMDD (all-day event)
 	return dateStr.replace(/-/g, '');
 }
 
-// Stable UID from item id
 function makeUID(id: string): string {
 	return `${id}@gaari.no`;
 }
@@ -30,7 +29,13 @@ const CATEGORY_MAP: Record<string, string> = {
 	meeting: 'MOTE'
 };
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ url }) => {
+	// Simple token auth — reuse the admin session secret as the feed token
+	const token = url.searchParams.get('token');
+	if (token !== ADMIN_SESSION_SECRET) {
+		return new Response('Unauthorized', { status: 401 });
+	}
+
 	const { data: items, error } = await supabase
 		.from('project_calendar')
 		.select('*')
@@ -48,7 +53,6 @@ export const GET: RequestHandler = async () => {
 		const description = item.description ? escapeICS(item.description) : '';
 		const category = CATEGORY_MAP[item.category] ?? 'OPPGAVE';
 		const dtstart = toICSDate(item.due_date);
-		// All-day event: DTEND is the next day
 		const endDate = new Date(item.due_date + 'T00:00:00');
 		endDate.setDate(endDate.getDate() + 1);
 		const dtend = endDate.toISOString().slice(0, 10).replace(/-/g, '');
@@ -87,7 +91,7 @@ export const GET: RequestHandler = async () => {
 		headers: {
 			'Content-Type': 'text/calendar; charset=utf-8',
 			'Content-Disposition': 'inline; filename="gaari-project.ics"',
-			'Cache-Control': 'public, max-age=3600'
+			'Cache-Control': 'private, max-age=3600'
 		}
 	});
 };
