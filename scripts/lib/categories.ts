@@ -157,6 +157,8 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'akvariet': 'Bergenhus',
 	'fløibanen': 'Sentrum',
 	'fløyen': 'Sentrum',
+	'gg bergen': 'Laksevåg',
+	'ungdommens hus': 'Laksevåg',
 	'laksevåg kultursenter': 'Laksevåg',
 	'fyllingsdalen arena': 'Fyllingsdalen',
 	'fyllingsdalen bibliotek': 'Fyllingsdalen',

@@ -205,6 +205,9 @@ const VENUE_URLS: Record<string, string> = {
 	'paint\'n sip': 'https://paintnsip.no',
 	'paintnsip': 'https://paintnsip.no',
 
+	// Gaming/esports
+	'gg bergen': 'https://ggbergen.org',
+
 	// Film/theater
 	'bergen filmklubb': 'https://bergenfilmklubb.no',
 };
