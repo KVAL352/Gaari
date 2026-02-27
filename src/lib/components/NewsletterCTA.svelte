@@ -101,8 +101,6 @@
 			{#if status === 'error'}
 				<p class="mt-2 text-sm text-[var(--funkis-red)]" role="alert">{errorMessage}</p>
 			{/if}
-
-			<p class="mt-3 text-xs text-[var(--color-text-muted)]">{$t('nlMicrocopy')}</p>
 		{/if}
 	</div>
 {:else}
