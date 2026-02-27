@@ -193,7 +193,16 @@ export const translations = {
 		nlSubtext: 'En e-post, rett i nebbet, hver torsdag.',
 		nlMicrocopy: 'Gratis — ingen spam. Kun det beste fra Bergen.',
 		nlPlaceholder: 'Din e-post',
-		nlSubscribe: 'Abonner'
+		nlSubscribe: 'Abonner',
+
+		// Newsletter preferences
+		nlPrefsTitle: 'Dine nyhetsbrev-preferanser',
+		nlPrefsDesc: 'Velg hva slags arrangementer du vil motta i nyhetsbrevet.',
+		nlPrefsSave: 'Lagre preferanser',
+		nlPrefsSaved: 'Preferansene dine er oppdatert!',
+		nlPrefsError: 'Noe gikk galt. Prøv igjen.',
+		nlPrefsLang: 'Språk for nyhetsbrev',
+		nlPrefsNoEmail: 'Mangler e-postadresse. Åpne denne lenken fra nyhetsbrevet ditt.'
 	},
 	en: {
 		siteName: 'Gåri',
@@ -373,7 +382,16 @@ export const translations = {
 		nlSubtext: 'One email, straight to you, every Thursday.',
 		nlMicrocopy: 'Free — no spam. Only the best from Bergen.',
 		nlPlaceholder: 'Your email',
-		nlSubscribe: 'Subscribe'
+		nlSubscribe: 'Subscribe',
+
+		// Newsletter preferences
+		nlPrefsTitle: 'Your newsletter preferences',
+		nlPrefsDesc: 'Choose what kind of events you want to receive in the newsletter.',
+		nlPrefsSave: 'Save preferences',
+		nlPrefsSaved: 'Your preferences have been updated!',
+		nlPrefsError: 'Something went wrong. Please try again.',
+		nlPrefsLang: 'Newsletter language',
+		nlPrefsNoEmail: 'Missing email address. Please open this link from your newsletter.'
 	}
 } as const;
 

@@ -1,0 +1,78 @@
+name: Send Weekly Newsletter
+
+on:
+  schedule:
+    # Every Thursday at 10:00 UTC (11:00 CET / 12:00 CEST)
+    - cron: '0 10 * * 4'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (generate HTML preview, do not send)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  newsletter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install dependencies
+        working-directory: scripts
+        run: npm ci
+        timeout-minutes: 2
+
+      - name: Send newsletter
+        id: send
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          MAILERLITE_API_KEY: ${{ secrets.MAILERLITE_API_KEY }}
+          SUMMARY_FILE: ${{ runner.temp }}/newsletter-summary.json
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            FLAGS="--dry-run"
+          fi
+          npx tsx send-newsletter.ts $FLAGS
+
+      - name: Generate job summary
+        if: always()
+        run: |
+          SUMMARY_FILE="${{ runner.temp }}/newsletter-summary.json"
+          echo "## 📬 Newsletter Summary" >> "$GITHUB_STEP_SUMMARY"
+          if [ ! -f "$SUMMARY_FILE" ]; then
+            echo "> No summary file — script may have crashed." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          SUBS=$(jq -r '.subscribers // 0' "$SUMMARY_FILE")
+          GROUPS=$(jq -r '.groups // 0' "$SUMMARY_FILE")
+          SENT=$(jq -r '.sent // 0' "$SUMMARY_FILE")
+          ERRORS=$(jq -r '.errors // 0' "$SUMMARY_FILE")
+          DRY=$(jq -r '.dryRun // false' "$SUMMARY_FILE")
+          SKIPPED=$(jq -r '.skipped // ""' "$SUMMARY_FILE")
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Subscribers | $SUBS |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Preference groups | $GROUPS |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Emails sent | $SENT |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Errors | $ERRORS |" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$DRY" = "true" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "> 🧪 **Dry run** — no emails were actually sent." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -n "$SKIPPED" ] && [ "$SKIPPED" != "" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "> ⏭ Skipped: $SKIPPED" >> "$GITHUB_STEP_SUMMARY"
+          fi

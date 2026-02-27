@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
+	import { page } from '$app/state';
 	import { lang, t } from '$lib/i18n';
 
 	interface Props {
@@ -22,6 +24,11 @@
 	let displaySubtext = $derived(subtext ? subtext[$lang] : $t('nlSubtext'));
 
 	let status: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
+
+	let filterAudience = $derived(browser ? page.url.searchParams.get('audience') || '' : '');
+	let filterCategory = $derived(browser ? page.url.searchParams.get('category') || '' : '');
+	let filterBydel = $derived(browser ? page.url.searchParams.get('bydel') || '' : '');
+	let filterPrice = $derived(browser ? page.url.searchParams.get('price') || '' : '');
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
@@ -66,6 +73,11 @@
 				<label for="nl-{id}" class="sr-only">
 					{$t('nlPlaceholder')}
 				</label>
+				<input type="hidden" name="lang" value={$lang} />
+				{#if filterAudience}<input type="hidden" name="audience" value={filterAudience} />{/if}
+				{#if filterCategory}<input type="hidden" name="categories" value={filterCategory} />{/if}
+				{#if filterBydel}<input type="hidden" name="bydel" value={filterBydel} />{/if}
+				{#if filterPrice}<input type="hidden" name="price" value={filterPrice} />{/if}
 				<input
 					type="email"
 					name="email"
@@ -110,6 +122,11 @@
 			<label for="nl-{id}" class="sr-only">
 				{$t('nlPlaceholder')}
 			</label>
+			<input type="hidden" name="lang" value={$lang} />
+			{#if filterAudience}<input type="hidden" name="audience" value={filterAudience} />{/if}
+			{#if filterCategory}<input type="hidden" name="categories" value={filterCategory} />{/if}
+			{#if filterBydel}<input type="hidden" name="bydel" value={filterBydel} />{/if}
+			{#if filterPrice}<input type="hidden" name="price" value={filterPrice} />{/if}
 			<input
 				type="email"
 				name="email"

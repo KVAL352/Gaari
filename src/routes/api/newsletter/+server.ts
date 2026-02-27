@@ -15,6 +15,23 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ error: 'Newsletter service unavailable' }, { status: 500 });
 	}
 
+	// Extract optional preference fields (from EventDiscovery filter state)
+	const fields: Record<string, string> = {};
+	const audience = data.get('audience')?.toString().trim();
+	const categories = data.get('categories')?.toString().trim();
+	const bydelPref = data.get('bydel')?.toString().trim();
+	const price = data.get('price')?.toString().trim();
+	const langPref = data.get('lang')?.toString().trim();
+
+	if (audience) fields.preference_audience = audience;
+	if (categories) fields.preference_categories = categories;
+	if (bydelPref) fields.preference_bydel = bydelPref;
+	if (price) fields.preference_price = price;
+	if (langPref) fields.preference_lang = langPref;
+
+	const body: Record<string, unknown> = { email };
+	if (Object.keys(fields).length > 0) body.fields = fields;
+
 	const res = await fetch('https://connect.mailerlite.com/api/subscribers', {
 		method: 'POST',
 		headers: {
@@ -22,7 +39,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			'Content-Type': 'application/json',
 			'Accept': 'application/json'
 		},
-		body: JSON.stringify({ email })
+		body: JSON.stringify(body)
 	});
 
 	if (!res.ok) {
