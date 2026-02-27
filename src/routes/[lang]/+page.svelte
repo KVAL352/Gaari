@@ -177,6 +177,7 @@
 <EventDiscovery
 	lang={$lang}
 	eventCount={filteredEvents.length}
+	{allEvents}
 	onFilterChange={handleFilterChange}
 	onClearAll={handleClearAll}
 />
