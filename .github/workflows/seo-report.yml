@@ -1,0 +1,94 @@
+name: Weekly SEO Report
+
+on:
+  schedule:
+    # Every Monday at 09:00 UTC (10:00 CET / 11:00 CEST)
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (generate HTML file, do not send email)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  seo-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install scraper dependencies
+        working-directory: scripts
+        run: npm ci
+        timeout-minutes: 2
+
+      - name: Write GSC credentials
+        if: ${{ env.GSC_SERVICE_ACCOUNT != '' }}
+        env:
+          GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
+        run: echo "$GSC_SERVICE_ACCOUNT" | base64 -d > "${{ runner.temp }}/gsc-sa.json"
+
+      - name: Run SEO report
+        working-directory: scripts
+        env:
+          PLAUSIBLE_API_KEY: ${{ secrets.PLAUSIBLE_API_KEY }}
+          GSC_SERVICE_ACCOUNT: ${{ runner.temp }}/gsc-sa.json
+          BING_WEBMASTER_KEY: ${{ secrets.BING_WEBMASTER_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUMMARY_FILE: ${{ runner.temp }}/seo-report-summary.json
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            npx tsx seo-weekly-report.ts --dry-run
+          else
+            npx tsx seo-weekly-report.ts
+          fi
+
+      - name: Generate job summary
+        if: always()
+        run: |
+          SUMMARY_FILE="${{ runner.temp }}/seo-report-summary.json"
+          if [ ! -f "$SUMMARY_FILE" ]; then
+            echo "## SEO Report Summary" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "> No summary file found — script may have crashed before completion." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          VISITORS=$(jq '.visitors' "$SUMMARY_FILE")
+          CHANGE=$(jq -r '.visitorsChange' "$SUMMARY_FILE")
+          QUERIES=$(jq '.gscQueries' "$SUMMARY_FILE")
+          TOP_QUERY=$(jq -r '.gscTopQuery' "$SUMMARY_FILE")
+          SITEMAP=$(jq '.sitemapUrls' "$SUMMARY_FILE")
+          ALERTS=$(jq '.alertCount' "$SUMMARY_FILE")
+          INSIGHTS=$(jq '.insightCount' "$SUMMARY_FILE")
+          RECENT=$(jq '.recentEvents' "$SUMMARY_FILE")
+          TOTAL=$(jq '.totalEvents' "$SUMMARY_FILE")
+          SENT=$(jq -r '.emailSent' "$SUMMARY_FILE")
+
+          STATUS="✅ Healthy"
+          if [ "$ALERTS" -gt 0 ]; then STATUS="⚠️ $ALERTS alert(s)"; fi
+
+          echo "## SEO Report Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Status | ${STATUS} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Visitors (7d) | ${VISITORS} (${CHANGE}) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| GSC queries tracked | ${QUERIES} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Top query | ${TOP_QUERY} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Sitemap URLs | ${SITEMAP} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Content insights | ${INSIGHTS} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Active events | ${TOTAL} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| New events (24h) | ${RECENT} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Email sent | ${SENT} |" >> "$GITHUB_STEP_SUMMARY"

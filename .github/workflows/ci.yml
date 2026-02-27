@@ -35,3 +35,11 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Lighthouse CI
+        run: |
+          npm install -g @lhci/cli@0.14.x
+          npm run preview &
+          sleep 3
+          lhci collect --url=http://localhost:4173/no --url=http://localhost:4173/no/denne-helgen -n 1
+          lhci assert --budgets-file=lighthouse-budget.json
