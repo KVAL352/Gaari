@@ -192,7 +192,7 @@
 	<section class="mb-10 border-t border-[var(--color-border)] pt-8">
 		<details class="rounded-lg border border-[var(--color-border)] p-5">
 			<summary class="cursor-pointer text-xl font-semibold">
-				{$lang === 'no' ? 'Datakilder (46 kilder)' : 'Data sources (46 sources)'}
+				{$lang === 'no' ? 'Datakilder (47 kilder)' : 'Data sources (47 sources)'}
 			</summary>
 			<div class="mt-4 space-y-5 text-[var(--color-text-secondary)]">
 				<div>
@@ -201,7 +201,7 @@
 					</h4>
 					<p class="text-sm leading-relaxed">
 						Grieghallen, Ole Bull Scene, Forum Scene, Bergen Kjøtt, Harmonien, Oseana,
-						Kulturhuset i Bergen, Bjørgvin Blues
+						Kulturhuset i Bergen, Bjørgvin Blues, O'Connor's Irish Pub
 					</p>
 				</div>
 				<div>
