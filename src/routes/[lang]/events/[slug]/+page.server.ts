@@ -64,6 +64,7 @@ export const actions: Actions = {
 		const field = data.get('field');
 		const suggested_value = data.get('suggested_value');
 		const reason = data.get('reason') || null;
+		const email = data.get('email') || null;
 
 		if (!event_id || !field || !suggested_value) {
 			return fail(400, { correctionError: true });
@@ -74,6 +75,7 @@ export const actions: Actions = {
 			field,
 			suggested_value,
 			reason,
+			email,
 			status: 'pending'
 		});
 

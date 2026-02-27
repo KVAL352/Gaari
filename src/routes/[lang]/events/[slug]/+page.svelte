@@ -11,9 +11,10 @@
 	import EventCard from '$lib/components/EventCard.svelte';
 	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
 	import CalendarDropdown from '$lib/components/CalendarDropdown.svelte';
-	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquare } from 'lucide-svelte';
+	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquareDiff } from 'lucide-svelte';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
+	import { slide } from 'svelte/transition';
 
 	let { data } = $props();
 	let event: GaariEvent = $derived(data.event);
@@ -175,14 +176,14 @@
 	<section class="mb-12">
 		{#if correctionSubmitted}
 			<div class="rounded-xl bg-[var(--funkis-green-subtle)] p-4 text-sm text-[var(--funkis-green)]">
-				Takk for forslaget! / Thank you for your suggestion!
+				{$t('correctionThank')}
 			</div>
 		{:else}
 			<button
 				onclick={() => showCorrectionForm = !showCorrectionForm}
-				class="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+				class="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] underline decoration-[var(--color-border)] underline-offset-2 hover:text-[var(--color-text-primary)] hover:decoration-[var(--color-text-primary)]"
 			>
-				<MessageSquare size={16} />
+				<MessageSquareDiff size={16} />
 				{$t('suggestCorrection')}
 			</button>
 			{#if showCorrectionForm}
@@ -203,37 +204,57 @@
 						};
 					}}
 					class="mt-4 space-y-3 rounded-xl border border-[var(--color-border)] p-4"
+					transition:slide={{ duration: 200 }}
 				>
 					<input type="hidden" name="event_id" value={event.id} />
 					<input type="hidden" name="event_title" value={event.title_no || event.title_en} />
 					<input type="hidden" name="event_slug" value={event.slug} />
 					<div>
 						<label for="correction-field" class="mb-1 block text-sm font-medium">
-							{$lang === 'no' ? 'Hva bør endres?' : 'What should be changed?'}
+							{$t('correctionWhat')}
 						</label>
 						<select id="correction-field" name="field" class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm">
 							<option value="date">{$t('date')}</option>
 							<option value="price">{$t('priceLabel')}</option>
-							<option value="venue">{$lang === 'no' ? 'Sted' : 'Venue'}</option>
+							<option value="venue">{$t('correctionVenue')}</option>
 							<option value="description">{$t('description')}</option>
-							<option value="other">{$lang === 'no' ? 'Annet' : 'Other'}</option>
+							<option value="other">{$t('correctionOther')}</option>
 						</select>
 					</div>
 					<div>
 						<label for="correction-value" class="mb-1 block text-sm font-medium">
-							{$lang === 'no' ? 'Riktig verdi' : 'Correct value'}
+							{$t('correctionValue')} <span class="text-[var(--color-accent)]">*</span>
 						</label>
-						<input id="correction-value" name="suggested_value" class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm" />
+						<input
+							id="correction-value"
+							name="suggested_value"
+							required
+							aria-required="true"
+							placeholder={$t('correctionValuePlaceholder')}
+							class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm placeholder:text-[var(--color-text-muted)]"
+						/>
 					</div>
 					<div>
 						<label for="correction-reason" class="mb-1 block text-sm font-medium">
-							{$lang === 'no' ? 'Begrunnelse (valgfritt)' : 'Reason (optional)'}
+							{$t('correctionReason')}
 						</label>
 						<textarea id="correction-reason" name="reason" rows="2" class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm"></textarea>
 					</div>
+					<div>
+						<label for="correction-email" class="mb-1 block text-sm font-medium">
+							{$t('correctionEmail')}
+						</label>
+						<input
+							id="correction-email"
+							name="email"
+							type="email"
+							placeholder={$t('correctionEmailPlaceholder')}
+							class="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm placeholder:text-[var(--color-text-muted)]"
+						/>
+					</div>
 					{#if correctionError}
 						<p class="text-sm text-red-600" role="alert">
-							{$lang === 'no' ? 'Noe gikk galt. Prøv igjen.' : 'Something went wrong. Please try again.'}
+							{$t('correctionError')}
 						</p>
 					{/if}
 					<button type="submit" disabled={correctionSubmitting} class="rounded-lg bg-[var(--color-text-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-text-secondary)] disabled:opacity-70">
