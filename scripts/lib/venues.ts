@@ -56,6 +56,11 @@ const VENUE_URLS: Record<string, string> = {
 	'statsraaden bar': 'https://lehmkuhl.no',
 	'statsraaden bar & reception': 'https://lehmkuhl.no',
 	'statsraad lehmkuhl': 'https://lehmkuhl.no',
+	"o'connor's irish pub": 'https://oconnors.no/bergen',
+	"o'connor's": 'https://oconnors.no/bergen',
+	'oconnors': 'https://oconnors.no/bergen',
+
+	'østre - hus for lydkunst og elektronisk musikk': 'https://ekko.no',
 
 	// Cultural institutions
 	'bergen kunsthall': 'https://bergenkunsthall.no',
@@ -184,7 +189,7 @@ const VENUE_URLS: Record<string, string> = {
 
 	// Climate festival venues
 	'byrommet': 'https://varmerevaterevillere.no',
-	'østre': 'https://ostre.no',
+	'østre': 'https://ekko.no',
 
 	// DNT (outdoor/hiking)
 	'dnt bergen': 'https://www.dnt.no/dnt-der-du-er/bergen-og-hordaland-turlag/',

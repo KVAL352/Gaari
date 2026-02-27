@@ -219,6 +219,11 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'terminus hall': 'Bergenhus',
 	'biblioteket bar': 'Sentrum',
 	'folk kultursenter': 'Sentrum',
+	// Broadcast.events venues
+	"o'connor's irish pub": 'Bergenhus',
+	"o'connor's": 'Bergenhus',
+	'oconnors': 'Bergenhus',
+	'østre': 'Sentrum',
 };
 
 export function isKnownBergenVenue(venueName: string): boolean {
