@@ -16,7 +16,7 @@
 			<nav aria-label={$t('categories')}>
 				<h4 class="mb-2 text-sm font-semibold">{$t('categories')}</h4>
 				<ul class="space-y-1">
-					{#each CATEGORIES.slice(0, 6) as cat (cat)}
+					{#each CATEGORIES as cat (cat)}
 						<li>
 							<a
 								href="/{$lang}?category={cat}"
@@ -29,22 +29,31 @@
 				</ul>
 			</nav>
 
-			<!-- More categories -->
-			<div>
-				<div class="mb-2 h-5"></div>
+			<!-- Collections -->
+			<nav aria-label={$lang === 'no' ? 'Utforsk' : 'Explore'}>
+				<h4 class="mb-2 text-sm font-semibold">{$lang === 'no' ? 'Utforsk' : 'Explore'}</h4>
 				<ul class="space-y-1">
-					{#each CATEGORIES.slice(6) as cat (cat)}
-						<li>
-							<a
-								href="/{$lang}?category={cat}"
-								class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]"
-							>
-								{$t(`cat.${cat}`)}
-							</a>
-						</li>
-					{/each}
+					{#if $lang === 'no'}
+						<li><a href="/no/denne-helgen" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Denne helgen</a></li>
+						<li><a href="/no/i-kveld" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">I kveld</a></li>
+						<li><a href="/no/i-dag" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">I dag</a></li>
+						<li><a href="/no/gratis" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Gratis</a></li>
+						<li><a href="/no/konserter" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Konserter</a></li>
+						<li><a href="/no/familiehelg" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Familiehelg</a></li>
+						<li><a href="/no/voksen" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">For voksne</a></li>
+						<li><a href="/no/regndagsguide" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Regnværsguide</a></li>
+					{:else}
+						<li><a href="/en/this-weekend" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">This weekend</a></li>
+						<li><a href="/en/today-in-bergen" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Today</a></li>
+						<li><a href="/en/free-things-to-do-bergen" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Free events</a></li>
+						<li><a href="/en/voksen" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">For adults</a></li>
+						<li><a href="/en/konserter" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Concerts</a></li>
+						<li><a href="/en/familiehelg" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Family weekend</a></li>
+						<li><a href="/en/sentrum" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">City centre</a></li>
+						<li><a href="/en/regndagsguide" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">Rainy day guide</a></li>
+					{/if}
 				</ul>
-			</div>
+			</nav>
 
 			<!-- Links -->
 			<nav aria-label={$lang === 'no' ? 'Om Gåri' : 'About Gåri'}>
