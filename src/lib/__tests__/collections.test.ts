@@ -32,9 +32,9 @@ describe('getCollection', () => {
 		expect(getCollection('gibberish')).toBeUndefined();
 	});
 
-	it('returns all 13 collections', () => {
+	it('returns all 14 collections', () => {
 		const slugs = getAllCollectionSlugs();
-		expect(slugs).toHaveLength(13);
+		expect(slugs).toHaveLength(14);
 		expect(slugs).toContain('denne-helgen');
 		expect(slugs).toContain('i-kveld');
 		expect(slugs).toContain('gratis');
@@ -48,6 +48,7 @@ describe('getCollection', () => {
 		expect(slugs).toContain('regndagsguide');
 		expect(slugs).toContain('sentrum');
 		expect(slugs).toContain('voksen');
+		expect(slugs).toContain('for-ungdom');
 	});
 
 	it('each collection has bilingual title and description', () => {
@@ -391,5 +392,97 @@ describe('sentrum filter', () => {
 	it('returns empty when no Sentrum events', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		expect(collection.filterEvents([makeEvent({ bydel: 'Fana' })], now)).toHaveLength(0);
+	});
+});
+
+describe('youth filter (for-ungdom)', () => {
+	const collection = getCollection('for-ungdom')!;
+
+	it('returns collection with correct metadata', () => {
+		expect(collection).toBeDefined();
+		expect(collection.id).toBe('ungdom');
+		expect(collection.title.no).toContain('ungdom');
+		expect(collection.title.en).toContain('Teens');
+	});
+
+	it('includes youth-relevant categories within 2 weeks', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'music', age_group: 'all' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', category: 'sports', age_group: 'all' }),
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'workshop', age_group: 'all' }),
+			makeEvent({ id: '4', date_start: '2026-02-25T18:00:00Z', category: 'festival', age_group: 'all' }),
+			makeEvent({ id: '5', date_start: '2026-02-25T18:00:00Z', category: 'student', age_group: 'all' }),
+			makeEvent({ id: '6', date_start: '2026-02-25T18:00:00Z', category: 'culture', age_group: 'all' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(6);
+	});
+
+	it('excludes 18+, nightlife, and food', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'music', age_group: '18+' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', category: 'nightlife', age_group: 'all' }),
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'food', age_group: 'all' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
+	});
+
+	it('includes family events', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T14:00:00Z', age_group: 'family', category: 'theatre' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T14:00:00Z', category: 'family', age_group: 'all' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(2);
+	});
+
+	it('includes events with youth keywords in title', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', title_no: 'UKM ungdomskveld', category: 'theatre', age_group: 'all' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', title_no: 'Kurs for unge filmskapere', category: 'theatre', age_group: 'all' }),
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', title_no: 'Tenåringsklubb', category: 'theatre', age_group: 'all' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(3);
+	});
+
+	it('includes events with youth keywords in description', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', description_no: 'Åpent for ungdom og voksne', category: 'theatre', age_group: 'all' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', description_no: 'For alle fra 13–18 år', category: 'theatre', age_group: 'all' }),
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', description_no: 'Anbefalt fra 12 år', category: 'theatre', age_group: 'all' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(3);
+	});
+
+	it('does not match description keywords if age_group is 18+', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', description_no: 'Ungdomsfest med DJ', category: 'theatre', age_group: '18+' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
+	});
+
+	it('excludes events outside 2-week window', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-03-10T18:00:00Z', category: 'music', age_group: 'all' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
+	});
+
+	it('excludes tours category', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'tours', age_group: 'all' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
+	});
+
+	it('handles empty event list', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		expect(collection.filterEvents([], now)).toHaveLength(0);
 	});
 });

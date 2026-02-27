@@ -95,6 +95,14 @@
 		// Audience filter
 		if (audience === 'family') {
 			events = events.filter(e => e.age_group === 'family');
+		} else if (audience === 'ungdom') {
+			const youthCategories = new Set(['music', 'culture', 'sports', 'workshop', 'festival', 'student']);
+			const youthRe = /\bungdom|\btenåring|\bfor\s+unge?\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
+			events = events.filter(e => {
+				if (e.age_group === '18+') return false;
+				if (e.category === 'nightlife' || e.category === 'food') return false;
+				return youthCategories.has(e.category) || e.age_group === 'family' || e.category === 'family' || youthRe.test(e.title_no) || youthRe.test(e.description_no);
+			});
 		} else if (audience === 'student') {
 			events = events.filter(e => e.age_group === 'students' || e.category === 'student');
 		} else if (audience === 'tourist') {

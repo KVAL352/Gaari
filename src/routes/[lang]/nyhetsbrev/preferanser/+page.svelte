@@ -21,6 +21,7 @@
 	const audienceOptions = [
 		{ value: '', labelNo: 'Alle', labelEn: 'All' },
 		{ value: 'family', labelNo: 'Familie', labelEn: 'Family' },
+		{ value: 'ungdom', labelNo: 'Ungdom', labelEn: 'Youth' },
 		{ value: 'voksen', labelNo: 'Voksen', labelEn: 'Adult' },
 		{ value: 'student', labelNo: 'Student', labelEn: 'Student' },
 		{ value: 'adult', labelNo: '18+', labelEn: '18+' },

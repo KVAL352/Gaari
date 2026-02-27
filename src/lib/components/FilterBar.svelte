@@ -38,6 +38,7 @@
 		{ value: 'tourist', label: 'touristHighlights' },
 		{ value: 'student', label: 'studentDeals' },
 		{ value: 'family', label: 'familyFriendly' },
+		{ value: 'ungdom', label: 'youth' },
 		{ value: 'free', label: 'freeEvents' }
 	] as const;
 

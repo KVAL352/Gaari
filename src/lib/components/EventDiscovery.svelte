@@ -7,7 +7,7 @@
 	import { isFreeEvent } from '$lib/utils';
 	import FilterPill from './FilterPill.svelte';
 	import MiniCalendar from './MiniCalendar.svelte';
-	import { Users, Drama, GraduationCap, Moon, MapPin, Mail } from 'lucide-svelte';
+	import { Users, Drama, GraduationCap, Moon, MapPin, Mail, Sparkle } from 'lucide-svelte';
 	import { slide } from 'svelte/transition';
 	import { browser } from '$app/environment';
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, addDays, getEndOfWeekDateStr } from '$lib/event-filters';
@@ -51,6 +51,13 @@
 		const counts: Record<string, number> = {};
 		counts[''] = activeEvents.length;
 		counts.family = activeEvents.filter(e => e.age_group === 'family').length;
+		counts.ungdom = activeEvents.filter(e => {
+			if (e.age_group === '18+') return false;
+			if (e.category === 'nightlife' || e.category === 'food') return false;
+			const youthCategories = new Set(['music', 'culture', 'sports', 'workshop', 'festival', 'student']);
+			const youthRe = /\bungdom|\btenåring|\bfor\s+unge?\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
+			return youthCategories.has(e.category) || e.age_group === 'family' || e.category === 'family' || youthRe.test(e.title_no) || youthRe.test(e.description_no);
+		}).length;
 		counts.voksen = activeEvents.filter(e => {
 			const adultCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop']);
 			return adultCategories.has(e.category);
@@ -156,6 +163,7 @@
 	// ── Step 3: Who? ──
 	const audienceOptions = [
 		{ value: 'family', labelKey: 'familyShort', icon: Users },
+		{ value: 'ungdom', labelKey: 'youth', icon: Sparkle },
 		{ value: 'voksen', labelKey: 'grownups', icon: Drama },
 		{ value: 'student', labelKey: 'students', icon: GraduationCap },
 		{ value: 'adult', labelKey: 'adults', icon: Moon },
@@ -347,11 +355,11 @@
 		student: 'student events', tours: 'tours & experiences'
 	};
 	const audienceLabelsNo: Record<string, string> = {
-		family: 'for familien', voksen: 'for voksne', student: 'for studenter',
+		family: 'for familien', ungdom: 'for ungdom', voksen: 'for voksne', student: 'for studenter',
 		adult: 'for voksne (18+)', tourist: 'for turister'
 	};
 	const audienceLabelsEn: Record<string, string> = {
-		family: 'for families', voksen: 'for adults', student: 'for students',
+		family: 'for families', ungdom: 'for teens', voksen: 'for adults', student: 'for students',
 		adult: 'for adults (18+)', tourist: 'for tourists'
 	};
 

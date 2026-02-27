@@ -3,6 +3,8 @@ import { isFreeEvent } from './utils';
 import { isSameDay, getWeekendDates, matchesTimeOfDay, toOsloDateStr, getEndOfWeekDateStr, addDays } from './event-filters';
 
 const FAMILY_TITLE_RE = /familie|barnelørdag|barnas\s|for\s+barn|barneforestilling/i;
+const YOUTH_TEXT_RE = /\bungdom|\btenåring|\bfor\s+unge?\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
+const YOUTH_CATEGORIES = new Set(['music', 'culture', 'sports', 'workshop', 'festival', 'student']);
 const INDOOR_CATEGORIES = new Set(['music', 'culture', 'theatre', 'family', 'food', 'workshop', 'nightlife', 'student']);
 
 export interface Collection {
@@ -638,6 +640,57 @@ const collections: Collection[] = [
 					e.category !== 'sports' &&
 					e.category !== 'family'
 				);
+			});
+		}
+	},
+	{
+		id: 'ungdom',
+		slug: 'for-ungdom',
+		title: {
+			no: 'Arrangementer for ungdom i Bergen',
+			en: 'Events for Teens in Bergen'
+		},
+		description: {
+			no: 'Konserter, kultur, sport, workshops og festivaler for ungdom (13\u201318 år) i Bergen de neste to ukene.',
+			en: 'Concerts, culture, sports, workshops and festivals for teens (13\u201318) in Bergen over the next two weeks.'
+		},
+		ogSubtitle: {
+			no: 'For ungdom mellom 13 og 18 år',
+			en: 'For teens aged 13 to 18'
+		},
+		editorial: {
+			no: [
+				'Bergen har et bredt tilbud for ungdom \u2014 fra konserter på Kvarteret og Forum Scene til workshops på Litteraturhuset og utstillinger på KODE. Mange arrangementer er enten gratis eller har reduserte priser for unge under 18.',
+				'Gåri samler arrangementer fra over 40 lokale kilder og oppdaterer listen daglig. Vi filtrerer bort arrangementer med aldersgrense (18+/20+) og uteliv, slik at det som vises passer for aldersgruppen 13\u201318 år.',
+				'Sjekk gjerne konserter, sportshendelser og workshops \u2014 Bergen har mye å tilby unge kulturinteresserte. Mange museer har gratis inngang for barn og ungdom under 18.'
+			],
+			en: [
+				'Bergen offers a wide range of events for teens \u2014 from concerts at Kvarteret and Forum Scene to workshops at Litteraturhuset and exhibitions at KODE. Many events are either free or offer reduced prices for under-18s.',
+				'Gåri collects events from over 40 local sources and updates the listing daily. We filter out events with age restrictions (18+/20+) and nightlife, so everything shown is suitable for the 13\u201318 age group.',
+				'Check out concerts, sports events and workshops \u2014 Bergen has plenty to offer young culture enthusiasts. Many museums offer free entry for children and teens under 18.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hva skjer i Bergen for ungdom?', a: 'Gåri viser konserter, kultur, sport, workshops og festivaler som passer for ungdom mellom 13 og 18 år i Bergen de neste to ukene.' },
+				{ q: 'Er det gratis arrangementer for ungdom i Bergen?', a: 'Ja \u2014 mange museer, biblioteker og kulturhus har gratis inngang for ungdom under 18. Sjekk Gåris gratis-side for full oversikt.' },
+				{ q: 'Hvilke konserter kan ungdom gå på i Bergen?', a: 'Mange konserter i Bergen er åpne for alle aldre. Gåri filtrerer bort arrangementer med 18+ aldersgrense, slik at du ser konserter du faktisk kan gå på.' }
+			],
+			en: [
+				{ q: 'What events are there for teens in Bergen?', a: 'Gåri shows concerts, culture, sports, workshops and festivals suitable for teens aged 13\u201318 in Bergen over the next two weeks.' },
+				{ q: 'Are there free events for teens in Bergen?', a: 'Yes \u2014 many museums, libraries and cultural venues offer free entry for teens under 18. Check Gåri\'s free events page for a full list.' },
+				{ q: 'What concerts can teens go to in Bergen?', a: 'Many concerts in Bergen are open to all ages. Gåri filters out events with 18+ age restrictions, so you see concerts you can actually attend.' }
+			]
+		},
+		filterEvents: (events, now) => {
+			const todayStr = toOsloDateStr(now);
+			const endStr = toOsloDateStr(addDays(now, 13));
+			return events.filter(e => {
+				const d = e.date_start.slice(0, 10);
+				if (d < todayStr || d > endStr) return false;
+				if (e.age_group === '18+') return false;
+				if (e.category === 'nightlife' || e.category === 'food') return false;
+				return YOUTH_CATEGORIES.has(e.category) || e.age_group === 'family' || e.category === 'family' || YOUTH_TEXT_RE.test(e.title_no) || YOUTH_TEXT_RE.test(e.description_no);
 			});
 		}
 	}
