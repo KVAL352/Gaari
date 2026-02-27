@@ -160,6 +160,7 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'laksevåg kultursenter': 'Laksevåg',
 	'fyllingsdalen arena': 'Fyllingsdalen',
 	'fyllingsdalen bibliotek': 'Fyllingsdalen',
+	'fyllingsdalen teater': 'Fyllingsdalen',
 	'fyllingsdalen': 'Fyllingsdalen',
 	'åsane bibliotek': 'Åsane',
 	'åsane kulturhus': 'Åsane',
@@ -210,7 +211,22 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'damsgård hovedgård': 'Laksevåg',
 	'damsgård': 'Laksevåg',
 	'ytrebygda kultursenter': 'Ytrebygda',
+	// Tikkio venues
+	'pappa': 'Sentrum',
+	'dr. wiesener': 'Sentrum',
+	'terminus hall': 'Bergenhus',
+	'biblioteket bar': 'Sentrum',
+	'folk kultursenter': 'Sentrum',
 };
+
+export function isKnownBergenVenue(venueName: string): boolean {
+	const lower = venueName.toLowerCase().trim();
+	if (VENUE_BYDEL_MAP[lower]) return true;
+	for (const key of Object.keys(VENUE_BYDEL_MAP)) {
+		if (lower.includes(key)) return true;
+	}
+	return false;
+}
 
 export function mapBydel(venueName: string): string {
 	const lower = venueName.toLowerCase().trim();

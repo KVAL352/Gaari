@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 45 scrapers (43 active) collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 46 scrapers (44 active) collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -36,7 +36,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 4. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
 5. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
-## Scraper sources (45 total, 43 active, 2 disabled)
+## Scraper sources (46 total, 44 active, 2 disabled)
 
 ### General aggregators
 | Source | File | Method |
@@ -48,13 +48,13 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 **Disabled scrapers:**
 - ~~BarnasNorge~~ (`barnasnorge.ts`) — disabled Feb 25, 2026. All venues covered by dedicated scrapers. Issues: AI-generated stock images from Webflow CDN, address-based venue names, complex URL resolution.
-- ~~Kulturikveld~~ — removed earlier (unreliable).
+- ~~Kulturikveld~~ — removed (unreliable, file deleted).
 
 ### Ticket platforms
 | Source | File | Method |
 |--------|------|--------|
 | Eventbrite | `eventbrite.ts` | `__SERVER_DATA__` JSON extraction, pagination |
-| TicketCo | `ticketco.ts` | Multi-venue subdomains (Hulen, Kvarteret, Madam Felle, etc.) |
+| TicketCo | `ticketco.ts` | Multi-venue subdomains (Hulen, Kvarteret, Madam Felle, Landmark, Statsraad Lehmkuhl, etc.) |
 | Hoopla | `hoopla.ts` | Hoopla events platform |
 
 ### Performance venues
@@ -70,6 +70,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | BIT Teatergarasjen | `bitteater.ts` | HTML |
 | Carte Blanche | `carteblanche.ts` | HTML |
 | Bergen Filharmoniske | `harmonien.ts` | HTML |
+| Fyllingsdalen Teater | `fyllingsdalenteater.ts` | HTML (EasyTicket select dropdown) |
 
 ### Arts, culture & literature
 | Source | File | Method |
@@ -181,7 +182,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 
 - `/[lang]/` — Main event listing with EventDiscovery filter. **Server-side loaded** (`+page.server.ts`), ISR cached (`s-maxage=300, stale-while-revalidate=600`).
 - `/[lang]/about/` — About page. **Prerendered** at build time (both `/no/about` and `/en/about`).
-- `/[lang]/datainnsamling/` — Data transparency page (43 sources listed, opt-out form). Form action `?/optout` in `+page.server.ts`.
+- `/[lang]/datainnsamling/` — Data transparency page (44 sources listed, opt-out form). Form action `?/optout` in `+page.server.ts`.
 - `/[lang]/personvern/` — Privacy policy (GDPR). Bilingual inline, no server load, in sitemap.
 - `/[lang]/tilgjengelighet/` — Accessibility statement (EAA/WCAG 2.2 AA). Bilingual inline, no server load, in sitemap.
 - `/[lang]/submit/` — Event submission form (blocked from search engines). Only page that ships Supabase SDK to client (for image uploads).

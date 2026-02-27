@@ -52,6 +52,10 @@ const VENUE_URLS: Record<string, string> = {
 	'landmark': 'https://landmark.no',
 	'victoria': 'https://www.victoriapub.no',
 	'vic': 'https://www.victoriapub.no',
+	'statsraaden': 'https://lehmkuhl.no',
+	'statsraaden bar': 'https://lehmkuhl.no',
+	'statsraaden bar & reception': 'https://lehmkuhl.no',
+	'statsraad lehmkuhl': 'https://lehmkuhl.no',
 
 	// Cultural institutions
 	'bergen kunsthall': 'https://bergenkunsthall.no',
@@ -89,6 +93,7 @@ const VENUE_URLS: Record<string, string> = {
 	'åsane kulturhus': 'https://bergen.kommune.no/kulturhus/asane',
 	'laksevåg kultursenter': 'https://bergen.kommune.no/kulturhus/laksevag',
 	'fyllingsdalen arena': 'https://bergen.kommune.no/kulturhus/fyllingsdalen',
+	'fyllingsdalen teater': 'https://fyllingsdalenteater.no',
 	'ny-krohnborg kultursenter': 'https://bergen.kommune.no/ny-krohnborg',
 	'ny krohnborg kultursenter': 'https://bergen.kommune.no/ny-krohnborg',
 	'ytrebygda kultursenter': 'https://bergen.kommune.no/ytrebygda-kultursenter',

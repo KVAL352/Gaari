@@ -9,6 +9,8 @@ import { scrape as scrapeDNT } from './scrapers/dnt.js';
 import { scrape as scrapeEventbrite } from './scrapers/eventbrite.js';
 import { scrape as scrapeTicketCo } from './scrapers/ticketco.js';
 import { scrape as scrapeHoopla } from './scrapers/hoopla.js';
+// Tikkio: waiting for permission — email sent 2026-02-27
+// import { scrape as scrapeTikkio } from './scrapers/tikkio.js';
 import { scrape as scrapeNordnesSjobad } from './scrapers/nordnessjobad.js';
 import { scrape as scrapeRaabrent } from './scrapers/raabrent.js';
 import { scrape as scrapeBergenChamber } from './scrapers/bergenchamber.js';
@@ -46,6 +48,7 @@ import { scrape as scrapeBymuseet } from './scrapers/bymuseet.js';
 import { scrape as scrapeMuseumVest } from './scrapers/museumvest.js';
 import { scrape as scrapeAkvariet } from './scrapers/akvariet.js';
 import { scrape as scrapeKvarteret } from './scrapers/kvarteret.js';
+import { scrape as scrapeFyllingsdalenTeater } from './scrapers/fyllingsdalenteater.js';
 import { writeFileSync } from 'fs';
 import { removeExpiredEvents, loadOptOuts, getOptOutDomains } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
@@ -64,6 +67,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	eventbrite: scrapeEventbrite,
 	ticketco: scrapeTicketCo,
 	hoopla: scrapeHoopla,
+	// tikkio: scrapeTikkio, // Waiting for permission — email sent 2026-02-27
 	nordnessjobad: scrapeNordnesSjobad,
 	raabrent: scrapeRaabrent,
 	bergenchamber: scrapeBergenChamber,
@@ -101,6 +105,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	museumvest: scrapeMuseumVest,
 	akvariet: scrapeAkvariet,
 	kvarteret: scrapeKvarteret,
+	fyllingsdalenteater: scrapeFyllingsdalenTeater,
 	// --- Aggregator last (fills gaps, skipped if deadline reached) ---
 	visitbergen: scrapeVisitBergen,
 };
@@ -224,7 +229,8 @@ async function main() {
 
 	// Step 4: IndexNow ping for newly inserted events
 	let indexNowSubmitted = 0;
-	if (totalInserted > 0) {
+	const insertedCount = Object.values(results).reduce((sum, r) => sum + r.inserted, 0);
+	if (insertedCount > 0) {
 		console.log('--- Pinging IndexNow ---');
 		indexNowSubmitted = await pingIndexNow(startTime);
 	}
