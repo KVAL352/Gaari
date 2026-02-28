@@ -1,5 +1,5 @@
 import { supabase } from '$lib/server/supabase';
-import { getAllCollectionSlugs } from '$lib/collections';
+import { getAllCollectionSlugs, getHreflangSlugs } from '$lib/collections';
 
 const BASE = 'https://gaari.no';
 
@@ -35,18 +35,19 @@ export async function GET() {
 
 	// For arrangører / For organizers — temporarily hidden while under construction
 
-	// Collection pages in both languages
+	// Collection pages in both languages (with paired slug support for hreflang)
 	for (const slug of getAllCollectionSlugs()) {
-		for (const lang of ['no', 'en']) {
+		const hreflang = getHreflangSlugs(slug);
+		for (const lang of ['no', 'en'] as const) {
 			const altLang = lang === 'no' ? 'en' : 'no';
 			urls += `  <url>
     <loc>${BASE}/${lang}/${slug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${slug}" />
-    <xhtml:link rel="alternate" hreflang="${altLang === 'no' ? 'nb' : 'en'}" href="${BASE}/${altLang}/${slug}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/${slug}" />
+    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${hreflang[lang]}" />
+    <xhtml:link rel="alternate" hreflang="${altLang === 'no' ? 'nb' : 'en'}" href="${BASE}/${altLang}/${hreflang[altLang]}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/${hreflang.no}" />
   </url>\n`;
 		}
 	}

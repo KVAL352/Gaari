@@ -18,6 +18,10 @@
 	let pathWithoutLang = $derived($page.url.pathname.replace(/^\/(no|en)/, ''));
 	const baseUrl = 'https://gaari.no';
 
+	// Collection pages with paired slugs (e.g. denne-helgen ↔ this-weekend) provide hreflangPaths
+	let hreflangNb = $derived(($page.data as any).hreflangPaths?.no ? `${baseUrl}${($page.data as any).hreflangPaths.no}` : `${baseUrl}/no${pathWithoutLang}`);
+	let hreflangEn = $derived(($page.data as any).hreflangPaths?.en ? `${baseUrl}${($page.data as any).hreflangPaths.en}` : `${baseUrl}/en${pathWithoutLang}`);
+
 	// Keep $effect for client-side navigation (SPA-style route changes)
 	$effect(() => {
 		const urlLang = $page.params.lang as Lang;
@@ -41,9 +45,9 @@
 	<meta property="og:url" content={`${baseUrl}/${$lang}${pathWithoutLang}`} />
 
 	<!-- hreflang for bilingual SEO -->
-	<link rel="alternate" hreflang="nb" href={`${baseUrl}/no${pathWithoutLang}`} />
-	<link rel="alternate" hreflang="en" href={`${baseUrl}/en${pathWithoutLang}`} />
-	<link rel="alternate" hreflang="x-default" href={`${baseUrl}/no${pathWithoutLang}`} />
+	<link rel="alternate" hreflang="nb" href={hreflangNb} />
+	<link rel="alternate" hreflang="en" href={hreflangEn} />
+	<link rel="alternate" hreflang="x-default" href={hreflangNb} />
 
 	<!-- Default twitter card (pages can override with more specific cards) -->
 	<meta name="twitter:card" content="summary" />

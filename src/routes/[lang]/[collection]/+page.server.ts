@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
-import { getCollection } from '$lib/collections';
+import { getCollection, getHreflangSlugs } from '$lib/collections';
 import { getOsloNow } from '$lib/event-filters';
 import { seedEvents } from '$lib/data/seed-events';
 import { getActivePromotions, pickDailyVenue, logImpression } from '$lib/server/promotions';
@@ -100,10 +100,15 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			editorial: collection.editorial,
 			faq: collection.faq,
 			relatedSlugs: collection.relatedSlugs,
-			quickAnswer: collection.quickAnswer
+			quickAnswer: collection.quickAnswer,
+			newsletterHeading: collection.newsletterHeading
 		},
 		events: filtered,
 		promotedEventIds,
-		lang: params.lang as 'no' | 'en'
+		lang: params.lang as 'no' | 'en',
+		hreflangPaths: (() => {
+			const slugs = getHreflangSlugs(collection.slug);
+			return { no: `/no/${slugs.no}`, en: `/en/${slugs.en}` };
+		})()
 	};
 };
