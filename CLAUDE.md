@@ -204,7 +204,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 ## Frontend components (`src/lib/components/`)
 
 - `Header.svelte` — Sticky header with language switch
-- `Footer.svelte` — Footer with links (about, datainnsamling, personvern, tilgjengelighet, submit, contact) + inline NewsletterCTA. For-arrangorer link temporarily removed while page is under construction.
+- `Footer.svelte` — Footer with dynamic collection links (via `getFooterCollections()`), static links (about, datainnsamling, personvern, tilgjengelighet, submit, contact) + inline NewsletterCTA. For-arrangorer link temporarily removed while page is under construction.
 - `NewsletterCTA.svelte` — Newsletter subscribe form (card + inline variants). Props: `id` (unique suffix), `variant`, optional `heading`/`subtext` overrides. Client-side fetch to `/api/newsletter`, success/error states. Placed in footer (inline), about page, collection pages (contextual headings), event detail pages (card).
 - `HeroSection.svelte` — Compact hero with tagline
 - `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer. Accepts `promoted` prop — renders "Fremhevet"/"Featured" badge (markedsføringsloven § 3).
@@ -310,14 +310,14 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (347 tests, runs in <500ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (354 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
 - `src/lib/__tests__/event-filters.test.ts` — 28 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary)
 - `src/lib/__tests__/utils.test.ts` — 31 tests: `isFreeEvent` (all truthy/falsy cases, case-insensitive, Norwegian zero-price formats, whitespace trimming), `formatPrice` (both locales, numeric, string, null, zero-price format propagation), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases)
 - `src/lib/__tests__/seo.test.ts` — 44 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, cancelled status, language fallback), `toBergenIso` (UTC→CEST/CET, DST boundaries, passthrough, invalid), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions), `generateCollectionJsonLd` (ItemList, positions, lang prefix, 50-item cap), `computeCanonical` (all 7 rules, EN/NO variants, noindex threshold, noise params)
 - `src/lib/__tests__/seo-audit.test.ts` — 139 tests: SEO validation rules (meta tags, JSON-LD structure, canonical URLs, sitemap entries, performance budgets)
-- `src/lib/__tests__/collections.test.ts` — 45 tests: `getCollection` (valid/invalid slug, all slugs, bilingual metadata), weekend filter (Fri–Sun for Mon–Fri, Wed→Fri–Sun, empty), tonight filter (evening/night today only), free filter (this week, various price formats), today filter (same day only, empty), youth filter (youth categories, excludes 18+/nightlife/food, includes family, title+description regex, age range patterns, 2-week window, empty)
+- `src/lib/__tests__/collections.test.ts` — 52 tests: `getCollection` (valid/invalid slug, all slugs, bilingual metadata, newsletterHeading validation), weekend filter (Fri–Sun for Mon–Fri, Wed→Fri–Sun, empty), tonight filter (evening/night today only), free filter (this week, various price formats), today filter (same day only, empty), youth filter (youth categories, excludes 18+/nightlife/food, includes family, title+description regex, age range patterns, 2-week window, empty), `getFooterCollections` (NO/EN filtering, sort order, lang exclusion, footerLabel presence)
 - `scripts/lib/__tests__/utils.test.ts` — 43 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `detectFreeFromText` (Norwegian/English keywords, case-insensitive, partial-word rejection), `isOptedOut`
 - `scripts/lib/__tests__/dedup.test.ts` — 17 tests: `titlesMatch` (exact, containment with 0.6 ratio guard, 90% prefix with 1.3 ratio, short titles, real-world normalized), `scoreEvent` (source rank, image/ticket/description bonuses, aggregator URL exclusion)
 
