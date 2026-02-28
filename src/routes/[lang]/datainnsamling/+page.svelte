@@ -10,8 +10,8 @@
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/datainnsamling`));
 
 	let metaDesc = $derived($lang === 'no'
-		? 'Hvordan Gåri samler inn eventdata fra 46 kilder i Bergen. Juridisk grunnlag, prinsipper og opt-out for arrangører.'
-		: 'How Gåri collects event data from 46 sources in Bergen. Legal basis, principles, and opt-out for organizers.');
+		? 'Hvordan Gåri samler inn eventdata fra 46 kilder i Bergen. Juridisk grunnlag, prinsipper og kontaktskjema for arrangører.'
+		: 'How Gåri collects event data from 46 sources in Bergen. Legal basis, principles, and contact form for organizers.');
 </script>
 
 <svelte:head>
@@ -310,26 +310,28 @@
 		</ul>
 	</section>
 
-	<!-- Opt out form -->
+	<!-- Contact form for data inquiries -->
 	<section class="mb-10 border-t border-[var(--color-border)] pt-8">
 		<h2 class="mb-3 text-xl font-semibold">
-			{$lang === 'no' ? 'Opt-out / fjern dine arrangementer' : 'Opt out / remove your events'}
+			{$lang === 'no' ? 'Spørsmål om datainnsamling?' : 'Questions about our data collection?'}
 		</h2>
 		<p class="mb-5 leading-relaxed text-[var(--color-text-secondary)]">
 			{#if $lang === 'no'}
-				Er du arrangør og ønsker ikke at dine arrangementer vises på Gåri? Fyll ut skjemaet under,
-				så fjerner vi kildene dine innen 48 timer. Ingen spørsmål stilt.
+				Er du arrangør og har spørsmål om hvordan vi bruker informasjon fra din nettside?
+				Vi samler kun faktiske opplysninger om offentlige arrangementer (titler, datoer, steder, priser)
+				og alle beskrivelser er uavhengig generert. Ta kontakt, så svarer vi gjerne.
 			{:else}
-				Are you an organizer and don't want your events shown on Gåri? Fill out the form below and
-				we'll remove your sources within 48 hours. No questions asked.
+				Are you an organizer with questions about how we use information from your website?
+				We only collect factual information about public events (titles, dates, venues, prices)
+				and all descriptions are independently generated. Get in touch and we'll be happy to answer.
 			{/if}
 		</p>
 
 		{#if optOutStatus === 'success'}
 			<div class="rounded-lg border border-green-300 bg-green-50 p-4 text-green-800" role="status">
 				{$lang === 'no'
-					? 'Forespørselen din er mottatt. Vi behandler den innen 48 timer.'
-					: 'Your request has been received. We\'ll process it within 48 hours.'}
+					? 'Henvendelsen din er mottatt. Vi kommer tilbake til deg så snart som mulig.'
+					: 'Your inquiry has been received. We\'ll get back to you as soon as possible.'}
 			</div>
 		{:else}
 			<form
@@ -395,7 +397,7 @@
 				</div>
 				<div>
 					<label for="reason" class="mb-1.5 block text-sm font-medium">
-						{$lang === 'no' ? 'Begrunnelse (valgfritt)' : 'Reason (optional)'}
+						{$lang === 'no' ? 'Melding (valgfritt)' : 'Message (optional)'}
 					</label>
 					<textarea
 						id="reason"
@@ -410,9 +412,9 @@
 					class="rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[var(--color-accent-hover)] disabled:opacity-70"
 				>
 					{#if optOutStatus === 'submitting'}
-						{$lang === 'no' ? 'Sender...' : 'Submitting...'}
+						{$lang === 'no' ? 'Sender...' : 'Sending...'}
 					{:else}
-						{$lang === 'no' ? 'Send forespørsel' : 'Submit request'}
+						{$lang === 'no' ? 'Send henvendelse' : 'Send inquiry'}
 					{/if}
 				</button>
 				{#if optOutStatus === 'error'}
