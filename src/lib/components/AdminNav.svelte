@@ -8,6 +8,8 @@
 		{ href: '/admin/promotions', label: 'Plasseringer' },
 		{ href: '/admin/submissions', label: 'Arrangementer' },
 		{ href: '/admin/innsendelser', label: 'Innsendelser' },
+		{ href: '/admin/corrections', label: 'Rettelser' },
+		{ href: '/admin/optouts', label: 'Opt-outs' },
 		{ href: '/admin/social', label: 'Social' },
 		{ href: '/admin/logout', label: 'Logg ut' }
 	];

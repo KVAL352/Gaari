@@ -154,6 +154,77 @@ export async function notifySubmission(data: {
 	});
 }
 
+export async function sendCorrectionAppliedEmail(
+	to: string,
+	eventTitle: string
+): Promise<void> {
+	await getResend().emails.send({
+		from: 'Gåri <noreply@gaari.no>',
+		to,
+		subject: `Rettelsen din for «${eventTitle}» er lagt inn`,
+		text: [
+			`Hei,`,
+			``,
+			`Takk for at du sendte inn en rettelse for «${eventTitle}» på Gåri.`,
+			``,
+			`Vi har nå oppdatert arrangementet med informasjonen du foreslo. Vi setter pris på at du hjelper oss med å holde informasjonen korrekt!`,
+			``,
+			`Vennlig hilsen`,
+			`Gåri — gaari.no`
+		].join('\n')
+	});
+}
+
+export async function sendCorrectionRejectedEmail(
+	to: string,
+	eventTitle: string,
+	feedback: string
+): Promise<void> {
+	await getResend().emails.send({
+		from: 'Gåri <noreply@gaari.no>',
+		to,
+		subject: `Angående rettelsen din for «${eventTitle}»`,
+		text: [
+			`Hei,`,
+			``,
+			`Takk for at du sendte inn en rettelse for «${eventTitle}» på Gåri.`,
+			``,
+			`Dessverre kunne vi ikke legge inn rettelsen denne gangen. Her er tilbakemeldingen:`,
+			``,
+			feedback,
+			``,
+			`Ta gjerne kontakt dersom du har spørsmål.`,
+			``,
+			`Vennlig hilsen`,
+			`Gåri — gaari.no`
+		].join('\n')
+	});
+}
+
+export async function sendOptOutRejectedEmail(
+	to: string,
+	organization: string,
+	feedback: string
+): Promise<void> {
+	await getResend().emails.send({
+		from: 'Gåri <noreply@gaari.no>',
+		to,
+		subject: `Angående henvendelsen din om datainnsamling for ${organization}`,
+		text: [
+			`Hei,`,
+			``,
+			`Takk for at du tok kontakt med Gåri angående datainnsamling for ${organization}.`,
+			``,
+			feedback,
+			``,
+			`Ta gjerne kontakt igjen dersom du har spørsmål.`,
+			``,
+			`Vennlig hilsen`,
+			`Gåri — gaari.no`
+		].join('\n')
+	});
+}
+
 export async function notifyCorrection(data: {
 	eventTitle: string;
 	eventSlug: string;
