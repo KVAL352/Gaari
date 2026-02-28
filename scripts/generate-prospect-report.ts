@@ -1,0 +1,1164 @@
+/**
+ * Prospect Report Generator — Sales Material for Venues
+ *
+ * Generates a professional HTML report showing the value of Gåri
+ * for a specific venue (or a general platform overview).
+ *
+ * Usage:
+ *   cd scripts
+ *   npx tsx generate-prospect-report.ts "Den Nationale Scene"
+ *   npx tsx generate-prospect-report.ts "Den Nationale Scene" --email kontakt@dns.no
+ *   npx tsx generate-prospect-report.ts "Den Nationale Scene" --lang en
+ *   npx tsx generate-prospect-report.ts --overview
+ *
+ * Env vars:
+ *   PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
+ *   PLAUSIBLE_API_KEY (optional), MAILERLITE_API_KEY (optional),
+ *   RESEND_API_KEY (for --email)
+ */
+
+import * as fs from 'fs';
+import * as path from 'path';
+import { supabase } from './lib/supabase.js';
+
+const SITE_ID = 'gaari.no';
+const SITE_URL = 'https://gaari.no';
+const FROM_EMAIL = 'Gåri <noreply@gaari.no>';
+const TODAY = new Date().toISOString().slice(0, 10);
+
+// ─── CLI Args ────────────────────────────────────────────────────────
+
+const args = process.argv.slice(2);
+const isOverview = args.includes('--overview');
+const emailIdx = args.indexOf('--email');
+const emailTo = emailIdx !== -1 ? args[emailIdx + 1] : null;
+const langIdx = args.indexOf('--lang');
+const lang: 'no' | 'en' = langIdx !== -1 && args[langIdx + 1] === 'en' ? 'en' : 'no';
+
+// Venue name is the first non-flag argument
+const venueName = isOverview ? null : args.find(a => !a.startsWith('--') && a !== emailTo && a !== 'en' && a !== 'no');
+
+if (!isOverview && !venueName) {
+	console.error('Usage: npx tsx generate-prospect-report.ts "Venue Name" [--email addr] [--lang en]');
+	console.error('       npx tsx generate-prospect-report.ts --overview');
+	process.exit(1);
+}
+
+// ─── Types ───────────────────────────────────────────────────────────
+
+interface PlatformStats {
+	visitors30d: number;
+	pageviews30d: number;
+	visitorsPrev30d: number;
+	topSources: Array<{ source: string; visitors: number }>;
+	aiReferrals: Array<{ source: string; visitors: number }>;
+	activeEvents: number;
+	subscribers: number | null;
+	topSearchQueries: Array<{ query: string; impressions: number; clicks: number }>;
+}
+
+interface CollectionInfo {
+	slug: string;
+	title: string;
+	description: string;
+	visitors30d: number;
+	pageviews30d: number;
+	relevant: boolean;
+}
+
+interface VenueEvent {
+	slug: string;
+	title_no: string;
+	title_en: string | null;
+	date_start: string;
+	category: string;
+	image_url: string | null;
+	ticket_url: string | null;
+	description_no: string | null;
+	venue_name: string;
+}
+
+interface VenueData {
+	name: string;
+	upcomingEvents: VenueEvent[];
+	totalEventsLast3Months: number;
+	categories: string[];
+	qualityScore: { withImage: number; withTicket: number; withDescription: number; total: number };
+	relevantCollections: CollectionInfo[];
+	eventPageViews: Array<{ slug: string; title: string; visitors: number }>;
+}
+
+// ─── Collection metadata ─────────────────────────────────────────────
+
+const COLLECTION_META: Record<string, { no: string; en: string; desc_no: string; desc_en: string; categories: string[] }> = {
+	'denne-helgen': {
+		no: 'Denne helgen', en: 'This Weekend',
+		desc_no: 'Helgens arrangementer i Bergen', desc_en: 'Weekend events in Bergen',
+		categories: ['music', 'culture', 'theatre', 'family', 'food', 'festival', 'sports', 'nightlife', 'workshop', 'student', 'tours']
+	},
+	'this-weekend': {
+		no: 'This Weekend', en: 'This Weekend',
+		desc_no: 'Weekend events in Bergen', desc_en: 'Weekend events in Bergen',
+		categories: ['music', 'culture', 'theatre', 'family', 'food', 'festival', 'sports', 'nightlife', 'workshop', 'student', 'tours']
+	},
+	'i-kveld': {
+		no: 'I kveld', en: 'Tonight',
+		desc_no: 'Kveldens arrangementer', desc_en: 'Tonight\'s events',
+		categories: ['music', 'culture', 'theatre', 'nightlife', 'food', 'student']
+	},
+	'i-dag': {
+		no: 'I dag', en: 'Today',
+		desc_no: 'Dagens arrangementer', desc_en: 'Today\'s events',
+		categories: ['music', 'culture', 'theatre', 'family', 'food', 'festival', 'sports', 'nightlife', 'workshop', 'student', 'tours']
+	},
+	'today-in-bergen': {
+		no: 'Today in Bergen', en: 'Today in Bergen',
+		desc_no: 'Today\'s events in Bergen', desc_en: 'Today\'s events in Bergen',
+		categories: ['music', 'culture', 'theatre', 'family', 'food', 'festival', 'sports', 'nightlife', 'workshop', 'student', 'tours']
+	},
+	'gratis': {
+		no: 'Gratis', en: 'Free Events',
+		desc_no: 'Gratis arrangementer denne uken', desc_en: 'Free events this week',
+		categories: ['music', 'culture', 'theatre', 'family', 'festival', 'sports', 'workshop', 'tours']
+	},
+	'free-things-to-do-bergen': {
+		no: 'Free Things to Do', en: 'Free Things to Do in Bergen',
+		desc_no: 'Free events in Bergen', desc_en: 'Free events in Bergen',
+		categories: ['music', 'culture', 'theatre', 'family', 'festival', 'sports', 'workshop', 'tours']
+	},
+	'familiehelg': {
+		no: 'Familiehelg', en: 'Family Weekend',
+		desc_no: 'Familiearrangementer i helgen', desc_en: 'Family events this weekend',
+		categories: ['family', 'workshop', 'sports', 'culture', 'festival']
+	},
+	'konserter': {
+		no: 'Konserter', en: 'Concerts',
+		desc_no: 'Konserter denne uken', desc_en: 'Concerts this week',
+		categories: ['music', 'festival']
+	},
+	'studentkveld': {
+		no: 'Studentkveld', en: 'Student Night',
+		desc_no: 'Studentarrangementer i kveld', desc_en: 'Student events tonight',
+		categories: ['student', 'nightlife', 'music']
+	},
+	'regndagsguide': {
+		no: 'Regndagsguide', en: 'Rainy Day Guide',
+		desc_no: 'Innendørsaktiviteter for regnværsdager', desc_en: 'Indoor activities for rainy days',
+		categories: ['culture', 'theatre', 'workshop', 'food', 'music']
+	},
+	'sentrum': {
+		no: 'Sentrum', en: 'City Centre',
+		desc_no: 'Arrangementer i Bergen sentrum', desc_en: 'Events in Bergen city centre',
+		categories: ['music', 'culture', 'theatre', 'food', 'nightlife', 'workshop', 'tours']
+	},
+	'voksen': {
+		no: 'For voksne', en: 'For Adults',
+		desc_no: 'Kultur, musikk og opplevelser for voksne', desc_en: 'Culture, music and experiences for adults',
+		categories: ['culture', 'music', 'theatre', 'tours', 'food', 'workshop']
+	},
+	'for-ungdom': {
+		no: 'For ungdom', en: 'For Youth',
+		desc_no: 'Arrangementer for ungdom 13-18', desc_en: 'Events for youth 13-18',
+		categories: ['music', 'culture', 'sports', 'workshop', 'festival', 'student']
+	}
+};
+
+// Category → relevant collection mapping
+const CATEGORY_COLLECTIONS: Record<string, string[]> = {
+	music: ['konserter', 'studentkveld', 'i-kveld', 'voksen', 'sentrum'],
+	culture: ['voksen', 'regndagsguide', 'sentrum'],
+	theatre: ['voksen', 'regndagsguide'],
+	family: ['familiehelg', 'for-ungdom', 'gratis'],
+	food: ['voksen', 'sentrum'],
+	festival: ['denne-helgen', 'this-weekend'],
+	sports: ['familiehelg', 'for-ungdom'],
+	nightlife: ['i-kveld', 'studentkveld'],
+	workshop: ['regndagsguide', 'voksen', 'familiehelg'],
+	student: ['studentkveld', 'for-ungdom'],
+	tours: ['voksen', 'sentrum', 'regndagsguide']
+};
+
+// Universal collections that all venues benefit from
+const UNIVERSAL_COLLECTIONS = ['denne-helgen', 'i-dag', 'gratis', 'i-kveld'];
+
+// ─── Plausible API ───────────────────────────────────────────────────
+
+async function plausibleAggregate(period: string, metrics: string, date?: string, filters?: string): Promise<Record<string, number> | null> {
+	const key = process.env.PLAUSIBLE_API_KEY;
+	if (!key) return null;
+
+	const params = new URLSearchParams({ site_id: SITE_ID, period, metrics });
+	if (date) params.set('date', date);
+	if (filters) params.set('filters', filters);
+
+	try {
+		const resp = await fetch(`https://plausible.io/api/v1/stats/aggregate?${params}`, {
+			headers: { Authorization: `Bearer ${key}` }
+		});
+		if (!resp.ok) return null;
+		const data = await resp.json() as { results: Record<string, { value: number }> };
+		const result: Record<string, number> = {};
+		for (const [k, v] of Object.entries(data.results)) {
+			result[k] = v.value;
+		}
+		return result;
+	} catch { return null; }
+}
+
+async function plausibleBreakdown(property: string, period: string, limit = 15, metrics = 'visitors,pageviews', filters?: string): Promise<Array<Record<string, unknown>>> {
+	const key = process.env.PLAUSIBLE_API_KEY;
+	if (!key) return [];
+
+	const params = new URLSearchParams({ site_id: SITE_ID, period, property, limit: String(limit), metrics });
+	if (filters) params.set('filters', filters);
+
+	try {
+		const resp = await fetch(`https://plausible.io/api/v1/stats/breakdown?${params}`, {
+			headers: { Authorization: `Bearer ${key}` }
+		});
+		if (!resp.ok) return [];
+		const data = await resp.json() as { results: Array<Record<string, unknown>> };
+		return data.results ?? [];
+	} catch { return []; }
+}
+
+// ─── Data Collectors ─────────────────────────────────────────────────
+
+async function collectPlatformStats(): Promise<PlatformStats> {
+	console.log('Henter plattformstatistikk...');
+
+	const prevDate = new Date();
+	prevDate.setDate(prevDate.getDate() - 30);
+	const prevDateStr = prevDate.toISOString().slice(0, 10);
+
+	// Parallel data collection
+	const [current, previous, sourcesRaw, aiRaw, eventCount, subscribers] = await Promise.all([
+		plausibleAggregate('30d', 'visitors,pageviews'),
+		plausibleAggregate('30d', 'visitors,pageviews', prevDateStr),
+		plausibleBreakdown('visit:source', '30d', 8, 'visitors'),
+		plausibleBreakdown('event:props:source', '30d', 10, 'visitors', 'event:name==ai-referral'),
+		supabase
+			.from('events')
+			.select('id', { count: 'exact', head: true })
+			.eq('status', 'approved')
+			.gte('date_start', TODAY),
+		collectSubscribers()
+	]);
+
+	const topSources = sourcesRaw.map(r => ({ source: r.source as string, visitors: r.visitors as number }));
+	const aiReferrals = aiRaw.map(r => ({ source: (r.source ?? 'unknown') as string, visitors: r.visitors as number }));
+
+	return {
+		visitors30d: current?.visitors ?? 0,
+		pageviews30d: current?.pageviews ?? 0,
+		visitorsPrev30d: previous?.visitors ?? 0,
+		topSources,
+		aiReferrals,
+		activeEvents: eventCount.count ?? 0,
+		subscribers,
+		topSearchQueries: [] // Filled optionally if GSC is available
+	};
+}
+
+async function collectSubscribers(): Promise<number | null> {
+	const key = process.env.MAILERLITE_API_KEY;
+	if (!key) return null;
+
+	try {
+		const resp = await fetch('https://connect.mailerlite.com/api/subscribers?limit=0', {
+			headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }
+		});
+		if (!resp.ok) return null;
+		const data = await resp.json() as { total: number };
+		return data.total ?? 0;
+	} catch { return null; }
+}
+
+async function collectVenueData(name: string): Promise<VenueData> {
+	console.log(`Henter data for "${name}"...`);
+
+	const threeMonthsAgo = new Date();
+	threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+	// Fetch upcoming events and historical count in parallel
+	const [upcoming, historical] = await Promise.all([
+		supabase
+			.from('events')
+			.select('slug,title_no,title_en,date_start,category,image_url,ticket_url,description_no,venue_name')
+			.eq('status', 'approved')
+			.gte('date_start', TODAY)
+			.ilike('venue_name', `%${name}%`)
+			.order('date_start', { ascending: true }),
+		supabase
+			.from('events')
+			.select('id', { count: 'exact', head: true })
+			.ilike('venue_name', `%${name}%`)
+			.gte('created_at', threeMonthsAgo.toISOString())
+	]);
+
+	const events = (upcoming.data ?? []) as VenueEvent[];
+	const categories = [...new Set(events.map(e => e.category))];
+
+	// Quality score
+	const total = events.length;
+	const withImage = events.filter(e => e.image_url).length;
+	const withTicket = events.filter(e => e.ticket_url).length;
+	const withDescription = events.filter(e => e.description_no && e.description_no.length > 20).length;
+
+	// Find relevant collections based on venue's categories
+	const relevantSlugs = new Set<string>(UNIVERSAL_COLLECTIONS);
+	for (const cat of categories) {
+		const mapped = CATEGORY_COLLECTIONS[cat];
+		if (mapped) mapped.forEach(s => relevantSlugs.add(s));
+	}
+
+	// Fetch traffic for all relevant collections from Plausible
+	const collectionTraffic = await collectCollectionTraffic([...relevantSlugs]);
+
+	const relevantCollections: CollectionInfo[] = collectionTraffic
+		.filter(c => c.visitors30d > 0 || relevantSlugs.has(c.slug))
+		.sort((a, b) => b.visitors30d - a.visitors30d);
+
+	// Fetch event detail page views for this venue's events
+	const eventPageViews = await collectEventPageViews(events);
+
+	// Use the most common venue_name variant, or the search term
+	const venueNameCounts = new Map<string, number>();
+	for (const e of events) {
+		venueNameCounts.set(e.venue_name, (venueNameCounts.get(e.venue_name) ?? 0) + 1);
+	}
+	// Pick the shortest name (e.g. "Grieghallen" instead of "Grieghallen, foajé")
+	const bestName = events.length > 0
+		? [...venueNameCounts.entries()].sort((a, b) => a[0].length - b[0].length)[0][0]
+		: name;
+
+	return {
+		name: bestName,
+		upcomingEvents: events,
+		totalEventsLast3Months: historical.count ?? 0,
+		categories,
+		qualityScore: { withImage, withTicket, withDescription, total },
+		relevantCollections,
+		eventPageViews
+	};
+}
+
+async function collectCollectionTraffic(slugs: string[]): Promise<CollectionInfo[]> {
+	console.log('Henter samlingstrafikk...');
+
+	// Fetch top pages from Plausible (30d) — covers collection pages
+	const topPages = await plausibleBreakdown('event:page', '30d', 200, 'visitors,pageviews');
+
+	const pageMap = new Map<string, { visitors: number; pageviews: number }>();
+	for (const p of topPages) {
+		pageMap.set(p.page as string, { visitors: p.visitors as number, pageviews: p.pageviews as number });
+	}
+
+	const results: CollectionInfo[] = [];
+	for (const slug of Object.keys(COLLECTION_META)) {
+		const meta = COLLECTION_META[slug];
+		const noPath = `/no/${slug}`;
+		const enPath = `/en/${slug}`;
+		const noTraffic = pageMap.get(noPath) ?? { visitors: 0, pageviews: 0 };
+		const enTraffic = pageMap.get(enPath) ?? { visitors: 0, pageviews: 0 };
+
+		results.push({
+			slug,
+			title: lang === 'en' ? meta.en : meta.no,
+			description: lang === 'en' ? meta.desc_en : meta.desc_no,
+			visitors30d: noTraffic.visitors + enTraffic.visitors,
+			pageviews30d: noTraffic.pageviews + enTraffic.pageviews,
+			relevant: slugs.includes(slug)
+		});
+	}
+
+	return results;
+}
+
+async function collectEventPageViews(events: VenueEvent[]): Promise<Array<{ slug: string; title: string; visitors: number }>> {
+	if (events.length === 0) return [];
+
+	// Fetch all event page views from Plausible
+	const topPages = await plausibleBreakdown('event:page', '30d', 500, 'visitors', 'event:page==/no/events/*');
+
+	const pageMap = new Map<string, number>();
+	for (const p of topPages) {
+		const pagePath = p.page as string;
+		pageMap.set(pagePath, p.visitors as number);
+	}
+
+	return events
+		.map(e => ({
+			slug: e.slug,
+			title: (lang === 'en' && e.title_en) ? e.title_en : e.title_no,
+			visitors: (pageMap.get(`/no/events/${e.slug}`) ?? 0) + (pageMap.get(`/en/events/${e.slug}`) ?? 0)
+		}))
+		.filter(e => e.visitors > 0)
+		.sort((a, b) => b.visitors - a.visitors);
+}
+
+// ─── Recommendation engine ───────────────────────────────────────────
+
+interface Recommendation {
+	icon: string;
+	title: string;
+	body: string;
+	priority: 'high' | 'medium' | 'low';
+}
+
+function generateRecommendations(platform: PlatformStats, venue: VenueData | null): Recommendation[] {
+	const recs: Recommendation[] = [];
+	const isNo = lang === 'no';
+
+	// ── Platform-level insights ──
+
+	// Traffic growth
+	if (platform.visitors30d > 0 && platform.visitorsPrev30d > 0) {
+		const growth = ((platform.visitors30d - platform.visitorsPrev30d) / platform.visitorsPrev30d) * 100;
+		if (growth > 10) {
+			recs.push({
+				icon: '📈',
+				title: isNo ? 'Økende trafikk' : 'Growing traffic',
+				body: isNo
+					? `Gåri har ${growth.toFixed(0)}% trafikkvekst siste måned. Tidlig posisjonering gir mest verdi mens plattformen vokser.`
+					: `Gåri has ${growth.toFixed(0)}% traffic growth this month. Early positioning gives the most value as the platform grows.`,
+				priority: 'high'
+			});
+		}
+	}
+
+	// AI traffic highlight
+	const totalAi = platform.aiReferrals.reduce((s, a) => s + a.visitors, 0);
+	if (totalAi > 0) {
+		const aiNames = platform.aiReferrals.map(a => a.source.replace('.com', '').replace('.ai', '')).join(', ');
+		recs.push({
+			icon: '🤖',
+			title: isNo ? 'AI-oppdagelse' : 'AI discovery',
+			body: isNo
+				? `${fmt(totalAi)} brukere fant Gåri via AI-søk (${aiNames}) siste 30 dager. Arrangementer på Gåri blir anbefalt av AI-assistenter — en kanal tradisjonell markedsføring ikke når.`
+				: `${fmt(totalAi)} users found Gåri via AI search (${aiNames}) in the last 30 days. Events on Gåri get recommended by AI assistants — a channel traditional marketing doesn't reach.`,
+			priority: 'medium'
+		});
+	}
+
+	if (!venue) return recs;
+
+	// ── Venue-specific recommendations ──
+
+	const q = venue.qualityScore;
+
+	// Missing images
+	if (q.total > 0 && q.withImage < q.total) {
+		const missing = q.total - q.withImage;
+		const pct = Math.round((q.withImage / q.total) * 100);
+		recs.push({
+			icon: '🖼️',
+			title: isNo ? 'Legg til bilder' : 'Add images',
+			body: isNo
+				? `${missing} av ${q.total} arrangementer mangler bilde (${pct}% har). Arrangementer med bilde får betydelig mer oppmerksomhet i listene og deles oftere.`
+				: `${missing} of ${q.total} events are missing images (${pct}% have them). Events with images get significantly more attention in listings and are shared more often.`,
+			priority: missing > q.total / 2 ? 'high' : 'medium'
+		});
+	}
+
+	// Missing ticket URLs
+	if (q.total > 0 && q.withTicket < q.total) {
+		const missing = q.total - q.withTicket;
+		recs.push({
+			icon: '🎟️',
+			title: isNo ? 'Legg til billettlenker' : 'Add ticket links',
+			body: isNo
+				? `${missing} arrangementer mangler direktelenke til billettkjøp. Med lenke kan besøkende gå rett til kjøp — det øker konvertering.`
+				: `${missing} events are missing direct ticket links. With a link, visitors can go straight to purchase — this increases conversion.`,
+			priority: missing > q.total / 2 ? 'high' : 'medium'
+		});
+	}
+
+	// Collection opportunity — highest traffic relevant collection
+	const topRelevant = venue.relevantCollections
+		.filter(c => c.relevant && c.visitors30d > 0)
+		.sort((a, b) => b.visitors30d - a.visitors30d);
+
+	if (topRelevant.length > 0) {
+		const best = topRelevant[0];
+		const totalRelevantVisitors = topRelevant.reduce((s, c) => s + c.visitors30d, 0);
+		recs.push({
+			icon: '🎯',
+			title: isNo ? 'Samlingene dine publikum bruker' : 'Collections your audience uses',
+			body: isNo
+				? `Dine arrangementer er relevante for ${topRelevant.length} samlinger med til sammen ${fmt(totalRelevantVisitors)} besøkende/mnd. "${best.title}" er størst med ${fmt(best.visitors30d)} besøkende. Med promotert plassering vises du først her.`
+				: `Your events are relevant to ${topRelevant.length} collections with a combined ${fmt(totalRelevantVisitors)} visitors/mo. "${best.title}" is the largest with ${fmt(best.visitors30d)} visitors. With promoted placement, you appear first here.`,
+			priority: 'high'
+		});
+	}
+
+	// Event page views insight
+	if (venue.eventPageViews.length > 0) {
+		const totalViews = venue.eventPageViews.reduce((s, e) => s + e.visitors, 0);
+		const topEvent = venue.eventPageViews[0];
+		recs.push({
+			icon: '👀',
+			title: isNo ? 'Folk ser på dine arrangementer' : 'People are viewing your events',
+			body: isNo
+				? `${fmt(totalViews)} besøkende har sett dine arrangementer siste 30 dager. "${topEvent.title}" topper med ${fmt(topEvent.visitors)} visninger. Promotert plassering multipliserer denne synligheten.`
+				: `${fmt(totalViews)} visitors have viewed your events in the last 30 days. "${topEvent.title}" leads with ${fmt(topEvent.visitors)} views. Promoted placement multiplies this visibility.`,
+			priority: 'medium'
+		});
+	} else if (venue.upcomingEvents.length > 0) {
+		recs.push({
+			icon: '📊',
+			title: isNo ? 'Bygg synlighet' : 'Build visibility',
+			body: isNo
+				? `Du har ${venue.upcomingEvents.length} kommende arrangementer på Gåri, men trafikken til detaljsidene er lav. Promotert plassering løfter arrangementene dine til toppen av samlingene der folk leter.`
+				: `You have ${venue.upcomingEvents.length} upcoming events on Gåri, but traffic to detail pages is low. Promoted placement lifts your events to the top of the collections where people are looking.`,
+			priority: 'medium'
+		});
+	}
+
+	// Category breadth
+	if (venue.categories.length >= 3) {
+		const catLabels = venue.categories.slice(0, 4).map(c => CATEGORY_LABELS[c]?.[lang] ?? c).join(', ');
+		recs.push({
+			icon: '🎭',
+			title: isNo ? 'Bred kategoridekning' : 'Broad category coverage',
+			body: isNo
+				? `Dere dekker ${venue.categories.length} kategorier (${catLabels}). Det betyr at dere er relevante i mange samlinger — Partner-tier gir synlighet i alle.`
+				: `You cover ${venue.categories.length} categories (${catLabels}). This means you're relevant in many collections — Partner tier gives visibility in all of them.`,
+			priority: 'low'
+		});
+	} else if (venue.categories.length === 1) {
+		const catLabel = CATEGORY_LABELS[venue.categories[0]]?.[lang] ?? venue.categories[0];
+		recs.push({
+			icon: '🎯',
+			title: isNo ? 'Nisje-styrke' : 'Niche strength',
+			body: isNo
+				? `Alle arrangementene deres er innen ${catLabel}. Basis-tier med fokus på den mest relevante samlingen gir best avkastning.`
+				: `All your events are within ${catLabel}. Basis tier focused on the most relevant collection gives the best return.`,
+			priority: 'low'
+		});
+	}
+
+	// High volume venue
+	if (venue.upcomingEvents.length >= 20) {
+		recs.push({
+			icon: '🏢',
+			title: isNo ? 'Høyt volum' : 'High volume',
+			body: isNo
+				? `Med ${venue.upcomingEvents.length} kommende arrangementer er dere en av de mest aktive arenaene i Bergen. Promotert plassering sikrer at dere ikke drukner i mengden.`
+				: `With ${venue.upcomingEvents.length} upcoming events, you're one of the most active venues in Bergen. Promoted placement ensures you don't get lost in the crowd.`,
+			priority: 'medium'
+		});
+	}
+
+	// Tier recommendation
+	if (topRelevant.length > 0) {
+		let tierRec: string;
+		let tierRecEn: string;
+		if (venue.categories.length >= 4 && venue.upcomingEvents.length >= 15) {
+			tierRec = 'Med deres bredde og volum anbefaler vi Partner — full synlighet i alle samlinger, høyest prioritet i nyhetsbrevet.';
+			tierRecEn = 'Given your breadth and volume, we recommend Partner — full visibility across all collections, highest newsletter priority.';
+		} else if (venue.categories.length >= 2 || venue.upcomingEvents.length >= 8) {
+			tierRec = 'Standard gir best verdi for dere — 25% synlighet i opptil 3 samlinger. Dekker de viktigste kategoriene deres.';
+			tierRecEn = 'Standard gives the best value for you — 25% visibility in up to 3 collections. Covers your key categories.';
+		} else {
+			tierRec = 'Basis er et godt startpunkt — 15% synlighet i den viktigste samlingen for dere. Oppgrader når dere ser resultatene.';
+			tierRecEn = 'Basis is a great starting point — 15% visibility in your most important collection. Upgrade when you see the results.';
+		}
+		recs.push({
+			icon: '💡',
+			title: isNo ? 'Anbefalt tier' : 'Recommended tier',
+			body: isNo ? tierRec : tierRecEn,
+			priority: 'high'
+		});
+	}
+
+	// Sort: high → medium → low
+	const order: Record<string, number> = { high: 0, medium: 1, low: 2 };
+	return recs.sort((a, b) => order[a.priority] - order[b.priority]);
+}
+
+// ─── Text content (bilingual) ────────────────────────────────────────
+
+const TEXT = {
+	no: {
+		reportTitle: 'Prospektrapport',
+		platformTitle: 'Gåri — Bergens digitale arrangementsoversikt',
+		platformSubtitle: 'Hva betyr det for deg at dine arrangementer er på Gåri?',
+		visitors: 'Besøkende',
+		pageviews: 'Sidevisninger',
+		last30d: 'Siste 30 dager',
+		growth: 'Vekst',
+		trafficSources: 'Hvor kommer besøkende fra',
+		aiTraffic: 'AI-trafikk',
+		aiExplainer: 'Brukere som finner Gåri via AI-søk som ChatGPT, Perplexity og Copilot — en voksende kilde til oppdagelse.',
+		activeEvents: 'Aktive arrangementer',
+		sources: 'kilder',
+		collections: 'Kuraterte samlinger',
+		subscribers: 'Nyhetsbrev-abonnenter',
+		venueTitle: 'Dine arrangementer på Gåri',
+		upcomingEvents: 'Kommende arrangementer',
+		totalLast3mo: 'Totalt siste 3 måneder',
+		category: 'Kategori',
+		date: 'Dato',
+		image: 'Bilde',
+		ticket: 'Billett',
+		yes: 'Ja',
+		no_val: 'Nei',
+		qualityTitle: 'Datakvalitet',
+		withImage: 'Med bilde',
+		withTicket: 'Med billettlenke',
+		withDescription: 'Med AI-beskrivelse',
+		collectionsTitle: 'Relevante samlinger for deg',
+		collectionsExplainer: 'Dine arrangementer kan dukke opp i disse kuraterte samlingene, som brukerne blar gjennom for å finne noe å gjøre.',
+		visitorsLabel: 'besøkende/mnd',
+		promotedTitle: 'Hva du får med promotert plassering',
+		promotedIntro: 'Med en promotert plassering blir dine arrangementer fremhevet i samlingene som er mest relevante for deg.',
+		topPlacement: 'Topp-plassering i samlinger',
+		topPlacementDesc: 'Ditt arrangement vises først, over alle andre — med et tydelig "Fremhevet"-merke.',
+		newsletterInclusion: 'Fremhevet i nyhetsbrevet',
+		newsletterDesc: 'abonnenter mottar ukentlig e-post med kuraterte arrangementer. Dine vises øverst.',
+		tierBasis: 'Basis',
+		tierStandard: 'Standard',
+		tierPartner: 'Partner',
+		tierAlaCarte: 'Enkelt-arrangement',
+		perMonth: '/mnd',
+		perEvent: '/arr.',
+		basisDesc: '15% synlighet, 1 samling',
+		standardDesc: '25% synlighet, opptil 3 samlinger',
+		partnerDesc: '35% synlighet, alle samlinger',
+		alaCarteDesc: 'Boost ett arrangement i 1 samling',
+		estimatedReach: 'Estimert rekkevidde',
+		estimatedReachDesc: 'per måned basert på nåværende trafikk',
+		eventPageViews: 'Sidevisninger for dine arrangementer',
+		eventPageViewsDesc: 'Så mange besøkende har sett detaljsidene til dine arrangementer siste 30 dager.',
+		contact: 'Interessert? Ta kontakt',
+		contactDesc: 'Svar på denne e-posten eller send en melding til',
+		generated: 'Generert',
+		noEvents: 'Vi fant ingen kommende arrangementer for denne venuen. Kontakt oss gjerne for å diskutere mulighetene.',
+		earlyBird: 'Tidlig-tilgang: 3 måneder gratis',
+		earlyBirdDesc: 'Som tidlig partner får du de tre første månedene helt gratis.'
+	},
+	en: {
+		reportTitle: 'Prospect Report',
+		platformTitle: 'Gåri — Bergen\'s Digital Event Guide',
+		platformSubtitle: 'What does it mean for you that your events are on Gåri?',
+		visitors: 'Visitors',
+		pageviews: 'Pageviews',
+		last30d: 'Last 30 days',
+		growth: 'Growth',
+		trafficSources: 'Where visitors come from',
+		aiTraffic: 'AI Traffic',
+		aiExplainer: 'Users discovering Gåri through AI search tools like ChatGPT, Perplexity and Copilot — a growing source of discovery.',
+		activeEvents: 'Active events',
+		sources: 'sources',
+		collections: 'Curated collections',
+		subscribers: 'Newsletter subscribers',
+		venueTitle: 'Your Events on Gåri',
+		upcomingEvents: 'Upcoming events',
+		totalLast3mo: 'Total last 3 months',
+		category: 'Category',
+		date: 'Date',
+		image: 'Image',
+		ticket: 'Ticket',
+		yes: 'Yes',
+		no_val: 'No',
+		qualityTitle: 'Data Quality',
+		withImage: 'With image',
+		withTicket: 'With ticket link',
+		withDescription: 'With AI description',
+		collectionsTitle: 'Relevant Collections for You',
+		collectionsExplainer: 'Your events can appear in these curated collections that users browse to find things to do.',
+		visitorsLabel: 'visitors/mo',
+		promotedTitle: 'What You Get with Promoted Placement',
+		promotedIntro: 'With a promoted placement, your events are highlighted in the collections most relevant to you.',
+		topPlacement: 'Top placement in collections',
+		topPlacementDesc: 'Your event appears first, above all others — with a clear "Featured" badge.',
+		newsletterInclusion: 'Featured in the newsletter',
+		newsletterDesc: 'subscribers receive a weekly email with curated events. Yours appear at the top.',
+		tierBasis: 'Basis',
+		tierStandard: 'Standard',
+		tierPartner: 'Partner',
+		tierAlaCarte: 'Single event',
+		perMonth: '/mo',
+		perEvent: '/event',
+		basisDesc: '15% visibility, 1 collection',
+		standardDesc: '25% visibility, up to 3 collections',
+		partnerDesc: '35% visibility, all collections',
+		alaCarteDesc: 'Boost one event in 1 collection',
+		estimatedReach: 'Estimated reach',
+		estimatedReachDesc: 'per month based on current traffic',
+		eventPageViews: 'Page views for your events',
+		eventPageViewsDesc: 'This many visitors have viewed the detail pages of your events in the last 30 days.',
+		contact: 'Interested? Get in touch',
+		contactDesc: 'Reply to this email or send a message to',
+		generated: 'Generated',
+		noEvents: 'We found no upcoming events for this venue. Feel free to contact us to discuss opportunities.',
+		earlyBird: 'Early access: 3 months free',
+		earlyBirdDesc: 'As an early partner, you get the first three months completely free.'
+	}
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────────
+
+function fmt(n: number): string {
+	return n.toLocaleString('nb-NO');
+}
+
+function growthPct(current: number, previous: number): string {
+	if (previous === 0) return current > 0 ? '+100%' : '0%';
+	const pct = ((current - previous) / previous) * 100;
+	return `${pct > 0 ? '+' : ''}${pct.toFixed(0)}%`;
+}
+
+function growthColor(current: number, previous: number): string {
+	if (previous === 0) return '#16a34a';
+	const pct = ((current - previous) / previous) * 100;
+	if (pct > 5) return '#16a34a';
+	if (pct < -5) return '#dc2626';
+	return '#666';
+}
+
+function slugifyVenue(name: string): string {
+	return name
+		.toLowerCase()
+		.replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/å/g, 'a')
+		.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '')
+		.slice(0, 60);
+}
+
+function formatDate(iso: string): string {
+	const d = new Date(iso);
+	if (lang === 'en') {
+		return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Europe/Oslo' });
+	}
+	return d.toLocaleDateString('nb-NO', { day: 'numeric', month: 'short', timeZone: 'Europe/Oslo' });
+}
+
+const CATEGORY_LABELS: Record<string, Record<string, string>> = {
+	music: { no: 'Musikk', en: 'Music' },
+	culture: { no: 'Kultur', en: 'Culture' },
+	theatre: { no: 'Teater', en: 'Theatre' },
+	family: { no: 'Familie', en: 'Family' },
+	food: { no: 'Mat & drikke', en: 'Food & Drink' },
+	festival: { no: 'Festival', en: 'Festival' },
+	sports: { no: 'Sport', en: 'Sports' },
+	nightlife: { no: 'Uteliv', en: 'Nightlife' },
+	workshop: { no: 'Workshop', en: 'Workshop' },
+	student: { no: 'Student', en: 'Student' },
+	tours: { no: 'Omvisning', en: 'Tours' }
+};
+
+// ─── HTML Template ───────────────────────────────────────────────────
+
+function buildHtml(platform: PlatformStats, venue: VenueData | null): string {
+	const t = TEXT[lang];
+
+	// ── Platform overview section ──
+	const growthStr = growthPct(platform.visitors30d, platform.visitorsPrev30d);
+	const gColor = growthColor(platform.visitors30d, platform.visitorsPrev30d);
+
+	const sourcesHtml = platform.topSources.length > 0 ? platform.topSources.map(s => {
+		const maxVisitors = platform.topSources[0].visitors;
+		const barWidth = maxVisitors > 0 ? Math.max(8, Math.round((s.visitors / maxVisitors) * 100)) : 0;
+		return `
+			<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+				<span style="width:100px;font-size:13px;text-align:right;flex-shrink:0">${s.source}</span>
+				<div style="flex:1;background:#f0f0f0;border-radius:4px;height:20px;overflow:hidden">
+					<div style="background:#C82D2D;height:100%;width:${barWidth}%;border-radius:4px;min-width:2px"></div>
+				</div>
+				<span style="font-size:12px;color:#666;width:50px;flex-shrink:0">${fmt(s.visitors)}</span>
+			</div>`;
+	}).join('') : '';
+
+	const aiHtml = platform.aiReferrals.length > 0 ? `
+		<div style="background:#f0f7ff;border:1px solid #bfdbfe;border-radius:8px;padding:16px;margin:16px 0 24px">
+			<h3 style="margin:0 0 8px;font-size:15px;color:#1e40af">${t.aiTraffic}</h3>
+			<p style="margin:0 0 12px;font-size:13px;color:#334155">${t.aiExplainer}</p>
+			<div style="display:flex;flex-wrap:wrap;gap:8px">
+				${platform.aiReferrals.map(a => `
+					<span style="background:#dbeafe;color:#1e40af;padding:4px 12px;border-radius:12px;font-size:13px;font-weight:500">${a.source.replace('.com', '').replace('.ai', '')} · ${fmt(a.visitors)}</span>
+				`).join('')}
+			</div>
+		</div>
+	` : '';
+
+	const subscriberHtml = platform.subscribers !== null ? `
+		<div style="text-align:center;padding:16px">
+			<div style="font-size:36px;font-weight:700;color:#C82D2D">${fmt(platform.subscribers)}</div>
+			<div style="font-size:14px;color:#666">${t.subscribers}</div>
+		</div>
+	` : '';
+
+	// ── Venue section ──
+	let venueHtml = '';
+	if (venue) {
+		// Events table
+		const eventsTableHtml = venue.upcomingEvents.length > 0 ? `
+			<table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+				<thead><tr style="background:#f5f5f5">
+					<th style="text-align:left;padding:8px;border:1px solid #e5e5e5;font-size:12px;text-transform:uppercase;color:#666">${t.date}</th>
+					<th style="text-align:left;padding:8px;border:1px solid #e5e5e5;font-size:12px;text-transform:uppercase;color:#666">${lang === 'no' ? 'Tittel' : 'Title'}</th>
+					<th style="text-align:left;padding:8px;border:1px solid #e5e5e5;font-size:12px;text-transform:uppercase;color:#666">${t.category}</th>
+					<th style="text-align:center;padding:8px;border:1px solid #e5e5e5;font-size:12px;text-transform:uppercase;color:#666">${t.image}</th>
+					<th style="text-align:center;padding:8px;border:1px solid #e5e5e5;font-size:12px;text-transform:uppercase;color:#666">${t.ticket}</th>
+				</tr></thead>
+				<tbody>
+					${venue.upcomingEvents.slice(0, 15).map(e => {
+						const title = (lang === 'en' && e.title_en) ? e.title_en : e.title_no;
+						const catLabel = CATEGORY_LABELS[e.category]?.[lang] ?? e.category;
+						return `
+						<tr>
+							<td style="padding:8px;border:1px solid #e5e5e5;font-size:13px;white-space:nowrap">${formatDate(e.date_start)}</td>
+							<td style="padding:8px;border:1px solid #e5e5e5;font-size:13px"><a href="${SITE_URL}/${lang}/events/${e.slug}" style="color:#C82D2D;text-decoration:underline">${title.length > 50 ? title.slice(0, 47) + '...' : title}</a></td>
+							<td style="padding:8px;border:1px solid #e5e5e5;font-size:13px">${catLabel}</td>
+							<td style="text-align:center;padding:8px;border:1px solid #e5e5e5;font-size:13px;color:${e.image_url ? '#16a34a' : '#dc2626'}">${e.image_url ? t.yes : t.no_val}</td>
+							<td style="text-align:center;padding:8px;border:1px solid #e5e5e5;font-size:13px;color:${e.ticket_url ? '#16a34a' : '#dc2626'}">${e.ticket_url ? t.yes : t.no_val}</td>
+						</tr>`;
+					}).join('')}
+				</tbody>
+			</table>
+			${venue.upcomingEvents.length > 15 ? `<p style="color:#666;font-size:12px;font-style:italic">+ ${venue.upcomingEvents.length - 15} ${lang === 'no' ? 'flere arrangementer' : 'more events'}</p>` : ''}
+		` : `<p style="color:#666;font-style:italic;margin:16px 0">${t.noEvents}</p>`;
+
+		// Quality score bar
+		const qTotal = venue.qualityScore.total;
+		const qualityHtml = qTotal > 0 ? `
+			<div style="margin:16px 0 24px">
+				<h3 style="font-size:15px;margin:0 0 12px">${t.qualityTitle}</h3>
+				${[
+					{ label: t.withImage, count: venue.qualityScore.withImage, color: '#C82D2D' },
+					{ label: t.withTicket, count: venue.qualityScore.withTicket, color: '#2563eb' },
+					{ label: t.withDescription, count: venue.qualityScore.withDescription, color: '#16a34a' }
+				].map(q => {
+					const pct = Math.round((q.count / qTotal) * 100);
+					return `
+						<div style="margin-bottom:8px">
+							<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:2px">
+								<span>${q.label}</span>
+								<span style="color:#666">${q.count}/${qTotal} (${pct}%)</span>
+							</div>
+							<div style="background:#f0f0f0;border-radius:4px;height:12px;overflow:hidden">
+								<div style="background:${q.color};height:100%;width:${pct}%;border-radius:4px;transition:width 0.3s"></div>
+							</div>
+						</div>`;
+				}).join('')}
+			</div>
+		` : '';
+
+		// Event page views
+		const eventViewsHtml = venue.eventPageViews.length > 0 ? `
+			<h3 style="font-size:15px;margin:24px 0 8px;border-bottom:1px solid #e5e5e5;padding-bottom:6px">${t.eventPageViews}</h3>
+			<p style="font-size:13px;color:#666;margin:0 0 12px">${t.eventPageViewsDesc}</p>
+			<table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+				<tbody>
+					${venue.eventPageViews.slice(0, 10).map(e => `
+						<tr>
+							<td style="padding:6px 8px;border-bottom:1px solid #f0f0f0;font-size:13px">${e.title.length > 45 ? e.title.slice(0, 42) + '...' : e.title}</td>
+							<td style="padding:6px 8px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;font-size:13px">${fmt(e.visitors)} ${t.visitors.toLowerCase()}</td>
+						</tr>
+					`).join('')}
+				</tbody>
+			</table>
+		` : '';
+
+		// Collections
+		const relevantCollections = venue.relevantCollections.filter(c => c.relevant && c.visitors30d > 0);
+		const otherPopular = venue.relevantCollections.filter(c => !c.relevant && c.visitors30d > 0).slice(0, 3);
+
+		const collectionsHtml = `
+			<h3 style="font-size:15px;margin:24px 0 8px;border-bottom:1px solid #e5e5e5;padding-bottom:6px">${t.collectionsTitle}</h3>
+			<p style="font-size:13px;color:#666;margin:0 0 16px">${t.collectionsExplainer}</p>
+			<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+				${relevantCollections.map(c => `
+					<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;min-width:140px">
+						<div style="font-weight:600;font-size:14px;color:#C82D2D">${c.title}</div>
+						<div style="font-size:20px;font-weight:700;margin:4px 0 0">${fmt(c.visitors30d)}</div>
+						<div style="font-size:11px;color:#666">${t.visitorsLabel}</div>
+					</div>
+				`).join('')}
+			</div>
+			${otherPopular.length > 0 ? `
+				<p style="font-size:12px;color:#666;margin:8px 0 4px">${lang === 'no' ? 'Andre populære samlinger:' : 'Other popular collections:'}</p>
+				<div style="display:flex;flex-wrap:wrap;gap:6px">
+					${otherPopular.map(c => `
+						<span style="background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:6px 10px;font-size:12px">${c.title} · ${fmt(c.visitors30d)} ${t.visitorsLabel}</span>
+					`).join('')}
+				</div>
+			` : ''}
+		`;
+
+		venueHtml = `
+			<div style="border-top:4px solid #C82D2D;margin-top:32px;padding-top:24px">
+				<h2 style="font-size:22px;margin:0 0 4px">${t.venueTitle}</h2>
+				<p style="color:#666;font-size:14px;margin:0 0 16px">${venue.name}</p>
+
+				<div style="display:flex;gap:24px;margin-bottom:20px;flex-wrap:wrap">
+					<div style="background:#f9fafb;border-radius:8px;padding:12px 20px;text-align:center">
+						<div style="font-size:28px;font-weight:700;color:#141414">${venue.upcomingEvents.length}</div>
+						<div style="font-size:12px;color:#666">${t.upcomingEvents}</div>
+					</div>
+					<div style="background:#f9fafb;border-radius:8px;padding:12px 20px;text-align:center">
+						<div style="font-size:28px;font-weight:700;color:#141414">${venue.totalEventsLast3Months}</div>
+						<div style="font-size:12px;color:#666">${t.totalLast3mo}</div>
+					</div>
+					<div style="background:#f9fafb;border-radius:8px;padding:12px 20px;text-align:center">
+						<div style="font-size:28px;font-weight:700;color:#141414">${venue.categories.length}</div>
+						<div style="font-size:12px;color:#666">${lang === 'no' ? 'Kategorier' : 'Categories'}</div>
+					</div>
+				</div>
+
+				${eventsTableHtml}
+				${qualityHtml}
+				${eventViewsHtml}
+				${collectionsHtml}
+			</div>
+		`;
+	}
+
+	// ── Recommendations section ──
+	const recommendations = generateRecommendations(platform, venue);
+	const recsTitle = lang === 'no' ? 'Analyse og anbefalinger' : 'Analysis & Recommendations';
+
+	const priorityStyles: Record<string, string> = {
+		high: 'border-left:4px solid #C82D2D;background:#fef2f2',
+		medium: 'border-left:4px solid #f59e0b;background:#fefce8',
+		low: 'border-left:4px solid #6b7280;background:#f9fafb'
+	};
+
+	const recommendationsHtml = recommendations.length > 0 ? `
+		<div style="border-top:4px solid #C82D2D;margin-top:32px;padding-top:24px">
+			<h2 style="font-size:22px;margin:0 0 16px">${recsTitle}</h2>
+			${recommendations.map(r => `
+				<div style="${priorityStyles[r.priority]};border-radius:8px;padding:14px 16px;margin-bottom:12px">
+					<h4 style="margin:0 0 4px;font-size:14px">${r.icon} ${r.title}</h4>
+					<p style="margin:0;font-size:13px;color:#334155;line-height:1.5">${r.body}</p>
+				</div>
+			`).join('')}
+		</div>
+	` : '';
+
+	// ── Promoted placement section ──
+	const totalCollectionVisitors = venue
+		? venue.relevantCollections.filter(c => c.relevant).reduce((s, c) => s + c.visitors30d, 0)
+		: 0;
+
+	const promotedHtml = `
+		<div style="border-top:4px solid #C82D2D;margin-top:32px;padding-top:24px">
+			<h2 style="font-size:22px;margin:0 0 8px">${t.promotedTitle}</h2>
+			<p style="font-size:14px;color:#666;margin:0 0 24px">${t.promotedIntro}</p>
+
+			<div style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap">
+				<div style="flex:1;min-width:200px;border:1px solid #e5e5e5;border-radius:8px;padding:16px">
+					<h4 style="margin:0 0 6px;font-size:14px">${t.topPlacement}</h4>
+					<p style="margin:0;font-size:13px;color:#666">${t.topPlacementDesc}</p>
+				</div>
+				<div style="flex:1;min-width:200px;border:1px solid #e5e5e5;border-radius:8px;padding:16px">
+					<h4 style="margin:0 0 6px;font-size:14px">${t.newsletterInclusion}</h4>
+					<p style="margin:0;font-size:13px;color:#666">${platform.subscribers ? fmt(platform.subscribers) + ' ' : ''}${t.newsletterDesc}</p>
+				</div>
+			</div>
+
+			<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+				<thead><tr style="background:#f5f5f5">
+					<th style="text-align:left;padding:10px;border:1px solid #e5e5e5;font-size:13px">Tier</th>
+					<th style="text-align:right;padding:10px;border:1px solid #e5e5e5;font-size:13px">${lang === 'no' ? 'Pris' : 'Price'}</th>
+					<th style="text-align:left;padding:10px;border:1px solid #e5e5e5;font-size:13px">${lang === 'no' ? 'Inkluderer' : 'Includes'}</th>
+					${totalCollectionVisitors > 0 ? `<th style="text-align:right;padding:10px;border:1px solid #e5e5e5;font-size:13px">${t.estimatedReach}</th>` : ''}
+				</tr></thead>
+				<tbody>
+					${[
+						{ name: t.tierBasis, price: `1 500 kr${t.perMonth}`, desc: t.basisDesc, share: 0.15 },
+						{ name: t.tierStandard, price: `3 500 kr${t.perMonth}`, desc: t.standardDesc, share: 0.25 },
+						{ name: t.tierPartner, price: `7 000 kr${t.perMonth}`, desc: t.partnerDesc, share: 0.35 },
+						{ name: t.tierAlaCarte, price: `500 kr${t.perEvent}`, desc: t.alaCarteDesc, share: 0 }
+					].map(tier => `
+						<tr>
+							<td style="padding:10px;border:1px solid #e5e5e5;font-size:14px;font-weight:600">${tier.name}</td>
+							<td style="text-align:right;padding:10px;border:1px solid #e5e5e5;font-size:14px;white-space:nowrap">${tier.price}</td>
+							<td style="padding:10px;border:1px solid #e5e5e5;font-size:13px;color:#666">${tier.desc}</td>
+							${totalCollectionVisitors > 0 ? `<td style="text-align:right;padding:10px;border:1px solid #e5e5e5;font-size:14px;font-weight:600;color:#C82D2D">${tier.share > 0 ? '~' + fmt(Math.round(totalCollectionVisitors * tier.share)) : '-'}</td>` : ''}
+						</tr>
+					`).join('')}
+				</tbody>
+			</table>
+			${totalCollectionVisitors > 0 ? `<p style="font-size:11px;color:#999;font-style:italic;margin:-16px 0 16px">* ${t.estimatedReachDesc}</p>` : ''}
+
+			<div style="background:#fef9ec;border:1px solid #fbbf24;border-radius:8px;padding:16px;margin-bottom:24px">
+				<h4 style="margin:0 0 4px;color:#92400e;font-size:14px">${t.earlyBird}</h4>
+				<p style="margin:0;font-size:13px;color:#78350f">${t.earlyBirdDesc}</p>
+			</div>
+		</div>
+	`;
+
+	// ── Contact section ──
+	const contactHtml = `
+		<div style="border-top:2px solid #C82D2D;margin-top:32px;padding-top:20px;text-align:center">
+			<h2 style="font-size:18px;margin:0 0 8px">${t.contact}</h2>
+			<p style="font-size:14px;color:#666;margin:0">${t.contactDesc} <a href="mailto:post@gaari.no" style="color:#C82D2D;text-decoration:underline">post@gaari.no</a></p>
+		</div>
+	`;
+
+	// ── Assemble ──
+	return `<!DOCTYPE html>
+<html lang="${lang === 'en' ? 'en' : 'nb'}">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>${t.reportTitle}${venue ? ` — ${venue.name}` : ''}</title>
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:640px;margin:0 auto;padding:24px;color:#141414;background:#fff;line-height:1.5">
+	<!-- Header -->
+	<div style="border-bottom:4px solid #C82D2D;padding-bottom:16px;margin-bottom:24px">
+		<h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.5px">${t.platformTitle}</h1>
+		<p style="margin:8px 0 0;font-size:15px;color:#666">${t.platformSubtitle}</p>
+	</div>
+
+	<!-- Key metrics -->
+	<div style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap">
+		<div style="flex:1;min-width:130px;background:#f9fafb;border-radius:8px;padding:16px;text-align:center">
+			<div style="font-size:36px;font-weight:700;color:#C82D2D">${fmt(platform.visitors30d)}</div>
+			<div style="font-size:13px;color:#666">${t.visitors} (${t.last30d.toLowerCase()})</div>
+			<div style="font-size:12px;font-weight:600;color:${gColor};margin-top:4px">${t.growth}: ${growthStr}</div>
+		</div>
+		<div style="flex:1;min-width:130px;background:#f9fafb;border-radius:8px;padding:16px;text-align:center">
+			<div style="font-size:36px;font-weight:700;color:#141414">${fmt(platform.activeEvents)}</div>
+			<div style="font-size:13px;color:#666">${t.activeEvents}</div>
+			<div style="font-size:12px;color:#999;margin-top:4px">46 ${t.sources} · 190+ venues</div>
+		</div>
+	</div>
+
+	${subscriberHtml}
+
+	<!-- Traffic sources -->
+	${sourcesHtml ? `
+		<h3 style="font-size:15px;margin:24px 0 12px;border-bottom:1px solid #e5e5e5;padding-bottom:6px">${t.trafficSources}</h3>
+		${sourcesHtml}
+	` : ''}
+
+	${aiHtml}
+
+	<!-- Venue-specific section -->
+	${venueHtml}
+
+	<!-- Analysis & Recommendations -->
+	${recommendationsHtml}
+
+	<!-- Promoted placement section -->
+	${promotedHtml}
+
+	<!-- Contact -->
+	${contactHtml}
+
+	<!-- Footer -->
+	<div style="margin-top:32px;padding-top:12px;border-top:1px solid #e5e5e5;text-align:center;color:#999;font-size:11px">
+		<p style="margin:0">${t.generated} ${TODAY} · <a href="${SITE_URL}" style="color:#C82D2D">gaari.no</a></p>
+	</div>
+</body>
+</html>`;
+}
+
+// ─── Output ──────────────────────────────────────────────────────────
+
+async function writeReport(html: string, slug: string): Promise<string> {
+	const outDir = path.join(import.meta.dirname, '..', '.prospect-reports');
+	if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+	const outPath = path.join(outDir, `${slug}-${TODAY}.html`);
+	fs.writeFileSync(outPath, html);
+	return outPath;
+}
+
+async function sendReport(html: string, email: string, subject: string): Promise<boolean> {
+	const key = process.env.RESEND_API_KEY;
+	if (!key) {
+		console.error('Kan ikke sende e-post: mangler RESEND_API_KEY');
+		return false;
+	}
+
+	const resp = await fetch('https://api.resend.com/emails', {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${key}`,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			from: FROM_EMAIL,
+			to: [email],
+			reply_to: 'post@gaari.no',
+			subject,
+			html
+		})
+	});
+
+	if (resp.ok) {
+		const data = await resp.json() as { id: string };
+		console.log(`E-post sendt (Resend ID: ${data.id})`);
+		return true;
+	} else {
+		console.error(`E-post feilet: ${resp.status} ${await resp.text()}`);
+		return false;
+	}
+}
+
+// ─── Main ────────────────────────────────────────────────────────────
+
+async function main() {
+	const t = TEXT[lang];
+	console.log(`\nGåri ${t.reportTitle}`);
+	console.log(`${'─'.repeat(40)}`);
+
+	if (venueName) {
+		console.log(`Venue: ${venueName}`);
+	}
+	if (isOverview) {
+		console.log('Modus: Plattformoversikt');
+	}
+	console.log(`Språk: ${lang}\n`);
+
+	// Collect platform stats (always needed)
+	const platform = await collectPlatformStats();
+
+	console.log(`  Besøkende (30d): ${fmt(platform.visitors30d)}`);
+	console.log(`  Aktive events:   ${fmt(platform.activeEvents)}`);
+	if (platform.subscribers !== null) console.log(`  Abonnenter:      ${fmt(platform.subscribers)}`);
+	if (platform.aiReferrals.length > 0) console.log(`  AI-trafikk:      ${platform.aiReferrals.map(a => `${a.source} (${a.visitors})`).join(', ')}`);
+
+	// Collect venue data (if applicable)
+	let venue: VenueData | null = null;
+	if (venueName) {
+		venue = await collectVenueData(venueName);
+		console.log(`\n  ${venue.name}:`);
+		console.log(`    Kommende events:    ${venue.upcomingEvents.length}`);
+		console.log(`    Siste 3 mnd:        ${venue.totalEventsLast3Months}`);
+		console.log(`    Kategorier:         ${venue.categories.join(', ')}`);
+		console.log(`    Relevante samlinger: ${venue.relevantCollections.filter(c => c.relevant).length}`);
+		if (venue.eventPageViews.length > 0) {
+			console.log(`    Events med visninger: ${venue.eventPageViews.length}`);
+		}
+	}
+
+	// Build HTML
+	const html = buildHtml(platform, venue);
+	const slug = venueName ? slugifyVenue(venueName) : 'plattformoversikt';
+
+	// Write to file
+	const filePath = await writeReport(html, slug);
+	console.log(`\nRapport lagret: ${filePath}`);
+
+	// Send email if requested
+	if (emailTo) {
+		const subject = venue
+			? `${t.reportTitle}: ${venue.name} — Gåri`
+			: `Gåri — ${t.reportTitle}`;
+		console.log(`Sender til ${emailTo}...`);
+		await sendReport(html, emailTo, subject);
+	}
+
+	console.log('\nFerdig.\n');
+}
+
+main().catch(err => {
+	console.error('Feil:', err);
+	process.exit(1);
+});

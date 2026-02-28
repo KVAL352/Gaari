@@ -13,3 +13,4 @@ vite.config.ts.timestamp-*
 supabase/.temp/
 gsc-reader-*.json
 .newsletter-preview/
+.prospect-reports/
