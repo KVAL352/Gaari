@@ -110,6 +110,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const vm = activity.activityViewModel;
 
 			const sourceUrl = `https://www.dnt.no${activity.url}`;
+			const ticketUrl = `https://www.dnt.no/aktiviteter/?municipality=4601`;
 
 			// Skip cancelled/overdue, delete full (sold-out) activities
 			if (vm.isCancelled || vm.isOverdue) continue;
@@ -139,7 +140,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				address,
 				bydel,
 				price: '',
-				ticket_url: sourceUrl,
+				ticket_url: ticketUrl,
 				source: SOURCE,
 				source_url: sourceUrl,
 				image_url: vm.imageUrl || undefined,
