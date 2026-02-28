@@ -147,9 +147,7 @@ Current sitemap has all URLs in one file. Segment into:
 **✅ 15. Google Business Profile (done 2026-02-26)**
 Created as service-area business covering Bergen, verified. Logo + cover uploaded. Links GBP to gaari.no and adds Bergen entity signals.
 
-**16. Norwegian directory citations**
-Register on: Gulesider.no, Proff.no, 1881.no, Startside.no, Bergen Næringsråd, TripAdvisor.
-Each is a citation signal + potential backlink.
+**~~16. Norwegian directory citations~~** — Not feasible. Gulesider, Proff, 1881 etc. require a registered business (ENK/AS). Dropped.
 
 **17. Bergen Events annual data report**
 Original data = #2 strongest AI citation driver. Create "Bergen Events-rapport 2026": total events aggregated, most popular categories, busiest venues, seasonal peaks. Pitch to Bergens Tidende, Bergensavisen, NRK Vestland. One good media mention = high-DA backlink + AI training data.
@@ -198,4 +196,4 @@ Ordered by impact-per-effort:
 - ✅ Bing Webmaster Tools verified (CNAME) + sitemap submitted + GHA secret added (done 2026-02-26)
 - [ ] Venue backlink outreach (ongoing, ~1 email/week)
 - ✅ Google Business Profile created, logo + cover uploaded, verified (done 2026-02-26)
-- [ ] Directory citations: Gulesider.no, Proff.no, 1881.no, Bergen Næringsråd (~1 hour total)
+- ~~Directory citations~~ — dropped (requires registered business)
