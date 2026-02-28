@@ -14,15 +14,17 @@ function snapWidth(w: number): number {
 export function optimizedSrc(url: string, width: number, quality = 75): string {
 	if (dev) return url;
 	const w = snapWidth(width);
-	return `/_vercel/image?url=${encodeURIComponent(url)}&w=${w}&q=${quality}`;
+	const safeUrl = url.replace(/^http:\/\//, 'https://');
+	return `/_vercel/image?url=${encodeURIComponent(safeUrl)}&w=${w}&q=${quality}`;
 }
 
 export function optimizedSrcset(url: string, widths: number[], quality = 75): string {
 	if (dev) return '';
+	const safeUrl = url.replace(/^http:\/\//, 'https://');
 	return widths
 		.map(w => {
 			const snapped = snapWidth(w);
-			return `/_vercel/image?url=${encodeURIComponent(url)}&w=${snapped}&q=${quality} ${snapped}w`;
+			return `/_vercel/image?url=${encodeURIComponent(safeUrl)}&w=${snapped}&q=${quality} ${snapped}w`;
 		})
 		.join(', ');
 }
