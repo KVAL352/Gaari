@@ -9,16 +9,23 @@ argument-hint: [optional: folder to check, e.g. "inbox" or "all"]
 
 Check, sort, and review Protonmail emails for the Gåri project.
 
-## Step 1: Check inbox and unsorted emails
+## Step 1: Check all folders
 
-1. List emails in **INBOX** (anything here is unsorted — Sieve should catch most things)
-2. List emails in each **Unresolved** folder:
-   - `Folders/Gaari/Inquiries/Unresolved`
-   - `Folders/Gaari/Corrections/Unresolved`
-   - `Folders/Gaari/Opt-outs/Unresolved`
-   - `Folders/Gaari/Submissions/Unresolved`
+List emails in **all** of these folders in parallel:
 
-Run all these checks in parallel.
+**Unsorted:**
+- `INBOX` (anything here is unsorted — Sieve should catch most things)
+
+**Gåri project (Unresolved):**
+- `Folders/Gaari/Inquiries/Unresolved`
+- `Folders/Gaari/Corrections/Unresolved`
+- `Folders/Gaari/Opt-outs/Unresolved`
+- `Folders/Gaari/Submissions/Unresolved`
+- `Folders/Gaari/Partnerships/Unresolved`
+
+**Other:**
+- `Folders/Personal` (service notifications, account emails, etc.)
+- `Folders/Receipts` (payments, invoices, order confirmations)
 
 ## Step 2: Sort any unsorted inbox emails
 
@@ -37,20 +44,21 @@ If unclear where an email belongs, **ask the user** before moving it.
 
 ## Step 3: Summarize status
 
-Give a quick overview:
+Give a quick overview of **all** folders:
 - How many new/unread items in each Unresolved folder
+- Unread items in Personal and Receipts
 - Any items that need attention or action
 
 ## Step 4: Review actionable items
 
-For each unread email in Unresolved folders:
+For each **unread** email across all folders (Unresolved, Personal, Receipts):
 1. Read the full email content
 2. Present a brief summary to the user:
    - **From**: sender
    - **Subject**: subject
-   - **Summary**: 1-2 sentence summary of what they want
-   - **Suggested action**: what to do about it (reply, investigate, resolve, etc.)
-3. Ask the user what they want to do (reply, mark as resolved, ignore, etc.)
+   - **Summary**: 1-2 sentence summary of what it is
+   - **Suggested action**: what to do about it (reply, investigate, resolve, delete, just FYI, etc.)
+3. Ask the user what they want to do (reply, mark as read, delete, move, etc.)
 4. If the user wants to reply: **always show the draft to the user before sending**. Never send emails without explicit approval.
 
 ## Rules
