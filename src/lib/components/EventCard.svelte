@@ -70,12 +70,20 @@
 		venue_name: event.venue_name,
 		address: event.address
 	});
+
+	function trackPromotedClick() {
+		if (promoted && typeof window !== 'undefined' && 'plausible' in window) {
+			(window as unknown as { plausible: (name: string, opts?: { props: Record<string, string> }) => void }).plausible('promoted-click', {
+				props: { venue: event.venue_name, slug: event.slug }
+			});
+		}
+	}
 </script>
 
 <li class="group list-none">
 	<article class="relative flex h-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg cursor-pointer">
 		<!-- Full-card link (z-10 covers image + text, action bar sits at z-20) -->
-		<a href={eventUrl} class="absolute inset-0 z-10" aria-label={title}></a>
+		<a href={eventUrl} onclick={trackPromotedClick} class="absolute inset-0 z-10" aria-label={title}></a>
 
 		<div class="relative aspect-[16/9] overflow-hidden bg-[var(--color-surface)]">
 			{#if event.image_url && !imgError}
@@ -120,10 +128,10 @@
 			</p>
 			<span class="mt-auto text-sm font-medium text-[var(--color-primary)] group-hover:underline">{$t('readMore')} &rarr;</span>
 		</div>
-		<div class="relative z-20 border-t border-[var(--color-border)] px-4 py-3">
+		<div class="relative z-20 pointer-events-none border-t border-[var(--color-border)] px-4 py-3">
 			<div class="flex items-center justify-between">
 			<span class="tabular-nums text-sm font-semibold">{priceText}</span>
-			<div class="flex items-center gap-1">
+			<div class="pointer-events-auto flex items-center gap-1">
 				<CalendarDropdown event={calendarData} compact />
 				<button
 					onclick={handleShare}

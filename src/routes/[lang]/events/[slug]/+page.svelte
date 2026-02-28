@@ -28,6 +28,14 @@
 	let showCorrectionForm = $state(false);
 	let correctionSubmitted = $state(false);
 	let correctionSubmitting = $state(false);
+
+	function trackTicketClick() {
+		if (typeof window !== 'undefined' && 'plausible' in window) {
+			(window as unknown as { plausible: (name: string, opts?: { props: Record<string, string> }) => void }).plausible('ticket-click', {
+				props: { venue: event.venue_name, slug: event.slug }
+			});
+		}
+	}
 	let correctionError = $state(false);
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/events/${event.slug}`));
@@ -155,6 +163,7 @@
 				href={buildOutboundUrl(event.ticket_url, 'event_detail', event.venue_name, event.slug)}
 				target="_blank"
 				rel="noopener noreferrer"
+				onclick={trackTicketClick}
 				class="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
 			>
 				<ExternalLink size={16} />
