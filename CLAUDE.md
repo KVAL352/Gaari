@@ -288,10 +288,13 @@ EAA (European Accessibility Act) applies to Norway via EEA. The site meets WCAG 
 - **Error logging**: `hooks.server.ts` exports `handleError` — structured JSON (type, timestamp, status, message, stack, url, method, userAgent) parsed by Vercel's log system. `hooks.client.ts` mirrors the format for browser DevTools. Rate limiting in `handle` hook uses try/catch around `getClientAddress()` to support prerendering.
 - **Health endpoint**: `GET /api/health` — three checks: `supabase_connection`, `events_exist` (count > 0), `recent_scrape` (events created in last 24h). Monitorable by UptimeRobot or similar.
 - **Scraper summary**: Pipeline outputs JSON summary to `SUMMARY_FILE` env var. GitHub Actions job summary step reads it with `jq` and writes a markdown table to `$GITHUB_STEP_SUMMARY`.
+- **Plausible custom events**: `promoted-click` (fired on EventCard click when promoted, props: `venue`, `slug`) and `ticket-click` (fired on ticket button click on event detail page, props: `venue`, `slug`). Used to measure conversion value of promoted placements.
 
 ## Business model
 
 Revenue from promoted placement subscriptions (Basis 1,000 / Standard 3,500 / Partner 7,000 NOK/month) and à la carte single-event promotions (500 NOK/event). Cross-subsidized: Grasrot tier always free. All promoted content labeled "Fremhevet" (markedsføringsloven § 3). See `strategic-roadmap.md` for full business plan.
+
+**Prospect report CLI** (`scripts/generate-prospect-report.ts`): Generates professional HTML sales reports for venue outreach. Pulls event count, categories, pageviews (Plausible), newsletter reach (MailerLite). Usage: `cd scripts && npx tsx generate-prospect-report.ts "Venue Name" [--email addr] [--lang en]` or `--overview` for platform-wide stats. Output to `.prospect-reports/` (gitignored). Email delivery via Resend.
 
 ## Database indexes
 
