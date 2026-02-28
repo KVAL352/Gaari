@@ -144,11 +144,12 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - `ai-descriptions.ts` — Gemini 2.5 Flash integration, rate limiting, fallback to makeDescription template
 - `supabase.ts` — Supabase client with service role key
 
-## Opt-out system
+## Data inquiry system (formerly opt-out)
 
 - Supabase table: `opt_out_requests` (org, domain, email, reason, status, created_at)
-- Form on `/datainnsamling` → SvelteKit form action (`?/optout`) with server-side Supabase insert, honeypot spam protection
-- Workflow: venue submits → `status: 'pending'` → admin approves in Supabase dashboard → `'approved'`
+- Form on `/datainnsamling` → SvelteKit form action (`?/optout`) with server-side Supabase insert, honeypot spam protection. No instant email notification — inquiries appear in daily digest and admin panel.
+- Page framing: "Questions about our data collection?" — not a guaranteed opt-out. We collect only factual public event info (titles, dates, venues, prices); descriptions are independently generated.
+- Workflow: venue submits → `status: 'pending'` → reviewed via `/admin/optouts` or `scripts/admin-ops.ts` → `'approved'` (block domain) or `'rejected'` (with feedback email)
 - Scraper pipeline: `loadOptOuts()` caches approved domains, `insertEvent()` checks `isOptedOut(source_url)`, pipeline step 1b deletes existing events from opted-out domains
 
 ## EventDiscovery filter system (Feb 2026)
@@ -191,6 +192,8 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `/[lang]/submit/` — Event submission form (blocked from search engines). Only page that ships Supabase SDK to client (for image uploads).
 - `/[lang]/events/[slug]/` — Event detail page with related events and OG image. **Server-side loaded**, correction form action `?/correction` in `+page.server.ts`.
 - `/[lang]/[collection]/` — 14 curated collection landing pages. **Server-side loaded** with collection-specific filtering, ISR cached. Dynamic `[collection]` route — config in `$lib/collections.ts`, unknown slugs return 404. No EventDiscovery filter UI — clean hero + EventGrid + editorial copy + FAQ answer capsules (H2+p). JSON-LD `CollectionPage` + `ItemList` + `BreadcrumbList` + `FAQPage` schema, custom OG images. All 14 in sitemap (priority 0.8, daily). Promoted placement logic runs after filtering — bubbles paying venue's events to the top and returns `promotedEventIds` to the page.
+- `/admin/corrections` — Correction review page (internal tool, noindex). Expandable cards with side-by-side current vs. suggested value. Approve applies correction to event, reject with feedback emails submitter.
+- `/admin/optouts` — Data inquiry review page (internal tool, noindex). Table with color-coded impact badges. Approve blocks domain at next scraper run, reject with feedback emails sender.
 - `/admin/social` — Social post review page (internal tool, noindex). Shows generated carousel slides + captions. Copy button for captions.
 - `/admin/promotions` — Promoted placement management (internal tool, noindex). Table of all paying venues with monthly impression totals, active toggle, and add-placement form. Tiers: Basis 1 000/mo (15% slot), Standard 3 500/mo (25%), Partner 7 000/mo (35%).
 - `/admin/login` — Password login page. Sets HMAC-signed HttpOnly cookie (`gaari_admin`). `secure: true` in production, `false` in dev.
@@ -330,3 +333,5 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 - **Scrape** (`scrape.yml`): cron 6 AM & 6 PM UTC, 15min job timeout, npm cache, 2min install timeout, `SUMMARY_FILE` env var, job summary step with health status (healthy/partial/critical). Secrets: SUPABASE keys + GEMINI_API_KEY.
 - **Newsletter** (`newsletter.yml`): cron every Thursday 10:00 UTC (11:00 CET / 12:00 CEST), 5min timeout. Runs `scripts/send-newsletter.ts` — fetches subscribers from MailerLite, groups by preferences, generates personalized HTML, sends via MailerLite campaigns. Supports `--dry-run` via manual workflow dispatch. Job summary with subscriber/group/sent/error counts. Secrets: SUPABASE keys + MAILERLITE_API_KEY.
 - **SEO Report** (`seo-report.yml`): cron every Monday 09:00 UTC (10:00 CET / 11:00 CEST), 5min timeout. Runs `scripts/seo-weekly-report.ts` — Plausible traffic, Google Search Console queries, Bing Webmaster, sitemap validation, content insights. Sends HTML report via Resend. Supports `--dry-run`. Secrets: PLAUSIBLE_API_KEY, GSC_SERVICE_ACCOUNT (base64), BING_WEBMASTER_KEY, RESEND_API_KEY, SUPABASE keys.
+- **Daily Digest** (`daily-digest.yml`): cron every day 08:00 UTC (09:00 CET / 10:00 CEST), 3min timeout. Runs `scripts/send-daily-digest.ts` — pending task counts, scraper activity, Plausible traffic (optional), MailerLite subscribers (optional), expiring placements. Sends HTML digest via Resend. Supports `--dry-run`. Secrets: SUPABASE keys + RESEND_API_KEY + PLAUSIBLE_API_KEY (optional) + MAILERLITE_API_KEY (optional).
+- **Admin CLI** (`scripts/admin-ops.ts`): Not a GHA workflow — run locally via `cd scripts && npx tsx admin-ops.ts`. Subcommands: `list`, `approve`, `reject`, `status`. Handles corrections, submissions, opt-outs, and inquiries directly from Claude Code. Sends response emails via Resend.
