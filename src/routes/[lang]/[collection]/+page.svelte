@@ -7,23 +7,6 @@
 	import LoadMore from '$lib/components/LoadMore.svelte';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 
-	const collectionCTAHeadings: Record<string, { no: string; en: string }> = {
-		'denne-helgen': { no: 'Få helgens beste tips hver torsdag', en: 'Get weekend picks every Thursday' },
-		'this-weekend': { no: 'Få helgens beste tips hver torsdag', en: 'Get weekend picks every Thursday' },
-		'i-kveld': { no: 'Gå aldri tom for kveldsplaner', en: 'Never run out of evening plans' },
-		'today-in-bergen': { no: 'Få daglige tips rett i innboksen', en: 'Get daily picks in your inbox' },
-		'i-dag': { no: 'Få daglige tips rett i innboksen', en: 'Get daily picks in your inbox' },
-		'gratis': { no: 'Finn gratisopplevelser hver uke', en: 'Find free events every week' },
-		'free-things-to-do-bergen': { no: 'Finn gratisopplevelser hver uke', en: 'Find free events every week' },
-		'familiehelg': { no: 'Aldri gå tom for familieaktiviteter', en: 'Never run out of family activities' },
-		'konserter': { no: 'Få ukas konserttips hver torsdag', en: 'Get concert picks every Thursday' },
-		'studentkveld': { no: 'Studenttips rett i innboksen', en: 'Student picks in your inbox' },
-		'regndagsguide': { no: 'Få tips til ting å gjøre i Bergen', en: 'Get Bergen activity tips weekly' },
-		'sentrum': { no: 'Få tips til ting å gjøre i sentrum', en: 'Get city centre event tips' },
-		'voksen': { no: 'Kulturelle tips for voksne, hver torsdag', en: 'Cultural picks for adults, every Thursday' },
-		'for-ungdom': { no: 'Tips for ungdom i Bergen', en: 'Teen event picks in Bergen' },
-	};
-
 	let { data } = $props();
 
 	const PAGE_SIZE = 12;
@@ -129,7 +112,7 @@
 	<NewsletterCTA
 		id="collection"
 		variant="card"
-		heading={collectionCTAHeadings[data.collection.slug]}
+		heading={data.collection.newsletterHeading}
 	/>
 </div>
 {/if}

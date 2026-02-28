@@ -17,6 +17,9 @@ export interface Collection {
 	faq?: Record<Lang, Array<{ q: string; a: string }>>;
 	relatedSlugs?: string[];
 	quickAnswer?: Record<Lang, string>;
+	footerLabel?: Record<Lang, string>;
+	footer?: { langs: Lang[]; order: number };
+	newsletterHeading?: Record<Lang, string>;
 	filterEvents: (events: GaariEvent[], now: Date) => GaariEvent[];
 }
 
@@ -37,6 +40,9 @@ const collections: Collection[] = [
 			en: "This weekend's best events"
 		},
 		relatedSlugs: ['gratis', 'familiehelg', 'konserter', 'i-kveld'],
+		footerLabel: { no: 'Denne helgen', en: 'This weekend' },
+		footer: { langs: ['no'], order: 1 },
+		newsletterHeading: { no: 'Få helgens beste tips hver torsdag', en: 'Get weekend picks every Thursday' },
 		quickAnswer: {
 			no: 'Gåri samler helgens arrangementer i Bergen fra 48 lokale kilder — konserter, utstillinger, familieaktiviteter og mer. Oppdatert daglig fra steder som Grieghallen, KODE, USF Verftet og Akvariet.',
 			en: 'Gåri collects this weekend\'s events in Bergen from 48 local sources — concerts, exhibitions, family activities and more. Updated daily from venues like Grieghallen, KODE, USF Verftet and Akvariet.'
@@ -89,6 +95,9 @@ const collections: Collection[] = [
 			en: "Tonight's events"
 		},
 		relatedSlugs: ['denne-helgen', 'konserter', 'studentkveld'],
+		footerLabel: { no: 'I kveld', en: 'Tonight' },
+		footer: { langs: ['no'], order: 2 },
+		newsletterHeading: { no: 'Gå aldri tom for kveldsplaner', en: 'Never run out of evening plans' },
 		quickAnswer: {
 			no: 'Se alle arrangementer i Bergen i kveld — konserter, teater, uteliv og mer. Gåri henter data fra 48 lokale kilder og oppdateres to ganger daglig.',
 			en: 'See all events in Bergen tonight — concerts, theatre, nightlife and more. Gåri pulls data from 48 local sources and updates twice daily.'
@@ -141,6 +150,9 @@ const collections: Collection[] = [
 			en: 'Free events this week'
 		},
 		relatedSlugs: ['denne-helgen', 'familiehelg', 'regndagsguide'],
+		footerLabel: { no: 'Gratis', en: 'Free events' },
+		footer: { langs: ['no'], order: 4 },
+		newsletterHeading: { no: 'Finn gratisopplevelser hver uke', en: 'Find free events every week' },
 		quickAnswer: {
 			no: 'Gratis ting å gjøre i Bergen denne uken — utstillinger, bibliotekaktiviteter, turer og mer. Gåri samler kostnadsfrie arrangementer fra 48 lokale kilder.',
 			en: 'Free things to do in Bergen this week — exhibitions, library events, hikes and more. Gåri collects free events from 48 local sources.'
@@ -194,6 +206,9 @@ const collections: Collection[] = [
 			en: "Today's events"
 		},
 		relatedSlugs: ['this-weekend', 'free-things-to-do-bergen'],
+		footerLabel: { no: 'I dag', en: 'Today' },
+		footer: { langs: ['en'], order: 2 },
+		newsletterHeading: { no: 'Få daglige tips rett i innboksen', en: 'Get daily picks in your inbox' },
 		quickAnswer: {
 			no: 'Hva skjer i Bergen i dag? Gåri viser alle dagens arrangementer — konserter, utstillinger, mat og mer — samlet fra 48 lokale kilder.',
 			en: 'What\'s on in Bergen today? Gåri shows all of today\'s events — concerts, exhibitions, food and more — collected from 48 local sources.'
@@ -243,6 +258,9 @@ const collections: Collection[] = [
 			en: 'For the whole family'
 		},
 		relatedSlugs: ['denne-helgen', 'gratis', 'regndagsguide'],
+		footerLabel: { no: 'Familiehelg', en: 'Family weekend' },
+		footer: { langs: ['no', 'en'], order: 6 },
+		newsletterHeading: { no: 'Aldri gå tom for familieaktiviteter', en: 'Never run out of family activities' },
 		quickAnswer: {
 			no: 'Familievennlige arrangementer i Bergen denne helgen — barneforestillinger, museumsaktiviteter, dyrepark og utendørsopplevelser. Samlet fra 48 lokale kilder.',
 			en: 'Family-friendly events in Bergen this weekend — children\'s shows, museum activities, aquarium visits and outdoor experiences. Collected from 48 local sources.'
@@ -296,6 +314,9 @@ const collections: Collection[] = [
 			en: 'Live music this week'
 		},
 		relatedSlugs: ['denne-helgen', 'i-kveld', 'studentkveld'],
+		footerLabel: { no: 'Konserter', en: 'Concerts' },
+		footer: { langs: ['no', 'en'], order: 5 },
+		newsletterHeading: { no: 'Få ukas konserttips hver torsdag', en: 'Get concert picks every Thursday' },
 		quickAnswer: {
 			no: 'Alle konserter og livemusikk i Bergen denne uken — fra Grieghallen og Ole Bull til Hulen og Kvarteret. Gåri samler konsertprogrammet fra 48 lokale kilder.',
 			en: 'All concerts and live music in Bergen this week — from Grieghallen and Ole Bull to Hulen and Kvarteret. Gåri collects the concert schedule from 48 local sources.'
@@ -349,6 +370,9 @@ const collections: Collection[] = [
 			en: "Tonight's student events"
 		},
 		relatedSlugs: ['konserter', 'i-kveld', 'gratis'],
+		footerLabel: { no: 'Studentkveld', en: 'Student nights' },
+		footer: { langs: ['no', 'en'], order: 9 },
+		newsletterHeading: { no: 'Studenttips rett i innboksen', en: 'Student picks in your inbox' },
 		quickAnswer: {
 			no: 'Kveldens studentarrangementer i Bergen — fester, quiz, konserter og kulturkvelder på Kvarteret, Hulen og andre studentsteder. Oppdatert daglig.',
 			en: 'Tonight\'s student events in Bergen — parties, quizzes, concerts and cultural evenings at Kvarteret, Hulen and other student venues. Updated daily.'
@@ -404,6 +428,9 @@ const collections: Collection[] = [
 			en: "This weekend's events"
 		},
 		relatedSlugs: ['free-things-to-do-bergen', 'today-in-bergen'],
+		footerLabel: { no: 'Denne helgen', en: 'This weekend' },
+		footer: { langs: ['en'], order: 1 },
+		newsletterHeading: { no: 'Få helgens beste tips hver torsdag', en: 'Get weekend picks every Thursday' },
 		quickAnswer: {
 			no: 'Alle arrangementer i Bergen denne helgen — konserter, utstillinger, familieaktiviteter og mer. Oppdatert daglig fra 48 lokale kilder.',
 			en: 'All events in Bergen this weekend — concerts, exhibitions, family activities and more. Updated daily from 48 local sources.'
@@ -456,6 +483,9 @@ const collections: Collection[] = [
 			en: "Today's events"
 		},
 		relatedSlugs: ['i-kveld', 'denne-helgen', 'gratis'],
+		footerLabel: { no: 'I dag', en: 'Today' },
+		footer: { langs: ['no'], order: 3 },
+		newsletterHeading: { no: 'Få daglige tips rett i innboksen', en: 'Get daily picks in your inbox' },
 		quickAnswer: {
 			no: 'Alle arrangementer i Bergen i dag — konserter, utstillinger, turer og mer. Gåri samler dagens program fra 48 lokale kilder, oppdatert to ganger daglig.',
 			en: 'All events in Bergen today — concerts, exhibitions, tours and more. Gåri collects today\'s schedule from 48 local sources, updated twice daily.'
@@ -505,6 +535,9 @@ const collections: Collection[] = [
 			en: 'Free activities in Bergen'
 		},
 		relatedSlugs: ['this-weekend', 'today-in-bergen', 'regndagsguide'],
+		footerLabel: { no: 'Gratis', en: 'Free events' },
+		footer: { langs: ['en'], order: 3 },
+		newsletterHeading: { no: 'Finn gratisopplevelser hver uke', en: 'Find free events every week' },
 		quickAnswer: {
 			no: 'Gratis ting å gjøre i Bergen de neste to ukene — utstillinger, konserter, turer og aktiviteter uten billettpris. Samlet fra 48 lokale kilder.',
 			en: 'Free things to do in Bergen over the next two weeks — exhibitions, concerts, hikes and activities with no ticket price. Collected from 48 local sources.'
@@ -558,6 +591,9 @@ const collections: Collection[] = [
 			en: 'Indoor activities in Bergen'
 		},
 		relatedSlugs: ['gratis', 'familiehelg', 'voksen'],
+		footerLabel: { no: 'Regnværsguide', en: 'Rainy day guide' },
+		footer: { langs: ['no', 'en'], order: 11 },
+		newsletterHeading: { no: 'Få tips til ting å gjøre i Bergen', en: 'Get Bergen activity tips weekly' },
 		quickAnswer: {
 			no: 'Regner det i Bergen? Her er innendørsarrangementer de neste to ukene — konserter, teater, utstillinger og familieaktiviteter. Samlet fra 48 lokale kilder.',
 			en: 'Raining in Bergen? Here are indoor events over the next two weeks — concerts, theatre, exhibitions and family activities. Collected from 48 local sources.'
@@ -611,6 +647,9 @@ const collections: Collection[] = [
 			en: 'City centre events'
 		},
 		relatedSlugs: ['denne-helgen', 'konserter', 'voksen'],
+		footerLabel: { no: 'Sentrum', en: 'City centre' },
+		footer: { langs: ['no', 'en'], order: 10 },
+		newsletterHeading: { no: 'Få tips til ting å gjøre i sentrum', en: 'Get city centre event tips' },
 		quickAnswer: {
 			no: 'Arrangementer i Bergen sentrum de neste to ukene — konserter, teater, utstillinger og mat i gangavstand fra Bryggen. Samlet fra 48 lokale kilder.',
 			en: 'Events in Bergen city centre over the next two weeks — concerts, theatre, exhibitions and dining within walking distance of Bryggen. Collected from 48 local sources.'
@@ -664,6 +703,9 @@ const collections: Collection[] = [
 			en: 'Culture and experiences for adults'
 		},
 		relatedSlugs: ['konserter', 'denne-helgen', 'sentrum'],
+		footerLabel: { no: 'For voksne', en: 'For adults' },
+		footer: { langs: ['no', 'en'], order: 7 },
+		newsletterHeading: { no: 'Kulturelle tips for voksne, hver torsdag', en: 'Cultural picks for adults, every Thursday' },
 		quickAnswer: {
 			no: 'Kulturopplevelser for voksne i Bergen de neste to ukene — konserter, teater, omvisninger, utstillinger og matarrangementer. Samlet fra 48 lokale kilder.',
 			en: 'Cultural experiences for adults in Bergen over the next two weeks — concerts, theatre, guided tours, exhibitions and food events. Collected from 48 local sources.'
@@ -726,6 +768,9 @@ const collections: Collection[] = [
 			en: 'For teens aged 13 to 18'
 		},
 		relatedSlugs: ['studentkveld', 'konserter', 'gratis'],
+		footerLabel: { no: 'For ungdom', en: 'For youth' },
+		footer: { langs: ['no', 'en'], order: 8 },
+		newsletterHeading: { no: 'Tips for ungdom i Bergen', en: 'Teen event picks in Bergen' },
 		quickAnswer: {
 			no: 'Arrangementer for ungdom (13–18 år) i Bergen de neste to ukene — konserter, kultur, sport og workshops. Uten uteliv og 18+-arrangementer. Fra 48 lokale kilder.',
 			en: 'Events for teens (13–18) in Bergen over the next two weeks — concerts, culture, sports and workshops. No nightlife or 18+ events. From 48 local sources.'
@@ -776,4 +821,25 @@ export function getCollection(slug: string): Collection | undefined {
 
 export function getAllCollectionSlugs(): string[] {
 	return collections.map(c => c.slug);
+}
+
+export function getFooterCollections(lang: Lang): Collection[] {
+	return collections
+		.filter(c => c.footer?.langs.includes(lang))
+		.sort((a, b) => a.footer!.order - b.footer!.order);
+}
+
+/** Paired collection slugs: NO slug ↔ EN slug for hreflang */
+const HREFLANG_PAIRS: Record<string, Record<'no' | 'en', string>> = {
+	'denne-helgen': { no: 'denne-helgen', en: 'this-weekend' },
+	'this-weekend': { no: 'denne-helgen', en: 'this-weekend' },
+	'i-dag': { no: 'i-dag', en: 'today-in-bergen' },
+	'today-in-bergen': { no: 'i-dag', en: 'today-in-bergen' },
+	'gratis': { no: 'gratis', en: 'free-things-to-do-bergen' },
+	'free-things-to-do-bergen': { no: 'gratis', en: 'free-things-to-do-bergen' },
+};
+
+/** Returns hreflang slugs for a collection. Unpaired collections use the same slug for both. */
+export function getHreflangSlugs(slug: string): Record<'no' | 'en', string> {
+	return HREFLANG_PAIRS[slug] ?? { no: slug, en: slug };
 }

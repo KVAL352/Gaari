@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCollection, getAllCollectionSlugs } from '../collections';
+import { getCollection, getAllCollectionSlugs, getFooterCollections } from '../collections';
 import type { GaariEvent } from '../types';
 
 function makeEvent(overrides: Partial<GaariEvent> = {}): GaariEvent {
@@ -58,6 +58,61 @@ describe('getCollection', () => {
 			expect(c.title.en).toBeTruthy();
 			expect(c.description.no).toBeTruthy();
 			expect(c.description.en).toBeTruthy();
+		}
+	});
+
+	it('every collection has a newsletterHeading', () => {
+		for (const slug of getAllCollectionSlugs()) {
+			const c = getCollection(slug)!;
+			expect(c.newsletterHeading).toBeDefined();
+			expect(c.newsletterHeading!.no).toBeTruthy();
+			expect(c.newsletterHeading!.en).toBeTruthy();
+		}
+	});
+});
+
+describe('getFooterCollections', () => {
+	it('returns only collections configured for NO footer', () => {
+		const cols = getFooterCollections('no');
+		expect(cols.length).toBeGreaterThan(0);
+		for (const c of cols) {
+			expect(c.footer?.langs).toContain('no');
+		}
+	});
+
+	it('returns only collections configured for EN footer', () => {
+		const cols = getFooterCollections('en');
+		expect(cols.length).toBeGreaterThan(0);
+		for (const c of cols) {
+			expect(c.footer?.langs).toContain('en');
+		}
+	});
+
+	it('returns collections sorted by order', () => {
+		for (const lang of ['no', 'en'] as const) {
+			const cols = getFooterCollections(lang);
+			for (let i = 1; i < cols.length; i++) {
+				expect(cols[i].footer!.order).toBeGreaterThanOrEqual(cols[i - 1].footer!.order);
+			}
+		}
+	});
+
+	it('does not include denne-helgen in EN footer', () => {
+		const cols = getFooterCollections('en');
+		expect(cols.find(c => c.slug === 'denne-helgen')).toBeUndefined();
+	});
+
+	it('does not include this-weekend in NO footer', () => {
+		const cols = getFooterCollections('no');
+		expect(cols.find(c => c.slug === 'this-weekend')).toBeUndefined();
+	});
+
+	it('every footer collection has a footerLabel or title', () => {
+		for (const lang of ['no', 'en'] as const) {
+			for (const col of getFooterCollections(lang)) {
+				const label = (col.footerLabel ?? col.title)[lang];
+				expect(label).toBeTruthy();
+			}
 		}
 	});
 });
