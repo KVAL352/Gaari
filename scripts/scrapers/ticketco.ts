@@ -26,6 +26,7 @@ const SUBDOMAINS = [
 	'sl',
 	'ekko',
 	'swingnsweetjazzclub',
+	'mandelhuset',
 ];
 
 interface TCEvent {

@@ -148,6 +148,20 @@ const VENUE_URLS: Record<string, string> = {
 	'håkonshallen': 'https://forsvarsbygg.no/festningene/bergenhus-festning',
 	'koengen': 'https://forsvarsbygg.no/festningene/bergenhus-festning',
 
+	// Kulturhuset i Bergen rooms
+	'kulturhuset i bergen hovedsalen': 'https://kulturhusetibergen.no',
+	'kulturhuset i bergen lillesalen': 'https://kulturhusetibergen.no',
+	'kulturhuset i bergen restauranten': 'https://kulturhusetibergen.no',
+	'kulturhuset i bergen galleriet': 'https://kulturhusetibergen.no',
+	'kulturhuset i bergen mesaninen': 'https://kulturhusetibergen.no',
+	'kulturhuset i bergen amfi': 'https://kulturhusetibergen.no',
+
+	// Mandelhuset (Tysnes)
+	'mandelhuset': 'https://mandelhuset.no',
+
+	// Stene Matglede
+	'stene matglede': 'https://stenematglede.com',
+
 	// Other venues
 	'oseana': 'https://oseana.no',
 	'studio bergen': 'https://studiobergen.no',

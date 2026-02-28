@@ -9,6 +9,16 @@ const PROGRAM_URL = `${BASE_URL}/program`;
 const VENUE = 'Kulturhuset i Bergen';
 const ADDRESS = 'Vaskerelven 8, Bergen';
 
+// Known rooms/halls at Kulturhuset i Bergen
+const ROOMS = ['Hovedsalen', 'Lillesalen', 'Restauranten', 'Galleriet', 'Mesaninen', 'Amfi'];
+
+function extractRoom(text: string): string | null {
+	for (const room of ROOMS) {
+		if (text.includes(room)) return room;
+	}
+	return null;
+}
+
 function bergenOffset(dateStr: string): string {
 	const month = parseInt(dateStr.slice(5, 7));
 	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
@@ -88,7 +98,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const category = guessCategory(title, excerpt);
 		const bydel = mapBydel(VENUE);
 
-		const aiDesc = await generateDescription({ title, venue: VENUE, category, date: dateStart, price: '' });
+		// Extract room name from event content (e.g., "Hovedsalen", "Restauranten")
+		const fullText = $(el).text();
+		const room = extractRoom(fullText);
+		const venueName = room ? `${VENUE} ${room}` : VENUE;
+
+		const aiDesc = await generateDescription({ title, venue: venueName, category, date: dateStart, price: '' });
 
 		const success = await insertEvent({
 			slug: makeSlug(title, dateStr),
@@ -98,7 +113,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			category,
 			date_start: dateStart,
 			date_end: dateEnd,
-			venue_name: VENUE,
+			venue_name: venueName,
 			address: ADDRESS,
 			bydel,
 			price: '',

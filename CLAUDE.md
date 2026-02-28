@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 49 scrapers (47 active) collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 50 scrapers (48 active) collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -36,7 +36,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 4. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
 5. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
-## Scraper sources (49 total, 47 active, 2 disabled)
+## Scraper sources (50 total, 48 active, 2 disabled)
 
 ### General aggregators
 | Source | File | Method |
@@ -54,7 +54,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | Source | File | Method |
 |--------|------|--------|
 | Eventbrite | `eventbrite.ts` | `__SERVER_DATA__` JSON extraction, pagination |
-| TicketCo | `ticketco.ts` | Multi-venue subdomains (Hulen, Kvarteret, Madam Felle, Landmark, Statsraad Lehmkuhl, Østre/Ekko, Swing 'n Sweet, etc.) |
+| TicketCo | `ticketco.ts` | Multi-venue subdomains (Hulen, Kvarteret, Madam Felle, Landmark, Statsraad Lehmkuhl, Østre/Ekko, Swing 'n Sweet, Mandelhuset, etc.) |
 | Billetto | `billetto.ts` | Algolia API geo-search (25km Bergen radius) |
 | Hoopla | `hoopla.ts` | Hoopla events platform |
 
@@ -104,6 +104,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | Nordnes Sjøbad | `nordnessjobad.ts` | HTML |
 | O'Connor's Irish Pub | `oconnors.ts` | HTML (event cards with `<time datetime>`) |
 | GG Bergen | `ggbergen.ts` | Google Calendar iCal feeds (3 public calendars, 30-day lookahead) |
+| Stene Matglede | `stenematglede.ts` | Squarespace eventlist (cooking courses, food events) |
 
 ### Sports & outdoor
 | Source | File | Method |
@@ -123,7 +124,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | Source | File | Method |
 |--------|------|--------|
 | Det Akademiske Kvarter | `kvarteret.ts` | JSON API (`/api/events`), also covered by TicketCo |
-| Kulturhuset i Bergen | `kulturhusetibergen.ts` | Squarespace eventlist |
+| Kulturhuset i Bergen | `kulturhusetibergen.ts` | Squarespace eventlist, room extraction (Hovedsalen, Lillesalen, etc.) |
 | Bergen Chamber | `bergenchamber.ts` | HTML |
 | Oseana | `oseana.ts` | HTML |
 

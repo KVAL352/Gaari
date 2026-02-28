@@ -52,6 +52,7 @@ import { scrape as scrapeFyllingsdalenTeater } from './scrapers/fyllingsdalentea
 import { scrape as scrapeGGBergen } from './scrapers/ggbergen.js';
 import { scrape as scrapeOConnors } from './scrapers/oconnors.js';
 import { scrape as scrapeBilletto } from './scrapers/billetto.js';
+import { scrape as scrapeSteneMatglede } from './scrapers/stenematglede.js';
 import { writeFileSync } from 'fs';
 import { removeExpiredEvents, loadOptOuts, getOptOutDomains } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
@@ -112,6 +113,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	ggbergen: scrapeGGBergen,
 	oconnors: scrapeOConnors,
 	billetto: scrapeBilletto,
+	stenematglede: scrapeSteneMatglede,
 	// --- Aggregator last (fills gaps, skipped if deadline reached) ---
 	visitbergen: scrapeVisitBergen,
 };
