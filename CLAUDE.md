@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 48 scrapers (46 active) collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 49 scrapers (47 active) collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -36,7 +36,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 4. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
 5. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
-## Scraper sources (48 total, 46 active, 2 disabled)
+## Scraper sources (49 total, 47 active, 2 disabled)
 
 ### General aggregators
 | Source | File | Method |
@@ -54,7 +54,8 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | Source | File | Method |
 |--------|------|--------|
 | Eventbrite | `eventbrite.ts` | `__SERVER_DATA__` JSON extraction, pagination |
-| TicketCo | `ticketco.ts` | Multi-venue subdomains (Hulen, Kvarteret, Madam Felle, Landmark, Statsraad Lehmkuhl, Østre/Ekko, etc.) |
+| TicketCo | `ticketco.ts` | Multi-venue subdomains (Hulen, Kvarteret, Madam Felle, Landmark, Statsraad Lehmkuhl, Østre/Ekko, Swing 'n Sweet, etc.) |
+| Billetto | `billetto.ts` | Algolia API geo-search (25km Bergen radius) |
 | Hoopla | `hoopla.ts` | Hoopla events platform |
 
 ### Performance venues

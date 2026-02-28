@@ -240,7 +240,7 @@ export function generateOrganizationJsonLd(): string {
 		alternateName: 'Gaari',
 		url: BASE_URL,
 		logo: `${BASE_URL}/og/default.png`,
-		description: 'Gåri er en gratis arrangementskalender for Bergen, Norge. Vi samler arrangementer fra 48 kilder — konserter, utstillinger, teater, festival, mat og mer — på ett sted. Oppdatert to ganger daglig.',
+		description: 'Gåri er en gratis arrangementskalender for Bergen, Norge. Vi samler arrangementer fra 49 kilder — konserter, utstillinger, teater, festival, mat og mer — på ett sted. Oppdatert to ganger daglig.',
 		foundingDate: '2026',
 		areaServed: {
 			'@type': 'City',
@@ -275,8 +275,8 @@ export function generateWebSiteJsonLd(lang: Lang): string {
 		alternateName: lang === 'no' ? 'Ke det går i Bergen?' : 'What\'s on in Bergen?',
 		url: BASE_URL,
 		description: lang === 'no'
-			? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, utstillinger, teater, mat og mer. Oppdatert to ganger daglig fra 48 kilder.'
-			: 'Gåri aggregates all events in Bergen in one place — concerts, exhibitions, theatre, food and more. Updated twice daily from 48 sources.',
+			? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, utstillinger, teater, mat og mer. Oppdatert to ganger daglig fra 49 kilder.'
+			: 'Gåri aggregates all events in Bergen in one place — concerts, exhibitions, theatre, food and more. Updated twice daily from 49 sources.',
 		inLanguage: ['nb', 'en'],
 		about: {
 			'@type': 'City',
@@ -300,7 +300,7 @@ const FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
 	no: [
 		{
 			q: 'Hva er Gåri?',
-			a: 'Gåri er en gratis arrangementskalender for Bergen som samler arrangementer fra 48 kilder — konsertsteder, teatre, museer, biblioteker, festivaler og billettsider — på ett sted. Oppdatert to ganger daglig.'
+			a: 'Gåri er en gratis arrangementskalender for Bergen som samler arrangementer fra 49 kilder — konsertsteder, teatre, museer, biblioteker, festivaler og billettsider — på ett sted. Oppdatert to ganger daglig.'
 		},
 		{
 			q: 'Hva skjer i Bergen denne helgen?',
@@ -330,7 +330,7 @@ const FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
 	en: [
 		{
 			q: 'What is Gåri?',
-			a: 'Gåri is a free event calendar for Bergen, Norway, collecting events from 48 sources — concert venues, theatres, museums, libraries, festivals and ticket platforms — in one place. Updated twice daily.'
+			a: 'Gåri is a free event calendar for Bergen, Norway, collecting events from 49 sources — concert venues, theatres, museums, libraries, festivals and ticket platforms — in one place. Updated twice daily.'
 		},
 		{
 			q: 'What\'s on in Bergen this weekend?',
