@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
+	import { goto, beforeNavigate, afterNavigate } from '$app/navigation';
+	import { tick } from 'svelte';
 	import { lang, t } from '$lib/i18n';
 	import { isFreeEvent } from '$lib/utils';
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString } from '$lib/event-filters';
@@ -155,6 +156,25 @@
 	let popularEvents = $derived(allEvents.filter(e => e.status === 'approved').slice(0, 3));
 
 	let websiteJsonLd = $derived(generateWebSiteJsonLd($lang));
+
+	// Scroll restoration: save position when leaving, restore on back navigation
+	beforeNavigate(() => {
+		sessionStorage.setItem('gaari-home-scroll', String(window.scrollY));
+	});
+
+	afterNavigate(({ type }) => {
+		if (type === 'popstate') {
+			const saved = sessionStorage.getItem('gaari-home-scroll');
+			if (saved) {
+				sessionStorage.removeItem('gaari-home-scroll');
+				tick().then(() => {
+					requestAnimationFrame(() => {
+						window.scrollTo({ top: parseInt(saved), behavior: 'instant' });
+					});
+				});
+			}
+		}
+	});
 </script>
 
 <svelte:head>
