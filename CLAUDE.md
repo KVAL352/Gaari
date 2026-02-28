@@ -186,6 +186,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `/[lang]/datainnsamling/` — Data transparency page (47 sources listed, opt-out form). Form action `?/optout` in `+page.server.ts`.
 - `/[lang]/personvern/` — Privacy policy (GDPR). Bilingual inline, no server load, in sitemap.
 - `/[lang]/tilgjengelighet/` — Accessibility statement (EAA/WCAG 2.2 AA). Bilingual inline, no server load, in sitemap.
+- `/[lang]/nyhetsbrev/preferanser/` — Newsletter preference page. Loads subscriber preferences from MailerLite via email param, allows updating lang/audience/categories/bydel/price. **Server-side loaded**.
 - `/[lang]/submit/` — Event submission form (blocked from search engines). Only page that ships Supabase SDK to client (for image uploads).
 - `/[lang]/events/[slug]/` — Event detail page with related events and OG image. **Server-side loaded**, correction form action `?/correction` in `+page.server.ts`.
 - `/[lang]/[collection]/` — 14 curated collection landing pages. **Server-side loaded** with collection-specific filtering, ISR cached. Dynamic `[collection]` route — config in `$lib/collections.ts`, unknown slugs return 404. No EventDiscovery filter UI — clean hero + EventGrid + editorial copy + FAQ answer capsules (H2+p). JSON-LD `CollectionPage` + `ItemList` + `BreadcrumbList` + `FAQPage` schema, custom OG images. All 14 in sitemap (priority 0.8, daily). Promoted placement logic runs after filtering — bubbles paying venue's events to the top and returns `promotedEventIds` to the page.
@@ -309,12 +310,13 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (208 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (347 tests, runs in <500ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
 - `src/lib/__tests__/event-filters.test.ts` — 28 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary)
 - `src/lib/__tests__/utils.test.ts` — 31 tests: `isFreeEvent` (all truthy/falsy cases, case-insensitive, Norwegian zero-price formats, whitespace trimming), `formatPrice` (both locales, numeric, string, null, zero-price format propagation), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases)
 - `src/lib/__tests__/seo.test.ts` — 44 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, cancelled status, language fallback), `toBergenIso` (UTC→CEST/CET, DST boundaries, passthrough, invalid), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions), `generateCollectionJsonLd` (ItemList, positions, lang prefix, 50-item cap), `computeCanonical` (all 7 rules, EN/NO variants, noindex threshold, noise params)
+- `src/lib/__tests__/seo-audit.test.ts` — 139 tests: SEO validation rules (meta tags, JSON-LD structure, canonical URLs, sitemap entries, performance budgets)
 - `src/lib/__tests__/collections.test.ts` — 45 tests: `getCollection` (valid/invalid slug, all slugs, bilingual metadata), weekend filter (Fri–Sun for Mon–Fri, Wed→Fri–Sun, empty), tonight filter (evening/night today only), free filter (this week, various price formats), today filter (same day only, empty), youth filter (youth categories, excludes 18+/nightlife/food, includes family, title+description regex, age range patterns, 2-week window, empty)
 - `scripts/lib/__tests__/utils.test.ts` — 43 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `detectFreeFromText` (Norwegian/English keywords, case-insensitive, partial-word rejection), `isOptedOut`
 - `scripts/lib/__tests__/dedup.test.ts` — 17 tests: `titlesMatch` (exact, containment with 0.6 ratio guard, 90% prefix with 1.3 ratio, short titles, real-world normalized), `scoreEvent` (source rank, image/ticket/description bonuses, aggregator URL exclusion)
@@ -326,3 +328,4 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 - **CI** (`ci.yml`): lint, type-check, test, build on push/PR to master. Supabase env vars passed to type check step for `$env/static/public` resolution.
 - **Scrape** (`scrape.yml`): cron 6 AM & 6 PM UTC, 15min job timeout, npm cache, 2min install timeout, `SUMMARY_FILE` env var, job summary step with health status (healthy/partial/critical). Secrets: SUPABASE keys + GEMINI_API_KEY.
 - **Newsletter** (`newsletter.yml`): cron every Thursday 10:00 UTC (11:00 CET / 12:00 CEST), 5min timeout. Runs `scripts/send-newsletter.ts` — fetches subscribers from MailerLite, groups by preferences, generates personalized HTML, sends via MailerLite campaigns. Supports `--dry-run` via manual workflow dispatch. Job summary with subscriber/group/sent/error counts. Secrets: SUPABASE keys + MAILERLITE_API_KEY.
+- **SEO Report** (`seo-report.yml`): cron every Monday 09:00 UTC (10:00 CET / 11:00 CEST), 5min timeout. Runs `scripts/seo-weekly-report.ts` — Plausible traffic, Google Search Console queries, Bing Webmaster, sitemap validation, content insights. Sends HTML report via Resend. Supports `--dry-run`. Secrets: PLAUSIBLE_API_KEY, GSC_SERVICE_ACCOUNT (base64), BING_WEBMASTER_KEY, RESEND_API_KEY, SUPABASE keys.
