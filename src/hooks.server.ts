@@ -2,29 +2,46 @@ import type { Handle, HandleServerError } from '@sveltejs/kit';
 
 // ── Rate limiting (in-memory, per-IP) ──
 
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_WINDOW = 60_000; // 1 minute
-const RATE_LIMIT_MAX = 5; // max submissions per window
+interface RateLimitEntry {
+	count: number;
+	resetAt: number;
+}
+
+// Separate rate limit maps for different tiers
+const formRateLimitMap = new Map<string, RateLimitEntry>();
+const apiRateLimitMap = new Map<string, RateLimitEntry>();
+const loginRateLimitMap = new Map<string, RateLimitEntry>();
+
+// Rate limit configs
+const FORM_LIMIT = { window: 60_000, max: 5 }; // 5/min for form pages
+const API_LIMIT = { window: 60_000, max: 3 }; // 3/min for API endpoints
+const LOGIN_LIMIT = { window: 300_000, max: 3 }; // 3/5min for admin login
 
 // Clean stale entries every 5 minutes
 setInterval(() => {
 	const now = Date.now();
-	for (const [key, val] of rateLimitMap) {
-		if (now > val.resetAt) rateLimitMap.delete(key);
+	for (const map of [formRateLimitMap, apiRateLimitMap, loginRateLimitMap]) {
+		for (const [key, val] of map) {
+			if (now > val.resetAt) map.delete(key);
+		}
 	}
 }, 300_000);
 
-function isRateLimited(ip: string): boolean {
+function isRateLimited(
+	map: Map<string, RateLimitEntry>,
+	ip: string,
+	config: { window: number; max: number }
+): boolean {
 	const now = Date.now();
-	const entry = rateLimitMap.get(ip);
+	const entry = map.get(ip);
 
 	if (!entry || now > entry.resetAt) {
-		rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+		map.set(ip, { count: 1, resetAt: now + config.window });
 		return false;
 	}
 
 	entry.count++;
-	return entry.count > RATE_LIMIT_MAX;
+	return entry.count > config.max;
 }
 
 // ── Security headers ──
@@ -38,25 +55,29 @@ const securityHeaders: Record<string, string> = {
 	'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
 };
 
-// CSP: allow self, inline scripts/styles (SvelteKit needs these), and any HTTPS images
+// CSP: allow self, inline scripts/styles (SvelteKit needs these), Supabase images
 const csp = [
 	"default-src 'self'",
 	"script-src 'self' 'unsafe-inline' https://plausible.io",
 	"style-src 'self' 'unsafe-inline'",
 	"font-src 'self'",
-	"img-src 'self' data: https:",
+	"img-src 'self' data: https://*.supabase.co",
 	"connect-src 'self' https://*.supabase.co https://plausible.io",
 	"frame-ancestors 'none'",
 	"base-uri 'self'",
 	"form-action 'self'"
 ].join('; ');
 
-// Rate-limited paths (POST-like operations happen client-side, but we can
-// rate-limit page loads to these form pages as a basic defense)
-const RATE_LIMITED_PATHS = ['/submit', '/datainnsamling'];
+// Rate-limited path groups
+const FORM_PATHS = ['/submit', '/datainnsamling'];
+const API_PATHS = ['/api/newsletter', '/api/notify-submission'];
+const LOGIN_PATH = '/admin/login';
 
-function shouldRateLimit(pathname: string): boolean {
-	return RATE_LIMITED_PATHS.some(p => pathname.endsWith(p));
+function getRateLimitTier(pathname: string, method: string): 'form' | 'api' | 'login' | null {
+	if (pathname.endsWith(LOGIN_PATH) && method === 'POST') return 'login';
+	if (API_PATHS.some((p) => pathname === p) && method === 'POST') return 'api';
+	if (FORM_PATHS.some((p) => pathname.endsWith(p))) return 'form';
+	return null;
 }
 
 // ── Structured error logging (parsed by Vercel's log system) ──
@@ -82,14 +103,20 @@ export const handleError: HandleServerError = ({ error, event, status }) => {
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
-	// Rate limit form pages (skip during prerendering — no client address available)
-	if (shouldRateLimit(event.url.pathname)) {
+	const tier = getRateLimitTier(event.url.pathname, event.request.method);
+
+	// Apply rate limiting based on tier (skip during prerendering)
+	if (tier) {
 		try {
 			const ip = event.getClientAddress();
-			if (isRateLimited(ip)) {
+			const maps = { form: formRateLimitMap, api: apiRateLimitMap, login: loginRateLimitMap };
+			const configs = { form: FORM_LIMIT, api: API_LIMIT, login: LOGIN_LIMIT };
+			const retryAfter = String(Math.ceil(configs[tier].window / 1000));
+
+			if (isRateLimited(maps[tier], ip, configs[tier])) {
 				return new Response('Too many requests. Please try again later.', {
 					status: 429,
-					headers: { 'Retry-After': '60' }
+					headers: { 'Retry-After': retryAfter }
 				});
 			}
 		} catch {

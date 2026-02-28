@@ -2,6 +2,19 @@ import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
 
+// Basic email format validation (RFC 5322 simplified)
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_EMAIL_LENGTH = 254; // RFC 5321
+
+// Allowed preference values (whitelist)
+const VALID_AUDIENCES = ['', 'familie', 'ungdom', 'voksen', 'student', '18+', 'turist'];
+const VALID_PRICE = ['', 'free', 'paid'];
+const VALID_LANG = ['', 'no', 'en'];
+
+function isValidPreference(value: string, allowed: string[]): boolean {
+	return allowed.includes(value);
+}
+
 export const POST: RequestHandler = async ({ request }) => {
 	const data = await request.formData();
 	const email = data.get('email')?.toString().trim();
@@ -10,24 +23,29 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ error: 'Email is required' }, { status: 400 });
 	}
 
+	if (email.length > MAX_EMAIL_LENGTH || !EMAIL_REGEX.test(email)) {
+		return json({ error: 'Invalid email format' }, { status: 400 });
+	}
+
 	if (!env.MAILERLITE_API_KEY) {
 		console.error('MAILERLITE_API_KEY is not set');
 		return json({ error: 'Newsletter service unavailable' }, { status: 500 });
 	}
 
-	// Extract optional preference fields (from EventDiscovery filter state)
+	// Extract and validate optional preference fields
 	const fields: Record<string, string> = {};
-	const audience = data.get('audience')?.toString().trim();
-	const categories = data.get('categories')?.toString().trim();
-	const bydelPref = data.get('bydel')?.toString().trim();
-	const price = data.get('price')?.toString().trim();
-	const langPref = data.get('lang')?.toString().trim();
+	const audience = data.get('audience')?.toString().trim() ?? '';
+	const categories = data.get('categories')?.toString().trim() ?? '';
+	const bydelPref = data.get('bydel')?.toString().trim() ?? '';
+	const price = data.get('price')?.toString().trim() ?? '';
+	const langPref = data.get('lang')?.toString().trim() ?? '';
 
-	if (audience) fields.preference_audience = audience;
-	if (categories) fields.preference_categories = categories;
-	if (bydelPref) fields.preference_bydel = bydelPref;
-	if (price) fields.preference_price = price;
-	if (langPref) fields.preference_lang = langPref;
+	// Validate against whitelists (silently ignore invalid values)
+	if (audience && isValidPreference(audience, VALID_AUDIENCES)) fields.preference_audience = audience;
+	if (categories && categories.length <= 200) fields.preference_categories = categories;
+	if (bydelPref && bydelPref.length <= 100) fields.preference_bydel = bydelPref;
+	if (price && isValidPreference(price, VALID_PRICE)) fields.preference_price = price;
+	if (langPref && isValidPreference(langPref, VALID_LANG)) fields.preference_lang = langPref;
 
 	const body: Record<string, unknown> = { email };
 	if (Object.keys(fields).length > 0) body.fields = fields;

@@ -12,10 +12,10 @@ export const actions: Actions = {
 			return { success: true };
 		}
 
-		const organization = fd.get('organization') as string;
-		const domain = fd.get('domain') as string;
-		const email = fd.get('email') as string;
-		const reason = (fd.get('reason') as string) || null;
+		const organization = String(fd.get('organization') ?? '').slice(0, 200);
+		const domain = String(fd.get('domain') ?? '').slice(0, 200);
+		const email = String(fd.get('email') ?? '').slice(0, 254);
+		const reason = fd.get('reason') ? String(fd.get('reason')).slice(0, 1000) : null;
 
 		if (!organization || !domain || !email) {
 			return fail(400, { optoutError: true });

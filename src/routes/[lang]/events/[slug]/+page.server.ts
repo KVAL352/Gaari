@@ -74,12 +74,17 @@ export const actions: Actions = {
 			return fail(400, { correctionError: true });
 		}
 
+		// Length limits to prevent abuse
+		const sv = String(suggested_value).slice(0, 1000);
+		const r = reason ? String(reason).slice(0, 1000) : null;
+		const e = email ? String(email).slice(0, 254) : null;
+
 		const { error: err } = await supabase.from('edit_suggestions').insert({
 			event_id,
-			field,
-			suggested_value,
-			reason,
-			email,
+			field: String(field).slice(0, 100),
+			suggested_value: sv,
+			reason: r,
+			email: e,
 			status: 'pending'
 		});
 
