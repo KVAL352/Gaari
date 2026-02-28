@@ -9,6 +9,16 @@ updates:
     labels:
       - dependencies
 
+  - package-ecosystem: npm
+    directory: /scripts
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - scrapers
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
