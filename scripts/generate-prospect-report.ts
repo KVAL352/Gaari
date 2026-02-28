@@ -54,6 +54,7 @@ interface PlatformStats {
 	aiReferrals: Array<{ source: string; visitors: number }>;
 	activeEvents: number;
 	subscribers: number | null;
+	subscriberCategories: Record<string, number> | null; // category → count
 	topSearchQueries: Array<{ query: string; impressions: number; clicks: number }>;
 }
 
@@ -86,6 +87,7 @@ interface VenueData {
 	qualityScore: { withImage: number; withTicket: number; withDescription: number; total: number };
 	relevantCollections: CollectionInfo[];
 	eventPageViews: Array<{ slug: string; title: string; visitors: number }>;
+	newsletterReach: number; // subscribers with matching category preferences
 }
 
 // ─── Collection metadata ─────────────────────────────────────────────
@@ -163,23 +165,8 @@ const COLLECTION_META: Record<string, { no: string; en: string; desc_no: string;
 	}
 };
 
-// Category → relevant collection mapping
-const CATEGORY_COLLECTIONS: Record<string, string[]> = {
-	music: ['konserter', 'studentkveld', 'i-kveld', 'voksen', 'sentrum'],
-	culture: ['voksen', 'regndagsguide', 'sentrum'],
-	theatre: ['voksen', 'regndagsguide'],
-	family: ['familiehelg', 'for-ungdom', 'gratis'],
-	food: ['voksen', 'sentrum'],
-	festival: ['denne-helgen', 'this-weekend'],
-	sports: ['familiehelg', 'for-ungdom'],
-	nightlife: ['i-kveld', 'studentkveld'],
-	workshop: ['regndagsguide', 'voksen', 'familiehelg'],
-	student: ['studentkveld', 'for-ungdom'],
-	tours: ['voksen', 'sentrum', 'regndagsguide']
-};
-
-// Universal collections that all venues benefit from
-const UNIVERSAL_COLLECTIONS = ['denne-helgen', 'i-dag', 'gratis', 'i-kveld'];
+// Date-based collections that are relevant for all venues
+const UNIVERSAL_COLLECTIONS = ['denne-helgen', 'this-weekend', 'i-dag', 'today-in-bergen'];
 
 // ─── Plausible API ───────────────────────────────────────────────────
 
@@ -232,7 +219,7 @@ async function collectPlatformStats(): Promise<PlatformStats> {
 	const prevDateStr = prevDate.toISOString().slice(0, 10);
 
 	// Parallel data collection
-	const [current, previous, sourcesRaw, aiRaw, eventCount, subscribers] = await Promise.all([
+	const [current, previous, sourcesRaw, aiRaw, eventCount, subStats] = await Promise.all([
 		plausibleAggregate('30d', 'visitors,pageviews'),
 		plausibleAggregate('30d', 'visitors,pageviews', prevDateStr),
 		plausibleBreakdown('visit:source', '30d', 8, 'visitors'),
@@ -242,7 +229,7 @@ async function collectPlatformStats(): Promise<PlatformStats> {
 			.select('id', { count: 'exact', head: true })
 			.eq('status', 'approved')
 			.gte('date_start', TODAY),
-		collectSubscribers()
+		collectSubscriberStats()
 	]);
 
 	const topSources = sourcesRaw.map(r => ({ source: r.source as string, visitors: r.visitors as number }));
@@ -255,26 +242,53 @@ async function collectPlatformStats(): Promise<PlatformStats> {
 		topSources,
 		aiReferrals,
 		activeEvents: eventCount.count ?? 0,
-		subscribers,
+		subscribers: subStats?.total ?? null,
+		subscriberCategories: subStats?.categoryBreakdown ?? null,
 		topSearchQueries: [] // Filled optionally if GSC is available
 	};
 }
 
-async function collectSubscribers(): Promise<number | null> {
+interface SubscriberStats {
+	total: number;
+	categoryBreakdown: Record<string, number>; // category → subscriber count
+}
+
+async function collectSubscriberStats(): Promise<SubscriberStats | null> {
 	const key = process.env.MAILERLITE_API_KEY;
 	if (!key) return null;
 
 	try {
-		const resp = await fetch('https://connect.mailerlite.com/api/subscribers?limit=0', {
-			headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }
-		});
-		if (!resp.ok) return null;
-		const data = await resp.json() as { total: number };
-		return data.total ?? 0;
+		// Fetch all subscribers with their preference fields
+		const allSubs: Array<{ fields: Record<string, string> }> = [];
+		let cursor: string | null = null;
+		for (let page = 0; page < 10; page++) { // max 1000 subscribers
+			const url = new URL('https://connect.mailerlite.com/api/subscribers');
+			url.searchParams.set('limit', '100');
+			if (cursor) url.searchParams.set('cursor', cursor);
+			const resp = await fetch(url.toString(), {
+				headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }
+			});
+			if (!resp.ok) break;
+			const data = await resp.json() as { data: Array<{ fields: Record<string, string> }>; meta: { next_cursor: string | null } };
+			allSubs.push(...data.data);
+			cursor = data.meta?.next_cursor ?? null;
+			if (!cursor) break;
+		}
+
+		// Count subscribers per category preference
+		const categoryBreakdown: Record<string, number> = {};
+		for (const sub of allSubs) {
+			const cats = (sub.fields?.preference_categories || '').split(',').map(c => c.trim().toLowerCase()).filter(Boolean);
+			for (const cat of cats) {
+				categoryBreakdown[cat] = (categoryBreakdown[cat] ?? 0) + 1;
+			}
+		}
+
+		return { total: allSubs.length, categoryBreakdown };
 	} catch { return null; }
 }
 
-async function collectVenueData(name: string): Promise<VenueData> {
+async function collectVenueData(name: string, subscriberCategories: Record<string, number> | null): Promise<VenueData> {
 	console.log(`Henter data for "${name}"...`);
 
 	const threeMonthsAgo = new Date();
@@ -305,18 +319,29 @@ async function collectVenueData(name: string): Promise<VenueData> {
 	const withTicket = events.filter(e => e.ticket_url).length;
 	const withDescription = events.filter(e => e.description_no && e.description_no.length > 20).length;
 
-	// Find relevant collections based on venue's categories
+	// Find relevant collections: any collection whose categories overlap with the venue's
 	const relevantSlugs = new Set<string>(UNIVERSAL_COLLECTIONS);
-	for (const cat of categories) {
-		const mapped = CATEGORY_COLLECTIONS[cat];
-		if (mapped) mapped.forEach(s => relevantSlugs.add(s));
+	for (const [slug, meta] of Object.entries(COLLECTION_META)) {
+		if (meta.categories.some(c => categories.includes(c))) {
+			relevantSlugs.add(slug);
+		}
+	}
+
+	// Only include free collections if ≥10% of venue's events are free
+	const freeCount = events.filter(e => {
+		const p = String(e.price ?? '').trim().toLowerCase();
+		return p === '0' || p === 'gratis' || p === 'free' || p === '0 kr' || p === '0,-';
+	}).length;
+	if (freeCount < events.length * 0.1) {
+		relevantSlugs.delete('gratis');
+		relevantSlugs.delete('free-things-to-do-bergen');
 	}
 
 	// Fetch traffic for all relevant collections from Plausible
 	const collectionTraffic = await collectCollectionTraffic([...relevantSlugs]);
 
 	const relevantCollections: CollectionInfo[] = collectionTraffic
-		.filter(c => c.visitors30d > 0 || relevantSlugs.has(c.slug))
+		.filter(c => relevantSlugs.has(c.slug))
 		.sort((a, b) => b.visitors30d - a.visitors30d);
 
 	// Fetch event detail page views for this venue's events
@@ -332,6 +357,14 @@ async function collectVenueData(name: string): Promise<VenueData> {
 		? [...venueNameCounts.entries()].sort((a, b) => a[0].length - b[0].length)[0][0]
 		: name;
 
+	// Newsletter reach: count subscribers who have ANY of the venue's categories in their preferences
+	let newsletterReach = 0;
+	if (subscriberCategories) {
+		for (const cat of categories) {
+			newsletterReach += subscriberCategories[cat] ?? 0;
+		}
+	}
+
 	return {
 		name: bestName,
 		upcomingEvents: events,
@@ -339,7 +372,8 @@ async function collectVenueData(name: string): Promise<VenueData> {
 		categories,
 		qualityScore: { withImage, withTicket, withDescription, total },
 		relevantCollections,
-		eventPageViews
+		eventPageViews,
+		newsletterReach
 	};
 }
 
@@ -864,29 +898,28 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null): string {
 		` : '';
 
 		// Collections
-		const relevantCollections = venue.relevantCollections.filter(c => c.relevant && c.visitors30d > 0);
-		const otherPopular = venue.relevantCollections.filter(c => !c.relevant && c.visitors30d > 0).slice(0, 3);
+		const relevantCollections = venue.relevantCollections.filter(c => c.relevant);
+		const relevantWithTraffic = relevantCollections.filter(c => c.visitors30d > 0);
+		const relevantWithoutTraffic = relevantCollections.filter(c => c.visitors30d === 0);
 
 		const collectionsHtml = `
 			<h3 style="font-size:15px;margin:24px 0 8px;border-bottom:1px solid #e5e5e5;padding-bottom:6px">${t.collectionsTitle}</h3>
 			<p style="font-size:13px;color:#666;margin:0 0 16px">${t.collectionsExplainer}</p>
 			<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
-				${relevantCollections.map(c => `
+				${relevantWithTraffic.map(c => `
 					<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;min-width:140px">
 						<div style="font-weight:600;font-size:14px;color:#C82D2D">${c.title}</div>
 						<div style="font-size:20px;font-weight:700;margin:4px 0 0">${fmt(c.visitors30d)}</div>
 						<div style="font-size:11px;color:#666">${t.visitorsLabel}</div>
 					</div>
 				`).join('')}
+				${relevantWithoutTraffic.map(c => `
+					<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;min-width:140px">
+						<div style="font-weight:600;font-size:14px;color:#C82D2D">${c.title}</div>
+						<div style="font-size:11px;color:#666;margin-top:4px">${lang === 'no' ? 'Inkludert' : 'Included'}</div>
+					</div>
+				`).join('')}
 			</div>
-			${otherPopular.length > 0 ? `
-				<p style="font-size:12px;color:#666;margin:8px 0 4px">${lang === 'no' ? 'Andre populære samlinger:' : 'Other popular collections:'}</p>
-				<div style="display:flex;flex-wrap:wrap;gap:6px">
-					${otherPopular.map(c => `
-						<span style="background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:6px 10px;font-size:12px">${c.title} · ${fmt(c.visitors30d)} ${t.visitorsLabel}</span>
-					`).join('')}
-				</div>
-			` : ''}
 		`;
 
 		venueHtml = `
@@ -907,6 +940,12 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null): string {
 						<div style="font-size:28px;font-weight:700;color:#141414">${venue.categories.length}</div>
 						<div style="font-size:12px;color:#666">${lang === 'no' ? 'Kategorier' : 'Categories'}</div>
 					</div>
+					${venue.newsletterReach > 0 ? `
+					<div style="background:#f9fafb;border-radius:8px;padding:12px 20px;text-align:center">
+						<div style="font-size:28px;font-weight:700;color:#C82D2D">${venue.newsletterReach}</div>
+						<div style="font-size:12px;color:#666">${lang === 'no' ? 'Nyhetsbrev-treff' : 'Newsletter matches'}</div>
+					</div>
+					` : ''}
 				</div>
 
 				${eventsTableHtml}
@@ -1127,7 +1166,7 @@ async function main() {
 	// Collect venue data (if applicable)
 	let venue: VenueData | null = null;
 	if (venueName) {
-		venue = await collectVenueData(venueName);
+		venue = await collectVenueData(venueName, platform.subscriberCategories);
 		console.log(`\n  ${venue.name}:`);
 		console.log(`    Kommende events:    ${venue.upcomingEvents.length}`);
 		console.log(`    Siste 3 mnd:        ${venue.totalEventsLast3Months}`);
@@ -1135,6 +1174,9 @@ async function main() {
 		console.log(`    Relevante samlinger: ${venue.relevantCollections.filter(c => c.relevant).length}`);
 		if (venue.eventPageViews.length > 0) {
 			console.log(`    Events med visninger: ${venue.eventPageViews.length}`);
+		}
+		if (venue.newsletterReach > 0) {
+			console.log(`    Nyhetsbrev-treff:    ${venue.newsletterReach}`);
 		}
 	}
 
