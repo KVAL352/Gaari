@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 47 scrapers (45 active) collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 48 scrapers (46 active) collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -36,7 +36,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 4. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
 5. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
-## Scraper sources (47 total, 45 active, 2 disabled)
+## Scraper sources (48 total, 46 active, 2 disabled)
 
 ### General aggregators
 | Source | File | Method |
@@ -102,6 +102,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | Bjørgvin Blues Club | `bjorgvinblues.ts` | HTML |
 | Nordnes Sjøbad | `nordnessjobad.ts` | HTML |
 | O'Connor's Irish Pub | `oconnors.ts` | HTML (event cards with `<time datetime>`) |
+| GG Bergen | `ggbergen.ts` | Google Calendar iCal feeds (3 public calendars, 30-day lookahead) |
 
 ### Sports & outdoor
 | Source | File | Method |
@@ -183,7 +184,7 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 
 - `/[lang]/` — Main event listing with EventDiscovery filter. **Server-side loaded** (`+page.server.ts`), ISR cached (`s-maxage=300, stale-while-revalidate=600`).
 - `/[lang]/about/` — About page. **Prerendered** at build time (both `/no/about` and `/en/about`).
-- `/[lang]/datainnsamling/` — Data transparency page (47 sources listed, opt-out form). Form action `?/optout` in `+page.server.ts`.
+- `/[lang]/datainnsamling/` — Data transparency page (48 sources listed, opt-out form). Form action `?/optout` in `+page.server.ts`.
 - `/[lang]/personvern/` — Privacy policy (GDPR). Bilingual inline, no server load, in sitemap.
 - `/[lang]/tilgjengelighet/` — Accessibility statement (EAA/WCAG 2.2 AA). Bilingual inline, no server load, in sitemap.
 - `/[lang]/nyhetsbrev/preferanser/` — Newsletter preference page. Loads subscriber preferences from MailerLite via email param, allows updating lang/audience/categories/bydel/price. **Server-side loaded**.
