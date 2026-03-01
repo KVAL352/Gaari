@@ -168,7 +168,8 @@ export const GET: RequestHandler = async () => {
 	if (checks[0]?.status === 'pass') {
 		try {
 			const nowUtc = new Date().toISOString();
-			const oneYearFromNow = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+			// 2 years — venues like Grieghallen legitimately sell tickets 1+ year ahead
+			const twoYearsFromNow = new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000).toISOString();
 
 			const [pastApproved, farFuture] = await Promise.all([
 				// Events that should have been cleaned up by removeExpiredEvents()
@@ -177,12 +178,12 @@ export const GET: RequestHandler = async () => {
 					.select('*', { count: 'exact', head: true })
 					.eq('status', 'approved')
 					.lt('date_end', nowUtc),
-				// Events >1 year out suggest a date parsing bug in a scraper
+				// Events >2 years out suggest a date parsing bug in a scraper
 				supabase
 					.from('events')
 					.select('*', { count: 'exact', head: true })
 					.eq('status', 'approved')
-					.gt('date_start', oneYearFromNow)
+					.gt('date_start', twoYearsFromNow)
 			]);
 
 			const pastCount = pastApproved.count ?? 0;
@@ -190,7 +191,7 @@ export const GET: RequestHandler = async () => {
 			const issues: string[] = [];
 
 			if (pastCount > 50) issues.push(`${pastCount} expired events not cleaned up`);
-			if (futureCount > 0) issues.push(`${futureCount} events >1 year out (date parsing bug?)`);
+			if (futureCount > 0) issues.push(`${futureCount} events >2 years out (date parsing bug?)`);
 
 			checks.push({
 				name: 'data_quality',
