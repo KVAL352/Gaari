@@ -54,9 +54,19 @@ import { scrape as scrapeOConnors } from './scrapers/oconnors.js';
 import { scrape as scrapeBilletto } from './scrapers/billetto.js';
 import { scrape as scrapeSteneMatglede } from './scrapers/stenematglede.js';
 import { writeFileSync } from 'fs';
+import { randomUUID } from 'crypto';
 import { removeExpiredEvents, loadOptOuts, getOptOutDomains } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 import { supabase } from './lib/supabase.js';
+
+interface ScraperResult {
+	found: number;
+	inserted: number;
+	errored: boolean;
+	errorMessage?: string;
+	durationMs: number;
+	skipped: boolean;
+}
 
 // Pipeline deadline — stop starting new scrapers after 13 minutes (2 min buffer for dedup + summary)
 const PIPELINE_DEADLINE_MS = 13 * 60 * 1000;
@@ -204,12 +214,14 @@ async function main() {
 
 	// Step 2: Run scrapers
 	console.log(`--- Running scrapers: ${selected.join(', ')} ---\n`);
-	const results: Record<string, { found: number; inserted: number }> = {};
+	const results: Record<string, ScraperResult> = {};
+	let deadlineReached = false;
 
 	for (const name of selected) {
 		// Check deadline before starting each scraper
 		if (Date.now() - startTime > PIPELINE_DEADLINE_MS) {
 			console.warn(`\nPipeline deadline reached (${Math.round(PIPELINE_DEADLINE_MS / 60000)}min) — skipping remaining scrapers`);
+			deadlineReached = true;
 			break;
 		}
 
@@ -220,13 +232,55 @@ async function main() {
 			continue;
 		}
 
+		const scraperStart = Date.now();
 		try {
-			results[name] = await scraper();
+			const { found, inserted } = await scraper();
+			results[name] = { found, inserted, errored: false, durationMs: Date.now() - scraperStart, skipped: false };
 		} catch (err: any) {
 			console.error(`\n[${name}] Failed: ${err.message}`);
-			results[name] = { found: 0, inserted: 0 };
+			results[name] = {
+				found: 0, inserted: 0, errored: true,
+				errorMessage: (err.message || String(err)).slice(0, 500),
+				durationMs: Date.now() - scraperStart, skipped: false
+			};
 		}
 	}
+
+	// Mark scrapers that were skipped due to deadline
+	if (deadlineReached) {
+		for (const name of selected) {
+			if (!results[name] && scrapers[name]) {
+				results[name] = { found: 0, inserted: 0, errored: false, durationMs: 0, skipped: true };
+			}
+		}
+	}
+
+	// Record per-scraper results to scraper_runs table
+	const runId = randomUUID();
+	try {
+		const rows = Object.entries(results).map(([name, r]) => ({
+			run_id: runId,
+			scraper_name: name,
+			found: r.found,
+			inserted: r.inserted,
+			errored: r.errored,
+			error_message: r.errorMessage || null,
+			duration_ms: r.durationMs,
+			skipped: r.skipped,
+		}));
+		const { error } = await supabase.from('scraper_runs').insert(rows);
+		if (error) console.error(`Failed to record scraper runs: ${error.message}`);
+		else console.log(`\nRecorded ${rows.length} scraper results to scraper_runs`);
+	} catch (err: any) {
+		console.error(`Failed to record scraper runs: ${err.message}`);
+	}
+
+	// Clean scraper_runs older than 90 days
+	try {
+		const cutoff = new Date();
+		cutoff.setDate(cutoff.getDate() - 90);
+		await supabase.from('scraper_runs').delete().lt('run_at', cutoff.toISOString());
+	} catch { /* non-critical */ }
 
 	// Step 3: Deduplicate across sources
 	let dupsRemoved = 0;
@@ -240,7 +294,8 @@ async function main() {
 
 	// Step 4: IndexNow ping for newly inserted events
 	let indexNowSubmitted = 0;
-	const insertedCount = Object.values(results).reduce((sum, r) => sum + r.inserted, 0);
+	const activeResults = Object.fromEntries(Object.entries(results).filter(([, r]) => !r.skipped));
+	const insertedCount = Object.values(activeResults).reduce((sum, r) => sum + r.inserted, 0);
 	if (insertedCount > 0) {
 		console.log('--- Pinging IndexNow ---');
 		indexNowSubmitted = await pingIndexNow(startTime);
@@ -257,33 +312,53 @@ async function main() {
 	// Summary
 	console.log('=== Summary ===');
 	for (const [name, result] of Object.entries(results)) {
-		console.log(`  ${name}: found ${result.found}, inserted ${result.inserted} new`);
+		if (result.skipped) {
+			console.log(`  ${name}: skipped (deadline)`);
+		} else if (result.errored) {
+			console.log(`  ${name}: ERROR — ${result.errorMessage?.slice(0, 80)}`);
+		} else {
+			console.log(`  ${name}: found ${result.found}, inserted ${result.inserted} new (${result.durationMs}ms)`);
+		}
 	}
 
-	const totalFound = Object.values(results).reduce((sum, r) => sum + r.found, 0);
-	const totalInserted = Object.values(results).reduce((sum, r) => sum + r.inserted, 0);
+	const totalFound = Object.values(activeResults).reduce((sum, r) => sum + r.found, 0);
+	const totalInserted = Object.values(activeResults).reduce((sum, r) => sum + r.inserted, 0);
 	console.log(`\nTotal new events: ${totalInserted}`);
 	console.log(`Expired removed: ${expired}`);
 	console.log(`Duplicates removed: ${dupsRemoved}`);
 	console.log(`Pipeline time: ${Math.round((Date.now() - startTime) / 1000)}s`);
 
 	// Structured JSON summary for GitHub Actions
-	const failedScrapers = Object.entries(results)
+	const failedScrapers = Object.entries(activeResults)
 		.filter(([, r]) => r.found === 0 && r.inserted === 0)
+		.map(([name]) => name);
+	const erroredScrapers = Object.entries(activeResults)
+		.filter(([, r]) => r.errored)
+		.map(([name]) => name);
+	const skippedScrapers = Object.entries(results)
+		.filter(([, r]) => r.skipped)
 		.map(([name]) => name);
 	const durationSeconds = Math.round((Date.now() - startTime) / 1000);
 
 	const summary = {
-		scrapersRun: Object.keys(results).length,
+		runId,
+		scrapersRun: Object.keys(activeResults).length,
 		totalFound,
 		totalInserted,
 		failedScrapers,
+		erroredScrapers,
+		skippedScrapers,
 		failedCount: failedScrapers.length,
 		expiredRemoved: expired,
 		optOutRemoved,
 		duplicatesRemoved: dupsRemoved,
 		indexNowSubmitted,
-		durationSeconds
+		durationSeconds,
+		perScraper: Object.fromEntries(
+			Object.entries(results).map(([name, r]) => [name, {
+				found: r.found, inserted: r.inserted, errored: r.errored, skipped: r.skipped, durationMs: r.durationMs
+			}])
+		)
 	};
 
 	console.log('\n' + JSON.stringify(summary));

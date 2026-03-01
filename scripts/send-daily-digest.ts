@@ -18,6 +18,7 @@ import 'dotenv/config';
 import * as fs from 'fs';
 import * as path from 'path';
 import { supabase } from './lib/supabase.js';
+import { analyzeScraperHealth, type ScraperHealthStatus } from './lib/scraper-health.js';
 
 const REPORT_EMAIL = 'post@gaari.no';
 const FROM_EMAIL = 'Gåri <noreply@gaari.no>';
@@ -51,10 +52,19 @@ interface ExpiringPlacement {
 	daysLeft: number;
 }
 
+interface SourceFreshness {
+	source: string;
+	totalEvents: number;
+	upcomingEvents: number;
+	latestDateStart: string;
+}
+
 interface DigestData {
 	date: string;
 	pending: PendingCounts;
 	scraper: ScraperActivity;
+	scraperHealth: ScraperHealthStatus[];
+	staleSources: SourceFreshness[];
 	traffic: TrafficData | null;
 	subscribers: number | null;
 	expiringPlacements: ExpiringPlacement[];
@@ -183,17 +193,75 @@ async function collectExpiringPlacements(): Promise<ExpiringPlacement[]> {
 	});
 }
 
+async function collectScraperHealth(): Promise<ScraperHealthStatus[]> {
+	console.log('🔍 Analyzing scraper health...');
+	try {
+		return await analyzeScraperHealth(supabase);
+	} catch (err: any) {
+		console.error(`Scraper health check failed: ${err.message}`);
+		return [];
+	}
+}
+
+async function collectStaleSources(): Promise<SourceFreshness[]> {
+	console.log('📡 Checking per-source freshness...');
+	try {
+		const nowUtc = new Date().toISOString();
+
+		// Get all approved events with source info
+		const { data, error } = await supabase
+			.from('events')
+			.select('source, date_start')
+			.eq('status', 'approved');
+
+		if (error || !data) return [];
+
+		// Group by source: count total and upcoming
+		const sources = new Map<string, { total: number; upcoming: number; latest: string }>();
+		for (const e of data) {
+			const s = sources.get(e.source) ?? { total: 0, upcoming: 0, latest: '' };
+			s.total++;
+			if (e.date_start >= nowUtc) s.upcoming++;
+			if (e.date_start > s.latest) s.latest = e.date_start;
+			sources.set(e.source, s);
+		}
+
+		// Flag sources with 0 upcoming events (all events have expired)
+		const stale: SourceFreshness[] = [];
+		for (const [source, info] of sources) {
+			if (info.upcoming === 0) {
+				stale.push({
+					source,
+					totalEvents: info.total,
+					upcomingEvents: 0,
+					latestDateStart: info.latest
+				});
+			}
+		}
+
+		// Sort by source name
+		stale.sort((a, b) => a.source.localeCompare(b.source));
+		return stale;
+	} catch (err: any) {
+		console.error(`Source freshness check failed: ${err.message}`);
+		return [];
+	}
+}
+
 // ─── HTML Email Template ────────────────────────────────────────────
 
 function renderHtml(data: DigestData): string {
 	const total = data.pending.corrections + data.pending.submissions + data.pending.optouts + data.pending.inquiries;
-	const hasWarning = data.scraper.newEvents24h === 0 || total > 10;
+	const brokenScrapers = data.scraperHealth.filter(s => s.status === 'broken');
+	const warningScrapers = data.scraperHealth.filter(s => s.status === 'warning');
+	const hasWarning = data.scraper.newEvents24h === 0 || total > 10 || brokenScrapers.length > 0 || data.staleSources.length >= 5;
 
 	const warningHtml = hasWarning ? `
 		<div style="background:#fef2f2;border:2px solid #dc2626;border-radius:8px;padding:16px;margin-bottom:24px">
 			<h2 style="color:#dc2626;margin:0 0 8px;font-size:16px">Trenger oppmerksomhet</h2>
 			${data.scraper.newEvents24h === 0 ? '<p style="margin:4px 0;color:#991b1b">Ingen nye events de siste 24 timene — scraper-pipeline kan ha feilet</p>' : ''}
 			${total > 10 ? `<p style="margin:4px 0;color:#991b1b">${total} ventende oppgaver — vurder å behandle dem</p>` : ''}
+			${brokenScrapers.length > 0 ? `<p style="margin:4px 0;color:#991b1b">${brokenScrapers.length} scraper${brokenScrapers.length === 1 ? '' : 'e'} nede: ${brokenScrapers.map(s => s.name).join(', ')}</p>` : ''}
 		</div>
 	` : '';
 
@@ -242,6 +310,68 @@ function renderHtml(data: DigestData): string {
 			</tbody>
 		</table>
 	`;
+
+	const healthStatusBadge = (status: ScraperHealthStatus['status']): string => {
+		switch (status) {
+			case 'broken': return 'background:#FEE2E2;color:#991B1B';
+			case 'warning': return 'background:#FEF3C7;color:#92400E';
+			case 'dormant': return 'background:#F3F4F6;color:#6B7280';
+			default: return 'background:#D1FAE5;color:#065F46';
+		}
+	};
+
+	const unhealthyScrapers = data.scraperHealth.filter(s => s.status !== 'healthy');
+	const scraperHealthHtml = data.scraperHealth.length > 0 ? `
+		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Scraper-helse</h2>
+		${unhealthyScrapers.length === 0 ? `
+			<p style="color:#065F46;font-size:14px;margin-bottom:24px">Alle ${data.scraperHealth.length} scrapere kjorer normalt</p>
+		` : `
+			<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+				<thead><tr style="background:#f5f5f5">
+					<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Scraper</th>
+					<th style="text-align:center;padding:8px;border:1px solid #ddd;font-size:13px">Status</th>
+					<th style="text-align:right;padding:8px;border:1px solid #ddd;font-size:13px">Sist</th>
+					<th style="text-align:right;padding:8px;border:1px solid #ddd;font-size:13px">Snitt</th>
+				</tr></thead>
+				<tbody>
+					${unhealthyScrapers.map(s => `
+						<tr>
+							<td style="padding:8px;border:1px solid #ddd;font-size:14px">${s.name}</td>
+							<td style="text-align:center;padding:8px;border:1px solid #ddd">
+								<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;${healthStatusBadge(s.status)}">${s.status}</span>
+							</td>
+							<td style="text-align:right;padding:8px;border:1px solid #ddd;font-size:14px">${s.lastFound}</td>
+							<td style="text-align:right;padding:8px;border:1px solid #ddd;font-size:14px">${s.avgFound}</td>
+						</tr>
+						<tr>
+							<td colspan="4" style="padding:4px 8px 8px;border:1px solid #ddd;border-top:0;font-size:12px;color:#666">${s.reason}</td>
+						</tr>
+					`).join('')}
+				</tbody>
+			</table>
+		`}
+	` : '';
+
+	const staleSourcesHtml = data.staleSources.length > 0 ? `
+		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Kilde-friskhet</h2>
+		<p style="font-size:13px;color:#666;margin:0 0 8px">Kilder med 0 kommende events — enten sesong-pause eller mulig problem.</p>
+		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+			<thead><tr style="background:#f5f5f5">
+				<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Kilde</th>
+				<th style="text-align:right;padding:8px;border:1px solid #ddd;font-size:13px">Events i DB</th>
+				<th style="text-align:right;padding:8px;border:1px solid #ddd;font-size:13px">Siste event</th>
+			</tr></thead>
+			<tbody>
+				${data.staleSources.map(s => `
+					<tr>
+						<td style="padding:8px;border:1px solid #ddd;font-size:14px">${s.source}</td>
+						<td style="text-align:right;padding:8px;border:1px solid #ddd;font-size:14px">${s.totalEvents}</td>
+						<td style="text-align:right;padding:8px;border:1px solid #ddd;font-size:14px;color:#92400E">${s.latestDateStart.slice(0, 10)}</td>
+					</tr>
+				`).join('')}
+			</tbody>
+		</table>
+	` : '';
 
 	const trafficHtml = data.traffic ? `
 		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Trafikk i går</h2>
@@ -304,6 +434,8 @@ function renderHtml(data: DigestData): string {
 	${warningHtml}
 	${pendingHtml}
 	${scraperHtml}
+	${scraperHealthHtml}
+	${staleSourcesHtml}
 	${trafficHtml}
 	${subscriberHtml}
 	${placementsHtml}
@@ -317,16 +449,18 @@ function renderHtml(data: DigestData): string {
 
 // ─── Email via Resend ───────────────────────────────────────────────
 
-async function sendEmail(html: string, totalPending: number): Promise<boolean> {
+async function sendEmail(html: string, totalPending: number, brokenScraperCount: number): Promise<boolean> {
 	const key = process.env.RESEND_API_KEY;
 	if (!key) {
 		console.error('Cannot send email: no RESEND_API_KEY');
 		return false;
 	}
 
-	const subject = totalPending > 0
-		? `[Daglig oversikt] ${totalPending} ventende oppgave${totalPending === 1 ? '' : 'r'}`
-		: `[Daglig oversikt] Alt i orden — ${TODAY}`;
+	const subject = brokenScraperCount > 0
+		? `[Daglig oversikt] ${brokenScraperCount} scraper${brokenScraperCount === 1 ? '' : 'e'} nede`
+		: totalPending > 0
+			? `[Daglig oversikt] ${totalPending} ventende oppgave${totalPending === 1 ? '' : 'r'}`
+			: `[Daglig oversikt] Alt i orden — ${TODAY}`;
 
 	const resp = await fetch('https://api.resend.com/emails', {
 		method: 'POST',
@@ -384,9 +518,11 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel
-	const [pending, scraper, traffic, subscribers, expiringPlacements] = await Promise.all([
+	const [pending, scraper, scraperHealth, staleSources, traffic, subscribers, expiringPlacements] = await Promise.all([
 		collectPendingCounts(),
 		collectScraperActivity(),
+		collectScraperHealth(),
+		collectStaleSources(),
 		collectTraffic(),
 		collectSubscribers(),
 		collectExpiringPlacements()
@@ -396,6 +532,8 @@ async function main() {
 		date: TODAY,
 		pending,
 		scraper,
+		scraperHealth,
+		staleSources,
 		traffic,
 		subscribers,
 		expiringPlacements
@@ -410,6 +548,14 @@ async function main() {
 	if (traffic) console.log(`   Yesterday traffic: ${traffic.visitors} visitors, ${traffic.pageviews} pageviews`);
 	if (subscribers !== null) console.log(`   Subscribers: ${subscribers}`);
 	if (expiringPlacements.length > 0) console.log(`   Expiring placements: ${expiringPlacements.length}`);
+	const brokenCount = scraperHealth.filter(s => s.status === 'broken').length;
+	const warningCount = scraperHealth.filter(s => s.status === 'warning').length;
+	if (scraperHealth.length > 0) {
+		console.log(`   Scraper health: ${brokenCount} broken, ${warningCount} warning, ${scraperHealth.length} total`);
+	}
+	if (staleSources.length > 0) {
+		console.log(`   Stale sources (0 upcoming events): ${staleSources.map(s => s.source).join(', ')}`);
+	}
 
 	// Render HTML
 	const html = renderHtml(digestData);
@@ -422,7 +568,7 @@ async function main() {
 		console.log(`\n📄 Preview written to: ${outPath}`);
 		writeSummary(digestData, false);
 	} else {
-		const sent = await sendEmail(html, total);
+		const sent = await sendEmail(html, total, brokenCount);
 		writeSummary(digestData, sent);
 	}
 
