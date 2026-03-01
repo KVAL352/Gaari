@@ -104,7 +104,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			: undefined;
 
 		const priceStr = event.price || '';
-		const ticketUrl = event.ticketUrl || sourceUrl;
+		// TicketCo URL if available, otherwise KODE calendar (sourceUrl slug often 404s)
+		const ticketUrl = event.ticketUrl || 'https://www.kodebergen.no/kalender';
 
 		const aiDesc = await generateDescription({ title: event.title, venue: venueName, category, date: dateStart, price: priceStr });
 		const success = await insertEvent({

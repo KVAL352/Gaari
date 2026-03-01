@@ -82,7 +82,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: 'Koengen, Bergen',
 			bydel: 'Bergenhus',
 			price: '',
-			ticket_url: 'https://www.bergenfest.no/billetter',
+			ticket_url: sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: imageUrl,

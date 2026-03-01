@@ -36,9 +36,14 @@ function bergenOffset(dateISO: string): string {
 	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
 }
 
+interface ProductionInfo {
+	url: string;
+	imageUrl?: string;
+}
+
 /** Fetch production listing page to map titles → slug URLs */
-async function fetchProductionUrls(): Promise<Map<string, string>> {
-	const map = new Map<string, string>();
+async function fetchProductionUrls(): Promise<Map<string, ProductionInfo>> {
+	const map = new Map<string, ProductionInfo>();
 	const html = await fetchHTML('https://dns.no/forestillinger/');
 	if (!html) return map;
 
@@ -57,10 +62,19 @@ async function fetchProductionUrls(): Promise<Map<string, string>> {
 		if (lower === 'kjøp billetter' || lower === 'les mer' || lower === 'se alle') return;
 
 		const fullUrl = href.startsWith('http') ? href : `https://dns.no${href}`;
-		map.set(title.toLowerCase(), fullUrl);
+		map.set(lower.normalize('NFC'), { url: fullUrl });
 	});
 
 	return map;
+}
+
+/** Fetch og:image from a production detail page */
+async function fetchProductionImage(url: string): Promise<string | undefined> {
+	const html = await fetchHTML(url);
+	if (!html) return undefined;
+	const $ = cheerio.load(html);
+	const ogImage = $('meta[property="og:image"]').attr('content');
+	return ogImage || undefined;
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
@@ -139,7 +153,14 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			: undefined;
 
 		// Use slug URL from listing page if available, otherwise fall back to production query URL
-		const ticketUrl = productionUrls.get(first.title.toLowerCase()) || eventUrl;
+		const production = productionUrls.get(first.title.toLowerCase().normalize('NFC'));
+		const ticketUrl = production?.url || eventUrl;
+
+		// Fetch og:image from production page
+		let imageUrl: string | undefined;
+		if (production?.url) {
+			imageUrl = await fetchProductionImage(production.url);
+		}
 
 		const aiDesc = await generateDescription({ title: first.title, venue: first.theater, category, date: dateStart, price: '' });
 		const success = await insertEvent({
@@ -157,7 +178,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: ticketUrl,
 			source: SOURCE,
 			source_url: eventUrl,
-			image_url: undefined,
+			image_url: imageUrl,
 			age_group: first.title.toLowerCase().includes('barn') || first.title.toLowerCase().includes('brødrene') ? 'family' : 'all',
 			language: 'no',
 			status: 'approved',
