@@ -636,13 +636,13 @@
 		{/if}
 		</div><!-- end .filters-panel -->
 
-		<!-- Result counter at bottom -->
-		<div class="result-counter" aria-live="polite" aria-atomic="true">
-			<div class="result-count-group">
-				<span class="result-number">{eventCount}</span>
-				<span class="result-label">{$t('arrangementer')}</span>
-			</div>
-			{#if hasActiveFilters}
+		<!-- Result counter — only shown when filters are active -->
+		{#if hasActiveFilters}
+			<div class="result-counter" aria-live="polite" aria-atomic="true">
+				<div class="result-count-group">
+					<span class="result-number">{eventCount}</span>
+					<span class="result-label">{$t('arrangementer')}</span>
+				</div>
 				<button
 					type="button"
 					class="reset-btn"
@@ -650,8 +650,8 @@
 				>
 					{$t('resetFilters')}
 				</button>
-			{/if}
-		</div>
+			</div>
+		{/if}
 
 		<!-- Contextual newsletter prompt -->
 		{#if showNewsletter}
