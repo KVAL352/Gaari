@@ -8,5 +8,16 @@
     "date": "2026-03-06",
     "title": "Sjekk nyhetsbrev-utsending",
     "description": "Ukentlig nyhetsbrev ble sendt torsdag 5. mars (10:00 UTC). Sjekk: 1) GHA newsletter.yml — gikk jobben OK? 2) MailerLite dashboard — ble kampanjen opprettet og sendt? 3) Åpningsrate og leveringsrate. 4) Preference-gruppering — fikk ulike grupper tilpasset innhold? 5) Test selv: sjekk innboks post@gaari.no for test-kopi."
+  },
+  {
+    "date": "2026-03-05",
+    "title": "Gjennomgang: Prospect report design",
+    "description": "Gå igjennom visuell utforming av prospect-rapportene (venue + festival). Generer eksempler: npx tsx generate-prospect-report.ts \"Grieghallen\" og --festival festspillene. Åpne HTML-filene i .prospect-reports/ og vurder layout, farger, lesbarhet, mobilvennlighet. Festival-outreach utsatt — trenger mer trafikk først."
+  }
+  ,
+  {
+    "date": "2026-03-15",
+    "title": "Analyse: Mobil bounce rate etter above-fold-fix",
+    "description": "Sjekk Plausible-data for 1.-15. mars: 1) Bounce rate — har den gått ned fra 68%? 2) Scroll depth — scroller folk lenger? 3) Sammenlign mobil vs. desktop. Endringer deployert 1. mars: hero skjult på mobil, discovery-panel komprimert, audience pills kollapset til 3, filter-toggles bak 'Flere filtre'-knapp, resultateller skjult uten filtre."
   }
 ]

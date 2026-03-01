@@ -160,15 +160,16 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 ## EventDiscovery filter system (Feb 2026)
 
-The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) instead of traditional dropdowns. It guides users step by step: **When → Time of Day → Who → What → Where & Price**.
+The homepage uses a discovery filter (`EventDiscovery.svelte`) instead of traditional dropdowns. Layout differs by viewport:
 
-- **Step 1 (When?)** — Always visible. Pills: I dag, I morgen, Denne helgen, Denne uken, Velg dato (opens inline MiniCalendar)
-- **Steps 2–5** — Slide in after a date is selected (progressive disclosure)
-- **Step 2 (Time)** — Multi-select pills: Morgen (6–12), Dagtid (12–17), Kveld (17–22), Natt (22–6)
-- **Step 3 (Who)** — Single-select pills: Familie, Ungdom (13-18, excludes 18+/nightlife/food, matches title+description keywords), Voksen, Student, 18+, Turist
-- **Step 4 (What)** — Multi-select category pills (first 5 shown, expandable)
-- **Step 5 (Where & Price)** — Bydel + price dropdowns, inline within the progressive flow (gated by date selection). No separate toggle.
-- **FilterBar is hidden** from the homepage when EventDiscovery is active (a date is selected). EventDiscovery is the sole filter UI on the homepage.
+- **Who?** — Always visible. Single-select pills: Familie, Ungdom (13-18), Voksen, Student, 18+, Turist. On mobile, first 3 shown with "+3 til" expand button.
+- **When? / What? / Where?** — Three toggle buttons that expand/collapse their sections. On mobile, collapsed behind a single "Flere filtre" button (red border, fills red when active, badge shows active filter count).
+- **When?** — Pills: I dag, I morgen, Denne helgen, Denne uken, Velg dato (opens inline MiniCalendar). Time of day sub-section: Morgen (6–12), Dagtid (12–17), Kveld (17–22), Natt (22–6).
+- **What?** — Multi-select category pills (first 4 shown, expandable) + price filter (Trolig gratis / Betalt).
+- **Where?** — Bydel pills.
+- **Result counter** — Only shown when filters are active (hidden by default to save space).
+- **Mobile optimizations**: Hero section hidden, spacing tightened (panel gap 0.5rem, padding 0.75rem), audience pills collapsed to 3, filter toggles behind single button.
+- **FilterBar is hidden** from the homepage when EventDiscovery is active. EventDiscovery is the sole filter UI on the homepage.
 - **URL is the single source of truth** — all filters read/write URL search params (`when`, `time`, `audience`, `category`, `bydel`, `price`). Shareable, back-button works.
 - **Key components**: `FilterPill.svelte` (reusable pill button), `MiniCalendar.svelte` (inline date picker), `EventDiscovery.svelte` (main component)
 - **18+ audience filter** excludes family events (not just explicitly tagged 18+ events)
@@ -216,10 +217,10 @@ The homepage uses a progressive discovery filter (`EventDiscovery.svelte`) inste
 - `Header.svelte` — Sticky header with language switch
 - `Footer.svelte` — Footer with dynamic collection links (via `getFooterCollections()`), static links (about, datainnsamling, personvern, tilgjengelighet, submit, contact) + inline NewsletterCTA. For-arrangorer link temporarily removed while page is under construction.
 - `NewsletterCTA.svelte` — Newsletter subscribe form (card + inline variants). Props: `id` (unique suffix), `variant`, optional `heading`/`subtext` overrides. Client-side fetch to `/api/newsletter`, success/error states. Placed in footer (inline), about page, collection pages (contextual headings), event detail pages (card).
-- `HeroSection.svelte` — Compact hero with tagline
+- `HeroSection.svelte` — Compact hero with tagline (hidden on mobile, visible on desktop)
 - `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer. Accepts `promoted` prop — renders "Fremhevet"/"Featured" badge (markedsføringsloven § 3).
 - `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates). Accepts `promotedEventIds` prop, passes `promoted` flag to each EventCard.
-- `EventDiscovery.svelte` — Progressive 5-step filter (When/Time/Who/What/Where & Price) with inline calendar
+- `EventDiscovery.svelte` — Filter panel (Who always visible, When/What/Where behind toggles). Mobile: audience pills collapsed to 3, filter toggles behind "Flere filtre" button, result counter hidden until filters active
 - `FilterPill.svelte` — Reusable pill/chip button (aria-pressed, 44px touch targets, Funkis styling)
 - `MiniCalendar.svelte` — Inline month-grid date picker (single date + range selection, bilingual). Proper ARIA grid structure: `role="grid"` > `role="row"` > `role="gridcell"` with chunked weeks.
 - `FilterBar.svelte` — Dropdown filter row (hidden on homepage when EventDiscovery is active, has `hideFields` prop)
