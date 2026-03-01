@@ -62,7 +62,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: 'Bryggen 43, Bergen',
 			bydel: 'Bergenhus',
 			price: '',
-			ticket_url: 'https://madamefelle.ticketco.events/no/nb',
+			ticket_url: BASE_URL, // No per-concert ticket pages — concert listing is best link
 			source: SOURCE,
 			source_url: eventKey,
 			image_url: undefined,

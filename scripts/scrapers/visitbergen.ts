@@ -115,10 +115,16 @@ function parseListPage(html: string): { events: ListEvent[]; totalPages: number 
 		let ticketUrl: string | undefined;
 		$w.find('a[href]').each((_, a) => {
 			if (ticketUrl) return;
-			const linkHref = $(a).attr('href') || '';
+			let linkHref = $(a).attr('href') || '';
+			// VB sometimes wraps external links in /engine/referrer.asp?web=...
+			if (linkHref.includes('/engine/referrer.asp')) {
+				const webParam = linkHref.match(/web=([^&]+)/);
+				if (webParam) linkHref = decodeURIComponent(webParam[1]);
+				else return;
+			}
 			if (linkHref.startsWith('http') && !linkHref.includes('visitbergen.com')
 				&& !junkDomains.some(d => linkHref.includes(d))) {
-				ticketUrl = linkHref;
+				ticketUrl = linkHref.trim();
 			}
 		});
 
@@ -201,6 +207,16 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const aiDesc = await generateDescription({ title: event.title, venue: event.venue, category, date: dateStart, price: '' });
 
+		// Resolve ticket URL: prefer specific event pages over generic venue homepages
+		let ticketUrl = resolveTicketUrl(event.venue, event.ticketUrl) || event.detailUrl;
+		// If resolved URL is just a bare domain (no meaningful path), use VB detail page instead
+		try {
+			const parsed = new URL(ticketUrl);
+			if (parsed.pathname === '/' && !parsed.search) {
+				ticketUrl = event.detailUrl;
+			}
+		} catch { /* keep ticketUrl as-is */ }
+
 		const success = await insertEvent({
 			slug: makeSlug(event.title, dateStart),
 			title_no: event.title,
@@ -213,7 +229,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: event.venue,
 			bydel,
 			price: '',
-			ticket_url: resolveTicketUrl(event.venue, event.ticketUrl) || event.detailUrl,
+			ticket_url: ticketUrl,
 			source: SOURCE,
 			source_url: event.detailUrl,
 			image_url: event.imageUrl,
