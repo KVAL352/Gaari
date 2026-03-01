@@ -1,5 +1,6 @@
+import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, deleteEventByUrl } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, deleteEventByUrl, fetchHTML } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'dns';
@@ -33,6 +34,33 @@ function mapCategory(title: string): string {
 function bergenOffset(dateISO: string): string {
 	const month = parseInt(dateISO.slice(5, 7));
 	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
+}
+
+/** Fetch production listing page to map titles → slug URLs */
+async function fetchProductionUrls(): Promise<Map<string, string>> {
+	const map = new Map<string, string>();
+	const html = await fetchHTML('https://dns.no/forestillinger/');
+	if (!html) return map;
+
+	const $ = cheerio.load(html);
+	$('a[href*="/forestillinger/"]').each((_, el) => {
+		const href = $(el).attr('href');
+		if (!href || href === '/forestillinger/' || href === 'https://dns.no/forestillinger/') return;
+
+		// Find the title text within the link (heading preferred, fall back to link text)
+		const title = $(el).find('h2, h3, h4').first().text().trim()
+			|| $(el).text().trim();
+		if (!title || title.length > 100) return;
+
+		// Skip button labels like "Kjøp billetter", "Les mer"
+		const lower = title.toLowerCase();
+		if (lower === 'kjøp billetter' || lower === 'les mer' || lower === 'se alle') return;
+
+		const fullUrl = href.startsWith('http') ? href : `https://dns.no${href}`;
+		map.set(title.toLowerCase(), fullUrl);
+	});
+
+	return map;
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
@@ -86,6 +114,10 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (await deleteEventByUrl(eventUrl)) console.log(`  - Removed sold-out production: ${prodId}`);
 	}
 
+	// Fetch production listing page to get proper slug URLs
+	const productionUrls = await fetchProductionUrls();
+	console.log(`[${SOURCE}] Mapped ${productionUrls.size} production URLs from listing page`);
+
 	const found = productions.size;
 	let inserted = 0;
 
@@ -106,6 +138,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			? new Date(`${last.dateISO}T${last.startTime}:00${bergenOffset(last.dateISO)}`).toISOString()
 			: undefined;
 
+		// Use slug URL from listing page if available, otherwise fall back to production query URL
+		const ticketUrl = productionUrls.get(first.title.toLowerCase()) || eventUrl;
+
 		const aiDesc = await generateDescription({ title: first.title, venue: first.theater, category, date: dateStart, price: '' });
 		const success = await insertEvent({
 			slug: makeSlug(first.title, first.dateISO),
@@ -119,7 +154,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: first.theater,
 			bydel,
 			price: '',
-			ticket_url: eventUrl,
+			ticket_url: ticketUrl,
 			source: SOURCE,
 			source_url: eventUrl,
 			image_url: undefined,
