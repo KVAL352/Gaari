@@ -179,17 +179,17 @@
 
 <svelte:head>
 	<title>Gåri — {$t('tagline')}</title>
-	<meta name="description" content={$lang === 'no' ? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, utstillinger, teater, mat og mer. Oppdatert to ganger daglig fra 50 kilder.' : 'Gåri aggregates all events in Bergen in one place — concerts, exhibitions, theatre, food and more. Updated twice daily from 50 sources.'} />
+	<meta name="description" content={$lang === 'no' ? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, utstillinger, teater, mat og mer. Oppdatert to ganger daglig fra 52 kilder.' : 'Gåri aggregates all events in Bergen in one place — concerts, exhibitions, theatre, food and more. Updated twice daily from 52 sources.'} />
 	<link rel="canonical" href={data.canonical} />
 	{#if data.noindex}<meta name="robots" content="noindex, follow" />{/if}
 	<meta property="og:title" content={`Gåri — ${$t('tagline')}`} />
-	<meta property="og:description" content={$lang === 'no' ? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, utstillinger, teater, mat og mer. Oppdatert to ganger daglig fra 50 kilder.' : 'Gåri aggregates all events in Bergen in one place — concerts, exhibitions, theatre, food and more. Updated twice daily from 50 sources.'} />
+	<meta property="og:description" content={$lang === 'no' ? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, utstillinger, teater, mat og mer. Oppdatert to ganger daglig fra 52 kilder.' : 'Gåri aggregates all events in Bergen in one place — concerts, exhibitions, theatre, food and more. Updated twice daily from 52 sources.'} />
 	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={`Gåri — ${$t('tagline')}`} />
-	<meta name="twitter:description" content={$lang === 'no' ? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, utstillinger, teater, mat og mer. Oppdatert to ganger daglig fra 50 kilder.' : 'Gåri aggregates all events in Bergen in one place — concerts, exhibitions, theatre, food and more. Updated twice daily from 50 sources.'} />
+	<meta name="twitter:description" content={$lang === 'no' ? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, utstillinger, teater, mat og mer. Oppdatert to ganger daglig fra 52 kilder.' : 'Gåri aggregates all events in Bergen in one place — concerts, exhibitions, theatre, food and more. Updated twice daily from 52 sources.'} />
 	<meta name="twitter:image" content={`${$page.url.origin}/og/default.png`} />
 	{#if displayedEvents[0]?.image_url}
 		<link rel="preload" as="image"
@@ -212,7 +212,7 @@
 />
 
 
-<div class="mx-auto max-w-7xl px-4 py-3 md:py-6" aria-live="polite" aria-atomic="true">
+<div class="mx-auto max-w-7xl px-4 py-2 md:py-3" aria-live="polite" aria-atomic="true">
 	{#if filteredEvents.length === 0}
 		<EmptyState
 			{popularEvents}

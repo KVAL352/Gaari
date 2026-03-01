@@ -411,7 +411,7 @@
 
 <section
 	aria-label={$t('eventDiscovery')}
-	class="mx-auto max-w-7xl px-4 py-2 md:py-4"
+	class="mx-auto max-w-7xl px-4 py-1 md:py-2"
 >
 	<div class="discovery-panel">
 		<h2 class="panel-heading">{$t('findEvents')}</h2>
@@ -705,16 +705,16 @@
 		background: var(--color-bg-surface);
 		border-radius: 0.75rem;
 		box-shadow: var(--shadow-sm);
-		padding: 1.25rem 1.5rem;
+		padding: 1rem 1.25rem;
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
+		gap: 0.75rem;
 		overflow: hidden;
 	}
 
 	.panel-heading {
 		font-family: var(--font-display);
-		font-size: 1.125rem;
+		font-size: 1rem;
 		font-weight: 500;
 		color: var(--color-text-primary);
 		margin: 0;
@@ -1123,8 +1123,8 @@
 	/* Mobile */
 	@media (max-width: 767px) {
 		.discovery-panel {
-			padding: 0.75rem;
-			gap: 0.5rem;
+			padding: 0.5rem 0.75rem;
+			gap: 0.375rem;
 			border-radius: 0;
 			box-shadow: none;
 			border-bottom: 1px solid var(--color-border);
