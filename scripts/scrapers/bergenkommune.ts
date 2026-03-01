@@ -11,7 +11,7 @@ const DELAY_MS = 3000;
 
 // Skip events not accessible to the general public (kindergartens, school visits, etc.)
 const NON_PUBLIC_KEYWORDS = [
-	'barnehage', 'barnehager', 'barnehagebarn',
+	'barnehage', 'barnehager', 'barnehagar', 'barnehagebarn',
 	'klassebesøk', 'klassebesok', 'skoleklasse', 'skolebesøk', 'skolebesok',
 	'kun for',
 ];

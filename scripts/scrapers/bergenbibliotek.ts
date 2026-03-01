@@ -8,7 +8,7 @@ const BASE_URL = 'https://bergenbibliotek.no/arrangement';
 // Skip events not accessible to the general public
 const SKIP_KEYWORDS = [
 	'sfo', 'sfo-besøk', 'barnehage', 'barnehagebarn', 'barnehager',
-	'skoleklasse', 'skolebesøk', 'klassebesøk', 'kun for'
+	'barnehagar', 'skoleklasse', 'skolebesøk', 'klassebesøk', 'kun for'
 ];
 
 const NORWEGIAN_MONTHS: Record<string, number> = {
@@ -66,15 +66,20 @@ function libraryBydel(location: string): string {
 	return 'Sentrum';
 }
 
-/** Fetch detail page and extract price from <div class="exclude"> (e.g. "GRATIS", "150 kr") */
-async function fetchPrice(url: string): Promise<string> {
+/** Fetch detail page — extract price and check body text for non-public keywords */
+async function fetchDetail(url: string): Promise<{ price: string; nonPublic: boolean }> {
 	const html = await fetchHTML(url);
-	if (!html) return 'Gratis'; // Default for library events
+	if (!html) return { price: 'Gratis', nonPublic: false };
 	const $ = cheerio.load(html);
+
+	// Check body text for non-public keywords (catches cases where listing title is generic)
+	const bodyText = $('body').text().toLowerCase();
+	const nonPublic = SKIP_KEYWORDS.some(kw => bodyText.includes(kw));
+
 	const priceText = $('div.exclude').first().text().trim();
-	if (!priceText) return 'Gratis';
-	if (/gratis|free/i.test(priceText)) return 'Gratis';
-	return priceText;
+	if (!priceText) return { price: 'Gratis', nonPublic };
+	if (/gratis|free/i.test(priceText)) return { price: 'Gratis', nonPublic };
+	return { price: priceText, nonPublic };
 }
 
 /** Extract image URL from the listing link's background-image style */
@@ -166,9 +171,15 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Extract image from listing link's background-image style
 		const imageUrl = extractListingImage($el);
 
-		// Fetch detail page for actual price (most are "GRATIS", but some may cost)
+		// Fetch detail page for price + non-public keyword check
 		await delay(1000);
-		const price = await fetchPrice(sourceUrl);
+		const detail = await fetchDetail(sourceUrl);
+		if (detail.nonPublic) {
+			console.log(`  [skip] ${title} (non-public — detail page)`);
+			found--;
+			continue;
+		}
+		const price = detail.price;
 
 		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, price });
 
