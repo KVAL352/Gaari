@@ -398,7 +398,7 @@ const collections: Collection[] = [
 			no: 'Livemusikk denne uken',
 			en: 'Live music this week'
 		},
-		relatedSlugs: ['denne-helgen', 'i-kveld', 'studentkveld'],
+		relatedSlugs: ['denne-helgen', 'i-kveld', 'festspillene', 'bergenfest'],
 		footerLabel: { no: 'Konserter', en: 'Concerts' },
 		footer: { langs: ['no', 'en'], order: 5 },
 		newsletterHeading: { no: 'Få ukas konserttips hver torsdag', en: 'Get concert picks every Thursday' },
@@ -1596,6 +1596,8 @@ const collections: Collection[] = [
 			en: "Norway's oldest and largest cultural festival"
 		},
 		relatedSlugs: ['konserter', 'nattjazz', 'bergenfest'],
+		footerLabel: { no: 'Festspillene', en: 'Festspillene' },
+		footer: { langs: ['no'], order: 12 },
 		newsletterHeading: { no: 'Festspillene i Bergen — komplett program', en: 'Bergen International Festival — full programme' },
 		quickAnswer: {
 			no: 'Festspillene i Bergen (Bergen International Festival) er Norges eldste og største kulturfestival, grunnlagt i 1953. Festivalen varer i to uker fra slutten av mai til begynnelsen av juni, med over 200 arrangementer innen musikk, teater, dans, opera og visuell kunst.',
@@ -1648,6 +1650,8 @@ const collections: Collection[] = [
 			en: "Norway's oldest and largest cultural festival"
 		},
 		relatedSlugs: ['konserter', 'nattjazz-bergen', 'bergenfest-bergen'],
+		footerLabel: { no: 'Festspillene', en: 'Bergen Int\'l Festival' },
+		footer: { langs: ['en'], order: 12 },
 		newsletterHeading: { no: 'Festspillene i Bergen — komplett program', en: 'Bergen International Festival — full programme' },
 		quickAnswer: {
 			no: 'Festspillene i Bergen er Norges eldste og største kulturfestival, grunnlagt i 1953. Festivalen varer i to uker fra slutten av mai til begynnelsen av juni.',
@@ -1701,6 +1705,8 @@ const collections: Collection[] = [
 			en: 'Music at Bergenhus Fortress'
 		},
 		relatedSlugs: ['konserter', 'festspillene', 'beyond-the-gates'],
+		footerLabel: { no: 'Bergenfest', en: 'Bergenfest' },
+		footer: { langs: ['no'], order: 13 },
 		newsletterHeading: { no: 'Bergenfest — årets artister', en: 'Bergenfest — this year\'s lineup' },
 		quickAnswer: {
 			no: 'Bergenfest er en årlig musikkfestival på Bergenhus Festning i Bergen sentrum, med norske og internasjonale artister i fire dager i juni. Festivalen kombinerer pop, rock, elektronika og hip-hop i historiske omgivelser med utsikt over Vågen.',
@@ -1754,6 +1760,8 @@ const collections: Collection[] = [
 			en: 'Music at Bergenhus Fortress'
 		},
 		relatedSlugs: ['konserter', 'bergen-international-festival', 'beyond-the-gates-bergen'],
+		footerLabel: { no: 'Bergenfest', en: 'Bergenfest' },
+		footer: { langs: ['en'], order: 13 },
 		newsletterHeading: { no: 'Bergenfest — årets artister', en: 'Bergenfest — this year\'s lineup' },
 		quickAnswer: {
 			no: 'Bergenfest er en årlig musikkfestival på Bergenhus Festning i Bergen sentrum.',
@@ -1806,6 +1814,8 @@ const collections: Collection[] = [
 			en: 'Metal and rock in Bergen'
 		},
 		relatedSlugs: ['konserter', 'bergenfest', 'nattjazz'],
+		footerLabel: { no: 'Beyond the Gates', en: 'Beyond the Gates' },
+		footer: { langs: ['no'], order: 14 },
 		newsletterHeading: { no: 'Beyond the Gates — årets program', en: 'Beyond the Gates — this year\'s lineup' },
 		quickAnswer: {
 			no: 'Beyond the Gates er Bergens metal- og rockfestival, arrangert over fire dager i slutten av juli og begynnelsen av august. Festivalen bruker flere scener — blant annet USF Verftet, Kulturhuset i Bergen og Grieghallen — og trekker et internasjonalt publikum med et program som spenner fra black metal til progressiv rock.',
@@ -1858,6 +1868,8 @@ const collections: Collection[] = [
 			en: 'Metal and rock in Bergen'
 		},
 		relatedSlugs: ['konserter', 'bergenfest-bergen', 'nattjazz-bergen'],
+		footerLabel: { no: 'Beyond the Gates', en: 'Beyond the Gates' },
+		footer: { langs: ['en'], order: 14 },
 		newsletterHeading: { no: 'Beyond the Gates — årets program', en: 'Beyond the Gates — this year\'s lineup' },
 		quickAnswer: {
 			no: 'Beyond the Gates er Bergens metal- og rockfestival, arrangert over fire dager i slutten av juli og begynnelsen av august.',
@@ -1910,6 +1922,8 @@ const collections: Collection[] = [
 			en: "One of Europe's longest-running jazz festivals"
 		},
 		relatedSlugs: ['konserter', 'festspillene', 'i-kveld'],
+		footerLabel: { no: 'Nattjazz', en: 'Nattjazz' },
+		footer: { langs: ['no'], order: 15 },
 		newsletterHeading: { no: 'Nattjazz — årets program', en: 'Nattjazz — this year\'s programme' },
 		quickAnswer: {
 			no: 'Nattjazz er en av Europas lengste jazzfestivaler, arrangert siden 1972. Festivalen varer i nesten to uker i mai og juni, med konserter hver kveld på USF Verftet — fra jazz og improvisasjon til elektronika og verdensmusikk.',
@@ -1962,6 +1976,8 @@ const collections: Collection[] = [
 			en: "One of Europe's longest-running jazz festivals"
 		},
 		relatedSlugs: ['konserter', 'bergen-international-festival', 'beyond-the-gates-bergen'],
+		footerLabel: { no: 'Nattjazz', en: 'Nattjazz' },
+		footer: { langs: ['en'], order: 15 },
 		newsletterHeading: { no: 'Nattjazz — årets program', en: 'Nattjazz — this year\'s programme' },
 		quickAnswer: {
 			no: 'Nattjazz er en av Europas lengste jazzfestivaler, arrangert siden 1972 på USF Verftet i Bergen.',
