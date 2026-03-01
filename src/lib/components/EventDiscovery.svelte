@@ -37,6 +37,14 @@
 	let expandWhen = $state(false);
 	let expandCategories = $state(false);
 	let expandMoreFilters = $state(false);
+	let expandFiltersPanel = $state(false);
+
+	// Count of active secondary filters (when/time/category/price/bydel)
+	let secondaryFilterCount = $derived(
+		(when ? 1 : 0) + (time ? 1 : 0) + (category ? category.split(',').length : 0) + (price ? 1 : 0) + (bydel ? 1 : 0)
+	);
+	// On mobile, auto-expand filters panel if any secondary filters are active via URL
+	let filtersPanelOpen = $derived(expandFiltersPanel || secondaryFilterCount > 0);
 
 	// Auto-expand when filters active in URL
 	let whenOpen = $derived(expandWhen || !!when || !!time);
@@ -448,54 +456,70 @@
 			</div>
 		</fieldset>
 
-		<!-- Toggle row: Når? | Hva? | Flere filtre -->
-		<div class="section-divider"></div>
-		<div class="toggle-row">
-			<button
-				type="button"
-				class="section-toggle"
-				class:active={whenOpen}
-				aria-expanded={whenOpen}
-				aria-controls="when-section"
-				onclick={() => { expandWhen = !expandWhen; }}
-			>
-				<span>{$t('whenLabel')}</span>
-				{#if when || time}
-					<span class="count-badge">{(when ? 1 : 0) + (time ? 1 : 0)}</span>
-				{/if}
-				<span class="toggle-chevron" class:open={whenOpen}>▼</span>
-			</button>
+		<!-- Mobile: single "More filters" button -->
+		<button
+			type="button"
+			class="mobile-filters-toggle"
+			class:active={filtersPanelOpen}
+			aria-expanded={filtersPanelOpen}
+			onclick={() => { expandFiltersPanel = !expandFiltersPanel; }}
+		>
+			<span>{lang === 'no' ? 'Flere filtre' : 'More filters'}</span>
+			{#if secondaryFilterCount > 0}
+				<span class="count-badge">{secondaryFilterCount}</span>
+			{/if}
+			<span class="toggle-chevron" class:open={filtersPanelOpen}>▼</span>
+		</button>
 
-			<button
-				type="button"
-				class="section-toggle"
-				class:active={categoriesOpen}
-				aria-expanded={categoriesOpen}
-				aria-controls="category-section"
-				onclick={() => { expandCategories = !expandCategories; }}
-			>
-				<span>{$t('whatLabel')}</span>
-				{#if selectedCategories.length > 0 || !!price}
-					<span class="count-badge">{selectedCategories.length + (price ? 1 : 0)}</span>
-				{/if}
-				<span class="toggle-chevron" class:open={categoriesOpen}>▼</span>
-			</button>
+		<!-- Toggle row: Når? | Hva? | Hvor? — always visible on desktop, collapsible on mobile -->
+		<div class="filters-panel" class:filters-panel-open={filtersPanelOpen}>
+			<div class="section-divider desktop-only"></div>
+			<div class="toggle-row">
+				<button
+					type="button"
+					class="section-toggle"
+					class:active={whenOpen}
+					aria-expanded={whenOpen}
+					aria-controls="when-section"
+					onclick={() => { expandWhen = !expandWhen; }}
+				>
+					<span>{$t('whenLabel')}</span>
+					{#if when || time}
+						<span class="count-badge">{(when ? 1 : 0) + (time ? 1 : 0)}</span>
+					{/if}
+					<span class="toggle-chevron" class:open={whenOpen}>▼</span>
+				</button>
 
-			<button
-				type="button"
-				class="section-toggle"
-				class:active={moreFiltersOpen}
-				aria-expanded={moreFiltersOpen}
-				aria-controls="more-filters-section"
-				onclick={() => { expandMoreFilters = !expandMoreFilters; }}
-			>
-				<span>{$t('whereLabel')}</span>
-				{#if bydel}
-					<span class="count-badge">1</span>
-				{/if}
-				<span class="toggle-chevron" class:open={moreFiltersOpen}>▼</span>
-			</button>
-		</div>
+				<button
+					type="button"
+					class="section-toggle"
+					class:active={categoriesOpen}
+					aria-expanded={categoriesOpen}
+					aria-controls="category-section"
+					onclick={() => { expandCategories = !expandCategories; }}
+				>
+					<span>{$t('whatLabel')}</span>
+					{#if selectedCategories.length > 0 || !!price}
+						<span class="count-badge">{selectedCategories.length + (price ? 1 : 0)}</span>
+					{/if}
+					<span class="toggle-chevron" class:open={categoriesOpen}>▼</span>
+				</button>
+
+				<button
+					type="button"
+					class="section-toggle"
+					class:active={moreFiltersOpen}
+					aria-expanded={moreFiltersOpen}
+					aria-controls="more-filters-section"
+					onclick={() => { expandMoreFilters = !expandMoreFilters; }}
+				>
+					<span>{$t('whereLabel')}</span>
+					{#if bydel}
+						<span class="count-badge">1</span>
+					{/if}
+					<span class="toggle-chevron" class:open={moreFiltersOpen}>▼</span>
+				</button>
+			</div>
 
 		<!-- Expandable: When + Time of Day -->
 		{#if whenOpen}
@@ -610,6 +634,7 @@
 				</fieldset>
 			</div>
 		{/if}
+		</div><!-- end .filters-panel -->
 
 		<!-- Result counter at bottom -->
 		<div class="result-counter" aria-live="polite" aria-atomic="true">
@@ -994,6 +1019,67 @@
 		color: #2D6A2D;
 		margin: 0;
 		font-weight: 500;
+	}
+
+	/* Mobile: single "More filters" toggle — hidden on desktop */
+	.mobile-filters-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.875rem;
+		border-radius: 9999px;
+		border: 1px solid var(--color-border-subtle);
+		background: white;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: var(--color-text-secondary);
+		cursor: pointer;
+		transition: all 0.15s;
+		align-self: flex-start;
+	}
+
+	.mobile-filters-toggle:hover {
+		border-color: var(--color-border);
+		color: var(--color-text-primary);
+	}
+
+	.mobile-filters-toggle.active {
+		border-color: var(--color-border);
+		background: var(--color-surface);
+	}
+
+	.mobile-filters-toggle:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 2px;
+	}
+
+	/* Filters panel — hidden on mobile by default */
+	.filters-panel {
+		display: contents;
+	}
+
+	.desktop-only {
+		display: block;
+	}
+
+	@media (min-width: 768px) {
+		.mobile-filters-toggle {
+			display: none;
+		}
+	}
+
+	@media (max-width: 767px) {
+		.desktop-only {
+			display: none;
+		}
+
+		.filters-panel {
+			display: none;
+		}
+
+		.filters-panel.filters-panel-open {
+			display: contents;
+		}
 	}
 
 	/* Show more pill — only visible on mobile when collapsed */
