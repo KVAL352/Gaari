@@ -33,9 +33,14 @@
 	// Local UI state
 	let showCalendar = $state(false);
 	let showAllCategories = $state(false);
+	let showAllAudience = $state(false);
 	let expandWhen = $state(false);
 	let expandCategories = $state(false);
 	let expandMoreFilters = $state(false);
+
+	// Auto-expand audience pills if a hidden option is selected via URL
+	const hiddenAudienceValues = new Set(audienceOptions.slice(INITIAL_AUDIENCE_SHOW).map(o => o.value));
+	let audienceExpanded = $derived(showAllAudience || (!!audience && hiddenAudienceValues.has(audience)));
 
 	// Auto-expand when filters active in URL
 	let whenOpen = $derived(expandWhen || !!when || !!time);
@@ -169,6 +174,9 @@
 		{ value: 'adult', labelKey: 'adults', icon: Moon },
 		{ value: 'tourist', labelKey: 'tourists', icon: MapPin }
 	] as const;
+
+	const INITIAL_AUDIENCE_SHOW = 3;
+	let hiddenAudienceCount = audienceOptions.length - INITIAL_AUDIENCE_SHOW;
 
 	function handleAudienceSelect(value: string) {
 		onFilterChange('audience', audience === value ? '' : value);
@@ -422,16 +430,23 @@
 		<fieldset class="discovery-step">
 			<legend class="label-caps">{$t('whoLabel')}</legend>
 			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-			<div class="pill-row" role="group" aria-label={$t('whoLabel')} onkeydown={handlePillKeydown}>
-				{#each audienceOptions as opt (opt.value)}
-					<FilterPill
-						label={$t(opt.labelKey)}
-						icon={opt.icon}
-						count={audienceCounts[opt.value]}
-						selected={audience === opt.value}
-						onclick={() => handleAudienceSelect(opt.value)}
-					/>
+			<div class="pill-row" class:audience-collapsed={!audienceExpanded} role="group" aria-label={$t('whoLabel')} onkeydown={handlePillKeydown}>
+				{#each audienceOptions as opt, i (opt.value)}
+					<span class:audience-extra={i >= INITIAL_AUDIENCE_SHOW}>
+						<FilterPill
+							label={$t(opt.labelKey)}
+							icon={opt.icon}
+							count={audienceCounts[opt.value]}
+							selected={audience === opt.value}
+							onclick={() => handleAudienceSelect(opt.value)}
+						/>
+					</span>
 				{/each}
+				<button
+					type="button"
+					class="show-more-pill"
+					onclick={() => { showAllAudience = true; }}
+				>+{hiddenAudienceCount} {$t('moreCategories')}</button>
 			</div>
 		</fieldset>
 
@@ -981,6 +996,45 @@
 		color: #2D6A2D;
 		margin: 0;
 		font-weight: 500;
+	}
+
+	/* Show more pill — only visible on mobile when collapsed */
+	.show-more-pill {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.375rem 0.875rem;
+		border-radius: 9999px;
+		border: 1px dashed var(--color-border);
+		background: transparent;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: var(--color-text-secondary);
+		cursor: pointer;
+		min-height: 44px;
+		transition: border-color 0.15s, color 0.15s;
+	}
+
+	.show-more-pill:hover {
+		border-color: var(--color-text-secondary);
+		color: var(--color-text-primary);
+	}
+
+	/* On mobile: hide extra audience pills when collapsed */
+	@media (max-width: 767px) {
+		.audience-collapsed .audience-extra {
+			display: none;
+		}
+	}
+
+	/* Desktop: always show all pills, hide the "+N" button */
+	@media (min-width: 768px) {
+		.show-more-pill {
+			display: none;
+		}
+
+		.audience-extra {
+			display: contents;
+		}
 	}
 
 	/* Mobile */
