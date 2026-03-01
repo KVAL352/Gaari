@@ -14,11 +14,13 @@ interface DNTActivity {
 	activityViewModel: {
 		eventLocation: string;
 		imageUrl: string;
+		subTypes: string;
 		mainType: string;
 		targetGroups: string;
 		duration: string;
 		start: string;
 		end: string;
+		isSignup: boolean;
 		isFull: boolean;
 		isCancelled: boolean;
 		isOverdue: boolean;
@@ -38,6 +40,8 @@ function mapCategory(mainType: string): string {
 		case 'fellestur': return 'tours';
 		case 'kurs': return 'workshop';
 		case 'arrangement': return 'culture';
+		case 'dugnad': return 'culture';
+		case 'annet': return 'culture';
 		default: return 'sports';
 	}
 }
@@ -110,7 +114,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const vm = activity.activityViewModel;
 
 			const sourceUrl = `https://www.dnt.no${activity.url}`;
-			const ticketUrl = `https://www.dnt.no/aktiviteter/?municipality=4601`;
+			const ticketUrl = vm.isSignup
+				? `https://aktiviteter.dnt.no/register/${activity.id}`
+				: sourceUrl;
 
 			// Skip cancelled/overdue, delete full (sold-out) activities
 			if (vm.isCancelled || vm.isOverdue) continue;
@@ -126,7 +132,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const bydel = mapBydel(venue);
 			const datePart = vm.start.slice(0, 10);
 
-			const aiDesc = await generateDescription({ title: activity.pageTitle, venue, category, date: vm.start, price: '' });
+			const subType = vm.subTypes?.replace(/^,\s*/, '').trim();
+			const titleWithContext = subType
+				? `${activity.pageTitle} (${subType}, ${activity.level || vm.mainType})`
+				: activity.pageTitle;
+
+			const aiDesc = await generateDescription({ title: titleWithContext, venue, category, date: vm.start, price: '' });
 
 			const success = await insertEvent({
 				slug: makeSlug(activity.pageTitle, datePart),
