@@ -38,10 +38,6 @@
 	let expandCategories = $state(false);
 	let expandMoreFilters = $state(false);
 
-	// Auto-expand audience pills if a hidden option is selected via URL
-	const hiddenAudienceValues = new Set(audienceOptions.slice(INITIAL_AUDIENCE_SHOW).map(o => o.value));
-	let audienceExpanded = $derived(showAllAudience || (!!audience && hiddenAudienceValues.has(audience)));
-
 	// Auto-expand when filters active in URL
 	let whenOpen = $derived(expandWhen || !!when || !!time);
 	let categoriesOpen = $derived(expandCategories || !!category || !!price);
@@ -177,6 +173,8 @@
 
 	const INITIAL_AUDIENCE_SHOW = 3;
 	let hiddenAudienceCount = audienceOptions.length - INITIAL_AUDIENCE_SHOW;
+	const hiddenAudienceValues = new Set(audienceOptions.slice(INITIAL_AUDIENCE_SHOW).map(o => o.value));
+	let audienceExpanded = $derived(showAllAudience || (!!audience && hiddenAudienceValues.has(audience)));
 
 	function handleAudienceSelect(value: string) {
 		onFilterChange('audience', audience === value ? '' : value);
