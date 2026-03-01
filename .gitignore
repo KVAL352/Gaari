@@ -14,6 +14,9 @@ supabase/.temp/
 gsc-reader-*.json
 .newsletter-preview/
 .prospect-reports/
+scripts/.audit-preview/
+scripts/.digest-preview/
+.claude/settings.local.json
 docs/api_token.txt
 docs/gsc-sa.json
 scripts/venue-analysis.mjs
