@@ -59,12 +59,22 @@ interface SourceFreshness {
 	latestDateStart: string;
 }
 
+interface PipelineRun {
+	runId: string;
+	runAt: string;
+	scrapersRun: number;
+	scrapersSkipped: string[];
+	scrapersMissing: string[];
+	slowScrapers: Array<{ name: string; durationMs: number }>;
+}
+
 interface DigestData {
 	date: string;
 	pending: PendingCounts;
 	scraper: ScraperActivity;
 	scraperHealth: ScraperHealthStatus[];
 	staleSources: SourceFreshness[];
+	lastPipeline: PipelineRun | null;
 	traffic: TrafficData | null;
 	subscribers: number | null;
 	expiringPlacements: ExpiringPlacement[];
@@ -248,13 +258,75 @@ async function collectStaleSources(): Promise<SourceFreshness[]> {
 	}
 }
 
+// All 50 active scrapers registered in scrape.ts (keep in sync)
+const EXPECTED_SCRAPERS = [
+	'bergenlive', 'bergenkommune', 'studentbergen', 'dnt', 'eventbrite',
+	'ticketco', 'hoopla', 'nordnessjobad', 'raabrent', 'bergenchamber',
+	'colonialen', 'bergenkjott', 'paintnsip', 'bergenfilmklubb',
+	'cornerteateret', 'dvrtvest', 'kunsthall', 'brettspill', 'mediacity',
+	'forumscene', 'usfverftet', 'dns', 'olebull', 'grieghallen', 'kode',
+	'litthusbergen', 'bergenbibliotek', 'floyen', 'bitteater', 'harmonien',
+	'oseana', 'carteblanche', 'festspillene', 'bergenfest', 'bjorgvinblues',
+	'bek', 'beyondthegates', 'brann', 'kulturhusetibergen', 'vvv',
+	'bymuseet', 'museumvest', 'akvariet', 'kvarteret', 'fyllingsdalenteater',
+	'ggbergen', 'oconnors', 'billetto', 'stenematglede', 'visitbergen'
+];
+
+const SLOW_SCRAPER_THRESHOLD_MS = 60_000; // 60s is suspiciously slow
+
+async function collectLastPipeline(): Promise<PipelineRun | null> {
+	console.log('🔧 Checking last pipeline run...');
+	try {
+		// Get the most recent run_id
+		const { data: latest } = await supabase
+			.from('scraper_runs')
+			.select('run_id, run_at')
+			.order('run_at', { ascending: false })
+			.limit(1);
+
+		if (!latest || latest.length === 0) return null;
+
+		const runId = latest[0].run_id;
+		const runAt = latest[0].run_at;
+
+		// Get all entries for that run
+		const { data: runs } = await supabase
+			.from('scraper_runs')
+			.select('scraper_name, skipped, duration_ms')
+			.eq('run_id', runId);
+
+		if (!runs) return null;
+
+		const ranNames = new Set(runs.map(r => r.scraper_name));
+		const skipped = runs.filter(r => r.skipped).map(r => r.scraper_name);
+		const missing = EXPECTED_SCRAPERS.filter(name => !ranNames.has(name));
+		const slow = runs
+			.filter(r => !r.skipped && r.duration_ms > SLOW_SCRAPER_THRESHOLD_MS)
+			.map(r => ({ name: r.scraper_name, durationMs: r.duration_ms }))
+			.sort((a, b) => b.durationMs - a.durationMs);
+
+		return {
+			runId,
+			runAt,
+			scrapersRun: runs.filter(r => !r.skipped).length,
+			scrapersSkipped: skipped,
+			scrapersMissing: missing,
+			slowScrapers: slow
+		};
+	} catch (err: any) {
+		console.error(`Pipeline completeness check failed: ${err.message}`);
+		return null;
+	}
+}
+
 // ─── HTML Email Template ────────────────────────────────────────────
 
 function renderHtml(data: DigestData): string {
 	const total = data.pending.corrections + data.pending.submissions + data.pending.optouts + data.pending.inquiries;
 	const brokenScrapers = data.scraperHealth.filter(s => s.status === 'broken');
 	const warningScrapers = data.scraperHealth.filter(s => s.status === 'warning');
-	const hasWarning = data.scraper.newEvents24h === 0 || total > 10 || brokenScrapers.length > 0 || data.staleSources.length >= 5;
+	const pipelineMissing = data.lastPipeline?.scrapersMissing.length ?? 0;
+	const hasWarning = data.scraper.newEvents24h === 0 || total > 10 || brokenScrapers.length > 0 || data.staleSources.length >= 5 || pipelineMissing > 0;
 
 	const warningHtml = hasWarning ? `
 		<div style="background:#fef2f2;border:2px solid #dc2626;border-radius:8px;padding:16px;margin-bottom:24px">
@@ -262,6 +334,8 @@ function renderHtml(data: DigestData): string {
 			${data.scraper.newEvents24h === 0 ? '<p style="margin:4px 0;color:#991b1b">Ingen nye events de siste 24 timene — scraper-pipeline kan ha feilet</p>' : ''}
 			${total > 10 ? `<p style="margin:4px 0;color:#991b1b">${total} ventende oppgaver — vurder å behandle dem</p>` : ''}
 			${brokenScrapers.length > 0 ? `<p style="margin:4px 0;color:#991b1b">${brokenScrapers.length} scraper${brokenScrapers.length === 1 ? '' : 'e'} nede: ${brokenScrapers.map(s => s.name).join(', ')}</p>` : ''}
+			${data.staleSources.length >= 5 ? `<p style="margin:4px 0;color:#991b1b">${data.staleSources.length} kilder har 0 kommende events</p>` : ''}
+			${pipelineMissing > 0 ? `<p style="margin:4px 0;color:#991b1b">${pipelineMissing} scrapere manglet fra siste pipeline-kjoring</p>` : ''}
 		</div>
 	` : '';
 
@@ -373,6 +447,52 @@ function renderHtml(data: DigestData): string {
 		</table>
 	` : '';
 
+	const pipelineHtml = data.lastPipeline ? (() => {
+		const p = data.lastPipeline;
+		const hasIssues = p.scrapersSkipped.length > 0 || p.scrapersMissing.length > 0 || p.slowScrapers.length > 0;
+		if (!hasIssues) return '';
+
+		const rows: string[] = [];
+		if (p.scrapersMissing.length > 0) {
+			rows.push(`
+				<tr>
+					<td style="padding:8px;border:1px solid #ddd;font-size:14px;vertical-align:top">
+						<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;background:#FEE2E2;color:#991B1B">Manglet</span>
+					</td>
+					<td style="padding:8px;border:1px solid #ddd;font-size:14px">${p.scrapersMissing.join(', ')}</td>
+				</tr>
+			`);
+		}
+		if (p.scrapersSkipped.length > 0) {
+			rows.push(`
+				<tr>
+					<td style="padding:8px;border:1px solid #ddd;font-size:14px;vertical-align:top">
+						<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;background:#FEF3C7;color:#92400E">Hoppet over</span>
+					</td>
+					<td style="padding:8px;border:1px solid #ddd;font-size:14px">${p.scrapersSkipped.join(', ')}</td>
+				</tr>
+			`);
+		}
+		if (p.slowScrapers.length > 0) {
+			rows.push(`
+				<tr>
+					<td style="padding:8px;border:1px solid #ddd;font-size:14px;vertical-align:top">
+						<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;background:#FEF3C7;color:#92400E">Treg</span>
+					</td>
+					<td style="padding:8px;border:1px solid #ddd;font-size:14px">${p.slowScrapers.map(s => `${s.name} (${(s.durationMs / 1000).toFixed(0)}s)`).join(', ')}</td>
+				</tr>
+			`);
+		}
+
+		return `
+			<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Siste pipeline-kjoring</h2>
+			<p style="font-size:13px;color:#666;margin:0 0 8px">${p.scrapersRun} scrapere kjort — ${new Date(p.runAt).toLocaleString('no-NO', { timeZone: 'Europe/Oslo', hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}</p>
+			<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+				<tbody>${rows.join('')}</tbody>
+			</table>
+		`;
+	})() : '';
+
 	const trafficHtml = data.traffic ? `
 		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Trafikk i går</h2>
 		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
@@ -436,6 +556,7 @@ function renderHtml(data: DigestData): string {
 	${scraperHtml}
 	${scraperHealthHtml}
 	${staleSourcesHtml}
+	${pipelineHtml}
 	${trafficHtml}
 	${subscriberHtml}
 	${placementsHtml}
@@ -518,11 +639,12 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel
-	const [pending, scraper, scraperHealth, staleSources, traffic, subscribers, expiringPlacements] = await Promise.all([
+	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscribers, expiringPlacements] = await Promise.all([
 		collectPendingCounts(),
 		collectScraperActivity(),
 		collectScraperHealth(),
 		collectStaleSources(),
+		collectLastPipeline(),
 		collectTraffic(),
 		collectSubscribers(),
 		collectExpiringPlacements()
@@ -534,6 +656,7 @@ async function main() {
 		scraper,
 		scraperHealth,
 		staleSources,
+		lastPipeline,
 		traffic,
 		subscribers,
 		expiringPlacements
@@ -555,6 +678,12 @@ async function main() {
 	}
 	if (staleSources.length > 0) {
 		console.log(`   Stale sources (0 upcoming events): ${staleSources.map(s => s.source).join(', ')}`);
+	}
+	if (lastPipeline) {
+		console.log(`   Last pipeline: ${lastPipeline.scrapersRun} ran, ${lastPipeline.scrapersSkipped.length} skipped, ${lastPipeline.scrapersMissing.length} missing`);
+		if (lastPipeline.slowScrapers.length > 0) {
+			console.log(`   Slow scrapers (>${SLOW_SCRAPER_THRESHOLD_MS / 1000}s): ${lastPipeline.slowScrapers.map(s => `${s.name} (${(s.durationMs / 1000).toFixed(1)}s)`).join(', ')}`);
+		}
 	}
 
 	// Render HTML
