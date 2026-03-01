@@ -76,6 +76,15 @@ const filterHostferie = (events: GaariEvent[], now: Date) => {
 	});
 };
 
+// Shared filter for festival collections (filter by source_url domain)
+const filterBySourceDomain = (events: GaariEvent[], domain: string) =>
+	events.filter(e => e.source_url?.includes(domain));
+
+const filterFestspillene = (events: GaariEvent[]) => filterBySourceDomain(events, 'fib.no');
+const filterBergenfest = (events: GaariEvent[]) => filterBySourceDomain(events, 'bergenfest.no');
+const filterBeyondTheGates = (events: GaariEvent[]) => filterBySourceDomain(events, 'beyondthegates.no');
+const filterNattjazz = (events: GaariEvent[]) => filterBySourceDomain(events, 'nattjazz.ticketco.no');
+
 const FAMILY_TITLE_RE = /familie|barnelørdag|barnas\s|for\s+barn|barneforestilling/i;
 const YOUTH_TEXT_RE = /\bungdom|\btenåring|\bfor\s+unge?\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
 const YOUTH_CATEGORIES = new Set(['music', 'culture', 'sports', 'workshop', 'festival', 'student']);
@@ -95,6 +104,7 @@ export interface Collection {
 	footer?: { langs: Lang[]; order: number };
 	newsletterHeading?: Record<Lang, string>;
 	seasonal?: boolean;
+	maxPerVenue?: number;
 	filterEvents: (events: GaariEvent[], now: Date) => GaariEvent[];
 }
 
@@ -1567,6 +1577,425 @@ const collections: Collection[] = [
 			]
 		},
 		filterEvents: filterVinterferie
+	},
+	// ── Festival collections (Fase 2) ──────────────────────────────
+	{
+		id: 'festspillene',
+		slug: 'festspillene',
+		seasonal: true,
+		title: {
+			no: 'Festspillene i Bergen',
+			en: 'Bergen International Festival'
+		},
+		description: {
+			no: 'Komplett program for Festspillene i Bergen — konserter, teater, dans og kunst. Oppdatert daglig.',
+			en: 'Complete Bergen International Festival programme — concerts, theatre, dance and art. Updated daily.'
+		},
+		ogSubtitle: {
+			no: 'Norges eldste og største kulturfestival',
+			en: "Norway's oldest and largest cultural festival"
+		},
+		relatedSlugs: ['konserter', 'nattjazz', 'bergenfest'],
+		newsletterHeading: { no: 'Festspillene i Bergen — komplett program', en: 'Bergen International Festival — full programme' },
+		quickAnswer: {
+			no: 'Festspillene i Bergen (Bergen International Festival) er Norges eldste og største kulturfestival, grunnlagt i 1953. Festivalen varer i to uker fra slutten av mai til begynnelsen av juni, med over 200 arrangementer innen musikk, teater, dans, opera og visuell kunst.',
+			en: 'The Bergen International Festival (Festspillene i Bergen) is Norway\'s oldest and largest cultural festival, founded in 1953. It runs for two weeks from late May to early June, with over 200 events spanning music, theatre, dance, opera and visual art across iconic venues like Grieghallen, Håkonshallen and outdoor stages.'
+		},
+		editorial: {
+			no: [
+				'Festspillene i Bergen er Nordens største tverrkunstneriske festival, med et program som spenner fra klassisk musikk og opera til samtidskunst og performance.',
+				'Festivalen bruker Bergens mest ikoniske arenaer — Grieghallen, Håkonshallen, Lysøen og kirker — og skaper en unik atmosfære der historiske rom møter nyskapende kunst.',
+				'Gåri oppdaterer Festspillene-programmet daglig med billettstatus og praktisk informasjon.'
+			],
+			en: [
+				'The Bergen International Festival is the Nordic region\'s largest multi-arts festival, with a programme spanning classical music and opera to contemporary art and performance.',
+				'The festival uses Bergen\'s most iconic venues — Grieghallen concert hall, the medieval Håkonshallen, Edvard Grieg\'s Lysøen, and historic churches — creating a unique atmosphere where heritage spaces meet contemporary art.',
+				'Gåri updates the festival programme daily with ticket availability and practical information.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er Festspillene i Bergen?', a: 'Festspillene arrangeres i to uker fra slutten av mai til begynnelsen av juni hvert år. Nøyaktige datoer varierer — sjekk programmet her for oppdatert informasjon.' },
+				{ q: 'Hvor holdes Festspillene?', a: 'Hovedarenaene er Grieghallen, Håkonshallen, Den Nationale Scene og diverse kirker og utendørsscener i Bergen sentrum.' },
+				{ q: 'Finnes det gratis arrangementer under Festspillene?', a: 'Ja — utendørskonserter, utstillingsåpninger og enkelte forestillinger er gratis. Griegkonsertene på Troldhaugen krever billett, men Lysøen har fri inngang til turstier.' },
+				{ q: 'Hvordan kjøper jeg billetter til Festspillene?', a: 'Billetter selges via festspillene.no og i Grieghallens billettkontor. Populære forestillinger selges raskt ut — bestill tidlig.' },
+				{ q: 'Passer Festspillene for barn?', a: 'Festivalen har eget barneprogram med teater, musikk og workshoper tilpasset ulike aldersgrupper.' }
+			],
+			en: [
+				{ q: 'When is the Bergen International Festival?', a: 'The festival runs for two weeks from late May to early June each year. Exact dates vary — check this page for the updated programme.' },
+				{ q: 'Where does the Bergen International Festival take place?', a: 'Main venues include Grieghallen concert hall, the medieval Håkonshallen, Den Nationale Scene theatre, and various churches and outdoor stages across Bergen.' },
+				{ q: 'Are there free events at the Bergen International Festival?', a: 'Yes — outdoor concerts, exhibition openings and selected performances are free. The Grieg concerts at Troldhaugen require tickets, but Lysøen island has free trail access.' },
+				{ q: 'How do I buy tickets for the Bergen International Festival?', a: 'Tickets are sold through festspillene.no and at the Grieghallen box office. Popular performances sell out quickly — book early.' },
+				{ q: 'Is the Bergen International Festival suitable for children?', a: 'The festival has a dedicated children\'s programme with theatre, music and workshops for different age groups.' }
+			]
+		},
+		filterEvents: (events) => filterFestspillene(events)
+	},
+	{
+		id: 'festspillene-en',
+		slug: 'bergen-international-festival',
+		seasonal: true,
+		title: {
+			no: 'Festspillene i Bergen',
+			en: 'Bergen International Festival'
+		},
+		description: {
+			no: 'Komplett program for Festspillene i Bergen — konserter, teater, dans og kunst.',
+			en: 'Complete Bergen International Festival programme — concerts, theatre, dance and art. Updated daily.'
+		},
+		ogSubtitle: {
+			no: 'Norges eldste og største kulturfestival',
+			en: "Norway's oldest and largest cultural festival"
+		},
+		relatedSlugs: ['konserter', 'nattjazz-bergen', 'bergenfest-bergen'],
+		newsletterHeading: { no: 'Festspillene i Bergen — komplett program', en: 'Bergen International Festival — full programme' },
+		quickAnswer: {
+			no: 'Festspillene i Bergen er Norges eldste og største kulturfestival, grunnlagt i 1953. Festivalen varer i to uker fra slutten av mai til begynnelsen av juni.',
+			en: 'The Bergen International Festival (Festspillene i Bergen) is Norway\'s oldest and largest cultural festival, founded in 1953. It runs for two weeks from late May to early June, with over 200 events spanning music, theatre, dance, opera and visual art across iconic venues like Grieghallen, Håkonshallen and outdoor stages.'
+		},
+		editorial: {
+			no: [
+				'Festspillene i Bergen er Nordens største tverrkunstneriske festival, med et program som spenner fra klassisk musikk og opera til samtidskunst og performance.',
+				'Festivalen bruker Bergens mest ikoniske arenaer — Grieghallen, Håkonshallen, Lysøen og kirker — og skaper en unik atmosfære der historiske rom møter nyskapende kunst.',
+				'Gåri oppdaterer Festspillene-programmet daglig med billettstatus og praktisk informasjon.'
+			],
+			en: [
+				'The Bergen International Festival is the Nordic region\'s largest multi-arts festival, with a programme spanning classical music and opera to contemporary art and performance.',
+				'The festival uses Bergen\'s most iconic venues — Grieghallen concert hall, the medieval Håkonshallen, Edvard Grieg\'s Lysøen, and historic churches — creating a unique atmosphere where heritage spaces meet contemporary art.',
+				'Gåri updates the festival programme daily with ticket availability and practical information.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er Festspillene i Bergen?', a: 'Festspillene arrangeres i to uker fra slutten av mai til begynnelsen av juni hvert år.' },
+				{ q: 'Hvor holdes Festspillene?', a: 'Grieghallen, Håkonshallen, Den Nationale Scene og diverse kirker og utendørsscener i Bergen sentrum.' },
+				{ q: 'Finnes det gratis arrangementer under Festspillene?', a: 'Ja — utendørskonserter, utstillingsåpninger og enkelte forestillinger er gratis.' },
+				{ q: 'Hvordan kjøper jeg billetter til Festspillene?', a: 'Via festspillene.no og Grieghallens billettkontor. Populære forestillinger selges raskt ut.' },
+				{ q: 'Passer Festspillene for barn?', a: 'Festivalen har eget barneprogram med teater, musikk og workshoper tilpasset ulike aldersgrupper.' }
+			],
+			en: [
+				{ q: 'When is the Bergen International Festival?', a: 'The festival runs for two weeks from late May to early June each year. Exact dates vary — check this page for the updated programme.' },
+				{ q: 'Where does the Bergen International Festival take place?', a: 'Main venues include Grieghallen concert hall, the medieval Håkonshallen, Den Nationale Scene theatre, and various churches and outdoor stages across Bergen.' },
+				{ q: 'Are there free events at the Bergen International Festival?', a: 'Yes — outdoor concerts, exhibition openings and selected performances are free.' },
+				{ q: 'How do I buy tickets for the Bergen International Festival?', a: 'Tickets are sold through festspillene.no and at the Grieghallen box office. Popular performances sell out quickly — book early.' },
+				{ q: 'Is the Bergen International Festival suitable for children?', a: 'The festival has a dedicated children\'s programme with theatre, music and workshops for different age groups.' }
+			]
+		},
+		filterEvents: (events) => filterFestspillene(events)
+	},
+	{
+		id: 'bergenfest',
+		slug: 'bergenfest',
+		seasonal: true,
+		maxPerVenue: 50,
+		title: {
+			no: 'Bergenfest',
+			en: 'Bergenfest'
+		},
+		description: {
+			no: 'Bergenfest-programmet — artister, billetter og praktisk info. Bergenhus Festning, Bergen.',
+			en: 'Bergenfest lineup — artists, tickets and practical info. Bergenhus Fortress, Bergen, Norway.'
+		},
+		ogSubtitle: {
+			no: 'Musikk på Bergenhus Festning',
+			en: 'Music at Bergenhus Fortress'
+		},
+		relatedSlugs: ['konserter', 'festspillene', 'beyond-the-gates'],
+		newsletterHeading: { no: 'Bergenfest — årets artister', en: 'Bergenfest — this year\'s lineup' },
+		quickAnswer: {
+			no: 'Bergenfest er en årlig musikkfestival på Bergenhus Festning i Bergen sentrum, med norske og internasjonale artister i fire dager i juni. Festivalen kombinerer pop, rock, elektronika og hip-hop i historiske omgivelser med utsikt over Vågen.',
+			en: 'Bergenfest is an annual music festival at Bergenhus Fortress in central Bergen, featuring Norwegian and international artists over four days in June. The festival combines pop, rock, electronic and hip-hop music in a historic setting overlooking the harbour (Vågen).'
+		},
+		editorial: {
+			no: [
+				'Bergenfest arrangeres på Koengen ved Bergenhus Festning — en av Norges mest ikoniske festivallokasjoner med utsikt over Vågen og Bryggen.',
+				'Festivalen byr på et bredt musikkprogram over fire dager i juni, med et mix av internasjonale headlinere og norske favoritter.',
+				'Gåri viser det komplette Bergenfest-programmet med billettinformasjon, oppdatert daglig.'
+			],
+			en: [
+				'Bergenfest takes place at Koengen, outside the medieval Bergenhus Fortress — one of Norway\'s most iconic festival locations, with views over the harbour (Vågen) and the historic Bryggen wharf.',
+				'The festival offers a broad music programme over four days in June, mixing international headliners with Norwegian favourites across pop, rock, electronic and hip-hop.',
+				'Gåri shows the complete Bergenfest programme with ticket information, updated daily.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er Bergenfest?', a: 'Bergenfest arrangeres over fire dager i midten av juni hvert år. Nøyaktige datoer varierer.' },
+				{ q: 'Hvor holdes Bergenfest?', a: 'Koengen ved Bergenhus Festning i Bergen sentrum. Nær Bryggen og lett tilgjengelig med buss og bybane.' },
+				{ q: 'Hvordan kjøper jeg billetter til Bergenfest?', a: 'Billetter selges via bergenfest.no. Du kan kjøpe dagspass eller festivalpass for alle fire dager.' },
+				{ q: 'Er det aldersgrense på Bergenfest?', a: 'Festivalen er åpen for alle aldre, men det kan være 18-årsgrense på visse soner etter kl. 23.' },
+				{ q: 'Hva er været i Bergen i juni?', a: 'Bergen i juni har lange, lyse dager (solnedgang ca. kl. 23) og temperaturer rundt 15-20°C. Ta med regnjakke — Bergen er Bergen.' }
+			],
+			en: [
+				{ q: 'When is Bergenfest?', a: 'Bergenfest takes place over four days in mid-June each year. Exact dates vary — check this page for the updated lineup.' },
+				{ q: 'Where is Bergenfest held?', a: 'At Koengen, outside Bergenhus Fortress in central Bergen. Near Bryggen and easily accessible by bus and light rail.' },
+				{ q: 'How do I buy Bergenfest tickets?', a: 'Tickets are sold through bergenfest.no. You can buy single-day passes or full festival passes for all four days.' },
+				{ q: 'Is there an age limit at Bergenfest?', a: 'The festival is open to all ages, but certain zones may have 18+ restrictions after 23:00.' },
+				{ q: 'What is the weather like in Bergen in June?', a: 'Bergen in June has long, bright days (sunset around 23:00) and temperatures around 15-20°C. Bring a rain jacket — Bergen is Bergen.' }
+			]
+		},
+		filterEvents: (events) => filterBergenfest(events)
+	},
+	{
+		id: 'bergenfest-en',
+		slug: 'bergenfest-bergen',
+		seasonal: true,
+		maxPerVenue: 50,
+		title: {
+			no: 'Bergenfest',
+			en: 'Bergenfest Bergen'
+		},
+		description: {
+			no: 'Bergenfest-programmet — artister, billetter og praktisk info.',
+			en: 'Bergenfest lineup and schedule — artists, tickets and practical info. Bergenhus Fortress, Bergen.'
+		},
+		ogSubtitle: {
+			no: 'Musikk på Bergenhus Festning',
+			en: 'Music at Bergenhus Fortress'
+		},
+		relatedSlugs: ['konserter', 'bergen-international-festival', 'beyond-the-gates-bergen'],
+		newsletterHeading: { no: 'Bergenfest — årets artister', en: 'Bergenfest — this year\'s lineup' },
+		quickAnswer: {
+			no: 'Bergenfest er en årlig musikkfestival på Bergenhus Festning i Bergen sentrum.',
+			en: 'Bergenfest is an annual music festival at Bergenhus Fortress in central Bergen, featuring Norwegian and international artists over four days in June. The festival combines pop, rock, electronic and hip-hop music in a historic setting overlooking the harbour (Vågen).'
+		},
+		editorial: {
+			no: [
+				'Bergenfest arrangeres på Koengen ved Bergenhus Festning — en av Norges mest ikoniske festivallokasjoner.',
+				'Festivalen byr på et bredt musikkprogram over fire dager i juni.',
+				'Gåri viser det komplette Bergenfest-programmet med billettinformasjon.'
+			],
+			en: [
+				'Bergenfest takes place at Koengen, outside the medieval Bergenhus Fortress — one of Norway\'s most iconic festival locations, with views over the harbour (Vågen) and the historic Bryggen wharf.',
+				'The festival offers a broad music programme over four days in June, mixing international headliners with Norwegian favourites across pop, rock, electronic and hip-hop.',
+				'Gåri shows the complete Bergenfest programme with ticket information, updated daily.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er Bergenfest?', a: 'Bergenfest arrangeres over fire dager i midten av juni hvert år.' },
+				{ q: 'Hvor holdes Bergenfest?', a: 'Koengen ved Bergenhus Festning i Bergen sentrum.' },
+				{ q: 'Hvordan kjøper jeg billetter til Bergenfest?', a: 'Via bergenfest.no. Dagspass eller festivalpass for alle dager.' },
+				{ q: 'Er det aldersgrense på Bergenfest?', a: 'Åpen for alle aldre, men 18-årsgrense på visse soner etter kl. 23.' },
+				{ q: 'Hva er været i Bergen i juni?', a: 'Lange dager (solnedgang ca. kl. 23), 15-20°C. Ta med regnjakke.' }
+			],
+			en: [
+				{ q: 'When is Bergenfest?', a: 'Bergenfest takes place over four days in mid-June each year. Exact dates vary — check this page for the updated lineup.' },
+				{ q: 'Where is Bergenfest held?', a: 'At Koengen, outside Bergenhus Fortress in central Bergen. Near Bryggen and easily accessible by bus and light rail.' },
+				{ q: 'How do I buy Bergenfest tickets?', a: 'Tickets are sold through bergenfest.no. You can buy single-day passes or full festival passes for all four days.' },
+				{ q: 'Is there an age limit at Bergenfest?', a: 'The festival is open to all ages, but certain zones may have 18+ restrictions after 23:00.' },
+				{ q: 'What is the weather like in Bergen in June?', a: 'Bergen in June has long, bright days (sunset around 23:00) and temperatures around 15-20°C. Bring a rain jacket — Bergen is Bergen.' }
+			]
+		},
+		filterEvents: (events) => filterBergenfest(events)
+	},
+	{
+		id: 'beyond-the-gates',
+		slug: 'beyond-the-gates',
+		seasonal: true,
+		title: {
+			no: 'Beyond the Gates',
+			en: 'Beyond the Gates Bergen'
+		},
+		description: {
+			no: 'Beyond the Gates-programmet — metal og rock i Bergen. Artister, billetter og praktisk info.',
+			en: 'Beyond the Gates festival programme — metal and rock in Bergen. Artists, tickets and practical info.'
+		},
+		ogSubtitle: {
+			no: 'Metal og rock i Bergen',
+			en: 'Metal and rock in Bergen'
+		},
+		relatedSlugs: ['konserter', 'bergenfest', 'nattjazz'],
+		newsletterHeading: { no: 'Beyond the Gates — årets program', en: 'Beyond the Gates — this year\'s lineup' },
+		quickAnswer: {
+			no: 'Beyond the Gates er Bergens metal- og rockfestival, arrangert over fire dager i slutten av juli og begynnelsen av august. Festivalen bruker flere scener — blant annet USF Verftet, Kulturhuset i Bergen og Grieghallen — og trekker et internasjonalt publikum med et program som spenner fra black metal til progressiv rock.',
+			en: 'Beyond the Gates is Bergen\'s metal and rock festival, held over four days in late July and early August. The festival uses multiple venues — including USF Verftet, Kulturhuset i Bergen and Grieghallen — and draws an international audience with a programme spanning black metal to progressive rock.'
+		},
+		editorial: {
+			no: [
+				'Beyond the Gates er en internasjonal metalfestival som bruker Bergens unike arenaer til å skape en atmosfære utenom det vanlige.',
+				'Festivalen holder til på flere scener i Bergen sentrum — USF Verftet, Kulturhuset og Grieghallen — og kombinerer store internasjonale navn med undergrunnsband.',
+				'Gåri viser det komplette Beyond the Gates-programmet med billettinformasjon, oppdatert daglig.'
+			],
+			en: [
+				'Beyond the Gates is an international metal festival that uses Bergen\'s unique venues to create an extraordinary atmosphere for heavy music.',
+				'The festival spans multiple stages across Bergen — USF Verftet, Kulturhuset i Bergen, and Grieghallen — combining major international acts with underground bands.',
+				'Gåri shows the complete Beyond the Gates programme with ticket information, updated daily.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er Beyond the Gates?', a: 'Beyond the Gates arrangeres over fire dager i slutten av juli og begynnelsen av august hvert år.' },
+				{ q: 'Hvor holdes Beyond the Gates?', a: 'Flere scener i Bergen: USF Verftet, Kulturhuset i Bergen og Grieghallen. Alle er i sentrum og gangavstand fra hverandre.' },
+				{ q: 'Hvordan kjøper jeg billetter til Beyond the Gates?', a: 'Billetter selges via Ticketmaster og festivalens nettside. Festivalpass og dagsbilletter tilgjengelig.' },
+				{ q: 'Er det aldersgrense på Beyond the Gates?', a: 'De fleste konserter er 18+. Sjekk enkeltarrangementer for spesifikk aldersgrense.' },
+				{ q: 'Hva slags musikk spilles på Beyond the Gates?', a: 'Primært metal i alle sjangre — black metal, doom, death, progressiv — pluss hardrock og eksperimentell musikk.' }
+			],
+			en: [
+				{ q: 'When is Beyond the Gates?', a: 'Beyond the Gates takes place over four days in late July and early August each year.' },
+				{ q: 'Where is Beyond the Gates held?', a: 'Multiple venues in Bergen: USF Verftet, Kulturhuset i Bergen and Grieghallen. All are centrally located and within walking distance of each other.' },
+				{ q: 'How do I buy Beyond the Gates tickets?', a: 'Tickets are sold through Ticketmaster and the festival website. Festival passes and single-day tickets are available.' },
+				{ q: 'Is there an age limit at Beyond the Gates?', a: 'Most concerts are 18+. Check individual events for specific age restrictions.' },
+				{ q: 'What kind of music is played at Beyond the Gates?', a: 'Primarily metal across all subgenres — black metal, doom, death, progressive — plus hard rock and experimental music.' }
+			]
+		},
+		filterEvents: (events) => filterBeyondTheGates(events)
+	},
+	{
+		id: 'beyond-the-gates-en',
+		slug: 'beyond-the-gates-bergen',
+		seasonal: true,
+		title: {
+			no: 'Beyond the Gates',
+			en: 'Beyond the Gates Bergen'
+		},
+		description: {
+			no: 'Beyond the Gates-programmet — metal og rock i Bergen.',
+			en: 'Beyond the Gates festival programme — metal and rock in Bergen, Norway. Artists, tickets and practical info.'
+		},
+		ogSubtitle: {
+			no: 'Metal og rock i Bergen',
+			en: 'Metal and rock in Bergen'
+		},
+		relatedSlugs: ['konserter', 'bergenfest-bergen', 'nattjazz-bergen'],
+		newsletterHeading: { no: 'Beyond the Gates — årets program', en: 'Beyond the Gates — this year\'s lineup' },
+		quickAnswer: {
+			no: 'Beyond the Gates er Bergens metal- og rockfestival, arrangert over fire dager i slutten av juli og begynnelsen av august.',
+			en: 'Beyond the Gates is Bergen\'s metal and rock festival, held over four days in late July and early August. The festival uses multiple venues — including USF Verftet, Kulturhuset i Bergen and Grieghallen — and draws an international audience with a programme spanning black metal to progressive rock.'
+		},
+		editorial: {
+			no: [
+				'Beyond the Gates er en internasjonal metalfestival i Bergen med artister fra hele verden.',
+				'Festivalen bruker flere scener i Bergen sentrum — USF Verftet, Kulturhuset og Grieghallen.',
+				'Gåri viser det komplette programmet med billettinformasjon.'
+			],
+			en: [
+				'Beyond the Gates is an international metal festival that uses Bergen\'s unique venues to create an extraordinary atmosphere for heavy music.',
+				'The festival spans multiple stages across Bergen — USF Verftet, Kulturhuset i Bergen, and Grieghallen — combining major international acts with underground bands.',
+				'Gåri shows the complete Beyond the Gates programme with ticket information, updated daily.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er Beyond the Gates?', a: 'Slutten av juli og begynnelsen av august hvert år.' },
+				{ q: 'Hvor holdes Beyond the Gates?', a: 'USF Verftet, Kulturhuset i Bergen og Grieghallen — alle i Bergen sentrum.' },
+				{ q: 'Hvordan kjøper jeg billetter?', a: 'Via Ticketmaster og festivalens nettside. Festivalpass og dagsbilletter tilgjengelig.' },
+				{ q: 'Er det aldersgrense?', a: 'De fleste konserter er 18+. Sjekk enkeltarrangementer.' },
+				{ q: 'Hva slags musikk spilles?', a: 'Metal i alle sjangre — black metal, doom, death, progressiv — pluss hardrock og eksperimentell musikk.' }
+			],
+			en: [
+				{ q: 'When is Beyond the Gates?', a: 'Beyond the Gates takes place over four days in late July and early August each year.' },
+				{ q: 'Where is Beyond the Gates held?', a: 'Multiple venues in Bergen: USF Verftet, Kulturhuset i Bergen and Grieghallen. All centrally located.' },
+				{ q: 'How do I buy Beyond the Gates tickets?', a: 'Tickets are sold through Ticketmaster and the festival website. Festival passes and single-day tickets available.' },
+				{ q: 'Is there an age limit at Beyond the Gates?', a: 'Most concerts are 18+. Check individual events for specific age restrictions.' },
+				{ q: 'What kind of music is played at Beyond the Gates?', a: 'Primarily metal across all subgenres — black, doom, death, progressive — plus hard rock and experimental music.' }
+			]
+		},
+		filterEvents: (events) => filterBeyondTheGates(events)
+	},
+	{
+		id: 'nattjazz',
+		slug: 'nattjazz',
+		seasonal: true,
+		title: {
+			no: 'Nattjazz Bergen',
+			en: 'Nattjazz Bergen'
+		},
+		description: {
+			no: 'Nattjazz-programmet — jazz, improvisasjon og verdensmusikk i Bergen. Artister, billetter og info.',
+			en: 'Nattjazz programme — jazz, improvisation and world music in Bergen. Artists, tickets and info.'
+		},
+		ogSubtitle: {
+			no: 'En av Europas lengste jazzfestivaler',
+			en: "One of Europe's longest-running jazz festivals"
+		},
+		relatedSlugs: ['konserter', 'festspillene', 'i-kveld'],
+		newsletterHeading: { no: 'Nattjazz — årets program', en: 'Nattjazz — this year\'s programme' },
+		quickAnswer: {
+			no: 'Nattjazz er en av Europas lengste jazzfestivaler, arrangert siden 1972. Festivalen varer i nesten to uker i mai og juni, med konserter hver kveld på USF Verftet — fra jazz og improvisasjon til elektronika og verdensmusikk.',
+			en: 'Nattjazz is one of Europe\'s longest-running jazz festivals, held since 1972. The festival spans nearly two weeks in May and June, with nightly concerts at USF Verftet — from jazz and improvisation to electronic and world music.'
+		},
+		editorial: {
+			no: [
+				'Nattjazz er en av Europas lengste jazzfestivaler og arrangeres på USF Verftet — et ombygd sardinfabrikk ved havnen i Bergen.',
+				'Festivalen kombinerer jazz, improvisasjon, elektronika og verdensmusikk, og trekker artister fra hele verden til Bergens mest atmosfæriske konsertlokale.',
+				'Gåri viser det komplette Nattjazz-programmet med billettinformasjon, oppdatert daglig.'
+			],
+			en: [
+				'Nattjazz is one of Europe\'s longest-running jazz festivals, held at USF Verftet — a converted sardine factory on Bergen\'s waterfront.',
+				'The festival combines jazz, improvisation, electronic and world music, drawing artists from around the world to Bergen\'s most atmospheric concert venue.',
+				'Gåri shows the complete Nattjazz programme with ticket information, updated daily.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er Nattjazz?', a: 'Nattjazz arrangeres i nesten to uker i mai og juni hvert år, parallelt med Festspillene.' },
+				{ q: 'Hvor holdes Nattjazz?', a: 'USF Verftet på Nordnes i Bergen. Flere scener i samme bygg, inkludert Sardinen og Røkeriet.' },
+				{ q: 'Spilles det bare jazz på Nattjazz?', a: 'Nei — programmet spenner fra jazz og improvisasjon til elektronika, verdensmusikk og eksperimentelle sjangre.' },
+				{ q: 'Hvordan kjøper jeg billetter til Nattjazz?', a: 'Billetter selges via TicketCo og nattjazz.no. Enkeltbilletter og festivalpass tilgjengelig.' },
+				{ q: 'Er det aldersgrense på Nattjazz?', a: 'De fleste konserter er 18+, men utvalgte arrangementer er åpne for alle aldre.' }
+			],
+			en: [
+				{ q: 'When is Nattjazz?', a: 'Nattjazz runs for nearly two weeks in May and June each year, overlapping with the Bergen International Festival.' },
+				{ q: 'Where is Nattjazz held?', a: 'USF Verftet on the Nordnes peninsula in Bergen. Multiple stages in the same building, including Sardinen and Røkeriet.' },
+				{ q: 'Is Nattjazz only jazz music?', a: 'No — the programme spans jazz and improvisation to electronic, world and experimental music.' },
+				{ q: 'How do I buy Nattjazz tickets?', a: 'Tickets are sold through TicketCo and nattjazz.no. Single tickets and festival passes available.' },
+				{ q: 'Is there an age limit at Nattjazz?', a: 'Most concerts are 18+, but selected events are open to all ages.' }
+			]
+		},
+		filterEvents: (events) => filterNattjazz(events)
+	},
+	{
+		id: 'nattjazz-en',
+		slug: 'nattjazz-bergen',
+		seasonal: true,
+		title: {
+			no: 'Nattjazz Bergen',
+			en: 'Nattjazz Bergen'
+		},
+		description: {
+			no: 'Nattjazz-programmet — jazz og improvisasjon i Bergen.',
+			en: 'Nattjazz programme — jazz, improvisation and world music in Bergen, Norway. Artists, tickets and info.'
+		},
+		ogSubtitle: {
+			no: 'En av Europas lengste jazzfestivaler',
+			en: "One of Europe's longest-running jazz festivals"
+		},
+		relatedSlugs: ['konserter', 'bergen-international-festival', 'beyond-the-gates-bergen'],
+		newsletterHeading: { no: 'Nattjazz — årets program', en: 'Nattjazz — this year\'s programme' },
+		quickAnswer: {
+			no: 'Nattjazz er en av Europas lengste jazzfestivaler, arrangert siden 1972 på USF Verftet i Bergen.',
+			en: 'Nattjazz is one of Europe\'s longest-running jazz festivals, held since 1972. The festival spans nearly two weeks in May and June, with nightly concerts at USF Verftet — from jazz and improvisation to electronic and world music.'
+		},
+		editorial: {
+			no: [
+				'Nattjazz arrangeres på USF Verftet — et ombygd sardinfabrikk ved havnen i Bergen.',
+				'Festivalen kombinerer jazz, improvisasjon, elektronika og verdensmusikk.',
+				'Gåri viser det komplette Nattjazz-programmet med billettinformasjon.'
+			],
+			en: [
+				'Nattjazz is one of Europe\'s longest-running jazz festivals, held at USF Verftet — a converted sardine factory on Bergen\'s waterfront.',
+				'The festival combines jazz, improvisation, electronic and world music, drawing artists from around the world to Bergen\'s most atmospheric concert venue.',
+				'Gåri shows the complete Nattjazz programme with ticket information, updated daily.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er Nattjazz?', a: 'I mai og juni hvert år, parallelt med Festspillene.' },
+				{ q: 'Hvor holdes Nattjazz?', a: 'USF Verftet på Nordnes i Bergen.' },
+				{ q: 'Spilles det bare jazz?', a: 'Nei — jazz, improvisasjon, elektronika, verdensmusikk og eksperimentelle sjangre.' },
+				{ q: 'Hvordan kjøper jeg billetter?', a: 'Via TicketCo og nattjazz.no. Enkeltbilletter og festivalpass tilgjengelig.' },
+				{ q: 'Er det aldersgrense?', a: 'De fleste konserter er 18+, men utvalgte arrangementer er åpne for alle aldre.' }
+			],
+			en: [
+				{ q: 'When is Nattjazz?', a: 'Nattjazz runs for nearly two weeks in May and June each year, overlapping with the Bergen International Festival.' },
+				{ q: 'Where is Nattjazz held?', a: 'USF Verftet on the Nordnes peninsula in Bergen. Multiple stages in the same building.' },
+				{ q: 'Is Nattjazz only jazz music?', a: 'No — the programme spans jazz, improvisation, electronic, world and experimental music.' },
+				{ q: 'How do I buy Nattjazz tickets?', a: 'Tickets are sold through TicketCo and nattjazz.no. Single tickets and festival passes available.' },
+				{ q: 'Is there an age limit at Nattjazz?', a: 'Most concerts are 18+, but selected events are open to all ages.' }
+			]
+		},
+		filterEvents: (events) => filterNattjazz(events)
 	}
 ];
 
@@ -1606,6 +2035,15 @@ const HREFLANG_PAIRS: Record<string, Record<'no' | 'en', string>> = {
 	'new-years-eve-bergen': { no: 'nyttarsaften', en: 'new-years-eve-bergen' },
 	'vinterferie': { no: 'vinterferie', en: 'winter-break-bergen' },
 	'winter-break-bergen': { no: 'vinterferie', en: 'winter-break-bergen' },
+	// Festival collections (Fase 2)
+	'festspillene': { no: 'festspillene', en: 'bergen-international-festival' },
+	'bergen-international-festival': { no: 'festspillene', en: 'bergen-international-festival' },
+	'bergenfest': { no: 'bergenfest', en: 'bergenfest-bergen' },
+	'bergenfest-bergen': { no: 'bergenfest', en: 'bergenfest-bergen' },
+	'beyond-the-gates': { no: 'beyond-the-gates', en: 'beyond-the-gates-bergen' },
+	'beyond-the-gates-bergen': { no: 'beyond-the-gates', en: 'beyond-the-gates-bergen' },
+	'nattjazz': { no: 'nattjazz', en: 'nattjazz-bergen' },
+	'nattjazz-bergen': { no: 'nattjazz', en: 'nattjazz-bergen' },
 };
 
 /** Returns hreflang slugs for a collection. Unpaired collections use the same slug for both. */

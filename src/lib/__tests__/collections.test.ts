@@ -32,9 +32,9 @@ describe('getCollection', () => {
 		expect(getCollection('gibberish')).toBeUndefined();
 	});
 
-	it('returns all 27 collections', () => {
+	it('returns all 35 collections', () => {
 		const slugs = getAllCollectionSlugs();
-		expect(slugs).toHaveLength(27);
+		expect(slugs).toHaveLength(35);
 		// Original 14
 		expect(slugs).toContain('denne-helgen');
 		expect(slugs).toContain('i-kveld');
@@ -65,6 +65,16 @@ describe('getCollection', () => {
 		expect(slugs).toContain('midsummer-bergen');
 		expect(slugs).toContain('new-years-eve-bergen');
 		expect(slugs).toContain('winter-break-bergen');
+		// 4 festival NO
+		expect(slugs).toContain('festspillene');
+		expect(slugs).toContain('bergenfest');
+		expect(slugs).toContain('beyond-the-gates');
+		expect(slugs).toContain('nattjazz');
+		// 4 festival EN
+		expect(slugs).toContain('bergen-international-festival');
+		expect(slugs).toContain('bergenfest-bergen');
+		expect(slugs).toContain('beyond-the-gates-bergen');
+		expect(slugs).toContain('nattjazz-bergen');
 	});
 
 	it('each collection has bilingual title and description', () => {
@@ -783,7 +793,12 @@ describe('seasonal collections metadata', () => {
 		'sankthans', 'midsummer-bergen',
 		'nyttarsaften', 'new-years-eve-bergen',
 		'vinterferie', 'winter-break-bergen',
-		'hostferie'
+		'hostferie',
+		// Festival collections (Fase 2)
+		'festspillene', 'bergen-international-festival',
+		'bergenfest', 'bergenfest-bergen',
+		'beyond-the-gates', 'beyond-the-gates-bergen',
+		'nattjazz', 'nattjazz-bergen'
 	];
 
 	it('all seasonal collections have seasonal flag', () => {
@@ -820,4 +835,140 @@ describe('seasonal collections metadata', () => {
 			expect(c.seasonal).toBeFalsy();
 		}
 	});
+});
+
+// ── Festival collection filters (Fase 2) ──────────────────────────
+
+describe('festspillene filter', () => {
+	const collection = getCollection('festspillene')!;
+	const now = new Date('2026-05-20T12:00:00');
+
+	it('includes events with fib.no source_url', () => {
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://www.fib.no/program/2026/#abc123' }),
+			makeEvent({ id: '2', source_url: 'https://www.fib.no/program/2026/#def456' }),
+			makeEvent({ id: '3', source_url: 'https://www.bergenfest.no/artister/foo' })
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('excludes events without source_url', () => {
+		const events = [
+			makeEvent({ id: '1', source_url: undefined }),
+			makeEvent({ id: '2', source_url: 'https://www.fib.no/program/2026/#abc' })
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['2']);
+	});
+
+	it('EN slug resolves to same filter', () => {
+		const en = getCollection('bergen-international-festival')!;
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://www.fib.no/program/2026/#abc' }),
+			makeEvent({ id: '2', source_url: 'https://example.com/event' })
+		];
+		expect(en.filterEvents(events, now).map(e => e.id)).toEqual(['1']);
+	});
+});
+
+describe('bergenfest filter', () => {
+	const collection = getCollection('bergenfest')!;
+	const now = new Date('2026-06-10T12:00:00');
+
+	it('includes events with bergenfest.no source_url', () => {
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://www.bergenfest.no/artister/artist-a' }),
+			makeEvent({ id: '2', source_url: 'https://www.bergenfest.no/artister/artist-b' }),
+			makeEvent({ id: '3', source_url: 'https://www.fib.no/program/2026/#abc' })
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('has maxPerVenue of 50', () => {
+		expect(collection.maxPerVenue).toBe(50);
+		const en = getCollection('bergenfest-bergen')!;
+		expect(en.maxPerVenue).toBe(50);
+	});
+});
+
+describe('beyond the gates filter', () => {
+	const collection = getCollection('beyond-the-gates')!;
+	const now = new Date('2026-07-29T12:00:00');
+
+	it('includes events with beyondthegates.no source_url', () => {
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://beyondthegates.no/lineup-23#2026-07-29-band' }),
+			makeEvent({ id: '2', source_url: 'https://beyondthegates.no/lineup-23#2026-07-30-band' }),
+			makeEvent({ id: '3', source_url: 'https://www.bergenfest.no/artister/foo' })
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('EN slug resolves to same filter', () => {
+		const en = getCollection('beyond-the-gates-bergen')!;
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://beyondthegates.no/lineup-23#2026-07-29-band' })
+		];
+		expect(en.filterEvents(events, now)).toHaveLength(1);
+	});
+});
+
+describe('nattjazz filter', () => {
+	const collection = getCollection('nattjazz')!;
+	const now = new Date('2026-05-25T12:00:00');
+
+	it('includes events with nattjazz.ticketco.no source_url', () => {
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://nattjazz.ticketco.no/no/nb/events/12345' }),
+			makeEvent({ id: '2', source_url: 'https://nattjazz.ticketco.no/no/nb/events/67890' }),
+			makeEvent({ id: '3', source_url: 'https://hulen.ticketco.no/no/nb/events/11111' })
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('excludes other ticketco subdomains', () => {
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://kvarteret.ticketco.no/no/nb/events/111' }),
+			makeEvent({ id: '2', source_url: 'https://nattjazz.ticketco.no/no/nb/events/222' })
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['2']);
+	});
+
+	it('EN slug resolves to same filter', () => {
+		const en = getCollection('nattjazz-bergen')!;
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://nattjazz.ticketco.no/no/nb/events/123' })
+		];
+		expect(en.filterEvents(events, now)).toHaveLength(1);
+	});
+});
+
+describe('festival collections EN counterparts', () => {
+	const pairs: [string, string][] = [
+		['festspillene', 'bergen-international-festival'],
+		['bergenfest', 'bergenfest-bergen'],
+		['beyond-the-gates', 'beyond-the-gates-bergen'],
+		['nattjazz', 'nattjazz-bergen']
+	];
+
+	for (const [noSlug, enSlug] of pairs) {
+		it(`${noSlug} ↔ ${enSlug} both resolve`, () => {
+			expect(getCollection(noSlug)).toBeDefined();
+			expect(getCollection(enSlug)).toBeDefined();
+		});
+
+		it(`${noSlug} ↔ ${enSlug} have same FAQ count per language`, () => {
+			const no = getCollection(noSlug)!;
+			const en = getCollection(enSlug)!;
+			if (no.faq && en.faq) {
+				expect(no.faq.no.length).toBe(no.faq.en.length);
+				expect(en.faq.no.length).toBe(en.faq.en.length);
+			}
+		});
+	}
 });
