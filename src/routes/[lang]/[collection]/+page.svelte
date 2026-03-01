@@ -16,7 +16,9 @@
 	// Use server-provided lang for SSR-critical values (JSON-LD, meta tags).
 	// $lang store only syncs via $effect (client-only), so it defaults to 'no' during SSR.
 	let ssrLang = $derived(data.lang);
-	let title = $derived(data.collection.title[ssrLang]);
+	let baseTitle = $derived(data.collection.title[ssrLang]);
+	let year = new Date().getFullYear();
+	let title = $derived(data.collection.seasonal ? `${baseTitle} ${year}` : baseTitle);
 	let description = $derived(data.collection.description[ssrLang]);
 	let canonicalUrl = $derived(getCanonicalUrl(`/${ssrLang}/${data.collection.slug}`));
 	let collectionJsonLd = $derived(

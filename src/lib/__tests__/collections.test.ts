@@ -32,9 +32,10 @@ describe('getCollection', () => {
 		expect(getCollection('gibberish')).toBeUndefined();
 	});
 
-	it('returns all 14 collections', () => {
+	it('returns all 27 collections', () => {
 		const slugs = getAllCollectionSlugs();
-		expect(slugs).toHaveLength(14);
+		expect(slugs).toHaveLength(27);
+		// Original 14
 		expect(slugs).toContain('denne-helgen');
 		expect(slugs).toContain('i-kveld');
 		expect(slugs).toContain('gratis');
@@ -49,6 +50,21 @@ describe('getCollection', () => {
 		expect(slugs).toContain('sentrum');
 		expect(slugs).toContain('voksen');
 		expect(slugs).toContain('for-ungdom');
+		// 7 seasonal NO
+		expect(slugs).toContain('17-mai');
+		expect(slugs).toContain('julemarked');
+		expect(slugs).toContain('paske');
+		expect(slugs).toContain('sankthans');
+		expect(slugs).toContain('nyttarsaften');
+		expect(slugs).toContain('vinterferie');
+		expect(slugs).toContain('hostferie');
+		// 6 seasonal EN
+		expect(slugs).toContain('17th-of-may-bergen');
+		expect(slugs).toContain('christmas-bergen');
+		expect(slugs).toContain('easter-bergen');
+		expect(slugs).toContain('midsummer-bergen');
+		expect(slugs).toContain('new-years-eve-bergen');
+		expect(slugs).toContain('winter-break-bergen');
 	});
 
 	it('each collection has bilingual title and description', () => {
@@ -539,5 +555,269 @@ describe('youth filter (for-ungdom)', () => {
 	it('handles empty event list', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		expect(collection.filterEvents([], now)).toHaveLength(0);
+	});
+});
+
+// ── Seasonal collection filters ────────────────────────────────────
+
+describe('17. mai filter (17-mai)', () => {
+	const collection = getCollection('17-mai')!;
+
+	it('exists and is seasonal', () => {
+		expect(collection).toBeDefined();
+		expect(collection.seasonal).toBe(true);
+	});
+
+	it('includes events May 14–18', () => {
+		const now = new Date('2026-05-10T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-05-14T10:00:00Z' }), // May 14 ✓
+			makeEvent({ id: '2', date_start: '2026-05-15T10:00:00Z' }), // May 15 ✓
+			makeEvent({ id: '3', date_start: '2026-05-17T10:00:00Z' }), // May 17 ✓
+			makeEvent({ id: '4', date_start: '2026-05-18T10:00:00Z' }), // May 18 ✓
+			makeEvent({ id: '5', date_start: '2026-05-13T10:00:00Z' }), // May 13 — excluded
+			makeEvent({ id: '6', date_start: '2026-05-19T10:00:00Z' })  // May 19 — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2', '3', '4']);
+	});
+
+	it('returns empty outside May window', () => {
+		const now = new Date('2026-03-01T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-03-15T10:00:00Z' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
+	});
+
+	it('EN counterpart uses same filter', () => {
+		const en = getCollection('17th-of-may-bergen')!;
+		expect(en).toBeDefined();
+		expect(en.seasonal).toBe(true);
+		const now = new Date('2026-05-10T12:00:00');
+		const events = [makeEvent({ id: '1', date_start: '2026-05-17T10:00:00Z' })];
+		expect(en.filterEvents(events, now)).toHaveLength(1);
+	});
+});
+
+describe('julemarked filter', () => {
+	const collection = getCollection('julemarked')!;
+
+	it('includes events Nov 15 – Dec 23', () => {
+		const now = new Date('2026-11-01T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-11-15T10:00:00Z' }), // Nov 15 ✓
+			makeEvent({ id: '2', date_start: '2026-12-01T18:00:00Z' }), // Dec 1 ✓
+			makeEvent({ id: '3', date_start: '2026-12-23T10:00:00Z' }), // Dec 23 ✓
+			makeEvent({ id: '4', date_start: '2026-11-14T10:00:00Z' }), // Nov 14 — excluded
+			makeEvent({ id: '5', date_start: '2026-12-24T10:00:00Z' })  // Dec 24 — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
+	});
+
+	it('EN counterpart works', () => {
+		const en = getCollection('christmas-bergen')!;
+		expect(en).toBeDefined();
+		const now = new Date('2026-11-01T12:00:00');
+		const events = [makeEvent({ id: '1', date_start: '2026-12-01T18:00:00Z' })];
+		expect(en.filterEvents(events, now)).toHaveLength(1);
+	});
+});
+
+describe('påske filter (paske)', () => {
+	const collection = getCollection('paske')!;
+
+	it('includes events from Palm Sunday to Easter Monday 2026', () => {
+		// Easter 2026: April 5. Palm Sunday = March 29. Easter Monday = April 6.
+		const now = new Date('2026-03-20T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-03-29T10:00:00Z' }), // Palm Sunday ✓
+			makeEvent({ id: '2', date_start: '2026-04-02T18:00:00Z' }), // Skjærtorsdag ✓
+			makeEvent({ id: '3', date_start: '2026-04-05T10:00:00Z' }), // Easter Sunday ✓
+			makeEvent({ id: '4', date_start: '2026-04-06T10:00:00Z' }), // Easter Monday ✓
+			makeEvent({ id: '5', date_start: '2026-03-28T10:00:00Z' }), // Before Palm Sunday — excluded
+			makeEvent({ id: '6', date_start: '2026-04-07T10:00:00Z' })  // After Easter Monday — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2', '3', '4']);
+	});
+
+	it('uses correct Easter date for 2027 (March 28)', () => {
+		// Easter 2027: March 28. Palm Sunday = March 21. Easter Monday = March 29.
+		const now = new Date('2027-03-15T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2027-03-21T10:00:00Z' }), // Palm Sunday ✓
+			makeEvent({ id: '2', date_start: '2027-03-29T10:00:00Z' }), // Easter Monday ✓
+			makeEvent({ id: '3', date_start: '2027-03-20T10:00:00Z' })  // Day before Palm Sunday — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('EN counterpart works', () => {
+		const en = getCollection('easter-bergen')!;
+		expect(en).toBeDefined();
+		const now = new Date('2026-03-20T12:00:00');
+		const events = [makeEvent({ id: '1', date_start: '2026-04-05T10:00:00Z' })];
+		expect(en.filterEvents(events, now)).toHaveLength(1);
+	});
+});
+
+describe('sankthans filter', () => {
+	const collection = getCollection('sankthans')!;
+
+	it('includes events June 21–24', () => {
+		const now = new Date('2026-06-15T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-06-21T18:00:00Z' }), // June 21 ✓
+			makeEvent({ id: '2', date_start: '2026-06-23T20:00:00Z' }), // Sankthansaften ✓
+			makeEvent({ id: '3', date_start: '2026-06-24T10:00:00Z' }), // June 24 ✓
+			makeEvent({ id: '4', date_start: '2026-06-20T18:00:00Z' }), // June 20 — excluded
+			makeEvent({ id: '5', date_start: '2026-06-25T10:00:00Z' })  // June 25 — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
+	});
+
+	it('EN counterpart works', () => {
+		const en = getCollection('midsummer-bergen')!;
+		expect(en).toBeDefined();
+		const now = new Date('2026-06-15T12:00:00');
+		const events = [makeEvent({ id: '1', date_start: '2026-06-23T20:00:00Z' })];
+		expect(en.filterEvents(events, now)).toHaveLength(1);
+	});
+});
+
+describe('nyttårsaften filter', () => {
+	const collection = getCollection('nyttarsaften')!;
+
+	it('includes events Dec 29 – Jan 1 (cross-year)', () => {
+		const now = new Date('2026-12-20T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-12-29T18:00:00Z' }), // Dec 29 ✓
+			makeEvent({ id: '2', date_start: '2026-12-31T22:00:00Z' }), // NYE ✓
+			makeEvent({ id: '3', date_start: '2027-01-01T10:00:00Z' }), // New Year's Day ✓
+			makeEvent({ id: '4', date_start: '2026-12-28T18:00:00Z' }), // Dec 28 — excluded
+			makeEvent({ id: '5', date_start: '2027-01-02T10:00:00Z' })  // Jan 2 — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
+	});
+
+	it('in January, shows previous year NYE window', () => {
+		const now = new Date('2027-01-01T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-12-31T22:00:00Z' }), // NYE ✓
+			makeEvent({ id: '2', date_start: '2027-01-01T10:00:00Z' }), // New Year's Day ✓
+			makeEvent({ id: '3', date_start: '2027-12-31T22:00:00Z' })  // Next year's NYE — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('EN counterpart works', () => {
+		const en = getCollection('new-years-eve-bergen')!;
+		expect(en).toBeDefined();
+		const now = new Date('2026-12-20T12:00:00');
+		const events = [makeEvent({ id: '1', date_start: '2026-12-31T22:00:00Z' })];
+		expect(en.filterEvents(events, now)).toHaveLength(1);
+	});
+});
+
+describe('vinterferie filter', () => {
+	const collection = getCollection('vinterferie')!;
+
+	it('includes events in ISO week 9 of 2026 (Feb 23 – Mar 1)', () => {
+		const now = new Date('2026-02-15T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-23T10:00:00Z' }), // Mon wk9 ✓
+			makeEvent({ id: '2', date_start: '2026-02-27T18:00:00Z' }), // Fri wk9 ✓
+			makeEvent({ id: '3', date_start: '2026-03-01T10:00:00Z' }), // Sun wk9 ✓
+			makeEvent({ id: '4', date_start: '2026-02-22T10:00:00Z' }), // Sun wk8 — excluded
+			makeEvent({ id: '5', date_start: '2026-03-02T10:00:00Z' })  // Mon wk10 — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
+	});
+
+	it('EN counterpart works', () => {
+		const en = getCollection('winter-break-bergen')!;
+		expect(en).toBeDefined();
+		const now = new Date('2026-02-15T12:00:00');
+		const events = [makeEvent({ id: '1', date_start: '2026-02-25T10:00:00Z' })];
+		expect(en.filterEvents(events, now)).toHaveLength(1);
+	});
+});
+
+describe('høstferie filter', () => {
+	const collection = getCollection('hostferie')!;
+
+	it('includes events in ISO week 41 of 2026 (Oct 5 – Oct 11)', () => {
+		const now = new Date('2026-09-25T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-10-05T10:00:00Z' }), // Mon wk41 ✓
+			makeEvent({ id: '2', date_start: '2026-10-08T18:00:00Z' }), // Thu wk41 ✓
+			makeEvent({ id: '3', date_start: '2026-10-11T10:00:00Z' }), // Sun wk41 ✓
+			makeEvent({ id: '4', date_start: '2026-10-04T10:00:00Z' }), // Sun wk40 — excluded
+			makeEvent({ id: '5', date_start: '2026-10-12T10:00:00Z' })  // Mon wk42 — excluded
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
+	});
+
+	it('returns empty outside week 41', () => {
+		const now = new Date('2026-03-01T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-03-15T10:00:00Z' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
+	});
+});
+
+describe('seasonal collections metadata', () => {
+	const seasonalSlugs = [
+		'17-mai', '17th-of-may-bergen',
+		'julemarked', 'christmas-bergen',
+		'paske', 'easter-bergen',
+		'sankthans', 'midsummer-bergen',
+		'nyttarsaften', 'new-years-eve-bergen',
+		'vinterferie', 'winter-break-bergen',
+		'hostferie'
+	];
+
+	it('all seasonal collections have seasonal flag', () => {
+		for (const slug of seasonalSlugs) {
+			const c = getCollection(slug)!;
+			expect(c.seasonal, `${slug} should be seasonal`).toBe(true);
+		}
+	});
+
+	it('all seasonal collections have 3+ FAQ questions per language', () => {
+		for (const slug of seasonalSlugs) {
+			const c = getCollection(slug)!;
+			if (c.faq) {
+				for (const lang of ['no', 'en'] as const) {
+					expect(c.faq[lang].length, `${slug} ${lang} FAQ count`).toBeGreaterThanOrEqual(3);
+				}
+			}
+		}
+	});
+
+	it('all seasonal collections have quickAnswer', () => {
+		for (const slug of seasonalSlugs) {
+			const c = getCollection(slug)!;
+			expect(c.quickAnswer, `${slug} should have quickAnswer`).toBeDefined();
+			expect(c.quickAnswer!.no).toBeTruthy();
+			expect(c.quickAnswer!.en).toBeTruthy();
+		}
+	});
+
+	it('non-seasonal collections do not have seasonal flag', () => {
+		const nonSeasonal = ['denne-helgen', 'i-kveld', 'gratis', 'familiehelg'];
+		for (const slug of nonSeasonal) {
+			const c = getCollection(slug)!;
+			expect(c.seasonal).toBeFalsy();
+		}
 	});
 });

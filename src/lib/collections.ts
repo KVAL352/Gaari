@@ -885,6 +885,688 @@ const collections: Collection[] = [
 				return YOUTH_CATEGORIES.has(e.category) || e.age_group === 'family' || e.category === 'family' || YOUTH_TEXT_RE.test(e.title_no) || YOUTH_TEXT_RE.test(e.description_no);
 			});
 		}
+	},
+
+	// ── Seasonal collections (NO) ──────────────────────────────────────
+
+	{
+		id: '17mai',
+		slug: '17-mai',
+		seasonal: true,
+		title: {
+			no: '17. mai i Bergen',
+			en: '17th of May in Bergen'
+		},
+		description: {
+			no: '17. mai-program for Bergen: barnetog, buekorps, konserter og arrangementer. Komplett oversikt fra 50 lokale kilder.',
+			en: "Norway's Constitution Day in Bergen: children's parades, buekorps, concerts and events. Complete guide from 50 local sources."
+		},
+		ogSubtitle: {
+			no: 'Barnetog, buekorps og feiring',
+			en: 'Parades, buekorps and celebrations'
+		},
+		relatedSlugs: ['denne-helgen', 'gratis', 'familiehelg', 'for-ungdom'],
+		newsletterHeading: { no: 'Få 17. mai-programmet rett i innboksen', en: 'Get the 17th of May programme in your inbox' },
+		quickAnswer: {
+			no: 'Bergen feirer 17. mai med barnetog gjennom sentrum, buekorps-marsjer — en tradisjon unik for Bergen — konserter på Torgallmenningen og Festplassen, og familieaktiviteter over hele byen. Gåri samler alle arrangementer fra 50 lokale kilder.',
+			en: "Bergen celebrates Norway's Constitution Day (17th of May) with children's parades through the city centre, buekorps marching brigades — a tradition unique to Bergen — concerts at Torgallmenningen and Festplassen, and family activities across the city."
+		},
+		editorial: {
+			no: [
+				'17. mai er Norges nasjonaldag og Bergens mest folkerike feiring. Barnetoget starter ved Festplassen og går gjennom sentrum, mens Bergens unike buekorps — barnebrigader med trommer og faner — marsjerer gjennom gatene fra tidlig morgen. Torgallmenningen er samlingspunktet, med taler, is og pølser.',
+				'Bergen har en særegen 17. mai-kultur med rundt 30 aktive buekorps, noe ingen annen norsk by har. Feiringen strekker seg fra festgudstjenester om morgenen til konserter og folkefester om kvelden. Mange restauranter og spillesteder arrangerer egne program.',
+				'Gåri samler 17. mai-arrangementer fra over 50 lokale kilder — spillesteder, kulturinstitusjoner, festivalarrangører og billettplattformer. Denne siden oppdateres daglig når programmet nærmer seg. Se også familiehelg-siden for barnevennlige aktiviteter.'
+			],
+			en: [
+				"17th of May (syttende mai) is Norway's Constitution Day and Bergen's biggest celebration. The children's parade (barnetog) starts at Festplassen and winds through the city centre, while Bergen's unique buekorps — children's marching brigades with drums and banners — parade from early morning. Torgallmenningen is the main gathering point, with speeches, ice cream and hot dogs.",
+				"Bergen has a distinctive 17th of May culture with around 30 active buekorps, something found in no other Norwegian city. Celebrations run from morning church services to evening concerts and public festivities. Norwegians dress in bunads (traditional folk costumes) and the atmosphere is festive from dawn to night.",
+				"Gåri collects 17th of May events from over 50 local sources — venues, cultural institutions, festival organisers and ticketing platforms. This page is updated daily as the programme approaches. See the family weekend page for child-friendly activities year-round."
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hva skjer 17. mai i Bergen?', a: 'Bergen feirer 17. mai med barnetog, buekorps-marsjer, konserter på Torgallmenningen og Festplassen, og aktiviteter over hele byen. Gåri viser alle arrangementer fra 50 lokale kilder.' },
+				{ q: 'Når starter barnetoget i Bergen?', a: 'Barnetoget i Bergen starter vanligvis ved Festplassen rundt kl. 10:00 og går gjennom sentrum. Buekorpsene marsjerer fra tidlig morgen, ofte allerede fra kl. 07:00.' },
+				{ q: 'Hva er buekorps?', a: 'Buekorps er barnebrigader med trommer, faner og uniformer — en tradisjon unik for Bergen som går tilbake til 1800-tallet. Rundt 30 aktive buekorps marsjerer gjennom byen på 17. mai.' },
+				{ q: 'Er det gratis 17. mai-arrangementer i Bergen?', a: 'Ja, barnetoget, buekorps-marsjene og de fleste offentlige feiringene er gratis. Noen konserter og arrangementer krever billett.' },
+				{ q: 'Hva kan man gjøre med barn 17. mai i Bergen?', a: 'Familier kan se barnetoget, buekorps-marsjer, besøke Festplassen med aktiviteter for barn, og spise is og pølser langs ruten. Mange museer har gratis inngang.' }
+			],
+			en: [
+				{ q: "What happens on 17th of May in Bergen?", a: "Bergen celebrates Constitution Day with children's parades, buekorps marching brigades, concerts at Torgallmenningen and Festplassen, and activities across the city. Gåri lists all events from 50 local sources." },
+				{ q: "What time does the children's parade start in Bergen?", a: "The children's parade (barnetog) in Bergen typically starts at Festplassen around 10:00 and goes through the city centre. Buekorps marching brigades start from early morning, often from 07:00." },
+				{ q: 'What is buekorps?', a: "Buekorps are children's marching brigades with drums, banners and uniforms — a tradition unique to Bergen dating back to the 1800s. Around 30 active buekorps march through the city on 17th of May." },
+				{ q: 'Is 17th of May in Bergen free?', a: "Yes, the children's parade, buekorps marches and most public celebrations are free. Some concerts and events require tickets." },
+				{ q: 'What can families do on 17th of May in Bergen?', a: "Families can watch the children's parade and buekorps marches, visit Festplassen with activities for kids, and enjoy ice cream and hot dogs along the route. Many museums offer free entry." }
+			]
+		},
+		filterEvents: filter17Mai
+	},
+	{
+		id: 'julemarked',
+		slug: 'julemarked',
+		seasonal: true,
+		title: {
+			no: 'Julemarked og jul i Bergen',
+			en: 'Christmas Markets and Christmas in Bergen'
+		},
+		description: {
+			no: 'Julemarkeder, konserter, Pepperkakebyen og juleaktiviteter i Bergen. Komplett oversikt over julesesongen fra 50 lokale kilder.',
+			en: 'Christmas markets, concerts, the Gingerbread City and holiday events in Bergen. Complete guide to the Christmas season from 50 sources.'
+		},
+		ogSubtitle: {
+			no: 'Julemarkeder, konserter og juleaktiviteter',
+			en: 'Markets, concerts and holiday events'
+		},
+		relatedSlugs: ['nyttarsaften', 'gratis', 'familiehelg', 'denne-helgen'],
+		newsletterHeading: { no: 'Få julekalenderen rett i innboksen', en: 'Get the Christmas calendar in your inbox' },
+		quickAnswer: {
+			no: 'Bergen har over 90 markedsboder på Festplassen fra slutten av november til 22. desember, Pepperkakebyen — verdens største pepperkakeby — på Sentralbadet, Lysfest med fyrverkeri over Lille Lungegårdsvann, og hundrevis av julekonserter og arrangementer. Gratis inngang til julemarkedet.',
+			en: 'Bergen hosts 90+ market stalls at Festplassen from late November through December 22, the Gingerbread City (Pepperkakebyen) — the world\'s largest — at Sentralbadet, a Light Festival (Lysfest) with fireworks over Lille Lungegårdsvann, and hundreds of Christmas concerts and events. Free entry to the main market.'
+		},
+		editorial: {
+			no: [
+				'Bergen er en av Norges mest stemningsfulle julebyer. Julemarkedet på Festplassen har over 90 boder med håndverk, lokal mat og gløgg, med pariserhjul og gratis inngang. Pepperkakebyen — verdens største pepperkakeby — åpner midt i november på Sentralbadet, der skoler og barnehager fra hele Bergen bidrar med pepperkakehus.',
+				'Julesesongen i Bergen sparkes i gang med Lysfesten i november, arrangert av Bergens Tidende i over 30 år: offisiell juletretenning, livemusikk og fyrverkeri over Lille Lungegårdsvann. Grieghallen, Bergen Domkirke og lokale kirker holder julekonserter gjennom hele desember. Adventssøndagene markeres med levende lys på Fløyen.',
+				'Gåri samler alle juleaktiviteter fra over 50 lokale kilder — spillesteder, museer, kirker og kulturinstitusjoner. Denne siden oppdateres daglig gjennom hele julesesongen. Se også gratis-siden for juleaktiviteter uten billettpris.'
+			],
+			en: [
+				'Bergen is one of Norway\'s most atmospheric Christmas cities. The main Christmas market at Festplassen features 90+ stalls with handicrafts, local food and gløgg (mulled wine), a Ferris wheel, and free entry. The Gingerbread City (Pepperkakebyen) — the world\'s largest — opens mid-November at Sentralbadet, with schools and kindergartens contributing gingerbread houses.',
+				'The Christmas season kicks off with the Light Festival (Lysfest) in November, organised by Bergens Tidende for over 30 years: official Christmas tree lighting, live music and fireworks over Lille Lungegårdsvann. Grieghallen, Bergen Cathedral and local churches hold Christmas concerts throughout December. Advent Sundays are marked with candlelight on Fløyen.',
+				'Gåri collects all Christmas events from over 50 local sources — venues, museums, churches and cultural institutions. This page is updated daily throughout the Christmas season. Check the free events page for no-cost Christmas activities.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når åpner julemarkedet i Bergen?', a: 'Bergen Julemarked på Festplassen åpner vanligvis rundt 20. november og holder åpent til 22. desember. Åpningstider: hverdager 12–21, helger 10–21. Gratis inngang.' },
+				{ q: 'Hvor er Pepperkakebyen i Bergen?', a: 'Pepperkakebyen ligger på Sentralbadet i Bergen sentrum. Den åpner midt i november og er åpen til tidlig januar. Skoler og barnehager bygger hundrevis av pepperkakehus.' },
+				{ q: 'Er julemarkedet i Bergen gratis?', a: 'Ja, inngang til Bergen Julemarked på Festplassen er gratis. Mat, drikke og håndverk kjøpes fra bodene. Pepperkakebyen har en liten inngangspris.' },
+				{ q: 'Hva er Lysfesten i Bergen?', a: 'Lysfesten er Bergens offisielle markering av julestart, arrangert av Bergens Tidende i over 30 år. Inkluderer juletretenning, livemusikk og fyrverkeri over Lille Lungegårdsvann.' },
+				{ q: 'Hvilke julekonserter er det i Bergen?', a: 'Bergen har julekonserter i Grieghallen, Bergen Domkirke, Korskirken og mange lokale kirker. Gåri samler alle fra 50 kilder — fra klassisk til gospel og barnekonserter.' }
+			],
+			en: [
+				{ q: 'When does the Bergen Christmas market open?', a: 'Bergen Christmas Market at Festplassen typically opens around November 20 and runs until December 22. Opening hours: weekdays 12–21, weekends 10–21. Free entry.' },
+				{ q: 'Where is the Gingerbread City in Bergen?', a: 'The Gingerbread City (Pepperkakebyen) is at Sentralbadet in Bergen city centre. It opens mid-November and stays open until early January. Schools and kindergartens build hundreds of gingerbread houses.' },
+				{ q: 'Is the Bergen Christmas market free?', a: 'Yes, entry to Bergen Christmas Market at Festplassen is free. Food, drinks and crafts are purchased from stalls. The Gingerbread City has a small entry fee.' },
+				{ q: 'What is Lysfesten in Bergen?', a: "Lysfesten (the Light Festival) is Bergen's official start of Christmas, organised by Bergens Tidende for over 30 years. Features Christmas tree lighting, live music and fireworks over Lille Lungegårdsvann." },
+				{ q: 'What Christmas concerts are in Bergen?', a: 'Bergen hosts Christmas concerts at Grieghallen, Bergen Cathedral, Korskirken and many local churches. Gåri lists them all from 50 sources — from classical to gospel and children\'s concerts.' }
+			]
+		},
+		filterEvents: filterJulemarked
+	},
+	{
+		id: 'paske',
+		slug: 'paske',
+		seasonal: true,
+		title: {
+			no: 'Påske i Bergen',
+			en: 'Easter in Bergen'
+		},
+		description: {
+			no: 'Påskeaktiviteter i Bergen: konserter, utstillinger, familieaktiviteter og arrangementer i påskeuken. Oppdatert fra 50 kilder.',
+			en: 'Easter events in Bergen: concerts, exhibitions, family activities and events during Easter week. Updated from 50 local sources.'
+		},
+		ogSubtitle: {
+			no: 'Konserter, aktiviteter og påskeferie',
+			en: 'Concerts, activities and Easter holiday'
+		},
+		relatedSlugs: ['familiehelg', 'gratis', 'regndagsguide', 'denne-helgen'],
+		newsletterHeading: { no: 'Få påskeprogrammet i innboksen', en: 'Get the Easter programme in your inbox' },
+		quickAnswer: {
+			no: 'Bergen har et aktivt påskeprogram med konserter i Grieghallen og kirker, utstillinger på KODE og Kunsthallen, familieaktiviteter på museene, og påskegudstjenester. Mange velger Bergen fremfor fjellet — byen har i snitt 3 timer mer dagslys enn Oslo i påsken.',
+			en: 'Bergen offers an active Easter programme with concerts at Grieghallen and churches, exhibitions at KODE and Kunsthallen, family activities at museums, and Easter services. Many Norwegians choose Bergen over mountain cabins — the city averages 3 more hours of daylight than Oslo at Easter.'
+		},
+		editorial: {
+			no: [
+				'Påsken i Bergen er en av byens roligste og vakreste perioder. Mens mange nordmenn drar til fjellet for skiturer og påskekrim, byr Bergen på et rikt kulturprogram. Grieghallen, Den Nationale Scene og Bergens kirker holder konserter og forestillinger gjennom hele påskeuken. KODE og Kunsthallen har spesialutstillinger.',
+				'For familier er påsken en fin tid i Bergen. Akvariet, Fløyen og Bymuseet arrangerer påskeaktiviteter, og mange av byens museer har gratis inngang for barn. Bergen har i snitt tørt vær i april — det er faktisk en av byens tørreste måneder, med bare rundt 73 mm nedbør.',
+				'Gåri samler alle påskearrangementer fra palmesøndag til andre påskedag — konserter, utstillinger, familieaktiviteter og gudstjenester. Denne siden oppdateres daglig. Se også regndagsguide-siden for innendørs aktiviteter.'
+			],
+			en: [
+				"Easter in Bergen is one of the city's quietest and most beautiful periods. While many Norwegians head to mountain cabins for skiing and påskekrim (crime novels), Bergen offers a rich cultural programme. Grieghallen, Den Nationale Scene and Bergen's churches hold concerts and performances throughout Easter week. KODE and Kunsthallen have special exhibitions.",
+				'For families, Easter is a great time to visit Bergen. The Aquarium, Fløyen and Bymuseet organise Easter activities, and many museums offer free entry for children. Bergen averages dry weather in April — it\'s actually one of the city\'s driest months, with only about 73 mm of rainfall.',
+				"Gåri collects all Easter events from Palm Sunday to Easter Monday — concerts, exhibitions, family activities and church services. This page is updated daily. Check the rainy day guide for indoor activities."
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hva skjer i Bergen i påsken?', a: 'Bergen har konserter i Grieghallen og kirker, utstillinger på KODE og Kunsthallen, familieaktiviteter og påskegudstjenester. Gåri samler alt fra palmesøndag til andre påskedag.' },
+				{ q: 'Er det arrangementer for barn i Bergen i påsken?', a: 'Ja, Akvariet, Fløyen, Bymuseet og bibliotekene arrangerer påskeaktiviteter for barn. Mange museer har gratis inngang for barn under 16.' },
+				{ q: 'Når er påsken?', a: 'Påsken varierer hvert år. Skjærtorsdag til andre påskedag er røde dager. Gåri oppdaterer denne siden automatisk med riktige datoer hvert år.' },
+				{ q: 'Hva har åpent i Bergen i påsken?', a: 'Langfredag og påskedag er de fleste butikker stengt. Restauranter, museer og kultursteder holder ofte åpent med reduserte timer. Julemarked og kiosker har vanlige åpningstider.' },
+				{ q: 'Er det gratis påskeaktiviteter i Bergen?', a: 'Ja, Bergen Bibliotek, flere museer med gratis barnebillett og påskegudstjenester er gratis. Sjekk Gåris gratis-side for en komplett oversikt.' }
+			],
+			en: [
+				{ q: 'What is there to do in Bergen at Easter?', a: 'Bergen has concerts at Grieghallen and churches, exhibitions at KODE and Kunsthallen, family activities and Easter services. Gåri lists everything from Palm Sunday to Easter Monday.' },
+				{ q: 'Are there Easter activities for children in Bergen?', a: 'Yes, the Aquarium, Fløyen, Bymuseet and libraries organise Easter activities for children. Many museums offer free entry for under-16s.' },
+				{ q: 'When is Easter in Norway?', a: 'Easter dates vary each year. Maundy Thursday to Easter Monday are public holidays (røde dager). Gåri automatically updates this page with the correct dates each year.' },
+				{ q: "What's open in Bergen during Easter?", a: 'On Good Friday and Easter Sunday, most shops are closed. Restaurants, museums and cultural venues often remain open with reduced hours.' },
+				{ q: 'Are there free Easter events in Bergen?', a: "Yes, Bergen Library, museums with free children's admission, and Easter church services are free. Check Gåri's free events page for a full list." }
+			]
+		},
+		filterEvents: filterPaske
+	},
+	{
+		id: 'sankthans',
+		slug: 'sankthans',
+		seasonal: true,
+		title: {
+			no: 'Sankthans i Bergen',
+			en: 'Midsummer in Bergen'
+		},
+		description: {
+			no: 'Sankthans i Bergen: bål, fester, konserter og midsommeraktiviteter. Finn alle arrangementer rundt 23. juni.',
+			en: 'Midsummer in Bergen: bonfires, parties, concerts and events around June 23. Complete guide from 50 local sources.'
+		},
+		ogSubtitle: {
+			no: 'Bål, fester og lyse netter',
+			en: 'Bonfires, parties and bright nights'
+		},
+		relatedSlugs: ['denne-helgen', 'gratis', 'konserter', 'voksen'],
+		newsletterHeading: { no: 'Finn sankthansbålene i Bergen', en: 'Find the midsummer bonfires in Bergen' },
+		quickAnswer: {
+			no: 'Sankthansaften 23. juni er en av Norges mest elskede tradisjoner. Bergen har store bål langs kysten og på øyene i havnen, grilling og utendørsfester under nesten 19 timer dagslys. Flere spillesteder holder konserter og arrangementer rundt sommersolverv.',
+			en: 'Midsummer Eve (sankthansaften) on June 23 is one of Norway\'s most beloved traditions. Bergen lights massive bonfires along the coast and harbour islands, with barbecues and outdoor parties under nearly 19 hours of daylight. Venues host concerts and events around the summer solstice.'
+		},
+		editorial: {
+			no: [
+				'Sankthansaften 23. juni er en av Norges eldste og mest elskede tradisjoner — feiret i Bergen siden middelalderen. Bål tennes langs kysten, på øyene i havnen og i parkene. De mest kjente sankthansbålene i Bergen er på Nordnes, Sandviken og øyene Askøy og Holsnøy. Grilling, musikk og sosialt samvær under nesten endeløst dagslys.',
+				'Bergen har rundt 19 timer dagslys ved sommersolverv, og himmelen blir aldri helt mørk — en magisk kulisse for bålfeiring. Mange spillesteder og restauranter arrangerer sankthansfester, konserter og utendørsarrangementer. Bergenfest avsluttes vanligvis rett før sankthans, og byen er i feststemning.',
+				'Gåri samler alle sankthansarrangementer fra 21. til 24. juni — bål, konserter, fester og aktiviteter. Denne siden oppdateres daglig når programmet nærmer seg. Se også konserter-siden for livemusikk.'
+			],
+			en: [
+				'Midsummer Eve (sankthansaften) on June 23 is one of Norway\'s oldest and most beloved traditions — celebrated in Bergen since the Middle Ages. Bonfires are lit along the coast, on harbour islands and in parks. The most famous Bergen bonfires are at Nordnes, Sandviken and the islands of Askøy and Holsnøy. Barbecues, music and socialising under near-endless daylight.',
+				'Bergen has around 19 hours of daylight at the summer solstice, and the sky never fully darkens — a magical backdrop for bonfire celebrations. Many venues and restaurants host midsummer parties, concerts and outdoor events. Bergenfest typically ends just before midsummer, keeping the city in a festive mood.',
+				'Gåri collects all midsummer events from June 21–24 — bonfires, concerts, parties and activities. This page is updated daily as the programme approaches. Check the concerts page for live music.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hvor er de beste sankthansbålene i Bergen?', a: 'De mest kjente sankthansbålene i Bergen er på Nordnes, Sandviken og øyene rundt Bergen. Kommunen arrangerer bål på flere steder. Gåri samler alle offisielle arrangementer.' },
+				{ q: 'Når er sankthans?', a: 'Sankthansaften er 23. juni hvert år. Feiringen starter om ettermiddagen og varer til langt utover kvelden. Bål tennes vanligvis rundt kl. 21–22.' },
+				{ q: 'Er det gratis sankthansarrangementer i Bergen?', a: 'Ja, de fleste sankthansbål og offentlige feiringer er gratis. Noen konserter og arrangementer krever billett.' },
+				{ q: 'Hva er sankthans?', a: 'Sankthans (jonsok) feirer sommersolverv og har røtter tilbake til norrøn tid. Bål tennes for å feire den lengste dagen og de lyse nettene. I Bergen er det en stor sosial tradisjon.' },
+				{ q: 'Hvor lyst er det i Bergen ved sankthans?', a: 'Bergen har rundt 19 timer og 8 minutter dagslys ved sommersolverv. Himmelen blir aldri helt mørk — en magisk atmosfære for utendørsfeiring.' }
+			],
+			en: [
+				{ q: 'Where are the best midsummer bonfires in Bergen?', a: 'The most famous bonfires in Bergen are at Nordnes, Sandviken and the harbour islands. The municipality organises bonfires at several locations. Gåri lists all official events.' },
+				{ q: 'When is midsummer in Norway?', a: 'Midsummer Eve (sankthansaften) is June 23 every year. Celebrations start in the afternoon and last well into the evening. Bonfires are typically lit around 21:00–22:00.' },
+				{ q: 'Are midsummer events in Bergen free?', a: 'Yes, most midsummer bonfires and public celebrations are free. Some concerts and events require tickets.' },
+				{ q: 'What is sankthans?', a: 'Sankthans (also called jonsok) celebrates the summer solstice and has roots in Norse tradition. Bonfires are lit to celebrate the longest day and the bright nights. In Bergen it is a major social tradition.' },
+				{ q: 'How light is Bergen at midsummer?', a: 'Bergen has around 19 hours and 8 minutes of daylight at the solstice. The sky never fully darkens — creating a magical atmosphere for outdoor celebrations.' }
+			]
+		},
+		filterEvents: filterSankthans
+	},
+	{
+		id: 'nyttarsaften',
+		slug: 'nyttarsaften',
+		seasonal: true,
+		title: {
+			no: 'Nyttårsaften i Bergen',
+			en: "New Year's Eve in Bergen"
+		},
+		description: {
+			no: 'Nyttårsaften i Bergen: fyrverkeri, fester, konserter og arrangementer. Finn alt som skjer 31. desember.',
+			en: "New Year's Eve in Bergen: fireworks, parties, concerts and events. Find everything happening on December 31."
+		},
+		ogSubtitle: {
+			no: 'Fyrverkeri, fester og nyttårsfeiring',
+			en: 'Fireworks, parties and celebrations'
+		},
+		relatedSlugs: ['julemarked', 'konserter', 'voksen', 'denne-helgen'],
+		newsletterHeading: { no: 'Planlegg nyttårsfeiringen i Bergen', en: "Plan your New Year's Eve in Bergen" },
+		quickAnswer: {
+			no: 'Bergen feirer nyttårsaften med spektakulært fyrverkeri over Vågen og fra Fløyfjellet, fester og konserter på spillesteder i sentrum, og nyttårsshow i Grieghallen. Mange restauranter tilbyr egne nyttårsmenyer. Gåri samler alle arrangementer.',
+			en: "Bergen celebrates New Year's Eve with spectacular fireworks over the harbour (Vågen) and from Mount Fløyen, parties and concerts at city centre venues, and a New Year's show at Grieghallen. Many restaurants offer special New Year's menus."
+		},
+		editorial: {
+			no: [
+				'Nyttårsaften i Bergen er spektakulær. Fyrverkeriet over Vågen og fra Fløyfjellet er et av Norges mest ikoniske nyttårsshow. Bryggen og Torget er populære samlingspunkter for å se fyrverkeriet. Mange velger også Fløyen for panoramautsikt over hele byen.',
+				'Spillesteder og restauranter i Bergen arrangerer fester, konserter og spesielle nyttårsmenyer. Grieghallen holder tradisjonelt nyttårskonsert. Forum Scene, Ole Bull og lokale puber har egne program. Booking av restaurantbord anbefales i god tid.',
+				'Gåri samler alle nyttårsarrangementer fra 29. desember til 1. januar — konserter, fester, familieaktiviteter og festlige arrangementer. Denne siden oppdateres daglig i desember.'
+			],
+			en: [
+				"New Year's Eve in Bergen is spectacular. The fireworks display over the harbour (Vågen) and from Mount Fløyen is one of Norway's most iconic New Year's shows. Bryggen and the Fish Market are popular gathering spots for viewing. Many choose Fløyen for a panoramic view over the entire city.",
+				"Venues and restaurants in Bergen host parties, concerts and special New Year's menus. Grieghallen traditionally holds a New Year's concert. Forum Scene, Ole Bull and local pubs have their own programmes. Booking restaurant tables well in advance is recommended.",
+				"Gåri collects all New Year's events from December 29 to January 1 — concerts, parties, family activities and festive events. This page is updated daily throughout December."
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hvor er fyrverkeriet i Bergen nyttårsaften?', a: 'Bergens offisielle fyrverkeri skytes opp over Vågen og fra Fløyfjellet ved midnatt. Bryggen, Torget, Nordnes og Fløyen er populære utsiktspunkter.' },
+				{ q: 'Hva skjer nyttårsaften i Bergen?', a: 'Bergen har fyrverkeri ved midnatt, fester og konserter på spillesteder, nyttårskonsert i Grieghallen, og restauranter med spesielle nyttårsmenyer. Gåri samler alle arrangementer.' },
+				{ q: 'Er det familievennlige nyttårsarrangementer i Bergen?', a: 'Ja, noen steder arrangerer tidlig feiring for familier med barn. Fyrverkeriet ved midnatt er gratis og synlig fra mange steder i byen.' },
+				{ q: 'Hvilke konserter er det nyttårsaften i Bergen?', a: 'Grieghallen har tradisjonelt nyttårskonsert. Forum Scene, Ole Bull og lokale spillesteder har egne programmer. Sjekk Gåri for oppdatert oversikt.' },
+				{ q: 'Når er fyrverkeriet i Bergen?', a: 'Det offisielle fyrverkeriet i Bergen skytes opp ved midnatt, akkurat ved årsskiftet. Det varer typisk 10–15 minutter.' }
+			],
+			en: [
+				{ q: "Where are the Bergen New Year's Eve fireworks?", a: "Bergen's official fireworks are launched over the harbour (Vågen) and from Mount Fløyen at midnight. Bryggen, the Fish Market, Nordnes and Fløyen are popular viewing spots." },
+				{ q: "What's on in Bergen on New Year's Eve?", a: "Bergen has fireworks at midnight, parties and concerts at venues, a New Year's concert at Grieghallen, and restaurants with special menus. Gåri lists all events." },
+				{ q: "Are there family-friendly New Year's events in Bergen?", a: 'Yes, some venues host early celebrations for families with children. The midnight fireworks are free and visible from many spots around the city.' },
+				{ q: "What concerts are on New Year's Eve in Bergen?", a: "Grieghallen traditionally holds a New Year's concert. Forum Scene, Ole Bull and local venues have their own programmes. Check Gåri for updated listings." },
+				{ q: "What time are the Bergen fireworks?", a: "The official Bergen fireworks are launched at midnight, right at the turn of the year. They typically last 10–15 minutes." }
+			]
+		},
+		filterEvents: filterNyttarsaften
+	},
+	{
+		id: 'vinterferie',
+		slug: 'vinterferie',
+		seasonal: true,
+		title: {
+			no: 'Vinterferie i Bergen',
+			en: 'Winter Break in Bergen'
+		},
+		description: {
+			no: 'Vinterferieaktiviteter i Bergen: ting å gjøre med barn i uke 9. Konserter, museer, utstillinger og familieaktiviteter.',
+			en: 'Winter break activities in Bergen: things to do with kids in week 9. Concerts, museums, exhibitions and family activities.'
+		},
+		ogSubtitle: {
+			no: 'Aktiviteter for hele familien i uke 9',
+			en: 'Activities for the whole family in week 9'
+		},
+		relatedSlugs: ['familiehelg', 'gratis', 'regndagsguide', 'for-ungdom'],
+		newsletterHeading: { no: 'Få vinterferietips i innboksen', en: 'Get winter break tips in your inbox' },
+		quickAnswer: {
+			no: 'Vestland har vinterferie i uke 9. Bergen byr på familieaktiviteter på Akvariet, VilVite og museene, konserter i Grieghallen, verksteder på bibliotekene, og innendørsaktiviteter for regnværsdager. Ski på Voss og Myrkdalen er 1,5 timer unna.',
+			en: 'Vestland county has winter break in week 9. Bergen offers family activities at the Aquarium, VilVite science centre and museums, concerts at Grieghallen, workshops at libraries, and indoor activities for rainy days. Skiing at Voss and Myrkdalen is 1.5 hours away.'
+		},
+		editorial: {
+			no: [
+				'Vinterferien i Vestland er uke 9, og Bergen har et rikt program for familier. Akvariet, VilVite vitensenteret og Bymuseet arrangerer spesielle vinterferieaktiviteter. Bibliotekene har gratis verksteder og aktiviteter for barn. KODE og Kunsthallen har familieomvisninger.',
+				'For de som vil kombinere by og fjell: Voss og Myrkdalen skisenter er bare 1,5 timer fra Bergen med tog eller bil. Bergen har i snitt rundt 6 timer dagslys i februar, men dagene blir merkbart lengre mot slutten av måneden.',
+				'Gåri samler alle vinterferieaktiviteter i Bergen — konserter, utstillinger, familieaktiviteter og verksteder. Denne siden oppdateres daglig. Se også regndagsguide-siden for innendørsaktiviteter.'
+			],
+			en: [
+				'Winter break in Vestland county is week 9, and Bergen has a rich programme for families. The Aquarium, VilVite science centre and Bymuseet organise special winter break activities. Libraries offer free workshops and activities for children. KODE and Kunsthallen have family guided tours.',
+				'For those wanting to combine city and mountains: Voss and Myrkdalen ski resorts are just 1.5 hours from Bergen by train or car. Bergen has around 6 hours of daylight in February, but days get noticeably longer towards the end of the month.',
+				'Gåri collects all winter break activities in Bergen — concerts, exhibitions, family activities and workshops. This page is updated daily. Check the rainy day guide for indoor activities.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er vinterferien i Bergen?', a: 'Vestland fylke har vinterferie i uke 9 (Oslo har uke 8). Gåri oppdaterer denne siden automatisk med riktige datoer hvert år.' },
+				{ q: 'Hva kan man gjøre med barn i Bergen i vinterferien?', a: 'Akvariet, VilVite, Bymuseet og bibliotekene har spesielle aktiviteter. KODE har familieomvisninger. Fløibanen og Fløyen har utsikt over vinterbyen.' },
+				{ q: 'Er det gratis aktiviteter i Bergen i vinterferien?', a: 'Ja, Bergen Bibliotek har gratis verksteder, flere museer har gratis barnebillett, og Fløyen har gratis uteområder. Sjekk Gåris gratis-side.' },
+				{ q: 'Kan man stå på ski nær Bergen?', a: 'Voss og Myrkdalen skisenter er 1,5 timer fra Bergen med tog eller bil. Begge har variert terreng for familier. Folgefonna har sommerski.' },
+				{ q: 'Hva er innendørsaktiviteter for barn i Bergen?', a: 'VilVite vitensenter, Akvariet, KODE kunstmuseer, Bergen Bibliotek og BUA utstyrsbibliotek har innendørsaktiviteter. Sjekk Gåris regndagsguide.' }
+			],
+			en: [
+				{ q: 'When is winter break in Bergen?', a: 'Vestland county has winter break in week 9 (Oslo has week 8). Gåri updates this page with the correct dates each year.' },
+				{ q: 'What can families do in Bergen during winter break?', a: 'The Aquarium, VilVite science centre, Bymuseet and libraries have special activities. KODE has family guided tours. Fløibanen funicular and Fløyen have views over the winter city.' },
+				{ q: 'Are there free winter break activities in Bergen?', a: 'Yes, Bergen Library offers free workshops, several museums have free children\'s admission, and Fløyen has free outdoor areas. Check Gåri\'s free events page.' },
+				{ q: 'Can you ski near Bergen?', a: 'Voss and Myrkdalen ski resorts are 1.5 hours from Bergen by train or car. Both have varied terrain for families. Folgefonna has summer skiing.' },
+				{ q: 'What indoor activities are there for kids in Bergen?', a: "VilVite science centre, the Aquarium, KODE art museums, Bergen Library and BUA equipment library have indoor activities. Check Gåri's rainy day guide." }
+			]
+		},
+		filterEvents: filterVinterferie
+	},
+	{
+		id: 'hostferie',
+		slug: 'hostferie',
+		seasonal: true,
+		title: {
+			no: 'Høstferie i Bergen',
+			en: 'Autumn Break in Bergen'
+		},
+		description: {
+			no: 'Høstferieaktiviteter i Bergen: ting å gjøre med barn i uke 41. Konserter, museer, utstillinger og familieaktiviteter.',
+			en: 'Autumn break activities in Bergen: things to do with kids in week 41. Concerts, museums, exhibitions and family activities.'
+		},
+		ogSubtitle: {
+			no: 'Aktiviteter for hele familien i uke 41',
+			en: 'Activities for the whole family in week 41'
+		},
+		relatedSlugs: ['familiehelg', 'gratis', 'regndagsguide', 'for-ungdom'],
+		newsletterHeading: { no: 'Få høstferietips i innboksen', en: 'Get autumn break tips in your inbox' },
+		quickAnswer: {
+			no: 'Vestland har høstferie i uke 41. Bergen byr på familieaktiviteter på Akvariet og VilVite, verksteder på bibliotekene, utstillinger på KODE, og ofte BIFF — Bergen Internasjonale Filmfestival. Oktober er regnrikt, men innendørstilbudet er sterkt.',
+			en: 'Vestland county has autumn break in week 41. Bergen offers family activities at the Aquarium and VilVite, workshops at libraries, exhibitions at KODE, and often BIFF — Bergen International Film Festival. October is rainy, but indoor options are strong.'
+		},
+		editorial: {
+			no: [
+				'Høstferien i Vestland er uke 41, og Bergen har et godt program for familier tross regnværet — oktober er byens våteste måned med rundt 200 mm nedbør. Akvariet, VilVite og Bymuseet har høstferieaktiviteter. BIFF (Bergen Internasjonale Filmfestival) overlapper ofte med høstferien og viser barnefilmer.',
+				'For familier som tåler litt regn: Fløyen har turløyper med høstfarger, og Bergen sentrum er kompakt nok til å utforske til fots mellom regnbygene. Torgallmenningen, Bryggen og Fisketorget er klassiske stopp.',
+				'Gåri samler alle høstferieaktiviteter i Bergen — konserter, utstillinger, familieaktiviteter og filmvisninger. Denne siden oppdateres daglig. Se også regndagsguide-siden for innendørsaktiviteter.'
+			],
+			en: [
+				'Autumn break in Vestland is week 41, and Bergen has a solid programme for families despite the rain — October is the city\'s wettest month at around 200 mm of rainfall. The Aquarium, VilVite and Bymuseet have autumn break activities. BIFF (Bergen International Film Festival) often overlaps with autumn break and screens children\'s films.',
+				"For families who don't mind some rain: Fløyen has hiking trails with autumn colours, and Bergen's city centre is compact enough to explore on foot between showers. Torgallmenningen, Bryggen and the Fish Market are classic stops.",
+				"Gåri collects all autumn break activities in Bergen — concerts, exhibitions, family activities and film screenings. This page is updated daily. Check the rainy day guide for indoor activities."
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er høstferien i Bergen?', a: 'Vestland fylke har høstferie i uke 41. Gåri oppdaterer denne siden automatisk med riktige datoer hvert år.' },
+				{ q: 'Hva kan man gjøre med barn i Bergen i høstferien?', a: 'Akvariet, VilVite, KODE og bibliotekene har spesielle aktiviteter. BIFF viser barnefilmer. Fløyen har turløyper med høstfarger.' },
+				{ q: 'Hva kan man gjøre i Bergen når det regner?', a: 'VilVite, Akvariet, KODE, Bergen Bibliotek og kinoer er gode innendørsalternativer. Sjekk Gåris regndagsguide for komplett oversikt.' },
+				{ q: 'Er det gratis aktiviteter i Bergen i høstferien?', a: 'Ja, Bergen Bibliotek har gratis verksteder, flere museer har gratis barnebillett, og Fløyen har gratis uteområder. BIFF har noen gratis visninger.' },
+				{ q: 'Hva er BIFF?', a: 'BIFF (Bergen Internasjonale Filmfestival) er Norges største filmfestival med 120–150 filmer over 9 dager i oktober. Inkluderer barnefilmer og familievisninger.' }
+			],
+			en: [
+				{ q: 'When is autumn break in Bergen?', a: 'Vestland county has autumn break in week 41. Gåri updates this page with the correct dates each year.' },
+				{ q: 'What can families do in Bergen during autumn break?', a: "The Aquarium, VilVite, KODE and libraries have special activities. BIFF screens children's films. Fløyen has hiking trails with autumn colours." },
+				{ q: 'What to do in Bergen when it rains?', a: "VilVite, the Aquarium, KODE, Bergen Library and cinemas are good indoor options. Check Gåri's rainy day guide for a full list." },
+				{ q: 'Are there free autumn break activities in Bergen?', a: "Yes, Bergen Library has free workshops, several museums have free children's admission, and Fløyen has free outdoor areas. BIFF has some free screenings." },
+				{ q: 'What is BIFF?', a: "BIFF (Bergen International Film Festival) is Norway's largest film festival with 120–150 films over 9 days in October. Includes children's films and family screenings." }
+			]
+		},
+		filterEvents: filterHostferie
+	},
+
+	// ── Seasonal collections (EN counterparts) ─────────────────────────
+
+	{
+		id: '17mai-en',
+		slug: '17th-of-may-bergen',
+		seasonal: true,
+		title: {
+			no: '17. mai i Bergen',
+			en: '17th of May in Bergen'
+		},
+		description: {
+			no: '17. mai-program for Bergen: barnetog, buekorps, konserter og arrangementer.',
+			en: "Norway's Constitution Day in Bergen: parades, buekorps brigades, concerts and celebrations. Complete visitor guide."
+		},
+		ogSubtitle: {
+			no: 'Barnetog, buekorps og feiring',
+			en: 'Parades, buekorps and celebrations'
+		},
+		relatedSlugs: ['this-weekend', 'free-things-to-do-bergen', 'familiehelg'],
+		newsletterHeading: { no: 'Få 17. mai-programmet i innboksen', en: 'Get the 17th of May guide in your inbox' },
+		quickAnswer: {
+			no: 'Bergen feirer 17. mai med barnetog, buekorps-marsjer og konserter over hele byen.',
+			en: "Bergen celebrates Norway's Constitution Day (17th of May) with children's parades, buekorps marching brigades unique to Bergen, concerts at Torgallmenningen and Festplassen, and citywide celebrations. Over 30 active buekorps march from early morning. Most events are free."
+		},
+		editorial: {
+			no: [
+				'17. mai er Norges nasjonaldag og Bergens mest folkerike feiring, med barnetog, buekorps og konserter.',
+				'Bergen har rundt 30 aktive buekorps — en tradisjon som finnes ingen andre steder i Norge.',
+				'Gåri samler 17. mai-arrangementer fra over 50 lokale kilder. Oppdatert daglig.'
+			],
+			en: [
+				"The 17th of May (syttende mai) is Norway's Constitution Day — the country's biggest national celebration, equivalent to Independence Day. Bergen's celebration is uniquely spectacular thanks to the buekorps tradition: children's marching brigades with drums and banners that exist only in Bergen, dating back to the 1800s.",
+				"The day starts early with buekorps marching from around 07:00, followed by the children's parade (barnetog) from Festplassen at 10:00. Norwegians dress in bunads (traditional folk costumes), eat ice cream and hot dogs, and gather at Torgallmenningen for speeches and music. The atmosphere is joyful and welcoming to visitors.",
+				"Gåri collects all 17th of May events from over 50 local sources — concerts, family activities and cultural events. Most celebrations are free and open to everyone. This page is updated daily as the programme approaches."
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hva skjer 17. mai i Bergen?', a: 'Barnetog, buekorps, konserter og feiringer over hele byen. Gåri viser alt fra 50 kilder.' },
+				{ q: 'Hva er buekorps?', a: 'Barnebrigader med trommer og faner — unikt for Bergen siden 1800-tallet. Rundt 30 aktive korps.' },
+				{ q: 'Er 17. mai-arrangementer gratis?', a: 'De fleste feiringer er gratis. Noen konserter krever billett.' },
+				{ q: 'Når starter barnetoget i Bergen?', a: 'Barnetoget går fra Festplassen klokken 10:00. Buekorps marsjerer fra ca. 07:00.' },
+				{ q: 'Hva er bunad?', a: 'Bunad er den tradisjonelle norske folkedrakten. Hvert distrikt har sitt eget design. De fleste kler seg i bunad eller pent 17. mai.' }
+			],
+			en: [
+				{ q: "What happens on 17th of May in Bergen?", a: "Bergen celebrates with children's parades (barnetog), buekorps marching brigades, concerts at Torgallmenningen and family activities. Most events are free and open to visitors." },
+				{ q: 'What is buekorps?', a: "Buekorps are children's marching brigades with drums, banners and uniforms — a tradition unique to Bergen since the 1800s. Around 30 active brigades march through the city from early morning." },
+				{ q: "What time does the 17th of May parade start?", a: "The children's parade (barnetog) starts at Festplassen around 10:00. Buekorps brigades march from around 07:00. Celebrations continue until evening with concerts and festivities." },
+				{ q: 'What is bunad?', a: 'Bunad is the traditional Norwegian folk costume worn on national holidays. Each region has its own design. On 17th of May, most Norwegians dress in bunad or formal attire.' },
+				{ q: 'Is 17th of May worth visiting Bergen for?', a: "Absolutely. Bergen's 17th of May celebration is considered one of Norway's best, with the unique buekorps tradition, harbour setting at Bryggen, and a festive atmosphere throughout the compact city centre." }
+			]
+		},
+		filterEvents: filter17Mai
+	},
+	{
+		id: 'julemarked-en',
+		slug: 'christmas-bergen',
+		seasonal: true,
+		title: {
+			no: 'Jul i Bergen',
+			en: 'Christmas in Bergen'
+		},
+		description: {
+			no: 'Julemarkeder, konserter og juleaktiviteter i Bergen.',
+			en: 'Christmas markets, Gingerbread City, concerts and holiday events in Bergen. Complete visitor guide to the Christmas season.'
+		},
+		ogSubtitle: {
+			no: 'Julemarkeder og juleaktiviteter',
+			en: 'Christmas markets and holiday events'
+		},
+		relatedSlugs: ['new-years-eve-bergen', 'free-things-to-do-bergen', 'familiehelg'],
+		newsletterHeading: { no: 'Få juleprogrammet i innboksen', en: 'Get the Christmas guide in your inbox' },
+		quickAnswer: {
+			no: 'Bergen har julemarked på Festplassen, Pepperkakebyen og hundrevis av julekonserter.',
+			en: "Bergen hosts 90+ Christmas market stalls at Festplassen (free entry, late November to December 22), the world's largest Gingerbread City (Pepperkakebyen) at Sentralbadet, the Light Festival (Lysfest) with fireworks, and hundreds of concerts and events throughout the season."
+		},
+		editorial: {
+			no: [
+				'Bergen er en av Norges vakreste julebyer med julemarked på Festplassen, Pepperkakebyen og stemningsfulle konserter.',
+				'Lysfesten markerer starten på julesesongen med fyrverkeri over Lille Lungegårdsvann.',
+				'Gåri samler alle juleaktiviteter fra over 50 lokale kilder. Oppdatert daglig.'
+			],
+			en: [
+				"Bergen is one of Scandinavia's most atmospheric Christmas destinations. The main Christmas market at Festplassen features 90+ stalls with Norwegian handicrafts, local food and gløgg (mulled wine), plus a Ferris wheel — all with free entry. The Gingerbread City (Pepperkakebyen) at Sentralbadet is the world's largest, built by local schools and kindergartens.",
+				"The season opens with Lysfesten (Light Festival) in mid-November — Bergen's beloved tradition for over 30 years, featuring the official Christmas tree lighting, live music and fireworks over Lille Lungegårdsvann. Grieghallen, Bergen Cathedral and churches throughout the city host Christmas concerts from late November through December.",
+				"Bergen's compact city centre makes it easy to visit the Christmas market, Bryggen's historic wharf, and the Gingerbread City in one day. Gåri collects all Christmas events from over 50 local sources — updated daily throughout the season."
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når åpner julemarkedet i Bergen?', a: 'Julemarkedet på Festplassen åpner vanligvis rundt 20. november og varer til 22. desember.' },
+				{ q: 'Er julemarkedet gratis?', a: 'Ja, inngang til julemarkedet er gratis. Pepperkakebyen har en liten inngangspris.' },
+				{ q: 'Hva er Pepperkakebyen?', a: 'Verdens største pepperkakeby, bygget av skoler og barnehager i Bergen. Utstilt på Sentralbadet fra november til januar.' },
+				{ q: 'Hvilke julekonserter er det i Bergen?', a: 'Grieghallen, Domkirken, Korskirken og kirker i hele byen har konserter fra november. Alt fra klassisk til gospel og barnekonserter.' },
+				{ q: 'Hva er Lysfesten i Bergen?', a: 'Lysfesten markerer julestart med tenning av juletreet, musikk og fyrverkeri over Lille Lungegårdsvann. Tradisjon i over 30 år.' }
+			],
+			en: [
+				{ q: 'When does the Bergen Christmas market open?', a: 'Bergen Christmas Market at Festplassen opens around November 20 and runs until December 22. Hours: weekdays 12–21, weekends 10–21. Free entry.' },
+				{ q: 'What is the Gingerbread City (Pepperkakebyen)?', a: "The world's largest gingerbread city, at Sentralbadet in Bergen centre. Built annually by local schools and kindergartens with hundreds of gingerbread houses. Open mid-November to early January." },
+				{ q: 'Is the Bergen Christmas market worth visiting?', a: "Yes — Bergen's Christmas market at Festplassen has 90+ stalls with Norwegian handicrafts and food, a Ferris wheel, and free entry. Combined with the Gingerbread City and Bryggen's atmosphere, it's one of Scandinavia's best." },
+				{ q: 'What Christmas concerts are in Bergen?', a: 'Grieghallen, Bergen Cathedral, Korskirken and churches across the city host concerts from late November. Genres range from classical to gospel, folk and children\'s concerts.' },
+				{ q: 'How is the weather in Bergen at Christmas?', a: "Bergen in December averages 3–6°C with frequent rain (about 200 mm). Snow is uncommon in the city centre but possible. Dress in layers with waterproof outerwear. The Christmas market and Gingerbread City are covered." }
+			]
+		},
+		filterEvents: filterJulemarked
+	},
+	{
+		id: 'paske-en',
+		slug: 'easter-bergen',
+		seasonal: true,
+		title: {
+			no: 'Påske i Bergen',
+			en: 'Easter in Bergen'
+		},
+		description: {
+			no: 'Påskeaktiviteter i Bergen: konserter, utstillinger og familieaktiviteter.',
+			en: 'Easter events in Bergen: concerts, exhibitions, family activities and things to do during Holy Week. Visitor guide.'
+		},
+		ogSubtitle: {
+			no: 'Konserter og påskeaktiviteter',
+			en: 'Concerts, activities and Easter holiday'
+		},
+		relatedSlugs: ['familiehelg', 'free-things-to-do-bergen', 'regndagsguide'],
+		newsletterHeading: { no: 'Få påskeprogrammet i innboksen', en: 'Get the Easter guide in your inbox' },
+		quickAnswer: {
+			no: 'Bergen har konserter, utstillinger og familieaktiviteter gjennom hele påskeuka.',
+			en: "While many Norwegians head to mountain cabins for skiing, Bergen offers an excellent Easter alternative: concerts at Grieghallen and churches, exhibitions at KODE and Kunsthallen, family activities at museums, and April's dry weather (only 73 mm average rainfall — one of Bergen's driest months)."
+		},
+		editorial: {
+			no: [
+				'Påsken i Bergen er en av byens roligste perioder med et rikt kulturprogram.',
+				'April er en av Bergens tørreste måneder med bare 73 mm nedbør.',
+				'Gåri samler alle påskearrangementer fra palmesøndag til andre påskedag.'
+			],
+			en: [
+				"Easter (påske) in Norway runs from Palm Sunday through Easter Monday, with Maundy Thursday, Good Friday, Easter Sunday and Easter Monday as public holidays. While most Norwegians head to mountain cabins for skiing and påskekrim (crime novels — a unique Norwegian Easter tradition), Bergen offers a rich cultural programme.",
+				"Grieghallen, Den Nationale Scene and Bergen's churches hold special Easter concerts and performances. KODE and Kunsthallen have exhibitions, while the Aquarium, Fløyen and Bymuseet organise family activities. April is actually one of Bergen's driest months (73 mm average), making it pleasant for exploring.",
+				"Gåri collects all Easter events from Palm Sunday to Easter Monday — concerts, exhibitions, family activities and church services. Easter dates vary each year; this page updates automatically. Note that most shops are closed on Good Friday and Easter Sunday."
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hva skjer i Bergen i påsken?', a: 'Konserter, utstillinger, familieaktiviteter og gudstjenester. Gåri samler alt fra over 50 kilder.' },
+				{ q: 'Når er påsken?', a: 'Påsken varierer hvert år. Gåri oppdaterer datoene automatisk basert på påskeberegning.' },
+				{ q: 'Hva har åpent i påsken?', a: 'Langfredag og påskedag er de fleste butikker stengt. Museer, restauranter og kultursteder holder ofte åpent.' },
+				{ q: 'Hva er påskekrim?', a: 'Påskekrim er en norsk tradisjon der folk leser krimromaner i påsken. Forlag gir ut spesialutgaver, og TV sender krimserier.' },
+				{ q: 'Hvordan er været i Bergen i påsken?', a: 'Bergen i april har 5–10°C og bare ca. 73 mm nedbør — en av byens tørreste måneder.' }
+			],
+			en: [
+				{ q: 'Is Bergen good to visit at Easter?', a: "Yes — Bergen offers concerts, exhibitions and family activities. April is one of the driest months (73 mm average), and the city is less crowded than summer. Easter dates change yearly; Gåri updates automatically." },
+				{ q: "What's open in Bergen during Easter?", a: 'Most shops are closed on Good Friday and Easter Sunday. Restaurants, museums and cultural venues typically remain open with reduced hours. The Fish Market and tourist attractions stay open.' },
+				{ q: 'What is påskekrim?', a: "Påskekrim (Easter crime) is a uniquely Norwegian tradition of reading crime novels during Easter. Publishers release special editions, TV channels air crime series, and even milk cartons feature detective stories." },
+				{ q: 'Are there family activities in Bergen at Easter?', a: "Yes — the Aquarium, VilVite science centre, Fløyen and Bymuseet organise Easter activities. Many museums offer free entry for children under 16." },
+				{ q: 'What is the weather like in Bergen at Easter?', a: "Bergen in April averages 5–10°C with only about 73 mm rainfall — surprisingly one of the city's driest months. Pack layers and waterproofs, but expect more sunshine than Bergen's reputation suggests." }
+			]
+		},
+		filterEvents: filterPaske
+	},
+	{
+		id: 'sankthans-en',
+		slug: 'midsummer-bergen',
+		seasonal: true,
+		title: {
+			no: 'Sankthans i Bergen',
+			en: 'Midsummer in Bergen'
+		},
+		description: {
+			no: 'Sankthans i Bergen: bål, fester og midsommeraktiviteter.',
+			en: 'Midsummer Eve in Bergen: bonfires, celebrations and nearly 19 hours of daylight. Complete visitor guide to sankthans.'
+		},
+		ogSubtitle: {
+			no: 'Bål og lyse netter',
+			en: 'Bonfires and bright nights'
+		},
+		relatedSlugs: ['this-weekend', 'free-things-to-do-bergen', 'konserter'],
+		newsletterHeading: { no: 'Finn sankthansbålene', en: 'Find the midsummer bonfires in Bergen' },
+		quickAnswer: {
+			no: 'Bergen feirer sankthans med bål langs kysten og konserter under nesten 19 timer dagslys.',
+			en: "Midsummer Eve (sankthansaften, June 23) is one of Norway's most beloved traditions. Bergen lights massive bonfires along the coast and harbour islands under nearly 19 hours of daylight. The sky never fully darkens. Free public bonfires, concerts and outdoor celebrations across the city."
+		},
+		editorial: {
+			no: [
+				'Sankthansaften 23. juni er en av Bergens mest stemningsfulle feiringer med bål langs kysten.',
+				'Bergen har rundt 19 timer dagslys ved sommersolverv.',
+				'Gåri samler alle sankthansarrangementer fra 21. til 24. juni.'
+			],
+			en: [
+				"Sankthans (also called jonsok or St. John's Eve) on June 23 is one of Norway's oldest celebrations, with roots in Norse traditions marking the summer solstice. In Bergen, massive bonfires are lit along the coast, on harbour islands and in parks — the most famous at Nordnes, Sandviken and the islands of Askøy and Holsnøy.",
+				"At the solstice, Bergen has 19 hours and 8 minutes of daylight, and the sky never fully darkens — creating magical 'white nights'. Locals gather for barbecues, music and socialising under the near-endless light. Venues and restaurants host outdoor parties and concerts. The atmosphere is relaxed and welcoming.",
+				"Gåri collects all midsummer events from June 21–24 — bonfires, concerts, parties and outdoor activities. Most celebrations are free and open to everyone. This page updates daily as the programme approaches."
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hvor er sankthansbålene i Bergen?', a: 'Nordnes, Sandviken og øyene rundt Bergen er mest kjent. Gåri samler alle offisielle arrangementer.' },
+				{ q: 'Når er sankthans?', a: 'Sankthansaften er 23. juni hvert år. Feiringen starter vanligvis 21. juni ved sommersolverv.' },
+				{ q: 'Er sankthansarrangementer gratis?', a: 'De fleste bål og feiringer er gratis og åpne for alle.' },
+				{ q: 'Går solen ned i Bergen på sankthans?', a: 'Nesten ikke. Bergen har 19 timer og 8 minutter dagslys ved solverv, og himmelen blir aldri helt mørk.' },
+				{ q: 'Når tennes sankthansbålene?', a: 'Bålene tennes vanligvis mellom 21:00 og 22:00. Feiringen starter med grilling og sosialt samvær på ettermiddagen.' }
+			],
+			en: [
+				{ q: 'What is sankthans / midsummer?', a: "Sankthans (St. John's Eve, June 23) celebrates the summer solstice with bonfires along the coast. The tradition dates back to Norse times. In Bergen, it's a major social celebration with free public bonfires." },
+				{ q: 'Where are the best midsummer bonfires in Bergen?', a: "The most famous bonfires are at Nordnes, Sandviken and the harbour islands. The municipality organises free public bonfires at several locations. Gåri lists all official events." },
+				{ q: 'Does the sun set in Bergen at midsummer?', a: "Technically yes, but barely. Bergen has 19 hours and 8 minutes of daylight at the solstice, and the sky never fully darkens — it remains in civil twilight, creating luminous 'white nights'." },
+				{ q: 'Is midsummer in Bergen worth visiting for?', a: "Yes — the combination of coastal bonfires, white nights, and Bergen's harbour setting makes it one of Norway's most atmospheric midsummer celebrations. Most events are free." },
+				{ q: 'What time are the midsummer bonfires lit?', a: 'Bonfires are typically lit between 21:00 and 22:00, though celebrations start in the afternoon with barbecues and socialising. The light means celebrations naturally extend late into the evening.' }
+			]
+		},
+		filterEvents: filterSankthans
+	},
+	{
+		id: 'nyttarsaften-en',
+		slug: 'new-years-eve-bergen',
+		seasonal: true,
+		title: {
+			no: 'Nyttårsaften i Bergen',
+			en: "New Year's Eve in Bergen"
+		},
+		description: {
+			no: 'Nyttårsaften i Bergen: fyrverkeri, fester og arrangementer.',
+			en: "New Year's Eve in Bergen: harbour fireworks, concerts, parties and events. Complete guide to celebrating NYE in Bergen."
+		},
+		ogSubtitle: {
+			no: 'Fyrverkeri og nyttårsfeiring',
+			en: 'Fireworks, parties and celebrations'
+		},
+		relatedSlugs: ['christmas-bergen', 'konserter', 'voksen'],
+		newsletterHeading: { no: 'Planlegg nyttårsfeiringen', en: "Plan your New Year's Eve in Bergen" },
+		quickAnswer: {
+			no: 'Bergen feirer nyttår med fyrverkeri over Vågen og konserter på spillesteder i sentrum.',
+			en: "Bergen celebrates New Year's Eve with spectacular fireworks over the harbour (Vågen) and from Mount Fløyen at midnight, visible from Bryggen and across the city. Grieghallen hosts a traditional concert, and venues throughout the city centre offer parties and events."
+		},
+		editorial: {
+			no: [
+				'Bergen feirer nyttårsaften med fyrverkeri over Vågen og fra Fløyfjellet.',
+				'Grieghallen holder tradisjonelt nyttårskonsert, og spillesteder har egne program.',
+				'Gåri samler alle nyttårsarrangementer fra 29. desember til 1. januar.'
+			],
+			en: [
+				"Bergen's New Year's Eve centres on the spectacular fireworks over the harbour (Vågen) and from Mount Fløyen at midnight. The historic Bryggen wharf and the Fish Market area are prime viewing spots, with the fireworks reflecting off the water. Fløyen offers panoramic views for those who take the funicular up.",
+				"Grieghallen hosts a traditional New Year's concert, while Forum Scene, Ole Bull and venues across the city centre offer parties and live music. Many restaurants create special New Year's menus — booking well in advance is strongly recommended.",
+				"Gåri collects all New Year's events from December 29 to January 1. Bergen's compact centre makes it easy to walk between venues. This page updates daily throughout December."
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hvor er fyrverkeriet i Bergen?', a: 'Over Vågen og fra Fløyfjellet ved midnatt. Bryggen og Torget er populære utsiktspunkter.' },
+				{ q: 'Hva skjer nyttårsaften i Bergen?', a: 'Fyrverkeri, konserter, fester og restauranter med nyttårsmenyer i hele sentrum.' },
+				{ q: 'Når er fyrverkeriet?', a: 'Ved midnatt, akkurat ved årsskiftet. Varer ca. 10–15 minutter.' },
+				{ q: 'Trenger jeg billetter til nyttårsarrangementer?', a: 'Fyrverkeriet er gratis. Konserter og fester krever billett — bestill tidlig da populære arrangementer blir utsolgt.' },
+				{ q: 'Hvordan er været i Bergen på nyttårsaften?', a: 'Forvent 1–5°C med gode sjanser for regn. Kle deg varmt og vanntett for utendørs fyrverkeri.' }
+			],
+			en: [
+				{ q: "Where are the New Year's Eve fireworks in Bergen?", a: "The main fireworks are launched over the harbour (Vågen) and from Mount Fløyen at midnight. Bryggen, the Fish Market, Nordnes and Fløyen mountain are popular viewing spots." },
+				{ q: "What time are the Bergen fireworks?", a: "The official fireworks start at midnight and last 10–15 minutes. The harbour location means reflections on the water double the visual impact." },
+				{ q: "Is Bergen good for New Year's Eve?", a: "Yes — Bergen's compact centre, harbour fireworks, and lively venue scene make it an excellent NYE destination. The Bryggen setting is particularly atmospheric." },
+				{ q: "What's the weather in Bergen on New Year's Eve?", a: "Expect 1–5°C with a good chance of rain. Dress warmly and waterproof for outdoor viewing. Snow is uncommon but possible." },
+				{ q: "Do I need tickets for New Year's events in Bergen?", a: "The fireworks are free and public. Concerts and parties at venues require tickets — book early as popular events sell out. Restaurant New Year's menus should be booked well in advance." }
+			]
+		},
+		filterEvents: filterNyttarsaften
+	},
+	{
+		id: 'vinterferie-en',
+		slug: 'winter-break-bergen',
+		seasonal: true,
+		title: {
+			no: 'Vinterferie i Bergen',
+			en: 'Winter Break in Bergen'
+		},
+		description: {
+			no: 'Vinterferieaktiviteter i Bergen: ting å gjøre med barn i uke 9.',
+			en: 'Winter break activities in Bergen: family events, museums, indoor fun and skiing nearby. Things to do with kids in week 9.'
+		},
+		ogSubtitle: {
+			no: 'Familieaktiviteter i uke 9',
+			en: 'Family activities in week 9'
+		},
+		relatedSlugs: ['familiehelg', 'free-things-to-do-bergen', 'regndagsguide'],
+		newsletterHeading: { no: 'Få vinterferietips', en: 'Get winter break tips in your inbox' },
+		quickAnswer: {
+			no: 'Bergen har familieaktiviteter på Akvariet, VilVite og museene i uke 9.',
+			en: "Vestland county's winter break falls in week 9 (late February). Bergen offers family activities at the Aquarium, VilVite science centre and museums, free workshops at libraries, and easy access to skiing at Voss and Myrkdalen (1.5 hours away)."
+		},
+		editorial: {
+			no: [
+				'Bergen har et rikt program for familier i vinterferien med aktiviteter på Akvariet, VilVite og museene.',
+				'Voss og Myrkdalen skisenter er 1,5 timer fra Bergen.',
+				'Gåri samler alle vinterferieaktiviteter i Bergen i uke 9.'
+			],
+			en: [
+				"Norwegian schools have winter break (vinterferie) in late February — Vestland county uses week 9 (Oslo and eastern Norway use week 8). Bergen offers a wide range of family activities during this period, even if the weather is cold and dark.",
+				"Top family attractions include the Aquarium (Akvariet), VilVite science centre, KODE art museums with family tours, and Bergen Library's free workshops. For skiing, Voss and Myrkdalen are 1.5 hours from Bergen by train or car, with terrain suited to all levels.",
+				"Gåri collects all winter break events and activities in Bergen — updated daily throughout the week. Check the rainy day guide for indoor options, which are particularly useful in February."
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er vinterferien i Bergen?', a: 'Vestland har vinterferie i uke 9 (slutten av februar). Oslo og Østlandet har uke 8.' },
+				{ q: 'Hva kan man gjøre i Bergen i vinterferien?', a: 'Akvariet, VilVite, KODE, Bymuseet og bibliotekene har spesialopplegg for barn.' },
+				{ q: 'Kan man stå på ski nær Bergen?', a: 'Voss Resort og Myrkdalen er 1,5 timer unna med tog eller bil. Utstyrsleie på stedet.' },
+				{ q: 'Er det gratis aktiviteter for barn i Bergen?', a: 'Bergen bibliotek har gratis verksteder, flere museer har gratis inngang for barn under 16, og Fløyen har gratisområder hele året.' },
+				{ q: 'Hvordan er Bergen i februar?', a: 'Ca. 6 timer dagslys og hyppig regn, men museer, konserter og innendørsaktiviteter gjør det givende. Dagene blir merkbart lengre utover måneden.' }
+			],
+			en: [
+				{ q: 'When is winter break in Bergen?', a: "Vestland county's winter break is week 9 (late February). This differs from Oslo (week 8). Gåri updates dates automatically each year." },
+				{ q: 'What can families do in Bergen during winter break?', a: 'The Aquarium, VilVite science centre, KODE art museums, Bymuseet and libraries have special activities. Fløibanen funicular runs year-round for mountain views.' },
+				{ q: 'Can you ski near Bergen?', a: 'Yes — Voss Resort and Myrkdalen are 1.5 hours from Bergen by train or car. Both have varied terrain for families and beginners. Equipment rental available on site.' },
+				{ q: 'Is Bergen worth visiting in February?', a: "Bergen has about 6 hours of daylight in February and frequent rain. However, museums, concerts and indoor attractions make it rewarding. Days get noticeably longer throughout the month." },
+				{ q: 'Are there free activities for kids in Bergen?', a: "Bergen Library offers free workshops, several museums have free children's admission (under 16), and Fløyen has free outdoor areas year-round." }
+			]
+		},
+		filterEvents: filterVinterferie
 	}
 ];
 
@@ -912,6 +1594,18 @@ const HREFLANG_PAIRS: Record<string, Record<'no' | 'en', string>> = {
 	'today-in-bergen': { no: 'i-dag', en: 'today-in-bergen' },
 	'gratis': { no: 'gratis', en: 'free-things-to-do-bergen' },
 	'free-things-to-do-bergen': { no: 'gratis', en: 'free-things-to-do-bergen' },
+	'17-mai': { no: '17-mai', en: '17th-of-may-bergen' },
+	'17th-of-may-bergen': { no: '17-mai', en: '17th-of-may-bergen' },
+	'julemarked': { no: 'julemarked', en: 'christmas-bergen' },
+	'christmas-bergen': { no: 'julemarked', en: 'christmas-bergen' },
+	'paske': { no: 'paske', en: 'easter-bergen' },
+	'easter-bergen': { no: 'paske', en: 'easter-bergen' },
+	'sankthans': { no: 'sankthans', en: 'midsummer-bergen' },
+	'midsummer-bergen': { no: 'sankthans', en: 'midsummer-bergen' },
+	'nyttarsaften': { no: 'nyttarsaften', en: 'new-years-eve-bergen' },
+	'new-years-eve-bergen': { no: 'nyttarsaften', en: 'new-years-eve-bergen' },
+	'vinterferie': { no: 'vinterferie', en: 'winter-break-bergen' },
+	'winter-break-bergen': { no: 'vinterferie', en: 'winter-break-bergen' },
 };
 
 /** Returns hreflang slugs for a collection. Unpaired collections use the same slug for both. */
