@@ -53,6 +53,43 @@ export function buildQueryString(search: string, key: string, value: string): st
 	return params.toString();
 }
 
+/** Format a local Date as YYYY-MM-DD without timezone conversion */
+function formatDateStr(d: Date): string {
+	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** Compute Easter Sunday for a given year (Anonymous Gregorian / Computus algorithm) */
+export function getEasterDate(year: number): Date {
+	const a = year % 19;
+	const b = Math.floor(year / 100);
+	const c = year % 100;
+	const d = Math.floor(b / 4);
+	const e = b % 4;
+	const f = Math.floor((b + 8) / 25);
+	const g = Math.floor((b - f + 1) / 3);
+	const h = (19 * a + b - d - g + 15) % 30;
+	const i = Math.floor(c / 4);
+	const k = c % 4;
+	const l = (32 + 2 * e + 2 * i - h - k) % 7;
+	const m = Math.floor((a + 11 * h + 22 * l) / 451);
+	const month = Math.floor((h + l - 7 * m + 114) / 31);
+	const day = ((h + l - 7 * m + 114) % 31) + 1;
+	return new Date(year, month - 1, day);
+}
+
+/** Get Monday–Sunday date range for a given ISO week number */
+export function getISOWeekDates(year: number, week: number): { start: string; end: string } {
+	const jan4 = new Date(year, 0, 4);
+	const dayOfWeek = jan4.getDay() || 7; // Convert Sun=0 to Sun=7
+	const week1Monday = new Date(jan4);
+	week1Monday.setDate(jan4.getDate() - dayOfWeek + 1);
+	const targetMonday = new Date(week1Monday);
+	targetMonday.setDate(week1Monday.getDate() + (week - 1) * 7);
+	const targetSunday = new Date(targetMonday);
+	targetSunday.setDate(targetMonday.getDate() + 6);
+	return { start: formatDateStr(targetMonday), end: formatDateStr(targetSunday) };
+}
+
 export function matchesTimeOfDay(dateStart: string, times: string[]): boolean {
 	// Convert UTC timestamp to Oslo local hour
 	const date = new Date(dateStart);

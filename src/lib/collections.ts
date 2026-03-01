@@ -1,6 +1,80 @@
 import type { GaariEvent, Lang } from './types';
 import { isFreeEvent } from './utils';
-import { isSameDay, getWeekendDates, matchesTimeOfDay, toOsloDateStr, getEndOfWeekDateStr, addDays } from './event-filters';
+import { isSameDay, getWeekendDates, matchesTimeOfDay, toOsloDateStr, getEndOfWeekDateStr, addDays, getEasterDate, getISOWeekDates } from './event-filters';
+
+// Shared filter functions for seasonal collections (NO + EN pairs share the same logic)
+const filter17Mai = (events: GaariEvent[], now: Date) => {
+	const year = now.getFullYear();
+	const startStr = `${year}-05-14`;
+	const endStr = `${year}-05-18`;
+	return events.filter(e => {
+		const d = e.date_start.slice(0, 10);
+		return d >= startStr && d <= endStr;
+	});
+};
+
+const filterJulemarked = (events: GaariEvent[], now: Date) => {
+	const year = now.getFullYear();
+	const startStr = `${year}-11-15`;
+	const endStr = `${year}-12-23`;
+	return events.filter(e => {
+		const d = e.date_start.slice(0, 10);
+		return d >= startStr && d <= endStr;
+	});
+};
+
+const filterPaske = (events: GaariEvent[], now: Date) => {
+	const year = now.getFullYear();
+	const easter = getEasterDate(year);
+	const palmSunday = addDays(easter, -7);
+	const easterMonday = addDays(easter, 1);
+	const startStr = toOsloDateStr(palmSunday);
+	const endStr = toOsloDateStr(easterMonday);
+	return events.filter(e => {
+		const d = e.date_start.slice(0, 10);
+		return d >= startStr && d <= endStr;
+	});
+};
+
+const filterSankthans = (events: GaariEvent[], now: Date) => {
+	const year = now.getFullYear();
+	const startStr = `${year}-06-21`;
+	const endStr = `${year}-06-24`;
+	return events.filter(e => {
+		const d = e.date_start.slice(0, 10);
+		return d >= startStr && d <= endStr;
+	});
+};
+
+const filterNyttarsaften = (events: GaariEvent[], now: Date) => {
+	const year = now.getFullYear();
+	const month = now.getMonth();
+	const baseYear = month === 0 ? year - 1 : year;
+	const startStr = `${baseYear}-12-29`;
+	const endStr = `${baseYear + 1}-01-01`;
+	return events.filter(e => {
+		const d = e.date_start.slice(0, 10);
+		return d >= startStr && d <= endStr;
+	});
+};
+
+const filterVinterferie = (events: GaariEvent[], now: Date) => {
+	const year = now.getFullYear();
+	const { start, end } = getISOWeekDates(year, 9);
+	return events.filter(e => {
+		const d = e.date_start.slice(0, 10);
+		return d >= start && d <= end;
+	});
+};
+
+const filterHostferie = (events: GaariEvent[], now: Date) => {
+	const year = now.getFullYear();
+	const { start, end } = getISOWeekDates(year, 41);
+	return events.filter(e => {
+		const d = e.date_start.slice(0, 10);
+		return d >= start && d <= end;
+	});
+};
 
 const FAMILY_TITLE_RE = /familie|barnelørdag|barnas\s|for\s+barn|barneforestilling/i;
 const YOUTH_TEXT_RE = /\bungdom|\btenåring|\bfor\s+unge?\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
@@ -20,6 +94,7 @@ export interface Collection {
 	footerLabel?: Record<Lang, string>;
 	footer?: { langs: Lang[]; order: number };
 	newsletterHeading?: Record<Lang, string>;
+	seasonal?: boolean;
 	filterEvents: (events: GaariEvent[], now: Date) => GaariEvent[];
 }
 

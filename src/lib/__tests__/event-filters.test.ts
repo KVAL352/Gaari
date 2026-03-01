@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { matchesTimeOfDay, getWeekendDates, isSameDay, toOsloDateStr, addDays, getEndOfWeekDateStr, buildQueryString } from '../event-filters';
+import { matchesTimeOfDay, getWeekendDates, isSameDay, toOsloDateStr, addDays, getEndOfWeekDateStr, buildQueryString, getEasterDate, getISOWeekDates } from '../event-filters';
 
 describe('matchesTimeOfDay', () => {
 	// Winter (CET, UTC+1): 19:00 UTC = 20:00 Oslo = evening
@@ -162,5 +162,71 @@ describe('buildQueryString', () => {
 		const result = buildQueryString('when=today', 'page', '2');
 		expect(result).toContain('page=2');
 		expect(result).toContain('when=today');
+	});
+});
+
+describe('getEasterDate', () => {
+	it.each([
+		[2024, 3, 31],  // March 31
+		[2025, 4, 20],  // April 20
+		[2026, 4, 5],   // April 5
+		[2027, 3, 28],  // March 28
+		[2028, 4, 16],  // April 16
+		[2029, 4, 1],   // April 1
+		[2030, 4, 21],  // April 21
+		[2031, 4, 13],  // April 13
+		[2033, 4, 17],  // April 17
+		[2035, 3, 25],  // March 25
+		[2038, 4, 25],  // April 25
+	])('computes Easter Sunday for %i as %i-%i', (year, month, day) => {
+		const easter = getEasterDate(year);
+		expect(easter.getFullYear()).toBe(year);
+		expect(easter.getMonth() + 1).toBe(month);
+		expect(easter.getDate()).toBe(day);
+	});
+});
+
+describe('getISOWeekDates', () => {
+	it('week 9 of 2026 is Feb 23 – Mar 1', () => {
+		const { start, end } = getISOWeekDates(2026, 9);
+		expect(start).toBe('2026-02-23');
+		expect(end).toBe('2026-03-01');
+	});
+
+	it('week 41 of 2026 is Oct 5 – Oct 11', () => {
+		const { start, end } = getISOWeekDates(2026, 41);
+		expect(start).toBe('2026-10-05');
+		expect(end).toBe('2026-10-11');
+	});
+
+	it('week 1 of 2026 starts in Dec 2025', () => {
+		const { start, end } = getISOWeekDates(2026, 1);
+		expect(start).toBe('2025-12-29');
+		expect(end).toBe('2026-01-04');
+	});
+
+	it('week 1 of 2025 is Dec 30 2024 – Jan 5 2025', () => {
+		// Jan 4 2025 is Saturday → Monday of that week is Dec 30
+		const { start, end } = getISOWeekDates(2025, 1);
+		expect(start).toBe('2024-12-30');
+		expect(end).toBe('2025-01-05');
+	});
+
+	it('week 52 of 2026 is Dec 21 – Dec 27', () => {
+		const { start, end } = getISOWeekDates(2026, 52);
+		expect(start).toBe('2026-12-21');
+		expect(end).toBe('2026-12-27');
+	});
+
+	it('week 53 of 2020 (long year) is Dec 28 – Jan 3', () => {
+		const { start, end } = getISOWeekDates(2020, 53);
+		expect(start).toBe('2020-12-28');
+		expect(end).toBe('2021-01-03');
+	});
+
+	it('week 9 of 2027 is Mar 1 – Mar 7', () => {
+		const { start, end } = getISOWeekDates(2027, 9);
+		expect(start).toBe('2027-03-01');
+		expect(end).toBe('2027-03-07');
 	});
 });
