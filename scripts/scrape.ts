@@ -128,6 +128,15 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	visitbergen: scrapeVisitBergen,
 };
 
+// Collection slugs for IndexNow — these pages change content every scraper run
+const COLLECTION_SLUGS_NO = [
+	'denne-helgen', 'i-kveld', 'gratis', 'familiehelg', 'konserter',
+	'studentkveld', 'i-dag', 'regndagsguide', 'sentrum', 'voksen', 'for-ungdom'
+];
+const COLLECTION_SLUGS_EN = [
+	'this-weekend', 'today-in-bergen', 'free-things-to-do-bergen'
+];
+
 async function pingIndexNow(since: number): Promise<number> {
 	const key = process.env.INDEXNOW_KEY;
 	if (!key) return 0;
@@ -140,12 +149,24 @@ async function pingIndexNow(since: number): Promise<number> {
 			.gte('created_at', sinceIso)
 			.eq('status', 'approved');
 
-		if (error || !data || data.length === 0) return 0;
+		// Event detail URLs
+		const eventUrls = (data && !error)
+			? data.flatMap((e: { slug: string }) => [
+				`https://gaari.no/no/events/${e.slug}`,
+				`https://gaari.no/en/events/${e.slug}`
+			])
+			: [];
 
-		const urlList = data.flatMap((e: { slug: string }) => [
-			`https://gaari.no/no/events/${e.slug}`,
-			`https://gaari.no/en/events/${e.slug}`
-		]);
+		// Homepage + collection pages (content changes every run)
+		const pageUrls = [
+			'https://gaari.no/no/',
+			'https://gaari.no/en/',
+			...COLLECTION_SLUGS_NO.map(s => `https://gaari.no/no/${s}`),
+			...COLLECTION_SLUGS_EN.map(s => `https://gaari.no/en/${s}`)
+		];
+
+		const urlList = [...eventUrls, ...pageUrls];
+		if (urlList.length === 0) return 0;
 
 		const res = await fetch('https://api.indexnow.org/indexnow', {
 			method: 'POST',
@@ -158,7 +179,7 @@ async function pingIndexNow(since: number): Promise<number> {
 			})
 		});
 
-		console.log(`IndexNow: submitted ${urlList.length} URLs (${data.length} events × 2 langs) → HTTP ${res.status}`);
+		console.log(`IndexNow: submitted ${urlList.length} URLs (${eventUrls.length / 2} events + ${pageUrls.length} pages) → HTTP ${res.status}`);
 		return urlList.length;
 	} catch (err: any) {
 		console.warn(`IndexNow ping failed: ${err.message}`);
@@ -292,11 +313,11 @@ async function main() {
 		console.error(`Deduplication failed: ${err.message}\n`);
 	}
 
-	// Step 4: IndexNow ping for newly inserted events
+	// Step 4: IndexNow ping for updated pages (events + collections + homepage)
 	let indexNowSubmitted = 0;
 	const activeResults = Object.fromEntries(Object.entries(results).filter(([, r]) => !r.skipped));
 	const insertedCount = Object.values(activeResults).reduce((sum, r) => sum + r.inserted, 0);
-	if (insertedCount > 0) {
+	{
 		console.log('--- Pinging IndexNow ---');
 		indexNowSubmitted = await pingIndexNow(startTime);
 	}
