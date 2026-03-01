@@ -11,7 +11,7 @@
 	import EventCard from '$lib/components/EventCard.svelte';
 	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
 	import CalendarDropdown from '$lib/components/CalendarDropdown.svelte';
-	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquareDiff } from 'lucide-svelte';
+	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquareDiff, Share2, Check } from 'lucide-svelte';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 	import { slide } from 'svelte/transition';
@@ -37,6 +37,22 @@
 		}
 	}
 	let correctionError = $state(false);
+	let linkCopied = $state(false);
+
+	async function handleShare() {
+		const url = canonicalUrl;
+		if (typeof navigator !== 'undefined' && navigator.share) {
+			try {
+				await navigator.share({ title, url });
+			} catch {
+				// User cancelled or share failed — ignore
+			}
+		} else {
+			await navigator.clipboard.writeText(url);
+			linkCopied = true;
+			setTimeout(() => linkCopied = false, 2000);
+		}
+	}
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/events/${event.slug}`));
 	let eventJsonLd = $derived(generateEventJsonLd(event, $lang, canonicalUrl));
@@ -171,6 +187,18 @@
 			</a>
 		{/if}
 		<CalendarDropdown event={calendarData} />
+		<button
+			onclick={handleShare}
+			class="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-6 py-3 text-sm font-semibold transition-colors hover:bg-[var(--color-surface)]"
+		>
+			{#if linkCopied}
+				<Check size={16} />
+				{$t('linkCopied')}
+			{:else}
+				<Share2 size={16} />
+				{$t('share')}
+			{/if}
+		</button>
 	</div>
 
 	<!-- Description -->
