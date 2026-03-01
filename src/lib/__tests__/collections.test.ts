@@ -32,9 +32,9 @@ describe('getCollection', () => {
 		expect(getCollection('gibberish')).toBeUndefined();
 	});
 
-	it('returns all 35 collections', () => {
+	it('returns all 39 collections', () => {
 		const slugs = getAllCollectionSlugs();
-		expect(slugs).toHaveLength(35);
+		expect(slugs).toHaveLength(39);
 		// Original 14
 		expect(slugs).toContain('denne-helgen');
 		expect(slugs).toContain('i-kveld');
@@ -65,16 +65,20 @@ describe('getCollection', () => {
 		expect(slugs).toContain('midsummer-bergen');
 		expect(slugs).toContain('new-years-eve-bergen');
 		expect(slugs).toContain('winter-break-bergen');
-		// 4 festival NO
+		// 6 festival NO (Fase 2 + 2b)
 		expect(slugs).toContain('festspillene');
 		expect(slugs).toContain('bergenfest');
 		expect(slugs).toContain('beyond-the-gates');
 		expect(slugs).toContain('nattjazz');
-		// 4 festival EN
+		expect(slugs).toContain('bergen-pride');
+		expect(slugs).toContain('biff');
+		// 6 festival EN (Fase 2 + 2b)
 		expect(slugs).toContain('bergen-international-festival');
 		expect(slugs).toContain('bergenfest-bergen');
 		expect(slugs).toContain('beyond-the-gates-bergen');
 		expect(slugs).toContain('nattjazz-bergen');
+		expect(slugs).toContain('bergen-pride-festival');
+		expect(slugs).toContain('biff-bergen');
 	});
 
 	it('each collection has bilingual title and description', () => {
@@ -798,7 +802,10 @@ describe('seasonal collections metadata', () => {
 		'festspillene', 'bergen-international-festival',
 		'bergenfest', 'bergenfest-bergen',
 		'beyond-the-gates', 'beyond-the-gates-bergen',
-		'nattjazz', 'nattjazz-bergen'
+		'nattjazz', 'nattjazz-bergen',
+		// Festival collections (Fase 2b)
+		'bergen-pride', 'bergen-pride-festival',
+		'biff', 'biff-bergen'
 	];
 
 	it('all seasonal collections have seasonal flag', () => {
@@ -948,12 +955,72 @@ describe('nattjazz filter', () => {
 	});
 });
 
+// ── Festival collection filters (Fase 2b) ─────────────────────────
+
+describe('bergen pride filter', () => {
+	const collection = getCollection('bergen-pride')!;
+	const now = new Date('2026-06-15T12:00:00');
+
+	it('includes events with bergenpride.no source_url', () => {
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://bergenpride.no/program-friday-13th/#event-one' }),
+			makeEvent({ id: '2', source_url: 'https://bergenpride.ticketco.events/no/nb/events/12345' }),
+			makeEvent({ id: '3', source_url: 'https://www.bergenfest.no/artister/foo' })
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('EN slug resolves to same filter', () => {
+		const en = getCollection('bergen-pride-festival')!;
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://bergenpride.no/program-tuesday-17th/#drag-show' }),
+			makeEvent({ id: '2', source_url: 'https://example.com/event' })
+		];
+		expect(en.filterEvents(events, now).map(e => e.id)).toEqual(['1']);
+	});
+});
+
+describe('biff filter', () => {
+	const collection = getCollection('biff')!;
+	const now = new Date('2026-10-18T12:00:00');
+
+	it('includes events with biff.no source_url', () => {
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://www.biff.no/f/some-film/1234#show-5678' }),
+			makeEvent({ id: '2', source_url: 'https://www.biff.no/f/another-film/5678#show-9012' }),
+			makeEvent({ id: '3', source_url: 'https://www.fib.no/program/2026/#abc' })
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('includes events page items', () => {
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://www.biff.no/article/some-event' }),
+			makeEvent({ id: '2', source_url: 'https://www.biff.no/f/film/123#show-456' })
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result).toHaveLength(2);
+	});
+
+	it('EN slug resolves to same filter', () => {
+		const en = getCollection('biff-bergen')!;
+		const events = [
+			makeEvent({ id: '1', source_url: 'https://www.biff.no/f/some-film/1234#show-5678' })
+		];
+		expect(en.filterEvents(events, now)).toHaveLength(1);
+	});
+});
+
 describe('festival collections EN counterparts', () => {
 	const pairs: [string, string][] = [
 		['festspillene', 'bergen-international-festival'],
 		['bergenfest', 'bergenfest-bergen'],
 		['beyond-the-gates', 'beyond-the-gates-bergen'],
-		['nattjazz', 'nattjazz-bergen']
+		['nattjazz', 'nattjazz-bergen'],
+		['bergen-pride', 'bergen-pride-festival'],
+		['biff', 'biff-bergen']
 	];
 
 	for (const [noSlug, enSlug] of pairs) {

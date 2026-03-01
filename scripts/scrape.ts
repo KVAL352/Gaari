@@ -53,6 +53,8 @@ import { scrape as scrapeGGBergen } from './scrapers/ggbergen.js';
 import { scrape as scrapeOConnors } from './scrapers/oconnors.js';
 import { scrape as scrapeBilletto } from './scrapers/billetto.js';
 import { scrape as scrapeSteneMatglede } from './scrapers/stenematglede.js';
+import { scrape as scrapeBIFF } from './scrapers/biff.js';
+import { scrape as scrapeBergenPride } from './scrapers/bergenpride.js';
 import { writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
 import { removeExpiredEvents, loadOptOuts, getOptOutDomains } from './lib/utils.js';
@@ -124,6 +126,8 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	oconnors: scrapeOConnors,
 	billetto: scrapeBilletto,
 	stenematglede: scrapeSteneMatglede,
+	biff: scrapeBIFF,
+	bergenpride: scrapeBergenPride,
 	// --- Aggregator last (fills gaps, skipped if deadline reached) ---
 	visitbergen: scrapeVisitBergen,
 };

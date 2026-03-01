@@ -110,8 +110,14 @@ const VENUE_URLS: Record<string, string> = {
 	'akvariet i bergen': 'https://akvariet.no',
 	'vilvite': 'https://vilvite.no',
 
-	// Cinema
+	// Cinema / film festivals
 	'bergen kino': 'https://bergenkino.no',
+	'biff': 'https://www.biff.no',
+	'bergen internasjonale filmfestival': 'https://www.biff.no',
+
+	// Pride
+	'bergen pride': 'https://bergenpride.no',
+	'regnbuedagene': 'https://bergenpride.no',
 
 	// Restaurants/bars with event programs
 	'børskjelleren': 'https://borskjelleren.no',

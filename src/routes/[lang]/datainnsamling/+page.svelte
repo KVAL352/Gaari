@@ -10,8 +10,8 @@
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/datainnsamling`));
 
 	let metaDesc = $derived($lang === 'no'
-		? 'Hvordan Gåri samler inn eventdata fra 50 kilder i Bergen. Juridisk grunnlag, prinsipper og kontaktskjema for arrangører.'
-		: 'How Gåri collects event data from 50 sources in Bergen. Legal basis, principles, and contact form for organizers.');
+		? 'Hvordan Gåri samler inn eventdata fra 52 kilder i Bergen. Juridisk grunnlag, prinsipper og kontaktskjema for arrangører.'
+		: 'How Gåri collects event data from 52 sources in Bergen. Legal basis, principles, and contact form for organizers.');
 </script>
 
 <svelte:head>
@@ -38,11 +38,11 @@
 		<p class="text-lg leading-relaxed">
 			{#if $lang === 'no'}
 				Vi tror på åpenhet om hvordan vi samler inn eventdata. Gåri aggregerer offentlig tilgjengelig
-				informasjon om arrangementer i Bergen fra 50 kilder, slik at du kan finne alt som skjer på
+				informasjon om arrangementer i Bergen fra 52 kilder, slik at du kan finne alt som skjer på
 				ett sted.
 			{:else}
 				We believe in transparency about how we collect event data. Gåri aggregates publicly
-				available event information from 50 sources across Bergen, so you can find everything
+				available event information from 52 sources across Bergen, so you can find everything
 				happening in one place.
 			{/if}
 		</p>
@@ -193,7 +193,7 @@
 	<section class="mb-10 border-t border-[var(--color-border)] pt-8">
 		<details class="rounded-lg border border-[var(--color-border)] p-5">
 			<summary class="cursor-pointer text-xl font-semibold">
-				{$lang === 'no' ? 'Datakilder (50 kilder)' : 'Data sources (50 sources)'}
+				{$lang === 'no' ? 'Datakilder (52 kilder)' : 'Data sources (52 sources)'}
 			</summary>
 			<div class="mt-4 space-y-5 text-[var(--color-text-secondary)]">
 				<div>
@@ -228,7 +228,7 @@
 						{$lang === 'no' ? 'Festivaler' : 'Festivals'}
 					</h4>
 					<p class="text-sm leading-relaxed">
-						Bergenfest, Festspillene i Bergen, Beyond the Gates, Varmere Våtere Villere (VVV)
+						Bergenfest, Festspillene i Bergen, Beyond the Gates, Varmere Våtere Villere (VVV), Bergen Pride, BIFF
 					</p>
 				</div>
 				<div>
