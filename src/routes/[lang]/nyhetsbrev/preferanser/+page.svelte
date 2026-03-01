@@ -45,6 +45,9 @@
 
 <svelte:head>
 	<title>{$t('nlPrefsTitle')} — Gåri</title>
+	<meta name="description" content={$lang === 'no'
+		? 'Tilpass nyhetsbrevet ditt fra Gåri — velg språk, interesser, bydel og prisfilter for arrangementer i Bergen.'
+		: 'Customise your Gåri newsletter — choose language, interests, neighbourhood and price filter for Bergen events.'} />
 	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 

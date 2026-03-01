@@ -58,7 +58,7 @@
 				value={category}
 				onchange={(e) => handleSelect('category', e)}
 				aria-label={$t('allCategories')}
-				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
+				class="min-h-[44px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				<option value="">{$t('allCategories')}</option>
 				{#each CATEGORIES as cat (cat)}
@@ -71,7 +71,7 @@
 				value={bydel}
 				onchange={(e) => handleSelect('bydel', e)}
 				aria-label={$t('allAreas')}
-				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
+				class="min-h-[44px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				<option value="">{$t('allAreas')}</option>
 				{#each BYDELER as b (b)}
@@ -83,7 +83,7 @@
 				value={price}
 				onchange={(e) => handleSelect('price', e)}
 				aria-label={$t('allPrices')}
-				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
+				class="min-h-[44px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				{#each priceOptions as opt (opt.value)}
 					<option value={opt.value}>{$t(opt.label)}</option>
@@ -95,7 +95,7 @@
 				value={audience}
 				onchange={(e) => handleSelect('audience', e)}
 				aria-label={$t('allAudiences')}
-				class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
+				class="min-h-[44px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-2.5 py-1.5 text-sm text-[var(--color-text-primary)]"
 			>
 				{#each audienceOptions as opt (opt.value)}
 					<option value={opt.value}>{$t(opt.label)}</option>

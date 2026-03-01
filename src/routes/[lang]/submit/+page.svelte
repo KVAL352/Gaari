@@ -570,7 +570,7 @@
 				</p>
 				{#if imagePreview}
 					<div class="relative mb-2">
-						<img src={imagePreview} alt="" class="aspect-[16/9] w-full rounded-lg object-cover" />
+						<img src={imagePreview} alt="" width="800" height="450" class="aspect-[16/9] w-full rounded-lg object-cover" />
 						<button
 							type="button"
 							onclick={removeImage}
