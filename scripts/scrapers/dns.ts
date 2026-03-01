@@ -95,7 +95,6 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const first = perfs[0];
 		const last = perfs[perfs.length - 1];
 
-		const sourceUrl = `https://www.dns.no/forestillinger/`;
 		const eventUrl = `https://www.dns.no/forestillinger/?production=${first.productionId}`;
 		if (await eventExists(eventUrl)) continue;
 
@@ -120,7 +119,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: first.theater,
 			bydel,
 			price: '',
-			ticket_url: `https://dennationalescene.eventim-billetter.no/`,
+			ticket_url: eventUrl,
 			source: SOURCE,
 			source_url: eventUrl,
 			image_url: undefined,

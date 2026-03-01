@@ -104,7 +104,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			: undefined;
 
 		const priceStr = event.price || '';
-		const ticketUrl = event.ticketUrl || `https://kodebergen.ticketco.events/`;
+		const ticketUrl = event.ticketUrl || sourceUrl;
 
 		const aiDesc = await generateDescription({ title: event.title, venue: venueName, category, date: dateStart, price: priceStr });
 		const success = await insertEvent({

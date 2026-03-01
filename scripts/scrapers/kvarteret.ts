@@ -109,6 +109,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			price,
 		});
 
+		// Use specific event page as fallback when API returns generic homepage
+		const apiTicketUrl = event.ticket_url?.trim();
+		const ticketUrl = (apiTicketUrl && apiTicketUrl !== 'https://kvarteret.no' && apiTicketUrl !== 'https://kvarteret.no/')
+			? apiTicketUrl
+			: sourceUrl;
+
 		const success = await insertEvent({
 			slug: makeSlug(titleNo, datePart),
 			title_no: titleNo,
@@ -122,7 +128,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: 'Olav Kyrres gate 49, 5015 Bergen',
 			bydel,
 			price,
-			ticket_url: event.ticket_url || undefined,
+			ticket_url: ticketUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: getImageUrl(event.top_image),

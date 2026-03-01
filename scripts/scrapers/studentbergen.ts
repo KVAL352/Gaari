@@ -94,6 +94,16 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const aiDesc = await generateDescription({ title: event.title, venue: event.location || 'Bergen', category, date: new Date(event.start), price });
 
+		// Use detail page ticket URL only if it points to a specific page (has a path)
+		let ticketUrl = detailTicketUrl;
+		if (ticketUrl) {
+			try {
+				const parsed = new URL(ticketUrl);
+				const path = parsed.pathname.replace(/\/+$/, '');
+				if (!path) ticketUrl = ''; // Generic homepage — discard
+			} catch { /* keep as-is */ }
+		}
+
 		const success = await insertEvent({
 			slug: makeSlug(event.title, datePart),
 			title_no: event.title,
@@ -106,7 +116,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: event.location || 'Bergen',
 			bydel,
 			price,
-			ticket_url: detailTicketUrl || resolveTicketUrl(event.location, event.url),
+			ticket_url: ticketUrl || resolveTicketUrl(event.location, sourceUrl),
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: event.image || undefined,

@@ -187,7 +187,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Look up detail page URL by matching title
 		const titleLower = event.summary.toLowerCase();
 		const detail = detailMap.get(titleLower);
-		let ticketUrl = detail?.detailUrl || 'https://medieklyngen.no/events/';
+		let ticketUrl: string | undefined = detail?.detailUrl;
 
 		// If we have a detail page, check for external ticket links
 		if (detail?.detailUrl) {
