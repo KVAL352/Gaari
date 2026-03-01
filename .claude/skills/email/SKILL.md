@@ -42,12 +42,29 @@ If there are emails in INBOX, read each one and sort it:
 
 If unclear where an email belongs, **ask the user** before moving it.
 
+## Step 2b: Check daily digest for scraper alerts
+
+If a **[Daglig oversikt]** email arrived today (from `noreply@gaari.no`), read it and check for:
+- **Scraper health warnings**: "scrapere nede" in subject, or broken/warning scrapers in the "Scraper-helse" section
+- **Stale sources**: sources with 0 upcoming events in the "Kilde-friskhet" section
+- **Pipeline issues**: missing/skipped/slow scrapers in "Siste pipeline-kjøring" section
+- **Data quality alerts**: anomalies flagged by the health endpoint
+
+If any alerts are found, flag them to the user with suggested actions:
+- Broken scraper → investigate source site for CSS/API changes
+- Stale source → check if venue has upcoming events, may be seasonal
+- Pipeline missed → check GitHub Actions for cron failures
+- Slow scraper (>60s) → may need optimization or the source site is slow
+
+The daily digest arrives around 09:00 CET. The scraper pipeline runs at 06:00 and 18:00 UTC.
+
 ## Step 3: Summarize status
 
 Give a quick overview of **all** folders:
 - How many new/unread items in each Unresolved folder
 - Unread items in Personal and Receipts
 - Any items that need attention or action
+- Any scraper health alerts from the daily digest
 
 ## Step 4: Review actionable items
 

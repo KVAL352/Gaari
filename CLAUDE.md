@@ -9,7 +9,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - **Frontend**: SvelteKit 2 with Svelte 5 runes (`$state`, `$derived`, `$effect`). Tailwind CSS 4. Language routing via `/[lang]/` (no, en).
 - **Data loading**: Server-side via `+page.server.ts` — Supabase SDK runs only on the server for all main pages. Data arrives pre-rendered in HTML (no client-side fetch waterfall). Only `/submit` still uses client-side Supabase (for image uploads).
 - **Supabase client**: `$lib/server/supabase.ts` (server-only, enforced by SvelteKit `$lib/server/` convention). `$lib/supabase.ts` exists only for the submit page's client-side usage.
-- **Database**: Supabase with `events`, `opt_out_requests`, `edit_suggestions`, `promoted_placements`, `placement_log`, and `organizer_inquiries` tables. Anon key for reads, service role key for scraper writes.
+- **Database**: Supabase with `events`, `opt_out_requests`, `edit_suggestions`, `promoted_placements`, `placement_log`, `organizer_inquiries`, and `scraper_runs` tables. Anon key for reads, service role key for scraper writes.
 - **Form actions**: Correction form (event detail) and opt-out form (datainnsamling) use SvelteKit form actions with `use:enhance` — no client-side Supabase needed.
 - **Scrapers**: Standalone TypeScript in `scripts/`, separate `package.json`. Uses Cheerio for HTML parsing. Runs via GitHub Actions cron (twice daily at 6 AM & 6 PM UTC).
 - **AI Descriptions**: Gemini 2.5 Flash generates bilingual summaries (<160 chars each) from event metadata. Fallback to template if API unavailable.
@@ -31,10 +31,11 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 1. `removeExpiredEvents()` — deletes past events
 1b. `loadOptOuts()` — loads approved opt-out domains, deletes events from opted-out sources
-2. Run scrapers — each checks `eventExists(source_url)` before inserting, generates AI descriptions via Gemini (13-min pipeline deadline skips remaining scrapers)
+2. Run scrapers — each checks `eventExists(source_url)` before inserting, generates AI descriptions via Gemini (13-min pipeline deadline skips remaining scrapers). Per-scraper timing, error capture, and skip tracking.
 3. `deduplicate()` — removes cross-source duplicates by normalized title + same date, keeps highest-scored variant
-4. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
-5. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
+4. Log to `scraper_runs` — batch-inserts per-scraper results (found, inserted, errored, duration_ms, skipped) + cleans up rows older than 90 days
+5. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
+6. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
 ## Scraper sources (52 total, 50 active, 2 disabled)
 
@@ -145,6 +146,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - `venues.ts` — 190+ venue entries mapping names → websites, aggregator domain detection, resolveTicketUrl
 - `ai-descriptions.ts` — Gemini 2.5 Flash integration, rate limiting, fallback to makeDescription template
 - `supabase.ts` — Supabase client with service role key
+- `scraper-health.ts` — Anomaly detection for scrapers. Queries `scraper_runs` (14-day window), classifies each scraper: broken (6+ consecutive zeros or 3+ errors), warning (drop from average or last error), dormant (seasonal), healthy. Used by daily digest.
 
 ## Data inquiry system (formerly opt-out)
 
@@ -288,7 +290,8 @@ EAA (European Accessibility Act) applies to Norway via EEA. The site meets WCAG 
 ## Observability
 
 - **Error logging**: `hooks.server.ts` exports `handleError` — structured JSON (type, timestamp, status, message, stack, url, method, userAgent) parsed by Vercel's log system. `hooks.client.ts` mirrors the format for browser DevTools. Rate limiting in `handle` hook uses try/catch around `getClientAddress()` to support prerendering.
-- **Health endpoint**: `GET /api/health` — three checks: `supabase_connection`, `events_exist` (count > 0), `recent_scrape` (events created in last 24h). Monitorable by UptimeRobot or similar.
+- **Health endpoint**: `GET /api/health` — six checks: `supabase_connection`, `events_exist` (count > 0), `recent_scrape` (events created in last 24h), `event_visibility` (compares approved upcoming vs homepage query, flags >20% gap), `pipeline_freshness` (last `scraper_runs` entry within 14h), `data_quality` (expired events not cleaned up, events >2 years out). Returns healthy/degraded/unhealthy, 5min cache, 503 on unhealthy.
+- **Scraper health monitoring**: `scraper_runs` table logs per-scraper results each pipeline run. `scripts/lib/scraper-health.ts` classifies scrapers as broken/warning/dormant/healthy based on 14-day rolling data. Daily digest includes scraper health, stale sources, and pipeline completeness sections.
 - **Scraper summary**: Pipeline outputs JSON summary to `SUMMARY_FILE` env var. GitHub Actions job summary step reads it with `jq` and writes a markdown table to `$GITHUB_STEP_SUMMARY`.
 - **Plausible custom events**: `promoted-click` (fired on EventCard click when promoted, props: `venue`, `slug`) and `ticket-click` (fired on ticket button click on event detail page, props: `venue`, `slug`). Used to measure conversion value of promoted placements.
 
@@ -319,7 +322,7 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (355 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (377 tests, runs in <350ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
 - `src/lib/__tests__/event-filters.test.ts` — 28 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary)
@@ -329,6 +332,8 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 - `src/lib/__tests__/collections.test.ts` — 52 tests: `getCollection` (valid/invalid slug, all slugs, bilingual metadata, newsletterHeading validation), weekend filter (Fri–Sun for Mon–Fri, Wed→Fri–Sun, empty), tonight filter (evening/night today only), free filter (this week, various price formats), today filter (same day only, empty), youth filter (youth categories, excludes 18+/nightlife/food, includes family, title+description regex, age range patterns, 2-week window, empty), `getFooterCollections` (NO/EN filtering, sort order, lang exclusion, footerLabel presence)
 - `scripts/lib/__tests__/utils.test.ts` — 43 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `detectFreeFromText` (Norwegian/English keywords, case-insensitive, partial-word rejection), `isOptedOut`
 - `scripts/lib/__tests__/dedup.test.ts` — 17 tests: `titlesMatch` (exact, containment with 0.6 ratio guard, 90% prefix with 1.3 ratio, short titles, real-world normalized), `scoreEvent` (source rank, image/ticket/description bonuses, aggregator URL exclusion)
+- `scripts/lib/__tests__/scraper-health.test.ts` — 16 tests: `classifyScrapers` (healthy, broken via consecutive zeros, broken via consecutive errors, warning via drop from average, dormant seasonal scrapers, mixed statuses, empty data)
+- `src/lib/__tests__/query-timezone.test.ts` — 6 tests: Regression tests verifying homepage and collection page queries use UTC (not Oslo local time) for `date_start` filtering. Demonstrates CET/CEST offset bugs.
 
 **Config:** Vitest reads from `vite.config.ts` (`test.include: ['src/**/*.test.ts', 'scripts/**/*.test.ts']`). Scraper tests mock `supabase.js` and `venues.js` via `vi.mock()`.
 
@@ -338,5 +343,5 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 - **Scrape** (`scrape.yml`): cron 6 AM & 6 PM UTC, 15min job timeout, npm cache, 2min install timeout, `SUMMARY_FILE` env var, job summary step with health status (healthy/partial/critical). Secrets: SUPABASE keys + GEMINI_API_KEY.
 - **Newsletter** (`newsletter.yml`): cron every Thursday 10:00 UTC (11:00 CET / 12:00 CEST), 5min timeout. Runs `scripts/send-newsletter.ts` — fetches subscribers from MailerLite, groups by preferences, generates personalized HTML, sends via MailerLite campaigns. Supports `--dry-run` via manual workflow dispatch. Job summary with subscriber/group/sent/error counts. Secrets: SUPABASE keys + MAILERLITE_API_KEY.
 - **SEO Report** (`seo-report.yml`): cron every Monday 09:00 UTC (10:00 CET / 11:00 CEST), 5min timeout. Runs `scripts/seo-weekly-report.ts` — Plausible traffic, Google Search Console queries, Bing Webmaster, sitemap validation, content insights. Sends HTML report via Resend. Supports `--dry-run`. Secrets: PLAUSIBLE_API_KEY, GSC_SERVICE_ACCOUNT (base64), BING_WEBMASTER_KEY, RESEND_API_KEY, SUPABASE keys.
-- **Daily Digest** (`daily-digest.yml`): cron every day 08:00 UTC (09:00 CET / 10:00 CEST), 3min timeout. Runs `scripts/send-daily-digest.ts` — pending task counts, scraper activity, Plausible traffic (optional), MailerLite subscribers (optional), expiring placements. Sends HTML digest via Resend. Supports `--dry-run`. Secrets: SUPABASE keys + RESEND_API_KEY + PLAUSIBLE_API_KEY (optional) + MAILERLITE_API_KEY (optional).
+- **Daily Digest** (`daily-digest.yml`): cron every day 08:00 UTC (09:00 CET / 10:00 CEST), 3min timeout. Runs `scripts/send-daily-digest.ts` — pending task counts, scraper activity, scraper health (broken/warning/dormant classification), stale sources, pipeline completeness (missing/skipped/slow scrapers), Plausible traffic (optional), MailerLite subscribers (optional), expiring placements. Sends HTML digest via Resend. Supports `--dry-run`. Secrets: SUPABASE keys + RESEND_API_KEY + PLAUSIBLE_API_KEY (optional) + MAILERLITE_API_KEY (optional).
 - **Admin CLI** (`scripts/admin-ops.ts`): Not a GHA workflow — run locally via `cd scripts && npx tsx admin-ops.ts`. Subcommands: `list`, `approve`, `reject`, `status`. Handles corrections, submissions, opt-outs, and inquiries directly from Claude Code. Sends response emails via Resend.
