@@ -1,6 +1,6 @@
 # Gåri
 
-> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. It collects events from 50 independent sources — concert venues, theatres, museums, libraries, festivals, ticket platforms and more — and presents them in one searchable, filterable calendar. Updated twice daily by automated scrapers. No registration required.
+> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. It collects events from 52 independent sources — concert venues, theatres, museums, libraries, festivals, ticket platforms and more — and presents them in one searchable, filterable calendar. Updated twice daily by automated scrapers. No registration required.
 
 The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's going on?".
 
@@ -15,6 +15,10 @@ The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's 
 - Events in Bergen city centre
 - Student events in Bergen
 - Things to do in Bergen for teens
+- 17. mai in Bergen / Constitution Day Bergen
+- Christmas markets in Bergen
+- Easter in Bergen
+- Bergen festivals (Festspillene, Bergenfest, Nattjazz, Beyond the Gates, Bergen Pride, BIFF)
 
 ## What Gåri covers
 
@@ -26,8 +30,8 @@ The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's 
 
 ## Key pages
 
+### Evergreen collections (Norwegian)
 - [Homepage — all Bergen events](https://gaari.no/no/) (Norwegian)
-- [Homepage — all Bergen events](https://gaari.no/en/) (English)
 - [Hva skjer i Bergen i kveld](https://gaari.no/no/i-kveld) — tonight's events
 - [Denne helgen i Bergen](https://gaari.no/no/denne-helgen) — this weekend's events
 - [I dag i Bergen](https://gaari.no/no/i-dag) — today's events
@@ -39,13 +43,57 @@ The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's 
 - [Bergen sentrum](https://gaari.no/no/sentrum) — city centre events
 - [For voksne](https://gaari.no/no/voksen) — culture and experiences for adults
 - [For ungdom](https://gaari.no/no/for-ungdom) — events for teens (13–18)
-- [Today in Bergen](https://gaari.no/en/today-in-bergen) — today's events (English)
-- [This Weekend in Bergen](https://gaari.no/en/this-weekend) — this weekend (English)
-- [Free Things to Do in Bergen](https://gaari.no/en/free-things-to-do-bergen) — free events (English)
-- [About Gåri](https://gaari.no/en/about) — about the project
-- [Data collection and legal basis](https://gaari.no/no/datainnsamling) — sources, GDPR, opt-out
 
-## Data sources (48 active)
+### Evergreen collections (English)
+- [Homepage — all Bergen events](https://gaari.no/en/) (English)
+- [Today in Bergen](https://gaari.no/en/today-in-bergen) — today's events
+- [This Weekend in Bergen](https://gaari.no/en/this-weekend) — this weekend
+- [Free Things to Do in Bergen](https://gaari.no/en/free-things-to-do-bergen) — free events
+
+### Seasonal collections (Norwegian)
+- [17. mai i Bergen](https://gaari.no/no/17-mai) — Constitution Day events
+- [Julemarked i Bergen](https://gaari.no/no/julemarked) — Christmas markets and holiday events
+- [Påske i Bergen](https://gaari.no/no/paske) — Easter events
+- [Sankthans i Bergen](https://gaari.no/no/sankthans) — Midsummer celebrations
+- [Nyttårsaften i Bergen](https://gaari.no/no/nyttarsaften) — New Year's Eve events
+- [Vinterferie i Bergen](https://gaari.no/no/vinterferie) — Winter break activities
+- [Høstferie i Bergen](https://gaari.no/no/hostferie) — Autumn break activities
+
+### Seasonal collections (English)
+- [17th of May in Bergen](https://gaari.no/en/17th-of-may-bergen) — Constitution Day
+- [Christmas in Bergen](https://gaari.no/en/christmas-bergen) — Christmas markets and events
+- [Easter in Bergen](https://gaari.no/en/easter-bergen) — Easter events
+- [Midsummer in Bergen](https://gaari.no/en/midsummer-bergen) — Midsummer celebrations
+- [New Year's Eve in Bergen](https://gaari.no/en/new-years-eve-bergen) — NYE events
+- [Winter Break in Bergen](https://gaari.no/en/winter-break-bergen) — Winter break activities
+
+### Festival collections (Norwegian)
+- [Festspillene i Bergen](https://gaari.no/no/festspillene) — Bergen International Festival
+- [Bergenfest](https://gaari.no/no/bergenfest) — Bergenfest music festival
+- [Beyond the Gates](https://gaari.no/no/beyond-the-gates) — metal festival
+- [Nattjazz](https://gaari.no/no/nattjazz) — jazz festival
+- [Bergen Pride](https://gaari.no/no/bergen-pride) — Pride festival
+- [BIFF](https://gaari.no/no/biff) — Bergen International Film Festival
+
+### Festival collections (English)
+- [Bergen International Festival](https://gaari.no/en/bergen-international-festival) — Festspillene
+- [Bergenfest Bergen](https://gaari.no/en/bergenfest-bergen) — music festival
+- [Beyond the Gates Bergen](https://gaari.no/en/beyond-the-gates-bergen) — metal festival
+- [Nattjazz Bergen](https://gaari.no/en/nattjazz-bergen) — jazz festival
+- [Bergen Pride Festival](https://gaari.no/en/bergen-pride-festival) — Pride festival
+- [BIFF Bergen](https://gaari.no/en/biff-bergen) — film festival
+
+### Informational pages
+- [About Gåri](https://gaari.no/en/about) — about the project
+- [Om Gåri](https://gaari.no/no/about) — om prosjektet
+- [Data collection](https://gaari.no/no/datainnsamling) — sources, GDPR, data inquiry (Norwegian)
+- [Data collection](https://gaari.no/en/datainnsamling) — sources, GDPR, data inquiry (English)
+- [Personvern](https://gaari.no/no/personvern) — privacy policy (Norwegian)
+- [Privacy Policy](https://gaari.no/en/personvern) — privacy policy (English)
+- [Tilgjengelighet](https://gaari.no/no/tilgjengelighet) — accessibility statement (Norwegian)
+- [Accessibility](https://gaari.no/en/tilgjengelighet) — accessibility statement (English)
+
+## Data sources (52 active)
 
 ### Performance venues
 Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, BIT Teatergarasjen, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater
@@ -57,19 +105,19 @@ KODE (Bergen art museums), Bergen Kunsthall, Litteraturhuset Bergen, Media City 
 Bergen Bibliotek, Bymuseet i Bergen, Museum Vest (Fiskerimuseum, Sjøfartsmuseum, Hanseatiske Museum), Akvariet i Bergen, Fløyen
 
 ### Ticket platforms
-Eventbrite, TicketCo (multiple Bergen venues), Hoopla
+Eventbrite, TicketCo (multiple Bergen venues), Billetto, Hoopla
 
 ### General aggregators
 Bergen Kommune (official events calendar), VisitBergen, StudentBergen, Bergen Live
 
 ### Food and nightlife
-Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad, O'Connor's Irish Pub
+Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad, O'Connor's Irish Pub, GG Bergen, Stene Matglede
 
 ### Sports and outdoor
 SK Brann (football), DNT Bergen (hiking tours)
 
 ### Festivals
-Festspillene i Bergen, Bergenfest, Beyond the Gates, VVV (climate festival)
+Festspillene i Bergen, Bergenfest, Beyond the Gates, Nattjazz, Bergen Pride, BIFF (Bergen International Film Festival), VVV (climate festival)
 
 ### Other
 Bergen Chamber of Commerce events, Kvarteret (student venue)
