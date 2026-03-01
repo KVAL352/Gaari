@@ -1028,24 +1028,23 @@
 		gap: 0.5rem;
 		padding: 0.5rem 0.875rem;
 		border-radius: 9999px;
-		border: 1px solid var(--color-border-subtle);
+		border: 1.5px solid var(--funkis-red);
 		background: white;
 		font-size: 0.8125rem;
-		font-weight: 500;
-		color: var(--color-text-secondary);
+		font-weight: 600;
+		color: var(--funkis-red);
 		cursor: pointer;
 		transition: all 0.15s;
 		align-self: flex-start;
 	}
 
 	.mobile-filters-toggle:hover {
-		border-color: var(--color-border);
-		color: var(--color-text-primary);
+		background: var(--funkis-red-subtle);
 	}
 
 	.mobile-filters-toggle.active {
-		border-color: var(--color-border);
-		background: var(--color-surface);
+		background: var(--funkis-red);
+		color: white;
 	}
 
 	.mobile-filters-toggle:focus-visible {
