@@ -3,5 +3,10 @@
     "date": "2026-03-03",
     "title": "Sjekk DNT ticket-URLer",
     "description": "Verifiser at DNT-eventer på gaari.no har riktige registreringslenker (aktiviteter.dnt.no/register/{id}). Test: https://gaari.no/no/events/tellevikafjellet-med-dnt-naertur-bergen-2026-03-01 og https://gaari.no/no/events/enkel-fottur-i-kanadaskogen-2026-03-02"
+  },
+  {
+    "date": "2026-03-06",
+    "title": "Sjekk nyhetsbrev-utsending",
+    "description": "Ukentlig nyhetsbrev ble sendt torsdag 5. mars (10:00 UTC). Sjekk: 1) GHA newsletter.yml — gikk jobben OK? 2) MailerLite dashboard — ble kampanjen opprettet og sendt? 3) Åpningsrate og leveringsrate. 4) Preference-gruppering — fikk ulike grupper tilpasset innhold? 5) Test selv: sjekk innboks post@gaari.no for test-kopi."
   }
 ]
