@@ -68,6 +68,20 @@ interface PipelineRun {
 	slowScrapers: Array<{ name: string; durationMs: number }>;
 }
 
+interface FestivalReminder {
+	name: string;
+	startDate: string;
+	endDate: string;
+	daysUntil: number;
+	checklist: string[];
+}
+
+interface Reminder {
+	date: string;
+	title: string;
+	description: string;
+}
+
 interface DigestData {
 	date: string;
 	pending: PendingCounts;
@@ -78,6 +92,8 @@ interface DigestData {
 	traffic: TrafficData | null;
 	subscribers: number | null;
 	expiringPlacements: ExpiringPlacement[];
+	festivalReminders: FestivalReminder[];
+	reminders: Reminder[];
 }
 
 // ─── Data collectors ────────────────────────────────────────────────
@@ -258,7 +274,109 @@ async function collectStaleSources(): Promise<SourceFreshness[]> {
 	}
 }
 
-// All 50 active scrapers registered in scrape.ts (keep in sync)
+// ─── Festival reminders ─────────────────────────────────────────────
+
+// Upcoming festivals with scraper test checklists.
+// Update dates annually when festival programmes are announced.
+const FESTIVALS = [
+	{
+		name: 'Bergen Pride',
+		startDate: '2026-06-13',
+		endDate: '2026-06-21',
+		checklist: [
+			'Test scraper: npx tsx scripts/scrape.ts bergenpride',
+			'Sjekk at Vev-programsidene er publisert (PROGRAM_PAGES i bergenpride.ts)',
+			'Oppdater PAGE_DATES hvis datoer endres',
+			'Verifiser TicketCo: bergenpride.ticketco.events',
+			'Sjekk collection: /no/bergen-pride/',
+		],
+	},
+	{
+		name: 'BIFF',
+		startDate: '2026-10-14', // Tentative — update when announced
+		endDate: '2026-10-21',
+		checklist: [
+			'Test scraper: npx tsx scripts/scrape.ts biff',
+			'Verifiser at /program/today/all/all/all returnerer showtimes',
+			'Sjekk /events for paneler og Q&A',
+			'Sjekk collection: /no/biff/',
+		],
+	},
+	{
+		name: 'Festspillene',
+		startDate: '2026-05-20', // Update when announced
+		endDate: '2026-06-03',
+		checklist: [
+			'Test scraper: npx tsx scripts/scrape.ts festspillene',
+			'Sjekk at Storyblok API returnerer 2026-events',
+			'Sjekk collection: /no/festspillene/',
+		],
+	},
+	{
+		name: 'Bergenfest',
+		startDate: '2026-06-10', // Update when announced
+		endDate: '2026-06-13',
+		checklist: [
+			'Test scraper: npx tsx scripts/scrape.ts bergenfest',
+			'Sjekk collection: /no/bergenfest/',
+		],
+	},
+	{
+		name: 'Beyond the Gates',
+		startDate: '2026-08-19', // Update when announced
+		endDate: '2026-08-22',
+		checklist: [
+			'Test scraper: npx tsx scripts/scrape.ts beyondthegates',
+			'Sjekk collection: /no/beyond-the-gates/',
+		],
+	},
+	{
+		name: 'Nattjazz',
+		startDate: '2026-05-22', // Update when announced
+		endDate: '2026-06-03',
+		checklist: [
+			'Test scraper: npx tsx scripts/scrape.ts nattjazz (via ticketco)',
+			'Sjekk collection: /no/nattjazz/',
+		],
+	},
+];
+
+const FESTIVAL_REMINDER_DAYS = 14; // Show reminder this many days before start
+
+function collectFestivalReminders(): FestivalReminder[] {
+	const now = new Date(TODAY);
+	const reminders: FestivalReminder[] = [];
+
+	for (const festival of FESTIVALS) {
+		const start = new Date(festival.startDate);
+		const end = new Date(festival.endDate);
+		const daysUntil = Math.ceil((start.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+		// Show reminder if festival is within FESTIVAL_REMINDER_DAYS or currently ongoing
+		if (daysUntil <= FESTIVAL_REMINDER_DAYS && now.getTime() <= end.getTime()) {
+			reminders.push({
+				name: festival.name,
+				startDate: festival.startDate,
+				endDate: festival.endDate,
+				daysUntil,
+				checklist: festival.checklist,
+			});
+		}
+	}
+
+	return reminders.sort((a, b) => a.daysUntil - b.daysUntil);
+}
+
+function collectReminders(): Reminder[] {
+	try {
+		const remindersPath = path.join(import.meta.dirname, 'reminders.json');
+		if (!fs.existsSync(remindersPath)) return [];
+		const all: Reminder[] = JSON.parse(fs.readFileSync(remindersPath, 'utf-8'));
+		return all.filter(r => r.date === TODAY);
+	} catch { return []; }
+}
+
+// All 52 active scrapers registered in scrape.ts (keep in sync)
 const EXPECTED_SCRAPERS = [
 	'bergenlive', 'bergenkommune', 'studentbergen', 'dnt', 'eventbrite',
 	'ticketco', 'hoopla', 'nordnessjobad', 'raabrent', 'bergenchamber',
@@ -269,7 +387,8 @@ const EXPECTED_SCRAPERS = [
 	'oseana', 'carteblanche', 'festspillene', 'bergenfest', 'bjorgvinblues',
 	'bek', 'beyondthegates', 'brann', 'kulturhusetibergen', 'vvv',
 	'bymuseet', 'museumvest', 'akvariet', 'kvarteret', 'fyllingsdalenteater',
-	'ggbergen', 'oconnors', 'billetto', 'stenematglede', 'visitbergen'
+	'ggbergen', 'oconnors', 'billetto', 'stenematglede', 'visitbergen',
+	'biff', 'bergenpride'
 ];
 
 const SLOW_SCRAPER_THRESHOLD_MS = 60_000; // 60s is suspiciously slow
@@ -326,7 +445,8 @@ function renderHtml(data: DigestData): string {
 	const brokenScrapers = data.scraperHealth.filter(s => s.status === 'broken');
 	const warningScrapers = data.scraperHealth.filter(s => s.status === 'warning');
 	const pipelineMissing = data.lastPipeline?.scrapersMissing.length ?? 0;
-	const hasWarning = data.scraper.newEvents24h === 0 || total > 10 || brokenScrapers.length > 0 || data.staleSources.length >= 5 || pipelineMissing > 0;
+	const urgentFestivals = data.festivalReminders.filter(f => f.daysUntil <= 3);
+	const hasWarning = data.scraper.newEvents24h === 0 || total > 10 || brokenScrapers.length > 0 || data.staleSources.length >= 5 || pipelineMissing > 0 || urgentFestivals.length > 0;
 
 	const warningHtml = hasWarning ? `
 		<div style="background:#fef2f2;border:2px solid #dc2626;border-radius:8px;padding:16px;margin-bottom:24px">
@@ -336,6 +456,7 @@ function renderHtml(data: DigestData): string {
 			${brokenScrapers.length > 0 ? `<p style="margin:4px 0;color:#991b1b">${brokenScrapers.length} scraper${brokenScrapers.length === 1 ? '' : 'e'} nede: ${brokenScrapers.map(s => s.name).join(', ')}</p>` : ''}
 			${data.staleSources.length >= 5 ? `<p style="margin:4px 0;color:#991b1b">${data.staleSources.length} kilder har 0 kommende events</p>` : ''}
 			${pipelineMissing > 0 ? `<p style="margin:4px 0;color:#991b1b">${pipelineMissing} scrapere manglet fra siste pipeline-kjoring</p>` : ''}
+			${urgentFestivals.length > 0 ? urgentFestivals.map(f => `<p style="margin:4px 0;color:#991b1b">${f.name} ${f.daysUntil <= 0 ? 'pågår nå' : `starter om ${f.daysUntil} dag${f.daysUntil === 1 ? '' : 'er'}`} — test scraper!</p>`).join('') : ''}
 		</div>
 	` : '';
 
@@ -520,6 +641,35 @@ function renderHtml(data: DigestData): string {
 		</table>
 	` : '';
 
+	const festivalHtml = data.festivalReminders.length > 0 ? `
+		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Kommende festivaler</h2>
+		${data.festivalReminders.map(f => {
+			const urgencyColor = f.daysUntil <= 0 ? '#dc2626' : f.daysUntil <= 3 ? '#d97706' : '#2563eb';
+			const urgencyLabel = f.daysUntil <= 0 ? 'Pågår nå!' : f.daysUntil === 1 ? 'I morgen!' : `${f.daysUntil} dager`;
+			return `
+			<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid ${urgencyColor};border-radius:4px;padding:12px 16px;margin-bottom:12px">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+					<strong style="font-size:15px">${f.name}</strong>
+					<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:600;background:${f.daysUntil <= 0 ? '#FEE2E2' : f.daysUntil <= 3 ? '#FEF3C7' : '#DBEAFE'};color:${urgencyColor}">${urgencyLabel}</span>
+				</div>
+				<p style="margin:0 0 8px;font-size:13px;color:#666">${f.startDate} → ${f.endDate}</p>
+				<ul style="margin:0;padding-left:20px;font-size:13px;color:#333">
+					${f.checklist.map(item => `<li style="margin:4px 0">${item}</li>`).join('')}
+				</ul>
+			</div>`;
+		}).join('')}
+	` : '';
+
+	const remindersHtml = data.reminders.length > 0 ? `
+		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Påminnelser</h2>
+		${data.reminders.map(r => `
+			<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-left:4px solid #2563eb;border-radius:4px;padding:12px 16px;margin-bottom:12px">
+				<strong style="font-size:15px">${r.title}</strong>
+				<p style="margin:8px 0 0;font-size:13px;color:#333">${r.description}</p>
+			</div>
+		`).join('')}
+	` : '';
+
 	const placementsHtml = data.expiringPlacements.length > 0 ? `
 		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Utløpende plasseringer (7 dager)</h2>
 		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
@@ -559,6 +709,8 @@ function renderHtml(data: DigestData): string {
 	${pipelineHtml}
 	${trafficHtml}
 	${subscriberHtml}
+	${festivalHtml}
+	${remindersHtml}
 	${placementsHtml}
 
 	<div style="border-top:1px solid #ddd;padding-top:12px;margin-top:24px;color:#999;font-size:12px">
@@ -650,6 +802,9 @@ async function main() {
 		collectExpiringPlacements()
 	]);
 
+	const festivalReminders = collectFestivalReminders();
+	const reminders = collectReminders();
+
 	const digestData: DigestData = {
 		date: TODAY,
 		pending,
@@ -659,7 +814,9 @@ async function main() {
 		lastPipeline,
 		traffic,
 		subscribers,
-		expiringPlacements
+		expiringPlacements,
+		festivalReminders,
+		reminders
 	};
 
 	const total = pending.corrections + pending.submissions + pending.optouts + pending.inquiries;
@@ -678,6 +835,9 @@ async function main() {
 	}
 	if (staleSources.length > 0) {
 		console.log(`   Stale sources (0 upcoming events): ${staleSources.map(s => s.source).join(', ')}`);
+	}
+	if (festivalReminders.length > 0) {
+		console.log(`   Festival reminders: ${festivalReminders.map(f => `${f.name} (${f.daysUntil <= 0 ? 'pågår' : f.daysUntil + 'd'})`).join(', ')}`);
 	}
 	if (lastPipeline) {
 		console.log(`   Last pipeline: ${lastPipeline.scrapersRun} ran, ${lastPipeline.scrapersSkipped.length} skipped, ${lastPipeline.scrapersMissing.length} missing`);

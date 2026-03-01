@@ -1,0 +1,7 @@
+[
+  {
+    "date": "2026-03-03",
+    "title": "Sjekk DNT ticket-URLer",
+    "description": "Verifiser at DNT-eventer på gaari.no har riktige registreringslenker (aktiviteter.dnt.no/register/{id}). Test: https://gaari.no/no/events/tellevikafjellet-med-dnt-naertur-bergen-2026-03-01 og https://gaari.no/no/events/enkel-fottur-i-kanadaskogen-2026-03-02"
+  }
+]
