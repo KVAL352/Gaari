@@ -104,11 +104,19 @@ describe('source count consistency', () => {
 		}
 	});
 
+	it('datainnsamling page references match actual scraper count', () => {
+		const counts = findSourceCounts(path.join(projectRoot, 'src/routes/[lang]/datainnsamling/+page.svelte'));
+		for (const count of counts) {
+			expect(count, `datainnsamling page says ${count} but actual active scrapers: ${activeCount}`).toBe(activeCount);
+		}
+	});
+
 	it('all source count references are consistent', () => {
 		const files = [
 			'src/lib/seo.ts',
 			'src/lib/collections.ts',
-			'static/llms.txt'
+			'static/llms.txt',
+			'src/routes/[lang]/datainnsamling/+page.svelte'
 		];
 		const allCounts = new Set<number>();
 		for (const file of files) {
