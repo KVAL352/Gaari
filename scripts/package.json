@@ -22,7 +22,7 @@
     "@supabase/supabase-js": "^2.98.0",
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.0",
-    "satori": "^0.12.1"
+    "satori": "^0.19.2"
   },
   "devDependencies": {
     "tsx": "^4.7.0",
