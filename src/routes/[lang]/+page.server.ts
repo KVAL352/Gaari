@@ -10,13 +10,13 @@ export const load: PageServerLoad = async ({ setHeaders, url, params }) => {
 	const lang = params.lang === 'en' ? 'en' : 'no';
 
 	try {
-		// Use Norwegian time so Vercel (UTC) filters correctly
-		const nowOslo = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Oslo' }).replace(' ', 'T');
+		// Use UTC — date_start is stored as UTC (timestamptz) in Supabase
+		const nowUtc = new Date().toISOString();
 		const { data, error } = await supabase
 			.from('events')
 			.select('id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status')
 			.in('status', ['approved', 'cancelled'])
-			.gte('date_start', nowOslo)
+			.gte('date_start', nowUtc)
 			.order('date_start', { ascending: true })
 			.limit(500);
 
