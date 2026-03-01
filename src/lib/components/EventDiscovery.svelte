@@ -397,7 +397,7 @@
 
 <section
 	aria-label={$t('eventDiscovery')}
-	class="mx-auto max-w-7xl px-4 py-4"
+	class="mx-auto max-w-7xl px-4 py-2 md:py-4"
 >
 	<div class="discovery-panel">
 		<h2 class="panel-heading">{$t('findEvents')}</h2>
@@ -986,7 +986,8 @@
 	/* Mobile */
 	@media (max-width: 767px) {
 		.discovery-panel {
-			padding: 1rem;
+			padding: 0.75rem;
+			gap: 0.5rem;
 			border-radius: 0;
 			box-shadow: none;
 			border-bottom: 1px solid var(--color-border);
