@@ -23,6 +23,7 @@
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content={`${pageTitle} — Gåri`} />
 	<meta name="twitter:description" content={metaDesc} />
+	<meta name="twitter:image" content={`${$page.url.origin}/og/default.png`} />
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">

@@ -9,10 +9,11 @@ export const GET: RequestHandler = async ({ params, url }) => {
 		throw error(404, 'Collection not found');
 	}
 
+	const lang = url.searchParams.get('lang') === 'en' ? 'en' : 'no';
 	const result = await generateCollectionOgImage({
 		origin: url.origin,
-		title: collection.title.no,
-		subtitle: collection.ogSubtitle.no
+		title: collection.title[lang],
+		subtitle: collection.ogSubtitle[lang]
 	});
 
 	return new Response(result.data as unknown as BodyInit, {

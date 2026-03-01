@@ -26,6 +26,7 @@
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content={`${$t('dataCollectionTitle')} — Gåri`} />
 	<meta name="twitter:description" content={metaDesc} />
+	<meta name="twitter:image" content={`${$page.url.origin}/og/default.png`} />
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">
@@ -37,11 +38,11 @@
 		<p class="text-lg leading-relaxed">
 			{#if $lang === 'no'}
 				Vi tror på åpenhet om hvordan vi samler inn eventdata. Gåri aggregerer offentlig tilgjengelig
-				informasjon om arrangementer i Bergen fra {50} kilder, slik at du kan finne alt som skjer på
+				informasjon om arrangementer i Bergen fra 50 kilder, slik at du kan finne alt som skjer på
 				ett sted.
 			{:else}
 				We believe in transparency about how we collect event data. Gåri aggregates publicly
-				available event information from {50} sources across Bergen, so you can find everything
+				available event information from 50 sources across Bergen, so you can find everything
 				happening in one place.
 			{/if}
 		</p>

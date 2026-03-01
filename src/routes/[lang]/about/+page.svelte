@@ -23,6 +23,7 @@
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content={`${$t('aboutTitle')} — Gåri`} />
 	<meta name="twitter:description" content={$t('aboutText')} />
+	<meta name="twitter:image" content={`${$page.url.origin}/og/default.png`} />
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + orgJsonLd + '</scr' + 'ipt>'}
 	{@html '<script type="application/ld+json">' + faqJsonLd + '</scr' + 'ipt>'}
