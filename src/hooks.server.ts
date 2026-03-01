@@ -1,4 +1,5 @@
 import type { Handle, HandleServerError } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 
 // ── Rate limiting (in-memory, per-IP) ──
 
@@ -103,6 +104,15 @@ export const handleError: HandleServerError = ({ error, event, status }) => {
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
+	// 301-redirect non-canonical domains (gåri.no, www) to gaari.no
+	const host = event.request.headers.get('host')?.replace(/:\d+$/, '') ?? '';
+	if (host && host !== 'gaari.no' && host !== 'localhost') {
+		const url = new URL(event.request.url);
+		url.host = 'gaari.no';
+		url.port = '';
+		redirect(301, url.toString());
+	}
+
 	const tier = getRateLimitTier(event.url.pathname, event.request.method);
 
 	// Apply rate limiting based on tier (skip during prerendering)
