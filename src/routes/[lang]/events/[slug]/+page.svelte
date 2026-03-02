@@ -174,16 +174,16 @@
 
 	<!-- Action buttons -->
 	<div class="mb-8 flex flex-wrap gap-3">
-		{#if event.ticket_url && !isCancelled}
+		{#if (event.ticket_url || event.source_url) && !isCancelled}
 			<a
-				href={buildOutboundUrl(event.ticket_url, 'event_detail', event.venue_name, event.slug)}
+				href={buildOutboundUrl(event.ticket_url || event.source_url!, 'event_detail', event.venue_name, event.slug)}
 				target="_blank"
 				rel="noopener noreferrer"
 				onclick={trackTicketClick}
 				class="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
 			>
 				<ExternalLink size={16} />
-				{isFreeEvent(event.price) ? ($lang === 'no' ? 'Mer info' : 'More info') : $t('buyTickets')}
+				{isFreeEvent(event.price) ? ($lang === 'no' ? 'Mer info' : 'More info') : event.ticket_url ? $t('buyTickets') : ($lang === 'no' ? 'Gå til arrangement' : 'Go to event')}
 			</a>
 		{/if}
 		<CalendarDropdown event={calendarData} />

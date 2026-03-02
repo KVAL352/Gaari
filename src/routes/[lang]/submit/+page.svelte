@@ -53,55 +53,72 @@
 		return new Promise((resolve, reject) => {
 			const img = new Image();
 			img.onload = () => {
-				let warning = '';
-				const w = img.naturalWidth;
-				const h = img.naturalHeight;
+				try {
+					let warning = '';
+					const w = img.naturalWidth;
+					const h = img.naturalHeight;
 
-				// Check minimum width
-				if (w < 800) {
+					// Check minimum width
+					if (w < 800) {
+						reject(new Error($lang === 'no'
+							? `Bildet er for lite (${w}px bredt). Minimum 800px bredde.`
+							: `Image is too small (${w}px wide). Minimum 800px width.`));
+						return;
+					}
+
+					// Aspect ratio check
+					const ratio = w / h;
+					if (ratio < 1.2) {
+						warning = $lang === 'no'
+							? 'Tips: Liggende format (16:9) ser best ut på siden.'
+							: 'Tip: Landscape format (16:9) looks best on the site.';
+					}
+
+					// Resize if wider than 1200px
+					const maxWidth = 1200;
+					const canvas = document.createElement('canvas');
+					const ctx = canvas.getContext('2d');
+
+					if (!ctx) {
+						reject(new Error($lang === 'no'
+							? 'Kunne ikke behandle bildet. Prøv et annet bilde.'
+							: 'Could not process the image. Please try another image.'));
+						return;
+					}
+
+					if (w > maxWidth) {
+						const scale = maxWidth / w;
+						canvas.width = maxWidth;
+						canvas.height = Math.round(h * scale);
+					} else {
+						canvas.width = w;
+						canvas.height = h;
+					}
+
+					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+					canvas.toBlob(
+						(blob) => {
+							if (blob) {
+								resolve({ blob, warning });
+							} else {
+								reject(new Error($lang === 'no'
+									? 'Kunne ikke behandle bildet. Prøv et mindre bilde.'
+									: 'Could not process the image. Try a smaller image.'));
+							}
+						},
+						'image/jpeg',
+						0.85
+					);
+				} catch {
 					reject(new Error($lang === 'no'
-						? `Bildet er for lite (${w}px bredt). Minimum 800px bredde.`
-						: `Image is too small (${w}px wide). Minimum 800px width.`));
-					return;
+						? 'Bildebehandling feilet. Prøv et mindre eller annet bilde.'
+						: 'Image processing failed. Try a smaller or different image.'));
 				}
-
-				// Aspect ratio check
-				const ratio = w / h;
-				if (ratio < 1.2) {
-					warning = $lang === 'no'
-						? 'Tips: Liggende format (16:9) ser best ut på siden.'
-						: 'Tip: Landscape format (16:9) looks best on the site.';
-				}
-
-				// Resize if wider than 1200px
-				const maxWidth = 1200;
-				const canvas = document.createElement('canvas');
-				const ctx = canvas.getContext('2d')!;
-
-				if (w > maxWidth) {
-					const scale = maxWidth / w;
-					canvas.width = maxWidth;
-					canvas.height = Math.round(h * scale);
-				} else {
-					canvas.width = w;
-					canvas.height = h;
-				}
-
-				ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-				canvas.toBlob(
-					(blob) => {
-						if (blob) {
-							resolve({ blob, warning });
-						} else {
-							reject(new Error('Failed to process image'));
-						}
-					},
-					'image/jpeg',
-					0.85
-				);
 			};
-			img.onerror = () => reject(new Error('Failed to load image'));
+			img.onerror = () => reject(new Error($lang === 'no'
+				? 'Kunne ikke lese bildet. Prøv et annet format (JPG eller PNG).'
+				: 'Could not read the image. Try another format (JPG or PNG).'));
 			img.src = URL.createObjectURL(file);
 		});
 	}
@@ -190,7 +207,17 @@
 		}
 
 		// Upload image if provided
-		let imageUrl = await uploadImage(slug);
+		let imageUrl: string | null = null;
+		if (processedBlob) {
+			imageUrl = await uploadImage(slug);
+			if (!imageUrl) {
+				submitError = $lang === 'no'
+					? 'Bildeopplasting feilet. Prøv igjen, eller send uten bilde.'
+					: 'Image upload failed. Please try again, or submit without the image.';
+				submitting = false;
+				return;
+			}
+		}
 
 		const submitterEmail = (fd.get('submitter-email') as string)?.trim() || null;
 
@@ -596,7 +623,7 @@
 						<span class="text-xs text-[var(--color-text-muted)]">JPG, PNG, WebP — maks 5 MB</span>
 						<input
 							type="file"
-							accept="image/jpeg,image/png,image/webp"
+							accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp,.heic,.heif"
 							onchange={handleImageSelect}
 							class="hidden"
 						/>
