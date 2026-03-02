@@ -329,7 +329,7 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (678 tests, runs in <500ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (696 tests, runs in <500ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
 - `src/lib/__tests__/event-filters.test.ts` — 55 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary), `getEasterDate` (11 known dates 2024-2038), `getISOWeekDates` (cross-year week 1, week 9/41, week 52/53 boundaries), `getContextualHighlight` (weekday/weekend/evening logic, 9 cases)
@@ -340,6 +340,7 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 - `scripts/lib/__tests__/utils.test.ts` — 43 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `detectFreeFromText` (Norwegian/English keywords, case-insensitive, partial-word rejection), `isOptedOut`
 - `scripts/lib/__tests__/dedup.test.ts` — 17 tests: `titlesMatch` (exact, containment with 0.6 ratio guard, 90% prefix with 1.3 ratio, short titles, real-world normalized), `scoreEvent` (source rank, image/ticket/description bonuses, aggregator URL exclusion)
 - `scripts/lib/__tests__/scraper-health.test.ts` — 16 tests: `classifyScrapers` (healthy, broken via consecutive zeros, broken via consecutive errors, warning via drop from average, dormant seasonal scrapers, mixed statuses, empty data)
+- `scripts/lib/__tests__/ticket-validation.test.ts` — 18 tests: `validateTicketUrl` (Hoopla noindex/date_mismatch/valid/error, TicketCo 404/410/200, Eventbrite, Billetto, unknown platforms, UA headers)
 - `src/lib/__tests__/query-timezone.test.ts` — 6 tests: Regression tests verifying homepage and collection page queries use UTC (not Oslo local time) for `date_start` filtering. Demonstrates CET/CEST offset bugs.
 
 **Config:** Vitest reads from `vite.config.ts` (`test.include: ['src/**/*.test.ts', 'scripts/**/*.test.ts']`). Scraper tests mock `supabase.js` and `venues.js` via `vi.mock()`.
