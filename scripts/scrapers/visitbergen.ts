@@ -3,6 +3,7 @@ import { mapCategory, mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
+import { validateTicketUrl } from '../lib/ticket-validation.js';
 
 const SOURCE = 'visitbergen';
 const BASE_URL = 'https://www.visitbergen.com';
@@ -216,6 +217,16 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				ticketUrl = event.detailUrl;
 			}
 		} catch { /* keep ticketUrl as-is */ }
+
+		// Validate external ticket URLs against the actual platform
+		// Skip events where the ticket platform says the event is expired or has a different date
+		if (ticketUrl !== event.detailUrl) {
+			const validation = await validateTicketUrl(ticketUrl, dateStart);
+			if (validation === 'expired' || validation === 'date_mismatch') {
+				console.log(`  ⊘ Skipped ${event.title} — ticket URL ${validation} (${ticketUrl})`);
+				continue;
+			}
+		}
 
 		const success = await insertEvent({
 			slug: makeSlug(event.title, dateStart),
