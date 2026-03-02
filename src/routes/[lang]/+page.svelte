@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { goto, beforeNavigate, afterNavigate } from '$app/navigation';
 	import { tick } from 'svelte';
+	import { browser } from '$app/environment';
 	import { lang, t } from '$lib/i18n';
 	import { isFreeEvent } from '$lib/utils';
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString } from '$lib/event-filters';
@@ -157,6 +158,19 @@
 
 	let websiteJsonLd = $derived(generateWebSiteJsonLd($lang));
 
+	// Filter transition animation
+	let filterFingerprint = $derived(`${when}|${time}|${audience}|${category}|${bydel}|${price}`);
+	let transitioning = $state(false);
+	let initialFingerprint = true;
+	$effect(() => {
+		const _ = filterFingerprint;
+		if (initialFingerprint) { initialFingerprint = false; return; }
+		if (!browser) return;
+		transitioning = true;
+		const timeout = setTimeout(() => { transitioning = false; }, 200);
+		return () => clearTimeout(timeout);
+	});
+
 	// Scroll restoration: save position when leaving, restore on back navigation
 	beforeNavigate(() => {
 		sessionStorage.setItem('gaari-home-scroll', String(window.scrollY));
@@ -194,7 +208,7 @@
 	{#if displayedEvents[0]?.image_url}
 		<link rel="preload" as="image"
 			href={optimizedSrc(displayedEvents[0].image_url, 400)}
-			imagesrcset={optimizedSrcset(displayedEvents[0].image_url, [400, 600, 800])}
+			imagesrcset={optimizedSrcset(displayedEvents[0].image_url, [400, 600])}
 			imagesizes="(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc(50vw - 2.5rem), 400px" />
 	{/if}
 	<!-- eslint-disable svelte/no-at-html-tags -->
@@ -212,7 +226,7 @@
 />
 
 
-<div class="mx-auto max-w-7xl px-4 py-2 md:py-3" aria-live="polite" aria-atomic="true">
+<div class="mx-auto max-w-7xl px-4 py-1 md:py-3" aria-live="polite" aria-atomic="true">
 	{#if filteredEvents.length === 0}
 		<EmptyState
 			{popularEvents}
@@ -220,7 +234,23 @@
 			onBrowseAll={handleClearAll}
 		/>
 	{:else}
-		<EventGrid events={displayedEvents} />
-		<LoadMore shown={displayedEvents.length} total={filteredEvents.length} href={nextPageHref} />
+		<div class="event-results" class:fading={transitioning}>
+			<EventGrid events={displayedEvents} />
+			<LoadMore shown={displayedEvents.length} total={filteredEvents.length} href={nextPageHref} />
+		</div>
 	{/if}
 </div>
+
+<style>
+	.event-results {
+		transition: opacity 0.2s ease;
+	}
+	.event-results.fading {
+		opacity: 0.5;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.event-results {
+			transition: none;
+		}
+	}
+</style>

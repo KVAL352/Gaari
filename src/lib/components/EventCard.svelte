@@ -89,7 +89,7 @@
 			{#if event.image_url && !imgError}
 				<img
 					src={optimizedSrc(event.image_url, 400)}
-					srcset={optimizedSrcset(event.image_url, [400, 600, 800])}
+					srcset={optimizedSrcset(event.image_url, [400, 600])}
 					sizes="(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc(50vw - 2.5rem), 400px"
 					alt={title}
 					loading={eager ? 'eager' : 'lazy'}

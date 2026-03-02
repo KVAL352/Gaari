@@ -105,7 +105,7 @@
 		{#if event.image_url}
 			<img
 				src={optimizedSrc(event.image_url, 800)}
-				srcset={optimizedSrcset(event.image_url, [600, 800, 1200])}
+				srcset={optimizedSrcset(event.image_url, [800, 1200])}
 				sizes="(max-width: 56rem) calc(100vw - 2rem), 54rem"
 				alt={title}
 				class="h-full w-full object-cover"
