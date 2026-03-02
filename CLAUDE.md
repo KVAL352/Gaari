@@ -167,6 +167,10 @@ The homepage uses a discovery filter (`EventDiscovery.svelte`) instead of tradit
 - **When?** — Pills: I dag, I morgen, Denne helgen, Denne uken, Velg dato (opens inline MiniCalendar). Time of day sub-section: Morgen (6–12), Dagtid (12–17), Kveld (17–22), Natt (22–6).
 - **What?** — Multi-select category pills (first 4 shown, expandable) + price filter (Trolig gratis / Betalt).
 - **Where?** — Bydel pills.
+- **Result counts on pills** — When, Bydel, and Price pills show match counts (e.g., "I dag 5", "Sentrum 23") for information scent. Category and Audience pills already had counts.
+- **Contextual highlight** — `getContextualHighlight()` in `event-filters.ts` highlights the most relevant When pill: "I dag" after 16:00, "Denne helgen" on Fri–Sun. Disappears when user selects a When filter. Uses `highlighted` prop on FilterPill (red-subtle border+bg).
+- **When section open by default** — `expandWhen = $state(true)`. When pills are directly visible without clicking the "Når?" toggle.
+- **Filter transition** — 200ms opacity fade on event grid when filters change. Respects `prefers-reduced-motion`. Skips initial mount.
 - **Result counter** — Only shown when filters are active (hidden by default to save space).
 - **Mobile optimizations**: Hero section hidden, spacing tightened (panel gap 0.5rem, padding 0.75rem), audience pills collapsed to 3, filter toggles behind single button.
 - **FilterBar is hidden** from the homepage when EventDiscovery is active. EventDiscovery is the sole filter UI on the homepage.
@@ -325,10 +329,10 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (669 tests, runs in <500ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (678 tests, runs in <500ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
-- `src/lib/__tests__/event-filters.test.ts` — 46 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary), `getEasterDate` (11 known dates 2024-2038), `getISOWeekDates` (cross-year week 1, week 9/41, week 52/53 boundaries)
+- `src/lib/__tests__/event-filters.test.ts` — 55 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary), `getEasterDate` (11 known dates 2024-2038), `getISOWeekDates` (cross-year week 1, week 9/41, week 52/53 boundaries), `getContextualHighlight` (weekday/weekend/evening logic, 9 cases)
 - `src/lib/__tests__/utils.test.ts` — 31 tests: `isFreeEvent` (all truthy/falsy cases, case-insensitive, Norwegian zero-price formats, whitespace trimming), `formatPrice` (both locales, numeric, string, null, zero-price format propagation), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases)
 - `src/lib/__tests__/seo.test.ts` — 44 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, cancelled status, language fallback), `toBergenIso` (UTC→CEST/CET, DST boundaries, passthrough, invalid), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions), `generateCollectionJsonLd` (ItemList, positions, lang prefix, 50-item cap), `computeCanonical` (all 7 rules, EN/NO variants, noindex threshold, noise params)
 - `src/lib/__tests__/seo-audit.test.ts` — 365 tests: SEO validation rules (meta tags, JSON-LD structure, canonical URLs, sitemap entries, performance budgets, source count consistency incl. datainnsamling page)
