@@ -35,10 +35,16 @@ export async function GET() {
 
 	// For arrangører / For organizers — temporarily hidden while under construction
 
-	// Collection pages in both languages (with paired slug support for hreflang)
+	// Collection pages — only emit URL for language(s) the slug belongs to
 	for (const slug of getAllCollectionSlugs()) {
 		const hreflang = getHreflangSlugs(slug);
-		for (const lang of ['no', 'en'] as const) {
+		// Determine which language(s) this slug is canonical for
+		const languages: ('no' | 'en')[] = [];
+		if (hreflang.no === slug) languages.push('no');
+		if (hreflang.en === slug) languages.push('en');
+		if (languages.length === 0) languages.push('no', 'en'); // fallback
+
+		for (const lang of languages) {
 			const altLang = lang === 'no' ? 'en' : 'no';
 			urls += `  <url>
     <loc>${BASE}/${lang}/${slug}</loc>
