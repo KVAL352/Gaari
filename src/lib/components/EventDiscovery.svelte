@@ -10,7 +10,7 @@
 	import { Users, Drama, GraduationCap, Moon, MapPin, Mail, Sparkle } from 'lucide-svelte';
 	import { slide } from 'svelte/transition';
 	import { browser } from '$app/environment';
-	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, addDays, getEndOfWeekDateStr } from '$lib/event-filters';
+	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, addDays, getEndOfWeekDateStr, getContextualHighlight } from '$lib/event-filters';
 
 	interface Props {
 		lang: Lang;
@@ -34,7 +34,7 @@
 	let showCalendar = $state(false);
 	let showAllCategories = $state(false);
 	let showAllAudience = $state(false);
-	let expandWhen = $state(false);
+	let expandWhen = $state(true);
 	let expandCategories = $state(false);
 	let expandMoreFilters = $state(false);
 	let expandFiltersPanel = $state(false);
@@ -106,6 +106,19 @@
 		};
 	});
 
+	let bydelCounts = $derived.by(() => {
+		const counts: Record<string, number> = {};
+		for (const b of BYDELER) {
+			counts[b] = activeEvents.filter(e => e.bydel === b).length;
+		}
+		return counts;
+	});
+
+	let priceCounts = $derived.by(() => ({
+		free: activeEvents.filter(e => isFreeEvent(e.price)).length,
+		paid: activeEvents.filter(e => !isFreeEvent(e.price)).length
+	}));
+
 	// ── Step 1: When? ──
 	const whenOptions = [
 		{ value: 'today', labelKey: 'today' },
@@ -127,6 +140,8 @@
 			week: lang === 'no' ? '7 dager' : '7 days'
 		} as Record<string, string>;
 	});
+
+	let highlightedWhen = $derived(when ? '' : getContextualHighlight(getOsloNow()));
 
 	let isCalendarDate = $derived(when.match(/^\d{4}-\d{2}-\d{2}/));
 
@@ -531,6 +546,8 @@
 							<FilterPill
 								label={$t(opt.labelKey)}
 								sublabel={whenSublabels[opt.value]}
+								count={whenCounts[opt.value]}
+								highlighted={opt.value === highlightedWhen}
 								selected={when === opt.value}
 								onclick={() => handleWhenSelect(opt.value)}
 							/>
@@ -603,11 +620,13 @@
 					<div class="pill-row" role="group" aria-label={$t('priceLabel')} onkeydown={handlePillKeydown}>
 						<FilterPill
 							label={$t('likelyFree')}
+							count={priceCounts.free}
 							selected={price === 'free'}
 							onclick={() => onFilterChange('price', price === 'free' ? '' : 'free')}
 						/>
 						<FilterPill
 							label={$t('paid')}
+							count={priceCounts.paid}
 							selected={price === 'paid'}
 							onclick={() => onFilterChange('price', price === 'paid' ? '' : 'paid')}
 						/>
@@ -626,6 +645,7 @@
 						{#each BYDELER as b (b)}
 							<FilterPill
 								label={b}
+								count={bydelCounts[b]}
 								selected={bydel === b}
 								onclick={() => handleBydelSelect(b)}
 							/>
@@ -1128,6 +1148,10 @@
 			border-radius: 0;
 			box-shadow: none;
 			border-bottom: 1px solid var(--color-border);
+		}
+
+		.panel-heading {
+			font-size: 0.8125rem;
 		}
 	}
 </style>

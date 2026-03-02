@@ -10,6 +10,7 @@
 		sublabel?: string;
 		color?: string;
 		variant?: 'default' | 'category';
+		highlighted?: boolean;
 	}
 
 	let {
@@ -21,7 +22,8 @@
 		count,
 		sublabel,
 		color,
-		variant = 'default'
+		variant = 'default',
+		highlighted = false
 	}: Props = $props();
 
 	let isCategory = $derived(variant === 'category' && !!color);
@@ -48,6 +50,7 @@
 	{onclick}
 	class="filter-pill"
 	class:selected
+	class:highlighted={highlighted && !selected}
 	class:has-sublabel={!!sublabel}
 	class:category-variant={isCategory}
 	class:category-selected={isCategory && selected}
@@ -139,6 +142,11 @@
 		background: unset;
 		border-color: unset;
 		filter: brightness(0.95);
+	}
+
+	.filter-pill.highlighted {
+		border-color: var(--color-accent);
+		background: var(--funkis-red-subtle);
 	}
 
 	.filter-pill:focus-visible {

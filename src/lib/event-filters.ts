@@ -90,6 +90,15 @@ export function getISOWeekDates(year: number, week: number): { start: string; en
 	return { start: formatDateStr(targetMonday), end: formatDateStr(targetSunday) };
 }
 
+/** Suggest which When filter to highlight based on current time in Oslo */
+export function getContextualHighlight(now: Date): string {
+	const hour = now.getHours();
+	const day = now.getDay(); // 0=Sun, 6=Sat
+	if (hour >= 16) return 'today';
+	if ((day === 5 && hour >= 12) || day === 6 || day === 0) return 'weekend';
+	return '';
+}
+
 export function matchesTimeOfDay(dateStart: string, times: string[]): boolean {
 	// Convert UTC timestamp to Oslo local hour
 	const date = new Date(dateStart);

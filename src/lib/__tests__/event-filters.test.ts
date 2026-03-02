@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { matchesTimeOfDay, getWeekendDates, isSameDay, toOsloDateStr, addDays, getEndOfWeekDateStr, buildQueryString, getEasterDate, getISOWeekDates } from '../event-filters';
+import { matchesTimeOfDay, getWeekendDates, isSameDay, toOsloDateStr, addDays, getEndOfWeekDateStr, buildQueryString, getEasterDate, getISOWeekDates, getContextualHighlight } from '../event-filters';
 
 describe('matchesTimeOfDay', () => {
 	// Winter (CET, UTC+1): 19:00 UTC = 20:00 Oslo = evening
@@ -228,5 +228,52 @@ describe('getISOWeekDates', () => {
 		const { start, end } = getISOWeekDates(2027, 9);
 		expect(start).toBe('2027-03-01');
 		expect(end).toBe('2027-03-07');
+	});
+});
+
+describe('getContextualHighlight', () => {
+	it('returns "today" after 16:00 on a weekday', () => {
+		// Wednesday 17:00
+		expect(getContextualHighlight(new Date(2026, 2, 4, 17, 0))).toBe('today');
+	});
+
+	it('returns "today" at 22:00 on a weekday', () => {
+		// Tuesday 22:00
+		expect(getContextualHighlight(new Date(2026, 2, 3, 22, 0))).toBe('today');
+	});
+
+	it('returns empty string before 16:00 on a weekday', () => {
+		// Wednesday 10:00
+		expect(getContextualHighlight(new Date(2026, 2, 4, 10, 0))).toBe('');
+	});
+
+	it('returns "weekend" on Friday after 12:00', () => {
+		// Friday 14:00
+		expect(getContextualHighlight(new Date(2026, 2, 6, 14, 0))).toBe('weekend');
+	});
+
+	it('returns "today" on Friday after 16:00 (today takes precedence)', () => {
+		// Friday 18:00 — after 16:00, "today" wins
+		expect(getContextualHighlight(new Date(2026, 2, 6, 18, 0))).toBe('today');
+	});
+
+	it('returns "weekend" on Saturday morning', () => {
+		// Saturday 10:00
+		expect(getContextualHighlight(new Date(2026, 2, 7, 10, 0))).toBe('weekend');
+	});
+
+	it('returns "today" on Saturday after 16:00', () => {
+		// Saturday 17:00
+		expect(getContextualHighlight(new Date(2026, 2, 7, 17, 0))).toBe('today');
+	});
+
+	it('returns "weekend" on Sunday morning', () => {
+		// Sunday 11:00
+		expect(getContextualHighlight(new Date(2026, 2, 8, 11, 0))).toBe('weekend');
+	});
+
+	it('returns empty string on Monday morning', () => {
+		// Monday 09:00
+		expect(getContextualHighlight(new Date(2026, 2, 2, 9, 0))).toBe('');
 	});
 });
