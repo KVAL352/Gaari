@@ -59,5 +59,10 @@
     "date": "2026-03-10",
     "title": "Sjekk SEO-rapport levering",
     "description": "SEO-rapporten fra mandag 2. mars ankom aldri Protonmail (post@gaari.no), selv om GHA-loggen bekreftet sending via Resend. Test 4. mars viste at leveringen fungerer nå. Sjekk etter kl. 10:00 CET om dagens SEO-rapport (sendt mandag 09:00 UTC) har ankommet. Hvis ikke: legg til backup-adresse i seo-weekly-report.ts."
+  },
+  {
+    "date": "2027-01-15",
+    "title": "Oppdater festivaldatoer i guide-siden",
+    "description": "Guide-siden (src/routes/[lang]/guide/+page.svelte) har hardkodede festivaldatoer i getSeasonWindows() for sesong-badges (Pågår nå / Kommer snart). Oppdater datoene for 2027: Borealis, Festspillene, Nattjazz, Bergenfest, Bergen Pride, Beyond the Gates, BIFF. Sjekk festivalenes nettsider for offisielle datoer."
   }
 ]
