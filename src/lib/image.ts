@@ -1,30 +1,15 @@
-import { dev } from '$app/environment';
+/**
+ * Image helpers.
+ *
+ * Vercel Image Optimization is disabled (free-tier quota exhausted).
+ * These functions now pass through the original URL.
+ * To re-enable, restore the /_vercel/image proxy logic.
+ */
 
-const ALLOWED_WIDTHS = [400, 600, 800, 1200];
-
-function snapWidth(w: number): number {
-	let best = ALLOWED_WIDTHS[0];
-	for (const size of ALLOWED_WIDTHS) {
-		if (size >= w) return size;
-		best = size;
-	}
-	return best;
+export function optimizedSrc(url: string, _width?: number, _quality?: number): string {
+	return url.replace(/^http:\/\//, 'https://');
 }
 
-export function optimizedSrc(url: string, width: number, quality = 75): string {
-	if (dev) return url;
-	const w = snapWidth(width);
-	const safeUrl = url.replace(/^http:\/\//, 'https://');
-	return `/_vercel/image?url=${encodeURIComponent(safeUrl)}&w=${w}&q=${quality}`;
-}
-
-export function optimizedSrcset(url: string, widths: number[], quality = 75): string {
-	if (dev) return '';
-	const safeUrl = url.replace(/^http:\/\//, 'https://');
-	return widths
-		.map(w => {
-			const snapped = snapWidth(w);
-			return `/_vercel/image?url=${encodeURIComponent(safeUrl)}&w=${snapped}&q=${quality} ${snapped}w`;
-		})
-		.join(', ');
+export function optimizedSrcset(_url: string, _widths: number[], _quality?: number): string {
+	return '';
 }
