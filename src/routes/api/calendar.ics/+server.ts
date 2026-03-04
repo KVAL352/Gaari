@@ -32,7 +32,7 @@ const CATEGORY_MAP: Record<string, string> = {
 export const GET: RequestHandler = async ({ url }) => {
 	const token = url.searchParams.get('token');
 	if (!env.CALENDAR_FEED_TOKEN || token !== env.CALENDAR_FEED_TOKEN) {
-		return new Response(`Unauthorized (env set: ${!!env.CALENDAR_FEED_TOKEN}, len: ${env.CALENDAR_FEED_TOKEN?.length ?? 0})`, { status: 401 });
+		return new Response('Unauthorized', { status: 401 });
 	}
 
 	const { data: items, error } = await supabase
