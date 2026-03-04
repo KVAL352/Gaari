@@ -81,6 +81,23 @@ function resolveVenue(rawVenue: string): { name: string; address: string } {
 	return { name: rawVenue.split(',')[0].trim(), address: 'Bergen' };
 }
 
+/** Fetch the event detail page and extract the hero image from figure.wp-block-image */
+async function fetchEventImage(detailUrl: string, imageCache: Map<string, string | undefined>): Promise<string | undefined> {
+	if (imageCache.has(detailUrl)) return imageCache.get(detailUrl);
+
+	try {
+		const html = await fetchHTML(detailUrl);
+		if (!html) { imageCache.set(detailUrl, undefined); return undefined; }
+		const $ = cheerio.load(html);
+		const img = $('.entry-content figure.wp-block-image img').first().attr('src') || undefined;
+		imageCache.set(detailUrl, img);
+		return img;
+	} catch {
+		imageCache.set(detailUrl, undefined);
+		return undefined;
+	}
+}
+
 export async function scrape(): Promise<{ found: number; inserted: number }> {
 	// Check if festival dates are all past
 	if (new Date(FESTIVAL_DATES.end) < new Date()) {
@@ -100,6 +117,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	const $ = cheerio.load(html);
 	let found = 0;
 	let inserted = 0;
+
+	// Cache detail page images (multiple schedule rows share the same detail page)
+	const imageCache = new Map<string, string | undefined>();
 
 	// Structure: h2 (date header) → figure.schedule > table > tbody > tr (events)
 	const headers = $('h2').toArray();
@@ -165,6 +185,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 			if (await eventExists(sourceUrl)) continue;
 
+			// Fetch image from detail page (cached per detail URL)
+			const detailPageUrl = eventDetailUrl
+				? (eventDetailUrl.startsWith('http') ? eventDetailUrl : `${BASE_URL}${eventDetailUrl}`)
+				: undefined;
+			const image_url = detailPageUrl ? await fetchEventImage(detailPageUrl, imageCache) : undefined;
+
 			const venue = resolveVenue(rawVenue);
 			const title = `Borealis: ${rawTitle}`;
 			const category = guessCategory(rawTitle);
@@ -197,7 +223,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				ticket_url: ticketLink,
 				source: SOURCE,
 				source_url: sourceUrl,
-				image_url: undefined,
+				image_url,
 				age_group: 'all',
 				language: 'both',
 				status: 'approved',
