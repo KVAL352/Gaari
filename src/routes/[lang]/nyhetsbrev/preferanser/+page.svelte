@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
 	import { CATEGORIES, BYDELER } from '$lib/types';
 	import { CATEGORY_HEX_COLORS } from '$lib/utils';
 	import type { PageData, ActionData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
+
+	const token = $derived($page.url.searchParams.get('token') || '');
 
 	let status: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
 
@@ -55,27 +58,21 @@
 	<h1 class="mb-2 text-2xl font-bold text-[var(--color-text-primary)]">{$t('nlPrefsTitle')}</h1>
 	<p class="mb-8 text-[var(--color-text-secondary)]">{$t('nlPrefsDesc')}</p>
 
-	{#if !data.email}
+	{#if data.invalidToken}
+		<div class="rounded-lg border border-amber-200 bg-amber-50 p-6">
+			<p class="text-[var(--color-text-primary)]">
+				{$lang === 'no'
+					? 'Denne lenken er ugyldig eller utl\u00f8pt. Bruk lenken fra nyhetsbrevet ditt for \u00e5 endre preferanser.'
+					: 'This link is invalid or expired. Use the link from your newsletter to change preferences.'}
+			</p>
+		</div>
+	{:else if !data.email}
 		<div class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-6">
-			<p class="mb-4 text-[var(--color-text-secondary)]">{$t('nlPrefsNoEmail')}</p>
-			<form method="GET" class="flex gap-2">
-				<input
-					type="email"
-					name="email"
-					required
-					aria-required="true"
-					placeholder={$lang === 'no' ? 'din@epost.no' : 'your@email.com'}
-					class="flex-1 rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-text-primary)]"
-					style="min-height:44px;"
-				/>
-				<button
-					type="submit"
-					class="rounded-lg px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-					style="min-height:44px;background:#C82D2D;"
-				>
-					{$lang === 'no' ? 'Hent' : 'Fetch'}
-				</button>
-			</form>
+			<p class="text-[var(--color-text-secondary)]">
+				{$lang === 'no'
+					? 'For \u00e5 endre preferansene dine, bruk lenken i nyhetsbrevet du mottok.'
+					: 'To change your preferences, use the link in the newsletter you received.'}
+			</p>
 		</div>
 	{:else}
 		<form
@@ -93,6 +90,7 @@
 			}}
 		>
 			<input type="hidden" name="email" value={data.email} />
+			<input type="hidden" name="token" value={token} />
 			<input type="hidden" name="categories" value={categoriesValue} />
 
 			<!-- Email (read-only) -->

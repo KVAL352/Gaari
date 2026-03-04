@@ -46,6 +46,21 @@
     "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i scripts/scrapers/borealis.ts. Sjekk at /festival-2027/hva-skjer-2027/ finnes. Oppdater også startDate/endDate i FESTIVALS-arrayen i send-daily-digest.ts."
   },
   {
+    "date": "2026-06-01",
+    "title": "Kvartalsvis sikkerhetssjekk Q2 2026",
+    "description": "1) Roter ADMIN_PASSWORD og ADMIN_SESSION_SECRET — oppdater i .env og Vercel env vars. 2) Roter CALENDAR_FEED_TOKEN — generer ny (openssl rand -hex 16), oppdater .env + Vercel + kalender-app. 3) Sjekk om Dependabot-PRer er merget. 4) Kjør 'npm audit' i root og scripts/. 5) Sjekk Vercel logs for CSP-violations. 6) Vurder å rotere GEMINI_API_KEY og RESEND_API_KEY."
+  },
+  {
+    "date": "2026-09-01",
+    "title": "Kvartalsvis sikkerhetssjekk Q3 2026",
+    "description": "1) Roter ADMIN_PASSWORD og ADMIN_SESSION_SECRET — oppdater i .env og Vercel env vars. 2) Roter CALENDAR_FEED_TOKEN — generer ny (openssl rand -hex 16), oppdater .env + Vercel + kalender-app. 3) Sjekk om Dependabot-PRer er merget. 4) Kjør 'npm audit' i root og scripts/. 5) Sjekk Vercel logs for CSP-violations. 6) Vurder å rotere GEMINI_API_KEY og RESEND_API_KEY."
+  },
+  {
+    "date": "2026-12-01",
+    "title": "Kvartalsvis sikkerhetssjekk Q4 2026",
+    "description": "1) Roter ADMIN_PASSWORD og ADMIN_SESSION_SECRET — oppdater i .env og Vercel env vars. 2) Roter CALENDAR_FEED_TOKEN — generer ny (openssl rand -hex 16), oppdater .env + Vercel + kalender-app. 3) Sjekk om Dependabot-PRer er merget. 4) Kjør 'npm audit' i root og scripts/. 5) Sjekk Vercel logs for CSP-violations. 6) Vurder å rotere GEMINI_API_KEY og RESEND_API_KEY."
+  },
+  {
     "date": "2026-03-10",
     "title": "Sjekk SEO-rapport levering",
     "description": "SEO-rapporten fra mandag 2. mars ankom aldri Protonmail (post@gaari.no), selv om GHA-loggen bekreftet sending via Resend. Test 4. mars viste at leveringen fungerer nå. Sjekk etter kl. 10:00 CET om dagens SEO-rapport (sendt mandag 09:00 UTC) har ankommet. Hvis ikke: legg til backup-adresse i seo-weekly-report.ts."

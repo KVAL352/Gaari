@@ -66,7 +66,8 @@ const csp = [
 	"connect-src 'self' https://*.supabase.co https://plausible.io",
 	"frame-ancestors 'none'",
 	"base-uri 'self'",
-	"form-action 'self'"
+	"form-action 'self'",
+	"report-uri /api/csp-report"
 ].join('; ');
 
 // Rate-limited path groups

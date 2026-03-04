@@ -8,6 +8,7 @@
  * Environment: MAILERLITE_API_KEY, PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  */
 
+import { createHmac } from 'crypto';
 import { supabase } from './lib/supabase.js';
 import { getOsloNow, toOsloDateStr, addDays } from '../src/lib/event-filters.js';
 import { generateNewsletterHtml, generateQuietWeekHtml, generateSubject } from './lib/newsletter-template.js';
@@ -19,10 +20,18 @@ import { writeFileSync, mkdirSync } from 'fs';
 dotenv.config({ path: resolve(import.meta.dirname, '../.env') });
 
 const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
+const NEWSLETTER_SIGNING_SECRET = process.env.NEWSLETTER_SIGNING_SECRET;
 const SUMMARY_FILE = process.env.SUMMARY_FILE;
 const DRY_RUN = process.argv.includes('--dry-run');
 const MAX_EVENTS_PER_EMAIL = 12;
 const MAILERLITE_BASE = 'https://connect.mailerlite.com/api';
+
+function generatePreferenceToken(email: string): string {
+	if (!NEWSLETTER_SIGNING_SECRET) throw new Error('NEWSLETTER_SIGNING_SECRET not set');
+	return createHmac('sha256', NEWSLETTER_SIGNING_SECRET)
+		.update(email.toLowerCase().trim())
+		.digest('hex');
+}
 
 // ── Types ──
 
@@ -332,6 +341,30 @@ async function main() {
 		console.log('No subscribers — nothing to send.');
 		writeSummary({ subscribers: 0, groups: 0, sent: 0, errors: 0 });
 		return;
+	}
+
+	// 1b. Backfill preference tokens for subscribers missing them
+	if (NEWSLETTER_SIGNING_SECRET) {
+		const missing = subscribers.filter(s => !s.fields.preference_token);
+		if (missing.length > 0) {
+			console.log(`  Backfilling preference_token for ${missing.length} subscribers...`);
+			for (const sub of missing) {
+				const token = generatePreferenceToken(sub.email);
+				await mlFetch('/subscribers', {
+					method: 'POST',
+					body: JSON.stringify({
+						email: sub.email,
+						fields: { preference_token: token }
+					})
+				});
+				// Update in-memory so grouping sees it
+				sub.fields.preference_token = token;
+			}
+			console.log(`  Backfill complete.`);
+			await delay(1000);
+		}
+	} else {
+		console.warn('  WARNING: NEWSLETTER_SIGNING_SECRET not set — preference links will not have tokens');
 	}
 
 	// 2. Fetch events

@@ -2,15 +2,14 @@ name: Scrape Events
 
 on:
   schedule:
-    # Run twice daily: 6 AM and 6 PM UTC (7 AM and 7 PM CET)
+    # Run once daily at 6 AM UTC (7 AM CET / 8 AM CEST)
     - cron: '0 6 * * *'
-    - cron: '0 18 * * *'
   workflow_dispatch: # Manual trigger from GitHub UI
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v6

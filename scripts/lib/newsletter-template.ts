@@ -251,7 +251,7 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 	const unsubLabel = lang === 'no' ? 'Avslutt abonnement' : 'Unsubscribe';
 	const prefsLabel = lang === 'no' ? 'Endre preferanser' : 'Manage preferences';
 	const privacyLabel = lang === 'no' ? 'Personvern' : 'Privacy';
-	const prefsUrl = `${baseUrl}/${lang}/nyhetsbrev/preferanser?email={$email}&${utmParams}`;
+	const prefsUrl = `${baseUrl}/${lang}/nyhetsbrev/preferanser?email={$email}&token={$preference_token}&${utmParams}`;
 
 	return `<!DOCTYPE html>
 <html lang="${lang === 'no' ? 'nb' : 'en'}" xmlns="http://www.w3.org/1999/xhtml">
@@ -380,7 +380,7 @@ export function generateQuietWeekHtml(data: QuietWeekData): string {
 	const prefsLabel = lang === 'no' ? 'Endre preferansene dine' : 'Update your preferences';
 	const browseLabel = lang === 'no' ? 'Se hva som skjer i Bergen' : 'See what\'s happening in Bergen';
 
-	const prefsUrl = `${baseUrl}/${lang}/nyhetsbrev/preferanser?email={$email}&${utmParams}`;
+	const prefsUrl = `${baseUrl}/${lang}/nyhetsbrev/preferanser?email={$email}&token={$preference_token}&${utmParams}`;
 	const browseUrl = `${baseUrl}/${lang}?${utmParams}`;
 
 	const footerText = lang === 'no'

@@ -38,6 +38,7 @@ jobs:
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           MAILERLITE_API_KEY: ${{ secrets.MAILERLITE_API_KEY }}
+          NEWSLETTER_SIGNING_SECRET: ${{ secrets.NEWSLETTER_SIGNING_SECRET }}
           SUMMARY_FILE: ${{ runner.temp }}/newsletter-summary.json
         run: |
           FLAGS=""

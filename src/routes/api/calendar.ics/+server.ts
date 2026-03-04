@@ -1,9 +1,6 @@
 import { supabase } from '$lib/server/supabase';
+import { CALENDAR_FEED_TOKEN } from '$env/static/private';
 import type { RequestHandler } from './$types';
-
-// Hardcoded feed token — this is an unguessable URL for a private project calendar.
-// Not sensitive data, just project task titles. Simpler than env var propagation.
-const FEED_TOKEN = '602dd7157e0aaf79c32c132ae387660b';
 
 function escapeICS(text: string): string {
 	return text.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
@@ -34,7 +31,7 @@ const CATEGORY_MAP: Record<string, string> = {
 
 export const GET: RequestHandler = async ({ url }) => {
 	const token = url.searchParams.get('token');
-	if (token !== FEED_TOKEN) {
+	if (token !== CALENDAR_FEED_TOKEN) {
 		return new Response('Unauthorized', { status: 401 });
 	}
 

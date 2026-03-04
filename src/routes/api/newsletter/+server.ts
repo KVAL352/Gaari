@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
+import { generatePreferenceToken, buildPreferenceUrl } from '$lib/server/newsletter-auth';
 import type { RequestHandler } from './$types';
 
 // Basic email format validation (RFC 5322 simplified)
@@ -47,6 +48,9 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (price && isValidPreference(price, VALID_PRICE)) fields.preference_price = price;
 	if (langPref && isValidPreference(langPref, VALID_LANG)) fields.preference_lang = langPref;
 
+	// Store HMAC token for signed preference URLs
+	fields.preference_token = generatePreferenceToken(email);
+
 	const body: Record<string, unknown> = { email };
 	if (Object.keys(fields).length > 0) body.fields = fields;
 
@@ -73,6 +77,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	// Send welcome email via Resend (fire-and-forget)
 	if (env.RESEND_API_KEY) {
 		const isEn = langPref === 'en';
+		const prefsUrl = buildPreferenceUrl(email, isEn ? 'en' : 'no');
 		fetch('https://api.resend.com/emails', {
 			method: 'POST',
 			headers: {
@@ -87,8 +92,8 @@ export const POST: RequestHandler = async ({ request }) => {
 					? 'Welcome to the Gåri newsletter!'
 					: 'Velkommen til Gåri-nyhetsbrevet!',
 				text: isEn
-					? 'Hi!\n\nThanks for signing up. You\'ll receive weekly updates about what\'s happening in Bergen — concerts, exhibitions, food, family events and more.\n\nThe newsletter is sent every Thursday.\n\nBest,\nGåri\nhttps://gaari.no'
-					: 'Hei!\n\nTakk for at du meldte deg på. Du får ukentlige oppdateringer om hva som skjer i Bergen — konserter, utstillinger, mat, familie og mer.\n\nNyhetsbrevet sendes ut hver torsdag.\n\nHilsen Gåri\nhttps://gaari.no'
+					? `Hi!\n\nThanks for signing up. You'll receive weekly updates about what's happening in Bergen — concerts, exhibitions, food, family events and more.\n\nThe newsletter is sent every Thursday.\n\nCustomise your preferences: ${prefsUrl}\n\nBest,\nGåri\nhttps://gaari.no`
+					: `Hei!\n\nTakk for at du meldte deg på. Du får ukentlige oppdateringer om hva som skjer i Bergen — konserter, utstillinger, mat, familie og mer.\n\nNyhetsbrevet sendes ut hver torsdag.\n\nTilpass preferansene dine: ${prefsUrl}\n\nHilsen Gåri\nhttps://gaari.no`
 			})
 		}).catch((err) => console.error('Welcome email failed:', err));
 	}

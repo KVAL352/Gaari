@@ -71,8 +71,8 @@ interface ScraperResult {
 	skipped: boolean;
 }
 
-// Pipeline deadline — stop starting new scrapers after 13 minutes (2 min buffer for dedup + summary)
-const PIPELINE_DEADLINE_MS = 13 * 60 * 1000;
+// Pipeline deadline — stop starting new scrapers after 22 minutes (3 min buffer for dedup + summary)
+const PIPELINE_DEADLINE_MS = 22 * 60 * 1000;
 
 const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
 	// --- Fast scrapers first (single page, no detail fetches) ---

@@ -1,9 +1,9 @@
-name: Weekly SEO Report
+name: Monthly SEO Report
 
 on:
   schedule:
-    # Every Monday at 09:00 UTC (10:00 CET / 11:00 CEST)
-    - cron: '0 9 * * 1'
+    # 1st of every month at 09:00 UTC (10:00 CET / 11:00 CEST)
+    - cron: '0 9 1 * *'
   workflow_dispatch:
     inputs:
       dry_run:

@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
+import { verifyPreferenceToken } from '$lib/server/newsletter-auth';
 import type { PageServerLoad, Actions } from './$types';
 
 const ML_BASE = 'https://connect.mailerlite.com/api';
@@ -18,19 +19,25 @@ async function mlFetch(path: string, options: RequestInit = {}) {
 
 export const load: PageServerLoad = async ({ url }) => {
 	const email = url.searchParams.get('email')?.trim() || '';
+	const token = url.searchParams.get('token') || '';
 
 	if (!email) {
-		return { email: '', preferences: null };
+		return { email: '', preferences: null, invalidToken: false };
+	}
+
+	// Require valid HMAC token to access preferences
+	if (!token || !verifyPreferenceToken(email, token)) {
+		return { email: '', preferences: null, invalidToken: true };
 	}
 
 	if (!env.MAILERLITE_API_KEY) {
-		return { email, preferences: null };
+		return { email, preferences: null, invalidToken: false };
 	}
 
 	try {
 		const res = await mlFetch(`/subscribers/${encodeURIComponent(email)}`);
 		if (!res.ok) {
-			return { email, preferences: null };
+			return { email, preferences: null, invalidToken: false };
 		}
 
 		const json = await res.json();
@@ -44,10 +51,11 @@ export const load: PageServerLoad = async ({ url }) => {
 				bydel: fields.preference_bydel || '',
 				price: fields.preference_price || '',
 				lang: fields.preference_lang || 'no'
-			}
+			},
+			invalidToken: false
 		};
 	} catch {
-		return { email, preferences: null };
+		return { email, preferences: null, invalidToken: false };
 	}
 };
 
@@ -55,9 +63,15 @@ export const actions: Actions = {
 	update: async ({ request }) => {
 		const fd = await request.formData();
 		const email = fd.get('email')?.toString().trim();
+		const token = fd.get('token')?.toString().trim();
 
 		if (!email) {
 			return fail(400, { error: true });
+		}
+
+		// Verify HMAC token on update too (prevents forged form submissions)
+		if (!token || !verifyPreferenceToken(email, token)) {
+			return fail(403, { error: true });
 		}
 
 		if (!env.MAILERLITE_API_KEY) {
