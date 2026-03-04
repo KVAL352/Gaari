@@ -62,7 +62,7 @@ const csp = [
 	"script-src 'self' 'unsafe-inline' https://plausible.io",
 	"style-src 'self' 'unsafe-inline'",
 	"font-src 'self'",
-	"img-src 'self' data: https://*.supabase.co",
+	"img-src 'self' data: https:",
 	"connect-src 'self' https://*.supabase.co https://plausible.io",
 	"frame-ancestors 'none'",
 	"base-uri 'self'",
