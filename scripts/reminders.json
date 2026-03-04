@@ -29,5 +29,20 @@
     "date": "2026-03-14",
     "title": "Følg opp Cafe Sanaa",
     "description": "Epost sendt 28. februar til cafesanaa@gmail.com — tilbudt gratis plassering på Gåri + nevnt Google Calendar-mulighet. Ingen svar ennå. Vurder oppfølgingsepost eller annen kontaktkanal (Facebook/Instagram). Sanaa har konserter, DJ-kvelder, dansekurs, loppemarked — god match for Gåri."
+  },
+  {
+    "date": "2026-03-11",
+    "title": "Følg opp Tikkio",
+    "description": "Epost sendt 27. februar — forespørsel om tillatelse til å scrape Tikkio-arrangementer. Kun auto-svar fra Intercom-bot mottatt 3. mars. Ingen menneskelig respons ennå. Scraper klar (scripts/scrapers/tikkio.ts), venter på tillatelse. Send oppfølgingsepost om ingen svar."
+  },
+  {
+    "date": "2026-03-11",
+    "title": "Følg opp DNT (ødelagte URLer)",
+    "description": "Epost sendt 28. februar til André Marton Pedersen (andre.marton.pedersen@dnt.no) om ødelagte aktivitets-URLer fra DNT API. Han svarte 2. mars at han skulle sjekke opp. Verifiser om /aktiviteter-fra-deltager/-URLer fungerer nå. Hvis ikke, send oppfølging."
+  },
+  {
+    "date": "2026-03-10",
+    "title": "Sjekk SEO-rapport levering",
+    "description": "SEO-rapporten fra mandag 2. mars ankom aldri Protonmail (post@gaari.no), selv om GHA-loggen bekreftet sending via Resend. Test 4. mars viste at leveringen fungerer nå. Sjekk etter kl. 10:00 CET om dagens SEO-rapport (sendt mandag 09:00 UTC) har ankommet. Hvis ikke: legg til backup-adresse i seo-weekly-report.ts."
   }
 ]
