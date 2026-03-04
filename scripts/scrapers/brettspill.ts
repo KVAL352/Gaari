@@ -6,6 +6,7 @@ const SOURCE = 'brettspill';
 const API_URL = 'https://bergenbrettspill.no/api/events';
 const VENUE = 'Nordnes Bydelshus';
 const ADDRESS = 'Nordnesgaten 44, Bergen';
+const GROUP_IMAGE = 'https://secure.meetupstatic.com/photos/event/c/5/2/1/highres_481370465.jpeg';
 
 interface BrettspillEvent {
 	id: number;
@@ -59,6 +60,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			price: 'Gratis',
 			ticket_url: event.link || 'https://bergenbrettspill.no',
 			source: SOURCE,
+			image_url: GROUP_IMAGE,
 			source_url: sourceUrl,
 			age_group: 'all',
 			language: 'no',
