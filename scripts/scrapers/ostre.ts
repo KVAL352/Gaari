@@ -39,7 +39,7 @@ function parseOstreDate(dateText: string): { start: string; end?: string } | nul
 
 function resolveDate(day: number, month: number, time: string): string | null {
 	const now = new Date();
-	let year = now.getFullYear();
+	const year = now.getFullYear();
 
 	// Try current year first, fall back to next year if date is in the past
 	let date = buildDate(year, month, day, time);
