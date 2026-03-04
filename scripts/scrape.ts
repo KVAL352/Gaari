@@ -7,6 +7,7 @@ import { scrape as scrapeBergenKommune } from './scrapers/bergenkommune.js';
 import { scrape as scrapeStudentBergen } from './scrapers/studentbergen.js';
 import { scrape as scrapeDNT } from './scrapers/dnt.js';
 import { scrape as scrapeEventbrite } from './scrapers/eventbrite.js';
+import { scrape as scrapeBorealis } from './scrapers/borealis.js';
 import { scrape as scrapeTicketCo } from './scrapers/ticketco.js';
 import { scrape as scrapeHoopla } from './scrapers/hoopla.js';
 // Tikkio: waiting for permission — email sent 2026-02-27
@@ -74,14 +75,13 @@ interface ScraperResult {
 const PIPELINE_DEADLINE_MS = 13 * 60 * 1000;
 
 const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
-	// --- Dedicated venue scrapers first (highest priority) ---
+	// --- Fast venue scrapers first (highest priority) ---
 	bergenlive: scrapeBergenLive,
-	bergenkommune: scrapeBergenKommune,
 	// barnasnorge: scrapeBarnasNorge, // Disabled — see import comment above
 	studentbergen: scrapeStudentBergen,
 	dnt: scrapeDNT,
 	eventbrite: scrapeEventbrite,
-	ticketco: scrapeTicketCo,
+	borealis: scrapeBorealis,
 	hoopla: scrapeHoopla,
 	// tikkio: scrapeTikkio, // Waiting for permission — email sent 2026-02-27
 	nordnessjobad: scrapeNordnesSjobad,
@@ -92,7 +92,6 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	paintnsip: scrapePaintNSip,
 	bergenfilmklubb: scrapeBergenFilmklubb,
 	cornerteateret: scrapeCornerteateret,
-	dvrtvest: scrapeDvrtVest,
 	kunsthall: scrapeKunsthall,
 	brettspill: scrapeBrettspill,
 	mediacity: scrapeMediaCity,
@@ -128,6 +127,10 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	stenematglede: scrapeSteneMatglede,
 	biff: scrapeBIFF,
 	bergenpride: scrapeBergenPride,
+	// --- Slow scrapers near the end (run after fast ones complete) ---
+	ticketco: scrapeTicketCo,
+	bergenkommune: scrapeBergenKommune,
+	dvrtvest: scrapeDvrtVest,
 	// --- Aggregator last (fills gaps, skipped if deadline reached) ---
 	visitbergen: scrapeVisitBergen,
 };

@@ -20,7 +20,7 @@ const SUBDOMAINS = [
 	'bergendansesenter',
 	'vic',
 	'vestnorsk',
-	'borealis',
+	// 'borealis', // Now handled by dedicated scraper (borealis.ts)
 	'nattjazz',
 	'landmark',
 	'sl',
@@ -108,7 +108,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const hasNextPage = $(`a[href*="page=${page + 1}"]`).length > 0;
 			if (!hasNextPage) break;
 
-			await delay(1500);
+			await delay(800);
 		}
 
 		console.log(`  [${subdomain}] Found ${events.length} events`);
@@ -160,7 +160,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			}
 		}
 
-		await delay(3000);
+		if (events.length > 0) await delay(1500);
 	}
 
 	return { found, inserted };

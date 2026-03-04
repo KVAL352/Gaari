@@ -7,7 +7,7 @@ const SOURCE = 'bergenkommune';
 const BASE_URL = 'https://billett.bergen.kommune.no';
 const LIST_URL = `${BASE_URL}/DNComponent/GetFilteredEventList`;
 const MAX_PAGES = 30;
-const DELAY_MS = 1500;
+const DELAY_MS = 1000;
 
 // Skip events not accessible to the general public (kindergartens, school visits, etc.)
 const NON_PUBLIC_KEYWORDS = [
@@ -205,7 +205,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (await eventExists(event.detailUrl)) continue;
 
 		// Fetch detail page for richer data
-		await delay(1500);
+		await delay(1000);
 		const detail = await fetchDetail(event.detailUrl);
 
 		// Skip if detail page reveals non-public content

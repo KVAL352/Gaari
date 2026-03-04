@@ -122,18 +122,28 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		allEvents.push(...events);
 		page++;
-		await delay(3000);
+		await delay(1000);
 	}
 
 	console.log(`[${SOURCE}] Found ${allEvents.length} performance dates across ${page - 1} pages`);
 
-	// Step 2: Group by detail path to fetch show details efficiently
-	const showPaths = [...new Set(allEvents.map(e => e.detailPath).filter(Boolean))];
+	// Step 2: Pre-check which shows have new events — skip detail fetch for known shows
+	const showPathsWithNewEvents = new Set<string>();
+	for (const event of allEvents) {
+		if (event.soldOut) continue;
+		const sourceUrl = event.ticketUrl || `${BASE_URL}${event.detailPath}`;
+		if (!(await eventExists(sourceUrl))) {
+			showPathsWithNewEvents.add(event.detailPath);
+		}
+	}
+
+	const showPaths = [...new Set(allEvents.map(e => e.detailPath).filter(Boolean))]
+		.filter(p => showPathsWithNewEvents.has(p));
 	const showDetails = new Map<string, ShowDetail>();
 
-	console.log(`[${SOURCE}] Fetching details for ${showPaths.length} unique shows...`);
+	console.log(`[${SOURCE}] Fetching details for ${showPaths.length} shows with new events (${showPathsWithNewEvents.size} need details)...`);
 	for (const path of showPaths) {
-		await delay(3000);
+		await delay(1000);
 		showDetails.set(path, await fetchShowDetail(path));
 	}
 
