@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 55 scrapers (53 active) collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 56 scrapers (54 active) collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -37,7 +37,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 5. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
 6. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
-## Scraper sources (55 total, 53 active, 2 disabled)
+## Scraper sources (56 total, 54 active, 2 disabled)
 
 ### General aggregators
 | Source | File | Method |
@@ -55,7 +55,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | Source | File | Method |
 |--------|------|--------|
 | Eventbrite | `eventbrite.ts` | `__SERVER_DATA__` JSON extraction, pagination |
-| TicketCo | `ticketco.ts` | Multi-venue subdomains (Hulen, Kvarteret, Madam Felle, Landmark, Statsraad Lehmkuhl, Østre/Ekko, Swing 'n Sweet, Mandelhuset, Bergen Pride, etc.) |
+| TicketCo | `ticketco.ts` | Multi-venue subdomains (Hulen, Kvarteret, Madam Felle, Landmark, Statsraad Lehmkuhl, Swing 'n Sweet, Mandelhuset, Bergen Pride, etc.) |
 | Billetto | `billetto.ts` | Algolia API geo-search (25km Bergen radius) |
 | Hoopla | `hoopla.ts` | Hoopla events platform |
 
@@ -73,6 +73,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | Carte Blanche | `carteblanche.ts` | HTML |
 | Bergen Filharmoniske | `harmonien.ts` | HTML |
 | Fyllingsdalen Teater | `fyllingsdalenteater.ts` | HTML (EasyTicket select dropdown) |
+| Østre | `ostre.ts` | HTML calendar page (ekko.no/ostre) |
 
 ### Arts, culture & literature
 | Source | File | Method |

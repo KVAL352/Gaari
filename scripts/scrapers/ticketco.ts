@@ -24,7 +24,7 @@ const SUBDOMAINS = [
 	'nattjazz',
 	'landmark',
 	'sl',
-	'ekko',
+	// 'ekko', // Now handled by dedicated scraper (ostre.ts)
 	'swingnsweetjazzclub',
 	'mandelhuset',
 	'bergenpride',

@@ -427,7 +427,7 @@ const EXPECTED_SCRAPERS = [
 	'bek', 'beyondthegates', 'brann', 'kulturhusetibergen', 'vvv',
 	'bymuseet', 'museumvest', 'akvariet', 'kvarteret', 'fyllingsdalenteater',
 	'ggbergen', 'oconnors', 'billetto', 'stenematglede', 'visitbergen',
-	'biff', 'bergenpride'
+	'biff', 'bergenpride', 'ostre'
 ];
 
 const SLOW_SCRAPER_THRESHOLD_MS = 60_000; // 60s is suspiciously slow

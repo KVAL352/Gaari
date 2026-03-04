@@ -75,8 +75,8 @@
 <svelte:head>
 	<title>{$lang === 'no' ? 'Hva skjer i Bergen? Din komplette guide' : "What's on in Bergen? Your complete guide"} — Gåri</title>
 	<meta name="description" content={$lang === 'no'
-		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 53 lokale kilder.'
-		: 'Complete guide to events in Bergen — concerts, theatre, festivals, family activities and more. Updated daily from 53 local sources.'} />
+		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 54 lokale kilder.'
+		: 'Complete guide to events in Bergen — concerts, theatre, festivals, family activities and more. Updated daily from 54 local sources.'} />
 	<link rel="canonical" href={canonicalUrl} />
 	<link rel="alternate" hreflang="nb" href={getCanonicalUrl('/no/guide')} />
 	<link rel="alternate" hreflang="en" href={getCanonicalUrl('/en/guide')} />
@@ -98,9 +98,9 @@
 	</h1>
 	<p class="mb-10 text-lg leading-relaxed text-[var(--color-text-secondary)]">
 		{#if $lang === 'no'}
-			Gåri samler arrangementer fra 53 lokale kilder i Bergen — spillesteder, kulturinstitusjoner, festivalarrangører og billettplattformer. Alt fra konserter og teater til matmarkeder og familieaktiviteter, oppdatert daglig. Her er en oversikt over alt du kan utforske.
+			Gåri samler arrangementer fra 54 lokale kilder i Bergen — spillesteder, kulturinstitusjoner, festivalarrangører og billettplattformer. Alt fra konserter og teater til matmarkeder og familieaktiviteter, oppdatert daglig. Her er en oversikt over alt du kan utforske.
 		{:else}
-			Gåri aggregates events from 53 local sources in Bergen — venues, cultural institutions, festival organisers and ticket platforms. Everything from concerts and theatre to food markets and family activities, updated daily. Here is an overview of everything you can explore.
+			Gåri aggregates events from 54 local sources in Bergen — venues, cultural institutions, festival organisers and ticket platforms. Everything from concerts and theatre to food markets and family activities, updated daily. Here is an overview of everything you can explore.
 		{/if}
 	</p>
 
@@ -191,9 +191,9 @@
 		</h2>
 		<p class="mb-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
 			{#if $lang === 'no'}
-				Gåri samler arrangementer fra 53 lokale kilder i Bergen og oppdateres daglig klokken 06:00. Navnet kommer fra det bergenske uttrykket «Ke det går i?» — hva skjer? Alle arrangementer linker direkte til arrangørens egen side.
+				Gåri samler arrangementer fra 54 lokale kilder i Bergen og oppdateres daglig klokken 06:00. Navnet kommer fra det bergenske uttrykket «Ke det går i?» — hva skjer? Alle arrangementer linker direkte til arrangørens egen side.
 			{:else}
-				Gåri aggregates events from 53 local sources in Bergen and updates daily at 06:00. The name comes from the Bergen dialect phrase "Ke det går i?" — meaning "What's going on?" All events link directly to the organiser's own page.
+				Gåri aggregates events from 54 local sources in Bergen and updates daily at 06:00. The name comes from the Bergen dialect phrase "Ke det går i?" — meaning "What's going on?" All events link directly to the organiser's own page.
 			{/if}
 		</p>
 		<a
@@ -229,7 +229,7 @@
 				</div>
 				<div>
 					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">Hvor ofte oppdateres Gåri?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Gåri oppdateres daglig klokken 06:00 med data fra 53 lokale kilder i Bergen.</p>
+					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Gåri oppdateres daglig klokken 06:00 med data fra 54 lokale kilder i Bergen.</p>
 				</div>
 			{:else}
 				<div>
@@ -250,7 +250,7 @@
 				</div>
 				<div>
 					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">How often is Gåri updated?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Gåri updates daily at 06:00 with data from 53 local sources in Bergen.</p>
+					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Gåri updates daily at 06:00 with data from 54 local sources in Bergen.</p>
 				</div>
 			{/if}
 		</div>

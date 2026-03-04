@@ -1,6 +1,6 @@
 # Gåri
 
-> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. It collects events from 53 independent sources — concert venues, theatres, museums, libraries, festivals, ticket platforms and more — and presents them in one searchable, filterable calendar. Updated daily by automated scrapers. No registration required.
+> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. It collects events from 54 independent sources — concert venues, theatres, museums, libraries, festivals, ticket platforms and more — and presents them in one searchable, filterable calendar. Updated daily by automated scrapers. No registration required.
 
 The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's going on?".
 
@@ -93,10 +93,10 @@ The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's 
 - [Tilgjengelighet](https://gaari.no/no/tilgjengelighet) — accessibility statement (Norwegian)
 - [Accessibility](https://gaari.no/en/tilgjengelighet) — accessibility statement (English)
 
-## Data sources (53 active)
+## Data sources (54 active)
 
 ### Performance venues
-Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, BIT Teatergarasjen, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater
+Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, BIT Teatergarasjen, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater
 
 ### Arts, culture and literature
 KODE (Bergen art museums), Bergen Kunsthall, Litteraturhuset Bergen, Media City Bergen, BEK (Bergen Centre for Electronic Arts), Bergen Filmklubb
