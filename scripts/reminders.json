@@ -1,13 +1,8 @@
 [
   {
-    "date": "2026-03-02",
-    "title": "Seasonal Page Strategy — gjennomlesing",
-    "description": "Les gjennom og diskuter Seasonal Page Strategy-dokumentet. Dekker: permanente årsløse URLer, innholdsmaler (holiday/festival/school-break), schema-krav, oppdateringskalender med deadlines, tier-basert utrulling (6 Tier 1-sider først), AI-søkeoptimalisering (Bing→ChatGPT-pipeline), og årshjul. Neste steg: avklar hvilke Tier 1-sider som allerede er bygget vs. hva som mangler, og planlegg implementering."
-  },
-  {
-    "date": "2026-03-03",
+    "date": "2026-03-11",
     "title": "Sjekk DNT ticket-URLer",
-    "description": "Verifiser at DNT-eventer på gaari.no har riktige registreringslenker (aktiviteter.dnt.no/register/{id}). Test: https://gaari.no/no/events/tellevikafjellet-med-dnt-naertur-bergen-2026-03-01 og https://gaari.no/no/events/enkel-fottur-i-kanadaskogen-2026-03-02"
+    "description": "Verifiser at DNT-eventer på gaari.no har riktige registreringslenker (aktiviteter.dnt.no/register/{id}). Sjekk noen aktive DNT-eventer og verifiser at ticket_url peker til riktig registreringsside."
   },
   {
     "date": "2026-03-06",
