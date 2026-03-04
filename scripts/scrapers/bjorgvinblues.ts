@@ -49,6 +49,17 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const eventKey = `${BASE_URL}#${date}-${makeSlug(title, date)}`;
 		if (await eventExists(eventKey)) continue;
 
+		// Image is in next sibling wb_element_picture div (Wix DOM: text div → picture div)
+		let imageUrl: string | undefined;
+		const textWrapper = $(el).closest('.wb_element');
+		const nextPic = textWrapper.nextAll('.wb_element_picture').first();
+		if (nextPic.length) {
+			const src = nextPic.find('img').first().attr('src');
+			if (src) {
+				imageUrl = src.startsWith('http') ? src : `https://www.bjorgvinblues.no/${src.replace(/^\//, '')}`;
+			}
+		}
+
 		const aiDesc = await generateDescription({ title, venue: 'Madam Felle', category: 'music', date: startDate, price: '' });
 
 		const success = await insertEvent({
@@ -65,7 +76,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: BASE_URL, // No per-concert ticket pages — concert listing is best link
 			source: SOURCE,
 			source_url: eventKey,
-			image_url: undefined,
+			image_url: imageUrl,
 			age_group: 'all',
 			language: 'no',
 			status: 'approved',
