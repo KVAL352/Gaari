@@ -91,6 +91,7 @@ interface DigestData {
 	lastPipeline: PipelineRun | null;
 	traffic: TrafficData | null;
 	subscribers: number | null;
+	subscribersPrev: number | null;
 	expiringPlacements: ExpiringPlacement[];
 	festivalReminders: FestivalReminder[];
 	reminders: Reminder[];
@@ -176,23 +177,50 @@ async function collectTraffic(): Promise<TrafficData | null> {
 	} catch { return null; }
 }
 
-async function collectSubscribers(): Promise<number | null> {
+async function collectSubscribers(): Promise<{ current: number | null; previous: number | null }> {
 	const key = process.env.MAILERLITE_API_KEY;
 	if (!key) {
 		console.log('⏭  MailerLite: skipped (no MAILERLITE_API_KEY)');
-		return null;
+		return { current: null, previous: null };
 	}
 
 	console.log('📧 Fetching subscriber count...');
 
+	let current: number | null = null;
 	try {
 		const resp = await fetch('https://connect.mailerlite.com/api/subscribers?limit=0', {
 			headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }
 		});
-		if (!resp.ok) return null;
-		const data = await resp.json() as { total: number };
-		return data.total ?? 0;
-	} catch { return null; }
+		if (resp.ok) {
+			const data = await resp.json() as { total: number };
+			current = data.total ?? 0;
+		}
+	} catch { /* current stays null */ }
+
+	// Fetch yesterday's count from daily_metrics
+	let previous: number | null = null;
+	try {
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
+		const yesterdayStr = yesterday.toISOString().slice(0, 10);
+		const { data } = await supabase
+			.from('daily_metrics')
+			.select('subscribers')
+			.eq('date', yesterdayStr)
+			.single();
+		if (data) previous = data.subscribers;
+	} catch { /* previous stays null */ }
+
+	// Store today's count
+	if (current !== null) {
+		try {
+			await supabase
+				.from('daily_metrics')
+				.upsert({ date: TODAY, subscribers: current }, { onConflict: 'date' });
+		} catch { /* non-critical */ }
+	}
+
+	return { current, previous };
 }
 
 async function collectExpiringPlacements(): Promise<ExpiringPlacement[]> {
@@ -641,16 +669,22 @@ function renderHtml(data: DigestData): string {
 		</table>
 	` : '';
 
-	const subscriberHtml = data.subscribers !== null ? `
+	const subscriberHtml = data.subscribers !== null ? (() => {
+		const delta = data.subscribersPrev !== null ? data.subscribers - data.subscribersPrev : null;
+		const deltaStr = delta !== null
+			? ` <span style="font-size:13px;font-weight:400;color:${delta > 0 ? '#16a34a' : delta < 0 ? '#dc2626' : '#666'}">(${delta > 0 ? '+' : ''}${delta})</span>`
+			: '';
+		return `
 		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
 			<tbody>
 				<tr>
 					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Nyhetsbrev-abonnenter</td>
-					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${data.subscribers}</td>
+					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${data.subscribers}${deltaStr}</td>
 				</tr>
 			</tbody>
 		</table>
-	` : '';
+	`;
+	})() : '';
 
 	const festivalHtml = data.festivalReminders.length > 0 ? `
 		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Kommende festivaler</h2>
@@ -802,7 +836,7 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel
-	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscribers, expiringPlacements] = await Promise.all([
+	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements] = await Promise.all([
 		collectPendingCounts(),
 		collectScraperActivity(),
 		collectScraperHealth(),
@@ -824,7 +858,8 @@ async function main() {
 		staleSources,
 		lastPipeline,
 		traffic,
-		subscribers,
+		subscribers: subscriberData.current,
+		subscribersPrev: subscriberData.previous,
 		expiringPlacements,
 		festivalReminders,
 		reminders
@@ -837,7 +872,10 @@ async function main() {
 	console.log(`   New events (24h): ${scraper.newEvents24h}`);
 	console.log(`   Active events: ${scraper.totalActiveEvents}`);
 	if (traffic) console.log(`   Yesterday traffic: ${traffic.visitors} visitors, ${traffic.pageviews} pageviews`);
-	if (subscribers !== null) console.log(`   Subscribers: ${subscribers}`);
+	if (subscriberData.current !== null) {
+		const delta = subscriberData.previous !== null ? ` (${subscriberData.current >= subscriberData.previous ? '+' : ''}${subscriberData.current - subscriberData.previous})` : '';
+		console.log(`   Subscribers: ${subscriberData.current}${delta}`);
+	}
 	if (expiringPlacements.length > 0) console.log(`   Expiring placements: ${expiringPlacements.length}`);
 	const brokenCount = scraperHealth.filter(s => s.status === 'broken').length;
 	const warningCount = scraperHealth.filter(s => s.status === 'warning').length;
