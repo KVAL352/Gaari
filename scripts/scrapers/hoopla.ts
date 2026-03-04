@@ -146,7 +146,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			}
 		}
 
-		await delay(3000);
+		if (events.length > 0) await delay(1500);
 	}
 
 	return { found, inserted };

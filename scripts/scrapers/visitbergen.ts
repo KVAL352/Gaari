@@ -8,8 +8,8 @@ import { validateTicketUrl } from '../lib/ticket-validation.js';
 const SOURCE = 'visitbergen';
 const BASE_URL = 'https://www.visitbergen.com';
 const SEARCH_URL = `${BASE_URL}/hva-skjer/searchresults`;
-const MAX_PAGES = 60; // All pages (20 events per page)
-const DELAY_MS = 3000; // Be polite
+const MAX_PAGES = 20; // ~400 events (20 per page), enough for Bergen's event volume
+const DELAY_MS = 1500; // Polite rate limiting
 
 // Check if a date_start has the noon default (= no real time was parsed)
 function isNoonDefault(dateStr: string): boolean {
@@ -196,7 +196,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		// If the list page only gave us a date (noon default), fetch the real time
 		if (isNoonDefault(dateStart)) {
-			await delay(3000);
+			await delay(1500);
 			const realTime = await fetchTimeFromDetail(event.detailUrl, dateStart);
 			if (realTime) {
 				dateStart = realTime;

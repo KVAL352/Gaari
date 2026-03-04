@@ -61,7 +61,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const bydel = mapBydel(event.location);
 
 		// Fetch the detail page for description, price, and ticket URL
-		await delay(3000);
+		await delay(1500);
 		let description = event.title;
 		let price = '';
 		let detailTicketUrl = '';

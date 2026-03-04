@@ -204,7 +204,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		}
 
 		page++;
-		if (page <= maxPages) await delay(3000);
+		if (page <= maxPages) await delay(1500);
 	}
 
 	return { found, inserted };

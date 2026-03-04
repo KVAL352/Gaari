@@ -182,7 +182,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			inserted++;
 		}
 
-		if (i < detailUrls.length - 1) await delay(3000);
+		if (i < detailUrls.length - 1) await delay(1500);
 	}
 
 	return { found, inserted };

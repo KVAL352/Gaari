@@ -223,7 +223,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`\n[${SOURCE}] Fetching Bergen Kunsthall events and exhibitions...`);
 
 	const events = await scrapeEvents();
-	await delay(3000);
+	await delay(1500);
 	const exhibitions = await scrapeExhibitions();
 
 	return {

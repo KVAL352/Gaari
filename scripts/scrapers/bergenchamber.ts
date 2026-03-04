@@ -91,7 +91,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (await eventExists(sourceUrl)) continue;
 
 		// Fetch detail page for time, venue, price, description
-		await delay(3000);
+		await delay(1500);
 		const detailHtml = await fetchHTML(sourceUrl);
 		let detail: { time?: string; venue?: string; price?: string; description?: string } = {};
 		if (detailHtml) {

@@ -108,7 +108,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const sourceUrl = `https://usf.no/events/${summary.link}`;
 		if (await eventExists(sourceUrl)) continue;
 
-		await delay(3000);
+		await delay(1500);
 
 		// Fetch detail page for full event data
 		const detailHtml = await fetchHTML(sourceUrl);

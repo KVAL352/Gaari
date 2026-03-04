@@ -8,7 +8,7 @@ const BASE_URL = 'https://www.bergenkjott.org';
 const LIST_URL = `${BASE_URL}/kalendar`;
 const VENUE = 'Bergen Kjøtt';
 const ADDRESS = 'Skutevikstorget 1, Bergen';
-const DELAY_MS = 3000; // 3 seconds between detail page fetches
+const DELAY_MS = 1500; // 1.5 seconds between detail page fetches
 
 interface JsonLdEvent {
 	'@type': string;
