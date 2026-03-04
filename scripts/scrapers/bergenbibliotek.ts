@@ -66,8 +66,8 @@ function libraryBydel(location: string): string {
 	return 'Sentrum';
 }
 
-/** Fetch detail page — extract price and check body text for non-public keywords */
-async function fetchDetail(url: string): Promise<{ price: string; nonPublic: boolean }> {
+/** Fetch detail page — extract price, image, and check body text for non-public keywords */
+async function fetchDetail(url: string): Promise<{ price: string; nonPublic: boolean; imageUrl?: string }> {
 	const html = await fetchHTML(url);
 	if (!html) return { price: 'Gratis', nonPublic: false };
 	const $ = cheerio.load(html);
@@ -76,10 +76,14 @@ async function fetchDetail(url: string): Promise<{ price: string; nonPublic: boo
 	const bodyText = $('body').text().toLowerCase();
 	const nonPublic = SKIP_KEYWORDS.some(kw => bodyText.includes(kw));
 
+	// Extract image from og:image (most reliable — Plone keeps this current)
+	const ogImage = $('meta[property="og:image"]').attr('content');
+	const imageUrl = ogImage && ogImage.includes('@@images/') ? ogImage : undefined;
+
 	const priceText = $('div.exclude').first().text().trim();
-	if (!priceText) return { price: 'Gratis', nonPublic };
-	if (/gratis|free/i.test(priceText)) return { price: 'Gratis', nonPublic };
-	return { price: priceText, nonPublic };
+	if (!priceText) return { price: 'Gratis', nonPublic, imageUrl };
+	if (/gratis|free/i.test(priceText)) return { price: 'Gratis', nonPublic, imageUrl };
+	return { price: priceText, nonPublic, imageUrl };
 }
 
 /** Extract image URL from the listing link's background-image style */
@@ -168,10 +172,10 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const bydel = libraryBydel(location);
 		const dateStart = eventDate.toISOString();
 
-		// Extract image from listing link's background-image style
-		const imageUrl = extractListingImage($el);
+		// Extract image from listing link's background-image style (fallback)
+		const listingImage = extractListingImage($el);
 
-		// Fetch detail page for price + non-public keyword check
+		// Fetch detail page for price, image + non-public keyword check
 		await delay(1000);
 		const detail = await fetchDetail(sourceUrl);
 		if (detail.nonPublic) {
@@ -180,6 +184,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			continue;
 		}
 		const price = detail.price;
+		// Prefer detail page og:image (Plone keeps it current) over listing CSS background
+		const imageUrl = detail.imageUrl || listingImage;
 
 		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, price });
 
