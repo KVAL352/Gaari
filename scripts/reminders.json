@@ -41,6 +41,11 @@
     "description": "Epost sendt 28. februar til André Marton Pedersen (andre.marton.pedersen@dnt.no) om ødelagte aktivitets-URLer fra DNT API. Han svarte 2. mars at han skulle sjekke opp. Verifiser om /aktiviteter-fra-deltager/-URLer fungerer nå. Hvis ikke, send oppfølging."
   },
   {
+    "date": "2027-02-01",
+    "title": "Oppdater Borealis-skraper for 2027",
+    "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i scripts/scrapers/borealis.ts. Sjekk at /festival-2027/hva-skjer-2027/ finnes. Oppdater også startDate/endDate i FESTIVALS-arrayen i send-daily-digest.ts."
+  },
+  {
     "date": "2026-03-10",
     "title": "Sjekk SEO-rapport levering",
     "description": "SEO-rapporten fra mandag 2. mars ankom aldri Protonmail (post@gaari.no), selv om GHA-loggen bekreftet sending via Resend. Test 4. mars viste at leveringen fungerer nå. Sjekk etter kl. 10:00 CET om dagens SEO-rapport (sendt mandag 09:00 UTC) har ankommet. Hvis ikke: legg til backup-adresse i seo-weekly-report.ts."

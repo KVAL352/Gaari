@@ -61,6 +61,11 @@ const VENUE_URLS: Record<string, string> = {
 	'oconnors': 'https://oconnors.no/bergen',
 
 	'østre - hus for lydkunst og elektronisk musikk': 'https://ekko.no',
+	'vestre': 'https://ekko.no',
+	'laugaren': 'https://laugaren.no',
+	'lydgalleriet': 'https://lydgalleriet.no',
+	'borealis': 'https://borealisfestival.no',
+	'borealis festival': 'https://borealisfestival.no',
 
 	// Cultural institutions
 	'bergen kunsthall': 'https://bergenkunsthall.no',

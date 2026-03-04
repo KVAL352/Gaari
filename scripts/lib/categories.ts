@@ -231,6 +231,10 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	"o'connor's": 'Bergenhus',
 	'oconnors': 'Bergenhus',
 	'østre': 'Sentrum',
+	'vestre': 'Sentrum',
+	'laugaren': 'Bergenhus',
+	'lydgalleriet': 'Sentrum',
+	'rommet': 'Bergenhus',
 };
 
 export function isKnownBergenVenue(venueName: string): boolean {

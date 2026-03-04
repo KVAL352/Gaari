@@ -280,6 +280,17 @@ async function collectStaleSources(): Promise<SourceFreshness[]> {
 // Update dates annually when festival programmes are announced.
 const FESTIVALS = [
 	{
+		name: 'Borealis',
+		startDate: '2026-03-10',
+		endDate: '2026-03-15',
+		checklist: [
+			'Test scraper: npx tsx scripts/scrape.ts borealis',
+			'Sjekk at /festival-{year}/hva-skjer-{year}/ er publisert',
+			'Oppdater FESTIVAL_YEAR og FESTIVAL_DATES i borealis.ts',
+			'Verifiser at borealis er fjernet fra TicketCo SUBDOMAINS',
+		],
+	},
+	{
 		name: 'Bergen Pride',
 		startDate: '2026-06-13',
 		endDate: '2026-06-21',
@@ -379,7 +390,7 @@ function collectReminders(): Reminder[] {
 // All 52 active scrapers registered in scrape.ts (keep in sync)
 const EXPECTED_SCRAPERS = [
 	'bergenlive', 'bergenkommune', 'studentbergen', 'dnt', 'eventbrite',
-	'ticketco', 'hoopla', 'nordnessjobad', 'raabrent', 'bergenchamber',
+	'borealis', 'ticketco', 'hoopla', 'nordnessjobad', 'raabrent', 'bergenchamber',
 	'colonialen', 'bergenkjott', 'paintnsip', 'bergenfilmklubb',
 	'cornerteateret', 'dvrtvest', 'kunsthall', 'brettspill', 'mediacity',
 	'forumscene', 'usfverftet', 'dns', 'olebull', 'grieghallen', 'kode',

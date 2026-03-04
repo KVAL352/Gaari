@@ -32,9 +32,9 @@ describe('getCollection', () => {
 		expect(getCollection('gibberish')).toBeUndefined();
 	});
 
-	it('returns all 39 collections', () => {
+	it('returns all 41 collections', () => {
 		const slugs = getAllCollectionSlugs();
-		expect(slugs).toHaveLength(39);
+		expect(slugs).toHaveLength(41);
 		// Original 14
 		expect(slugs).toContain('denne-helgen');
 		expect(slugs).toContain('i-kveld');
@@ -72,13 +72,15 @@ describe('getCollection', () => {
 		expect(slugs).toContain('nattjazz');
 		expect(slugs).toContain('bergen-pride');
 		expect(slugs).toContain('biff');
-		// 6 festival EN (Fase 2 + 2b)
+		expect(slugs).toContain('borealis');
+		// 7 festival EN (Fase 2 + 2b + Borealis)
 		expect(slugs).toContain('bergen-international-festival');
 		expect(slugs).toContain('bergenfest-bergen');
 		expect(slugs).toContain('beyond-the-gates-bergen');
 		expect(slugs).toContain('nattjazz-bergen');
 		expect(slugs).toContain('bergen-pride-festival');
 		expect(slugs).toContain('biff-bergen');
+		expect(slugs).toContain('borealis-bergen');
 	});
 
 	it('each collection has bilingual title and description', () => {
