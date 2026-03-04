@@ -103,7 +103,8 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			relatedSlugs: collection.relatedSlugs,
 			quickAnswer: collection.quickAnswer,
 			newsletterHeading: collection.newsletterHeading,
-			seasonal: collection.seasonal
+			seasonal: collection.seasonal,
+			offSeasonHint: collection.offSeasonHint
 		},
 		events: filtered,
 		promotedEventIds,

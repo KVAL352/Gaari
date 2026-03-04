@@ -85,7 +85,11 @@
 	{#if data.events.length === 0}
 		<div class="flex flex-col items-center px-4 py-16 text-center">
 			<p class="mb-2 text-lg font-semibold text-[var(--color-text-primary)]">{$t('noResults')}</p>
-			<p class="mb-6 text-[var(--color-text-secondary)]">{$t('noResultsMessage')}</p>
+			{#if data.collection.offSeasonHint?.[ssrLang]}
+				<p class="mb-6 max-w-md text-[var(--color-text-secondary)]">{data.collection.offSeasonHint[ssrLang]}</p>
+			{:else}
+				<p class="mb-6 text-[var(--color-text-secondary)]">{$t('noResultsMessage')}</p>
+			{/if}
 			<a
 				href="/{$lang}"
 				class="rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
@@ -109,7 +113,6 @@
 </div>
 
 <!-- Newsletter CTA -->
-{#if data.events.length > 0}
 <div class="mx-auto max-w-7xl px-4 pt-4">
 	<NewsletterCTA
 		id="collection"
@@ -117,7 +120,6 @@
 		heading={data.collection.newsletterHeading}
 	/>
 </div>
-{/if}
 
 {#if editorial.length > 0 || faqItems.length > 0 || relatedCollections.length > 0}
 <section class="mx-auto max-w-7xl px-4 pb-16 pt-8 border-t border-[var(--color-border)]">

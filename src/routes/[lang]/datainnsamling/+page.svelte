@@ -82,13 +82,13 @@
 		</h2>
 		<p class="leading-relaxed text-[var(--color-text-secondary)]">
 			{#if $lang === 'no'}
-				Vi bruker automatiserte scrapere som besøker offentlige nettsider to ganger daglig.
+				Vi bruker automatiserte scrapere som besøker offentlige nettsider daglig.
 				Scraperne identifiserer seg med et ærlig brukeragent-navn
 				(<code class="rounded bg-[var(--color-bg-surface)] px-1.5 py-0.5 text-sm">Gaari-Bergen-Events/1.0</code>)
 				og respekterer alle robots.txt-regler. Vi genererer egne beskrivelser basert på fakta — vi
 				kopierer aldri kreativt innhold fra kildene.
 			{:else}
-				We use automated scrapers that visit public websites twice daily. Our scrapers identify
+				We use automated scrapers that visit public websites daily. Our scrapers identify
 				themselves with an honest user agent
 				(<code class="rounded bg-[var(--color-bg-surface)] px-1.5 py-0.5 text-sm">Gaari-Bergen-Events/1.0</code>)
 				and respect all robots.txt rules. We generate our own descriptions based on facts — we never
@@ -173,7 +173,7 @@
 				<li><strong class="text-[var(--color-text-primary)]">Generer egne beskrivelser</strong> — respekterer opphavsretten</li>
 				<li><strong class="text-[var(--color-text-primary)]">Begrens datauttak</strong> — kun fremtidige arrangementer</li>
 				<li><strong class="text-[var(--color-text-primary)]">Link tilbake</strong> — alle arrangementer linker til kilden</li>
-				<li><strong class="text-[var(--color-text-primary)]">Rimelig frekvens</strong> — maks to ganger daglig</li>
+				<li><strong class="text-[var(--color-text-primary)]">Rimelig frekvens</strong> — én gang daglig</li>
 				<li><strong class="text-[var(--color-text-primary)]">Ærlig identifikasjon</strong> — brukeragent med prosjektnavn og kontakt-e-post</li>
 				<li><strong class="text-[var(--color-text-primary)]">Komplementær tjeneste</strong> — vi sender trafikk til arrangørene</li>
 			{:else}
@@ -182,7 +182,7 @@
 				<li><strong class="text-[var(--color-text-primary)]">Generate our own descriptions</strong> — respecting copyright</li>
 				<li><strong class="text-[var(--color-text-primary)]">Limit data extraction</strong> — only future events</li>
 				<li><strong class="text-[var(--color-text-primary)]">Link back</strong> — all events link to the source</li>
-				<li><strong class="text-[var(--color-text-primary)]">Reasonable frequency</strong> — at most twice daily</li>
+				<li><strong class="text-[var(--color-text-primary)]">Reasonable frequency</strong> — once daily</li>
 				<li><strong class="text-[var(--color-text-primary)]">Honest identification</strong> — user agent with project name and contact email</li>
 				<li><strong class="text-[var(--color-text-primary)]">Complementary service</strong> — we drive traffic to organizers</li>
 			{/if}

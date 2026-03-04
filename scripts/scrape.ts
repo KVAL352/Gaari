@@ -139,10 +139,19 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 // Collection slugs for IndexNow — these pages change content every scraper run
 const COLLECTION_SLUGS_NO = [
 	'denne-helgen', 'i-kveld', 'gratis', 'familiehelg', 'konserter',
-	'studentkveld', 'i-dag', 'regndagsguide', 'sentrum', 'voksen', 'for-ungdom'
+	'studentkveld', 'i-dag', 'regndagsguide', 'sentrum', 'voksen', 'for-ungdom',
+	'17-mai', 'julemarked', 'paske', 'sankthans', 'nyttarsaften',
+	'vinterferie', 'hostferie',
+	'festspillene', 'bergenfest', 'beyond-the-gates', 'nattjazz',
+	'bergen-pride', 'biff', 'borealis'
 ];
 const COLLECTION_SLUGS_EN = [
-	'this-weekend', 'today-in-bergen', 'free-things-to-do-bergen'
+	'this-weekend', 'today-in-bergen', 'free-things-to-do-bergen',
+	'17th-of-may-bergen', 'christmas-bergen', 'easter-bergen',
+	'midsummer-bergen', 'new-years-eve-bergen', 'winter-break-bergen',
+	'bergen-international-festival', 'bergenfest-bergen',
+	'beyond-the-gates-bergen', 'nattjazz-bergen',
+	'bergen-pride-festival', 'biff-bergen', 'borealis-bergen'
 ];
 
 async function pingIndexNow(since: number): Promise<number> {

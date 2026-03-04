@@ -108,6 +108,7 @@ export interface Collection {
 	footer?: { langs: Lang[]; order: number };
 	newsletterHeading?: Record<Lang, string>;
 	seasonal?: boolean;
+	offSeasonHint?: Record<Lang, string>;
 	maxPerVenue?: number;
 	filterEvents: (events: GaariEvent[], now: Date) => GaariEvent[];
 }
@@ -154,14 +155,14 @@ const collections: Collection[] = [
 				{ q: 'Er det gratis arrangementer i Bergen denne helgen?', a: 'Bergen har mange gratis helgeaktiviteter. Se Gåris gratis-side for arrangementer uten billettpris denne uken.' },
 				{ q: 'Hva kan familier gjøre i Bergen i helgen?', a: 'Gåri har en egen familiehelg-side med barneforestillinger, museumsaktiviteter og familievennlige arrangementer i Bergen.' },
 				{ q: 'Hvor mange arrangementer har Bergen i helgene?', a: 'Bergen har typisk 40–80 arrangementer hver helg — fra konserter på Grieghallen til utstillinger på KODE og familieaktiviteter på Akvariet. Gåri samler dem fra 53 kilder.' },
-				{ q: 'Når oppdateres helgeprogrammet på Gåri?', a: 'Gåri oppdateres to ganger daglig — morgen og kveld. Helgearrangementer legges til fortløpende utover uken etter hvert som arrangørene publiserer dem.' }
+				{ q: 'Når oppdateres helgeprogrammet på Gåri?', a: 'Gåri oppdateres daglig klokken 06:00. Helgearrangementer legges til fortløpende utover uken etter hvert som arrangørene publiserer dem.' }
 			],
 			en: [
 				{ q: "What's on in Bergen this weekend?", a: 'Gåri shows all weekend events in Bergen — concerts, exhibitions, family activities and more. Updated daily from 53 local sources.' },
 				{ q: 'Are there free things to do in Bergen this weekend?', a: "Bergen regularly has free weekend events. Check Gåri's free events page for no-cost activities this weekend." },
 				{ q: 'What can families do in Bergen this weekend?', a: "Gåri has a dedicated family weekend page with children's shows, museum activities and family-friendly events in Bergen." },
 				{ q: 'How many events does Bergen have on weekends?', a: 'Bergen typically has 40–80 events each weekend — from concerts at Grieghallen to exhibitions at KODE and family activities at Akvariet. Gåri collects them from 53 sources.' },
-				{ q: 'When is the weekend listing updated on Gåri?', a: 'Gåri updates twice daily — morning and evening. Weekend events are added throughout the week as organisers publish them.' }
+				{ q: 'When is the weekend listing updated on Gåri?', a: 'Gåri updates daily — morning and evening. Weekend events are added throughout the week as organisers publish them.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -192,31 +193,31 @@ const collections: Collection[] = [
 		footer: { langs: ['no'], order: 2 },
 		newsletterHeading: { no: 'Gå aldri tom for kveldsplaner', en: 'Never run out of evening plans' },
 		quickAnswer: {
-			no: 'Se alle arrangementer i Bergen i kveld — konserter, teater, uteliv og mer. Gåri henter data fra 53 lokale kilder og oppdateres to ganger daglig.',
-			en: 'See all events in Bergen tonight — concerts, theatre, nightlife and more. Gåri pulls data from 53 local sources and updates twice daily.'
+			no: 'Se alle arrangementer i Bergen i kveld — konserter, teater, uteliv og mer. Gåri henter data fra 53 lokale kilder og oppdateres daglig.',
+			en: 'See all events in Bergen tonight — concerts, theatre, nightlife and more. Gåri pulls data from 53 local sources and updates daily.'
 		},
 		editorial: {
 			no: [
 				'Bergen har kulturliv på hverdagskvelder, ikke bare i helgene. Musikk­scener som Ole Bull, Forum Scene, USF Verftet og Kulturhuset setter opp show og konserter gjennom hele uken. Teatrene DNS, BIT Teatergarasjen, Det Vestnorske Teatret og Cornerteateret spiller forestillinger mandag til fredag. Kvarteret og studentmiljøet er aktive fra torsdag og utover.',
-				'Gåri oppdateres to ganger daglig — morgen og kveld — slik at kveldsbildet alltid er ferskt. Listen henter data direkte fra 44 bergenske arrangørers nettsider, fra Grieghallen til Brettspillkafeen, og inkluderer tidspunkt for alle arrangementer.',
+				'Gåri oppdateres daglig slik at kveldsbildet alltid er ferskt. Listen henter data direkte fra 44 bergenske arrangørers nettsider, fra Grieghallen til Brettspillkafeen, og inkluderer tidspunkt for alle arrangementer.',
 				'Konserter og forestillinger starter typisk mellom 19 og 21. Planlegger du spontant i kveld? Bruk tidspunkt-filteret for nattarrangementer fra klokken 22, eller gratis-filteret for kostnadsfrie kveldsopplevelser. Gåri fjerner utsolgte arrangementer fortløpende — det du ser er tilgjengelig.'
 			],
 			en: [
 				'Bergen has cultural events on weekday evenings, not just at weekends. Music venues such as Ole Bull, Forum Scene, USF Verftet and Kulturhuset put on shows and concerts throughout the week. The theatres DNS, BIT Teatergarasjen, Det Vestnorske Teatret and Cornerteateret run performances Monday to Friday. Kvarteret and the student scene are active from Thursday onwards.',
-				'Gåri updates twice daily — morning and evening — so the evening picture is always fresh. Listings are pulled directly from 53 Bergen event sources, from Grieghallen to Brettspillkafeen, and include start times for all events.',
+				'Gåri updates daily — morning and evening — so the evening picture is always fresh. Listings are pulled directly from 53 Bergen event sources, from Grieghallen to Brettspillkafeen, and include start times for all events.',
 				'Concerts and performances typically start between 19:00 and 21:00. Planning a spontaneous evening? Use the time filter for late-night events from 22:00, or the free filter for no-cost evening options. Gåri removes sold-out events continuously — what you see here is available.'
 			]
 		},
 		faq: {
 			no: [
-				{ q: 'Hva skjer i Bergen i kveld?', a: 'Gåri viser alle kveldsarrangementer i Bergen i dag — konserter, teater, uteliv og mer. Oppdateres to ganger daglig.' },
+				{ q: 'Hva skjer i Bergen i kveld?', a: 'Gåri viser alle kveldsarrangementer i Bergen i dag — konserter, teater, uteliv og mer. Oppdateres daglig.' },
 				{ q: 'Er det konserter i Bergen i kveld?', a: 'Sjekk Gåri for alle livekonserter og musikkshow i Bergen i kveld, med lenker direkte til billettsider.' },
 				{ q: 'Hva kan man gjøre i Bergen på kvelden?', a: 'Bergen har jevnlig konserter, teaterforestillinger, quiz-kvelder og kulturarrangementer på kveldstid — også på hverdager.' },
 				{ q: 'Når starter de fleste kveldsarrangementer i Bergen?', a: 'De fleste konserter og forestillinger i Bergen starter mellom klokken 19 og 21. Nattarrangementer og uteliv starter typisk fra klokken 22. Bruk tidsfilteret for å finne riktig tidspunkt.' },
 				{ q: 'Er det noe å gjøre i Bergen på en hverdagskveld?', a: 'Bergen har kulturarrangementer hver ukedag. DNS, BIT Teatergarasjen og Cornerteateret spiller forestillinger mandag til fredag. Kvarteret og studentscenen er aktive fra torsdag.' }
 			],
 			en: [
-				{ q: "What's on in Bergen tonight?", a: 'Gåri shows all evening events in Bergen tonight — concerts, theatre, nightlife and more. Updated twice daily.' },
+				{ q: "What's on in Bergen tonight?", a: 'Gåri shows all evening events in Bergen tonight — concerts, theatre, nightlife and more. Updated daily.' },
 				{ q: 'Are there concerts in Bergen tonight?', a: 'Check Gåri for all live concerts and music shows in Bergen tonight, with direct links to ticket pages.' },
 				{ q: 'What can I do in Bergen in the evening?', a: 'Bergen has regular concerts, theatre, quiz nights and cultural events in the evenings — including weekdays.' },
 				{ q: 'What time do most evening events start in Bergen?', a: 'Most concerts and performances in Bergen start between 19:00 and 21:00. Late-night events and nightlife typically begin from 22:00. Use the time filter to find the right slot.' },
@@ -317,29 +318,29 @@ const collections: Collection[] = [
 		editorial: {
 			no: [
 				'Bergen er en kompakt by med noe å tilby hver eneste dag. Du finner livemusikk, kunstutstillinger, guidede turer, matarrangementer, barneaktiviteter og kulturforestillinger — fra Grieghallen og USF Verftet til byens mindre gallerier og nabolagskafeer.',
-				'Gåri samler arrangementer fra 53 lokale Bergen-kilder — spillesteder, festivalarrangører og billettplattformer — og oppdaterer listen to ganger daglig. Alt fra Grieghallen og Bergen Bibliotek til Fløyen og Akvariet er dekket.',
+				'Gåri samler arrangementer fra 53 lokale Bergen-kilder — spillesteder, festivalarrangører og billettplattformer — og oppdaterer listen daglig. Alt fra Grieghallen og Bergen Bibliotek til Fløyen og Akvariet er dekket.',
 				'Bergen har sterkt tilbud av gratis arrangementer. Bibliotekfilialer holder gratis foredrag og konserter. KODE har gratis inngangsdager. Fløyen har gratis uteaktiviteter. For betalte arrangementer lenker Gåri direkte til arrangørens eget billettsystem. Gåri er uavhengig og bergen-basert — ingen betalte plasseringer, alle arrangører behandles likt.'
 			],
 			en: [
 				'Bergen is a compact, walkable city that has something on every single day. You will find live music, art openings, guided hikes, food events, children\'s activities and cultural performances — from Grieghallen and USF Verftet to the city\'s smaller galleries and neighbourhood venues.',
-				'Gåri aggregates events from 53 local Bergen sources — venues, festival organisers and ticketing platforms — and updates listings twice daily so what you see is always current.',
+				'Gåri aggregates events from 53 local Bergen sources — venues, festival organisers and ticketing platforms — and updates listings daily so what you see is always current.',
 				'Bergen has strong free event coverage. The public library branches run regular free talks and concerts. KODE museums have free entry days. Fløyen has free outdoor activities. For paid events, Gåri links directly to the venue\'s own ticket page. Gåri is Bergen-based and independent — no paid prioritisation, all venues listed on equal terms. Sold-out events are removed automatically.'
 			]
 		},
 		faq: {
 			no: [
-				{ q: 'Hva skjer i Bergen i dag?', a: 'Gåri viser alle arrangementer i Bergen i dag — konserter, utstillinger, mat og mer. Oppdatert to ganger daglig.' },
+				{ q: 'Hva skjer i Bergen i dag?', a: 'Gåri viser alle arrangementer i Bergen i dag — konserter, utstillinger, mat og mer. Oppdatert daglig.' },
 				{ q: 'Er det gratis arrangementer i Bergen i dag?', a: 'Bergen har jevnlig gratis arrangementer hver dag. Bruk gratis-filteret for å finne kostnadsfrie aktiviteter i dag.' },
 				{ q: 'Hva kan turister gjøre i Bergen i dag?', a: 'Bergen tilbyr Bryggen, Fløibanen, museer, fjordturer, konserter og matmarkeder. Sjekk Gåri for dagens program.' },
 				{ q: 'Hvor mange arrangementer er det i Bergen i dag?', a: 'Bergen har typisk 10–30 arrangementer per dag, avhengig av ukedag og sesong. Helger har flest. Gåri viser alle med tidspunkt og sted.' },
-				{ q: 'Når oppdateres Gåri?', a: 'Gåri oppdateres to ganger daglig — klokken 06:00 og 18:00. Arrangementdata hentes direkte fra 53 lokale kilder i Bergen.' }
+				{ q: 'Når oppdateres Gåri?', a: 'Gåri oppdateres daglig klokken 06:00. Arrangementdata hentes direkte fra 53 lokale kilder i Bergen.' }
 			],
 			en: [
-				{ q: "What's on in Bergen today?", a: 'Gåri shows all events happening in Bergen today — concerts, exhibitions, food events and more. Updated twice daily.' },
+				{ q: "What's on in Bergen today?", a: 'Gåri shows all events happening in Bergen today — concerts, exhibitions, food events and more. Updated daily.' },
 				{ q: 'Are there free events in Bergen today?', a: "Yes, Bergen regularly has free events every day. Use the free filter to find today's no-cost activities." },
 				{ q: 'What can tourists do in Bergen today?', a: 'Bergen offers Bryggen, Fløyen funicular, museums, fjord tours, concerts and food markets. Check Gåri for today\'s events.' },
 				{ q: 'How many events are there in Bergen today?', a: 'Bergen typically has 10–30 events per day, depending on the day of the week and season. Weekends have the most. Gåri shows all with times and venues.' },
-				{ q: 'How often is Gåri updated?', a: 'Gåri updates twice daily — at 06:00 and 18:00. Event data is pulled directly from 53 local sources in Bergen.' }
+				{ q: 'How often is Gåri updated?', a: 'Gåri updates daily at 06:00. Event data is pulled directly from 53 local sources in Bergen.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -596,8 +597,8 @@ const collections: Collection[] = [
 			en: 'Today in Bergen'
 		},
 		description: {
-			no: 'Hva skjer i Bergen i dag? Konserter, utstillinger, teater og aktiviteter — oppdatert morgen og kveld.',
-			en: "What's on in Bergen today? Concerts, exhibitions, theatre and activities — updated morning and evening."
+			no: 'Hva skjer i Bergen i dag? Konserter, utstillinger, teater og aktiviteter — oppdatert daglig.',
+			en: "What's on in Bergen today? Concerts, exhibitions, theatre and activities — updated daily."
 		},
 		ogSubtitle: {
 			no: 'Dagens arrangementer',
@@ -608,31 +609,31 @@ const collections: Collection[] = [
 		footer: { langs: ['no'], order: 3 },
 		newsletterHeading: { no: 'Få daglige tips rett i innboksen', en: 'Get daily picks in your inbox' },
 		quickAnswer: {
-			no: 'Alle arrangementer i Bergen i dag — konserter, utstillinger, turer og mer. Gåri samler dagens program fra 53 lokale kilder, oppdatert to ganger daglig.',
-			en: 'All events in Bergen today — concerts, exhibitions, tours and more. Gåri collects today\'s schedule from 53 local sources, updated twice daily.'
+			no: 'Alle arrangementer i Bergen i dag — konserter, utstillinger, turer og mer. Gåri samler dagens program fra 53 lokale kilder, oppdatert daglig.',
+			en: 'All events in Bergen today — concerts, exhibitions, tours and more. Gåri collects today\'s schedule from 53 local sources, updated daily.'
 		},
 		editorial: {
 			no: [
 				'Bergen har noe å tilby hver dag hele uken. Fra livekonserter på Ole Bull og Grieghallen til utstillinger på KODE, Bergen Kunsthall og Bymuseet — og guidede turer på Fløyen og i fjordlandskapet. Kulturkalenderen er aktiv alle dager, ikke bare i helgene. DNS, BIT Teatergarasjen og de mindre teatrene spiller forestillinger mandag til lørdag.',
-				'Gåri henter alle arrangementer som skjer i Bergen i dag fra 53 lokale kilder og oppdaterer to ganger daglig — morgen og kveld. Du ser alltid et ferskt bilde av dagsprogrammet, med tidspunkt for alle arrangementer inkludert.',
+				'Gåri henter alle arrangementer som skjer i Bergen i dag fra 53 lokale kilder og oppdaterer daglig. Du ser alltid et ferskt bilde av dagsprogrammet, med tidspunkt for alle arrangementer inkludert.',
 				'Leter du etter noe spesifikt? Bruk tidspunkt-filteret for morgen, dagtid, kveld eller natt. Gratis-filteret viser kostnadsfrie aktiviteter i dag. Utsolgte arrangementer fjernes automatisk fra Gåri — det du ser er tilgjengelig for besøk.'
 			],
 			en: [
 				'Bergen offers something every day of the week. From live concerts at Ole Bull and Grieghallen to exhibitions at KODE, Bergen Kunsthall and Bymuseet — and guided walks on Fløyen and in the fjord landscape. The cultural calendar is active throughout the week, not just at weekends. DNS, BIT Teatergarasjen and the smaller theatres run performances Monday through Saturday.',
-				'Gåri pulls all events happening in Bergen today from 53 local sources and updates twice daily — morning and evening. You always see a fresh picture of the day\'s programme, with start times included for all events.',
+				'Gåri pulls all events happening in Bergen today from 53 local sources and updates daily — morning and evening. You always see a fresh picture of the day\'s programme, with start times included for all events.',
 				'Looking for something specific? Use the time filter for morning, daytime, evening or night events. The free filter shows no-cost activities today. Sold-out events are removed automatically from Gåri — everything you see is available to attend.'
 			]
 		},
 		faq: {
 			no: [
-				{ q: 'Hva skjer i Bergen i dag?', a: 'Gåri viser alle arrangementer i Bergen i dag — konserter, utstillinger, teater, familieaktiviteter og mer. Oppdatert morgen og kveld fra 53 lokale kilder.' },
+				{ q: 'Hva skjer i Bergen i dag?', a: 'Gåri viser alle arrangementer i Bergen i dag — konserter, utstillinger, teater, familieaktiviteter og mer. Oppdatert daglig fra 53 lokale kilder.' },
 				{ q: 'Er det noe gratis å gjøre i Bergen i dag?', a: 'Bergen har daglige gratis arrangementer. Bruk gratis-filteret på Gåri for å finne kostnadsfrie aktiviteter i dag.' },
 				{ q: 'Hva er åpent i Bergen i dag?', a: 'Museer, gallerier, biblioteker og teatre i Bergen er åpne daglig. Gåri viser alle arrangementer med tidspunkt i dag.' },
 				{ q: 'Hva kan man gjøre i Bergen om morgenen?', a: 'Fløyen, Akvariet og bibliotekene åpner tidlig. KODE og Bymuseet har formiddagsaktiviteter. Bruk tidsfilteret «morgen» på Gåri for arrangementer mellom klokken 6 og 12.' },
 				{ q: 'Hva skjer i Bergen i kveld?', a: 'Sjekk Gåris i-kveld-side for alle kveldsarrangementer i Bergen i dag. Konserter og forestillinger starter typisk mellom klokken 19 og 21.' }
 			],
 			en: [
-				{ q: "What's happening in Bergen today?", a: 'Gåri shows all events in Bergen today — concerts, exhibitions, theatre, family activities and more. Updated twice daily from 53 local sources.' },
+				{ q: "What's happening in Bergen today?", a: 'Gåri shows all events in Bergen today — concerts, exhibitions, theatre, family activities and more. Updated daily from 53 local sources.' },
 				{ q: 'Is there anything free to do in Bergen today?', a: "Bergen regularly has free events every day. Use Gåri's free filter to find no-cost activities today." },
 				{ q: 'What is open in Bergen today?', a: 'Museums, galleries, libraries and theatres in Bergen are open daily. Gåri shows all events with start times today.' },
 				{ q: 'What can you do in Bergen in the morning?', a: 'Fløyen, the Aquarium and libraries open early. KODE and Bymuseet have morning activities. Use the "morning" time filter on Gåri for events between 06:00 and 12:00.' },
@@ -1009,6 +1010,10 @@ const collections: Collection[] = [
 				{ q: 'What can families do on 17th of May in Bergen?', a: "Families can watch the children's parade and buekorps marches, visit Festplassen with activities for kids, and enjoy ice cream and hot dogs along the route. Many museums offer free entry." }
 			]
 		},
+		offSeasonHint: {
+			no: '17. mai-arrangementer publiseres vanligvis i begynnelsen av mai. Meld deg på nyhetsbrevet for påminnelse!',
+			en: '17th of May events are usually published in early May. Sign up for the newsletter to get notified!'
+		},
 		filterEvents: filter17Mai
 	},
 	{
@@ -1060,6 +1065,10 @@ const collections: Collection[] = [
 				{ q: 'What is Lysfesten in Bergen?', a: "Lysfesten (the Light Festival) is Bergen's official start of Christmas, organised by Bergens Tidende for over 30 years. Features Christmas tree lighting, live music and fireworks over Lille Lungegårdsvann." },
 				{ q: 'What Christmas concerts are in Bergen?', a: 'Bergen hosts Christmas concerts at Grieghallen, Bergen Cathedral, Korskirken and many local churches. Gåri lists them all from 53 sources — from classical to gospel and children\'s concerts.' }
 			]
+		},
+		offSeasonHint: {
+			no: 'Julemarkedene i Bergen åpner vanligvis i midten av november. Meld deg på nyhetsbrevet for påminnelse!',
+			en: 'Christmas markets in Bergen usually open in mid-November. Sign up for the newsletter to get notified!'
 		},
 		filterEvents: filterJulemarked
 	},
@@ -1113,6 +1122,10 @@ const collections: Collection[] = [
 				{ q: 'Are there free Easter events in Bergen?', a: "Yes, Bergen Library, museums with free children's admission, and Easter church services are free. Check Gåri's free events page for a full list." }
 			]
 		},
+		offSeasonHint: {
+			no: 'Påskearrangementer publiseres vanligvis noen uker før påske. Meld deg på nyhetsbrevet for påminnelse!',
+			en: 'Easter events are usually published a few weeks before Easter. Sign up for the newsletter to get notified!'
+		},
 		filterEvents: filterPaske
 	},
 	{
@@ -1164,6 +1177,10 @@ const collections: Collection[] = [
 				{ q: 'What is sankthans?', a: 'Sankthans (also called jonsok) celebrates the summer solstice and has roots in Norse tradition. Bonfires are lit to celebrate the longest day and the bright nights. In Bergen it is a major social tradition.' },
 				{ q: 'How light is Bergen at midsummer?', a: 'Bergen has around 19 hours and 8 minutes of daylight at the solstice. The sky never fully darkens — creating a magical atmosphere for outdoor celebrations.' }
 			]
+		},
+		offSeasonHint: {
+			no: 'Sankthansarrangementer publiseres vanligvis i juni. Meld deg på nyhetsbrevet for påminnelse!',
+			en: 'Midsummer events are usually published in June. Sign up for the newsletter to get notified!'
 		},
 		filterEvents: filterSankthans
 	},
@@ -1217,6 +1234,10 @@ const collections: Collection[] = [
 				{ q: "What time are the Bergen fireworks?", a: "The official Bergen fireworks are launched at midnight, right at the turn of the year. They typically last 10–15 minutes." }
 			]
 		},
+		offSeasonHint: {
+			no: 'Nyttårsarrangementer publiseres vanligvis i desember. Meld deg på nyhetsbrevet for påminnelse!',
+			en: "New Year's Eve events are usually published in December. Sign up for the newsletter to get notified!"
+		},
 		filterEvents: filterNyttarsaften
 	},
 	{
@@ -1269,6 +1290,10 @@ const collections: Collection[] = [
 				{ q: 'What indoor activities are there for kids in Bergen?', a: "VilVite science centre, the Aquarium, KODE art museums, Bergen Library and BUA equipment library have indoor activities. Check Gåri's rainy day guide." }
 			]
 		},
+		offSeasonHint: {
+			no: 'Vinterferieaktiviteter publiseres vanligvis i februar. Meld deg på nyhetsbrevet for påminnelse!',
+			en: 'Winter break activities are usually published in February. Sign up for the newsletter to get notified!'
+		},
 		filterEvents: filterVinterferie
 	},
 	{
@@ -1320,6 +1345,10 @@ const collections: Collection[] = [
 				{ q: 'Are there free autumn break activities in Bergen?', a: "Yes, Bergen Library has free workshops, several museums have free children's admission, and Fløyen has free outdoor areas. BIFF has some free screenings." },
 				{ q: 'What is BIFF?', a: "BIFF (Bergen International Film Festival) is Norway's largest film festival with 120–150 films over 9 days in October. Includes children's films and family screenings." }
 			]
+		},
+		offSeasonHint: {
+			no: 'Høstferieaktiviteter publiseres vanligvis i oktober. Meld deg på nyhetsbrevet for påminnelse!',
+			en: 'Autumn break activities are usually published in October. Sign up for the newsletter to get notified!'
 		},
 		filterEvents: filterHostferie
 	},
@@ -1376,6 +1405,10 @@ const collections: Collection[] = [
 				{ q: 'Is 17th of May worth visiting Bergen for?', a: "Absolutely. Bergen's 17th of May celebration is considered one of Norway's best, with the unique buekorps tradition, harbour setting at Bryggen, and a festive atmosphere throughout the compact city centre." }
 			]
 		},
+		offSeasonHint: {
+			no: '17. mai-arrangementer publiseres vanligvis i begynnelsen av mai. Meld deg på nyhetsbrevet for påminnelse!',
+			en: '17th of May events are usually published in early May. Sign up for the newsletter to get notified!'
+		},
 		filterEvents: filter17Mai
 	},
 	{
@@ -1427,6 +1460,10 @@ const collections: Collection[] = [
 				{ q: 'What Christmas concerts are in Bergen?', a: 'Grieghallen, Bergen Cathedral, Korskirken and churches across the city host concerts from late November. Genres range from classical to gospel, folk and children\'s concerts.' },
 				{ q: 'How is the weather in Bergen at Christmas?', a: "Bergen in December averages 3–6°C with frequent rain (about 200 mm). Snow is uncommon in the city centre but possible. Dress in layers with waterproof outerwear. The Christmas market and Gingerbread City are covered." }
 			]
+		},
+		offSeasonHint: {
+			no: 'Julemarkedene i Bergen åpner vanligvis i midten av november. Meld deg på nyhetsbrevet for påminnelse!',
+			en: 'Christmas markets in Bergen usually open in mid-November. Sign up for the newsletter to get notified!'
 		},
 		filterEvents: filterJulemarked
 	},
@@ -1480,6 +1517,10 @@ const collections: Collection[] = [
 				{ q: 'What is the weather like in Bergen at Easter?', a: "Bergen in April averages 5–10°C with only about 73 mm rainfall — surprisingly one of the city's driest months. Pack layers and waterproofs, but expect more sunshine than Bergen's reputation suggests." }
 			]
 		},
+		offSeasonHint: {
+			no: 'Påskearrangementer publiseres vanligvis noen uker før påske. Meld deg på nyhetsbrevet for påminnelse!',
+			en: 'Easter events are usually published a few weeks before Easter. Sign up for the newsletter to get notified!'
+		},
 		filterEvents: filterPaske
 	},
 	{
@@ -1531,6 +1572,10 @@ const collections: Collection[] = [
 				{ q: 'Is midsummer in Bergen worth visiting for?', a: "Yes — the combination of coastal bonfires, white nights, and Bergen's harbour setting makes it one of Norway's most atmospheric midsummer celebrations. Most events are free." },
 				{ q: 'What time are the midsummer bonfires lit?', a: 'Bonfires are typically lit between 21:00 and 22:00, though celebrations start in the afternoon with barbecues and socialising. The light means celebrations naturally extend late into the evening.' }
 			]
+		},
+		offSeasonHint: {
+			no: 'Sankthansarrangementer publiseres vanligvis i juni. Meld deg på nyhetsbrevet for påminnelse!',
+			en: 'Midsummer events are usually published in June. Sign up for the newsletter to get notified!'
 		},
 		filterEvents: filterSankthans
 	},
@@ -1584,6 +1629,10 @@ const collections: Collection[] = [
 				{ q: "Do I need tickets for New Year's events in Bergen?", a: "The fireworks are free and public. Concerts and parties at venues require tickets — book early as popular events sell out. Restaurant New Year's menus should be booked well in advance." }
 			]
 		},
+		offSeasonHint: {
+			no: 'Nyttårsarrangementer publiseres vanligvis i desember. Meld deg på nyhetsbrevet for påminnelse!',
+			en: "New Year's Eve events are usually published in December. Sign up for the newsletter to get notified!"
+		},
 		filterEvents: filterNyttarsaften
 	},
 	{
@@ -1635,6 +1684,10 @@ const collections: Collection[] = [
 				{ q: 'Is Bergen worth visiting in February?', a: "Bergen has about 6 hours of daylight in February and frequent rain. However, museums, concerts and indoor attractions make it rewarding. Days get noticeably longer throughout the month." },
 				{ q: 'Are there free activities for kids in Bergen?', a: "Bergen Library offers free workshops, several museums have free children's admission (under 16), and Fløyen has free outdoor areas year-round." }
 			]
+		},
+		offSeasonHint: {
+			no: 'Vinterferieaktiviteter publiseres vanligvis i februar. Meld deg på nyhetsbrevet for påminnelse!',
+			en: 'Winter break activities are usually published in February. Sign up for the newsletter to get notified!'
 		},
 		filterEvents: filterVinterferie
 	},
@@ -1691,6 +1744,10 @@ const collections: Collection[] = [
 				{ q: 'Is the Bergen International Festival suitable for children?', a: 'The festival has a dedicated children\'s programme with theatre, music and workshops for different age groups.' }
 			]
 		},
+		offSeasonHint: {
+			no: 'Festspillene arrangeres vanligvis i slutten av mai og begynnelsen av juni. Programmet publiseres noen uker i forveien.',
+			en: 'The Bergen International Festival usually takes place in late May and early June. The programme is published a few weeks before.'
+		},
 		filterEvents: (events) => filterFestspillene(events)
 	},
 	{
@@ -1744,6 +1801,10 @@ const collections: Collection[] = [
 				{ q: 'How do I buy tickets for the Bergen International Festival?', a: 'Tickets are sold through festspillene.no and at the Grieghallen box office. Popular performances sell out quickly — book early.' },
 				{ q: 'Is the Bergen International Festival suitable for children?', a: 'The festival has a dedicated children\'s programme with theatre, music and workshops for different age groups.' }
 			]
+		},
+		offSeasonHint: {
+			no: 'Festspillene arrangeres vanligvis i slutten av mai og begynnelsen av juni. Programmet publiseres noen uker i forveien.',
+			en: 'The Bergen International Festival usually takes place in late May and early June. The programme is published a few weeks before.'
 		},
 		filterEvents: (events) => filterFestspillene(events)
 	},
@@ -1800,6 +1861,10 @@ const collections: Collection[] = [
 				{ q: 'What is the weather like in Bergen in June?', a: 'Bergen in June has long, bright days (sunset around 23:00) and temperatures around 15-20°C. Bring a rain jacket — Bergen is Bergen.' }
 			]
 		},
+		offSeasonHint: {
+			no: 'Bergenfest arrangeres vanligvis i juni. Programmet slippes gradvis fra vinteren.',
+			en: 'Bergenfest usually takes place in June. The line-up is released gradually from winter.'
+		},
 		filterEvents: (events) => filterBergenfest(events)
 	},
 	{
@@ -1855,6 +1920,10 @@ const collections: Collection[] = [
 				{ q: 'What is the weather like in Bergen in June?', a: 'Bergen in June has long, bright days (sunset around 23:00) and temperatures around 15-20°C. Bring a rain jacket — Bergen is Bergen.' }
 			]
 		},
+		offSeasonHint: {
+			no: 'Bergenfest arrangeres vanligvis i juni. Programmet slippes gradvis fra vinteren.',
+			en: 'Bergenfest usually takes place in June. The line-up is released gradually from winter.'
+		},
 		filterEvents: (events) => filterBergenfest(events)
 	},
 	{
@@ -1908,6 +1977,10 @@ const collections: Collection[] = [
 				{ q: 'Is there an age limit at Beyond the Gates?', a: 'Most concerts are 18+. Check individual events for specific age restrictions.' },
 				{ q: 'What kind of music is played at Beyond the Gates?', a: 'Primarily metal across all subgenres — black metal, doom, death, progressive — plus hard rock and experimental music.' }
 			]
+		},
+		offSeasonHint: {
+			no: 'Beyond the Gates arrangeres vanligvis i august. Programmet slippes gradvis fra våren.',
+			en: 'Beyond the Gates usually takes place in August. The line-up is released gradually from spring.'
 		},
 		filterEvents: (events) => filterBeyondTheGates(events)
 	},
@@ -1963,6 +2036,10 @@ const collections: Collection[] = [
 				{ q: 'What kind of music is played at Beyond the Gates?', a: 'Primarily metal across all subgenres — black, doom, death, progressive — plus hard rock and experimental music.' }
 			]
 		},
+		offSeasonHint: {
+			no: 'Beyond the Gates arrangeres vanligvis i august. Programmet slippes gradvis fra våren.',
+			en: 'Beyond the Gates usually takes place in August. The line-up is released gradually from spring.'
+		},
 		filterEvents: (events) => filterBeyondTheGates(events)
 	},
 	{
@@ -2017,6 +2094,10 @@ const collections: Collection[] = [
 				{ q: 'Is there an age limit at Nattjazz?', a: 'Most concerts are 18+, but selected events are open to all ages.' }
 			]
 		},
+		offSeasonHint: {
+			no: 'Nattjazz arrangeres vanligvis i mai/juni. Programmet slippes noen uker i forveien.',
+			en: 'Nattjazz usually takes place in May/June. The programme is released a few weeks before.'
+		},
 		filterEvents: (events) => filterNattjazz(events)
 	},
 	{
@@ -2070,6 +2151,10 @@ const collections: Collection[] = [
 				{ q: 'How do I buy Nattjazz tickets?', a: 'Tickets are sold through TicketCo and nattjazz.no. Single tickets and festival passes available.' },
 				{ q: 'Is there an age limit at Nattjazz?', a: 'Most concerts are 18+, but selected events are open to all ages.' }
 			]
+		},
+		offSeasonHint: {
+			no: 'Nattjazz arrangeres vanligvis i mai/juni. Programmet slippes noen uker i forveien.',
+			en: 'Nattjazz usually takes place in May/June. The programme is released a few weeks before.'
 		},
 		filterEvents: (events) => filterNattjazz(events)
 	},
@@ -2126,6 +2211,10 @@ const collections: Collection[] = [
 				{ q: 'How do I buy Bergen Pride tickets?', a: 'Tickets for paid events are sold via TicketCo and bergenpride.no.' }
 			]
 		},
+		offSeasonHint: {
+			no: 'Bergen Pride arrangeres vanligvis i juni. Programmet publiseres ca. 2 uker i forveien.',
+			en: 'Bergen Pride usually takes place in June. The programme is published about 2 weeks before.'
+		},
 		filterEvents: (events) => filterBergenPride(events)
 	},
 	{
@@ -2179,6 +2268,10 @@ const collections: Collection[] = [
 				{ q: 'Is Bergen Pride family-friendly?', a: 'Yes — dedicated family and youth events. The parade is open to all ages.' },
 				{ q: 'How do I buy Bergen Pride tickets?', a: 'Tickets for paid events are sold via TicketCo and bergenpride.no.' }
 			]
+		},
+		offSeasonHint: {
+			no: 'Bergen Pride arrangeres vanligvis i juni. Programmet publiseres ca. 2 uker i forveien.',
+			en: 'Bergen Pride usually takes place in June. The programme is published about 2 weeks before.'
 		},
 		filterEvents: (events) => filterBergenPride(events)
 	},
@@ -2235,6 +2328,10 @@ const collections: Collection[] = [
 				{ q: 'Is there an age limit at BIFF?', a: 'Most films follow standard age ratings. BIFF Young has dedicated screenings for young film fans. Some events are 18+.' }
 			]
 		},
+		offSeasonHint: {
+			no: 'Bergen Internasjonale Filmfestival (BIFF) arrangeres vanligvis i oktober. Programmet slippes noen uker i forveien.',
+			en: 'Bergen International Film Festival (BIFF) usually takes place in October. The programme is released a few weeks before.'
+		},
 		filterEvents: (events) => filterBIFF(events)
 	},
 	{
@@ -2288,6 +2385,10 @@ const collections: Collection[] = [
 				{ q: 'What kind of films are shown?', a: 'International fiction, documentary, Norwegian cinema, short films, animation and children\'s films.' },
 				{ q: 'Is there an age limit?', a: 'Standard age ratings apply. BIFF Young has dedicated screenings for young film fans.' }
 			]
+		},
+		offSeasonHint: {
+			no: 'Bergen Internasjonale Filmfestival (BIFF) arrangeres vanligvis i oktober. Programmet slippes noen uker i forveien.',
+			en: 'Bergen International Film Festival (BIFF) usually takes place in October. The programme is released a few weeks before.'
 		},
 		filterEvents: (events) => filterBIFF(events)
 	},
@@ -2343,6 +2444,10 @@ const collections: Collection[] = [
 				{ q: 'Is Borealis suitable for children?', a: 'The festival has a dedicated family day with workshops and activities. Most evening events are better suited for adults.' }
 			]
 		},
+		offSeasonHint: {
+			no: 'Borealis arrangeres vanligvis i mars. Programmet publiseres noen uker i forveien.',
+			en: 'Borealis usually takes place in March. The programme is released a few weeks before.'
+		},
 		filterEvents: (events) => filterBorealis(events)
 	},
 	{
@@ -2396,6 +2501,10 @@ const collections: Collection[] = [
 				{ q: 'How do I buy tickets?', a: 'Tickets are sold through borealis.ticketco.events and at the door for some events.' },
 				{ q: 'Is Borealis family-friendly?', a: 'The festival has a dedicated family day with workshops. Most evening performances are better suited for adults.' }
 			]
+		},
+		offSeasonHint: {
+			no: 'Borealis arrangeres vanligvis i mars. Programmet publiseres noen uker i forveien.',
+			en: 'Borealis usually takes place in March. The programme is released a few weeks before.'
 		},
 		filterEvents: (events) => filterBorealis(events)
 	}
