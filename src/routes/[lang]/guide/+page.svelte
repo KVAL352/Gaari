@@ -1,79 +1,288 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { lang, t } from '$lib/i18n';
+	import { browser } from '$app/environment';
+	import { lang } from '$lib/i18n';
 	import { getCanonicalUrl, generateBreadcrumbJsonLd } from '$lib/seo';
+	import { getEasterDate, addDays, getISOWeekDates, getContextualHighlight, getOsloNow } from '$lib/event-filters';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/guide`));
 
 	let breadcrumbJsonLd = $derived(generateBreadcrumbJsonLd([
 		{ name: 'Gåri', url: getCanonicalUrl(`/${$lang}`) },
-		{ name: $lang === 'no' ? 'Guide' : 'Guide' }
+		{ name: 'Guide' }
 	]));
 
-	const evergreenNO = [
-		{ slug: 'denne-helgen', label: 'Denne helgen' },
-		{ slug: 'i-kveld', label: 'I kveld' },
-		{ slug: 'i-dag', label: 'I dag' },
-		{ slug: 'gratis', label: 'Gratis' },
-		{ slug: 'konserter', label: 'Konserter' },
-		{ slug: 'familiehelg', label: 'Familiehelg' },
-		{ slug: 'studentkveld', label: 'Studentkveld' },
-		{ slug: 'regndagsguide', label: 'Regndagsguide' },
-		{ slug: 'sentrum', label: 'Sentrum' },
-		{ slug: 'voksen', label: 'Voksen' },
-		{ slug: 'for-ungdom', label: 'For ungdom' }
-	];
-	const evergreenEN = [
-		{ slug: 'this-weekend', label: 'This Weekend' },
-		{ slug: 'today-in-bergen', label: 'Today' },
-		{ slug: 'free-things-to-do-bergen', label: 'Free Events' }
+	// -- Types --
+	type CollectionLink = { slug: string; label: string; href?: string };
+	type SeasonLink = CollectionLink & { period: string };
+	interface CollectionGroup {
+		label: string;
+		items: CollectionLink[];
+	}
+
+	// -- Grouped evergreen collections --
+	const groupsNO: CollectionGroup[] = [
+		{
+			label: 'Når',
+			items: [
+				{ slug: 'i-dag', label: 'I dag' },
+				{ slug: 'i-kveld', label: 'I kveld' },
+				{ slug: 'denne-helgen', label: 'Denne helgen' }
+			]
+		},
+		{
+			label: 'Hva',
+			items: [
+				{ slug: 'konserter', label: 'Konserter' },
+				{ slug: 'gratis', label: 'Gratis' },
+				{ slug: 'regndagsguide', label: 'Regndagsguide' }
+			]
+		},
+		{
+			label: 'Hvem',
+			items: [
+				{ slug: 'familiehelg', label: 'Familiehelg' },
+				{ slug: 'studentkveld', label: 'Studentkveld' },
+				{ slug: 'for-ungdom', label: 'For ungdom' },
+				{ slug: 'voksen', label: 'Voksen' }
+			]
+		},
+		{
+			label: 'Hvor',
+			items: [
+				{ slug: 'sentrum', label: 'Sentrum' },
+				{ slug: 'bergenhus', label: 'Bergenhus', href: '/no?bydel=Bergenhus' },
+				{ slug: 'laksevag', label: 'Laksevåg', href: '/no?bydel=Laksev%C3%A5g' }
+			]
+		}
 	];
 
-	const seasonalNO = [
-		{ slug: '17-mai', label: '17. mai', period: 'Mai' },
-		{ slug: 'julemarked', label: 'Jul i Bergen', period: 'Nov–Des' },
-		{ slug: 'paske', label: 'Påske', period: 'Mars–April' },
-		{ slug: 'sankthans', label: 'Sankthans', period: 'Juni' },
-		{ slug: 'nyttarsaften', label: 'Nyttårsaften', period: 'Des–Jan' },
+	const groupsEN: CollectionGroup[] = [
+		{
+			label: 'When',
+			items: [
+				{ slug: 'today-in-bergen', label: 'Today' },
+				{ slug: 'i-kveld', label: 'Tonight' },
+				{ slug: 'this-weekend', label: 'This Weekend' }
+			]
+		},
+		{
+			label: 'What',
+			items: [
+				{ slug: 'konserter', label: 'Concerts' },
+				{ slug: 'free-things-to-do-bergen', label: 'Free Events' },
+				{ slug: 'regndagsguide', label: 'Rainy Day Guide' }
+			]
+		},
+		{
+			label: 'Who',
+			items: [
+				{ slug: 'familiehelg', label: 'Family Weekend' },
+				{ slug: 'studentkveld', label: 'Student Night' },
+				{ slug: 'for-ungdom', label: 'For Teens' },
+				{ slug: 'voksen', label: 'Adults' }
+			]
+		},
+		{
+			label: 'Where',
+			items: [
+				{ slug: 'sentrum', label: 'City Centre' },
+				{ slug: 'bergenhus', label: 'Bergenhus', href: '/en?bydel=Bergenhus' },
+				{ slug: 'laksevag', label: 'Laksevåg', href: '/en?bydel=Laksev%C3%A5g' }
+			]
+		}
+	];
+
+	// -- Seasonal collections (chronological order) --
+	const seasonalNO: SeasonLink[] = [
 		{ slug: 'vinterferie', label: 'Vinterferie', period: 'Uke 9' },
-		{ slug: 'hostferie', label: 'Høstferie', period: 'Uke 41' }
+		{ slug: 'paske', label: 'Påske', period: 'Mars–April' },
+		{ slug: '17-mai', label: '17. mai', period: 'Mai' },
+		{ slug: 'sankthans', label: 'Sankthans', period: 'Juni' },
+		{ slug: 'hostferie', label: 'Høstferie', period: 'Uke 41' },
+		{ slug: 'julemarked', label: 'Jul i Bergen', period: 'Nov–Des' },
+		{ slug: 'nyttarsaften', label: 'Nyttårsaften', period: 'Des–Jan' }
 	];
-	const seasonalEN = [
-		{ slug: '17th-of-may-bergen', label: '17th of May', period: 'May' },
-		{ slug: 'christmas-bergen', label: 'Christmas', period: 'Nov–Dec' },
+	const seasonalEN: SeasonLink[] = [
+		{ slug: 'winter-break-bergen', label: 'Winter Break', period: 'Week 9' },
 		{ slug: 'easter-bergen', label: 'Easter', period: 'Mar–Apr' },
+		{ slug: '17th-of-may-bergen', label: '17th of May', period: 'May' },
 		{ slug: 'midsummer-bergen', label: 'Midsummer', period: 'June' },
-		{ slug: 'new-years-eve-bergen', label: "New Year's Eve", period: 'Dec–Jan' },
-		{ slug: 'winter-break-bergen', label: 'Winter Break', period: 'Week 9' }
+		{ slug: 'christmas-bergen', label: 'Christmas', period: 'Nov–Dec' },
+		{ slug: 'new-years-eve-bergen', label: "New Year's Eve", period: 'Dec–Jan' }
 	];
 
-	const festivalsNO = [
+	// -- Festival collections (chronological order) --
+	const festivalsNO: SeasonLink[] = [
+		{ slug: 'borealis', label: 'Borealis', period: 'Mars' },
 		{ slug: 'festspillene', label: 'Festspillene', period: 'Mai–Juni' },
-		{ slug: 'bergenfest', label: 'Bergenfest', period: 'Juni' },
 		{ slug: 'nattjazz', label: 'Nattjazz', period: 'Mai–Juni' },
-		{ slug: 'beyond-the-gates', label: 'Beyond the Gates', period: 'August' },
+		{ slug: 'bergenfest', label: 'Bergenfest', period: 'Juni' },
 		{ slug: 'bergen-pride', label: 'Bergen Pride', period: 'Juni' },
-		{ slug: 'biff', label: 'BIFF', period: 'Oktober' },
-		{ slug: 'borealis', label: 'Borealis', period: 'Mars' }
+		{ slug: 'beyond-the-gates', label: 'Beyond the Gates', period: 'August' },
+		{ slug: 'biff', label: 'BIFF', period: 'Oktober' }
 	];
-	const festivalsEN = [
+	const festivalsEN: SeasonLink[] = [
+		{ slug: 'borealis-bergen', label: 'Borealis', period: 'March' },
 		{ slug: 'bergen-international-festival', label: 'Bergen International Festival', period: 'May–June' },
-		{ slug: 'bergenfest-bergen', label: 'Bergenfest', period: 'June' },
 		{ slug: 'nattjazz-bergen', label: 'Nattjazz', period: 'May–June' },
-		{ slug: 'beyond-the-gates-bergen', label: 'Beyond the Gates', period: 'August' },
+		{ slug: 'bergenfest-bergen', label: 'Bergenfest', period: 'June' },
 		{ slug: 'bergen-pride-festival', label: 'Bergen Pride', period: 'June' },
-		{ slug: 'biff-bergen', label: 'BIFF', period: 'October' },
-		{ slug: 'borealis-bergen', label: 'Borealis', period: 'March' }
+		{ slug: 'beyond-the-gates-bergen', label: 'Beyond the Gates', period: 'August' },
+		{ slug: 'biff-bergen', label: 'BIFF', period: 'October' }
 	];
 
-	let evergreen = $derived($lang === 'no' ? evergreenNO : evergreenEN);
+	let groups = $derived($lang === 'no' ? groupsNO : groupsEN);
 	let seasonal = $derived($lang === 'no' ? seasonalNO : seasonalEN);
 	let festivals = $derived($lang === 'no' ? festivalsNO : festivalsEN);
+
+	// -- Season status with exact date windows (mirrors collections.ts logic) --
+	// "soon" = within 14 days before start, "active" = inside the window
+	function formatDate(d: Date): string {
+		return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+	}
+
+	type SeasonWindow = { start: string; end: string };
+
+	function getSeasonWindows(year: number): Record<string, SeasonWindow> {
+		const easter = getEasterDate(year);
+		const palmSunday = addDays(easter, -7);
+		const easterMonday = addDays(easter, 1);
+		const vinterferieWeek = getISOWeekDates(year, 9);
+		const hostferieWeek = getISOWeekDates(year, 41);
+
+		return {
+			'17-mai':              { start: `${year}-05-14`, end: `${year}-05-18` },
+			'17th-of-may-bergen':  { start: `${year}-05-14`, end: `${year}-05-18` },
+			'julemarked':          { start: `${year}-11-15`, end: `${year}-12-23` },
+			'christmas-bergen':    { start: `${year}-11-15`, end: `${year}-12-23` },
+			'paske':               { start: formatDate(palmSunday), end: formatDate(easterMonday) },
+			'easter-bergen':       { start: formatDate(palmSunday), end: formatDate(easterMonday) },
+			'sankthans':           { start: `${year}-06-21`, end: `${year}-06-24` },
+			'midsummer-bergen':    { start: `${year}-06-21`, end: `${year}-06-24` },
+			'nyttarsaften':        { start: `${year}-12-29`, end: `${year + 1}-01-01` },
+			'new-years-eve-bergen':{ start: `${year}-12-29`, end: `${year + 1}-01-01` },
+			'vinterferie':         vinterferieWeek,
+			'winter-break-bergen': vinterferieWeek,
+			'hostferie':           hostferieWeek,
+			// Festivals — approximate annual windows
+			'borealis':            { start: `${year}-03-05`, end: `${year}-03-16` },
+			'borealis-bergen':     { start: `${year}-03-05`, end: `${year}-03-16` },
+			'festspillene':        { start: `${year}-05-21`, end: `${year}-06-04` },
+			'bergen-international-festival': { start: `${year}-05-21`, end: `${year}-06-04` },
+			'nattjazz':            { start: `${year}-05-23`, end: `${year}-06-03` },
+			'nattjazz-bergen':     { start: `${year}-05-23`, end: `${year}-06-03` },
+			'bergenfest':          { start: `${year}-06-11`, end: `${year}-06-14` },
+			'bergenfest-bergen':   { start: `${year}-06-11`, end: `${year}-06-14` },
+			'bergen-pride':        { start: `${year}-06-07`, end: `${year}-06-15` },
+			'bergen-pride-festival': { start: `${year}-06-07`, end: `${year}-06-15` },
+			'beyond-the-gates':    { start: `${year}-08-20`, end: `${year}-08-23` },
+			'beyond-the-gates-bergen': { start: `${year}-08-20`, end: `${year}-08-23` },
+			'biff':                { start: `${year}-10-15`, end: `${year}-10-26` },
+			'biff-bergen':         { start: `${year}-10-15`, end: `${year}-10-26` },
+		};
+	}
+
+	const SOON_DAYS = 14;
+
+	function getStatusBySlug(slug: string): 'active' | 'soon' | 'off' {
+		if (!browser) return 'off';
+
+		const now = new Date();
+		const today = formatDate(now);
+		const year = now.getFullYear();
+
+		// Check current year and adjacent year (for cross-year events like nyttårsaften)
+		const windows = getSeasonWindows(year);
+		const prevWindows = getSeasonWindows(year - 1);
+
+		const window = windows[slug] || prevWindows[slug];
+		if (!window) return 'off';
+
+		// Also check previous year's cross-year window (e.g., nyttårsaften Dec 29 → Jan 1)
+		const checkWindows = [windows[slug], prevWindows[slug]].filter(Boolean) as SeasonWindow[];
+
+		for (const w of checkWindows) {
+			if (today >= w.start && today <= w.end) return 'active';
+		}
+
+		// Check "coming soon" — within 14 days before start of current year's window
+		const currentWindow = windows[slug];
+		if (currentWindow) {
+			const startDate = new Date(currentWindow.start + 'T00:00:00');
+			const soonDate = addDays(startDate, -SOON_DAYS);
+			const soonStr = formatDate(soonDate);
+			if (today >= soonStr && today < currentWindow.start) return 'soon';
+		}
+
+		return 'off';
+	}
+
+	// FAQ data
+	const faqNO = [
+		{
+			q: 'Hva skjer i Bergen i helgen?',
+			a: 'Bergen har typisk 40–80 arrangementer hver helg. Sjekk <a href="/no/denne-helgen" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">denne helgen</a>-siden for oppdatert program.'
+		},
+		{
+			q: 'Er det gratis arrangementer i Bergen?',
+			a: 'Bergen har mange gratis aktiviteter — bibliotekkonserter, utstillinger, guidede turer og mer. Se <a href="/no/gratis" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">gratis-siden</a>.'
+		},
+		{
+			q: 'Hvilke festivaler har Bergen?',
+			a: 'Bergen har festivaler gjennom hele året: Festspillene (mai/juni), Bergenfest (juni), Nattjazz (mai/juni), Beyond the Gates (august), Bergen Pride (juni), BIFF (oktober) og Borealis (mars).'
+		},
+		{
+			q: 'Hva kan man gjøre med barn i Bergen?',
+			a: 'Bergen har barneforestillinger, museumsaktiviteter, Akvariet og familievennlige arrangementer. Se <a href="/no/familiehelg" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">familiehelg-siden</a>.'
+		},
+		{
+			q: 'Hvor ofte oppdateres Gåri?',
+			a: 'Gåri oppdateres daglig klokken 06:00 med data fra 54 lokale kilder i Bergen.'
+		}
+	];
+	const faqEN = [
+		{
+			q: "What's on in Bergen this weekend?",
+			a: 'Bergen typically has 40–80 events each weekend. Check the <a href="/en/this-weekend" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">this weekend</a> page for the updated programme.'
+		},
+		{
+			q: 'Are there free things to do in Bergen?',
+			a: 'Bergen has many free activities — library concerts, exhibitions, guided walks and more. See the <a href="/en/free-things-to-do-bergen" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">free events page</a>.'
+		},
+		{
+			q: 'What festivals does Bergen have?',
+			a: 'Bergen has festivals throughout the year: Bergen International Festival (May/June), Bergenfest (June), Nattjazz (May/June), Beyond the Gates (August), Bergen Pride (June), BIFF (October) and Borealis (March).'
+		},
+		{
+			q: 'What can families do in Bergen?',
+			a: 'Bergen has children\'s shows, museum activities, the Aquarium and family-friendly events. See the <a href="/en/familiehelg" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">family weekend page</a> for upcoming activities.'
+		},
+		{
+			q: 'How often is Gåri updated?',
+			a: 'Gåri updates daily at 06:00 with data from 54 local sources in Bergen.'
+		}
+	];
+
+	let faq = $derived($lang === 'no' ? faqNO : faqEN);
+
+	// -- Contextual CTA: tonight after 16:00, weekend on Fri PM/Sat/Sun, else this weekend --
+	let ctaConfig = $derived.by(() => {
+		if (!browser) return { slug: $lang === 'no' ? 'denne-helgen' : 'this-weekend', label: $lang === 'no' ? 'Se hva som skjer denne helgen' : "See what's on this weekend" };
+		const highlight = getContextualHighlight(getOsloNow());
+		if (highlight === 'today') {
+			return { slug: $lang === 'no' ? 'i-kveld' : 'i-kveld', label: $lang === 'no' ? 'Se hva som skjer i kveld' : "See what's on tonight" };
+		}
+		if (highlight === 'weekend') {
+			return { slug: $lang === 'no' ? 'denne-helgen' : 'this-weekend', label: $lang === 'no' ? 'Se hva som skjer denne helgen' : "See what's on this weekend" };
+		}
+		return { slug: $lang === 'no' ? 'denne-helgen' : 'this-weekend', label: $lang === 'no' ? 'Se hva som skjer denne helgen' : "See what's on this weekend" };
+	});
 </script>
 
 <svelte:head>
-	<title>{$lang === 'no' ? 'Hva skjer i Bergen? Din komplette guide' : "What's on in Bergen? Your complete guide"} — Gåri</title>
+	<title>{$lang === 'no' ? 'Din guide til Bergen-arrangementer' : 'Your guide to Bergen events'} — Gåri</title>
 	<meta name="description" content={$lang === 'no'
 		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 54 lokale kilder.'
 		: 'Complete guide to events in Bergen — concerts, theatre, festivals, family activities and more. Updated daily from 54 local sources.'} />
@@ -81,7 +290,7 @@
 	<link rel="alternate" hreflang="nb" href={getCanonicalUrl('/no/guide')} />
 	<link rel="alternate" hreflang="en" href={getCanonicalUrl('/en/guide')} />
 	<link rel="alternate" hreflang="x-default" href={getCanonicalUrl('/no/guide')} />
-	<meta property="og:title" content={$lang === 'no' ? 'Hva skjer i Bergen? Din komplette guide' : "What's on in Bergen? Your complete guide"} />
+	<meta property="og:title" content={$lang === 'no' ? 'Din guide til Bergen-arrangementer' : 'Your guide to Bergen events'} />
 	<meta property="og:description" content={$lang === 'no'
 		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer.'
 		: 'Complete guide to events in Bergen — concerts, theatre, festivals, family activities and more.'} />
@@ -92,173 +301,175 @@
 	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
-<div class="mx-auto max-w-2xl px-4 py-12">
-	<h1 class="mb-4 text-3xl font-bold text-[var(--color-text-primary)]">
-		{$lang === 'no' ? 'Hva skjer i Bergen?' : "What's on in Bergen?"}
-	</h1>
-	<p class="mb-10 text-lg leading-relaxed text-[var(--color-text-secondary)]">
-		{#if $lang === 'no'}
-			Gåri samler arrangementer fra 54 lokale kilder i Bergen — spillesteder, kulturinstitusjoner, festivalarrangører og billettplattformer. Alt fra konserter og teater til matmarkeder og familieaktiviteter, oppdatert daglig. Her er en oversikt over alt du kan utforske.
-		{:else}
-			Gåri aggregates events from 54 local sources in Bergen — venues, cultural institutions, festival organisers and ticket platforms. Everything from concerts and theatre to food markets and family activities, updated daily. Here is an overview of everything you can explore.
-		{/if}
-	</p>
+<div class="mx-auto max-w-2xl px-4 py-8 md:py-12">
+	<div class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-sm">
 
-	<!-- Evergreen collections -->
-	<section class="mb-10">
-		<h2 class="mb-4 text-xl font-semibold text-[var(--color-text-primary)]">
-			{$lang === 'no' ? 'Utforsk arrangementer' : 'Explore events'}
-		</h2>
-		<p class="mb-4 text-sm text-[var(--color-text-secondary)]">
-			{#if $lang === 'no'}
-				Disse sidene oppdateres daglig og viser arrangementer i Bergen basert på tidspunkt, type og målgruppe.
-			{:else}
-				These pages are updated daily and show Bergen events by time, type and audience.
-			{/if}
-		</p>
-		<ul class="flex flex-wrap gap-2">
-			{#each evergreen as col (col.slug)}
-				<li>
-					<a
-						href="/{$lang}/{col.slug}"
-						class="inline-block rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
-					>
-						{col.label}
-					</a>
-				</li>
-			{/each}
-		</ul>
-	</section>
-
-	<!-- Seasonal collections -->
-	<section class="mb-10">
-		<h2 class="mb-4 text-xl font-semibold text-[var(--color-text-primary)]">
-			{$lang === 'no' ? 'Sesonghendelser' : 'Seasonal events'}
-		</h2>
-		<p class="mb-4 text-sm text-[var(--color-text-secondary)]">
-			{#if $lang === 'no'}
-				Bergen har rike tradisjoner knyttet til høytider og ferier. Disse sidene fylles med arrangementer når sesongen nærmer seg.
-			{:else}
-				Bergen has rich traditions tied to holidays and school breaks. These pages fill with events as the season approaches.
-			{/if}
-		</p>
-		<ul class="space-y-2">
-			{#each seasonal as col (col.slug)}
-				<li class="flex items-center justify-between rounded-lg border border-[var(--color-border)] px-4 py-2.5">
-					<a
-						href="/{$lang}/{col.slug}"
-						class="text-sm font-medium text-[var(--color-text-secondary)] underline transition-colors hover:text-[var(--color-text-primary)]"
-					>
-						{col.label}
-					</a>
-					<span class="text-xs text-[var(--color-text-muted)]">{col.period}</span>
-				</li>
-			{/each}
-		</ul>
-	</section>
-
-	<!-- Festival collections -->
-	<section class="mb-10">
-		<h2 class="mb-4 text-xl font-semibold text-[var(--color-text-primary)]">
-			{$lang === 'no' ? 'Festivaler i Bergen' : 'Bergen festivals'}
-		</h2>
-		<p class="mb-4 text-sm text-[var(--color-text-secondary)]">
-			{#if $lang === 'no'}
-				Bergen er en festivalby med arrangementer gjennom hele året — fra klassisk musikk og jazz til metal, film og pride.
-			{:else}
-				Bergen is a festival city with events throughout the year — from classical music and jazz to metal, film and pride.
-			{/if}
-		</p>
-		<ul class="space-y-2">
-			{#each festivals as col (col.slug)}
-				<li class="flex items-center justify-between rounded-lg border border-[var(--color-border)] px-4 py-2.5">
-					<a
-						href="/{$lang}/{col.slug}"
-						class="text-sm font-medium text-[var(--color-text-secondary)] underline transition-colors hover:text-[var(--color-text-primary)]"
-					>
-						{col.label}
-					</a>
-					<span class="text-xs text-[var(--color-text-muted)]">{col.period}</span>
-				</li>
-			{/each}
-		</ul>
-	</section>
-
-	<!-- About Gåri -->
-	<section class="mb-10 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-6">
-		<h2 class="mb-3 text-lg font-semibold text-[var(--color-text-primary)]">
-			{$lang === 'no' ? 'Om Gåri' : 'About Gåri'}
-		</h2>
-		<p class="mb-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-			{#if $lang === 'no'}
-				Gåri samler arrangementer fra 54 lokale kilder i Bergen og oppdateres daglig klokken 06:00. Navnet kommer fra det bergenske uttrykket «Ke det går i?» — hva skjer? Alle arrangementer linker direkte til arrangørens egen side.
-			{:else}
-				Gåri aggregates events from 54 local sources in Bergen and updates daily at 06:00. The name comes from the Bergen dialect phrase "Ke det går i?" — meaning "What's going on?" All events link directly to the organiser's own page.
-			{/if}
-		</p>
-		<a
-			href="/{$lang}/about"
-			class="text-sm font-medium text-[var(--color-accent)] underline transition-colors hover:text-[var(--color-accent-hover)]"
-		>
-			{$lang === 'no' ? 'Les mer om Gåri' : 'Read more about Gåri'}
-		</a>
-	</section>
-
-	<!-- FAQ -->
-	<section class="mb-10">
-		<h2 class="mb-4 text-xl font-semibold text-[var(--color-text-primary)]">
-			{$lang === 'no' ? 'Ofte stilte spørsmål' : 'Frequently asked questions'}
-		</h2>
-		<div class="space-y-6">
-			{#if $lang === 'no'}
-				<div>
-					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">Hva skjer i Bergen i helgen?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Bergen har typisk 40–80 arrangementer hver helg. Sjekk <a href="/no/denne-helgen" class="underline">denne helgen</a>-siden for oppdatert program.</p>
-				</div>
-				<div>
-					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">Er det gratis arrangementer i Bergen?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Bergen har mange gratis aktiviteter — bibliotekkonserter, utstillinger, guidede turer og mer. Se <a href="/no/gratis" class="underline">gratis-siden</a>.</p>
-				</div>
-				<div>
-					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">Hvilke festivaler har Bergen?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Bergen har festivaler gjennom hele året: Festspillene (mai/juni), Bergenfest (juni), Nattjazz (mai/juni), Beyond the Gates (august), Bergen Pride (juni), BIFF (oktober) og Borealis (mars).</p>
-				</div>
-				<div>
-					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">Hva kan man gjøre med barn i Bergen?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Bergen har barneforestillinger, museumsaktiviteter, Akvariet og familievennlige arrangementer. Se <a href="/no/familiehelg" class="underline">familiehelg-siden</a>.</p>
-				</div>
-				<div>
-					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">Hvor ofte oppdateres Gåri?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Gåri oppdateres daglig klokken 06:00 med data fra 54 lokale kilder i Bergen.</p>
-				</div>
-			{:else}
-				<div>
-					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">What's on in Bergen this weekend?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Bergen typically has 40–80 events each weekend. Check the <a href="/en/this-weekend" class="underline">this weekend</a> page for the updated programme.</p>
-				</div>
-				<div>
-					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">Are there free things to do in Bergen?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Bergen has many free activities — library concerts, exhibitions, guided walks and more. See the <a href="/en/free-things-to-do-bergen" class="underline">free events page</a>.</p>
-				</div>
-				<div>
-					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">What festivals does Bergen have?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Bergen has festivals throughout the year: Bergen International Festival (May/June), Bergenfest (June), Nattjazz (May/June), Beyond the Gates (August), Bergen Pride (June), BIFF (October) and Borealis (March).</p>
-				</div>
-				<div>
-					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">What can families do in Bergen?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Bergen has children's shows, museum activities, the Aquarium and family-friendly events. See the <a href="/en/this-weekend" class="underline">weekend page</a> for upcoming family activities.</p>
-				</div>
-				<div>
-					<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">How often is Gåri updated?</h3>
-					<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">Gåri updates daily at 06:00 with data from 54 local sources in Bergen.</p>
-				</div>
-			{/if}
+		<!-- Header -->
+		<div class="px-6 pt-6 pb-2 md:px-8">
+			<a href="/{$lang}" class="mb-3 inline-flex items-center gap-1 text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-primary)]">
+				<span aria-hidden="true">←</span> {$lang === 'no' ? 'Forsiden' : 'Home'}
+			</a>
+			<h1 class="text-2xl font-bold text-[var(--color-text-primary)] md:text-3xl" style="font-family: 'Barlow Condensed', sans-serif">
+				{$lang === 'no' ? 'Din guide til Bergen' : 'Your guide to Bergen events'}
+			</h1>
+			<p class="mt-2 leading-relaxed text-[var(--color-text-secondary)]">
+				{$lang === 'no'
+					? 'Oppdatert daglig fra 54 lokale kilder. Finn konserter, teater, festivaler, familieaktiviteter og mer.'
+					: 'Updated daily from 54 local sources. Find concerts, theatre, festivals, family activities and more.'}
+			</p>
 		</div>
-	</section>
 
-	<NewsletterCTA
-		id="guide"
-		variant="card"
-		heading={{ no: 'Hold deg oppdatert på Bergen-arrangementer', en: 'Stay updated on Bergen events' }}
-	/>
+		<!-- CTA — contextual: tonight after 16:00, weekend on Fri PM/Sat/Sun -->
+		<div class="px-6 pt-4 pb-6 md:px-8">
+			<a
+				href="/{$lang}/{ctaConfig.slug}"
+				class="flex items-center justify-between rounded-xl bg-[var(--color-accent)] px-5 py-3.5 font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+			>
+				<span>{ctaConfig.label}</span>
+				<span aria-hidden="true" class="text-lg">→</span>
+			</a>
+		</div>
+
+		<!-- Grouped Evergreen -->
+		<section class="px-6 pb-8 md:px-8">
+			<h2 class="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">
+				{$lang === 'no' ? 'Utforsk arrangementer' : 'Explore events'}
+			</h2>
+			<div class="space-y-4">
+				{#each groups as group (group.label)}
+					<div>
+						<h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+							{group.label}
+						</h3>
+						<div class="flex flex-wrap gap-2">
+							{#each group.items as col (col.slug)}
+								<a
+									href={col.href ?? `/${$lang}/${col.slug}`}
+									class="inline-block rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
+								>
+									{col.label}
+								</a>
+							{/each}
+						</div>
+					</div>
+				{/each}
+			</div>
+		</section>
+
+		<hr class="mx-6 border-[var(--color-border)] md:mx-8" />
+
+		<!-- Seasonal -->
+		<section class="px-6 py-8 md:px-8">
+			<h2 class="mb-2 text-lg font-semibold text-[var(--color-text-primary)]">
+				{$lang === 'no' ? 'Sesonghendelser' : 'Seasonal events'}
+			</h2>
+			<p class="mb-4 text-sm text-[var(--color-text-muted)]">
+				{$lang === 'no'
+					? 'Fylles med arrangementer når sesongen nærmer seg.'
+					: 'Events appear as the season approaches.'}
+			</p>
+			<ul class="space-y-2">
+				{#each seasonal as col (col.slug)}
+					{@const status = getStatusBySlug(col.slug)}
+					<li>
+						<a
+							href="/{$lang}/{col.slug}"
+							class="flex items-center justify-between rounded-lg border border-[var(--color-border)] px-4 py-2.5 transition-colors hover:border-[var(--color-accent)] hover:bg-[var(--color-surface)]"
+							class:opacity-60={status === 'off'}
+						>
+							<span class="text-sm font-medium text-[var(--color-text-secondary)]">{col.label}</span>
+							<span class="flex shrink-0 items-center gap-2">
+								{#if status === 'active'}
+									<span class="whitespace-nowrap rounded-full bg-[var(--funkis-green-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--funkis-green)]">
+										{$lang === 'no' ? 'Pågår nå' : 'On now'}
+									</span>
+								{:else if status === 'soon'}
+									<span class="whitespace-nowrap rounded-full bg-[var(--funkis-amber-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--funkis-amber)]">
+										{$lang === 'no' ? 'Kommer snart' : 'Coming soon'}
+									</span>
+								{/if}
+								<span class="text-xs text-[var(--color-text-muted)]">{col.period}</span>
+							</span>
+						</a>
+					</li>
+				{/each}
+			</ul>
+		</section>
+
+		<hr class="mx-6 border-[var(--color-border)] md:mx-8" />
+
+		<!-- Festivals -->
+		<section class="px-6 py-8 md:px-8">
+			<h2 class="mb-2 text-lg font-semibold text-[var(--color-text-primary)]">
+				{$lang === 'no' ? 'Festivaler i Bergen' : 'Bergen festivals'}
+			</h2>
+			<p class="mb-4 text-sm text-[var(--color-text-muted)]">
+				{$lang === 'no'
+					? 'Fra klassisk musikk og jazz til metal, film og pride.'
+					: 'From classical music and jazz to metal, film and pride.'}
+			</p>
+			<ul class="space-y-2">
+				{#each festivals as col (col.slug)}
+					{@const status = getStatusBySlug(col.slug)}
+					<li>
+						<a
+							href="/{$lang}/{col.slug}"
+							class="flex items-center justify-between rounded-lg border border-[var(--color-border)] border-l-[3px] border-l-[var(--color-accent)] px-4 py-2.5 transition-colors hover:border-[var(--color-accent)] hover:bg-[var(--color-surface)]"
+							class:opacity-60={status === 'off'}
+						>
+							<span class="text-sm font-medium text-[var(--color-text-secondary)]">{col.label}</span>
+							<span class="flex shrink-0 items-center gap-2">
+								{#if status === 'active'}
+									<span class="whitespace-nowrap rounded-full bg-[var(--funkis-green-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--funkis-green)]">
+										{$lang === 'no' ? 'Pågår nå' : 'On now'}
+									</span>
+								{:else if status === 'soon'}
+									<span class="whitespace-nowrap rounded-full bg-[var(--funkis-amber-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--funkis-amber)]">
+										{$lang === 'no' ? 'Kommer snart' : 'Coming soon'}
+									</span>
+								{/if}
+								<span class="text-xs text-[var(--color-text-muted)]">{col.period}</span>
+							</span>
+						</a>
+					</li>
+				{/each}
+			</ul>
+		</section>
+
+		<hr class="mx-6 border-[var(--color-border)] md:mx-8" />
+
+		<!-- FAQ -->
+		<section class="px-6 py-8 md:px-8">
+			<h2 class="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">
+				{$lang === 'no' ? 'Ofte stilte spørsmål' : 'Frequently asked questions'}
+			</h2>
+			<div class="space-y-2">
+				{#each faq as item, i (item.q)}
+					<details class="group rounded-lg border border-[var(--color-border)]" open={i === 0}>
+						<summary class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold text-[var(--color-text-primary)] [&::-webkit-details-marker]:hidden">
+							<span>{item.q}</span>
+							<svg class="h-4 w-4 shrink-0 text-[var(--color-text-muted)] transition-transform duration-200 group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<path d="m6 9 6 6 6-6"/>
+							</svg>
+						</summary>
+						<!-- eslint-disable svelte/no-at-html-tags -->
+						<p class="px-4 pb-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+							{@html item.a}
+						</p>
+					</details>
+				{/each}
+			</div>
+		</section>
+
+		<!-- Newsletter -->
+		<div class="px-6 pb-8 md:px-8">
+			<NewsletterCTA
+				id="guide"
+				variant="card"
+				heading={{ no: 'Hold deg oppdatert', en: 'Stay updated' }}
+				subtext={{ no: 'Ukentlig nyhetsbrev med de beste arrangementene i Bergen.', en: 'Weekly newsletter with the best events in Bergen.' }}
+			/>
+		</div>
+
+	</div>
 </div>
