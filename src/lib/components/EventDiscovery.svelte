@@ -197,7 +197,7 @@
 	const INITIAL_AUDIENCE_SHOW = 3;
 	let hiddenAudienceCount = audienceOptions.length - INITIAL_AUDIENCE_SHOW;
 	const hiddenAudienceValues = new Set(audienceOptions.slice(INITIAL_AUDIENCE_SHOW).map(o => o.value));
-	let audienceExpanded = $derived(showAllAudience || (!!audience && hiddenAudienceValues.has(audience)));
+	let audienceExpanded = $derived(showAllAudience || (!!audience && hiddenAudienceValues.has(audience as typeof audienceOptions[number]['value'])));
 
 	function handleAudienceSelect(value: string) {
 		onFilterChange('audience', audience === value ? '' : value);
