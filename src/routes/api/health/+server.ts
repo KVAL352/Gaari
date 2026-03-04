@@ -222,7 +222,7 @@ export const GET: RequestHandler = async () => {
 		},
 		{
 			status: httpStatus,
-			headers: { 'Cache-Control': 'public, max-age=300' }
+			headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
 		}
 	);
 };
