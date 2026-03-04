@@ -166,10 +166,17 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	// Fetch listing page once to map titles → detail URLs
 	const detailMap = await fetchEventDetailUrls();
 
-	const found = futureEvents.length;
+	// Filter out industry conferences — not public events
+	const EXCLUDE_KEYWORDS = ['konferansen', 'conference', 'summit', 'fagdag', 'bransjetreff'];
+	const publicEvents = futureEvents.filter(e => {
+		const title = e.summary.toLowerCase();
+		return !EXCLUDE_KEYWORDS.some(kw => title.includes(kw));
+	});
+
+	const found = publicEvents.length;
 	let inserted = 0;
 
-	for (const event of futureEvents) {
+	for (const event of publicEvents) {
 		const eventUrl = `https://medieklyngen.no/events/#${event.uid}`;
 		if (await eventExists(eventUrl)) continue;
 
