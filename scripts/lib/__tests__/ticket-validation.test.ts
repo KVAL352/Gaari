@@ -1,4 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+vi.mock('cheerio', () => {
+	// cheerio is in scripts/package.json, not root — mock it for CI
+	return {
+		load: (html: string) => {
+			const metaTags = [...html.matchAll(/<meta\s+([^>]*)\/?\s*>/gi)].map((m) => {
+				const attrs: Record<string, string> = {};
+				for (const [, key, val] of m[1].matchAll(/(\w+)="([^"]*)"/g)) {
+					attrs[key] = val;
+				}
+				return attrs;
+			});
+			return (selector: string) => {
+				const sm = selector.match(/meta\[(\w+)="([^"]+)"\]/);
+				if (!sm) return { attr: () => '' };
+				const found = metaTags.find((t) => t[sm[1]] === sm[2]);
+				return { attr: (name: string) => found?.[name] || '' };
+			};
+		},
+	};
+});
+
 import { validateTicketUrl } from '../ticket-validation.js';
 
 // Mock global fetch
