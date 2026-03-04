@@ -25,6 +25,8 @@ const SEASONAL_SCRAPERS = new Set([
 	'bergenfest',
 	'beyondthegates',
 	'vvv',
+	'bergenpride',
+	'biff',
 ]);
 
 interface RunRow {

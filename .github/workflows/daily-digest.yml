@@ -2,8 +2,8 @@ name: Daily Digest
 
 on:
   schedule:
-    # Weekdays at 08:00 UTC (09:00 CET / 10:00 CEST)
-    - cron: '0 8 * * 1-5'
+    # Every day at 08:00 UTC (09:00 CET / 10:00 CEST)
+    - cron: '0 8 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
