@@ -21,8 +21,10 @@
     "@resvg/resvg-js": "^2.6.2",
     "@supabase/supabase-js": "^2.98.0",
     "cheerio": "^1.0.0",
+    "clsx": "^2.1.0",
     "dotenv": "^17.3.1",
-    "satori": "^0.19.2"
+    "satori": "^0.19.2",
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
     "tsx": "^4.7.0",
