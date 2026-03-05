@@ -21,6 +21,11 @@
     "description": "Sjekk Plausible-data for 1.-15. mars: 1) Bounce rate — har den gått ned fra 68%? 2) Scroll depth — scroller folk lenger? 3) Sammenlign mobil vs. desktop. Endringer deployert 1. mars: hero skjult på mobil, discovery-panel komprimert, audience pills kollapset til 3, filter-toggles bak 'Flere filtre'-knapp, resultateller skjult uten filtre."
   },
   {
+    "date": "2026-03-06",
+    "title": "Sjekk Dependabot PRs #16 og #17",
+    "description": "PR #16 (resend 6.9.2→6.9.3) og #17 (lucide-svelte 0.474.0→0.576.0) ble bedt om rebase 5. mars. Sjekk om CI passerer nå. Hvis ja, merge begge (squash). Hvis fortsatt feil, undersøk nærmere."
+  },
+  {
     "date": "2026-03-12",
     "title": "Følg opp Thomas Ottesen, Bergen Sentrum AS",
     "description": "Steinar Kristoffersen (daglig leder) videresendte outreach-eposten til Thomas Ottesen (salgs- og markedssjef) 4. mars. Ingen svar ennå. Send oppfølgingsepost direkte til thomas@bergensentrum.no om han ikke har svart. Mål: få Bergen Sentrum til å dele Gåri med sine medlemmer (sentrumsbedrifter/arrangører)."

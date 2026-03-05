@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { lang } from '$lib/i18n';
-	import { getCanonicalUrl, generateBreadcrumbJsonLd } from '$lib/seo';
+	import { getCanonicalUrl, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems } from '$lib/seo';
 	import { getEasterDate, addDays, getISOWeekDates, getContextualHighlight, getOsloNow } from '$lib/event-filters';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 
@@ -276,6 +276,7 @@
 	];
 
 	let faq = $derived($lang === 'no' ? faqNO : faqEN);
+	let faqJsonLd = $derived(generateFaqJsonLdFromItems(faq));
 
 	// -- Contextual CTA: tonight after 16:00, weekend on Fri PM/Sat/Sun, else this weekend --
 	let ctaConfig = $derived.by(() => {
@@ -294,8 +295,8 @@
 <svelte:head>
 	<title>{$lang === 'no' ? 'Din guide til Bergen-arrangementer' : 'Your guide to Bergen events'} — Gåri</title>
 	<meta name="description" content={$lang === 'no'
-		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 54 lokale kilder.'
-		: 'Complete guide to events in Bergen — concerts, theatre, festivals, family activities and more. Updated daily from 54 local sources.'} />
+		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 54 kilder.'
+		: 'Complete guide to events in Bergen, Norway — concerts, theatre, festivals, family activities and more. Updated daily from 54 sources.'} />
 	<link rel="canonical" href={canonicalUrl} />
 	<link rel="alternate" hreflang="nb" href={getCanonicalUrl('/no/guide')} />
 	<link rel="alternate" hreflang="en" href={getCanonicalUrl('/en/guide')} />
@@ -309,6 +310,7 @@
 	<meta property="og:image:height" content="630" />
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}
+	{@html '<script type="application/ld+json">' + faqJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-8 md:py-12">
@@ -324,9 +326,21 @@
 			</h1>
 			<p class="mt-2 leading-relaxed text-[var(--color-text-secondary)]">
 				{$lang === 'no'
-					? 'Oppdatert daglig fra 54 lokale kilder. Finn konserter, teater, festivaler, familieaktiviteter og mer.'
-					: 'Updated daily from 54 local sources. Find concerts, theatre, festivals, family activities and more.'}
+					? 'Gåri samler alle arrangementer i Bergen på ett sted — oppdatert daglig fra 54 lokale kilder, fra konsertscener og teatre til museer, festivaler og friluftsliv.'
+					: 'Gåri brings all Bergen events together in one place — updated daily from 54 local sources, covering concert venues, theatres, museums, festivals and outdoor activities.'}
 			</p>
+			<div class="mt-4 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+				<p>
+					{$lang === 'no'
+						? 'Bergen er en av Norges mest kulturaktive byer, med arrangementer spredt over åtte bydeler — fra Grieghallen og Den Nationale Scene i Sentrum til Oseana i Fana og lokale arrangementer i Åsane, Laksevåg og Fyllingsdalen. Gåri dekker alt fra store festivaler som Festspillene, Bergenfest og Nattjazz til ukentlige konserter, utstillinger, familieaktiviteter og studentarrangementer.'
+						: 'Bergen is one of Norway\'s most culturally active cities, with events spread across eight districts — from Grieghallen and Den Nationale Scene in the city centre to Oseana in Fana and local happenings in Åsane, Laksevåg and Fyllingsdalen. Gåri covers everything from major festivals like the Bergen International Festival, Bergenfest and Nattjazz to weekly concerts, exhibitions, family activities and student events.'}
+				</p>
+				<p>
+					{$lang === 'no'
+						? 'Utforsk samlinger nedenfor for å finne det som passer deg — enten du leter etter gratisarrangementer, familiehelg, konserter denne uken eller noe å gjøre en regnværsdag. Sesongbaserte samlinger som jul i Bergen, 17. mai og påske fylles automatisk med aktuelle arrangementer når sesongen nærmer seg.'
+						: 'Browse the collections below to find what suits you — whether you\'re looking for free events, a family weekend, concerts this week or something to do on a rainy day. Seasonal collections like Christmas in Bergen, Constitution Day and Easter are automatically filled with relevant events as the season approaches.'}
+				</p>
+			</div>
 		</div>
 
 		<!-- CTA — contextual: tonight after 16:00, weekend on Fri PM/Sat/Sun -->

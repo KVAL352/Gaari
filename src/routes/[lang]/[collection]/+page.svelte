@@ -79,6 +79,11 @@
 		{quickAnswer}
 	</p>
 	{/if}
+	{#if editorial.length > 0}
+	<p class="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">
+		{editorial[0]}
+	</p>
+	{/if}
 </section>
 
 <div class="mx-auto max-w-7xl px-4 py-6" aria-live="polite" aria-atomic="true">
@@ -121,12 +126,12 @@
 	/>
 </div>
 
-{#if editorial.length > 0 || faqItems.length > 0 || relatedCollections.length > 0}
+{#if editorial.length > 1 || faqItems.length > 0 || relatedCollections.length > 0}
 <section class="mx-auto max-w-7xl px-4 pb-16 pt-8 border-t border-[var(--color-border)]">
 	<div class="max-w-2xl">
-		{#if editorial.length > 0}
+		{#if editorial.length > 1}
 		<div class="mb-10 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-			{#each editorial as para, i (i)}
+			{#each editorial.slice(1) as para, i (i)}
 			<p>{para}</p>
 			{/each}
 		</div>
