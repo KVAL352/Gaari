@@ -1,22 +1,22 @@
 ---
 name: wrap-up
-description: End-of-session checklist — commit status, docs, memory, tests, and summary
+description: End-of-session checklist — commit status, docs, memory, tests, and summary. Use when user says "vi er ferdige", "wrap up", "la oss runde av", "det var alt", "ferdig for nå", or similar.
 ---
 
 # Session wrap-up
 
-Run the end-of-session quality checklist before closing this conversation.
+Run the end-of-session quality checklist.
 
-## When to trigger
+## Pre-loaded state
 
-Activate this skill when the user signals the conversation is ending. Examples:
-- "La oss avslutte samtalen"
-- "Vi er ferdige"
-- "Vi avslutter"
-- "Wrap up"
-- "La oss runde av"
-- "Det var alt"
-- "Ferdig for nå"
+### Git status
+!`git status --short 2>/dev/null`
+
+### Changed files (full diff stat)
+!`git diff --stat 2>/dev/null`
+
+### Current branch
+!`git branch --show-current 2>/dev/null`
 
 ## Steps
 
@@ -24,7 +24,7 @@ Run these in order. Report each as PASS / ACTION NEEDED / SKIPPED.
 
 ### 1. Uncommitted changes
 
-Run `git status` (never use `-uall` flag). Check for:
+Review the pre-loaded git status above. Check for:
 - **Staged but uncommitted changes** → ask user if they want to commit
 - **Unstaged modifications** → list files, ask if they should be staged and committed
 - **Untracked files** → list them, ask if any are intentional (vs. temp/debug files that should be gitignored)

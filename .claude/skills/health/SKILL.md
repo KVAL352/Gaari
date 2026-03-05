@@ -1,6 +1,6 @@
 ---
 name: health
-description: Run website health audit — site status, data freshness, scrapers, security
+description: Run website health audit — site status, data freshness, scrapers, security. Use when user says "helsesjekk", "er siden oppe?", "health check", "sjekk gaari.no", or similar.
 user-invocable: true
 argument-hint: [quick|full]
 ---
@@ -9,58 +9,26 @@ argument-hint: [quick|full]
 
 Run a health audit on the Gåri production site and local project: **$ARGUMENTS**
 
-## When to trigger
-
-Activate this skill when the user says any of:
-- `/health`, `/health quick`, `/health full`
-- "helsesjekk", "helserapport", "sjekk helsen"
-- "health check", "health audit", "site audit"
-- "er siden oppe?", "is the site up?"
-- "sjekk gaari.no", "check gaari.no"
-
 ## Scope
 
 - No argument or `quick` = fast checks only (under 30 seconds)
 - `full` = comprehensive audit including slower network checks
 
-## Quick checks (always run)
+## Pre-loaded quick checks
 
-Run checks 1–6 **in parallel** — they are independent.
+### Site + API
+!`curl -s -o /dev/null -w "HTTP %{http_code} in %{time_total}s" https://gaari.no 2>/dev/null || echo "UNREACHABLE"`
 
-### 1. Site reachability
+### API health (JSON)
+!`curl -s https://gaari.no/api/health 2>/dev/null || echo "API unreachable"`
 
-```bash
-curl -s -o /dev/null -w "%{http_code} %{time_total}s" https://gaari.no
-```
+### SSL certificate
+!`echo | openssl s_client -servername gaari.no -connect gaari.no:443 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null || echo "SSL check failed"`
 
-- PASS: HTTP 200
-- FAIL: non-200 or connection error. Report status code and response time.
+### Scraper runs (last 3)
+!`gh run list --repo KVAL352/Gaari --workflow=scrape.yml --limit 3 --json conclusion,startedAt 2>/dev/null || echo "gh unavailable"`
 
-### 2. API health
-
-```bash
-curl -s https://gaari.no/api/health
-```
-
-Parse JSON response:
-- `status` → healthy / degraded / unhealthy
-- `checks` where `name === 'events_exist'` → report event count from `detail`
-- `checks` where `name === 'recent_scrape'` → report freshness from `detail`
-- `duration_ms` → response time
-
-PASS if status is `healthy`. WARN if `degraded`. FAIL if `unhealthy`.
-
-### 3. SSL certificate
-
-```bash
-echo | openssl s_client -servername gaari.no -connect gaari.no:443 2>/dev/null | openssl x509 -noout -enddate -subject
-```
-
-Parse the `notAfter=` date and compute days until expiry.
-
-- PASS: > 30 days remaining
-- WARN: 7–30 days remaining
-- FAIL: < 7 days or connection error
+## Still need to run (in parallel)
 
 ### 4. npm audit
 
@@ -72,30 +40,14 @@ npm audit --json 2>/dev/null | node -e "const d=require('fs').readFileSync(0,'ut
 - WARN: moderate or low only
 - FAIL: any critical or high vulnerabilities
 
-Report counts by severity: `{critical}C {high}H {moderate}M {low}L`.
-
-### 5. Scraper status
-
-```bash
-gh run list --repo KVAL352/Gaari --workflow=scrape.yml --limit 3 --json status,conclusion,startedAt,updatedAt
-```
-
-- PASS: most recent run succeeded
-- WARN: most recent succeeded but older run failed
-- FAIL: most recent run failed
-
-Report conclusion, time since last run.
-
-### 6. Unit tests
+### 5. Unit tests
 
 ```bash
 npm test 2>&1
 ```
 
-- PASS: all tests pass (should be 208)
+- PASS: all tests pass
 - FAIL: any test failures
-
-Report pass count / total count.
 
 ## Full audit (only when argument is "full")
 

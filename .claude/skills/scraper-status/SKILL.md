@@ -7,22 +7,26 @@ agent: Explore
 
 # Scraper status report
 
-Generate a status report of all scrapers in the project.
+Generate a status report by comparing registered scrapers against files on disk.
 
-## What to check
+## Live data
 
-1. **Read `scripts/scrape.ts`** — find all imports and the `scrapers` object to identify:
-   - Active scrapers (in the `scrapers` object)
-   - Disabled scrapers (commented-out entries with reason)
+### Scraper registrations in scrape.ts
+!`grep -E "(import|from '\./scrapers/|^\s+\w+:|\\/\\/.*disabled)" scripts/scrape.ts`
 
-2. **List all files in `scripts/scrapers/`** — compare against imports to find:
-   - Orphaned files (exist on disk but not imported or commented out in scrape.ts)
-   - New/untracked files (check git status)
+### Scraper files on disk
+!`ls scripts/scrapers/*.ts 2>/dev/null`
 
-3. **Count totals**:
-   - Active scrapers
-   - Disabled scrapers (with reasons)
-   - Orphaned files (if any)
+### Last pipeline run (GitHub Actions)
+!`gh run list --workflow=scrape.yml --limit 3 --json status,conclusion,startedAt,updatedAt 2>/dev/null || echo "gh CLI not available"`
+
+## Your task
+
+Compare the data above to identify:
+
+1. **Active scrapers** — imported and in the `scrapers` object
+2. **Disabled scrapers** — commented out with reason
+3. **Orphaned files** — exist on disk but not registered in scrape.ts
 
 ## Output format
 
@@ -32,6 +36,7 @@ Generate a status report of all scrapers in the project.
 **Active:** X scrapers
 **Disabled:** Y scrapers
 **Orphaned:** Z files
+**Last pipeline:** conclusion (time ago)
 
 ### Active scrapers
 - bergenlive — Bergen Live (HTML)

@@ -13,73 +13,13 @@ Create a new scraper for **$ARGUMENTS**.
 
 1. **Read an existing scraper for reference** — pick one from `scripts/scrapers/` that's similar to the target source (HTML → use `bjorgvinblues.ts`, JSON API → use `studentbergen.ts` or `kvarteret.ts`, WordPress → use `bek.ts`)
 
-2. **Create the scraper file** at `scripts/scrapers/<source-name>.ts` following this structure:
-
-```typescript
-import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
-import { generateDescription } from '../lib/ai-descriptions.js';
-
-const SOURCE = '<source-name>';
-const BASE_URL = '<url>';
-
-export async function scrape(): Promise<{ found: number; inserted: number }> {
-    console.log(`\n[${SOURCE}] Starting scrape of <Source Name>...`);
-
-    const html = await fetchHTML(BASE_URL);
-    if (!html) {
-        console.error(`[${SOURCE}] Failed to fetch page`);
-        return { found: 0, inserted: 0 };
-    }
-
-    const $ = cheerio.load(html);
-    let found = 0;
-    let inserted = 0;
-
-    // TODO: Select event elements
-    const items = $('SELECTOR').toArray();
-    console.log(`[${SOURCE}] ${items.length} events found`);
-
-    for (const el of items) {
-        // TODO: Extract title, date, venue, price, etc.
-        found++;
-
-        const sourceUrl = 'UNIQUE_EVENT_URL';
-        if (await eventExists(sourceUrl)) continue;
-
-        const aiDesc = await generateDescription({
-            title, venue: 'VENUE', category: 'CATEGORY', date: startDate, price: ''
-        });
-
-        const success = await insertEvent({
-            slug: makeSlug(title, dateStr),
-            title_no: title,
-            description_no: aiDesc.no,
-            description_en: aiDesc.en,
-            category: 'CATEGORY',
-            date_start: startDate.toISOString(),
-            venue_name: 'VENUE',
-            address: 'ADDRESS',
-            bydel: 'BYDEL',
-            price: '',
-            ticket_url: 'TICKET_URL',
-            source: SOURCE,
-            source_url: sourceUrl,
-            image_url: undefined,
-            age_group: 'all',
-            language: 'no',
-            status: 'approved',
-        });
-
-        if (success) {
-            console.log(`  + ${title} (${dateStr})`);
-            inserted++;
-        }
-    }
-
-    return { found, inserted };
-}
-```
+2. **Create the scraper file** at `scripts/scrapers/<source-name>.ts` using the template at [template.ts](template.ts). Replace `__PLACEHOLDERS__` with actual values:
+   - `__SOURCE__` → scraper key (e.g. `cafesanaa`)
+   - `__BASE_URL__` → URL to scrape
+   - `__VENUE__` → venue display name
+   - `__SELECTOR__` → CSS selector for event elements
+   - `__CATEGORY__` → one of the valid categories below
+   - `__ADDRESS__` → street address
 
 3. **Register in `scripts/scrape.ts`**:
    - Add import at top: `import { scrape as scrape<Name> } from './scrapers/<source-name>.js';`
