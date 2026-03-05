@@ -928,11 +928,11 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 		let tierRec: string;
 		let tierRecEn: string;
 		if (venue.categories.length >= 4 && venue.upcomingEvents.length >= 15) {
-			tierRec = 'Med deres bredde og volum anbefaler vi Partner — full synlighet i alle samlinger, høyest prioritet i nyhetsbrevet.';
-			tierRecEn = 'Given your breadth and volume, we recommend Partner — full visibility across all collections, highest newsletter priority.';
+			tierRec = 'Med deres bredde og volum anbefaler vi Partner — synlighet i opptil 6 samlinger + fremhevet i nyhetsbrevet.';
+			tierRecEn = 'Given your breadth and volume, we recommend Partner — visibility in up to 6 collections + featured in the newsletter.';
 		} else if (venue.categories.length >= 2 || venue.upcomingEvents.length >= 8) {
-			tierRec = 'Standard gir best verdi for dere — 25% synlighet i opptil 3 samlinger. Dekker de viktigste kategoriene deres.';
-			tierRecEn = 'Standard gives the best value for you — 25% visibility in up to 3 collections. Covers your key categories.';
+			tierRec = 'Standard gir best verdi for dere — 25% synlighet i opptil 3 samlinger + nyhetsbrev. Dekker de viktigste kategoriene deres.';
+			tierRecEn = 'Standard gives the best value for you — 25% visibility in up to 3 collections + newsletter. Covers your key categories.';
 		} else {
 			tierRec = 'Basis er et godt startpunkt — 15% synlighet i den viktigste samlingen for dere. Oppgrader når dere ser resultatene.';
 			tierRecEn = 'Basis is a great starting point — 15% visibility in your most important collection. Upgrade when you see the results.';
@@ -969,7 +969,7 @@ const TEXT = {
 		subscribers: 'Nyhetsbrev-abonnenter',
 		venueTitle: 'Dine arrangementer på Gåri',
 		upcomingEvents: 'Kommende arrangementer',
-		totalLast3mo: 'Totalt siste 3 måneder',
+		totalLast3mo: 'Publisert på Gåri siste 3 mnd',
 		category: 'Kategori',
 		date: 'Dato',
 		image: 'Bilde',
@@ -993,11 +993,11 @@ const TEXT = {
 		tierStandard: 'Standard',
 		tierPartner: 'Partner',
 		tierAlaCarte: 'Enkelt-arrangement',
-		perMonth: '/mnd',
-		perEvent: '/arr.',
-		basisDesc: '15% synlighet, 1 samling',
-		standardDesc: '25% synlighet, opptil 3 samlinger',
-		partnerDesc: '35% synlighet, alle samlinger',
+		perMonth: '/mnd eks. mva',
+		perEvent: '/arr. eks. mva',
+		basisDesc: '1 samling · synlig 15% av tiden',
+		standardDesc: '3 samlinger + nyhetsbrev · synlig 25% av tiden',
+		partnerDesc: '6 samlinger + fremhevet i nyhetsbrev · synlig 35% av tiden',
 		alaCarteDesc: 'Boost ett arrangement i 1 samling',
 		estimatedReach: 'Estimert rekkevidde',
 		estimatedReachDesc: 'per måned basert på nåværende trafikk',
@@ -1020,7 +1020,7 @@ const TEXT = {
 		festivalBasisDesc: 'Promotert på egen festivalside',
 		festivalStandardDesc: '+ nyhetsbrev + 2 relevante samlinger',
 		festivalPartnerDesc: '+ alle samlinger + dedikert nyhetsbrev-seksjon',
-		perFestival: '/festival'
+		perFestival: '/festival eks. mva'
 	},
 	en: {
 		reportTitle: 'Prospect Report',
@@ -1039,7 +1039,7 @@ const TEXT = {
 		subscribers: 'Newsletter subscribers',
 		venueTitle: 'Your Events on Gåri',
 		upcomingEvents: 'Upcoming events',
-		totalLast3mo: 'Total last 3 months',
+		totalLast3mo: 'Published on Gåri last 3 months',
 		category: 'Category',
 		date: 'Date',
 		image: 'Image',
@@ -1063,11 +1063,11 @@ const TEXT = {
 		tierStandard: 'Standard',
 		tierPartner: 'Partner',
 		tierAlaCarte: 'Single event',
-		perMonth: '/mo',
-		perEvent: '/event',
-		basisDesc: '15% visibility, 1 collection',
-		standardDesc: '25% visibility, up to 3 collections',
-		partnerDesc: '35% visibility, all collections',
+		perMonth: '/mo excl. VAT',
+		perEvent: '/event excl. VAT',
+		basisDesc: '1 collection · visible 15% of the time',
+		standardDesc: '3 collections + newsletter · visible 25% of the time',
+		partnerDesc: '6 collections + featured in newsletter · visible 35% of the time',
 		alaCarteDesc: 'Boost one event in 1 collection',
 		estimatedReach: 'Estimated reach',
 		estimatedReachDesc: 'per month based on current traffic',
@@ -1090,7 +1090,7 @@ const TEXT = {
 		festivalBasisDesc: 'Promoted on festival collection page',
 		festivalStandardDesc: '+ newsletter + 2 relevant collections',
 		festivalPartnerDesc: '+ all collections + dedicated newsletter section',
-		perFestival: '/festival'
+		perFestival: '/festival eks. mva'
 	}
 };
 
@@ -1299,12 +1299,12 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null, festival: F
 					</div>
 					<div style="background:#F8F8F6;border-radius:8px;padding:12px 20px;text-align:center;border-left:4px solid #C82D2D;flex:1;min-width:100px">
 						<div style="font-size:28px;font-weight:700;color:#141414">${venue.categories.length}</div>
-						<div style="font-size:12px;color:#6B6862">${lang === 'no' ? 'Kategorier' : 'Categories'}</div>
+						<div style="font-size:12px;color:#6B6862">${lang === 'no' ? 'Kategorier dere dekker på Gåri' : 'Categories you cover on Gåri'}</div>
 					</div>
-					${venue.newsletterReach > 0 ? `
+					${venue.newsletterReach >= 50 ? `
 					<div style="background:#F8F8F6;border-radius:8px;padding:12px 20px;text-align:center;border-left:4px solid #C82D2D;flex:1;min-width:100px">
 						<div style="font-size:28px;font-weight:700;color:#C82D2D">${venue.newsletterReach}</div>
-						<div style="font-size:12px;color:#6B6862">${lang === 'no' ? 'Nyhetsbrev-treff' : 'Newsletter matches'}</div>
+						<div style="font-size:12px;color:#6B6862">${lang === 'no' ? 'Abonnenter interessert i dine kategorier' : 'Subscribers interested in your categories'}</div>
 					</div>
 					` : ''}
 				</div>
@@ -1316,19 +1316,22 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null, festival: F
 				<h3 style="font-size:15px;margin:24px 0 8px;border-left:4px solid #C82D2D;padding-left:12px">${t.collectionsTitle}</h3>
 				<p style="font-size:13px;color:#6B6862;margin:0 0 16px">${t.collectionsExplainer}</p>
 				<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
-					${relevantWithTraffic.map(c => `
+					${[...relevantWithTraffic, ...relevantWithoutTraffic].slice(0, 4).map(c => `
 						<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;min-width:140px">
 							<div style="font-weight:600;font-size:14px;color:#C82D2D">${c.title}</div>
-							<div style="font-size:20px;font-weight:700;margin:4px 0 0">${fmt(c.visitors30d)}</div>
-							<div style="font-size:11px;color:#6B6862">${t.visitorsLabel}</div>
+							${c.visitors30d > 0 ? `
+								<div style="font-size:20px;font-weight:700;margin:4px 0 0">${fmt(c.visitors30d)}</div>
+								<div style="font-size:11px;color:#6B6862">${t.visitorsLabel}</div>
+							` : `
+								<div style="font-size:11px;color:#6B6862;margin-top:4px">${lang === 'no' ? 'Inkludert' : 'Included'}</div>
+							`}
 						</div>
 					`).join('')}
-					${relevantWithoutTraffic.map(c => `
-						<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;min-width:140px">
-							<div style="font-weight:600;font-size:14px;color:#C82D2D">${c.title}</div>
-							<div style="font-size:11px;color:#6B6862;margin-top:4px">${lang === 'no' ? 'Inkludert' : 'Included'}</div>
+					${relevantCollections.length > 4 ? `
+						<div style="background:#F8F8F6;border:1px solid #e5e5e5;border-radius:8px;padding:10px 14px;min-width:140px;display:flex;align-items:center;justify-content:center">
+							<div style="font-size:14px;font-weight:600;color:#6B6862">+ ${relevantCollections.length - 4} ${lang === 'no' ? 'samlinger til' : 'more'}</div>
 						</div>
-					`).join('')}
+					` : ''}
 				</div>
 			</div>
 		`;
@@ -1417,18 +1420,25 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null, festival: F
 			? (festival.collectionTraffic.no?.visitors30d ?? 0) + (festival.collectionTraffic.en?.visitors30d ?? 0)
 			: 0;
 
+	// Determine recommended tier dynamically based on venue data
+	const recTier = venue && venue.categories.length >= 4 && venue.upcomingEvents.length >= 15
+		? 'partner'
+		: venue && (venue.categories.length >= 2 || venue.upcomingEvents.length >= 8)
+			? 'standard'
+			: 'basis';
+
 	// Festival gets festival-specific pricing table; venue/overview gets standard venue pricing
 	const pricingTiers = festival
 		? [
-			{ name: t.festivalBasis, price: `3 000 kr${t.perFestival}`, desc: t.festivalBasisDesc, share: 0.15, recommended: false },
-			{ name: t.festivalStandard, price: `6 000 kr${t.perFestival}`, desc: t.festivalStandardDesc, share: 0.25, recommended: true },
-			{ name: t.festivalPartner, price: `12 000 kr${t.perFestival}`, desc: t.festivalPartnerDesc, share: 0.35, recommended: false },
+			{ name: t.festivalBasis, price: `3 000 kr${t.perFestival}`, desc: t.festivalBasisDesc, share: 0.15, recommended: recTier === 'basis' },
+			{ name: t.festivalStandard, price: `6 000 kr${t.perFestival}`, desc: t.festivalStandardDesc, share: 0.25, recommended: recTier === 'standard' },
+			{ name: t.festivalPartner, price: `12 000 kr${t.perFestival}`, desc: t.festivalPartnerDesc, share: 0.35, recommended: recTier === 'partner' },
 			{ name: t.tierAlaCarte, price: `500 kr${t.perEvent}`, desc: t.alaCarteDesc, share: 0, recommended: false }
 		]
 		: [
-			{ name: t.tierBasis, price: `1 000 kr${t.perMonth}`, desc: t.basisDesc, share: 0.15, recommended: false },
-			{ name: t.tierStandard, price: `3 500 kr${t.perMonth}`, desc: t.standardDesc, share: 0.25, recommended: true },
-			{ name: t.tierPartner, price: `7 000 kr${t.perMonth}`, desc: t.partnerDesc, share: 0.35, recommended: false },
+			{ name: t.tierBasis, price: `1 000 kr${t.perMonth}`, desc: t.basisDesc, share: 0.15, recommended: recTier === 'basis' },
+			{ name: t.tierStandard, price: `3 500 kr${t.perMonth}`, desc: t.standardDesc, share: 0.25, recommended: recTier === 'standard' },
+			{ name: t.tierPartner, price: `7 000 kr${t.perMonth}`, desc: t.partnerDesc, share: 0.35, recommended: recTier === 'partner' },
 			{ name: t.tierAlaCarte, price: `500 kr${t.perEvent}`, desc: t.alaCarteDesc, share: 0, recommended: false }
 		];
 
@@ -1457,9 +1467,9 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null, festival: F
 				</tr></thead>
 				<tbody>
 					${pricingTiers.map((tier, i) => {
-						const recBadge = tier.recommended ? ` <span style="background:#C82D2D;color:#fff;padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:700;vertical-align:middle;margin-left:6px">${lang === 'no' ? 'ANBEFALT' : 'RECOMMENDED'}</span>` : '';
-						const rowBg = tier.recommended ? 'background:#fef2f2;' : (i % 2 === 1 ? 'background:#F8F8F6;' : '');
-						const borderStyle = tier.recommended ? 'border-bottom:1px solid #fca5a5' : 'border-bottom:1px solid #E8E8E4';
+						const recBadge = tier.recommended ? ` <span style="background:#166534;color:#fff;padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:700;vertical-align:middle;margin-left:6px">${lang === 'no' ? 'ANBEFALT' : 'RECOMMENDED'}</span>` : '';
+						const rowBg = tier.recommended ? 'background:#f0fdf4;' : (i % 2 === 1 ? 'background:#F8F8F6;' : '');
+						const borderStyle = tier.recommended ? 'border-bottom:1px solid #86efac' : 'border-bottom:1px solid #E8E8E4';
 						return `
 						<tr style="${rowBg}">
 							<td style="padding:10px;${borderStyle};font-size:14px;font-weight:600">${tier.name}${recBadge}</td>
@@ -1472,9 +1482,9 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null, festival: F
 			</table>
 			${totalCollectionVisitors > 0 ? `<p style="font-size:11px;color:#999;font-style:italic;margin:-16px 0 16px">* ${t.estimatedReachDesc}</p>` : ''}
 
-			<div style="background:#fef9ec;border:1px solid #fbbf24;border-radius:8px;padding:16px;margin-bottom:24px">
-				<h4 style="margin:0 0 4px;color:#92400e;font-size:14px">${t.earlyBird}</h4>
-				<p style="margin:0;font-size:13px;color:#78350f">${t.earlyBirdDesc}</p>
+			<div style="background:#f0fdf4;border:1px solid #22c55e;border-radius:8px;padding:16px;margin-bottom:24px">
+				<h4 style="margin:0 0 4px;color:#166534;font-size:14px">${t.earlyBird}</h4>
+				<p style="margin:0;font-size:13px;color:#15803d">${t.earlyBirdDesc}</p>
 			</div>
 		</div>
 	`;

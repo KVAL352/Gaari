@@ -79,5 +79,10 @@
     "date": "2026-03-19",
     "title": "Purring: outreach-kontakter uten svar",
     "description": "Send oppfølgingsepost til kontakter fra runde 1 (4. mars) og runde 2 (5. mars) som ikke har svart. Sjekk outreach-loggen i memory/outreach-drafts.md for status. Skriv kort og vennlig purring — referer til original epost, ikke gjenta hele pitchen. Prioriter: media (NRK, BT, Bergensmagasinet), studenter (Sammen, UiB), community (BIKS, Bergen Global)."
+  },
+  {
+    "date": "2026-03-12",
+    "title": "Videre gjennomgang: Prospect report",
+    "description": "Fortsett UX-gjennomgang av prospect-rapporten. Kjente gjenstående ting: 1) Kategorier-tallet viser bare 8 av 11 — sjekk mapCategory-logikken. 2) Vurder om alle metric-kort kommuniserer tydelig nok. 3) Test festival-rapport (--festival festspillene) med samme endringer. 4) Sjekk mobilvennlighet. Generer: cd scripts && npx tsx generate-prospect-report.ts 'Grieghallen' og --festival festspillene."
   }
 ]
