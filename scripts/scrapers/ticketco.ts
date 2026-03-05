@@ -28,6 +28,15 @@ const SUBDOMAINS = [
 	'swingnsweetjazzclub',
 	'mandelhuset',
 	'bergenpride',
+	// Added to reduce Visit Bergen dependency:
+	'kodebergen',
+	'varmerevaterevillere',
+	'colonialenfetevare',
+	'colonialen-sundt',
+	'stiftelsenbergenkjott',
+	'bitteater',
+	'columbiegg',
+	'perfectsounds',
 ];
 
 interface TCEvent {

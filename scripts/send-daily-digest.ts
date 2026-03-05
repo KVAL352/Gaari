@@ -426,7 +426,7 @@ const EXPECTED_SCRAPERS = [
 	'oseana', 'carteblanche', 'festspillene', 'bergenfest', 'bjorgvinblues',
 	'bek', 'beyondthegates', 'brann', 'kulturhusetibergen', 'vvv',
 	'bymuseet', 'museumvest', 'akvariet', 'kvarteret', 'fyllingsdalenteater',
-	'ggbergen', 'oconnors', 'billetto', 'stenematglede', 'visitbergen',
+	'ggbergen', 'oconnors', 'billetto', 'stenematglede',
 	'biff', 'bergenpride', 'ostre'
 ];
 

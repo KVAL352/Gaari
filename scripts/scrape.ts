@@ -1,5 +1,7 @@
 import { scrape as scrapeBergenLive } from './scrapers/bergenlive.js';
-import { scrape as scrapeVisitBergen } from './scrapers/visitbergen.js';
+// Visit Bergen disabled — all major venues now covered by dedicated scrapers + expanded TicketCo.
+// Only 3 unique events remained (small one-off venues). Re-enable if coverage gaps appear.
+// import { scrape as scrapeVisitBergen } from './scrapers/visitbergen.js';
 import { scrape as scrapeBergenKommune } from './scrapers/bergenkommune.js';
 // BarnasNorge disabled — all its venues are covered by dedicated scrapers with better data quality.
 // Issues: AI-generated stock images, address-based venue names, complex URL resolution.
@@ -134,8 +136,8 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	ticketco: scrapeTicketCo,
 	bergenkommune: scrapeBergenKommune,
 	dvrtvest: scrapeDvrtVest,
-	// --- Aggregator last (fills gaps, skipped if deadline reached) ---
-	visitbergen: scrapeVisitBergen,
+	// --- Aggregator disabled (see import comment above) ---
+	// visitbergen: scrapeVisitBergen,
 };
 
 // Collection slugs for IndexNow — these pages change content every scraper run

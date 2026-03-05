@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 56 scrapers (54 active) collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 56 scrapers (53 active) collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -37,17 +37,17 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 5. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
 6. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
-## Scraper sources (56 total, 54 active, 2 disabled)
+## Scraper sources (56 total, 53 active, 3 disabled)
 
 ### General aggregators
 | Source | File | Method |
 |--------|------|--------|
-| Visit Bergen | `visitbergen.ts` | HTML pagination, Cheerio |
 | Bergen Kommune | `bergenkommune.ts` | AJAX `GetFilteredEventList` + detail pages. Uses billett detail URLs directly as ticket_url (not resolveTicketUrl). |
 | StudentBergen | `studentbergen.ts` | JSON API `/api/calendar.json` |
 | Bergen Live | `bergenlive.ts` | HTML scrape |
 
 **Disabled scrapers:**
+- ~~Visit Bergen~~ (`visitbergen.ts`) — disabled Mar 5, 2026. All major venues covered by dedicated scrapers + expanded TicketCo (27 subdomains). Only 3 unique events remained (small one-off venues).
 - ~~BarnasNorge~~ (`barnasnorge.ts`) — disabled Feb 25, 2026. All venues covered by dedicated scrapers. Issues: AI-generated stock images from Webflow CDN, address-based venue names, complex URL resolution.
 - ~~Kulturikveld~~ — removed (unreliable, file deleted).
 

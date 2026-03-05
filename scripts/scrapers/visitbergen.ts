@@ -14,19 +14,32 @@ const DELAY_MS = 1500; // Polite rate limiting
 // Venues with dedicated scrapers — skip these from Visit Bergen to avoid duplicate work.
 // Patterns are lowercase and matched against event.venue.toLowerCase().
 const DEDICATED_VENUE_PATTERNS = [
-	'grieghallen', 'den nationale scene', 'ole bull', 'usf verftet', 'usf',
-	'forum scene', 'cornerteateret', 'det vestnorske teater', 'bit teatergarasjen',
-	'carte blanche', 'bergen filharmoni', 'harmonien', 'fyllingsdalen teater',
-	'østre', 'ekko', 'bergen kunsthall', 'kode ', 'kode,', 'litteraturhuset',
-	'media city', 'bek', 'bergen filmklubb', 'akvariet', 'bergen bibliotek',
-	'bymuseet', 'museum vest', 'fiskerimuseum', 'sjøfartsmuseum', 'hanseatiske',
-	'fløyen', 'bergen kjøtt', 'colonialen', 'råbrent', 'paint\'n sip',
-	'brettspill', 'bjørgvin blues', 'nordnes sjøbad', 'o\'connor', 'gg bergen',
-	'stene matglede', 'brann stadion', 'dnt', 'borealis', 'festspillene',
-	'bergenfest', 'beyond the gates', 'bergen pride', 'biff',
+	// Performance venues
+	'grieghallen', 'griegsalen', 'peer gynt', 'den nationale scene', 'ole bull',
+	'usf verftet', 'usf', 'røkeriet', 'sardinen', 'visningsrommet',
+	'forum scene', 'cornerteateret', 'cornerhagen', 'det vestnorske teater',
+	'bit teatergarasjen', 'carte blanche', 'bergen filharmoni', 'harmonien',
+	'fyllingsdalen teater', 'østre', 'ekko',
+	// Arts & culture
+	'bergen kunsthall', 'kode', 'permanenten', 'stenersen', 'rasmus meyer',
+	'troldhaugen', 'lysverket', 'litteraturhuset', 'media city', 'bek',
+	'bergen filmklubb', 'cinemateket',
+	// Libraries, museums & landmarks
+	'akvariet', 'bergen bibliotek', 'bymuseet', 'museum vest',
+	'fiskerimuseum', 'sjøfartsmuseum', 'hanseatiske', 'fløyen', 'fløibanen',
+	// Food, nightlife & recreation
+	'bergen kjøtt', 'colonialen', 'råbrent', 'paint\'n sip', 'brettspill',
+	'bjørgvin blues', 'nordnes sjøbad', 'o\'connor', 'gg bergen',
+	'stene matglede', 'støvå', '7 fjell bryggeri',
+	// Sports
+	'brann stadion', 'brann', 'dnt',
+	// Festivals
+	'borealis', 'festspillene', 'bergenfest', 'beyond the gates',
+	'bergen pride', 'biff', 'vvv', 'villvillvest',
+	// TicketCo venues
 	'kvarteret', 'det akademiske kvarter', 'kulturhuset i bergen', 'oseana',
 	'bergen chamber', 'hulen', 'madam felle', 'landmark', 'statsraad lehmkuhl',
-	'mandelhuset', 'hoopla', 'vvv',
+	'mandelhuset', 'hoopla', 'vic ',
 ];
 
 // Check if a date_start has the noon default (= no real time was parsed)
