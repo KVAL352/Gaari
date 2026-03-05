@@ -8,8 +8,26 @@ import { validateTicketUrl } from '../lib/ticket-validation.js';
 const SOURCE = 'visitbergen';
 const BASE_URL = 'https://www.visitbergen.com';
 const SEARCH_URL = `${BASE_URL}/hva-skjer/searchresults`;
-const MAX_PAGES = 20; // ~400 events (20 per page), enough for Bergen's event volume
+const MAX_PAGES = 10; // ~200 events — most venues have dedicated scrapers now
 const DELAY_MS = 1500; // Polite rate limiting
+
+// Venues with dedicated scrapers — skip these from Visit Bergen to avoid duplicate work.
+// Patterns are lowercase and matched against event.venue.toLowerCase().
+const DEDICATED_VENUE_PATTERNS = [
+	'grieghallen', 'den nationale scene', 'ole bull', 'usf verftet', 'usf',
+	'forum scene', 'cornerteateret', 'det vestnorske teater', 'bit teatergarasjen',
+	'carte blanche', 'bergen filharmoni', 'harmonien', 'fyllingsdalen teater',
+	'østre', 'ekko', 'bergen kunsthall', 'kode ', 'kode,', 'litteraturhuset',
+	'media city', 'bek', 'bergen filmklubb', 'akvariet', 'bergen bibliotek',
+	'bymuseet', 'museum vest', 'fiskerimuseum', 'sjøfartsmuseum', 'hanseatiske',
+	'fløyen', 'bergen kjøtt', 'colonialen', 'råbrent', 'paint\'n sip',
+	'brettspill', 'bjørgvin blues', 'nordnes sjøbad', 'o\'connor', 'gg bergen',
+	'stene matglede', 'brann stadion', 'dnt', 'borealis', 'festspillene',
+	'bergenfest', 'beyond the gates', 'bergen pride', 'biff',
+	'kvarteret', 'det akademiske kvarter', 'kulturhuset i bergen', 'oseana',
+	'bergen chamber', 'hulen', 'madam felle', 'landmark', 'statsraad lehmkuhl',
+	'mandelhuset', 'hoopla', 'vvv',
+];
 
 // Check if a date_start has the noon default (= no real time was parsed)
 function isNoonDefault(dateStr: string): boolean {
@@ -189,7 +207,15 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	found = allEvents.length;
 	console.log(`[${SOURCE}] Total events found: ${found}`);
 
+	let skippedDedicated = 0;
 	for (const event of allEvents) {
+		// Skip venues that have their own dedicated scrapers
+		const venueLower = event.venue.toLowerCase();
+		if (DEDICATED_VENUE_PATTERNS.some(p => venueLower.includes(p))) {
+			skippedDedicated++;
+			continue;
+		}
+
 		if (await eventExists(event.detailUrl)) continue;
 
 		let dateStart = event.dateStart!;
@@ -254,6 +280,10 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			console.log(`  + ${event.title} (${event.venue}, ${category}, ${time})`);
 			inserted++;
 		}
+	}
+
+	if (skippedDedicated > 0) {
+		console.log(`[${SOURCE}] Skipped ${skippedDedicated} events from venues with dedicated scrapers`);
 	}
 
 	return { found, inserted };

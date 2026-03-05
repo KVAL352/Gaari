@@ -204,8 +204,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		}
 
 		const allUrls = parseSitemap(xml);
-		const candidateUrls = allUrls.filter(u => !shouldSkip(u));
-		console.log(`[${SOURCE}]   ${allUrls.length} URLs in sitemap, ${candidateUrls.length} candidates`);
+		// Only consider /hva-skjer/ URLs — everything else is permanent content
+		const candidateUrls = allUrls.filter(u => /\/hva-skjer\//.test(u) && !shouldSkip(u));
+		console.log(`[${SOURCE}]   ${allUrls.length} URLs in sitemap, ${candidateUrls.length} candidates (hva-skjer only)`);
 
 		for (const url of candidateUrls) {
 			// Normalize URL (sitemaps sometimes use protocol-relative)
