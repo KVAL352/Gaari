@@ -1164,7 +1164,7 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null, festival: F
 			: '';
 
 	// ── Shared helpers ──
-	function buildEventsTable(events: VenueEvent[], maxRows = 15): string {
+	function buildEventsTable(events: VenueEvent[], maxRows = 8): string {
 		if (events.length === 0) return `<p style="color:#6B6862;font-style:italic;margin:16px 0">${t.noEvents}</p>`;
 		return `
 			<table style="width:100%;border-collapse:collapse;margin-bottom:16px">
@@ -1420,16 +1420,16 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null, festival: F
 	// Festival gets festival-specific pricing table; venue/overview gets standard venue pricing
 	const pricingTiers = festival
 		? [
-			{ name: t.festivalBasis, price: `3 000 kr${t.perFestival}`, desc: t.festivalBasisDesc, share: 0.15 },
-			{ name: t.festivalStandard, price: `6 000 kr${t.perFestival}`, desc: t.festivalStandardDesc, share: 0.25 },
-			{ name: t.festivalPartner, price: `12 000 kr${t.perFestival}`, desc: t.festivalPartnerDesc, share: 0.35 },
-			{ name: t.tierAlaCarte, price: `500 kr${t.perEvent}`, desc: t.alaCarteDesc, share: 0 }
+			{ name: t.festivalBasis, price: `3 000 kr${t.perFestival}`, desc: t.festivalBasisDesc, share: 0.15, recommended: false },
+			{ name: t.festivalStandard, price: `6 000 kr${t.perFestival}`, desc: t.festivalStandardDesc, share: 0.25, recommended: true },
+			{ name: t.festivalPartner, price: `12 000 kr${t.perFestival}`, desc: t.festivalPartnerDesc, share: 0.35, recommended: false },
+			{ name: t.tierAlaCarte, price: `500 kr${t.perEvent}`, desc: t.alaCarteDesc, share: 0, recommended: false }
 		]
 		: [
-			{ name: t.tierBasis, price: `1 000 kr${t.perMonth}`, desc: t.basisDesc, share: 0.15 },
-			{ name: t.tierStandard, price: `3 500 kr${t.perMonth}`, desc: t.standardDesc, share: 0.25 },
-			{ name: t.tierPartner, price: `7 000 kr${t.perMonth}`, desc: t.partnerDesc, share: 0.35 },
-			{ name: t.tierAlaCarte, price: `500 kr${t.perEvent}`, desc: t.alaCarteDesc, share: 0 }
+			{ name: t.tierBasis, price: `1 000 kr${t.perMonth}`, desc: t.basisDesc, share: 0.15, recommended: false },
+			{ name: t.tierStandard, price: `3 500 kr${t.perMonth}`, desc: t.standardDesc, share: 0.25, recommended: true },
+			{ name: t.tierPartner, price: `7 000 kr${t.perMonth}`, desc: t.partnerDesc, share: 0.35, recommended: false },
+			{ name: t.tierAlaCarte, price: `500 kr${t.perEvent}`, desc: t.alaCarteDesc, share: 0, recommended: false }
 		];
 
 	const promotedHtml = `
@@ -1456,14 +1456,18 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null, festival: F
 					${totalCollectionVisitors > 0 ? `<th style="text-align:right;padding:12px 10px;border-bottom:2px solid #C82D2D;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#6B6862">${t.estimatedReach}</th>` : ''}
 				</tr></thead>
 				<tbody>
-					${pricingTiers.map((tier, i) => `
-						<tr style="${i % 2 === 1 ? 'background:#F8F8F6;' : ''}">
-							<td style="padding:10px;border-bottom:1px solid #E8E8E4;font-size:14px;font-weight:600">${tier.name}</td>
-							<td style="text-align:right;padding:10px;border-bottom:1px solid #E8E8E4;font-size:14px;white-space:nowrap">${tier.price}</td>
-							<td style="padding:10px;border-bottom:1px solid #E8E8E4;font-size:13px;color:#6B6862">${tier.desc}</td>
-							${totalCollectionVisitors > 0 ? `<td style="text-align:right;padding:10px;border-bottom:1px solid #E8E8E4;font-size:14px;font-weight:600;color:#C82D2D">${tier.share > 0 ? '~' + fmt(Math.round(totalCollectionVisitors * tier.share)) : '-'}</td>` : ''}
-						</tr>
-					`).join('')}
+					${pricingTiers.map((tier, i) => {
+						const recBadge = tier.recommended ? ` <span style="background:#C82D2D;color:#fff;padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:700;vertical-align:middle;margin-left:6px">${lang === 'no' ? 'ANBEFALT' : 'RECOMMENDED'}</span>` : '';
+						const rowBg = tier.recommended ? 'background:#fef2f2;' : (i % 2 === 1 ? 'background:#F8F8F6;' : '');
+						const borderStyle = tier.recommended ? 'border-bottom:1px solid #fca5a5' : 'border-bottom:1px solid #E8E8E4';
+						return `
+						<tr style="${rowBg}">
+							<td style="padding:10px;${borderStyle};font-size:14px;font-weight:600">${tier.name}${recBadge}</td>
+							<td style="text-align:right;padding:10px;${borderStyle};font-size:14px;white-space:nowrap">${tier.price}</td>
+							<td style="padding:10px;${borderStyle};font-size:13px;color:#6B6862">${tier.desc}</td>
+							${totalCollectionVisitors > 0 ? `<td style="text-align:right;padding:10px;${borderStyle};font-size:14px;font-weight:600;color:#C82D2D">${tier.share > 0 ? '~' + fmt(Math.round(totalCollectionVisitors * tier.share)) : '-'}</td>` : ''}
+						</tr>`;
+					}).join('')}
 				</tbody>
 			</table>
 			${totalCollectionVisitors > 0 ? `<p style="font-size:11px;color:#999;font-style:italic;margin:-16px 0 16px">* ${t.estimatedReachDesc}</p>` : ''}
@@ -1477,9 +1481,10 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null, festival: F
 
 	// ── Contact section ──
 	const contactHtml = `
-		<div style="border-top:2px solid #C82D2D;margin-top:32px;padding-top:20px;text-align:center">
-			<h2 style="font-size:18px;margin:0 0 8px">${t.contact}</h2>
-			<p style="font-size:14px;color:#6B6862;margin:0">${t.contactDesc} <a href="mailto:post@gaari.no" style="color:#C82D2D;text-decoration:underline">post@gaari.no</a></p>
+		<div style="border-top:2px solid #C82D2D;margin-top:32px;padding-top:24px;text-align:center">
+			<h2 style="font-size:18px;margin:0 0 12px">${t.contact}</h2>
+			<a href="mailto:post@gaari.no" style="display:inline-block;background:#C82D2D;color:#ffffff;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;text-decoration:none;margin-bottom:12px">${lang === 'no' ? 'Send oss en melding' : 'Send us a message'}</a>
+			<p style="font-size:13px;color:#6B6862;margin:0">${lang === 'no' ? 'eller svar direkte på denne e-posten' : 'or reply directly to this email'}</p>
 		</div>
 	`;
 
@@ -1514,36 +1519,31 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null, festival: F
 			</div>
 
 			<div style="padding:0 32px 32px">
-				<!-- Key metrics -->
-				<div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
-					<div style="flex:1;min-width:130px;background:#F8F8F6;border-radius:8px;padding:16px;text-align:center;border-left:4px solid #C82D2D">
-						<div style="font-size:36px;font-weight:700;color:#C82D2D">${fmt(platform.visitors30d)}</div>
-						<div style="font-size:13px;color:#6B6862">${t.visitors} (${t.last30d.toLowerCase()})</div>
-						<div style="font-size:12px;font-weight:600;color:${gColor};margin-top:4px">${t.growth}: ${growthStr}</div>
-					</div>
-					<div style="flex:1;min-width:130px;background:#F8F8F6;border-radius:8px;padding:16px;text-align:center;border-left:4px solid #C82D2D">
-						<div style="font-size:36px;font-weight:700;color:#141414">${fmt(platform.activeEvents)}</div>
-						<div style="font-size:13px;color:#6B6862">${t.activeEvents}</div>
-						<div style="font-size:12px;color:#999;margin-top:4px">52 ${t.sources} · 190+ ${lang === 'no' ? 'arenaer' : 'venues'}</div>
-					</div>
-				</div>
-
-				${subscriberHtml}
-
-				<!-- Traffic sources -->
-				${sourcesHtml ? `
-					<h3 style="font-size:15px;margin:24px 0 12px;border-left:4px solid #C82D2D;padding-left:12px">${t.trafficSources}</h3>
-					${sourcesHtml}
-				` : ''}
-
-				${aiHtml}
-
-				<!-- Venue or Festival section -->
+				<!-- Venue or Festival section (lead with their value) -->
 				${venueHtml}
 				${festivalHtml}
 
 				<!-- Analysis & Recommendations -->
 				${recommendationsHtml}
+
+				<!-- Platform context -->
+				<div style="border-top:4px solid #C82D2D;margin-top:32px;padding-top:24px">
+					<h2 style="font-size:22px;margin:0 0 16px">${lang === 'no' ? 'Gåri-plattformen' : 'The Gåri Platform'}</h2>
+					<div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+						<div style="flex:1;min-width:130px;background:#F8F8F6;border-radius:8px;padding:16px;text-align:center;border-left:4px solid #C82D2D">
+							<div style="font-size:36px;font-weight:700;color:#C82D2D">${fmt(platform.visitors30d)}</div>
+							<div style="font-size:13px;color:#6B6862">${t.visitors} (${t.last30d.toLowerCase()})</div>
+							<div style="font-size:12px;font-weight:600;color:${gColor};margin-top:4px">${t.growth}: ${growthStr}</div>
+						</div>
+						<div style="flex:1;min-width:130px;background:#F8F8F6;border-radius:8px;padding:16px;text-align:center;border-left:4px solid #C82D2D">
+							<div style="font-size:36px;font-weight:700;color:#141414">${fmt(platform.activeEvents)}</div>
+							<div style="font-size:13px;color:#6B6862">${t.activeEvents}</div>
+							<div style="font-size:12px;color:#999;margin-top:4px">54 ${t.sources} · 190+ ${lang === 'no' ? 'arenaer' : 'venues'}</div>
+						</div>
+					</div>
+					${platform.subscribers !== null && platform.subscribers >= 50 ? subscriberHtml : ''}
+					${platform.aiReferrals.reduce((s, a) => s + a.visitors, 0) >= 5 ? aiHtml : ''}
+				</div>
 
 				<!-- Pricing section -->
 				${promotedHtml}
