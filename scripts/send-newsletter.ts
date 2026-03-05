@@ -117,23 +117,15 @@ async function createAndSendCampaign(
 	const group = await groupRes.json();
 	const groupId = group.data.id;
 
-	// Step 2: Import subscribers into the group
-	const importRes = await mlFetch(`/subscribers/import`, {
-		method: 'POST',
-		body: JSON.stringify({
-			subscribers: subscriberEmails.map(email => ({ email })),
-			groups: [groupId],
-			resubscribe: false
-		})
-	});
-
-	if (!importRes.ok) {
-		const err = await importRes.text();
-		return { success: false, error: `Failed to import subscribers: ${err}` };
+	// Step 2: Add subscribers to the group one by one
+	for (const email of subscriberEmails) {
+		const addRes = await mlFetch(`/subscribers/${encodeURIComponent(email)}/groups/${groupId}`, {
+			method: 'POST'
+		});
+		if (!addRes.ok) {
+			console.warn(`  Warning: could not add ${email} to group: ${await addRes.text()}`);
+		}
 	}
-
-	// Wait for import to process
-	await delay(2000);
 
 	// Step 3: Create campaign targeting the group
 	const campaignRes = await mlFetch('/campaigns', {
