@@ -32,9 +32,9 @@ describe('getCollection', () => {
 		expect(getCollection('gibberish')).toBeUndefined();
 	});
 
-	it('returns all 41 collections', () => {
+	it('returns all 48 collections', () => {
 		const slugs = getAllCollectionSlugs();
-		expect(slugs).toHaveLength(41);
+		expect(slugs).toHaveLength(48);
 		// Original 14
 		expect(slugs).toContain('denne-helgen');
 		expect(slugs).toContain('i-kveld');
@@ -81,6 +81,14 @@ describe('getCollection', () => {
 		expect(slugs).toContain('bergen-pride-festival');
 		expect(slugs).toContain('biff-bergen');
 		expect(slugs).toContain('borealis-bergen');
+		// 7 bydel collections
+		expect(slugs).toContain('bergenhus');
+		expect(slugs).toContain('laksevag');
+		expect(slugs).toContain('fyllingsdalen');
+		expect(slugs).toContain('asane');
+		expect(slugs).toContain('fana');
+		expect(slugs).toContain('ytrebygda');
+		expect(slugs).toContain('arna');
 	});
 
 	it('each collection has bilingual title and description', () => {

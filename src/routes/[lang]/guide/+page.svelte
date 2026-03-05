@@ -52,8 +52,13 @@
 			label: 'Hvor',
 			items: [
 				{ slug: 'sentrum', label: 'Sentrum' },
-				{ slug: 'bergenhus', label: 'Bergenhus', href: '/no?bydel=Bergenhus' },
-				{ slug: 'laksevag', label: 'Laksevåg', href: '/no?bydel=Laksev%C3%A5g' }
+				{ slug: 'bergenhus', label: 'Bergenhus' },
+				{ slug: 'laksevag', label: 'Laksevåg' },
+				{ slug: 'fyllingsdalen', label: 'Fyllingsdalen' },
+				{ slug: 'asane', label: 'Åsane' },
+				{ slug: 'fana', label: 'Fana' },
+				{ slug: 'ytrebygda', label: 'Ytrebygda' },
+				{ slug: 'arna', label: 'Arna' }
 			]
 		}
 	];
@@ -88,8 +93,13 @@
 			label: 'Where',
 			items: [
 				{ slug: 'sentrum', label: 'City Centre' },
-				{ slug: 'bergenhus', label: 'Bergenhus', href: '/en?bydel=Bergenhus' },
-				{ slug: 'laksevag', label: 'Laksevåg', href: '/en?bydel=Laksev%C3%A5g' }
+				{ slug: 'bergenhus', label: 'Bergenhus' },
+				{ slug: 'laksevag', label: 'Laksevåg' },
+				{ slug: 'fyllingsdalen', label: 'Fyllingsdalen' },
+				{ slug: 'asane', label: 'Åsane' },
+				{ slug: 'fana', label: 'Fana' },
+				{ slug: 'ytrebygda', label: 'Ytrebygda' },
+				{ slug: 'arna', label: 'Arna' }
 			]
 		}
 	];
