@@ -22,6 +22,13 @@
 
 	let title = $derived(($lang === 'en' && event.title_en) ? event.title_en : event.title_no);
 	let description = $derived(($lang === 'en' && event.description_en) ? event.description_en : event.description_no);
+	let metaDescription = $derived.by(() => {
+		const date = formatEventDate(event.date_start, $lang);
+		const venue = event.venue_name ? `${event.venue_name}, Bergen` : 'Bergen';
+		const prefix = `${date} — ${venue}. `;
+		const desc = description || '';
+		return (prefix + desc).slice(0, 160);
+	});
 
 	let isCancelled = $derived(event.status === 'cancelled');
 
@@ -73,17 +80,17 @@
 
 <svelte:head>
 	<title>{title}{event.venue_name ? ` — ${event.venue_name}, Bergen` : ''} | Gåri</title>
-	<meta name="description" content={description?.slice(0, 160)} />
+	<meta name="description" content={metaDescription} />
 	<link rel="canonical" href={canonicalUrl} />
 	<meta property="og:title" content={`${title}${event.venue_name ? ` — ${event.venue_name}, Bergen` : ''} | Gåri`} />
-	<meta property="og:description" content={description?.slice(0, 160)} />
+	<meta property="og:description" content={metaDescription} />
 	<meta property="og:type" content="event" />
 	<meta property="og:image" content={`${$page.url.origin}/og/${event.slug}.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={`${title}${event.venue_name ? ` — ${event.venue_name}, Bergen` : ''} | Gåri`} />
-	<meta name="twitter:description" content={description?.slice(0, 160)} />
+	<meta name="twitter:description" content={metaDescription} />
 	<meta name="twitter:image" content={`${$page.url.origin}/og/${event.slug}.png`} />
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + eventJsonLd + '</scr' + 'ipt>'}

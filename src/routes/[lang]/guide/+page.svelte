@@ -2,8 +2,9 @@
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { lang } from '$lib/i18n';
-	import { getCanonicalUrl, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems } from '$lib/seo';
+	import { getCanonicalUrl, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
 	import { getEasterDate, addDays, getISOWeekDates, getContextualHighlight, getOsloNow } from '$lib/event-filters';
+	import { getAllCollectionSlugs, getCollection } from '$lib/collections';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/guide`));
@@ -12,6 +13,32 @@
 		{ name: 'Gåri', url: getCanonicalUrl(`/${$lang}`) },
 		{ name: 'Guide' }
 	]));
+
+	let guideCollectionJsonLd = $derived(safeJsonLd({
+		'@context': 'https://schema.org',
+		'@type': 'CollectionPage',
+		name: $lang === 'no' ? 'Din guide til Bergen-arrangementer' : 'Your guide to Bergen events',
+		description: $lang === 'no'
+			? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer.'
+			: 'Complete guide to events in Bergen — concerts, theatre, festivals, family activities and more.',
+		url: canonicalUrl,
+		isPartOf: { '@type': 'WebSite', name: 'Gåri', url: 'https://gaari.no' },
+		mainEntity: {
+			'@type': 'ItemList',
+			numberOfItems: getAllCollectionSlugs().length,
+			itemListElement: getAllCollectionSlugs()
+				.map((slug, i) => {
+					const col = getCollection(slug);
+					return col ? {
+						'@type': 'ListItem',
+						position: i + 1,
+						name: col.title[$lang],
+						url: getCanonicalUrl(`/${$lang}/${slug}`)
+					} : null;
+				})
+				.filter(Boolean)
+		}
+	}));
 
 	// -- Types --
 	type CollectionLink = { slug: string; label: string; href?: string };
@@ -249,7 +276,7 @@
 		},
 		{
 			q: 'Hvor ofte oppdateres Gåri?',
-			a: 'Gåri oppdateres daglig klokken 06:00 med data fra 54 lokale kilder i Bergen.'
+			a: 'Gåri oppdateres daglig klokken 06:00 med data fra 53 lokale kilder i Bergen.'
 		}
 	];
 	const faqEN = [
@@ -271,7 +298,7 @@
 		},
 		{
 			q: 'How often is Gåri updated?',
-			a: 'Gåri updates daily at 06:00 with data from 54 local sources in Bergen.'
+			a: 'Gåri updates daily at 06:00 with data from 53 local sources in Bergen.'
 		}
 	];
 
@@ -295,8 +322,8 @@
 <svelte:head>
 	<title>{$lang === 'no' ? 'Din guide til Bergen-arrangementer' : 'Your guide to Bergen events'} — Gåri</title>
 	<meta name="description" content={$lang === 'no'
-		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 54 kilder.'
-		: 'Complete guide to events in Bergen, Norway — concerts, theatre, festivals, family activities and more. Updated daily from 54 sources.'} />
+		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 53 kilder.'
+		: 'Complete guide to events in Bergen, Norway — concerts, theatre, festivals, family activities and more. Updated daily from 53 sources.'} />
 	<link rel="canonical" href={canonicalUrl} />
 	<link rel="alternate" hreflang="nb" href={getCanonicalUrl('/no/guide')} />
 	<link rel="alternate" hreflang="en" href={getCanonicalUrl('/en/guide')} />
@@ -311,6 +338,7 @@
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}
 	{@html '<script type="application/ld+json">' + faqJsonLd + '</scr' + 'ipt>'}
+	{@html '<script type="application/ld+json">' + guideCollectionJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-8 md:py-12">
@@ -326,8 +354,8 @@
 			</h1>
 			<p class="mt-2 leading-relaxed text-[var(--color-text-secondary)]">
 				{$lang === 'no'
-					? 'Gåri samler alle arrangementer i Bergen på ett sted — oppdatert daglig fra 54 lokale kilder, fra konsertscener og teatre til museer, festivaler og friluftsliv.'
-					: 'Gåri brings all Bergen events together in one place — updated daily from 54 local sources, covering concert venues, theatres, museums, festivals and outdoor activities.'}
+					? 'Gåri samler alle arrangementer i Bergen på ett sted — oppdatert daglig fra 53 lokale kilder, fra konsertscener og teatre til museer, festivaler og friluftsliv.'
+					: 'Gåri brings all Bergen events together in one place — updated daily from 53 local sources, covering concert venues, theatres, museums, festivals and outdoor activities.'}
 			</p>
 			<div class="mt-4 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
 				<p>

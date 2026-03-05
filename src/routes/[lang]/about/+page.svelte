@@ -13,16 +13,22 @@
 
 <svelte:head>
 	<title>{$t('aboutTitle')} — Gåri</title>
-	<meta name="description" content={$t('aboutText')} />
+	<meta name="description" content={$lang === 'no'
+		? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, teater, festivaler og mer. Gratis og oppdatert daglig fra 53 kilder.'
+		: 'Gåri gathers all events in Bergen in one place — concerts, theatre, festivals and more. Free and updated daily from 53 sources.'} />
 	<link rel="canonical" href={canonicalUrl} />
 	<meta property="og:title" content={`${$t('aboutTitle')} — Gåri`} />
-	<meta property="og:description" content={$t('aboutText')} />
+	<meta property="og:description" content={$lang === 'no'
+		? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, teater, festivaler og mer. Gratis og oppdatert daglig fra 53 kilder.'
+		: 'Gåri gathers all events in Bergen in one place — concerts, theatre, festivals and more. Free and updated daily from 53 sources.'} />
 	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content={`${$t('aboutTitle')} — Gåri`} />
-	<meta name="twitter:description" content={$t('aboutText')} />
+	<meta name="twitter:description" content={$lang === 'no'
+		? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, teater, festivaler og mer.'
+		: 'Gåri gathers all events in Bergen in one place — concerts, theatre, festivals and more.'} />
 	<meta name="twitter:image" content={`${$page.url.origin}/og/default.png`} />
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + orgJsonLd + '</scr' + 'ipt>'}

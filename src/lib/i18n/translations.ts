@@ -3,6 +3,7 @@ export const translations = {
 		// General
 		siteName: 'Gåri',
 		tagline: 'Ke\u2019 det går i, Bergen?',
+		heroSubtitle: 'Alle arrangementer i Bergen på ett sted',
 
 		// Navigation
 		explore: 'Utforsk',
@@ -218,6 +219,7 @@ export const translations = {
 	en: {
 		siteName: 'Gåri',
 		tagline: 'What\'s happening in Bergen?',
+		heroSubtitle: 'All events in Bergen in one place',
 
 		explore: 'Explore',
 		categories: 'Categories',

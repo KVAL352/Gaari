@@ -166,9 +166,9 @@
 			</h2>
 			<p class="text-[var(--color-text-secondary)]">
 				{#if $lang === 'no'}
-					To ganger om dagen besøker Gåri nettsidene til steder som arrangerer ting i Bergen. Når noe nytt dukker opp — en konsert, en utstilling, en quiz-kveld — tar Gåri det med tilbake og viser det frem på bytorget.
+					Hver dag besøker Gåri nettsidene til steder som arrangerer ting i Bergen. Når noe nytt dukker opp — en konsert, en utstilling, en quiz-kveld — tar Gåri det med tilbake og viser det frem på bytorget.
 				{:else}
-					Twice a day, Gåri visits the websites of venues organizing things in Bergen. When something new appears — a concert, an exhibition, a quiz night — Gåri brings it back and displays it on the town square.
+					Every day, Gåri visits the websites of venues organizing things in Bergen. When something new appears — a concert, an exhibition, a quiz night — Gåri brings it back and displays it on the town square.
 				{/if}
 			</p>
 			<p class="mt-3 text-sm font-medium text-[var(--color-text-primary)]">
