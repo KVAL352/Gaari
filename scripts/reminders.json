@@ -69,5 +69,15 @@
     "date": "2027-01-15",
     "title": "Oppdater festivaldatoer i guide-siden",
     "description": "Guide-siden (src/routes/[lang]/guide/+page.svelte) har hardkodede festivaldatoer i getSeasonWindows() for sesong-badges (Pågår nå / Kommer snart). Oppdater datoene for 2027: Borealis, Festspillene, Nattjazz, Bergenfest, Bergen Pride, Beyond the Gates, BIFF. Sjekk festivalenes nettsider for offisielle datoer."
+  },
+  {
+    "date": "2026-03-11",
+    "title": "Sjekk svar fra outreach runde 1 + 2",
+    "description": "31 outreach-eposter sendt 4.-5. mars. Sjekk innboks (post@gaari.no og Kjersti.Therkildsen@gaari.no) for svar. Runde 1 (4. mars): Sammen, hoteller, UiB, HVL, NHH, Studvest, Bergen Global, Bergen Kommune, BA, Vestland fylke, Bergen Sentrum, BT, Bergen Næringsråd. Runde 2 (5. mars): NRK Vestland, Bergensmagasinet, Bergen.Works, BIKS, Media City Bergen, Life in Norway. Full oversikt i memory/outreach-drafts.md."
+  },
+  {
+    "date": "2026-03-19",
+    "title": "Purring: outreach-kontakter uten svar",
+    "description": "Send oppfølgingsepost til kontakter fra runde 1 (4. mars) og runde 2 (5. mars) som ikke har svart. Sjekk outreach-loggen i memory/outreach-drafts.md for status. Skriv kort og vennlig purring — referer til original epost, ikke gjenta hele pitchen. Prioriter: media (NRK, BT, Bergensmagasinet), studenter (Sammen, UiB), community (BIKS, Bergen Global)."
   }
 ]
