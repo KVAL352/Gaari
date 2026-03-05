@@ -244,7 +244,7 @@
 						{$lang === 'no' ? 'Offentlig & turisme' : 'Public & tourism'}
 					</h4>
 					<p class="text-sm leading-relaxed">
-						Bergen Kommune, Bergen Bibliotek, visitBergen
+						Bergen Kommune, Bergen Bibliotek
 					</p>
 				</div>
 				<div>

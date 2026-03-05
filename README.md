@@ -71,10 +71,7 @@ docs/               Project strategy, design brief, data sources
 
 | Source | Type | Events |
 |--------|------|--------|
-| [Visit Bergen](https://visitbergen.com/hva-skjer) | HTML scrape | ~1,000 |
-| [Kultur i Kveld](https://kulturikveld.no) | HTML scrape | ~400 |
 | [Bergen Kommune](https://bergen.kommune.no) | AJAX API | ~200 |
-| [BarnasNorge](https://barnasnorge.no) | HTML scrape | ~150 |
 | [StudentBergen](https://studentbergen.no) | JSON API | ~50 |
 | [Bergen Live](https://bergenlive.no) | HTML scrape | ~40 |
 

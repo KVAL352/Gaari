@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "scrape": "tsx scrape.ts",
-    "scrape:visitbergen": "tsx scrape.ts visitbergen",
     "scrape:bergenlive": "tsx scrape.ts bergenlive",
     "scrape:bergenkommune": "tsx scrape.ts bergenkommune",
     "scrape:kulturikveld": "tsx scrape.ts kulturikveld",

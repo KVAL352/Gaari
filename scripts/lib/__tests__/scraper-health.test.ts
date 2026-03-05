@@ -129,12 +129,12 @@ describe('classifyScrapers', () => {
 	it('ignores skipped runs in calculations', () => {
 		const now = Date.now();
 		const runs = [
-			{ scraper_name: 'visitbergen', found: 0, inserted: 0, errored: false, error_message: null, skipped: true, run_at: new Date(now).toISOString() },
-			{ scraper_name: 'visitbergen', found: 0, inserted: 0, errored: false, error_message: null, skipped: true, run_at: new Date(now - 43200000).toISOString() },
-			{ scraper_name: 'visitbergen', found: 15, inserted: 3, errored: false, error_message: null, skipped: false, run_at: new Date(now - 86400000).toISOString() },
+			{ scraper_name: 'bergenlive', found: 0, inserted: 0, errored: false, error_message: null, skipped: true, run_at: new Date(now).toISOString() },
+			{ scraper_name: 'bergenlive', found: 0, inserted: 0, errored: false, error_message: null, skipped: true, run_at: new Date(now - 43200000).toISOString() },
+			{ scraper_name: 'bergenlive', found: 15, inserted: 3, errored: false, error_message: null, skipped: false, run_at: new Date(now - 86400000).toISOString() },
 		];
 		const results = classifyScrapers(runs);
-		const s = findScraper(results, 'visitbergen')!;
+		const s = findScraper(results, 'bergenlive')!;
 		// Only the non-skipped run counts, found=15, so healthy
 		expect(s.status).toBe('healthy');
 		expect(s.lastFound).toBe(15);

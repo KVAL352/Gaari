@@ -83,7 +83,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 3. **Register in `scripts/scrape.ts`**:
    - Add import at top: `import { scrape as scrape<Name> } from './scrapers/<source-name>.js';`
-   - Add to `scrapers` object (before `visitbergen` which is always last as the aggregator fallback)
+   - Add to `scrapers` object in the appropriate section (fast scrapers first, slow ones last)
 
 4. **Add venue to `scripts/lib/venues.ts`** if the venue isn't already registered (check VENUE_URLS)
 

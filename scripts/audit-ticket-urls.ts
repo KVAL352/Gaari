@@ -58,7 +58,6 @@ function extractSource(sourceUrl: string): string {
 		const host = new URL(sourceUrl).hostname.replace('www.', '');
 		// Map common hosts to scraper names
 		const hostMap: Record<string, string> = {
-			'visitbergen.com': 'visitbergen',
 			'bergen.kommune.no': 'bergenkommune',
 			'billett.bergen.kommune.no': 'bergenkommune',
 			'www.eventbrite.com': 'eventbrite',

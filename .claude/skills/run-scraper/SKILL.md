@@ -31,4 +31,4 @@ Run the **$ARGUMENTS** scraper and report the results.
 
 To see all registered scrapers, check the `scrapers` object in `scripts/scrape.ts`.
 
-Common ones: `visitbergen`, `bergenlive`, `bergenkommune`, `studentbergen`, `eventbrite`, `ticketco`, `dns`, `grieghallen`, `kode`, `kunsthall`
+Common ones: `bergenlive`, `bergenkommune`, `studentbergen`, `eventbrite`, `ticketco`, `dns`, `grieghallen`, `kode`, `kunsthall`

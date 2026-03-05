@@ -35,7 +35,6 @@ Generate a status report of all scrapers in the project.
 
 ### Active scrapers
 - bergenlive — Bergen Live (HTML)
-- visitbergen — Visit Bergen (HTML pagination)
 ...
 
 ### Disabled scrapers

@@ -8,8 +8,8 @@ export type ValidationResult = 'valid' | 'expired' | 'date_mismatch' | 'unknown'
 
 /**
  * Validate a ticket URL against the actual ticket platform.
- * Used by the Visit Bergen scraper to detect stale/recycled listings
- * where VB updates the date but the ticket link points to an expired event.
+ * Validates ticket URLs against actual ticket platforms to detect
+ * stale/expired listings or date mismatches.
  */
 export async function validateTicketUrl(
 	ticketUrl: string,

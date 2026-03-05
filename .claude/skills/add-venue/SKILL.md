@@ -46,5 +46,5 @@ For "Fana Kulturhus" at `https://fanakulturhus.no` in Fana:
 ## Important
 
 - The venue name key must be **lowercase** — matching is case-insensitive
-- Website URL must be the venue's **own site**, never an aggregator (visitbergen.com, barnasnorge.no, etc.)
+- Website URL must be the venue's **own site**, never an aggregator (blocked in `venues.ts`)
 - If the venue has multiple common names, add all variants pointing to the same URL

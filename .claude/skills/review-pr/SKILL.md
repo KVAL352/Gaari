@@ -23,7 +23,7 @@ Review **$ARGUMENTS** against project conventions.
 
 ### Scraper code (`scripts/scrapers/`)
 - [ ] No raw scraped text stored as descriptions (must use `generateDescription()`)
-- [ ] `ticket_url` does NOT point to aggregator domains (visitbergen.com, barnasnorge.no, etc.)
+- [ ] `ticket_url` does NOT point to aggregator domains (blocked in `venues.ts`)
 - [ ] Uses `eventExists(source_url)` before inserting
 - [ ] Rate limiting: delays between requests (1-1.5s, 3s for Eventbrite)
 - [ ] Filters out non-public events (barnehage, SFO, skoleklasse keywords)
