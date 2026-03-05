@@ -336,7 +336,7 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (714 tests, runs in <500ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (777 tests, runs in <500ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
 - `src/lib/__tests__/event-filters.test.ts` — 55 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary), `getEasterDate` (11 known dates 2024-2038), `getISOWeekDates` (cross-year week 1, week 9/41, week 52/53 boundaries), `getContextualHighlight` (weekday/weekend/evening logic, 9 cases)
