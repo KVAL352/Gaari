@@ -5,7 +5,6 @@
 // Note: bergen.kommune.no is NOT listed because venue pages live there (e.g. /kulturhus/fana).
 // Only the billett subdomain (event listing system) is an aggregator.
 const AGGREGATOR_DOMAINS = [
-	'visitbergen.com',
 	'kulturikveld.no',
 	'barnasnorge.no',
 	'billett.bergen.kommune.no',

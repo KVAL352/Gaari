@@ -12,7 +12,7 @@ vi.mock('../supabase.js', () => ({
 
 vi.mock('../venues.js', () => ({
 	isAggregatorUrl: (url: string) => {
-		const aggregators = ['visitbergen.com', 'barnasnorge.no'];
+		const aggregators = ['bergenlive.no', 'barnasnorge.no'];
 		return aggregators.some((d) => url.includes(d));
 	}
 }));
@@ -99,7 +99,7 @@ describe('scoreEvent', () => {
 
 	it('does NOT add ticket bonus for aggregator URLs', () => {
 		expect(
-			scoreEvent({ ...baseEvent, ticket_url: 'https://visitbergen.com/event/123' })
+			scoreEvent({ ...baseEvent, ticket_url: 'https://bergenlive.no/event/123' })
 		).toBe(5);
 	});
 

@@ -108,7 +108,7 @@ Bergen Bibliotek, Bymuseet i Bergen, Museum Vest (Fiskerimuseum, Sjøfartsmuseum
 Eventbrite, TicketCo (multiple Bergen venues), Billetto, Hoopla
 
 ### General aggregators
-Bergen Kommune (official events calendar), VisitBergen, StudentBergen, Bergen Live
+Bergen Kommune (official events calendar), StudentBergen, Bergen Live
 
 ### Food and nightlife
 Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad, O'Connor's Irish Pub, GG Bergen, Stene Matglede

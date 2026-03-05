@@ -69,7 +69,6 @@ Last updated: 2026-02-27
 - Bergen Live (bergenlive.no) — concert aggregator
 - Bergen Kommune (bergen.kommune.no) — municipal
 - StudentBergen (studentbergen.no) — student aggregator
-- Visit Bergen (visitbergen.com) — tourism board
 
 ## Notes
 

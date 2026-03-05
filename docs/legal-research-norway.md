@@ -88,7 +88,6 @@ Gåri scraper offentlig tilgjengelige eventdata fra 44 kilder i Bergen. Denne an
 | Kilde | Begrunnelse |
 |-------|-------------|
 | DNT Bergen | Åpen API, ingen robots.txt-begrensning, offentlig informasjon |
-| visitBergen | Offentlig turistportal, promoterer deling |
 | Bergen Kommune | Offentlig forvaltning, meroffentlighet |
 | StudentBergen | Åpen JSON API |
 | BarnasNorge | Offentlig eventliste |
@@ -222,7 +221,7 @@ Fullstendig gjennomgang av alle 45 domener som scrapes:
 
 | Status | Antall | Domener |
 |--------|--------|---------|
-| Compliant (robots.txt finnes) | 34 | raabrent.no, colonialen.no, bergenfilmklubb.no, cornerteateret.no, bergenkjott.org, kulturikveld.no, studentbergen.no, hoopla.no, dns.no, usf.no, forumscene.no, olebullhuset.no, kodebergen.no, litthusbergen.no, bergenbibliotek.no, bitteater.no, oseana.no, carteblanche.no, fib.no, ticketco.events, bek.no, beyondthegates.no, brann.no, kulturhusetibergen.no, varmerevaterevillere.no, bymuseet.no, kunsthall.no, nordnessjobad.no, adoarena.no, barnasnorge.no, dnt.no, visitbergen.com, eventbrite.com, mediacity/medieklyngen.no |
+| Compliant (robots.txt finnes) | 34 | raabrent.no, colonialen.no, bergenfilmklubb.no, cornerteateret.no, bergenkjott.org, kulturikveld.no, studentbergen.no, hoopla.no, dns.no, usf.no, forumscene.no, olebullhuset.no, kodebergen.no, litthusbergen.no, bergenbibliotek.no, bitteater.no, oseana.no, carteblanche.no, fib.no, ticketco.events, bek.no, beyondthegates.no, brann.no, kulturhusetibergen.no, varmerevaterevillere.no, bymuseet.no, kunsthall.no, nordnessjobad.no, adoarena.no, barnasnorge.no, dnt.no, eventbrite.com, mediacity/medieklyngen.no |
 | Compliant (ingen robots.txt) | 11 | bergenlive.no, bergenbrettspill.no, bergen-chamber.no, billett.bergen.kommune.no, booking-hasura.askeladden.co, grieghallen.no, floyen.no, harmonien.no, detvestnorsketeateret.no, bergenfest.no, bjorgvinblues.no |
 | Blokkerte stier aksessert | 0 | — |
 

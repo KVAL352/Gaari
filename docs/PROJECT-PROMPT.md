@@ -52,7 +52,7 @@ These 8 documents are your governing context. When answering questions or making
 - Copy creative text from scraped sources — always generate original descriptions
 - Use infinite scroll — Load More only
 - Implement dark mode without converting all hardcoded `bg-white` first
-- Put aggregator domains (visitbergen.com, barnasnorge.no) in `ticket_url`
+- Put aggregator domains in `ticket_url` — blocked domains are in `venues.ts`
 - Use flags for language switching — text labels only ("Norsk" / "English")
 - Add emoji to UI text (only in category placeholder icons)
 - Skip rate limiting in scrapers (3s delay for multi-request scrapers)

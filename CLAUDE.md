@@ -47,7 +47,6 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | Bergen Live | `bergenlive.ts` | HTML scrape |
 
 **Disabled scrapers:**
-- ~~Visit Bergen~~ — removed Mar 5, 2026. All major venues covered by dedicated scrapers + expanded TicketCo (27 subdomains). Only 3 unique events remained.
 - ~~BarnasNorge~~ (`barnasnorge.ts`) — disabled Feb 25, 2026. All venues covered by dedicated scrapers. Issues: AI-generated stock images from Webflow CDN, address-based venue names, complex URL resolution.
 - ~~Kulturikveld~~ — removed (unreliable, file deleted).
 
@@ -135,7 +134,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 ## Important rules
 
-- **No traffic to aggregators**: ticket_url should point to actual venue/ticket pages, not visitbergen.com or barnasnorge.no. Aggregator domains are blocked in `venues.ts`. Exception: bergenkommune scraper uses billett.bergen.kommune.no detail URLs directly (they ARE the specific event pages).
+- **No traffic to aggregators**: ticket_url should point to actual venue/ticket pages, not aggregator event listings. Aggregator domains are blocked in `venues.ts`. Exception: bergenkommune scraper uses billett.bergen.kommune.no detail URLs directly (they ARE the specific event pages).
 - **No copied descriptions (åndsverksloven)**: Event descriptions must ALWAYS be AI-generated originals (<160 chars) or template-generated. NEVER store raw text scraped from source pages — this violates Norwegian Copyright Act (åndsverksloven). All scrapers use `generateDescription()` from `ai-descriptions.ts`.
 - **No non-public events**: Events for barnehager (kindergartens), SFO (after-school care), school visits, etc. are excluded — checked via title keywords AND detail page text. Keywords: `barnehage`, `barnehagebarn`, `sfo`, `skoleklasse`, `skolebesøk`, `klassebesøk`, `kun for`.
 - **Rate limiting**: All scrapers use 1-1.5s delays between requests. Eventbrite uses 3s. AI descriptions use 200ms + backoff.

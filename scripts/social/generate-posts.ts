@@ -22,31 +22,31 @@ const SCHEDULES: CollectionSchedule[] = [
 		slug: 'denne-helgen',
 		days: [4], // Thursday
 		postTime: '16:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#hvaskjeribergen', '#helgibergen', '#bergenliv', '#bergensentrum', '#visitbergen', '#bergennorway', '#norgebergen']
+		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#hvaskjeribergen', '#helgibergen', '#bergenliv', '#bergensentrum', '#bergennorway', '#norgebergen']
 	},
 	{
 		slug: 'i-kveld',
 		days: [], // Daily
 		postTime: '14:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#hvaskjeribergen', '#kveldibergen', '#bergenliv', '#bergensentrum', '#visitbergen', '#bergennorway', '#utibergen']
+		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#hvaskjeribergen', '#kveldibergen', '#bergenliv', '#bergensentrum', '#bergennorway', '#utibergen']
 	},
 	{
 		slug: 'gratis',
 		days: [1], // Monday
 		postTime: '09:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#hvaskjeribergen', '#gratis', '#gratisibergen', '#gratisarrangementer', '#bergenliv', '#visitbergen', '#gratisbergen']
+		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#hvaskjeribergen', '#gratis', '#gratisibergen', '#gratisarrangementer', '#bergenliv', '#gratisbergen']
 	},
 	{
 		slug: 'today-in-bergen',
 		days: [], // Daily
 		postTime: '09:00',
-		hashtags: ['#bergen', '#bergennorway', '#visitbergen', '#todayinbergen', '#whattodoinbergen', '#bergenevents', '#thingstodoinbergen', '#bergentoday', '#norway', '#vestland']
+		hashtags: ['#bergen', '#bergennorway', '#todayinbergen', '#whattodoinbergen', '#bergenevents', '#thingstodoinbergen', '#bergentoday', '#norway', '#vestland']
 	},
 	{
 		slug: 'familiehelg',
 		days: [4], // Thursday
 		postTime: '10:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#barnibergen', '#familiehelg', '#bergenfamilie', '#barninorge', '#familieliv', '#bergenbarn', '#visitbergen']
+		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#barnibergen', '#familiehelg', '#bergenfamilie', '#barninorge', '#familieliv', '#bergenbarn']
 	},
 	{
 		slug: 'konserter',
@@ -64,7 +64,7 @@ const SCHEDULES: CollectionSchedule[] = [
 		slug: 'this-weekend',
 		days: [4], // Thursday
 		postTime: '10:00',
-		hashtags: ['#bergen', '#bergennorway', '#visitbergen', '#thisweekend', '#weekendinbergen', '#bergenevents', '#whattodoinbergen', '#norway', '#bergenweekend', '#vestland']
+		hashtags: ['#bergen', '#bergennorway', '#thisweekend', '#weekendinbergen', '#bergenevents', '#whattodoinbergen', '#norway', '#bergenweekend', '#vestland']
 	}
 ];
 
@@ -80,7 +80,7 @@ const CATEGORY_HASHTAGS: Record<string, string[]> = {
 	nightlife: ['#bergennattliv', '#uteliv', '#utpaabergen'],
 	workshop: ['#bergenkurs', '#kurs', '#workshop'],
 	student: ['#studentbergen', '#bergenstudent', '#studentliv'],
-	tours: ['#bergentur', '#visitbergen', '#bergentours']
+	tours: ['#bergentur', '#bergentours', '#turibergen']
 };
 
 /** Returns up to 3 category-specific hashtags based on the dominant categories in the events. */

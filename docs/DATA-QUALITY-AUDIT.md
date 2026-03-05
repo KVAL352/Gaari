@@ -28,7 +28,7 @@
 | Nightlife | ticketco (Hulen, Madam Felle), bergenkjott, bjorgvinblues | Moderate — major venues covered |
 | Workshop | paintnsip, brettspill, bergenbibliotek | Limited — niche sources only |
 | Student | studentbergen, ticketco (Kvarteret) | Good — primary student platforms |
-| Tours | dnt, floyen, visitbergen | Good — major outdoor/tourist sources |
+| Tours | dnt, floyen | Good — major outdoor/tourist sources |
 
 ---
 

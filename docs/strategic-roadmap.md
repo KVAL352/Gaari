@@ -188,7 +188,7 @@ Data stories to pitch:
 2. Build scraper: parse JSON-LD `ItemList` from `/in/bergen-norway`, filter to Bergen-proper venues by address.
 3. Map venues to bydeler, add to `categories.ts` mappings.
 
-**Note:** Tikkio is already recognized in the codebase (`scripts/fix-visitbergen-links.ts` line 69 as a known ticket platform domain).
+**Note:** Tikkio is already recognized in the codebase as a known ticket platform domain.
 
 ### April 2026
 

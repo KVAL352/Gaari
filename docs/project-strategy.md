@@ -93,7 +93,7 @@
 ### Phase 1 — Automated scraping (current)
 
 44 active Cheerio-based scrapers covering:
-- **General aggregators (6):** Visit Bergen, Bergen Kommune, StudentBergen, Bergen Live, Eventbrite, Hoopla
+- **General aggregators (5):** Bergen Kommune, StudentBergen, Bergen Live, Eventbrite, Hoopla
 - **Ticket platforms (3):** TicketCo (multi-venue), Eventbrite, Hoopla
 - **Performance venues (10):** Den Nationale Scene, Grieghallen, Ole Bull Huset, USF Verftet, Forum Scene, Cornerteateret, Det Vestnorske Teateret, BIT Teatergarasjen, Carte Blanche, Bergen Filharmoniske
 - **Arts, culture & literature (6):** Bergen Kunsthall, KODE, Litteraturhuset, Media City Bergen, BEK, Bergen Filmklubb

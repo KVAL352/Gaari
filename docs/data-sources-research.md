@@ -25,8 +25,6 @@ This document lists all known websites, platforms, and apps that show what's hap
 
 | Name | URL | What it covers | Language | Update frequency |
 |------|-----|----------------|----------|-----------------|
-| Visit Bergen – Hva skjer | https://www.visitbergen.com/hva-skjer | Broadest Bergen event calendar – concerts, festivals, sport, family, food, exhibitions | Norwegian | Daily |
-| Visit Bergen – What's On | https://en.visitbergen.com/whats-on | Same as above | English | Daily |
 | Bergen Sentrum – Activity Calendar | https://www.bergensentrum.no/byliv_bergen/kultur-opplevelser/hva-skjer-aktivitetskalender/ | Auto-aggregates from Ticketmaster, Songkick, Eventim, TicketCo, Facebook Events | Norwegian | Automated |
 | Kultur i Kveld – Bergen | https://kulturikveld.no/arrangementer/bergen | Concerts, theatre, comedy, shows with ticket links | Norwegian | Daily |
 | Friskus Bergen | https://bergen.friskus.com | Community activity calendar, volunteering | Norwegian | Ongoing |
@@ -154,7 +152,6 @@ This document lists all known websites, platforms, and apps that show what's hap
 | Name | URL | Notes |
 |------|-----|-------|
 | BarnasNorge – Bergen | https://www.barnasnorge.no/kommuner/bergen | Best aggregator for family activities, updated daily |
-| Visit Bergen – Family | https://en.visitbergen.com/things-to-do/attractions/family-friendly | Editorially curated family attractions |
 | Enjoy.ly – Bergen | https://www.enjoy.ly (search Bergen) | Booking platform for activity parks, pools, trampoline parks |
 
 ---
@@ -211,7 +208,7 @@ This document lists all known websites, platforms, and apps that show what's hap
 
 | Goal | Best source(s) |
 |------|----------------|
-| Broadest event overview | visitbergen.com/hva-skjer |
+| Broadest event overview | bergensentrum.no calendar + bergen.kommune.no |
 | Auto-aggregated from ticket sites | bergensentrum.no calendar |
 | Concerts & music | bergenlive.no + songkick.com + bandsintown.com |
 | Family activities | barnasnorge.no/kommuner/bergen |
@@ -219,7 +216,7 @@ This document lists all known websites, platforms, and apps that show what's hap
 | Students | kvarteret.no + studentbergen.no |
 | Festivals | fib.no, bergenfest.no, nattjazz.no |
 | Tickets | ticketmaster.no, ticketco.events, eventim.no |
-| English-language | en.visitbergen.com + lifeinnorway.net |
+| English-language | lifeinnorway.net |
 | Children free activities | Aktivitetskortet app + bergen.kommune.no |
 
 ---

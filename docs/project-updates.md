@@ -297,7 +297,6 @@ organizer_inquiries — Contact form from /for-arrangorer. anon insert, service 
 - Meta Graph API automation (when social accounts resolved + posting >30 min/week)
 - Newsletter growth tools (referral program, automated welcome sequence)
 - Additional seasonal collection pages
-- Visit Bergen data partnership
 - Bergen Kommune cultural funding application
 ```
 

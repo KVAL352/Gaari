@@ -11,10 +11,10 @@ Gåri prioriterer **dedikerte venue-scrapere** fremfor tredjeparts billettplattf
 
 1. **Full kontroll** — vi kan finjustere kategorier, pris, filtrering og bildeuttrekk per venue
 2. **Bedre datakvalitet** — direkte kilder har rikere metadata enn tredjepartslistinger
-3. **Uavhengighet** — vi kan disable tredjeparter (TicketCo, Hoopla, Eventbrite, VisitBergen) uten tap av dekning
+3. **Uavhengighet** — vi kan disable tredjeparter (TicketCo, Hoopla, Eventbrite, aggregatorer) uten tap av dekning
 4. **Mindre juridisk risiko** — direkte scraping av åpne eventsider har sterkere rettslig grunnlag enn plattform-scraping
 
-**Mål:** Alle venues som i dag kun dekkes via TicketCo/Hoopla/Eventbrite/VisitBergen skal ha egne dedikerte scrapere. Tredjepartene beholdes midlertidig som fallback/gap-filler, men kan skrus av når direkte dekning er komplett.
+**Mål:** Alle venues som i dag kun dekkes via TicketCo/Hoopla/Eventbrite/aggregatorer skal ha egne dedikerte scrapere. Tredjepartene beholdes midlertidig som fallback/gap-filler, men kan skrus av når direkte dekning er komplett.
 
 **Facebook-venues er utenfor scope.** Venues som kun kommuniserer via Facebook/Instagram har ingen strukturert eventdata å scrape. Disse ignoreres.
 
@@ -79,9 +79,7 @@ Disse scraper billettplattformer og aggregatorer. Målet er å fase dem ut etter
 | 1 | **TicketCo** | `ticketco.ts` | 14 subdomains | 247 | Se overlap-analyse under |
 | 2 | **Hoopla** | `hoopla.ts` | 8 organisasjoner | 15 | Se overlap-analyse under |
 | 3 | **Eventbrite** | `eventbrite.ts` | Diverse | 9 | Lav prioritet — få Bergen-events |
-| 4 | **VisitBergen** | `visitbergen.ts` | Aggregator | 43 | Siste i pipeline, kan disables når VilVite/Bergen Kino er dekket |
-
-### Deaktiverte scrapere (2)
+### Deaktiverte scrapere (3)
 
 | Kilde | Grunn |
 |-------|-------|
@@ -127,14 +125,6 @@ Disse scraper billettplattformer og aggregatorer. Målet er å fase dem ut etter
 | `ungmatfest` | Ung Matfest | **NEI** | Sesongbasert, behold i Hoopla |
 
 **Realitet:** Hoopla er vanskelig å fase ut. De fleste venues har enten ingen egen nettside, er sesongbaserte, eller er uavklart. Behold Hoopla-scraperen.
-
-### VisitBergen
-
-Aggregator som dekker mange venues, men med tynnere data. Viktigste unike dekning:
-- **VilVite** — Vue.js SPA, ikke mulig å scrape direkte
-- **Bergen Kino** — Vue.js SPA, ikke mulig å scrape direkte
-
-VisitBergen kjøres sist i pipeline. Behold inntil VilVite/Bergen Kino eventuelt løses.
 
 ### Eventbrite
 
@@ -244,7 +234,6 @@ Revidert strategi etter verifisering:
 3. **TicketCo kan IKKE disables helt** — 7 venues har ingen annen kilde (inkl. Bergen Dansesenter)
 4. **Hoopla kan IKKE disables helt** — 3 venues har ingen annen kilde
 5. **Eventbrite kan potensielt disables** — lav verdi, mest duplikater
-6. **VisitBergen behold** — eneste kilde for VilVite og Bergen Kino
 
 ---
 

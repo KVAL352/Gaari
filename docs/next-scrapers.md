@@ -114,5 +114,5 @@ hoopla.ts            kode.ts              kulturhusetibergen.ts kunsthall.ts
 kvarteret.ts         litthusbergen.ts     mediacity.ts         museumvest.ts
 nordnessjobad.ts     olebull.ts           oseana.ts            paintnsip.ts
 raabrent.ts          studentbergen.ts     ticketco.ts          usfverftet.ts
-visitbergen.ts       vvv.ts
+vvv.ts
 ```

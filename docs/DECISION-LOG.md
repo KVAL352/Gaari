@@ -93,7 +93,7 @@ Each entry: `#N — Date — Decision title`
 
 ### #13 — 2026-02 — Deduplication by normalized title + same date
 - **Decision:** Cross-source dedup uses normalized title + same date to find duplicates. Keeps the highest-scored variant (scoring: source rank + image + ticket URL + description length).
-- **Rationale:** Same event often appears in multiple sources (e.g., VisitBergen + venue calendar + TicketCo). Without dedup, users see duplicates. Scoring keeps the best-quality listing.
+- **Rationale:** Same event often appears in multiple sources (e.g., venue calendar + TicketCo + aggregators). Without dedup, users see duplicates. Scoring keeps the best-quality listing.
 - **Alternatives considered:** URL-based dedup (misses cross-source), fuzzy matching (complexity), manual curation (doesn't scale).
 - **Status:** Active
 
@@ -113,7 +113,7 @@ Each entry: `#N — Date — Decision title`
 - **Status:** Active
 
 ### #17 — 2026-02 — No aggregator domains in ticket URLs
-- **Decision:** `ticket_url` must point to actual venue/ticket pages, never to aggregator sites like visitbergen.com or barnasnorge.no.
+- **Decision:** `ticket_url` must point to actual venue/ticket pages, never to aggregator event listings. Blocked domains in `venues.ts`.
 - **Rationale:** Users should reach the real ticket seller. Aggregator links add an unnecessary redirect and may break. Aggregator domains are blocked in `venues.ts`.
 - **Status:** Active
 

@@ -142,7 +142,7 @@ Not translated — same in English.
 
 ### 45 scrapers by category (43 active, 2 disabled)
 
-**General aggregators (4 active):** visitbergen, bergenkommune, studentbergen, bergenlive
+**General aggregators (3 active):** bergenkommune, studentbergen, bergenlive
 *(Disabled: kulturikveld — unreliable; barnasnorge — all venues covered by dedicated scrapers)*
 
 **Ticket platforms (3):** eventbrite, ticketco (multiple venue subdomains incl. kvarteret), hoopla
@@ -244,7 +244,6 @@ Runs daily via GitHub Actions cron at 07:00 UTC. For each scheduled collection:
 - Meta Graph API automation (when social accounts resolved + posting >30 min/week)
 - Newsletter growth tools (referral program, automated welcome sequence)
 - Additional seasonal collection pages
-- Visit Bergen data partnership
 - Bergen Kommune cultural funding application
 
 ### Not planned
