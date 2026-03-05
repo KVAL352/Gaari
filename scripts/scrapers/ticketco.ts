@@ -28,7 +28,6 @@ const SUBDOMAINS = [
 	'swingnsweetjazzclub',
 	'mandelhuset',
 	'bergenpride',
-	// Added to reduce Visit Bergen dependency:
 	'kodebergen',
 	'varmerevaterevillere',
 	'colonialenfetevare',

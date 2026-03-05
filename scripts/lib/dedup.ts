@@ -47,7 +47,6 @@ const SOURCE_RANK: Record<string, number> = {
 	bergenkommune: 3,
 	kulturikveld: 3,
 	barnasnorge: 2,
-	visitbergen: 1,
 };
 
 export interface EventRow {

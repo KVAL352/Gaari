@@ -47,7 +47,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | Bergen Live | `bergenlive.ts` | HTML scrape |
 
 **Disabled scrapers:**
-- ~~Visit Bergen~~ (`visitbergen.ts`) — disabled Mar 5, 2026. All major venues covered by dedicated scrapers + expanded TicketCo (27 subdomains). Only 3 unique events remained (small one-off venues).
+- ~~Visit Bergen~~ — removed Mar 5, 2026. All major venues covered by dedicated scrapers + expanded TicketCo (27 subdomains). Only 3 unique events remained.
 - ~~BarnasNorge~~ (`barnasnorge.ts`) — disabled Feb 25, 2026. All venues covered by dedicated scrapers. Issues: AI-generated stock images from Webflow CDN, address-based venue names, complex URL resolution.
 - ~~Kulturikveld~~ — removed (unreliable, file deleted).
 
