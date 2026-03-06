@@ -60,6 +60,7 @@
 					<li><a href="/{$lang}/submit" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('submitEvent')}</a></li>
 					<li><a href="mailto:post@gaari.no" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('contact')}</a></li>
 				<li><a href="webcal://gaari.no/api/events.ics" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Kalenderabonnement' : 'Calendar feed'}</a></li>
+				<li><a href="/feed" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">RSS</a></li>
 				</ul>
 			</nav>
 		</div>

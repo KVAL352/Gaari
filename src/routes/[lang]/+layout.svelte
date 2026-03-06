@@ -49,6 +49,9 @@
 	<link rel="alternate" hreflang="en" href={hreflangEn} />
 	<link rel="alternate" hreflang="x-default" href={hreflangNb} />
 
+	<!-- RSS autodiscovery -->
+	<link rel="alternate" type="application/rss+xml" title={$lang === 'no' ? 'Hva skjer i Bergen' : "What's on in Bergen"} href={`https://gaari.no/feed?lang=${$lang}`} />
+
 	<!-- Default twitter card (pages can override with more specific cards) -->
 	<meta name="twitter:card" content="summary" />
 </svelte:head>
