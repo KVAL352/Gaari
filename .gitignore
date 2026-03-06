@@ -20,3 +20,4 @@ scripts/.digest-preview/
 docs/api_token.txt
 docs/gsc-sa.json
 scripts/venue-analysis.mjs
+print/
