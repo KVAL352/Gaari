@@ -140,9 +140,9 @@
 		</h1>
 		<p class="mx-auto mb-8 max-w-[640px] text-lg text-[var(--color-text-primary)]">
 			{#if $lang === 'no'}
-				Gåri er et digitalt bytorg for Bergen. Alt som skjer, samlet på ett sted.
+				Arrangementene dine når 10 000 bergensere som leter etter noe å gjøre — automatisk, daglig, gratis å prøve.
 			{:else}
-				Gåri is a digital town square for Bergen. Everything happening, gathered in one place.
+				Your events reach 10,000 people in Bergen looking for something to do — automatically, daily, free to try.
 			{/if}
 		</p>
 		<a
@@ -156,6 +156,22 @@
 		</a>
 	</div>
 </section>
+
+<!-- === SOCIAL PROOF STRIP === -->
+<div class="border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] py-4">
+	<div class="mx-auto max-w-4xl px-4">
+		<p class="mb-2.5 text-center text-xs text-[var(--color-text-muted)]">
+			{$lang === 'no' ? 'Henter allerede fra 53 kilder i Bergen' : 'Already collecting from 53 sources in Bergen'}
+		</p>
+		<div class="flex flex-wrap justify-center gap-1.5">
+			{#each venues.slice(0, 8) as venue (venue)}
+				<span class="rounded-full border border-[var(--color-border)] bg-[var(--funkis-plaster)] px-3 py-1 text-[12px] text-[var(--color-text-muted)]">
+					{venue}
+				</span>
+			{/each}
+		</div>
+	</div>
+</div>
 
 <!-- === HVORDAN FUNGERER DETTE === -->
 <section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-20">
@@ -235,7 +251,11 @@
 						<input type="text" name="website" tabindex="-1" autocomplete="off" />
 					</div>
 
+					<label for="add-venue-url" class="sr-only">
+						{$lang === 'no' ? 'Nettstedsadresse' : 'Website URL'}
+					</label>
 					<input
+						id="add-venue-url"
 						type="url"
 						name="venue_url"
 						required
@@ -243,7 +263,11 @@
 						class="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-sm"
 						style="min-height: 44px;"
 					/>
+					<label for="add-venue-email" class="sr-only">
+						{$lang === 'no' ? 'E-postadresse' : 'Email address'}
+					</label>
 					<input
+						id="add-venue-email"
 						type="email"
 						name="email"
 						required
@@ -285,11 +309,21 @@
 		{#if $lang === 'no'}
 			<p>Et bytorg med tre boder er ikke et bytorg. Det er først når bredden er der — konserter, teater, matfestivaler, quizkvelder, gratisarrangementer — at folk begynner å sjekke innom som vane.</p>
 			<p>Gratis arrangementer trekker folk inn. Betalte arrangementer tjener på trafikken. Studenten som finner en gratis quizkveld i dag, kjøper konsertbillett neste uke. Uten det første besøket hadde det andre aldri skjedd.</p>
-			<p>Jo mer som er samlet på torget, jo flere grunner har folk til å komme tilbake. Jo oftere de kommer tilbake, jo mer ser de av dine arrangementer.</p>
+			<blockquote class="my-2 border-l-4 border-[var(--funkis-red)] pl-5">
+			<p class="text-xl font-bold leading-snug font-[family-name:var(--font-display)]">
+				Studenten som finner en gratis quizkveld i dag, kjøper konsertbillett neste uke.
+			</p>
+		</blockquote>
+		<p>Jo mer som er samlet på torget, jo flere grunner har folk til å komme tilbake. Jo oftere de kommer tilbake, jo mer ser de av dine arrangementer.</p>
 		{:else}
 			<p>A town square with three stalls isn't a town square. It's only when the breadth is there — concerts, theatre, food festivals, quiz nights, free events — that people start checking in as a habit.</p>
 			<p>Free events draw people in. Paid events benefit from the traffic. The student who finds a free quiz night today buys a concert ticket next week. Without the first visit, the second would never have happened.</p>
-			<p>The more that's gathered on the square, the more reasons people have to come back. The more often they come back, the more they see of your events.</p>
+			<blockquote class="my-2 border-l-4 border-[var(--funkis-red)] pl-5">
+			<p class="text-xl font-bold leading-snug font-[family-name:var(--font-display)]">
+				The student who finds a free quiz night today buys a concert ticket next week.
+			</p>
+		</blockquote>
+		<p>The more that's gathered on the square, the more reasons people have to come back. The more often they come back, the more they see of your events.</p>
 		{/if}
 	</div>
 </section>
@@ -516,7 +550,7 @@
 		<!-- Row 2: AI-søk + Nyhetsbrev cards -->
 		<div class="mb-6 grid gap-6 md:grid-cols-2">
 			<!-- AI-søk card -->
-			<div class="rounded-xl bg-[var(--color-bg-surface)] p-6" style="border-top: 4px solid var(--color-cat-culture); box-shadow: var(--shadow-sm);">
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-6" style="border-top: 4px solid var(--funkis-red); box-shadow: var(--shadow-sm);">
 				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Arrangementene dine i AI-svar' : 'Your events in AI answers'}</h3>
 				<p class="text-sm text-[var(--color-text-secondary)]">
 					{$lang === 'no'
@@ -525,7 +559,7 @@
 				</p>
 			</div>
 			<!-- Nyhetsbrev card -->
-			<div class="rounded-xl bg-[var(--color-bg-surface)] p-6" style="border-top: 4px solid var(--color-cat-music); box-shadow: var(--shadow-sm);">
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-6" style="border-top: 4px solid var(--funkis-red); box-shadow: var(--shadow-sm);">
 				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'I nyhetsbrevet hver uke' : 'In the newsletter every week'}</h3>
 				<p class="text-sm text-[var(--color-text-secondary)]">
 					{$lang === 'no'
@@ -538,7 +572,7 @@
 		<!-- Row 3: Rapport card + Report mockup -->
 		<div class="grid items-center gap-6 md:grid-cols-[55%_45%]">
 			<!-- Rapport card -->
-			<div class="rounded-xl bg-[var(--color-bg-surface)] p-6" style="border-top: 4px solid var(--funkis-green); box-shadow: var(--shadow-sm);">
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-6" style="border-top: 4px solid var(--funkis-red); box-shadow: var(--shadow-sm);">
 				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Tall på hva det ga deg' : 'Numbers on what it did for you'}</h3>
 				<p class="text-sm text-[var(--color-text-secondary)]">
 					{$lang === 'no'
@@ -591,7 +625,7 @@
 <!-- Transparency -->
 <section class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-20">
 	<div class="mx-auto max-w-4xl">
-		<div class="rounded-xl border-l-4 border-[var(--color-text-primary)] bg-[var(--color-bg-surface)] p-6 md:p-8">
+		<div class="rounded-xl border-l-4 border-[var(--funkis-green)] bg-[var(--color-bg-surface)] p-6 md:p-8">
 			<h2 class="mb-3 text-xl font-bold font-[family-name:var(--font-display)]">
 				{$lang === 'no' ? 'Ingen skjulte triks' : 'No hidden tricks'}
 			</h2>
@@ -693,6 +727,18 @@
 			</div>
 		</div>
 
+		<!-- Early bird offer -->
+		<div class="mb-8 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-5 py-4 text-center" style="box-shadow: var(--shadow-sm);">
+			<p class="text-sm text-[var(--color-text-primary)]">
+				<span class="font-semibold">
+					{$lang === 'no' ? 'Tidlig partner-tilbud: ' : 'Early partner offer: '}
+				</span>
+				{$lang === 'no'
+					? 'De første partnerne får 3 måneder gratis fremhevet synlighet — ingen bindingstid.'
+					: 'The first partners get 3 months of free promoted visibility — no commitment.'}
+			</p>
+		</div>
+
 		<!-- Divider — framing the form -->
 		<p class="mb-6 text-center text-sm text-[var(--funkis-granite)]">
 			{$lang === 'no' ? 'Send en rask melding — så tar vi det derfra:' : 'Send a quick message — we take it from there:'}
@@ -700,8 +746,8 @@
 
 		<!-- Contact form — lightweight feel -->
 		{#if contactStatus === 'success'}
-			<div role="status" class="mx-auto max-w-md rounded-xl border border-green-200 bg-green-50 p-6 text-center">
-				<p class="text-lg font-semibold text-green-800">
+			<div role="status" class="mx-auto max-w-md rounded-xl p-6 text-center" style="border: 1px solid var(--funkis-green-subtle); background: var(--funkis-green-subtle);">
+				<p class="text-lg font-semibold" style="color: var(--funkis-green);">
 					{$lang === 'no' ? 'Takk! Vi tar kontakt snart.' : "Thanks! We'll be in touch soon."}
 				</p>
 			</div>
@@ -807,35 +853,9 @@
 			</form>
 		{/if}
 
-		<!-- Social proof near form -->
-		<div class="mt-10 text-center">
-			<p class="mb-3 text-sm text-[var(--funkis-granite)]">
-				{$lang === 'no' ? 'Samler allerede fra 53 kilder i Bergen' : 'Already collecting from 53 sources in Bergen'}
-			</p>
-			<div class="flex flex-wrap justify-center gap-1.5">
-				{#each venues.slice(0, 8) as venue (venue)}
-					<span class="rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-1 text-[12px] text-[var(--color-text-muted)]">
-						{venue}
-					</span>
-				{/each}
-			</div>
-		</div>
 	</div>
 </section>
 
-<!-- 10. Testimonial placeholder -->
-<section class="bg-[var(--color-bg-surface)] px-4 py-12 md:py-16">
-	<div class="mx-auto max-w-4xl text-center">
-		<h2 class="mb-3 text-xl font-bold font-[family-name:var(--font-display)]">
-			{$lang === 'no' ? 'Hva arrangører sier' : 'What organizers say'}
-		</h2>
-		<p class="text-sm italic text-[var(--color-text-muted)]">
-			{$lang === 'no'
-				? 'Gåri er i oppstartsfasen — de første tilbakemeldingene kommer snart.'
-				: 'Gåri is in its early stages — the first feedback is coming soon.'}
-		</p>
-	</div>
-</section>
 
 <!-- Sticky mobile CTA bar -->
 <div
@@ -848,9 +868,9 @@
 			data-plausible-event="for-arrangorer-sticky-cta"
 			onclick={() => trackEvent('for-arrangorer-sticky-cta')}
 			class="flex items-center justify-center text-base font-semibold text-white"
-			style="min-height: 40px;"
+			style="min-height: 44px;"
 		>
-			{$lang === 'no' ? 'Ta kontakt' : 'Get in touch'}
+			{$lang === 'no' ? 'Få en gratis analyserapport' : 'Get a free analysis report'}
 		</a>
 	</div>
 </div>
