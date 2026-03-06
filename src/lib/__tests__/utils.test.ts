@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isFreeEvent, formatPrice, slugify, buildOutboundUrl } from '../utils';
+import { isFreeEvent, formatPrice, slugify, buildOutboundUrl, formatEventTime } from '../utils';
 
 describe('isFreeEvent', () => {
 	it('returns true for 0 (number)', () => {
@@ -127,6 +127,46 @@ describe('slugify', () => {
 
 	it('handles empty string', () => {
 		expect(slugify('')).toBe('');
+	});
+});
+
+describe('formatEventTime', () => {
+	// CET = UTC+1 (winter), CEST = UTC+2 (summer)
+
+	it('hides time for midnight UTC placeholder (no known time)', () => {
+		expect(formatEventTime('2026-03-06T00:00:00Z')).toBe('');
+	});
+
+	it('hides time for midnight UTC placeholder regardless of date', () => {
+		expect(formatEventTime('2026-07-15T00:00:00Z')).toBe('');
+	});
+
+	it('shows 12:00 Oslo for an event at UTC 11:00 in CET (the bergenkommune bug case)', () => {
+		// Real event "Lunsj med kultur" at 12:00 Oslo → stored as 11:00 UTC after fix
+		expect(formatEventTime('2026-03-06T11:00:00Z', 'no')).toBe('12:00');
+	});
+
+	it('does NOT hide UTC 12:00 (was wrongly suppressed before the fix)', () => {
+		// 12:00 UTC = 13:00 Oslo in CET — must be shown, not hidden
+		expect(formatEventTime('2026-03-06T12:00:00Z', 'no')).toBe('13:00');
+	});
+
+	it('shows 18:00 Oslo for UTC 17:00 in CET', () => {
+		expect(formatEventTime('2026-03-06T17:00:00Z', 'no')).toBe('18:00');
+	});
+
+	it('shows 12:00 Oslo for UTC 10:00 in CEST (summer)', () => {
+		// CEST = UTC+2
+		expect(formatEventTime('2026-07-15T10:00:00Z', 'no')).toBe('12:00');
+	});
+
+	it('returns English HH:MM format', () => {
+		expect(formatEventTime('2026-03-06T17:00:00Z', 'en')).toBe('18:00');
+	});
+
+	it('handles half-hours correctly', () => {
+		// 10:30 UTC = 11:30 Oslo (CET)
+		expect(formatEventTime('2026-03-06T10:30:00Z', 'no')).toBe('11:30');
 	});
 });
 

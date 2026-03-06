@@ -112,6 +112,31 @@ describe('bergenOffset', () => {
 		// At noon UTC on October 25, DST is no longer active
 		expect(bergenOffset('2026-10-25')).toBe('+01:00');
 	});
+
+	// Regression: bergenkommune scraper previously built dates without timezone offset,
+	// causing Oslo local times to be stored as UTC (1-2h wrong).
+	// The fix: use bergenOffset() and build ISO strings with explicit offset.
+	it('builds correct UTC ISO from Oslo local time (CET winter)', () => {
+		// "Lunsj med kultur" at 12:00 Oslo (CET = +01:00) → should be 11:00 UTC
+		const date = '2026-03-06';
+		const offset = bergenOffset(date); // '+01:00'
+		const iso = new Date(`${date}T12:00:00${offset}`).toISOString();
+		expect(iso).toBe('2026-03-06T11:00:00.000Z');
+	});
+
+	it('builds correct UTC ISO from Oslo local time (CEST summer)', () => {
+		// Event at 20:00 Oslo (CEST = +02:00) → should be 18:00 UTC
+		const date = '2026-07-15';
+		const offset = bergenOffset(date); // '+02:00'
+		const iso = new Date(`${date}T20:00:00${offset}`).toISOString();
+		expect(iso).toBe('2026-07-15T18:00:00.000Z');
+	});
+
+	it('midnight UTC placeholder is not affected by bergenOffset', () => {
+		// Events with no known time use T00:00:00Z — no offset applied
+		const placeholder = new Date('2026-03-06T00:00:00Z').toISOString();
+		expect(placeholder).toBe('2026-03-06T00:00:00.000Z');
+	});
 });
 
 describe('normalizeTitle', () => {
