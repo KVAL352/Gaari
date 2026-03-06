@@ -77,6 +77,22 @@ function stripHtml(html: string): string {
 	return html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+/** Fetch event detail page and extract lowest ticket price in NOK. Returns '' if unavailable. */
+async function fetchTicketCoPrice(eventUrl: string): Promise<string> {
+	const html = await fetchHTML(eventUrl);
+	if (!html) return '';
+	const prices: number[] = [];
+	const priceRegex = /class='price'>NOK\s+([\d.,]+)/g;
+	let m;
+	while ((m = priceRegex.exec(html)) !== null) {
+		// Norwegian format: 1.200,00 → remove thousand-sep dots, replace decimal comma
+		const val = parseFloat(m[1].replace(/\./g, '').replace(',', '.'));
+		if (!isNaN(val)) prices.push(Math.round(val));
+	}
+	if (prices.length === 0) return '';
+	return String(Math.min(...prices));
+}
+
 async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inserted: number }> {
 	// Paginate through all pages for this subdomain
 	const events: TCEvent[] = [];
@@ -139,7 +155,10 @@ async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inse
 		const datePart = event.startDate.slice(0, 10);
 		const imageUrl = event.landing_image || event.image || undefined;
 
-		const aiDesc = await generateDescription({ title: event.name, venue: venueName, category, date: new Date(event.startDate), price: '' });
+		await delay(500);
+		const price = await fetchTicketCoPrice(sourceUrl);
+
+		const aiDesc = await generateDescription({ title: event.name, venue: venueName, category, date: new Date(event.startDate), price });
 
 		const success = await insertEvent({
 			slug: makeSlug(event.name, datePart),
@@ -152,7 +171,7 @@ async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inse
 			venue_name: venueName,
 			address: venueName,
 			bydel,
-			price: '',
+			price,
 			ticket_url: resolveTicketUrl(venueName, sourceUrl),
 			source: SOURCE,
 			source_url: sourceUrl,
