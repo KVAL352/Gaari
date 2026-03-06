@@ -17,6 +17,7 @@ const AGGREGATOR_DOMAINS = [
 	'twitter.com',
 	'linkedin.com',
 	'youtube.com',
+	'aftenposten.no', // Aftenposten Fordel subscriber discount links — not real ticket pages
 ];
 
 // Venue name → website URL
