@@ -131,11 +131,11 @@
 		submitError = '';
 		imageWarning = '';
 
-		// Max 5MB raw
-		if (file.size > 5 * 1024 * 1024) {
+		// Max 10MB raw (canvas auto-compresses to JPEG at max 1200px)
+		if (file.size > 10 * 1024 * 1024) {
 			submitError = $lang === 'no'
-				? 'Bildet er for stort. Maks 5 MB.'
-				: 'Image is too large. Max 5 MB.';
+				? 'Bildet er for stort (maks 10 MB). Komprimer bildet på squoosh.app og prøv igjen.'
+				: 'Image is too large (max 10 MB). Compress it at squoosh.app and try again.';
 			input.value = '';
 			return;
 		}
@@ -644,4 +644,14 @@
 			</button>
 		</form>
 	{/if}
+
+	<div class="mt-10 border-t border-[var(--color-border)] pt-6 text-center text-sm text-[var(--color-text-secondary)]">
+		{#if $lang === 'no'}
+			Problemer med å sende inn? Vi hjelper deg —
+			<a href="mailto:post@gaari.no" class="font-medium text-[var(--color-text-primary)] underline hover:text-[var(--color-accent)]">post@gaari.no</a>
+		{:else}
+			Having trouble submitting? We're happy to help —
+			<a href="mailto:post@gaari.no" class="font-medium text-[var(--color-text-primary)] underline hover:text-[var(--color-accent)]">post@gaari.no</a>
+		{/if}
+	</div>
 </div>
