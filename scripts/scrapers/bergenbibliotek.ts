@@ -126,6 +126,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			continue;
 		}
 
+		// Skip external links — bergenbibliotek.no sometimes lists events from other Norwegian libraries
+		if (href.startsWith('http') && !href.includes('bergenbibliotek.no')) {
+			continue;
+		}
+
 		// Title from h2
 		const title = $el.find('h2').first().text().trim();
 		if (!title) continue;
