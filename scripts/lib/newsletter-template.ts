@@ -161,7 +161,7 @@ function introContent(data: NewsletterData): IntroContent {
 	return { heading, body };
 }
 
-function eventCardCell(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: string, utmParams: string): string {
+function eventCardDiv(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: string, utmParams: string): string {
 	const color = CATEGORY_COLORS[event.category] || '#D8D8D4';
 	const catLabel = (lang === 'no' ? CATEGORY_LABELS_NO : CATEGORY_LABELS_EN)[event.category] || event.category;
 	const date = formatDate(event.date_start, lang);
@@ -172,7 +172,7 @@ function eventCardCell(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: strin
 	const btnLabel = lang === 'no' ? 'Les mer' : 'Read more';
 
 	const imageBlock = event.image_url
-		? `<a href="${eventUrl}" style="text-decoration:none;"><img src="${event.image_url}" alt="" width="176" height="120" style="width:100%;height:120px;object-fit:cover;border-radius:6px 6px 0 0;display:block;" /></a>`
+		? `<a href="${eventUrl}" style="text-decoration:none;display:block;"><img src="${event.image_url}" alt="" width="176" height="120" style="max-width:100%;width:100%;height:120px;object-fit:cover;border-radius:6px 6px 0 0;display:block;" /></a>`
 		: `<div style="width:100%;height:120px;border-radius:6px 6px 0 0;background:${color};"></div>`;
 
 	const promotedBadge = event.promoted
@@ -181,7 +181,7 @@ function eventCardCell(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: strin
 
 	const borderStyle = event.promoted ? 'border:1.5px solid #C82D2D' : 'border:1px solid #E8E8E4';
 
-	return `<td width="33%" valign="top" style="width:33.33%;padding:0 6px 16px;">
+	return `<div style="display:inline-block;width:100%;max-width:180px;vertical-align:top;padding:0 6px 16px;">
 		<div style="background:#FFFFFF;${borderStyle};border-radius:6px;overflow:hidden;">
 			<div style="line-height:0;font-size:0;overflow:hidden;height:120px;position:relative;">${imageBlock}${promotedBadge}</div>
 			<div style="padding:10px 12px 14px;">
@@ -204,24 +204,11 @@ function eventCardCell(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: strin
 				</table>
 			</div>
 		</div>
-	</td>`;
-}
-
-function emptyCell(): string {
-	return `<td width="33%" style="width:33.33%;padding:0 6px 16px;">&nbsp;</td>`;
+	</div>`;
 }
 
 function buildEventGrid(events: NewsletterEvent[], lang: 'no' | 'en', baseUrl: string, utmParams: string): string {
-	const rows: string[] = [];
-	for (let i = 0; i < events.length; i += 3) {
-		const cells = [
-			eventCardCell(events[i], lang, baseUrl, utmParams),
-			events[i + 1] ? eventCardCell(events[i + 1], lang, baseUrl, utmParams) : emptyCell(),
-			events[i + 2] ? eventCardCell(events[i + 2], lang, baseUrl, utmParams) : emptyCell()
-		];
-		rows.push(`<tr>${cells.join('')}</tr>`);
-	}
-	return rows.join('\n');
+	return events.map(event => eventCardDiv(event, lang, baseUrl, utmParams)).join('\n');
 }
 
 export function generateNewsletterHtml(data: NewsletterData): string {
@@ -267,16 +254,16 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 		a { color: #C82D2D; }
 	</style>
 </head>
-<body style="margin:0;padding:0;background:#F4F4F2;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+<body style="margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
 	<!-- Preheader -->
 	<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">${escapeHtml(data.preheader)}</div>
 
 	<!-- Wrapper -->
-	<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#F4F4F2;">
+	<table cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;min-width:100%;margin:0;padding:0;background:#F4F4F2;">
 		<tr>
 			<td align="center" style="padding:24px 16px;">
 				<!-- Container -->
-				<table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%;background:#FFFFFF;border-radius:8px;overflow:hidden;">
+				<table align="center" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%;margin:0 auto;background:#FFFFFF;border-radius:8px;overflow:hidden;">
 
 					<!-- Red accent bar -->
 					<tr>
@@ -311,12 +298,10 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 						</td>
 					</tr>
 
-					<!-- Events (3-column grid) -->
+					<!-- Events (inline-block grid — stacks naturally on narrow viewports) -->
 					<tr>
-						<td style="padding:20px 18px 4px;background:#F8F8F6;">
-							<table cellpadding="0" cellspacing="0" border="0" width="100%" style="table-layout:fixed;">
-								${eventGrid}
-							</table>
+						<td style="padding:20px 12px 4px;background:#F8F8F6;font-size:0;text-align:center;">
+							${eventGrid}
 						</td>
 					</tr>
 
@@ -402,11 +387,11 @@ export function generateQuietWeekHtml(data: QuietWeekData): string {
 		a { color: #C82D2D; }
 	</style>
 </head>
-<body style="margin:0;padding:0;background:#F4F4F2;">
-	<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#F4F4F2;">
+<body style="margin:0;padding:0;">
+	<table cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;min-width:100%;margin:0;padding:0;background:#F4F4F2;">
 		<tr>
 			<td align="center" style="padding:24px 16px;">
-				<table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%;background:#FFFFFF;border-radius:8px;overflow:hidden;">
+				<table align="center" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%;margin:0 auto;background:#FFFFFF;border-radius:8px;overflow:hidden;">
 
 					<!-- Red accent bar -->
 					<tr>
