@@ -154,6 +154,17 @@ interface ExpandedEvent {
 	description?: string;
 }
 
+/** Extract the local Oslo wall-clock time (HH:MM:SS) from a UTC ISO string */
+function extractOsloTime(isoUtc: string): string {
+	const utcDate = isoUtc.slice(0, 10);
+	const offset = bergenOffset(utcDate);
+	const sign = offset[0] === '+' ? 1 : -1;
+	const [oh, om] = offset.slice(1).split(':').map(Number);
+	const offsetMs = sign * (oh * 60 + om) * 60 * 1000;
+	const local = new Date(new Date(isoUtc).getTime() + offsetMs);
+	return `${local.getUTCHours().toString().padStart(2, '0')}:${local.getUTCMinutes().toString().padStart(2, '0')}:${local.getUTCSeconds().toString().padStart(2, '0')}`;
+}
+
 /** Expand recurring events into individual occurrences within the lookahead window */
 function expandEvents(icalEvents: ICalEvent[]): ExpandedEvent[] {
 	const now = new Date();
@@ -243,6 +254,10 @@ function expandEvents(icalEvents: ICalEvent[]): ExpandedEvent[] {
 		const effectiveUntil = new Date(Math.min(new Date(until).getTime(), cutoff.getTime()));
 		const step = freq === 'WEEKLY' ? interval * 7 : interval;
 
+		// Extract local Oslo wall-clock time once — used to rebuild each occurrence
+		// with the correct Oslo offset for that date (fixes DST shift for cross-season series)
+		const localTimeStr = extractOsloTime(ev.dtstart);
+
 		let current = new Date(ev.dtstart);
 		let generated = 0;
 
@@ -257,12 +272,14 @@ function expandEvents(icalEvents: ICalEvent[]): ExpandedEvent[] {
 					// Check for recurrence override
 					const baseUid = ev.uid.split('_')[0];
 					if (!overrides.has(`${baseUid}:${dateStr}`)) {
-						const instanceStart = current.toISOString();
+						// Rebuild instanceStart with correct Oslo offset for this date
+						const instanceOffset = bergenOffset(dateStr);
+						const instanceStart = new Date(`${dateStr}T${localTimeStr}${instanceOffset}`).toISOString();
 						result.push({
 							uid: `${ev.uid}_${dateStr}`,
 							summary: ev.summary,
 							dtstart: instanceStart,
-							dtend: durationMs ? new Date(current.getTime() + durationMs).toISOString() : undefined,
+							dtend: durationMs ? new Date(new Date(`${dateStr}T${localTimeStr}${instanceOffset}`).getTime() + durationMs).toISOString() : undefined,
 							location: ev.location,
 							description: ev.description,
 						});
@@ -270,7 +287,10 @@ function expandEvents(icalEvents: ICalEvent[]): ExpandedEvent[] {
 				}
 			}
 
-			current = new Date(current.getTime() + step * 24 * 60 * 60 * 1000);
+			// Advance by step calendar days (not ms) to preserve local wall-clock time across DST
+			const [cy, cm, cd] = dateStr.split('-').map(Number);
+			const nextDateStr = new Date(Date.UTC(cy, cm - 1, cd + step)).toISOString().slice(0, 10);
+			current = new Date(`${nextDateStr}T${localTimeStr}${bergenOffset(nextDateStr)}`);
 			generated++;
 		}
 	}
