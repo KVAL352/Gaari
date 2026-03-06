@@ -7,6 +7,10 @@ const BASE_URL = 'https://www.akvariet.no';
 const CALENDAR_URL = `${BASE_URL}/hva-skjer/aktivitetskalender/dag`;
 const DAYS_AHEAD = 14;
 
+// Akvariet fixed admission price — activities are included in general admission.
+// Update when prices change. (Last verified: Mar 2026)
+const ADMISSION_PRICE = '245–380 kr';
+
 // Recurring daily activities to skip — these repeat every day and are not discrete "events".
 // Only skip on exact (case-insensitive) title match. Unique variants like
 // "Vinterferieprogram: Bli kjent med havskilpadden" will still be captured.
@@ -156,7 +160,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				venue: 'Akvariet i Bergen',
 				category,
 				date: dateStart,
-				price: '',
+				price: ADMISSION_PRICE,
 			});
 
 			const ticketUrl = activity.detailUrl || `${BASE_URL}/kjop-billett?date=${dateStr}`;
@@ -171,7 +175,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				venue_name: 'Akvariet i Bergen',
 				address: 'Nordnesbakken 4, 5005 Bergen',
 				bydel: 'Bergenhus',
-				price: '',
+				price: ADMISSION_PRICE,
 				ticket_url: ticketUrl,
 				source: SOURCE,
 				source_url: sourceUrl,

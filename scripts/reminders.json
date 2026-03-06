@@ -51,6 +51,11 @@
     "description": "Søknad om deltakelse i Google EEA aggregator features (Things to do / events) ble sendt 6. mars 2026 via support.google.com/websearch/contact/search_dma. Google tar typisk 2-4 uker. Sjekk post@gaari.no for svar. Hvis ingen respons: vent ytterligere 2 uker og send eventuell oppfølging."
   },
   {
+    "date": "2027-03-01",
+    "title": "Sjekk hardkodede priser i scrapers",
+    "description": "Noen scrapers har hardkodede inngangspriser som kan ha endret seg. Verifiser: 1) Akvariet (akvariet.ts: ADMISSION_PRICE = '245–380 kr', sist sjekket mar 2026 — sjekk akvariet.no/kjop-billett). Legg til nye scrapers med hardkodet pris i denne listen etterhvert."
+  },
+  {
     "date": "2027-02-01",
     "title": "Oppdater Borealis-skraper for 2027",
     "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i scripts/scrapers/borealis.ts. Sjekk at /festival-2027/hva-skjer-2027/ finnes. Oppdater også startDate/endDate i FESTIVALS-arrayen i send-daily-digest.ts."
