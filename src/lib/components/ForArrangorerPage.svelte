@@ -140,9 +140,9 @@
 		</h1>
 		<p class="mx-auto mb-8 max-w-[640px] text-lg text-[var(--color-text-primary)]">
 			{#if $lang === 'no'}
-				Arrangementene dine når 10 000 bergensere som leter etter noe å gjøre — automatisk, daglig, gratis å prøve.
+				Arrangementene dine når 10 000 bergensere som leter etter noe å gjøre. Automatisk. Daglig. Gratis å prøve.
 			{:else}
-				Your events reach 10,000 people in Bergen looking for something to do — automatically, daily, free to try.
+				Your events reach 10,000 people in Bergen looking for something to do. Automatically. Daily. Free to try.
 			{/if}
 		</p>
 		<a
@@ -309,21 +309,21 @@
 		{#if $lang === 'no'}
 			<p>Et bytorg med tre boder er ikke et bytorg. Det er først når bredden er der — konserter, teater, matfestivaler, quizkvelder, gratisarrangementer — at folk begynner å sjekke innom som vane.</p>
 			<p>Gratis arrangementer trekker folk inn. Betalte arrangementer tjener på trafikken. Studenten som finner en gratis quizkveld i dag, kjøper konsertbillett neste uke. Uten det første besøket hadde det andre aldri skjedd.</p>
+			<p>Jo mer som er samlet på torget, jo flere grunner har folk til å komme tilbake.</p>
 			<blockquote class="my-2 border-l-4 border-[var(--funkis-red)] pl-5">
 			<p class="text-xl font-bold leading-snug font-[family-name:var(--font-display)]">
 				Jo oftere folk er innom, jo mer ser de av arrangementene dine.
 			</p>
 		</blockquote>
-		<p>Jo mer som er samlet på torget, jo flere grunner har folk til å komme tilbake. Jo oftere de kommer tilbake, jo mer ser de av dine arrangementer.</p>
 		{:else}
 			<p>A town square with three stalls isn't a town square. It's only when the breadth is there — concerts, theatre, food festivals, quiz nights, free events — that people start checking in as a habit.</p>
 			<p>Free events draw people in. Paid events benefit from the traffic. The student who finds a free quiz night today buys a concert ticket next week. Without the first visit, the second would never have happened.</p>
+			<p>The more that's gathered on the square, the more reasons people have to come back.</p>
 			<blockquote class="my-2 border-l-4 border-[var(--funkis-red)] pl-5">
 			<p class="text-xl font-bold leading-snug font-[family-name:var(--font-display)]">
 				The more often people visit, the more they see of your events.
 			</p>
 		</blockquote>
-		<p>The more that's gathered on the square, the more reasons people have to come back. The more often they come back, the more they see of your events.</p>
 		{/if}
 	</div>
 </section>
@@ -340,9 +340,9 @@
 			</h2>
 			<p class="mb-4 text-[var(--color-text-secondary)]">
 				{#if $lang === 'no'}
-					Norge er nummer 3 i verden for bruk av KI. Når noen i Bergen spør ChatGPT «hva skjer denne helgen?», jobber vi for at Gåri dukker opp som kilde — med utvalgte sider tilpasset det folk faktisk spør om.
+					Norge er nummer 3 i verden for bruk av KI. Når noen spør ChatGPT om hva som skjer i Bergen, jobber vi for at Gåri dukker opp som kilde. Vi har 13 utvalgte sider, hver tilpasset det folk faktisk spør om.
 				{:else}
-					Norway is number 3 in the world for AI usage. When someone in Bergen asks ChatGPT "what's on this weekend?", we work to make Gåri appear as a source — with curated pages optimized for what people actually ask about.
+					Norway is number 3 in the world for AI usage. When someone asks ChatGPT what's on in Bergen, we work to make Gåri appear as a source. We have 13 curated pages, each built around what people actually search for.
 				{/if}
 			</p>
 			<p class="mb-6 text-xs text-[var(--color-text-muted)]">
@@ -554,7 +554,7 @@
 				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Arrangementene dine i AI-svar' : 'Your events in AI answers'}</h3>
 				<p class="text-sm text-[var(--color-text-secondary)]">
 					{$lang === 'no'
-						? 'Vi optimaliserer for at Gåri skal dukke opp når folk spør ChatGPT om Bergen — en kanal de fleste arrangører ikke vet om ennå.'
+						? 'Gåri dukker opp når folk spør ChatGPT om hva som skjer i Bergen — en kanal de fleste arrangører ikke kjenner til ennå.'
 						: 'We optimize for Gåri to appear when people ask ChatGPT about Bergen — a channel most organizers don\'t know about yet.'}
 				</p>
 			</div>
@@ -576,8 +576,8 @@
 				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Tall på hva det ga deg' : 'Numbers on what it did for you'}</h3>
 				<p class="text-sm text-[var(--color-text-secondary)]">
 					{$lang === 'no'
-						? 'Månedlig rapport med klikk fra Gåri til nettsiden din, hvilke arrangementer som traff best, og AI-synlighetsdata.'
-						: 'Monthly report with clicks from Gåri to your website, which events performed best, and AI visibility data.'}
+						? 'Månedlig rapport: klikk fra Gåri til nettsiden din, hvilke arrangementer som traff best, og om du dukker opp i AI-søk.'
+						: 'Monthly report: clicks from Gåri to your website, which events performed best, and whether you show up in AI search.'}
 				</p>
 			</div>
 
