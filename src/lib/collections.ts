@@ -1810,14 +1810,16 @@ const collections: Collection[] = [
 				{ q: 'Hva kan man gjøre med barn i Bergen i høstferien?', a: 'Akvariet, VilVite, KODE og bibliotekene har spesielle aktiviteter. BIFF viser barnefilmer. Fløyen har turløyper med høstfarger.' },
 				{ q: 'Hva kan man gjøre i Bergen når det regner?', a: 'VilVite, Akvariet, KODE, Bergen Bibliotek og kinoer er gode innendørsalternativer. Sjekk Gåris regndagsguide for komplett oversikt.' },
 				{ q: 'Er det gratis aktiviteter i Bergen i høstferien?', a: 'Ja, Bergen Bibliotek har gratis verksteder, flere museer har gratis barnebillett, og Fløyen har gratis uteområder. BIFF har noen gratis visninger.' },
-				{ q: 'Hva er BIFF?', a: 'BIFF (Bergen Internasjonale Filmfestival) er Norges største filmfestival med 120–150 filmer over 9 dager i oktober. Inkluderer barnefilmer og familievisninger.' }
+				{ q: 'Hva er BIFF?', a: 'BIFF (Bergen Internasjonale Filmfestival) er Norges største filmfestival med 120–150 filmer over 9 dager i oktober. Inkluderer barnefilmer og familievisninger.' },
+				{ q: 'Hva gjør man i Bergen i høstferien?', a: 'Akvariet, VilVite og KODE er toppvalg. BIFF (Filmfestivalen) overlapper gjerne høstferien med barnefilmer. Fløyen har turløyper med spektakulære høstfarger — uke 41 er gjerne toppsesongen for løvfall.' }
 			],
 			en: [
 				{ q: 'When is autumn break in Bergen?', a: 'Vestland county has autumn break in week 41. Gåri updates this page with the correct dates each year.' },
 				{ q: 'What can families do in Bergen during autumn break?', a: "The Aquarium, VilVite, KODE and libraries have special activities. BIFF screens children's films. Fløyen has hiking trails with autumn colours." },
 				{ q: 'What to do in Bergen when it rains?', a: "VilVite, the Aquarium, KODE, Bergen Library and cinemas are good indoor options. Check Gåri's rainy day guide for a full list." },
 				{ q: 'Are there free autumn break activities in Bergen?', a: "Yes, Bergen Library has free workshops, several museums have free children's admission, and Fløyen has free outdoor areas. BIFF has some free screenings." },
-				{ q: 'What is BIFF?', a: "BIFF (Bergen International Film Festival) is Norway's largest film festival with 120–150 films over 9 days in October. Includes children's films and family screenings." }
+				{ q: 'What is BIFF?', a: "BIFF (Bergen International Film Festival) is Norway's largest film festival with 120–150 films over 9 days in October. Includes children's films and family screenings." },
+				{ q: 'What to do in Bergen during autumn half-term?', a: "The Aquarium, VilVite science centre and KODE art museums are top picks. BIFF (Bergen International Film Festival) often overlaps autumn break with children's screenings. Fløyen has spectacular autumn foliage in week 41." }
 			]
 		},
 		offSeasonHint: {
