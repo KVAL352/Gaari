@@ -33,6 +33,7 @@
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content={title} />
 	<meta name="twitter:description" content={ogDesc} />
+	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
 <ForArrangorerPage />

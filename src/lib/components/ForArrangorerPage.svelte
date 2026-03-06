@@ -641,37 +641,61 @@
 <!-- Early Bird + CTA -->
 <section bind:this={contactEl} id="contact" class="px-4 py-16 md:py-20" style="background-color: var(--funkis-red-subtle);">
 	<div class="mx-auto max-w-4xl">
-		<!-- Early bird header -->
+		<!-- Process header -->
 		<div class="mb-10 text-center">
 			<div class="mx-auto mb-4 h-1 w-16 rounded bg-[var(--funkis-red)]"></div>
 			<h2 class="mb-4 text-2xl font-bold text-[var(--funkis-iron)] font-[family-name:var(--font-display)] md:text-[32px]">
-				{$lang === 'no' ? '3 måneder gratis' : '3 months free'}
+				{$lang === 'no' ? 'Slik fungerer det' : 'How it works'}
 			</h2>
 			<p class="mx-auto max-w-[600px] text-[var(--funkis-steel)]">
 				{#if $lang === 'no'}
-					Vi leter etter de første arrangørene i Bergen som vil prøve dette. Start før 1. juni 2026 — full tilgang, ingen bindingstid.
+					Vi starter med en prat. Ingen salg, ingen bindinger — bare en samtale om arrangementene dine og hva Gåri faktisk kan gjøre for deg.
 				{:else}
-					We're looking for the first organizers in Bergen who want to try this. Start before June 1, 2026 — full access, no commitment.
+					We start with a conversation. No sales pitch, no commitment — just a chat about your events and what Gåri can actually do for you.
 				{/if}
 			</p>
 		</div>
 
-		<!-- Email option — equally prominent -->
-		<div class="mb-8 text-center">
-			<a
-				href="mailto:post@gaari.no?subject={$lang === 'no' ? 'Fremhevet synlighet på Gåri' : 'Promoted visibility on Gåri'}"
-				data-plausible-event="for-arrangorer-email-click"
-				onclick={() => trackEvent('for-arrangorer-email-click')}
-				class="inline-block rounded-xl bg-[var(--funkis-red)] px-8 py-3 text-base font-semibold text-white hover:opacity-90"
-				style="min-height: 44px; line-height: 24px;"
-			>
-				{$lang === 'no' ? 'Send e-post til post@gaari.no' : 'Email post@gaari.no'}
-			</a>
+		<!-- 3-step process -->
+		<div class="mb-10 grid gap-4 md:grid-cols-3">
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-5" style="box-shadow: var(--shadow-sm);">
+				<p class="mb-2 text-[28px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)]">1</p>
+				<h3 class="mb-1 text-sm font-bold">
+					{$lang === 'no' ? 'Ta kontakt' : 'Get in touch'}
+				</h3>
+				<p class="text-sm text-[var(--color-text-secondary)]">
+					{$lang === 'no'
+						? 'Send en melding her eller på e-post. Vi svarer innen én arbeidsdag.'
+						: 'Send a message here or by email. We reply within one working day.'}
+				</p>
+			</div>
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-5" style="box-shadow: var(--shadow-sm);">
+				<p class="mb-2 text-[28px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)]">2</p>
+				<h3 class="mb-1 text-sm font-bold">
+					{$lang === 'no' ? 'Vi har en prat' : 'We have a chat'}
+				</h3>
+				<p class="text-sm text-[var(--color-text-secondary)]">
+					{$lang === 'no'
+						? 'En kort samtale om arrangementene dine, målgruppen og hva som passer.'
+						: 'A short conversation about your events, your audience and what fits.'}
+				</p>
+			</div>
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-5" style="box-shadow: var(--shadow-sm);">
+				<p class="mb-2 text-[28px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)]">3</p>
+				<h3 class="mb-1 text-sm font-bold">
+					{$lang === 'no' ? 'Du får en rapport' : 'You get a report'}
+				</h3>
+				<p class="text-sm text-[var(--color-text-secondary)]">
+					{$lang === 'no'
+						? 'Vi sender deg data på dine arrangementer — klikk, synlighet, hvilke sider de passer på. Så velger du selv.'
+						: 'We send you data on your events — clicks, visibility, which pages they fit. Then you decide.'}
+				</p>
+			</div>
 		</div>
 
-		<!-- Divider — framing the form as a quick message -->
+		<!-- Divider — framing the form -->
 		<p class="mb-6 text-center text-sm text-[var(--funkis-granite)]">
-			{$lang === 'no' ? 'Eller send en rask melding:' : 'Or send a quick message:'}
+			{$lang === 'no' ? 'Send en rask melding — så tar vi det derfra:' : 'Send a quick message — we take it from there:'}
 		</p>
 
 		<!-- Contact form — lightweight feel -->
@@ -786,7 +810,7 @@
 		<!-- Social proof near form -->
 		<div class="mt-10 text-center">
 			<p class="mb-3 text-sm text-[var(--funkis-granite)]">
-				{$lang === 'no' ? 'Samler allerede fra 43 kilder i Bergen' : 'Already collecting from 43 sources in Bergen'}
+				{$lang === 'no' ? 'Samler allerede fra 53 kilder i Bergen' : 'Already collecting from 53 sources in Bergen'}
 			</p>
 			<div class="flex flex-wrap justify-center gap-1.5">
 				{#each venues.slice(0, 8) as venue (venue)}
