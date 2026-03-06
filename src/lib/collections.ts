@@ -890,14 +890,16 @@ const collections: Collection[] = [
 				{ q: 'Hvilke kulturarenaer er det på Bergenhus?', a: 'USF Verftet, Akvariet, Bryggens Museum, Håkonshallen, Rosenkrantztårnet, Nordnes Sjøbad og Gamle Bergen Museum ligger alle på Bergenhus.' },
 				{ q: 'Hva kan man gjøre på Nordnes?', a: 'Nordnes har USF Verftet med konserter og teater, Akvariet, Nordnes Sjøbad og flere gallerier. Sjøfrontpromenaden er populær for turer.' },
 				{ q: 'Er det familieaktiviteter på Bergenhus?', a: 'Akvariet har daglige aktiviteter for barn. Bryggens Museum og Gamle Bergen Museum har familieutstillinger. USF Verftet har jevnlig barneteater.' },
-				{ q: 'Hvordan kommer jeg meg til Bergenhus?', a: 'Bybanen stopper ved Byparken. Buss 3 og 4 går til Nordnes. Fra sentrum er det gangavstand langs sjøfronten til de fleste arenaene.' }
+				{ q: 'Hvordan kommer jeg meg til Bergenhus?', a: 'Bybanen stopper ved Byparken. Buss 3 og 4 går til Nordnes. Fra sentrum er det gangavstand langs sjøfronten til de fleste arenaene.' },
+				{ q: 'Er Bryggen på Bergenhus?', a: 'Ja, Bryggen — Bergens verdensarvliste-kai — ligger i Bergenhus bydel. Bryggens Museum er rett ved siden av. Bergenhus festning med Håkonshallen og Rosenkrantztårnet ligger også her.' }
 			],
 			en: [
 				{ q: 'What\'s on in Bergenhus?', a: 'Gåri shows all events in Bergenhus over the next two weeks — concerts, exhibitions, theatre and family activities from 53 local sources.' },
 				{ q: 'What cultural venues are in Bergenhus?', a: 'USF Verftet, the Aquarium, Bryggens Museum, Håkonshallen, Rosenkrantztårnet, Nordnes Sjøbad and Gamle Bergen Museum are all in Bergenhus.' },
 				{ q: 'What can you do on Nordnes?', a: 'Nordnes has USF Verftet with concerts and theatre, the Aquarium, Nordnes Sjøbad and several galleries. The waterfront promenade is popular for walks.' },
 				{ q: 'Are there family activities in Bergenhus?', a: 'The Aquarium has daily activities for children. Bryggens Museum and Gamle Bergen Museum have family exhibitions. USF Verftet regularly hosts children\'s theatre.' },
-				{ q: 'How do I get to Bergenhus?', a: 'The Bybanen tram stops at Byparken. Bus 3 and 4 go to Nordnes. From the city centre, most venues are within walking distance along the waterfront.' }
+				{ q: 'How do I get to Bergenhus?', a: 'The Bybanen tram stops at Byparken. Bus 3 and 4 go to Nordnes. From the city centre, most venues are within walking distance along the waterfront.' },
+				{ q: 'Is Bryggen in Bergenhus?', a: 'Yes, Bryggen — Bergen\'s UNESCO-listed wharf — is in Bergenhus district. Bryggens Museum is right next to it. Bergenhus Fortress with Håkonshallen and Rosenkrantztårnet is also here.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -950,14 +952,16 @@ const collections: Collection[] = [
 				{ q: 'Hva er Bergen Kjøtt?', a: 'Bergen Kjøtt er et uavhengig konsert- og kulturhus på Damsgård i Laksevåg. Programmet dekker rock, elektronika, eksperimentell musikk og kunstutstillinger.' },
 				{ q: 'Hvilke kulturarenaer er det i Laksevåg?', a: 'Bergen Kjøtt, Kulturhuset i Bergen (Hovedsalen og Lillesalen), Damsgård Hovedgård, Loddefjord bibliotek og GG Bergen.' },
 				{ q: 'Er det familieaktiviteter i Laksevåg?', a: 'Kulturhuset i Bergen har familieforestillinger og barneaktiviteter. Loddefjord bibliotek arrangerer eventyr og aktiviteter for barn.' },
-				{ q: 'Hvordan kommer jeg meg til Laksevåg?', a: 'Bybanen stopper ved flere holdeplasser i Laksevåg. Buss fra sentrum tar rundt ti minutter til Damsgård og Kulturhuset.' }
+				{ q: 'Hvordan kommer jeg meg til Laksevåg?', a: 'Bybanen stopper ved flere holdeplasser i Laksevåg. Buss fra sentrum tar rundt ti minutter til Damsgård og Kulturhuset.' },
+				{ q: 'Hva kan ungdom gjøre i Laksevåg?', a: 'GG Bergen i Laksevåg er et gamingsenter og møtested for unge. Bergen Kjøtt har konserter med varierende aldersgrenser. Kulturhuset i Bergen har jevnlig ungdomsforestillinger og aktiviteter.' }
 			],
 			en: [
 				{ q: 'What\'s on in Laksevåg?', a: 'Gåri shows all events in Laksevåg over the next two weeks — concerts at Bergen Kjøtt, culture at Kulturhuset and more from 53 local sources.' },
 				{ q: 'What is Bergen Kjøtt?', a: 'Bergen Kjøtt is an independent concert and culture venue on Damsgård in Laksevåg. The programme covers rock, electronic, experimental music and art exhibitions.' },
 				{ q: 'What cultural venues are in Laksevåg?', a: 'Bergen Kjøtt, Kulturhuset i Bergen (Hovedsalen and Lillesalen), Damsgård Hovedgård, Loddefjord library and GG Bergen.' },
 				{ q: 'Are there family activities in Laksevåg?', a: 'Kulturhuset i Bergen hosts family performances and children\'s activities. Loddefjord library arranges storytime and activities for children.' },
-				{ q: 'How do I get to Laksevåg?', a: 'The Bybanen tram has several stops in Laksevåg. Buses from the city centre take around ten minutes to Damsgård and Kulturhuset.' }
+				{ q: 'How do I get to Laksevåg?', a: 'The Bybanen tram has several stops in Laksevåg. Buses from the city centre take around ten minutes to Damsgård and Kulturhuset.' },
+				{ q: 'What is there for young people to do in Laksevåg?', a: 'GG Bergen in Laksevåg is a gaming centre and meeting point for young people. Bergen Kjøtt hosts concerts with varying age limits. Kulturhuset i Bergen regularly stages youth performances and activities.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -1010,14 +1014,16 @@ const collections: Collection[] = [
 				{ q: 'Hva er Fyllingsdalen Teater?', a: 'Fyllingsdalen Teater er et aktivt amatørteater med forestillinger for barn og voksne gjennom hele året.' },
 				{ q: 'Hvilke arenaer er det i Fyllingsdalen?', a: 'Fyllingsdalen Teater, Fyllingsdalen bibliotek og Fyllingsdalen Arena er bydelens viktigste kulturarenaer.' },
 				{ q: 'Er det familieaktiviteter i Fyllingsdalen?', a: 'Fyllingsdalen Teater har jevnlig barneforestillinger. Biblioteket arrangerer eventyr og aktiviteter for barn.' },
-				{ q: 'Hvordan kommer jeg meg til Fyllingsdalen?', a: 'Bybanen stopper ved Oasen og Fyllingsdalen. Buss fra sentrum tar rundt femten minutter.' }
+				{ q: 'Hvordan kommer jeg meg til Fyllingsdalen?', a: 'Bybanen stopper ved Oasen og Fyllingsdalen. Buss fra sentrum tar rundt femten minutter.' },
+				{ q: 'Er det gratis arrangementer i Fyllingsdalen?', a: 'Fyllingsdalen bibliotek har gratis foredrag og aktiviteter. Mange av Fyllingsdalen Teaters forestillinger har lave priser. Sjekk Gåri for gratis aktiviteter i Fyllingsdalen de neste to ukene.' }
 			],
 			en: [
 				{ q: 'What\'s on in Fyllingsdalen?', a: 'Gåri shows all events in Fyllingsdalen over the next two weeks — theatre, family shows and cultural events from 53 local sources.' },
 				{ q: 'What is Fyllingsdalen Teater?', a: 'Fyllingsdalen Teater is an active amateur theatre with performances for children and adults year-round.' },
 				{ q: 'What venues are in Fyllingsdalen?', a: 'Fyllingsdalen Teater, Fyllingsdalen library and Fyllingsdalen Arena are the district\'s main cultural venues.' },
 				{ q: 'Are there family activities in Fyllingsdalen?', a: 'Fyllingsdalen Teater regularly hosts children\'s performances. The library arranges storytime and activities for children.' },
-				{ q: 'How do I get to Fyllingsdalen?', a: 'The Bybanen tram stops at Oasen and Fyllingsdalen. Buses from the city centre take around fifteen minutes.' }
+				{ q: 'How do I get to Fyllingsdalen?', a: 'The Bybanen tram stops at Oasen and Fyllingsdalen. Buses from the city centre take around fifteen minutes.' },
+				{ q: 'Are there free events in Fyllingsdalen?', a: 'Fyllingsdalen library hosts free talks and activities. Many Fyllingsdalen Teater performances are affordably priced. Check Gåri for free activities in Fyllingsdalen over the next two weeks.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -1070,14 +1076,16 @@ const collections: Collection[] = [
 				{ q: 'Hva er Åsane kulturhus?', a: 'Åsane kulturhus er bydelens viktigste kulturarena med konserter, teater og familieforestillinger gjennom hele året.' },
 				{ q: 'Hvilke arenaer er det i Åsane?', a: 'Åsane kulturhus og Åsane bibliotek er bydelens viktigste kulturarenaer.' },
 				{ q: 'Er det familieaktiviteter i Åsane?', a: 'Åsane kulturhus har familieforestillinger. Biblioteket arrangerer eventyr og aktiviteter for barn.' },
-				{ q: 'Hvordan kommer jeg meg til Åsane?', a: 'Buss fra sentrum tar rundt tjue minutter. Åsane Senter har god parkering.' }
+				{ q: 'Hvordan kommer jeg meg til Åsane?', a: 'Buss fra sentrum tar rundt tjue minutter. Åsane Senter har god parkering.' },
+				{ q: 'Er Åsane et godt sted for familier?', a: 'Åsane er en av Bergens mest familievennlige bydeler med gode skoler og nærhet til natur. Åsane kulturhus og biblioteket tilbyr jevnlig aktiviteter for barn og familier gjennom hele året.' }
 			],
 			en: [
 				{ q: 'What\'s on in Åsane?', a: 'Gåri shows all events in Åsane over the next two weeks — concerts, family shows and cultural events from 53 local sources.' },
 				{ q: 'What is Åsane kulturhus?', a: 'Åsane kulturhus is the district\'s main cultural venue with concerts, theatre and family performances year-round.' },
 				{ q: 'What venues are in Åsane?', a: 'Åsane kulturhus and Åsane library are the district\'s main cultural venues.' },
 				{ q: 'Are there family activities in Åsane?', a: 'Åsane kulturhus hosts family performances. The library arranges storytime and activities for children.' },
-				{ q: 'How do I get to Åsane?', a: 'Buses from the city centre take around twenty minutes. Åsane Senter has good parking.' }
+				{ q: 'How do I get to Åsane?', a: 'Buses from the city centre take around twenty minutes. Åsane Senter has good parking.' },
+				{ q: 'Is Åsane a good place for families?', a: "Åsane is one of Bergen's most family-friendly districts, with good schools and proximity to nature. Åsane kulturhus and the library offer regular activities for children and families throughout the year." }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -1130,14 +1138,16 @@ const collections: Collection[] = [
 				{ q: 'Hva er Troldhaugen?', a: 'Troldhaugen er Edvard Griegs hjem ved Nordåsvannet i Fana. Sommerkonserter i Troldsalen, museum og hage er åpne for besøkende.' },
 				{ q: 'Hvilke arenaer er det i Fana?', a: 'Troldhaugen, Hordamuseet, Siljustøl (Harald Sæveruds hjem), Fana kulturhus og Fana bibliotek.' },
 				{ q: 'Er det familieaktiviteter i Fana?', a: 'Troldhaugen og Hordamuseet har familievennlige utstillinger. Fana bibliotek arrangerer aktiviteter for barn.' },
-				{ q: 'Hvordan kommer jeg meg til Fana?', a: 'Bybanen stopper ved Paradis, nær Troldhaugen og Hordamuseet. Buss fra sentrum tar rundt femten minutter.' }
+				{ q: 'Hvordan kommer jeg meg til Fana?', a: 'Bybanen stopper ved Paradis, nær Troldhaugen og Hordamuseet. Buss fra sentrum tar rundt femten minutter.' },
+				{ q: 'Er Troldhaugen verdt et besøk?', a: 'Absolutt. Troldhaugen er et av Norges mest besøkte kulturminner. Edvard Griegs komponisthus og museum er åpent for besøkende, og Troldsalen holder sommerkonserter med Bergen Filharmoniske Orkester.' }
 			],
 			en: [
 				{ q: 'What\'s on in Fana?', a: 'Gåri shows all events in Fana over the next two weeks — concerts at Troldhaugen, exhibitions at Hordamuseet and more from 53 local sources.' },
 				{ q: 'What is Troldhaugen?', a: 'Troldhaugen is Edvard Grieg\'s home by Nordåsvannet in Fana. Summer concerts in Troldsalen, museum and garden are open to visitors.' },
 				{ q: 'What venues are in Fana?', a: 'Troldhaugen, Hordamuseet, Siljustøl (Harald Sæverud\'s home), Fana kulturhus and Fana library.' },
 				{ q: 'Are there family activities in Fana?', a: 'Troldhaugen and Hordamuseet have family-friendly exhibitions. Fana library arranges activities for children.' },
-				{ q: 'How do I get to Fana?', a: 'The Bybanen tram stops at Paradis, near Troldhaugen and Hordamuseet. Buses from the city centre take around fifteen minutes.' }
+				{ q: 'How do I get to Fana?', a: 'The Bybanen tram stops at Paradis, near Troldhaugen and Hordamuseet. Buses from the city centre take around fifteen minutes.' },
+				{ q: 'Is Troldhaugen worth visiting?', a: "Absolutely. Troldhaugen is one of Norway's most visited cultural landmarks. Edvard Grieg's composer home and museum are open to visitors, and Troldsalen hosts summer concerts with the Bergen Philharmonic Orchestra." }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -1190,14 +1200,16 @@ const collections: Collection[] = [
 				{ q: 'Hvilke arenaer er det i Ytrebygda?', a: 'Ytrebygda kultursenter og Lagunen Storsenter er bydelens viktigste samlingspunkter.' },
 				{ q: 'Er det familieaktiviteter i Ytrebygda?', a: 'Ytrebygda kultursenter har jevnlig arrangementer for familier. Lagunen har aktiviteter for barn i ferier.' },
 				{ q: 'Hvordan kommer jeg meg til Ytrebygda?', a: 'Bybanen stopper ved Lagunen. Buss fra sentrum tar rundt tjue minutter.' },
-				{ q: 'Ligger Bergen lufthavn i Ytrebygda?', a: 'Ja, Bergen lufthavn Flesland ligger i Ytrebygda. Bybanen går direkte fra sentrum til flyplassen.' }
+				{ q: 'Ligger Bergen lufthavn i Ytrebygda?', a: 'Ja, Bergen lufthavn Flesland ligger i Ytrebygda. Bybanen går direkte fra sentrum til flyplassen.' },
+				{ q: 'Hva er det å gjøre i Ytrebygda for besøkende?', a: 'Ytrebygda har Lagunen Storsenter og naturskjønne omgivelser. Bybanen gjør det enkelt å reise mellom Bergen sentrum og Flesland via Ytrebygda. Ytrebygda kultursenter har jevnlig kulturarrangementer.' }
 			],
 			en: [
 				{ q: 'What\'s on in Ytrebygda?', a: 'Gåri shows all events in Ytrebygda over the next two weeks — cultural events and activities from 53 local sources.' },
 				{ q: 'What venues are in Ytrebygda?', a: 'Ytrebygda kultursenter and Lagunen Storsenter are the district\'s main gathering points.' },
 				{ q: 'Are there family activities in Ytrebygda?', a: 'Ytrebygda kultursenter regularly hosts events for families. Lagunen has children\'s activities during holidays.' },
 				{ q: 'How do I get to Ytrebygda?', a: 'The Bybanen tram stops at Lagunen. Buses from the city centre take around twenty minutes.' },
-				{ q: 'Is Bergen Airport in Ytrebygda?', a: 'Yes, Bergen Airport Flesland is in Ytrebygda. The Bybanen tram runs directly from the city centre to the airport.' }
+				{ q: 'Is Bergen Airport in Ytrebygda?', a: 'Yes, Bergen Airport Flesland is in Ytrebygda. The Bybanen tram runs directly from the city centre to the airport.' },
+				{ q: 'What is there to do in Ytrebygda for visitors?', a: 'Ytrebygda has Lagunen Storsenter and scenic surroundings. The Bybanen makes it easy to travel between Bergen city centre and Flesland airport via Ytrebygda. Ytrebygda kultursenter hosts regular cultural events.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -1250,14 +1262,16 @@ const collections: Collection[] = [
 				{ q: 'Hvilke arenaer er det i Arna?', a: 'Ytre Arna bibliotek og lokale kulturarenaer er bydelens viktigste samlingspunkter.' },
 				{ q: 'Er det familieaktiviteter i Arna?', a: 'Ytre Arna bibliotek arrangerer aktiviteter for barn. Bydelen har gode turmuligheter for familier.' },
 				{ q: 'Hvordan kommer jeg meg til Arna?', a: 'Tog fra Bergen stasjon tar bare ti minutter til Arna stasjon. Buss fra sentrum er også tilgjengelig.' },
-				{ q: 'Er Arna bra for friluftsliv?', a: 'Arna har god tilgang til fjell og turløyper. Bydelen er et populært utgangspunkt for turer i nærfjellene.' }
+				{ q: 'Er Arna bra for friluftsliv?', a: 'Arna har god tilgang til fjell og turløyper. Bydelen er et populært utgangspunkt for turer i nærfjellene.' },
+				{ q: 'Hva er Arna kjent for?', a: 'Arna er kjent for natur, industrihistorie og det lokale bydelsmiljøet rundt Arna stasjon. Ytre Arna er bydelens kulturelle hjerte. Bydelen er et populært utgangspunkt for turer til Arnanipa og nærfjellet.' }
 			],
 			en: [
 				{ q: 'What\'s on in Arna?', a: 'Gåri shows all events in Arna over the next two weeks — cultural events and activities from 53 local sources.' },
 				{ q: 'What venues are in Arna?', a: 'Ytre Arna library and local cultural venues are the district\'s main gathering points.' },
 				{ q: 'Are there family activities in Arna?', a: 'Ytre Arna library arranges activities for children. The district has good hiking options for families.' },
 				{ q: 'How do I get to Arna?', a: 'Trains from Bergen station take just ten minutes to Arna station. Buses from the city centre are also available.' },
-				{ q: 'Is Arna good for outdoor activities?', a: 'Arna has great access to mountains and hiking trails. The district is a popular starting point for hikes in the surrounding mountains.' }
+				{ q: 'Is Arna good for outdoor activities?', a: 'Arna has great access to mountains and hiking trails. The district is a popular starting point for hikes in the surrounding mountains.' },
+				{ q: 'What is Arna known for?', a: 'Arna is known for nature, industrial history and its local community around Arna station. Ytre Arna is the cultural heart of the district and a popular starting point for hikes to Arnanipa and the surrounding mountains.' }
 			]
 		},
 		filterEvents: (events, now) => {
