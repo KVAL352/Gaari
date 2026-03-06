@@ -50,6 +50,8 @@ function parsePrice(price: string | null): string {
 
 function getImageUrl(topImage: { id: string } | null): string | undefined {
 	if (!topImage || !topImage.id) return undefined;
+	// id may be a full URL (Firebase Storage) or a Directus asset ID
+	if (topImage.id.startsWith('http')) return topImage.id;
 	return `https://kvarteret.no/assets/${topImage.id}`;
 }
 
