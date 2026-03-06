@@ -94,7 +94,7 @@ async function fetchDetail(url: string): Promise<DetailData | null> {
 
 	const $ = cheerio.load(html);
 
-	// Price detection: is-no-price → salesprice inputs → description text
+	// Price detection: is-no-price → salesprice inputs → page text fallback
 	const isNoPrice = ($('#is-no-price').val() as string || '').toLowerCase() === 'true';
 	let price = '';
 	if (isNoPrice) {
@@ -110,6 +110,11 @@ async function fetchDetail(url: string): Promise<DetailData | null> {
 			const min = Math.min(...prices);
 			const max = Math.max(...prices);
 			price = min === max ? `${min} kr` : `${min}–${max} kr`;
+		} else {
+			// Fallback: check visible price/ticket area text for "gratis"
+			const priceAreaText = ($('.ticket-information, .price-info, .event-price, .billett-info').text()
+				|| $('body').text()).toLowerCase();
+			if (/\bgratis\b/.test(priceAreaText)) price = 'Gratis';
 		}
 	}
 
