@@ -214,14 +214,16 @@ const collections: Collection[] = [
 				{ q: 'Er det konserter i Bergen i kveld?', a: 'Sjekk Gåri for alle livekonserter og musikkshow i Bergen i kveld, med lenker direkte til billettsider.' },
 				{ q: 'Hva kan man gjøre i Bergen på kvelden?', a: 'Bergen har jevnlig konserter, teaterforestillinger, quiz-kvelder og kulturarrangementer på kveldstid — også på hverdager.' },
 				{ q: 'Når starter de fleste kveldsarrangementer i Bergen?', a: 'De fleste konserter og forestillinger i Bergen starter mellom klokken 19 og 21. Nattarrangementer og uteliv starter typisk fra klokken 22. Bruk tidsfilteret for å finne riktig tidspunkt.' },
-				{ q: 'Er det noe å gjøre i Bergen på en hverdagskveld?', a: 'Bergen har kulturarrangementer hver ukedag. DNS, BIT Teatergarasjen og Cornerteateret spiller forestillinger mandag til fredag. Kvarteret og studentscenen er aktive fra torsdag.' }
+				{ q: 'Er det noe å gjøre i Bergen på en hverdagskveld?', a: 'Bergen har kulturarrangementer hver ukedag. DNS, BIT Teatergarasjen og Cornerteateret spiller forestillinger mandag til fredag. Kvarteret og studentscenen er aktive fra torsdag.' },
+				{ q: 'Er det noe å gjøre i Bergen sent på kvelden?', a: 'Bergen har uteliv og nattarrangementer fra klokken 22 og utover. Kvarteret, Hulen og Madam Felle har arrangementer til midnatt og senere. Bruk tidsfilteret på Gåri for å finne sene kveldsarrangementer.' }
 			],
 			en: [
 				{ q: "What's on in Bergen tonight?", a: 'Gåri shows all evening events in Bergen tonight — concerts, theatre, nightlife and more. Updated daily.' },
 				{ q: 'Are there concerts in Bergen tonight?', a: 'Check Gåri for all live concerts and music shows in Bergen tonight, with direct links to ticket pages.' },
 				{ q: 'What can I do in Bergen in the evening?', a: 'Bergen has regular concerts, theatre, quiz nights and cultural events in the evenings — including weekdays.' },
 				{ q: 'What time do most evening events start in Bergen?', a: 'Most concerts and performances in Bergen start between 19:00 and 21:00. Late-night events and nightlife typically begin from 22:00. Use the time filter to find the right slot.' },
-				{ q: 'Is there anything to do in Bergen on a weekday evening?', a: 'Bergen has cultural events every weeknight. DNS, BIT Teatergarasjen and Cornerteateret run performances Monday to Friday. Kvarteret and the student scene are active from Thursday onwards.' }
+				{ q: 'Is there anything to do in Bergen on a weekday evening?', a: 'Bergen has cultural events every weeknight. DNS, BIT Teatergarasjen and Cornerteateret run performances Monday to Friday. Kvarteret and the student scene are active from Thursday onwards.' },
+				{ q: 'Is there anything to do late at night in Bergen?', a: 'Bergen has nightlife and late events from 22:00 onwards. Kvarteret, Hulen and Madam Felle have events running to midnight and beyond. Use the time filter on Gåri to find late evening events.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -358,8 +360,8 @@ const collections: Collection[] = [
 			en: 'Family Weekend in Bergen'
 		},
 		description: {
-			no: 'Helgens arrangementer for barn og familier i Bergen.',
-			en: "This weekend's events for kids and families in Bergen."
+			no: 'Hva gjøre med barn i Bergen denne helgen? Barneforestillinger, museumsaktiviteter og familieopplevelser.',
+			en: 'Things to do with kids in Bergen this weekend — children\'s shows, museum activities and family experiences.'
 		},
 		ogSubtitle: {
 			no: 'For hele familien',
@@ -391,14 +393,16 @@ const collections: Collection[] = [
 				{ q: 'Er det barneforestillinger i Bergen denne helgen?', a: 'Sjekk Gåris familiehelg-side for alle barneforestillinger, aktiviteter og familievennlige arrangementer i Bergen.' },
 				{ q: 'Hva koster familieaktiviteter i Bergen?', a: 'Bergen har mange gratis familiearrangementer. Gåri viser pris for alle arrangementer — sjekk alltid hos arrangøren.' },
 				{ q: 'Hva kan man gjøre med barn i Bergen når det regner?', a: 'Akvariet, VilVite, KODE og Bergen Bibliotek er gode innendørsvalg for familier. Sjekk Gåris regnværsguide for innendørsarrangementer denne helgen.' },
-				{ q: 'Er det arrangementer for små barn i Bergen?', a: 'Bergen Bibliotek har lesestunder for de minste. Akvariet har daglige aktiviteter. DNS og Kulturhuset har barneforestillinger med aldersanbefaling fra 3 år.' }
+				{ q: 'Er det arrangementer for små barn i Bergen?', a: 'Bergen Bibliotek har lesestunder for de minste. Akvariet har daglige aktiviteter. DNS og Kulturhuset har barneforestillinger med aldersanbefaling fra 3 år.' },
+				{ q: 'Hva er de beste familieopplevelsene i Bergen?', a: 'Akvariet er Norges mest besøkte attraksjon. VilVite er et interaktivt vitensenter for barn. KODE og Bymuseet har familievennlige utstillinger. Fløybanen er populær for barn. Bergen Bibliotek har gratis aktiviteter for de minste.' }
 			],
 			en: [
 				{ q: 'What can families do in Bergen this weekend?', a: 'Gåri shows all family events in Bergen this weekend — children\'s shows, museum activities, outdoor activities and more.' },
 				{ q: "Are there children's shows in Bergen this weekend?", a: "Check Gåri's family weekend page for all children's performances, activities and family-friendly events in Bergen." },
 				{ q: 'How much do family activities in Bergen cost?', a: 'Bergen has many free family events. Gåri shows the price for all events — always verify with the organiser.' },
 				{ q: 'What can you do with kids in Bergen when it rains?', a: 'The Aquarium, VilVite science centre, KODE and Bergen Library are popular indoor options for families. Check Gåri\'s rainy day guide for indoor events this weekend.' },
-				{ q: 'Are there events for toddlers in Bergen?', a: 'Bergen Library runs story time for young children. The Aquarium has daily activities. DNS and Kulturhuset have children\'s shows recommended from age 3.' }
+				{ q: 'Are there events for toddlers in Bergen?', a: 'Bergen Library runs story time for young children. The Aquarium has daily activities. DNS and Kulturhuset have children\'s shows recommended from age 3.' },
+				{ q: 'What are the best family experiences in Bergen?', a: "Bergen Aquarium is Norway's most visited attraction. VilVite is an interactive science centre for children. KODE has family-friendly exhibitions. The Fløibanen funicular is popular with children of all ages. Bergen Library has free activities for young children." }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -451,14 +455,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor kjøper jeg konsertbilletter i Bergen?', a: 'Gåri lenker direkte til billettsidene for alle konserter i Bergen. Klikk på arrangementet for kjøpslenke.' },
 				{ q: 'Er det gratis konserter i Bergen denne uken?', a: 'Bergen har jevnlig gratis konserter på bibliotek, i parker og på kulturhus. Sjekk Gåris gratis-side for oversikt.' },
 				{ q: 'Hvilke konsertscener har Bergen?', a: 'Grieghallen (klassisk), Ole Bull og Forum Scene (pop/rock), USF Verftet og Kulturhuset (alternativt), Hulen og Kvarteret (studenter). Totalt har Bergen over 20 konsertscener.' },
-				{ q: 'Når er konsertsesongen i Bergen?', a: 'Bergen har konserter hele året. Sommeren har festivaler som Bergenfest og Festspillene. Høst og vår har tett program på innendørsscenene. Desember har julekonserter.' }
+				{ q: 'Når er konsertsesongen i Bergen?', a: 'Bergen har konserter hele året. Sommeren har festivaler som Bergenfest og Festspillene. Høst og vår har tett program på innendørsscenene. Desember har julekonserter.' },
+				{ q: 'Hva er den beste konsertscenen i Bergen?', a: 'Det avhenger av sjanger. Grieghallen er best for klassisk musikk og store navn. Ole Bull og Forum Scene dominerer pop og rock. USF Verftet er kjent for alternativt og eksperimentelt. Hulen er legendarisk for rock og metal.' }
 			],
 			en: [
 				{ q: 'What concerts are on in Bergen this week?', a: 'Gåri collects all concerts and live music events in Bergen this week from 53 local sources. Updated daily.' },
 				{ q: 'Where can I buy concert tickets in Bergen?', a: 'Gåri links directly to the ticket pages for all concerts in Bergen. Click any event to find the purchase link.' },
 				{ q: 'Are there free concerts in Bergen this week?', a: 'Bergen regularly has free concerts in libraries, parks and cultural venues. Check Gåri\'s free events page for listings.' },
 				{ q: 'What are the main concert venues in Bergen?', a: 'Grieghallen (classical), Ole Bull and Forum Scene (pop/rock), USF Verftet and Kulturhuset (alternative), Hulen and Kvarteret (students). Bergen has over 20 concert venues in total.' },
-				{ q: 'When is concert season in Bergen?', a: 'Bergen has concerts year-round. Summer brings festivals like Bergenfest and Festspillene. Autumn and spring have packed indoor programmes. December features Christmas concerts.' }
+				{ q: 'When is concert season in Bergen?', a: 'Bergen has concerts year-round. Summer brings festivals like Bergenfest and Festspillene. Autumn and spring have packed indoor programmes. December features Christmas concerts.' },
+				{ q: 'What is the best concert venue in Bergen?', a: 'It depends on the genre. Grieghallen is best for classical music and big names. Ole Bull and Forum Scene dominate pop and rock. USF Verftet is known for alternative and experimental music. Hulen is legendary for rock and metal.' }
 			]
 		},
 		filterEvents: (events, now) => {
