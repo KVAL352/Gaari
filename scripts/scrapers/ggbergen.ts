@@ -367,7 +367,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				ticket_url: WEBSITE,
 				source: SOURCE,
 				source_url: sourceUrl,
-				image_url: 'https://ggbergen.org/logo-text.png',
+				image_url: 'https://ggbergen.org/logo.png',
 				age_group: ageGroup,
 				language: 'no',
 				status: 'approved',

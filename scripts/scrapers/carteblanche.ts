@@ -142,6 +142,16 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			: title.toLowerCase().includes('familie') ? 'family'
 			: 'theatre';
 
+		// Fetch og:image from detail page
+		let imageUrl: string | undefined;
+		if (detailUrl) {
+			const detailHtml = await fetchHTML(detailUrl);
+			if (detailHtml) {
+				const $d = cheerio.load(detailHtml);
+				imageUrl = $d('meta[property="og:image"]').attr('content') || undefined;
+			}
+		}
+
 		const aiDesc = await generateDescription({ title: `Carte Blanche: ${title}`, venue: location || 'Studio Bergen', category, date: startDate, price: '' });
 
 		const success = await insertEvent({
@@ -159,7 +169,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: ticketUrl || sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
-			image_url: undefined,
+			image_url: imageUrl,
 			age_group: category === 'family' ? 'family' : 'all',
 			language: 'no',
 			status: 'approved',
