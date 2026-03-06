@@ -32,6 +32,10 @@
 			b.push('cancelled');
 			return b;
 		}
+		if (event.is_sold_out) {
+			b.push('soldout');
+			return b;
+		}
 		// String comparison — no Date allocations per card
 		if (event.date_start.slice(0, 10) === todayStr) {
 			b.push('today');

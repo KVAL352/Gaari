@@ -41,6 +41,7 @@ export interface GaariEvent {
 	age_group: AgeGroup;
 	language: EventLanguage;
 	status: EventStatus;
+	is_sold_out?: boolean;
 }
 
 export interface FilterState {
