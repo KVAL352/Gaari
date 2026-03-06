@@ -593,7 +593,7 @@
 					{$lang === 'no' ? 'Bilde (valgfritt)' : 'Image (optional)'}
 				</p>
 				<p class="mb-2 text-xs text-[var(--color-text-muted)]">
-					{$lang === 'no' ? 'Anbefalt: liggende format (16:9). Min 800px bredde, maks 5 MB. Bilder skaleres automatisk.' : 'Recommended: landscape (16:9). Min 800px wide, max 5 MB. Images are auto-resized.'}
+					{$lang === 'no' ? 'Anbefalt: liggende format (16:9). Min 800px bredde, maks 10 MB. Bilder skaleres automatisk.' : 'Recommended: landscape (16:9). Min 800px wide, max 10 MB. Images are auto-resized.'}
 				</p>
 				{#if imagePreview}
 					<div class="relative mb-2">
@@ -620,7 +620,7 @@
 						<span class="text-sm text-[var(--color-text-secondary)]">
 							{$lang === 'no' ? 'Klikk for å laste opp bilde' : 'Click to upload image'}
 						</span>
-						<span class="text-xs text-[var(--color-text-muted)]">JPG, PNG, WebP — maks 5 MB</span>
+						<span class="text-xs text-[var(--color-text-muted)]">JPG, PNG, WebP — maks 10 MB</span>
 						<input
 							type="file"
 							accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp,.heic,.heif"
