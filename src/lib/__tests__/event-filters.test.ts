@@ -51,6 +51,24 @@ describe('matchesTimeOfDay', () => {
 	it('returns false for unknown time-of-day value', () => {
 		expect(matchesTimeOfDay('2026-01-15T08:00:00Z', ['afternoon'])).toBe(false);
 	});
+
+	it('classifies latenight (20:00+)', () => {
+		// 19:00 UTC in winter = 20:00 Oslo — latenight starts at 20
+		expect(matchesTimeOfDay('2026-01-15T19:00:00Z', ['latenight'])).toBe(true);
+		// 18:00 UTC in winter = 19:00 Oslo — too early for latenight
+		expect(matchesTimeOfDay('2026-01-15T18:00:00Z', ['latenight'])).toBe(false);
+		// 22:00 UTC in winter = 23:00 Oslo — also latenight
+		expect(matchesTimeOfDay('2026-01-15T22:00:00Z', ['latenight'])).toBe(true);
+		// 03:00 UTC in winter = 04:00 Oslo (early morning, wraps into latenight)
+		expect(matchesTimeOfDay('2026-01-15T03:00:00Z', ['latenight'])).toBe(true);
+	});
+
+	it('classifies latenight in summer (CEST, UTC+2)', () => {
+		// 18:00 UTC in summer = 20:00 Oslo — latenight
+		expect(matchesTimeOfDay('2026-07-15T18:00:00Z', ['latenight'])).toBe(true);
+		// 17:00 UTC in summer = 19:00 Oslo — too early
+		expect(matchesTimeOfDay('2026-07-15T17:00:00Z', ['latenight'])).toBe(false);
+	});
 });
 
 describe('getWeekendDates', () => {

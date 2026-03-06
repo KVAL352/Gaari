@@ -168,7 +168,8 @@
 		{ value: 'morning' as TimeOfDay, labelKey: 'morning' as const },
 		{ value: 'daytime' as TimeOfDay, labelKey: 'daytime' as const },
 		{ value: 'evening' as TimeOfDay, labelKey: 'evening' as const },
-		{ value: 'night' as TimeOfDay, labelKey: 'night' as const }
+		{ value: 'night' as TimeOfDay, labelKey: 'night' as const },
+		{ value: 'latenight' as TimeOfDay, labelKey: 'latenight' as const }
 	];
 
 	let selectedTimes = $derived(time ? time.split(',') as TimeOfDay[] : []);
@@ -265,7 +266,7 @@
 		if (time) {
 			const timeLabelMap: Record<string, string> = {
 				morning: $t('morning'), daytime: $t('daytime'),
-				evening: $t('evening'), night: $t('night')
+				evening: $t('evening'), night: $t('night'), latenight: $t('latenight')
 			};
 			chips.push({
 				label: selectedTimes.map(tv => timeLabelMap[tv] || tv).join(', '),

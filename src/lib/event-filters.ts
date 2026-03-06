@@ -119,6 +119,8 @@ export function matchesTimeOfDay(dateStart: string, times: string[]): boolean {
 				return osloHour >= 17 && osloHour < 22;
 			case 'night':
 				return osloHour >= 22 || osloHour < 6;
+			case 'latenight':
+				return osloHour >= 20 || osloHour < 6;
 			default:
 				return false;
 		}
