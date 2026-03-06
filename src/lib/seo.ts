@@ -169,9 +169,22 @@ export function generateEventJsonLd(
 	if (isFreeEvent(event.price)) {
 		offers.price = '0';
 		offers.priceCurrency = 'NOK';
-	} else if (typeof event.price === 'number' || (typeof event.price === 'string' && !isNaN(Number(event.price)) && event.price !== '')) {
+	} else if (typeof event.price === 'number') {
 		offers.price = String(event.price);
 		offers.priceCurrency = 'NOK';
+	} else if (typeof event.price === 'string' && event.price !== '') {
+		if (!isNaN(Number(event.price))) {
+			// Pure numeric string e.g. "250"
+			offers.price = event.price;
+			offers.priceCurrency = 'NOK';
+		} else {
+			// Norwegian price string e.g. "250 kr", "fra 250,-", "300-500 kr"
+			const match = event.price.match(/(\d+)/);
+			if (match) {
+				offers.price = match[1];
+				offers.priceCurrency = 'NOK';
+			}
+		}
 	}
 
 	const inLanguage = event.language === 'both'

@@ -89,7 +89,7 @@ describe('generateEventJsonLd', () => {
 		expect(data.name).toBe('Test Event');
 	});
 
-	it('does not include priceCurrency when price is unknown string', () => {
+	it('does not include priceCurrency when price has no numeric value', () => {
 		const json = generateEventJsonLd(
 			makeEvent({ price: 'Se arrangør' }),
 			'no',
@@ -97,6 +97,39 @@ describe('generateEventJsonLd', () => {
 		);
 		const data = JSON.parse(json);
 		expect(data.offers.priceCurrency).toBeUndefined();
+	});
+
+	it('extracts price and NOK from Norwegian price string "250 kr"', () => {
+		const json = generateEventJsonLd(
+			makeEvent({ price: '250 kr' }),
+			'no',
+			'https://gaari.no/no/events/test'
+		);
+		const data = JSON.parse(json);
+		expect(data.offers.price).toBe('250');
+		expect(data.offers.priceCurrency).toBe('NOK');
+	});
+
+	it('extracts minimum price from range "300-500 kr"', () => {
+		const json = generateEventJsonLd(
+			makeEvent({ price: '300-500 kr' }),
+			'no',
+			'https://gaari.no/no/events/test'
+		);
+		const data = JSON.parse(json);
+		expect(data.offers.price).toBe('300');
+		expect(data.offers.priceCurrency).toBe('NOK');
+	});
+
+	it('extracts price from "fra 200,-"', () => {
+		const json = generateEventJsonLd(
+			makeEvent({ price: 'fra 200,-' }),
+			'no',
+			'https://gaari.no/no/events/test'
+		);
+		const data = JSON.parse(json);
+		expect(data.offers.price).toBe('200');
+		expect(data.offers.priceCurrency).toBe('NOK');
 	});
 });
 
