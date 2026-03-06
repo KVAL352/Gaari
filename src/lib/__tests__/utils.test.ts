@@ -83,6 +83,15 @@ describe('formatPrice', () => {
 		expect(formatPrice('399 kr', 'en')).toBe('from 399 kr');
 	});
 
+	it('adds "fra" prefix for Norwegian "X,-" price format', () => {
+		expect(formatPrice('200,-', 'no')).toBe('fra 200,-');
+		expect(formatPrice('200,-', 'en')).toBe('from 200,-');
+	});
+
+	it('adds "fra" prefix for "X NOK" format', () => {
+		expect(formatPrice('250 NOK', 'no')).toBe('fra 250 NOK');
+	});
+
 	it('returns ranges and tiers as-is', () => {
 		expect(formatPrice('200–400 kr', 'no')).toBe('200–400 kr');
 		expect(formatPrice('200 / Gratis', 'no')).toBe('200 / Gratis');

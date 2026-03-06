@@ -59,9 +59,9 @@ export function formatPrice(price: string | number | null, locale: 'no' | 'en' =
 		return locale === 'no' ? 'Se pris' : 'See price';
 	}
 	if (typeof price === 'string' && isNaN(Number(price))) {
-		// Already formatted strings (ranges, tiers) — add "fra" if it's a simple "X kr" format
-		const simpleKr = price.match(/^(\d+)\s*kr$/i);
-		if (simpleKr) {
+		// Single price (no range) — add "fra" prefix. Covers "X kr", "X,-", "X,00", "X NOK" etc.
+		const simplePrice = price.match(/^(\d+)([,.][-\d0]*)?\s*(kr|nok)?$/i);
+		if (simplePrice) {
 			return locale === 'no' ? `fra ${price}` : `from ${price}`;
 		}
 		return price;
