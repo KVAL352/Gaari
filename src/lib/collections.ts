@@ -273,14 +273,16 @@ const collections: Collection[] = [
 				{ q: 'Er alle arrangementer på denne siden gratis?', a: 'Ja, alle arrangementer er registrert som gratis eller med fri inngang. Sjekk alltid pris hos arrangøren.' },
 				{ q: 'Finnes det gratis museer i Bergen?', a: 'Flere museer i Bergen har gratis åpningsdager. Gåri viser gratis museumsdager og kulturtilbud fortløpende.' },
 				{ q: 'Hva betyr «Trolig gratis» på Gåri?', a: '«Trolig gratis» betyr at arrangøren ikke har oppgitt pris. Vi kan ikke garantere at det er kostnadsfritt — sjekk alltid pris direkte hos arrangøren før oppmøte.' },
-				{ q: 'Finnes det gratis konserter i Bergen?', a: 'Bergen Bibliotek, parker og kulturhus arrangerer jevnlig gratis konserter. Fløyen har gratis utendørsarrangementer om sommeren. Sjekk Gåri for oppdatert liste.' }
+				{ q: 'Finnes det gratis konserter i Bergen?', a: 'Bergen Bibliotek, parker og kulturhus arrangerer jevnlig gratis konserter. Fløyen har gratis utendørsarrangementer om sommeren. Sjekk Gåri for oppdatert liste.' },
+				{ q: 'Er det gratis aktiviteter for barn i Bergen?', a: 'Ja, Bergen Bibliotek arrangerer gratis barneaktiviteter og lesestunder. KODE og Bergen Kunsthall har gratis inngangsdager for barn. Sjekk Gåri for denne ukens gratis familieaktiviteter.' }
 			],
 			en: [
 				{ q: 'What free things are there to do in Bergen this week?', a: 'Gåri shows all free events in Bergen this week — exhibitions, concerts, tours and activities with no ticket price.' },
 				{ q: 'Are all events on this page really free?', a: 'Yes, all listed events are registered as free admission. Always verify the price with the organiser before attending.' },
 				{ q: 'Are there free museums in Bergen?', a: 'Several Bergen museums have free entry days. Gåri lists free museum days and cultural events as they are announced.' },
 				{ q: 'What does "Likely free" mean on Gåri?', a: '"Likely free" means the organiser has not listed a ticket price. We cannot guarantee it is free — always check directly with the organiser before attending.' },
-				{ q: 'Are there free concerts in Bergen?', a: 'Bergen Library, parks and cultural venues regularly host free concerts. Fløyen has free outdoor events in summer. Check Gåri for the updated listing.' }
+				{ q: 'Are there free concerts in Bergen?', a: 'Bergen Library, parks and cultural venues regularly host free concerts. Fløyen has free outdoor events in summer. Check Gåri for the updated listing.' },
+				{ q: 'Are there free activities for children in Bergen?', a: "Yes, Bergen Library runs free children's events and story sessions. KODE and Bergen Kunsthall have free entry days for children. Check Gåri for this week's free family activities." }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -476,8 +478,8 @@ const collections: Collection[] = [
 			en: 'Student Night in Bergen'
 		},
 		description: {
-			no: 'Kveldens arrangementer for studenter i Bergen — fester, quiz, konserter og mer.',
-			en: "Tonight's events for students in Bergen — parties, quizzes, concerts and more."
+			no: 'Studentguide Bergen: kveldsarrangementer for studenter — fester, quiz, konserter på Kvarteret, Hulen og mer.',
+			en: 'Student guide to Bergen: evening events for students — parties, quizzes, concerts at Kvarteret, Hulen and more.'
 		},
 		ogSubtitle: {
 			no: 'For studenter i kveld',
@@ -509,14 +511,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor er det studentfester i Bergen i kveld?', a: 'Kvarteret er Norges største studentklubb i Bergen. Sjekk Gåri for alle studentarrangementer i kveld.' },
 				{ q: 'Hva koster studentarrangementer i Bergen?', a: 'Mange studentarrangementer i Bergen er gratis eller til redusert pris. Gåri viser pris for alle arrangementer.' },
 				{ q: 'Hvilke studentsteder finnes i Bergen?', a: 'Kvarteret er Norges største studentklubb. Hulen er en av landets eldste rockeklubber. Madam Felle og Café Opera er populære møtesteder. Alle har jevnlige arrangementer for studenter.' },
-				{ q: 'Hvilke dager er det studentarrangementer i Bergen?', a: 'Kvarteret har arrangementer mandag til lørdag. Torsdag til lørdag har flest studentkvelder. Quiz-kvelder er ofte midt i uken. Sjekk Gåri for daglig oppdatering.' }
+				{ q: 'Hvilke dager er det studentarrangementer i Bergen?', a: 'Kvarteret har arrangementer mandag til lørdag. Torsdag til lørdag har flest studentkvelder. Quiz-kvelder er ofte midt i uken. Sjekk Gåri for daglig oppdatering.' },
+				{ q: 'Er Bergen en god studentby?', a: 'Bergen er en av Norges beste studentbyer med over 30 000 studenter. Kvarteret er Norges største studentklubb. Hulen er landets eldste rockeklubb. Det skjer noe for studenter nesten hver kveld i uka.' }
 			],
 			en: [
 				{ q: "What's on for students in Bergen tonight?", a: "Gåri shows tonight's student events in Bergen — parties, quizzes, concerts, nightlife and more. Updated daily." },
 				{ q: 'Where are student parties in Bergen tonight?', a: "Kvarteret is Norway's largest student venue in Bergen. Check Gåri for all student events tonight." },
 				{ q: 'How much do student events in Bergen cost?', a: 'Many student events in Bergen are free or discounted. Gåri shows the price for all listed events.' },
 				{ q: 'What student venues are there in Bergen?', a: 'Kvarteret is Norway\'s largest student club. Hulen is one of the country\'s oldest rock clubs. Madam Felle and Café Opera are popular meeting spots. All have regular student events.' },
-				{ q: 'What nights are student events on in Bergen?', a: 'Kvarteret has events Monday to Saturday. Thursday to Saturday have the most student nights. Quiz nights are often midweek. Check Gåri for daily updates.' }
+				{ q: 'What nights are student events on in Bergen?', a: 'Kvarteret has events Monday to Saturday. Thursday to Saturday have the most student nights. Quiz nights are often midweek. Check Gåri for daily updates.' },
+				{ q: 'Is Bergen a good student city?', a: "Bergen is one of Norway's best student cities, with over 30,000 students. Kvarteret is Norway's largest student club. Hulen is the country's oldest rock club. There's something on for students almost every evening." }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -686,14 +690,16 @@ const collections: Collection[] = [
 				{ q: 'Er det gratis museer i Bergen?', a: 'Flere museer i Bergen har gratis inngangsdager. Gåri viser gratis museumsdager og kulturtilbud fortløpende.' },
 				{ q: 'Hva kan turister gjøre gratis i Bergen?', a: 'Bergen Kunsthall, biblioteknettverk og Fløyen-turer er jevnlig gratis. Gåri samler alle gratis arrangementer fra 53 lokale Bergen-kilder.' },
 				{ q: 'Hva betyr «Trolig gratis» på Gåri?', a: '«Trolig gratis» betyr at arrangøren ikke har oppgitt billettpris. Gåri kan ikke garantere at arrangementet er gratis — sjekk alltid direkte hos arrangøren.' },
-				{ q: 'Er det gratis uteaktiviteter i Bergen?', a: 'Fløyen og fjellstiene er gratis. DNT Bergen arrangerer gratis guidede turer. Parker som Nygårdsparken og Nordnes har åpne arrangementer om sommeren.' }
+				{ q: 'Er det gratis uteaktiviteter i Bergen?', a: 'Fløyen og fjellstiene er gratis. DNT Bergen arrangerer gratis guidede turer. Parker som Nygårdsparken og Nordnes har åpne arrangementer om sommeren.' },
+				{ q: 'Er det gratis ting å gjøre for familier i Bergen?', a: 'Ja, Bergen Bibliotek og filialene arrangerer gratis familie- og barneaktiviteter hele året. KODE og Bergen Kunsthall har gratis inngangsdager. DNT Bergen arrangerer gratis turer for alle aldre.' }
 			],
 			en: [
 				{ q: 'What free things are there to do in Bergen?', a: 'Gåri lists all free events in Bergen over the next two weeks — exhibitions, concerts, hikes and activities. Updated daily from 53 sources.' },
 				{ q: 'Are there free museums in Bergen?', a: 'Several Bergen museums have free entry days or free admission. Gåri lists free museum events and cultural activities as they are announced.' },
 				{ q: 'What can I do for free in Bergen as a tourist?', a: 'Bergen Kunsthall, the public library network and Fløyen hikes are regularly free. Gåri collects all free events from 53 local Bergen sources.' },
 				{ q: 'What does "Likely free" mean on Gåri?', a: '"Likely free" means the organiser has not listed a ticket price. Gåri cannot guarantee the event is free — always verify directly with the organiser.' },
-				{ q: 'Are there free outdoor activities in Bergen?', a: 'Fløyen and the mountain trails are free to access. DNT Bergen runs free guided hikes. Parks like Nygårdsparken and Nordnes host open events in summer.' }
+				{ q: 'Are there free outdoor activities in Bergen?', a: 'Fløyen and the mountain trails are free to access. DNT Bergen runs free guided hikes. Parks like Nygårdsparken and Nordnes host open events in summer.' },
+				{ q: 'Are there free things to do for families in Bergen?', a: "Yes, Bergen Library and its branches run free family and children's activities year-round. KODE and Bergen Kunsthall have free entry days. DNT Bergen organises free hikes suitable for all ages." }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -713,8 +719,8 @@ const collections: Collection[] = [
 			en: 'Bergen Rainy Day Guide'
 		},
 		description: {
-			no: 'Hva gjøre i Bergen når det regner? Innendørs konserter, teater, utstillinger og familieaktiviteter de neste to ukene.',
-			en: "What to do in Bergen when it rains? Indoor concerts, theatre, exhibitions and family activities over the next two weeks."
+			no: 'Ting å gjøre i Bergen når det regner — innendørs konserter, teater, utstillinger og familieaktiviteter. Oppdatert daglig.',
+			en: 'Things to do in Bergen when it rains — indoor concerts, theatre, exhibitions and family activities. Updated daily.'
 		},
 		ogSubtitle: {
 			no: 'Innendørsaktiviteter i Bergen',
@@ -746,14 +752,16 @@ const collections: Collection[] = [
 				{ q: 'Hva er gode innendørsaktiviteter i Bergen?', a: 'KODE, Bergen Kunsthall, Akvariet, DNS og Grieghallen er blant Bergens mest besøkte innendørsarenaer. Gåri viser alle innendørsarrangementer oppdatert daglig.' },
 				{ q: 'Er det noe for barn å gjøre innendørs i Bergen?', a: 'Akvariet, VilVite, KODE og Bergen Bibliotek er populære innendørsvalg for familier. Sjekk Gåri for familieforestillinger og barneaktiviteter.' },
 				{ q: 'Regner det mye i Bergen?', a: 'Bergen har ca. 230 regndager i året. Innendørskulturtilbudet er derfor spesielt godt utbygd. Gåri viser innendørsarrangementer de neste to ukene slik at du alltid har en plan B.' },
-				{ q: 'Hva kan man gjøre i Bergen om vinteren?', a: 'Vintermånedene har konsertsesongen på Grieghallen, teater på DNS og BIT, og utstillinger på KODE. Julemarkedet er i november og desember. Sjekk Gåris regnværsguide for innendørsaktiviteter.' }
+				{ q: 'Hva kan man gjøre i Bergen om vinteren?', a: 'Vintermånedene har konsertsesongen på Grieghallen, teater på DNS og BIT, og utstillinger på KODE. Julemarkedet er i november og desember. Sjekk Gåris regnværsguide for innendørsaktiviteter.' },
+				{ q: 'Er Bergen verdt å besøke når det regner?', a: 'Ja — Bergen er faktisk best kjent fra regnvær. Innendørskulturlivet med KODE, DNS, Grieghallen og Bergen Kunsthall er blant Norges rikeste. Mange sier Bergen er hyggeligere i regn enn i sol.' }
 			],
 			en: [
 				{ q: "What can you do in Bergen when it rains?", a: 'Gåri shows indoor events in Bergen over the next two weeks — concerts, theatre, exhibitions, workshops and family activities.' },
 				{ q: 'What are good indoor activities in Bergen?', a: "KODE, Bergen Kunsthall, the Aquarium, DNS and Grieghallen are among Bergen's most popular indoor venues. Gåri lists all indoor events, updated daily." },
 				{ q: 'Is there anything for children to do indoors in Bergen?', a: 'The Aquarium, VilVite, KODE and Bergen Library are popular indoor choices for families in Bergen. Check Gåri for children\'s shows and family activities.' },
 				{ q: 'Does it rain a lot in Bergen?', a: 'Bergen has about 230 rainy days per year. The indoor cultural scene is therefore especially well-developed. Gåri lists indoor events over the next two weeks so you always have a backup plan.' },
-				{ q: 'What can you do in Bergen in winter?', a: 'Winter months bring concert season at Grieghallen, theatre at DNS and BIT, and exhibitions at KODE. The Christmas market runs November to December. Check Gåri\'s rainy day guide for indoor activities.' }
+				{ q: 'What can you do in Bergen in winter?', a: 'Winter months bring concert season at Grieghallen, theatre at DNS and BIT, and exhibitions at KODE. The Christmas market runs November to December. Check Gåri\'s rainy day guide for indoor activities.' },
+				{ q: 'Is Bergen worth visiting in the rain?', a: "Yes — Bergen is in many ways at its best in the rain. The indoor cultural scene at KODE, DNS, Grieghallen and Bergen Kunsthall is among Norway's finest. Many visitors say Bergen feels cosier in wet weather." }
 			]
 		},
 		filterEvents: (events, now) => {
