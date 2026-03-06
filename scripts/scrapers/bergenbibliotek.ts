@@ -76,9 +76,12 @@ async function fetchDetail(url: string): Promise<{ price: string; nonPublic: boo
 	const bodyText = $('body').text().toLowerCase();
 	const nonPublic = SKIP_KEYWORDS.some(kw => bodyText.includes(kw));
 
-	// Extract image from og:image (most reliable — Plone keeps this current)
-	const ogImage = $('meta[property="og:image"]').attr('content');
-	const imageUrl = ogImage && ogImage.includes('@@images/') ? ogImage : undefined;
+	// Plone emits two og:image tags: first is @@images/UUID (cached scale, expires),
+	// second is @@download/image/filename.jpg (stable). Prefer @@download via twitter:image.
+	const twitterImage = $('meta[name="twitter:image"]').attr('content');
+	const ogImages = $('meta[property="og:image"]').toArray().map(el => $(el).attr('content') || '');
+	const stableOg = ogImages.find(u => u.includes('@@download/'));
+	const imageUrl = twitterImage || stableOg || ogImages.find(u => u.includes('@@images/')) || undefined;
 
 	const priceText = $('div.exclude').first().text().trim();
 	if (!priceText) return { price: 'Gratis', nonPublic, imageUrl };
