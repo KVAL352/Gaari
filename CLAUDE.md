@@ -22,7 +22,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 - **Norwegian first**: `title_no` and `description_no` are required. English fields are optional.
 - **Categories**: music, culture, theatre, family, food, festival, sports, nightlife, workshop, student, tours (defined in `src/lib/types.ts`)
-- **TimeOfDay**: morning, daytime, evening, night (defined in `src/lib/types.ts`, used by EventDiscovery time filter)
+- **TimeOfDay**: morning, daytime, evening, night, latenight (defined in `src/lib/types.ts`, used by EventDiscovery time filter)
 - **Bydeler**: Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna
 - **Slugs**: `slugify(title)-YYYY-MM-DD` format. Both frontend and scraper `slugify` replace Norwegian chars (æ→ae, ø→o, å→a) before NFD normalization, so accented characters (é, ü, ñ) are also reduced to base letters.
 - **Event status**: All scraped events are inserted as `approved`. User-submitted events start as `pending`.
@@ -336,10 +336,10 @@ Key indexes on `events` table (managed via `supabase/migrations/`):
 
 ## Testing
 
-**Vitest** unit test suite (800 tests, runs in <500ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
+**Vitest** unit test suite (802 tests, runs in <500ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
 
 **Test files:**
-- `src/lib/__tests__/event-filters.test.ts` — 55 tests: `matchesTimeOfDay` (all 4 ranges, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary), `getEasterDate` (11 known dates 2024-2038), `getISOWeekDates` (cross-year week 1, week 9/41, week 52/53 boundaries), `getContextualHighlight` (weekday/weekend/evening logic, 9 cases)
+- `src/lib/__tests__/event-filters.test.ts` — 57 tests: `matchesTimeOfDay` (all 4 ranges + latenight, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary), `getEasterDate` (11 known dates 2024-2038), `getISOWeekDates` (cross-year week 1, week 9/41, week 52/53 boundaries), `getContextualHighlight` (weekday/weekend/evening logic, 9 cases)
 - `src/lib/__tests__/utils.test.ts` — 41 tests: `isFreeEvent` (all truthy/falsy cases, case-insensitive, Norwegian zero-price formats, whitespace trimming), `formatPrice` (both locales, numeric, string, null, zero-price format propagation), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases), `formatEventTime` (UTC 00:00 placeholder hidden, UTC 12:00 shown, CET/CEST Oslo conversion, bergenkommune regression case)
 - `src/lib/__tests__/seo.test.ts` — 54 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, Norwegian price strings "250 kr"/"300-500 kr"/"fra 200,-", cancelled status, language fallback), `toBergenIso` (UTC→CEST/CET, DST boundaries, passthrough, invalid), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions), `generateCollectionJsonLd` (ItemList, positions, lang prefix, 50-item cap), `computeCanonical` (all 7 rules, EN/NO variants, noindex threshold, noise params)
 - `src/lib/__tests__/seo-audit.test.ts` — 446 tests: SEO validation rules (meta tags, JSON-LD structure, canonical URLs, sitemap entries, performance budgets, source count consistency incl. datainnsamling page)
