@@ -58,7 +58,7 @@ import { scrape as scrapeBergenPride } from './scrapers/bergenpride.js';
 import { scrape as scrapeOstre } from './scrapers/ostre.js';
 import { writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
-import { removeExpiredEvents, loadOptOuts, getOptOutDomains } from './lib/utils.js';
+import { removeExpiredEvents, loadOptOuts, getOptOutDomains, loadExistingUrls } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 import { supabase } from './lib/supabase.js';
 
@@ -248,6 +248,15 @@ async function main() {
 		console.log('Continuing with scrapers...\n');
 	}
 	console.log();
+
+	// Step 1c: Load existing source_urls into memory (eliminates per-event DB queries)
+	try {
+		console.log('--- Loading existing URLs ---');
+		await loadExistingUrls();
+		console.log();
+	} catch (err: any) {
+		console.warn(`Failed to load URL cache: ${err.message} — falling back to per-event queries\n`);
+	}
 
 	// Step 2: Run scrapers
 	console.log(`--- Running scrapers: ${selected.join(', ')} ---\n`);

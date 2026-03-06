@@ -119,8 +119,45 @@ export function stripHtml(html: string): string {
 	return html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 }
 
+// In-memory cache of existing source_urls — loaded once per pipeline run by loadExistingUrls()
+let existingUrlsCache: Set<string> | null = null;
+
+// Load all existing source_urls into memory. Call once at pipeline start.
+// Falls back to per-event DB queries if not called (e.g. when running a single scraper).
+export async function loadExistingUrls(): Promise<void> {
+	const cache = new Set<string>();
+	const PAGE_SIZE = 1000;
+	let page = 0;
+
+	while (true) {
+		const { data, error } = await supabase
+			.from('events')
+			.select('source_url')
+			.range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+		if (error) {
+			console.error('loadExistingUrls failed on page', page, ':', error.message);
+			break; // fail open — scrapers continue, UNIQUE constraint handles duplicates
+		}
+
+		if (!data || data.length === 0) break;
+		data.forEach(row => { if (row.source_url) cache.add(row.source_url); });
+		if (data.length < PAGE_SIZE) break;
+		page++;
+	}
+
+	existingUrlsCache = cache;
+	console.log(`Loaded ${cache.size} existing source_urls into cache`);
+}
+
 // Check if an event with this source_url already exists
 export async function eventExists(sourceUrl: string): Promise<boolean> {
+	// Use in-memory cache when available (eliminates per-event DB round-trips)
+	if (existingUrlsCache !== null) {
+		return existingUrlsCache.has(sourceUrl);
+	}
+
+	// Fallback: direct DB query (cache not loaded — single-scraper runs)
 	const { data } = await supabase
 		.from('events')
 		.select('id')
@@ -440,15 +477,23 @@ function isPrivateUrl(urlStr: string): boolean {
 	}
 }
 
-// Fetch HTML with error handling, SSRF protection, and timeout
-export async function fetchHTML(url: string): Promise<string | null> {
+// Fetch HTML with error handling, SSRF protection, and timeout.
+// Accepts an optional external AbortSignal (e.g. from a per-scraper pipeline controller).
+// If the external signal fires, the AbortError is re-thrown so callers can detect it.
+// If the internal 15s timeout fires, returns null (existing behaviour).
+export async function fetchHTML(url: string, options: { signal?: AbortSignal } = {}): Promise<string | null> {
 	if (isPrivateUrl(url)) {
 		console.error(`  Blocked private/internal URL: ${url}`);
 		return null;
 	}
 
-	const controller = new AbortController();
-	const timeoutId = setTimeout(() => controller.abort(), 15_000); // 15s timeout
+	const internalController = new AbortController();
+	const timeoutId = setTimeout(() => internalController.abort(), 15_000); // 15s timeout
+
+	// Compose external signal (pipeline abort) with internal 15s timeout
+	const signal = options.signal
+		? AbortSignal.any([options.signal, internalController.signal])
+		: internalController.signal;
 
 	try {
 		const res = await fetch(url, {
@@ -458,7 +503,7 @@ export async function fetchHTML(url: string): Promise<string | null> {
 				'Accept-Language': 'nb-NO,nb;q=0.9,no;q=0.8,en;q=0.5',
 			},
 			redirect: 'follow',
-			signal: controller.signal,
+			signal,
 		});
 
 		// Check final URL after redirects for SSRF
@@ -474,6 +519,7 @@ export async function fetchHTML(url: string): Promise<string | null> {
 		return await res.text();
 	} catch (err: any) {
 		if (err.name === 'AbortError') {
+			if (options.signal?.aborted) throw err; // External abort — propagate to caller
 			console.error(`  Timeout fetching ${url}`);
 		} else {
 			console.error(`  Fetch error for ${url}:`, err.message);
