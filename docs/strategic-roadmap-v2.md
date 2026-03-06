@@ -1,6 +1,6 @@
 # Gåri — Strategic Roadmap v2
 
-**Updated:** 2026-02-26
+**Updated:** 2026-03-06
 **Replaces:** strategic-roadmap.md (v1, 2026-02-24)
 **Target:** 700,000 NOK/year net income run-rate within 12 months
 
@@ -12,19 +12,26 @@ Phases A and B from the original roadmap are **done**:
 
 - ✅ Plausible Cloud analytics live
 - ✅ UTM tracking on all outbound links (`buildOutboundUrl()`)
-- ✅ 13 curated collection pages (not 4 — exceeded plan)
+- ✅ 48 curated collection pages (14 evergreen + 7 bydel + 13 seasonal + 14 festival)
 - ✅ Social post generation pipeline built (posting paused — account issues)
 - ✅ Promoted placement infrastructure (tables, rotation, admin UI, reports)
 - ✅ AI search optimization (llms.txt, IndexNow, answer capsules, JSON-LD, Bing Webmaster Tools)
-- ✅ 198 unit tests, Lighthouse 95, WCAG 2.2 AA
+- ✅ 800 unit tests, Lighthouse 95, WCAG 2.2 AA
+- ✅ RSS feeds (gaari.no/feed — 13 filter variants, bilingual, 1h cache)
+- ✅ Event JSON-LD: PriceSpecification for price ranges, organizer URL, price disclaimers
+- ✅ TicketCo price fetching (detail page scrape for new events)
+- ✅ Long-tail SEO: all 21 evergreen + bydel collections — enriched FAQ (1 new Q&A pair NO+EN each), keyword-optimized meta descriptions
+- ✅ `/for-arrangorer` marketing page (built Feb 2026)
+- ✅ `organizer_inquiries` Supabase table (built Feb 2026)
+- ✅ Weekly newsletter via MailerLite — live, personalized sends every Thursday
+- ✅ Google EEA aggregator features (Things to do) form submitted 2026-03-06 — check response ~2026-03-27
 - ⏸️ Social media accounts — paused (creation issues)
 
 **What's not built yet:**
-- `/for-arrangorer` marketing page
-- `organizer_inquiries` Supabase table
-- Stripe billing integration
-- Weekly newsletter
+- Stripe billing integration (no paying clients yet — not blocking)
 - Venue referral reports from Plausible data
+- Self-serve signup for venues
+- Long-tail SEO: seasonal + festival collections (13+14) not yet enriched with additional FAQ
 
 ---
 
@@ -108,9 +115,9 @@ Social media is **paused for the first 6 months.** The social post pipeline is b
 
 Cold email benchmarks for this approach: 48% open rate in event/agency sector, 16% reply rate in Scandinavia. Personalized data ("vi sendte deg 347 klikk") pushes this higher.
 
-### Channel 2: SEO + AI search (ALREADY BUILT)
+### Channel 2: SEO + AI search (ALREADY BUILT + EXPANDING)
 
-The 13 collection pages, answer capsules, Event JSON-LD, llms.txt, IndexNow, and Bing indexing are all live. This is the **primary differentiator** in venue pitches:
+The **48 collection pages**, answer capsules, Event JSON-LD (with PriceSpecification + organizer URL), llms.txt, IndexNow, RSS feeds, and Bing indexing are all live. All 21 evergreen + bydel collections have been enriched with keyword-targeted FAQ (March 2026). Seasonal + festival collections (27 pages) still to enrich. This is the **primary differentiator** in venue pitches:
 
 "Når noen spør ChatGPT 'hva skjer i Bergen denne helgen?', er det Gåri som blir sitert. Dine arrangementer er allerede synlige der — med fremhevet synlighet blir de enda mer fremtredende."
 
@@ -167,14 +174,18 @@ Data stories to pitch:
 
 ### Immediate (March 2026)
 
-| Task | Owner | Notes |
-|------|-------|-------|
-| Build `/for-arrangorer` page | Claude Code | See `for-arrangorer-page-spec.md` |
-| Create `organizer_inquiries` Supabase table + RLS | Claude Code | Schema in page spec |
-| Add Buttondown subscribe form to footer + about page | Claude Code | Simple embed |
-| Create Stripe account (Norwegian registration) | You | stripe.com, 30 minutes |
-| Set up Stripe branding + 3 Products with Prices | You | Basis 1,000 / Standard 3,500 / Partner 7,000 |
-| Build prospect list from 43 sources | You | Spreadsheet: org name, contact, domain, estimated tier |
+| Task | Status | Notes |
+|------|--------|-------|
+| Build `/for-arrangorer` page | ✅ Done | Live Feb 2026 |
+| Create `organizer_inquiries` Supabase table + RLS | ✅ Done | Live Feb 2026 |
+| Add newsletter subscribe form to footer + about page | ✅ Done | MailerLite, live |
+| RSS feeds | ✅ Done | gaari.no/feed, 13 filter variants |
+| Long-tail SEO: all 21 evergreen + bydel collections | ✅ Done | March 2026 |
+| Google EEA aggregator features form | ✅ Done | Submitted 2026-03-06, check response ~Mar 27 |
+| Long-tail SEO: seasonal + festival collections (27 pages) | ⬜ Next | Same pattern as evergreen/bydel |
+| Create Stripe account (Norwegian registration) | ⬜ You | stripe.com, 30 minutes |
+| Set up Stripe branding + 3 Products with Prices | ⬜ You | Basis 1,000 / Standard 3,500 / Partner 7,000 |
+| Build prospect list from 53 sources | ⬜ You | Spreadsheet: org name, contact, domain, estimated tier |
 
 ### April 2026
 
