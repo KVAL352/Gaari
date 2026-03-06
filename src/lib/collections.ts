@@ -1752,14 +1752,16 @@ const collections: Collection[] = [
 				{ q: 'Hva kan man gjøre med barn i Bergen i vinterferien?', a: 'Akvariet, VilVite, Bymuseet og bibliotekene har spesielle aktiviteter. KODE har familieomvisninger. Fløibanen og Fløyen har utsikt over vinterbyen.' },
 				{ q: 'Er det gratis aktiviteter i Bergen i vinterferien?', a: 'Ja, Bergen Bibliotek har gratis verksteder, flere museer har gratis barnebillett, og Fløyen har gratis uteområder. Sjekk Gåris gratis-side.' },
 				{ q: 'Kan man stå på ski nær Bergen?', a: 'Voss og Myrkdalen skisenter er 1,5 timer fra Bergen med tog eller bil. Begge har variert terreng for familier. Folgefonna har sommerski.' },
-				{ q: 'Hva er innendørsaktiviteter for barn i Bergen?', a: 'VilVite vitensenter, Akvariet, KODE kunstmuseer, Bergen Bibliotek og BUA utstyrsbibliotek har innendørsaktiviteter. Sjekk Gåris regndagsguide.' }
+				{ q: 'Hva er innendørsaktiviteter for barn i Bergen?', a: 'VilVite vitensenter, Akvariet, KODE kunstmuseer, Bergen Bibliotek og BUA utstyrsbibliotek har innendørsaktiviteter. Sjekk Gåris regndagsguide.' },
+				{ q: 'Hva er VilVite?', a: 'VilVite er Bergens vitensenter på Nygårdstangen, med interaktive utstillinger om teknologi, natur og naturvitenskap. Passer for barn og voksne, og har spesielle ferieprogram i vinterferie og høstferie.' }
 			],
 			en: [
 				{ q: 'When is winter break in Bergen?', a: 'Vestland county has winter break in week 9 (Oslo has week 8). Gåri updates this page with the correct dates each year.' },
 				{ q: 'What can families do in Bergen during winter break?', a: 'The Aquarium, VilVite science centre, Bymuseet and libraries have special activities. KODE has family guided tours. Fløibanen funicular and Fløyen have views over the winter city.' },
 				{ q: 'Are there free winter break activities in Bergen?', a: 'Yes, Bergen Library offers free workshops, several museums have free children\'s admission, and Fløyen has free outdoor areas. Check Gåri\'s free events page.' },
 				{ q: 'Can you ski near Bergen?', a: 'Voss and Myrkdalen ski resorts are 1.5 hours from Bergen by train or car. Both have varied terrain for families. Folgefonna has summer skiing.' },
-				{ q: 'What indoor activities are there for kids in Bergen?', a: "VilVite science centre, the Aquarium, KODE art museums, Bergen Library and BUA equipment library have indoor activities. Check Gåri's rainy day guide." }
+				{ q: 'What indoor activities are there for kids in Bergen?', a: "VilVite science centre, the Aquarium, KODE art museums, Bergen Library and BUA equipment library have indoor activities. Check Gåri's rainy day guide." },
+				{ q: 'What is VilVite?', a: "VilVite is Bergen's science centre at Nygårdstangen, with interactive exhibits on technology, nature and science. Suitable for children and adults. One of Bergen's best indoor attractions, with special holiday programmes during school breaks." }
 			]
 		},
 		offSeasonHint: {
