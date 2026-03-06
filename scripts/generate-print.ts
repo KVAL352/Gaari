@@ -63,9 +63,9 @@ async function render(markup: object, width: number, height: number, fonts: Awai
 
 function stickerCircleMarkup(qrDataUrl: string) {
   const S = 886;
-  const pad = 56;
-  const qrSize = 460;
-  const qrBoxPad = 20;
+  const pad = 68;
+  const qrSize = 380;
+  const qrBoxPad = 18;
 
   return {
     type: 'div',
@@ -79,21 +79,22 @@ function stickerCircleMarkup(qrDataUrl: string) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 24,
+        gap: 20,
         padding: pad,
       },
       children: [
-        // Gåri title
+        // Headline — fill the visual width of the circle
         {
           type: 'div',
           props: {
             style: {
               display: 'flex',
-              fontSize: 72,
+              fontSize: 88,
               fontFamily: 'Barlow Condensed',
               color: WHITE,
-              letterSpacing: '-0.01em',
-              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.0,
+              textAlign: 'center',
             },
             children: "Ke\u2019 det G\u00e5ri, Bergen?",
           },
@@ -119,6 +120,20 @@ function stickerCircleMarkup(qrDataUrl: string) {
                 },
               },
             ],
+          },
+        },
+        // URL anchor
+        {
+          type: 'div',
+          props: {
+            style: {
+              display: 'flex',
+              fontSize: 36,
+              fontFamily: 'Barlow Condensed',
+              color: 'rgba(255,255,255,0.75)',
+              letterSpacing: '0.04em',
+            },
+            children: 'gaari.no',
           },
         },
       ],
@@ -157,23 +172,53 @@ function stickerRectMarkup(qrDataUrl: string) {
               flex: 1,
               flexDirection: 'column',
               justifyContent: 'center',
-              gap: 12,
+              gap: 16,
             },
             children: [
+              // Headline — intentional single line
               {
                 type: 'div',
                 props: {
                   style: {
                     display: 'flex',
-                    fontSize: 96,
+                    fontSize: 68,
                     fontFamily: 'Barlow Condensed',
                     color: WHITE,
-                    letterSpacing: '-0.01em',
-                    lineHeight: 1,
+                    letterSpacing: '-0.02em',
+                    lineHeight: 0.95,
+                    whiteSpace: 'nowrap',
                   },
                   children: "Ke\u2019 det G\u00e5ri, Bergen?",
                 },
               },
+              // Separator line
+              {
+                type: 'div',
+                props: {
+                  style: {
+                    display: 'flex',
+                    width: 48,
+                    height: 3,
+                    backgroundColor: 'rgba(255,255,255,0.5)',
+                  },
+                },
+              },
+              // Subtitle — larger, readable from distance
+              {
+                type: 'div',
+                props: {
+                  style: {
+                    display: 'flex',
+                    fontSize: 40,
+                    fontFamily: 'Barlow Condensed',
+                    color: 'rgba(255,255,255,0.9)',
+                    letterSpacing: '0.01em',
+                    lineHeight: 1.15,
+                  },
+                  children: 'Alle arrangementer\ni Bergen p\u00e5 ett sted',
+                },
+              },
+              // URL anchor
               {
                 type: 'div',
                 props: {
@@ -181,12 +226,10 @@ function stickerRectMarkup(qrDataUrl: string) {
                     display: 'flex',
                     fontSize: 28,
                     fontFamily: 'Barlow Condensed',
-                    color: 'rgba(255,255,255,0.85)',
-                    letterSpacing: '0.01em',
-                    lineHeight: 1.3,
-                    whiteSpace: 'pre-line',
+                    color: 'rgba(255,255,255,0.55)',
+                    letterSpacing: '0.05em',
                   },
-                  children: 'Alle arrangementer i Bergen\np\u00e5 ett sted',
+                  children: 'gaari.no',
                 },
               },
             ],
@@ -226,7 +269,7 @@ function stickerRectMarkup(qrDataUrl: string) {
 function posterA4Markup(qrDataUrl: string) {
   const W = 1240;
   const H = 1754;
-  const qrSize = 880;
+  const qrSize = 740;
   const qrBoxPad = 24;
 
   return {
@@ -241,7 +284,7 @@ function posterA4Markup(qrDataUrl: string) {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '80px 80px',
-        gap: 56,
+        gap: 44,
       },
       children: [
         // Headline
@@ -250,14 +293,26 @@ function posterA4Markup(qrDataUrl: string) {
           props: {
             style: {
               display: 'flex',
-              fontSize: 100,
+              fontSize: 116,
               fontFamily: 'Barlow Condensed',
               color: WHITE,
               letterSpacing: '-0.02em',
-              lineHeight: 1.05,
+              lineHeight: 1.0,
               textAlign: 'center',
             },
             children: POSTER_HEADLINE,
+          },
+        },
+        // Thin white rule — separates brand from action
+        {
+          type: 'div',
+          props: {
+            style: {
+              display: 'flex',
+              width: 80,
+              height: 3,
+              backgroundColor: 'rgba(255,255,255,0.4)',
+            },
           },
         },
         // QR code in white box
@@ -283,19 +338,34 @@ function posterA4Markup(qrDataUrl: string) {
             ],
           },
         },
-        // Tagline in white
+        // Tagline
         {
           type: 'div',
           props: {
             style: {
               display: 'flex',
-              fontSize: 52,
+              fontSize: 48,
               fontFamily: 'Barlow Condensed',
               color: WHITE,
               textAlign: 'center',
               lineHeight: 1.2,
             },
             children: 'Alle arrangementer i Bergen p\u00e5 ett sted',
+          },
+        },
+        // URL — always show, gives people something to act on
+        {
+          type: 'div',
+          props: {
+            style: {
+              display: 'flex',
+              fontSize: 38,
+              fontFamily: 'Barlow Condensed',
+              color: 'rgba(255,255,255,0.6)',
+              letterSpacing: '0.06em',
+              textAlign: 'center',
+            },
+            children: 'gaari.no',
           },
         },
       ],
@@ -309,7 +379,7 @@ function posterA4Markup(qrDataUrl: string) {
 function posterA3Markup(qrDataUrl: string) {
   const W = 1754;
   const H = 2480;
-  const qrSize = 1200;
+  const qrSize = 1040;
 
   return {
     type: 'div',
@@ -320,77 +390,91 @@ function posterA3Markup(qrDataUrl: string) {
         height: H,
         backgroundColor: RED,
         flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '140px 112px',
+        gap: 64,
       },
       children: [
-        // Main content
+        // Headline
         {
           type: 'div',
           props: {
             style: {
               display: 'flex',
-              flex: 1,
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '112px 112px',
-              gap: 80,
+              fontSize: 164,
+              fontFamily: 'Barlow Condensed',
+              color: WHITE,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.0,
+              textAlign: 'center',
+            },
+            children: POSTER_HEADLINE,
+          },
+        },
+        // Thin white rule
+        {
+          type: 'div',
+          props: {
+            style: {
+              display: 'flex',
+              width: 112,
+              height: 4,
+              backgroundColor: 'rgba(255,255,255,0.4)',
+            },
+          },
+        },
+        // QR code in white box
+        {
+          type: 'div',
+          props: {
+            style: {
+              display: 'flex',
+              backgroundColor: WHITE,
+              borderRadius: 28,
+              padding: 32,
             },
             children: [
-              // Headline
               {
-                type: 'div',
+                type: 'img',
                 props: {
-                  style: {
-                    display: 'flex',
-                    fontSize: 142,
-                    fontFamily: 'Barlow Condensed',
-                    color: WHITE,
-                    letterSpacing: '-0.02em',
-                    lineHeight: 1.05,
-                    textAlign: 'center',
-                  },
-                  children: POSTER_HEADLINE,
-                },
-              },
-              // QR code in white box
-              {
-                type: 'div',
-                props: {
-                  style: {
-                    display: 'flex',
-                    backgroundColor: WHITE,
-                    borderRadius: 28,
-                    padding: 32,
-                  },
-                  children: [
-                    {
-                      type: 'img',
-                      props: {
-                        src: qrDataUrl,
-                        width: qrSize,
-                        height: qrSize,
-                        style: { display: 'flex' },
-                      },
-                    },
-                  ],
-                },
-              },
-              // Tagline in white
-              {
-                type: 'div',
-                props: {
-                  style: {
-                    display: 'flex',
-                    fontSize: 74,
-                    fontFamily: 'Barlow Condensed',
-                    color: WHITE,
-                    textAlign: 'center',
-                    lineHeight: 1.2,
-                  },
-                  children: 'Alle arrangementer i Bergen p\u00e5 ett sted',
+                  src: qrDataUrl,
+                  width: qrSize,
+                  height: qrSize,
+                  style: { display: 'flex' },
                 },
               },
             ],
+          },
+        },
+        // Tagline
+        {
+          type: 'div',
+          props: {
+            style: {
+              display: 'flex',
+              fontSize: 68,
+              fontFamily: 'Barlow Condensed',
+              color: WHITE,
+              textAlign: 'center',
+              lineHeight: 1.2,
+            },
+            children: 'Alle arrangementer i Bergen p\u00e5 ett sted',
+          },
+        },
+        // URL
+        {
+          type: 'div',
+          props: {
+            style: {
+              display: 'flex',
+              fontSize: 52,
+              fontFamily: 'Barlow Condensed',
+              color: 'rgba(255,255,255,0.6)',
+              letterSpacing: '0.06em',
+              textAlign: 'center',
+            },
+            children: 'gaari.no',
           },
         },
       ],
