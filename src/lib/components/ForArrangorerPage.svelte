@@ -216,8 +216,8 @@
 		{:else if venueMatch === false}
 			<p class="mt-2 text-sm text-[var(--color-text-secondary)]">
 				{$lang === 'no'
-					? 'Fant ikke et treff — men det er helt gratis å bli lagt til. Vi ønsker å promotere det rike kulturlivet i Bergen.'
-					: "Didn't find a match — but getting added is completely free. We want to promote Bergen's rich cultural life."}
+					? 'Fant ikke et treff — men det er helt gratis å bli lagt til. Bergen fortjener å bli sett — vi hjelper deg dit.'
+					: "Didn't find a match — but getting added is completely free. Bergen deserves to be seen — we help you get there."}
 			</p>
 
 			{#if addVenueStatus === 'success'}
@@ -284,7 +284,7 @@
 						{#if addVenueStatus === 'submitting'}
 							{$lang === 'no' ? 'Sender...' : 'Sending...'}
 						{:else}
-							{$lang === 'no' ? 'Sjekk nettsiden min' : 'Check my website'}
+							{$lang === 'no' ? 'Meld inn stedet mitt' : 'Add my venue'}
 						{/if}
 					</button>
 					{#if addVenueStatus === 'error'}
@@ -311,7 +311,7 @@
 			<p>Gratis arrangementer trekker folk inn. Betalte arrangementer tjener på trafikken. Studenten som finner en gratis quizkveld i dag, kjøper konsertbillett neste uke. Uten det første besøket hadde det andre aldri skjedd.</p>
 			<blockquote class="my-2 border-l-4 border-[var(--funkis-red)] pl-5">
 			<p class="text-xl font-bold leading-snug font-[family-name:var(--font-display)]">
-				Studenten som finner en gratis quizkveld i dag, kjøper konsertbillett neste uke.
+				Jo oftere folk er innom, jo mer ser de av arrangementene dine.
 			</p>
 		</blockquote>
 		<p>Jo mer som er samlet på torget, jo flere grunner har folk til å komme tilbake. Jo oftere de kommer tilbake, jo mer ser de av dine arrangementer.</p>
@@ -320,7 +320,7 @@
 			<p>Free events draw people in. Paid events benefit from the traffic. The student who finds a free quiz night today buys a concert ticket next week. Without the first visit, the second would never have happened.</p>
 			<blockquote class="my-2 border-l-4 border-[var(--funkis-red)] pl-5">
 			<p class="text-xl font-bold leading-snug font-[family-name:var(--font-display)]">
-				The student who finds a free quiz night today buys a concert ticket next week.
+				The more often people visit, the more they see of your events.
 			</p>
 		</blockquote>
 		<p>The more that's gathered on the square, the more reasons people have to come back. The more often they come back, the more they see of your events.</p>
@@ -734,8 +734,8 @@
 					{$lang === 'no' ? 'Tidlig partner-tilbud: ' : 'Early partner offer: '}
 				</span>
 				{$lang === 'no'
-					? 'De første partnerne får 3 måneder gratis fremhevet synlighet — ingen bindingstid.'
-					: 'The first partners get 3 months of free promoted visibility — no commitment.'}
+					? 'De første partnerne får 3 måneder gratis fremhevet plassering — ingen bindingstid.'
+					: 'The first partners get 3 months of free promoted placement — no commitment.'}
 			</p>
 		</div>
 
@@ -847,7 +847,7 @@
 					{#if contactStatus === 'submitting'}
 						{$lang === 'no' ? 'Sender...' : 'Sending...'}
 					{:else}
-						{$lang === 'no' ? 'Send' : 'Send'}
+						{$lang === 'no' ? 'Start samtalen' : 'Start the conversation'}
 					{/if}
 				</button>
 			</form>
