@@ -4,7 +4,7 @@ import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'colonialen';
-const BASE_URL = 'https://colonialen.no';
+const BASE_URL = 'https://www.colonialen.no';
 const LIST_URL = `${BASE_URL}/kalender`;
 
 function mapCategory(catText: string): string {
@@ -56,6 +56,16 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const sourceUrl = `${BASE_URL}${detailPath}`;
 		if (await eventExists(sourceUrl)) continue;
 
+		// Fetch detail page to extract external ticket URL
+		let ticketUrl = sourceUrl;
+		const detailHtml = await fetchHTML(sourceUrl);
+		if (detailHtml) {
+			const $d = cheerio.load(detailHtml);
+			// Look for external ticket links (TicketCo, Billetto, etc.)
+			const extLink = $d('a[href*="ticketco"], a[href*="billetto"], a[href*="tikkio"]').first().attr('href');
+			if (extLink) ticketUrl = extLink;
+		}
+
 		// Date — first time.event-date is start, second (if multiday) is end
 		const dateEls = el.find('time.event-date');
 		const startDateStr = dateEls.eq(0).attr('datetime'); // YYYY-MM-DD
@@ -104,7 +114,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address,
 			bydel,
 			price: '',
-			ticket_url: sourceUrl,
+			ticket_url: ticketUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: imageUrl,
