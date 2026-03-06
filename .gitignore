@@ -22,3 +22,4 @@ docs/gsc-sa.json
 scripts/venue-analysis.mjs
 print/
 scripts/test-stripe-webhook.ts
+scripts/test-stripe-webhook.ts
