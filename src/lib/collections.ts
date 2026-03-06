@@ -155,14 +155,16 @@ const collections: Collection[] = [
 				{ q: 'Er det gratis arrangementer i Bergen denne helgen?', a: 'Bergen har mange gratis helgeaktiviteter. Se Gåris gratis-side for arrangementer uten billettpris denne uken.' },
 				{ q: 'Hva kan familier gjøre i Bergen i helgen?', a: 'Gåri har en egen familiehelg-side med barneforestillinger, museumsaktiviteter og familievennlige arrangementer i Bergen.' },
 				{ q: 'Hvor mange arrangementer har Bergen i helgene?', a: 'Bergen har typisk 40–80 arrangementer hver helg — fra konserter på Grieghallen til utstillinger på KODE og familieaktiviteter på Akvariet. Gåri samler dem fra 53 kilder.' },
-				{ q: 'Når oppdateres helgeprogrammet på Gåri?', a: 'Gåri oppdateres daglig klokken 06:00. Helgearrangementer legges til fortløpende utover uken etter hvert som arrangørene publiserer dem.' }
+				{ q: 'Når oppdateres helgeprogrammet på Gåri?', a: 'Gåri oppdateres daglig klokken 06:00. Helgearrangementer legges til fortløpende utover uken etter hvert som arrangørene publiserer dem.' },
+				{ q: 'Hva er Bergens beste helgeopplevelse?', a: 'Bergen tilbyr noe for enhver smak — klassisk konsert på Grieghallen, besøk på KODE, teater på DNS eller en kveld på Bryggen. Gåri samler alle helgearrangementer fra 53 lokale kilder slik at du enkelt kan planlegge.' }
 			],
 			en: [
 				{ q: "What's on in Bergen this weekend?", a: 'Gåri shows all weekend events in Bergen — concerts, exhibitions, family activities and more. Updated daily from 53 local sources.' },
 				{ q: 'Are there free things to do in Bergen this weekend?', a: "Bergen regularly has free weekend events. Check Gåri's free events page for no-cost activities this weekend." },
 				{ q: 'What can families do in Bergen this weekend?', a: "Gåri has a dedicated family weekend page with children's shows, museum activities and family-friendly events in Bergen." },
 				{ q: 'How many events does Bergen have on weekends?', a: 'Bergen typically has 40–80 events each weekend — from concerts at Grieghallen to exhibitions at KODE and family activities at Akvariet. Gåri collects them from 53 sources.' },
-				{ q: 'When is the weekend listing updated on Gåri?', a: 'Gåri updates daily — morning and evening. Weekend events are added throughout the week as organisers publish them.' }
+				{ q: 'When is the weekend listing updated on Gåri?', a: 'Gåri updates daily — morning and evening. Weekend events are added throughout the week as organisers publish them.' },
+				{ q: "What is Bergen's best weekend experience?", a: "Bergen has something for every taste — a classical concert at Grieghallen, a visit to KODE, theatre at DNS or an evening on Bryggen. Gåri collects all weekend events from 53 local sources so you can plan easily." }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -337,14 +339,16 @@ const collections: Collection[] = [
 				{ q: 'Er det gratis arrangementer i Bergen i dag?', a: 'Bergen har jevnlig gratis arrangementer hver dag. Bruk gratis-filteret for å finne kostnadsfrie aktiviteter i dag.' },
 				{ q: 'Hva kan turister gjøre i Bergen i dag?', a: 'Bergen tilbyr Bryggen, Fløibanen, museer, fjordturer, konserter og matmarkeder. Sjekk Gåri for dagens program.' },
 				{ q: 'Hvor mange arrangementer er det i Bergen i dag?', a: 'Bergen har typisk 10–30 arrangementer per dag, avhengig av ukedag og sesong. Helger har flest. Gåri viser alle med tidspunkt og sted.' },
-				{ q: 'Når oppdateres Gåri?', a: 'Gåri oppdateres daglig klokken 06:00. Arrangementdata hentes direkte fra 53 lokale kilder i Bergen.' }
+				{ q: 'Når oppdateres Gåri?', a: 'Gåri oppdateres daglig klokken 06:00. Arrangementdata hentes direkte fra 53 lokale kilder i Bergen.' },
+				{ q: 'Hva er populære ting å gjøre i Bergen på dagtid?', a: 'Fløybanen, Akvariet og KODE er populære dagtidsopplevelser i Bergen. Bryggen er et verdensarvområde som passer for en formiddagsspasertur. Bergen Bibliotek og byens gallerier har gratis tilbud gjennom dagen.' }
 			],
 			en: [
 				{ q: "What's on in Bergen today?", a: 'Gåri shows all events happening in Bergen today — concerts, exhibitions, food events and more. Updated daily.' },
 				{ q: 'Are there free events in Bergen today?', a: "Yes, Bergen regularly has free events every day. Use the free filter to find today's no-cost activities." },
 				{ q: 'What can tourists do in Bergen today?', a: 'Bergen offers Bryggen, Fløyen funicular, museums, fjord tours, concerts and food markets. Check Gåri for today\'s events.' },
 				{ q: 'How many events are there in Bergen today?', a: 'Bergen typically has 10–30 events per day, depending on the day of the week and season. Weekends have the most. Gåri shows all with times and venues.' },
-				{ q: 'How often is Gåri updated?', a: 'Gåri updates daily at 06:00. Event data is pulled directly from 53 local sources in Bergen.' }
+				{ q: 'How often is Gåri updated?', a: 'Gåri updates daily at 06:00. Event data is pulled directly from 53 local sources in Bergen.' },
+				{ q: 'What are popular daytime things to do in Bergen?', a: 'The Fløibanen funicular, the Aquarium and KODE are popular daytime experiences in Bergen. Bryggen is a World Heritage wharf ideal for a morning stroll. Bergen Library and the city\'s galleries offer free daytime activities.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -581,14 +585,16 @@ const collections: Collection[] = [
 				{ q: 'Er det gratis ting å gjøre i Bergen denne helgen?', a: 'Bergen har mange gratis helgeaktiviteter. Bruk gratis-filteret for å finne kostnadsfrie arrangementer i helgen.' },
 				{ q: 'Hva kan man gjøre i Bergen i helgen?', a: 'Bergen har konserter, utstillinger, matmarkeder, fjordturer og kulturarrangementer hver helg. Sjekk Gåri for ukens program.' },
 				{ q: 'Er Bergen en god helgeby?', a: 'Bergen har et av Norges rikeste kulturtilbud. Kompakt sentrum gjør det enkelt å nå flere arrangementer på én dag — Grieghallen, KODE og Bryggen ligger i gangavstand.' },
-				{ q: 'Hva skjer i Bergen lørdag kveld?', a: 'Lørdag er Bergens mest aktive kveld for konserter og uteliv. Forum Scene, Ole Bull, USF Verftet og Kvarteret har jevnlig arrangement. Sjekk Gåri for kveldens program.' }
+				{ q: 'Hva skjer i Bergen lørdag kveld?', a: 'Lørdag er Bergens mest aktive kveld for konserter og uteliv. Forum Scene, Ole Bull, USF Verftet og Kvarteret har jevnlig arrangement. Sjekk Gåri for kveldens program.' },
+				{ q: 'Hva er det å gjøre i Bergen på søndag?', a: 'Bergen er like aktivt på søndag som lørdag. Museer og gallerier er åpne, bibliotekene har arrangementer, og mange scener spiller søndagsforestillinger. Sjekk Gåri for søndagens program.' }
 			],
 			en: [
 				{ q: "What's on in Bergen this weekend?", a: 'Gåri shows all weekend events in Bergen — concerts, exhibitions, food and outdoor activities. Updated daily from 53 local sources.' },
 				{ q: 'Are there free things to do in Bergen this weekend?', a: 'Bergen regularly has free weekend events. Use the free events filter to find no-cost activities this weekend.' },
 				{ q: 'What can I do in Bergen this weekend?', a: 'Bergen has concerts, exhibitions, food markets, fjord walks and cultural events every weekend. Check Gåri for this week\'s programme.' },
 				{ q: 'Is Bergen a good weekend destination?', a: 'Bergen has one of Norway\'s richest cultural scenes. The compact city centre makes it easy to reach multiple events in a day — Grieghallen, KODE and Bryggen are all within walking distance.' },
-				{ q: 'What happens in Bergen on Saturday night?', a: 'Saturday is Bergen\'s busiest night for concerts and nightlife. Forum Scene, Ole Bull, USF Verftet and Kvarteret have regular events. Check Gåri for tonight\'s programme.' }
+				{ q: 'What happens in Bergen on Saturday night?', a: 'Saturday is Bergen\'s busiest night for concerts and nightlife. Forum Scene, Ole Bull, USF Verftet and Kvarteret have regular events. Check Gåri for tonight\'s programme.' },
+				{ q: 'What is there to do in Bergen on Sunday?', a: 'Bergen is just as active on Sunday as Saturday. Museums and galleries are open, libraries have events, and many venues run Sunday evening shows. Check Gåri for Sunday\'s full programme.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -640,14 +646,16 @@ const collections: Collection[] = [
 				{ q: 'Er det noe gratis å gjøre i Bergen i dag?', a: 'Bergen har daglige gratis arrangementer. Bruk gratis-filteret på Gåri for å finne kostnadsfrie aktiviteter i dag.' },
 				{ q: 'Hva er åpent i Bergen i dag?', a: 'Museer, gallerier, biblioteker og teatre i Bergen er åpne daglig. Gåri viser alle arrangementer med tidspunkt i dag.' },
 				{ q: 'Hva kan man gjøre i Bergen om morgenen?', a: 'Fløyen, Akvariet og bibliotekene åpner tidlig. KODE og Bymuseet har formiddagsaktiviteter. Bruk tidsfilteret «morgen» på Gåri for arrangementer mellom klokken 6 og 12.' },
-				{ q: 'Hva skjer i Bergen i kveld?', a: 'Sjekk Gåris i-kveld-side for alle kveldsarrangementer i Bergen i dag. Konserter og forestillinger starter typisk mellom klokken 19 og 21.' }
+				{ q: 'Hva skjer i Bergen i kveld?', a: 'Sjekk Gåris i-kveld-side for alle kveldsarrangementer i Bergen i dag. Konserter og forestillinger starter typisk mellom klokken 19 og 21.' },
+				{ q: 'Hva er populære ting å gjøre i Bergen på dagtid?', a: 'Populære dagtidsaktiviteter i Bergen inkluderer Fløybanen og turer på Fløyen, besøk på Akvariet eller KODE, omvisning rundt Bryggen og guidede byvandringer. Bruk tidsfilteret «dagtid» på Gåri for alle arrangementer mellom klokken 12 og 17.' }
 			],
 			en: [
 				{ q: "What's happening in Bergen today?", a: 'Gåri shows all events in Bergen today — concerts, exhibitions, theatre, family activities and more. Updated daily from 53 local sources.' },
 				{ q: 'Is there anything free to do in Bergen today?', a: "Bergen regularly has free events every day. Use Gåri's free filter to find no-cost activities today." },
 				{ q: 'What is open in Bergen today?', a: 'Museums, galleries, libraries and theatres in Bergen are open daily. Gåri shows all events with start times today.' },
 				{ q: 'What can you do in Bergen in the morning?', a: 'Fløyen, the Aquarium and libraries open early. KODE and Bymuseet have morning activities. Use the "morning" time filter on Gåri for events between 06:00 and 12:00.' },
-				{ q: "What's on in Bergen tonight?", a: "Check Gåri's tonight page for all evening events in Bergen today. Concerts and performances typically start between 19:00 and 21:00." }
+				{ q: "What's on in Bergen tonight?", a: "Check Gåri's tonight page for all evening events in Bergen today. Concerts and performances typically start between 19:00 and 21:00." },
+				{ q: 'What are popular daytime things to do in Bergen?', a: 'Popular daytime activities in Bergen include the Fløibanen funicular and walks on Fløyen, visiting the Aquarium or KODE, a stroll around Bryggen and guided city walks. Use the "daytime" time filter on Gåri for events between 12:00 and 17:00.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -820,14 +828,16 @@ const collections: Collection[] = [
 				{ q: 'Hvilke kulturarenaer er det i Bergen sentrum?', a: 'Grieghallen, Den Nationale Scene, Ole Bull, Bergen Kunsthall, KODE og Litteraturhuset ligger alle i Bergen sentrum.' },
 				{ q: 'Hva skjer i Bergen sentrum i helgen?', a: 'Sjekk Gåri for helgens arrangementer i Bergen sentrum — fra Grieghallen og DNS til Kunsthallen og matmarkedet på Torget.' },
 				{ q: 'Kan man gå mellom arrangementene i Bergen sentrum?', a: 'Bergen sentrum er kompakt. Fra Grieghallen til Bryggen er det under ti minutters gange. Bybanen stopper ved Byparken og Florida for enkel tilgang til alle sentrumsscener.' },
-				{ q: 'Er det matmarkeder i Bergen sentrum?', a: 'Fisketorget er åpent daglig. Mathallen på Strandkaien har restauranter og matopplevelser. Sesongmarkeder dukker opp på Torgallmenningen og Festplassen ved høytider.' }
+				{ q: 'Er det matmarkeder i Bergen sentrum?', a: 'Fisketorget er åpent daglig. Mathallen på Strandkaien har restauranter og matopplevelser. Sesongmarkeder dukker opp på Torgallmenningen og Festplassen ved høytider.' },
+				{ q: 'Hva er de beste kulturopplevelsene i Bergen sentrum?', a: 'I Bergen sentrum finner du Grieghallen (konserter), Bergen Kunsthall (samtidskunst), KODE (Norges største kunstmuseum), Den Nationale Scene (teater) og Litteraturhuset (foredrag). Alt i gangavstand fra hverandre.' }
 			],
 			en: [
 				{ q: "What's on in Bergen city centre?", a: 'Gåri shows all events in Bergen city centre over the next two weeks — concerts, exhibitions, theatre and more from 53 local sources.' },
 				{ q: 'What cultural venues are in Bergen city centre?', a: 'Grieghallen, Den Nationale Scene, Ole Bull, Bergen Kunsthall, KODE and Litteraturhuset are all in Bergen city centre.' },
 				{ q: "What's on in Bergen city centre this weekend?", a: 'Check Gåri for weekend events in Bergen city centre — from Grieghallen and DNS to Kunsthallen and the market at Torget.' },
 				{ q: 'Can you walk between venues in Bergen city centre?', a: 'Bergen city centre is compact. From Grieghallen to Bryggen is under ten minutes on foot. The Bybanen tram stops at Byparken and Florida for easy access to all central venues.' },
-				{ q: 'Are there food markets in Bergen city centre?', a: 'The Fish Market is open daily. Mathallen at Strandkaien has restaurants and food experiences. Seasonal markets appear at Torgallmenningen and Festplassen during holidays.' }
+				{ q: 'Are there food markets in Bergen city centre?', a: 'The Fish Market is open daily. Mathallen at Strandkaien has restaurants and food experiences. Seasonal markets appear at Torgallmenningen and Festplassen during holidays.' },
+				{ q: 'What are the best cultural experiences in Bergen city centre?', a: "Bergen city centre has Grieghallen (concerts), Bergen Kunsthall (contemporary art), KODE (Norway's largest art museum), Den Nationale Scene (theatre) and Litteraturhuset (talks) — all within walking distance of each other." }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -1300,14 +1310,16 @@ const collections: Collection[] = [
 				{ q: 'Hvilke kulturarrangementer er det i Bergen?', a: 'Bergen tilbyr klassisk musikk på Grieghallen, jazz, teater på DNS, omvisninger på KODE og Bymuseet, foredrag på Litteraturhuset og mye mer.' },
 				{ q: 'Er det gratis arrangementer for voksne i Bergen?', a: 'Ja — Bergen Kunsthall, Bergen Bibliotek og mange gallerier tilbyr gratis inngang. Sjekk Gåri for oversikt over gratis arrangementer.' },
 				{ q: 'Hva kan par gjøre i Bergen?', a: 'Klassisk konsert på Grieghallen, omvisning på KODE, matopplevelse på Colonialen eller forestilling på DNS. Bergen sentrum er kompakt og egner seg godt for en kulturkveld.' },
-				{ q: 'Er det rabatter for pensjonister på arrangementer i Bergen?', a: 'Mange teatre og museer i Bergen tilbyr honnørrabatt. KODE, DNS, Grieghallen og Bergen Filharmoniske har egne priser for seniorer. Sjekk pris hos arrangøren.' }
+				{ q: 'Er det rabatter for pensjonister på arrangementer i Bergen?', a: 'Mange teatre og museer i Bergen tilbyr honnørrabatt. KODE, DNS, Grieghallen og Bergen Filharmoniske har egne priser for seniorer. Sjekk pris hos arrangøren.' },
+				{ q: 'Hva er de beste kulturopplevelsene for voksne i Bergen?', a: 'For voksne er Grieghallen, Den Nationale Scene og KODE toppen av Bergens kulturtilbud. Nattjazz i mai er Norges største jazzfestival. Festspillene i juni samler internasjonale artister. Litteraturhuset har foredrag og debatter hele året.' }
 			],
 			en: [
 				{ q: 'What events are there for adults in Bergen?', a: 'Gåri shows concerts, theatre, guided tours, exhibitions and cultural experiences for adults in Bergen over the next two weeks.' },
 				{ q: 'What cultural events are on in Bergen?', a: 'Bergen offers classical music at Grieghallen, jazz, theatre at DNS, tours at KODE and Bymuseet, talks at Litteraturhuset and much more.' },
 				{ q: 'Are there free events for adults in Bergen?', a: 'Yes — Bergen Kunsthall, Bergen Bibliotek and many galleries offer free entry. Check Gåri for a full list of free events.' },
 				{ q: 'What can couples do in Bergen?', a: 'Classical concert at Grieghallen, a guided tour at KODE, dining at Colonialen or a performance at DNS. Bergen\'s compact centre is well-suited for a cultural evening.' },
-				{ q: 'Are there senior discounts on events in Bergen?', a: 'Many theatres and museums in Bergen offer senior discounts. KODE, DNS, Grieghallen and Bergen Philharmonic have separate pricing for seniors. Check the organiser for prices.' }
+				{ q: 'Are there senior discounts on events in Bergen?', a: 'Many theatres and museums in Bergen offer senior discounts. KODE, DNS, Grieghallen and Bergen Philharmonic have separate pricing for seniors. Check the organiser for prices.' },
+				{ q: 'What are the best cultural experiences for adults visiting Bergen?', a: 'For adults, Grieghallen, Den Nationale Scene and KODE represent the best of Bergen\'s cultural scene. Nattjazz in May is Norway\'s largest jazz festival. Festspillene in June brings international artists. Litteraturhuset hosts talks and debates year-round.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -1369,14 +1381,16 @@ const collections: Collection[] = [
 				{ q: 'Er det gratis arrangementer for ungdom i Bergen?', a: 'Ja \u2014 mange museer, biblioteker og kulturhus har gratis inngang for ungdom under 18. Sjekk Gåris gratis-side for full oversikt.' },
 				{ q: 'Hvilke konserter kan ungdom gå på i Bergen?', a: 'Mange konserter i Bergen er åpne for alle aldre. Gåri filtrerer bort arrangementer med 18+ aldersgrense, slik at du ser konserter du faktisk kan gå på.' },
 				{ q: 'Hvilke steder i Bergen er trygge for tenåringer?', a: 'Kvarteret, Bergen Bibliotek, KODE og Akvariet er trygge og populære steder for ungdom. Kulturhuset i Bergen har jevnlig arrangementer for aldersgruppen 13\u201318.' },
-				{ q: 'Er det rimelige aktiviteter for ungdom i Bergen?', a: 'Mange museer har gratis inngang for under 18. Bergen Bibliotek har gratis arrangementer. Kvarteret har lave priser for studenter og ungdom. Sjekk Gåri for oppdaterte priser.' }
+				{ q: 'Er det rimelige aktiviteter for ungdom i Bergen?', a: 'Mange museer har gratis inngang for under 18. Bergen Bibliotek har gratis arrangementer. Kvarteret har lave priser for studenter og ungdom. Sjekk Gåri for oppdaterte priser.' },
+				{ q: 'Er Bergen trygt for ungdom på kvelden?', a: 'Bergen er en trygg by. Sentrum, Kvarteret-området og bibliotekene er trygge møtesteder. Kulturhuset i Bergen og ungdomshusene arrangerer jevnlig kveldsarrangementer tilrettelagt for tenåringer.' }
 			],
 			en: [
 				{ q: 'What events are there for teens in Bergen?', a: 'Gåri shows concerts, culture, sports, workshops and festivals suitable for teens aged 13\u201318 in Bergen over the next two weeks.' },
 				{ q: 'Are there free events for teens in Bergen?', a: 'Yes \u2014 many museums, libraries and cultural venues offer free entry for teens under 18. Check Gåri\'s free events page for a full list.' },
 				{ q: 'What concerts can teens go to in Bergen?', a: 'Many concerts in Bergen are open to all ages. Gåri filters out events with 18+ age restrictions, so you see concerts you can actually attend.' },
 				{ q: 'What places in Bergen are safe for teenagers?', a: 'Kvarteret, Bergen Library, KODE and the Aquarium are safe and popular spots for teens. Kulturhuset i Bergen regularly hosts events for the 13\u201318 age group.' },
-				{ q: 'Are there affordable activities for teens in Bergen?', a: 'Many museums offer free entry for under-18s. Bergen Library hosts free events. Kvarteret has low prices for students and young people. Check Gåri for updated prices.' }
+				{ q: 'Are there affordable activities for teens in Bergen?', a: 'Many museums offer free entry for under-18s. Bergen Library hosts free events. Kvarteret has low prices for students and young people. Check Gåri for updated prices.' },
+				{ q: 'Is Bergen safe for teenagers in the evening?', a: 'Bergen is a safe city. The city centre, the Kvarteret area and the libraries are safe meeting points for young people. Kulturhuset i Bergen regularly organises evening events designed for teenagers.' }
 			]
 		},
 		filterEvents: (events, now) => {
