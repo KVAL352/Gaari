@@ -46,6 +46,15 @@ function stripHtml(html: string): string {
 	return decodeEntities(html.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim();
 }
 
+function extractPrice(html: string): string {
+	const text = stripHtml(html);
+	// Match patterns like "200kr", "200 kr", "kr 200", "200,-", "kr. 200"
+	const m = text.match(/\b(\d{2,5})\s*kr\b/i) || text.match(/\bkr\.?\s*(\d{2,5})\b/i);
+	if (m) return `${m[1]} kr`;
+	if (/gratis|fri\s+inngang|free\s+entry/i.test(text)) return 'Gratis';
+	return '';
+}
+
 function parseJsonLd(html: string): JsonLdEvent | null {
 	const $ = cheerio.load(html);
 	const scripts = $('script[type="application/ld+json"]');
@@ -153,7 +162,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			? `${jsonLd.location.address.streetAddress}, ${jsonLd.location.address.addressLocality || 'Bergen'}`
 			: ADDRESS;
 
-		const aiDesc = await generateDescription({ title, venue: venueName, category, date: startDate, price: '' });
+		const price = extractPrice(html);
+		const aiDesc = await generateDescription({ title, venue: venueName, category, date: startDate, price });
 
 		const success = await insertEvent({
 			slug: makeSlug(title, datePart),
@@ -166,7 +176,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			venue_name: venueName,
 			address,
 			bydel,
-			price: '',
+			price,
 			ticket_url: sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
