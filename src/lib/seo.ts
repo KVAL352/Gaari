@@ -166,23 +166,54 @@ export function generateEventJsonLd(
 		url: event.ticket_url || pageUrl
 	};
 
+	const priceDisclaimer = lang === 'en'
+		? 'Always verify price with organizer'
+		: 'Sjekk alltid pris hos arrangør';
+
 	if (isFreeEvent(event.price)) {
 		offers.price = '0';
 		offers.priceCurrency = 'NOK';
+		offers.description = lang === 'en'
+			? 'Likely free – always verify with organizer'
+			: 'Trolig gratis – sjekk alltid med arrangør';
 	} else if (typeof event.price === 'number') {
 		offers.price = String(event.price);
 		offers.priceCurrency = 'NOK';
+		offers.description = priceDisclaimer;
 	} else if (typeof event.price === 'string' && event.price !== '') {
 		if (!isNaN(Number(event.price))) {
 			// Pure numeric string e.g. "250"
 			offers.price = event.price;
 			offers.priceCurrency = 'NOK';
+			offers.description = priceDisclaimer;
 		} else {
-			// Norwegian price string e.g. "250 kr", "fra 250,-", "300-500 kr"
-			const match = event.price.match(/(\d+)/);
-			if (match) {
-				offers.price = match[1];
-				offers.priceCurrency = 'NOK';
+			// Check for price range e.g. "300-500 kr", "250–350,-"
+			const rangeMatch = event.price.match(/(\d+)\s*[-–]\s*(\d+)/);
+			if (rangeMatch) {
+				const min = parseInt(rangeMatch[1], 10);
+				const max = parseInt(rangeMatch[2], 10);
+				if (max > min) {
+					offers.priceSpecification = {
+						'@type': 'PriceSpecification',
+						minPrice: min,
+						maxPrice: max,
+						priceCurrency: 'NOK'
+					};
+					offers.description = priceDisclaimer;
+				} else {
+					// Not a real range (e.g. reversed), use first number
+					offers.price = rangeMatch[1];
+					offers.priceCurrency = 'NOK';
+					offers.description = priceDisclaimer;
+				}
+			} else {
+				// Single price string e.g. "250 kr", "fra 200,-"
+				const match = event.price.match(/(\d+)/);
+				if (match) {
+					offers.price = match[1];
+					offers.priceCurrency = 'NOK';
+					offers.description = priceDisclaimer;
+				}
 			}
 		}
 	}
@@ -202,7 +233,8 @@ export function generateEventJsonLd(
 		offers,
 		organizer: {
 			'@type': 'Organization',
-			name: event.venue_name
+			name: event.venue_name,
+			...(event.source_url ? { url: event.source_url } : {})
 		},
 		eventStatus: event.status === 'cancelled'
 			? 'https://schema.org/EventCancelled'

@@ -51,11 +51,29 @@ describe('generateEventJsonLd', () => {
 		expect(data.offers.priceCurrency).toBe('NOK');
 	});
 
+	it('adds "Trolig gratis" disclaimer on free events in Norwegian', () => {
+		const json = generateEventJsonLd(makeEvent({ price: 0 }), 'no', 'https://gaari.no/no/events/test');
+		const data = JSON.parse(json);
+		expect(data.offers.description).toBe('Trolig gratis – sjekk alltid med arrangør');
+	});
+
+	it('adds "Likely free" disclaimer on free events in English', () => {
+		const json = generateEventJsonLd(makeEvent({ price: 0 }), 'en', 'https://gaari.no/en/events/test');
+		const data = JSON.parse(json);
+		expect(data.offers.description).toBe('Likely free – always verify with organizer');
+	});
+
 	it('includes numeric price for paid events', () => {
 		const json = generateEventJsonLd(makeEvent({ price: 250 }), 'no', 'https://gaari.no/no/events/test');
 		const data = JSON.parse(json);
 		expect(data.offers.price).toBe('250');
 		expect(data.offers.priceCurrency).toBe('NOK');
+	});
+
+	it('adds price disclaimer on paid events', () => {
+		const json = generateEventJsonLd(makeEvent({ price: 250 }), 'no', 'https://gaari.no/no/events/test');
+		const data = JSON.parse(json);
+		expect(data.offers.description).toBe('Sjekk alltid pris hos arrangør');
 	});
 
 	it('sets EventCancelled status for cancelled events', () => {
@@ -110,15 +128,44 @@ describe('generateEventJsonLd', () => {
 		expect(data.offers.priceCurrency).toBe('NOK');
 	});
 
-	it('extracts minimum price from range "300-500 kr"', () => {
+	it('uses PriceSpecification with minPrice/maxPrice for range "300-500 kr"', () => {
 		const json = generateEventJsonLd(
 			makeEvent({ price: '300-500 kr' }),
 			'no',
 			'https://gaari.no/no/events/test'
 		);
 		const data = JSON.parse(json);
-		expect(data.offers.price).toBe('300');
+		expect(data.offers.price).toBeUndefined();
+		expect(data.offers.priceSpecification).toEqual({
+			'@type': 'PriceSpecification',
+			minPrice: 300,
+			maxPrice: 500,
+			priceCurrency: 'NOK'
+		});
+	});
+
+	it('uses PriceSpecification for en-dash range "250–400,-"', () => {
+		const json = generateEventJsonLd(
+			makeEvent({ price: '250–400,-' }),
+			'no',
+			'https://gaari.no/no/events/test'
+		);
+		const data = JSON.parse(json);
+		expect(data.offers.priceSpecification?.minPrice).toBe(250);
+		expect(data.offers.priceSpecification?.maxPrice).toBe(400);
+		expect(data.offers.priceSpecification?.priceCurrency).toBe('NOK');
+	});
+
+	it('does not treat "200,-" as a range', () => {
+		const json = generateEventJsonLd(
+			makeEvent({ price: '200,-' }),
+			'no',
+			'https://gaari.no/no/events/test'
+		);
+		const data = JSON.parse(json);
+		expect(data.offers.price).toBe('200');
 		expect(data.offers.priceCurrency).toBe('NOK');
+		expect(data.offers.priceSpecification).toBeUndefined();
 	});
 
 	it('extracts price from "fra 200,-"', () => {
@@ -130,6 +177,26 @@ describe('generateEventJsonLd', () => {
 		const data = JSON.parse(json);
 		expect(data.offers.price).toBe('200');
 		expect(data.offers.priceCurrency).toBe('NOK');
+	});
+
+	it('includes organizer url when source_url is present', () => {
+		const json = generateEventJsonLd(
+			makeEvent({ source_url: 'https://venue.no/events/konsert' }),
+			'no',
+			'https://gaari.no/no/events/test'
+		);
+		const data = JSON.parse(json);
+		expect(data.organizer.url).toBe('https://venue.no/events/konsert');
+	});
+
+	it('omits organizer url when source_url is absent', () => {
+		const json = generateEventJsonLd(
+			makeEvent({ source_url: undefined }),
+			'no',
+			'https://gaari.no/no/events/test'
+		);
+		const data = JSON.parse(json);
+		expect(data.organizer.url).toBeUndefined();
 	});
 });
 
