@@ -99,5 +99,10 @@
     "date": "2026-03-12",
     "title": "Videre gjennomgang: Prospect report",
     "description": "Fortsett UX-gjennomgang av prospect-rapporten. Kjente gjenstående ting: 1) Kategorier-tallet viser bare 8 av 11 — sjekk mapCategory-logikken. 2) Vurder om alle metric-kort kommuniserer tydelig nok. 3) Test festival-rapport (--festival festspillene) med samme endringer. 4) Sjekk mobilvennlighet. Generer: cd scripts && npx tsx generate-prospect-report.ts 'Grieghallen' og --festival festspillene."
+  },
+  {
+    "date": "2026-04-06",
+    "title": "Scrapers med manglende bilder: brann, bergenpride, beyondthegates",
+    "description": "Disse scrapers har image_url: undefined og ingen enkel fix (hash-basert source_url, ingen detail-sider). Vurder: 1) brann.ts — finn stabil logo-URL fra brann.no (unngå CMS content-hash). 2) bergenpride.ts — sjekk om pride 2026-programmet har egne eventsider med bilder når festivalen nærmer seg (juni). 3) beyondthegates.ts — har lineup-sider noen gang individuelt bilde-innhold?"
   }
 ]
