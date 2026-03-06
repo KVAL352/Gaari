@@ -555,7 +555,7 @@
 				<p class="text-sm text-[var(--color-text-secondary)]">
 					{$lang === 'no'
 						? 'Gåri dukker opp når folk spør ChatGPT om hva som skjer i Bergen — en kanal de fleste arrangører ikke kjenner til ennå.'
-						: 'We optimize for Gåri to appear when people ask ChatGPT about Bergen — a channel most organizers don\'t know about yet.'}
+						: 'Gåri shows up when people ask ChatGPT what\'s on in Bergen — a channel most organizers haven\'t thought about yet.'}
 				</p>
 			</div>
 			<!-- Nyhetsbrev card -->
