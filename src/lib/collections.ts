@@ -1871,14 +1871,16 @@ const collections: Collection[] = [
 				{ q: 'Hva er buekorps?', a: 'Barnebrigader med trommer og faner — unikt for Bergen siden 1800-tallet. Rundt 30 aktive korps.' },
 				{ q: 'Er 17. mai-arrangementer gratis?', a: 'De fleste feiringer er gratis. Noen konserter krever billett.' },
 				{ q: 'Når starter barnetoget i Bergen?', a: 'Barnetoget går fra Festplassen klokken 10:00. Buekorps marsjerer fra ca. 07:00.' },
-				{ q: 'Hva er bunad?', a: 'Bunad er den tradisjonelle norske folkedrakten. Hvert distrikt har sitt eget design. De fleste kler seg i bunad eller pent 17. mai.' }
+				{ q: 'Hva er bunad?', a: 'Bunad er den tradisjonelle norske folkedrakten. Hvert distrikt har sitt eget design. De fleste kler seg i bunad eller pent 17. mai.' },
+				{ q: 'Er 17. mai en offentlig helligdag i Norge?', a: 'Ja, 17. mai er Norges nasjonaldag og en offentlig høytidsdag. Banker, offentlige kontorer og de fleste butikker holder stengt. Restauranter, kaféer og kultursteder er vanligvis åpne.' }
 			],
 			en: [
 				{ q: "What happens on 17th of May in Bergen?", a: "Bergen celebrates with children's parades (barnetog), buekorps marching brigades, concerts at Torgallmenningen and family activities. Most events are free and open to visitors." },
 				{ q: 'What is buekorps?', a: "Buekorps are children's marching brigades with drums, banners and uniforms — a tradition unique to Bergen since the 1800s. Around 30 active brigades march through the city from early morning." },
 				{ q: "What time does the 17th of May parade start?", a: "The children's parade (barnetog) starts at Festplassen around 10:00. Buekorps brigades march from around 07:00. Celebrations continue until evening with concerts and festivities." },
 				{ q: 'What is bunad?', a: 'Bunad is the traditional Norwegian folk costume worn on national holidays. Each region has its own design. On 17th of May, most Norwegians dress in bunad or formal attire.' },
-				{ q: 'Is 17th of May worth visiting Bergen for?', a: "Absolutely. Bergen's 17th of May celebration is considered one of Norway's best, with the unique buekorps tradition, harbour setting at Bryggen, and a festive atmosphere throughout the compact city centre." }
+				{ q: 'Is 17th of May worth visiting Bergen for?', a: "Absolutely. Bergen's 17th of May celebration is considered one of Norway's best, with the unique buekorps tradition, harbour setting at Bryggen, and a festive atmosphere throughout the compact city centre." },
+				{ q: 'Is 17th of May a public holiday in Norway?', a: "Yes — the 17th of May (syttende mai) is Norway's National Day and a public holiday. Banks, offices and most shops are closed. Restaurants, cafés and tourist attractions remain open." }
 			]
 		},
 		offSeasonHint: {
@@ -1927,14 +1929,16 @@ const collections: Collection[] = [
 				{ q: 'Er julemarkedet gratis?', a: 'Ja, inngang til julemarkedet er gratis. Pepperkakebyen har en liten inngangspris.' },
 				{ q: 'Hva er Pepperkakebyen?', a: 'Verdens største pepperkakeby, bygget av skoler og barnehager i Bergen. Utstilt på Sentralbadet fra november til januar.' },
 				{ q: 'Hvilke julekonserter er det i Bergen?', a: 'Grieghallen, Domkirken, Korskirken og kirker i hele byen har konserter fra november. Alt fra klassisk til gospel og barnekonserter.' },
-				{ q: 'Hva er Lysfesten i Bergen?', a: 'Lysfesten markerer julestart med tenning av juletreet, musikk og fyrverkeri over Lille Lungegårdsvann. Tradisjon i over 30 år.' }
+				{ q: 'Hva er Lysfesten i Bergen?', a: 'Lysfesten markerer julestart med tenning av juletreet, musikk og fyrverkeri over Lille Lungegårdsvann. Tradisjon i over 30 år.' },
+				{ q: 'Er Bergen fin å besøke i desember?', a: 'Ja — Bergen er et av Skandinavias mest stemningsfulle julereisemål. Julemarked, Pepperkakebyen, festlige lys og konsertprogram gjør desember til en populær besøksmåned. Forvent 3–6°C og en del regn; Bryggen er magisk i kulda.' }
 			],
 			en: [
 				{ q: 'When does the Bergen Christmas market open?', a: 'Bergen Christmas Market at Festplassen opens around November 20 and runs until December 22. Hours: weekdays 12–21, weekends 10–21. Free entry.' },
 				{ q: 'What is the Gingerbread City (Pepperkakebyen)?', a: "The world's largest gingerbread city, at Sentralbadet in Bergen centre. Built annually by local schools and kindergartens with hundreds of gingerbread houses. Open mid-November to early January." },
 				{ q: 'Is the Bergen Christmas market worth visiting?', a: "Yes — Bergen's Christmas market at Festplassen has 90+ stalls with Norwegian handicrafts and food, a Ferris wheel, and free entry. Combined with the Gingerbread City and Bryggen's atmosphere, it's one of Scandinavia's best." },
 				{ q: 'What Christmas concerts are in Bergen?', a: 'Grieghallen, Bergen Cathedral, Korskirken and churches across the city host concerts from late November. Genres range from classical to gospel, folk and children\'s concerts.' },
-				{ q: 'How is the weather in Bergen at Christmas?', a: "Bergen in December averages 3–6°C with frequent rain (about 200 mm). Snow is uncommon in the city centre but possible. Dress in layers with waterproof outerwear. The Christmas market and Gingerbread City are covered." }
+				{ q: 'How is the weather in Bergen at Christmas?', a: "Bergen in December averages 3–6°C with frequent rain (about 200 mm). Snow is uncommon in the city centre but possible. Dress in layers with waterproof outerwear. The Christmas market and Gingerbread City are covered." },
+				{ q: 'Is Bergen nice to visit in December?', a: "Yes — Bergen is one of Scandinavia's most atmospheric Christmas destinations. The Christmas market, Gingerbread City, festive lights and concert programme make December a popular time to visit. Expect 3–6°C and some rain; the Bryggen wharf is magical in winter." }
 			]
 		},
 		offSeasonHint: {
@@ -1983,14 +1987,16 @@ const collections: Collection[] = [
 				{ q: 'Når er påsken?', a: 'Påsken varierer hvert år. Gåri oppdaterer datoene automatisk basert på påskeberegning.' },
 				{ q: 'Hva har åpent i påsken?', a: 'Langfredag og påskedag er de fleste butikker stengt. Museer, restauranter og kultursteder holder ofte åpent.' },
 				{ q: 'Hva er påskekrim?', a: 'Påskekrim er en norsk tradisjon der folk leser krimromaner i påsken. Forlag gir ut spesialutgaver, og TV sender krimserier.' },
-				{ q: 'Hvordan er været i Bergen i påsken?', a: 'Bergen i april har 5–10°C og bare ca. 73 mm nedbør — en av byens tørreste måneder.' }
+				{ q: 'Hvordan er været i Bergen i påsken?', a: 'Bergen i april har 5–10°C og bare ca. 73 mm nedbør — en av byens tørreste måneder.' },
+				{ q: 'Hva er de typiske norske påsketradisjonene?', a: 'Nordmenn drar til fjells for ski og leser påskekrim, baker pepperkaker og dekorerer med gule kyllinger. Bergen-folk er kjent for å holde seg i byen og nyte kulturtilbudet i påsken.' }
 			],
 			en: [
 				{ q: 'Is Bergen good to visit at Easter?', a: "Yes — Bergen offers concerts, exhibitions and family activities. April is one of the driest months (73 mm average), and the city is less crowded than summer. Easter dates change yearly; Gåri updates automatically." },
 				{ q: "What's open in Bergen during Easter?", a: 'Most shops are closed on Good Friday and Easter Sunday. Restaurants, museums and cultural venues typically remain open with reduced hours. The Fish Market and tourist attractions stay open.' },
 				{ q: 'What is påskekrim?', a: "Påskekrim (Easter crime) is a uniquely Norwegian tradition of reading crime novels during Easter. Publishers release special editions, TV channels air crime series, and even milk cartons feature detective stories." },
 				{ q: 'Are there family activities in Bergen at Easter?', a: "Yes — the Aquarium, VilVite science centre, Fløyen and Bymuseet organise Easter activities. Many museums offer free entry for children under 16." },
-				{ q: 'What is the weather like in Bergen at Easter?', a: "Bergen in April averages 5–10°C with only about 73 mm rainfall — surprisingly one of the city's driest months. Pack layers and waterproofs, but expect more sunshine than Bergen's reputation suggests." }
+				{ q: 'What is the weather like in Bergen at Easter?', a: "Bergen in April averages 5–10°C with only about 73 mm rainfall — surprisingly one of the city's driest months. Pack layers and waterproofs, but expect more sunshine than Bergen's reputation suggests." },
+				{ q: 'What are the typical Norwegian Easter traditions?', a: "Norwegians go to mountain cabins for skiing, read påskekrim (crime novels — a uniquely Norwegian tradition), eat lamb and decorate with yellow chicks. Bergen residents often stay in the city to enjoy the Easter cultural programme." }
 			]
 		},
 		offSeasonHint: {
@@ -2039,14 +2045,16 @@ const collections: Collection[] = [
 				{ q: 'Når er sankthans?', a: 'Sankthansaften er 23. juni hvert år. Feiringen starter vanligvis 21. juni ved sommersolverv.' },
 				{ q: 'Er sankthansarrangementer gratis?', a: 'De fleste bål og feiringer er gratis og åpne for alle.' },
 				{ q: 'Går solen ned i Bergen på sankthans?', a: 'Nesten ikke. Bergen har 19 timer og 8 minutter dagslys ved solverv, og himmelen blir aldri helt mørk.' },
-				{ q: 'Når tennes sankthansbålene?', a: 'Bålene tennes vanligvis mellom 21:00 og 22:00. Feiringen starter med grilling og sosialt samvær på ettermiddagen.' }
+				{ q: 'Når tennes sankthansbålene?', a: 'Bålene tennes vanligvis mellom 21:00 og 22:00. Feiringen starter med grilling og sosialt samvær på ettermiddagen.' },
+				{ q: 'Er sankthans en fridag i Norge?', a: 'Nei, 23. juni er ikke en offentlig fridag i Norge. Mange tar fri fra jobb eller slutter tidlig for å feire, men det er ikke en røde-dager-dag.' }
 			],
 			en: [
 				{ q: 'What is sankthans / midsummer?', a: "Sankthans (St. John's Eve, June 23) celebrates the summer solstice with bonfires along the coast. The tradition dates back to Norse times. In Bergen, it's a major social celebration with free public bonfires." },
 				{ q: 'Where are the best midsummer bonfires in Bergen?', a: "The most famous bonfires are at Nordnes, Sandviken and the harbour islands. The municipality organises free public bonfires at several locations. Gåri lists all official events." },
 				{ q: 'Does the sun set in Bergen at midsummer?', a: "Technically yes, but barely. Bergen has 19 hours and 8 minutes of daylight at the solstice, and the sky never fully darkens — it remains in civil twilight, creating luminous 'white nights'." },
 				{ q: 'Is midsummer in Bergen worth visiting for?', a: "Yes — the combination of coastal bonfires, white nights, and Bergen's harbour setting makes it one of Norway's most atmospheric midsummer celebrations. Most events are free." },
-				{ q: 'What time are the midsummer bonfires lit?', a: 'Bonfires are typically lit between 21:00 and 22:00, though celebrations start in the afternoon with barbecues and socialising. The light means celebrations naturally extend late into the evening.' }
+				{ q: 'What time are the midsummer bonfires lit?', a: 'Bonfires are typically lit between 21:00 and 22:00, though celebrations start in the afternoon with barbecues and socialising. The light means celebrations naturally extend late into the evening.' },
+				{ q: 'Is midsummer (sankthans) a public holiday in Norway?', a: "No — June 23 is not a public holiday in Norway. However, many people leave work early or take the day off to celebrate. Most shops and attractions remain open." }
 			]
 		},
 		offSeasonHint: {
@@ -2095,14 +2103,16 @@ const collections: Collection[] = [
 				{ q: 'Hva skjer nyttårsaften i Bergen?', a: 'Fyrverkeri, konserter, fester og restauranter med nyttårsmenyer i hele sentrum.' },
 				{ q: 'Når er fyrverkeriet?', a: 'Ved midnatt, akkurat ved årsskiftet. Varer ca. 10–15 minutter.' },
 				{ q: 'Trenger jeg billetter til nyttårsarrangementer?', a: 'Fyrverkeriet er gratis. Konserter og fester krever billett — bestill tidlig da populære arrangementer blir utsolgt.' },
-				{ q: 'Hvordan er været i Bergen på nyttårsaften?', a: 'Forvent 1–5°C med gode sjanser for regn. Kle deg varmt og vanntett for utendørs fyrverkeri.' }
+				{ q: 'Hvordan er været i Bergen på nyttårsaften?', a: 'Forvent 1–5°C med gode sjanser for regn. Kle deg varmt og vanntett for utendørs fyrverkeri.' },
+				{ q: 'Hvilke hoteller har utsikt til nyttårsfyrverkeriet i Bergen?', a: 'Hoteller nær Vågen og Bryggen har gjerne utsikt til fyrverkeriet. Sjekk hotellets utsikt ved bestilling. Prisene stiger kraftig på nyttårsaften — bestill god tid i forveien.' }
 			],
 			en: [
 				{ q: "Where are the New Year's Eve fireworks in Bergen?", a: "The main fireworks are launched over the harbour (Vågen) and from Mount Fløyen at midnight. Bryggen, the Fish Market, Nordnes and Fløyen mountain are popular viewing spots." },
 				{ q: "What time are the Bergen fireworks?", a: "The official fireworks start at midnight and last 10–15 minutes. The harbour location means reflections on the water double the visual impact." },
 				{ q: "Is Bergen good for New Year's Eve?", a: "Yes — Bergen's compact centre, harbour fireworks, and lively venue scene make it an excellent NYE destination. The Bryggen setting is particularly atmospheric." },
 				{ q: "What's the weather in Bergen on New Year's Eve?", a: "Expect 1–5°C with a good chance of rain. Dress warmly and waterproof for outdoor viewing. Snow is uncommon but possible." },
-				{ q: "Do I need tickets for New Year's events in Bergen?", a: "The fireworks are free and public. Concerts and parties at venues require tickets — book early as popular events sell out. Restaurant New Year's menus should be booked well in advance." }
+				{ q: "Do I need tickets for New Year's events in Bergen?", a: "The fireworks are free and public. Concerts and parties at venues require tickets — book early as popular events sell out. Restaurant New Year's menus should be booked well in advance." },
+				{ q: "Which hotels have views of the Bergen New Year's fireworks?", a: "Hotels near Vågen harbour and Bryggen often have views of the fireworks. Check the hotel's harbour view when booking. Prices rise significantly on New Year's Eve — book well in advance." }
 			]
 		},
 		offSeasonHint: {
@@ -2151,14 +2161,16 @@ const collections: Collection[] = [
 				{ q: 'Hva kan man gjøre i Bergen i vinterferien?', a: 'Akvariet, VilVite, KODE, Bymuseet og bibliotekene har spesialopplegg for barn.' },
 				{ q: 'Kan man stå på ski nær Bergen?', a: 'Voss Resort og Myrkdalen er 1,5 timer unna med tog eller bil. Utstyrsleie på stedet.' },
 				{ q: 'Er det gratis aktiviteter for barn i Bergen?', a: 'Bergen bibliotek har gratis verksteder, flere museer har gratis inngang for barn under 16, og Fløyen har gratisområder hele året.' },
-				{ q: 'Hvordan er Bergen i februar?', a: 'Ca. 6 timer dagslys og hyppig regn, men museer, konserter og innendørsaktiviteter gjør det givende. Dagene blir merkbart lengre utover måneden.' }
+				{ q: 'Hvordan er Bergen i februar?', a: 'Ca. 6 timer dagslys og hyppig regn, men museer, konserter og innendørsaktiviteter gjør det givende. Dagene blir merkbart lengre utover måneden.' },
+				{ q: 'Hva er Akvariet i Bergen?', a: 'Akvariet i Bergen er Norges største akvaarium og ligger på Nordnes-halvøya. Det huser pingviner, sjøløver, haier og hundrevis av fiskarter. Et av Bergens beste familiemål, med spesielle aktiviteter i ferier.' }
 			],
 			en: [
 				{ q: 'When is winter break in Bergen?', a: "Vestland county's winter break is week 9 (late February). This differs from Oslo (week 8). Gåri updates dates automatically each year." },
 				{ q: 'What can families do in Bergen during winter break?', a: 'The Aquarium, VilVite science centre, KODE art museums, Bymuseet and libraries have special activities. Fløibanen funicular runs year-round for mountain views.' },
 				{ q: 'Can you ski near Bergen?', a: 'Yes — Voss Resort and Myrkdalen are 1.5 hours from Bergen by train or car. Both have varied terrain for families and beginners. Equipment rental available on site.' },
 				{ q: 'Is Bergen worth visiting in February?', a: "Bergen has about 6 hours of daylight in February and frequent rain. However, museums, concerts and indoor attractions make it rewarding. Days get noticeably longer throughout the month." },
-				{ q: 'Are there free activities for kids in Bergen?', a: "Bergen Library offers free workshops, several museums have free children's admission (under 16), and Fløyen has free outdoor areas year-round." }
+				{ q: 'Are there free activities for kids in Bergen?', a: "Bergen Library offers free workshops, several museums have free children's admission (under 16), and Fløyen has free outdoor areas year-round." },
+				{ q: 'What is the Bergen Aquarium (Akvariet)?', a: "The Bergen Aquarium (Akvariet i Bergen) is Norway's largest aquarium, located on the Nordnes peninsula. It houses penguins, sea lions, sharks and hundreds of fish species. One of Bergen's top family attractions, with special holiday activities." }
 			]
 		},
 		offSeasonHint: {
@@ -2210,14 +2222,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes Festspillene?', a: 'Hovedarenaene er Grieghallen, Håkonshallen, Den Nationale Scene og diverse kirker og utendørsscener i Bergen sentrum.' },
 				{ q: 'Finnes det gratis arrangementer under Festspillene?', a: 'Ja — utendørskonserter, utstillingsåpninger og enkelte forestillinger er gratis. Griegkonsertene på Troldhaugen krever billett, men Lysøen har fri inngang til turstier.' },
 				{ q: 'Hvordan kjøper jeg billetter til Festspillene?', a: 'Billetter selges via festspillene.no og i Grieghallens billettkontor. Populære forestillinger selges raskt ut — bestill tidlig.' },
-				{ q: 'Passer Festspillene for barn?', a: 'Festivalen har eget barneprogram med teater, musikk og workshoper tilpasset ulike aldersgrupper.' }
+				{ q: 'Passer Festspillene for barn?', a: 'Festivalen har eget barneprogram med teater, musikk og workshoper tilpasset ulike aldersgrupper.' },
+				{ q: 'Hva er den kunstneriske profilen til Festspillene?', a: 'Festspillene setter hvert år en kunstnerisk profil som spenner fra klassisk musikk og opera til samtidskunst og performance. Profilen kunngjøres måneder i forveien på festspillene.no.' }
 			],
 			en: [
 				{ q: 'When is the Bergen International Festival?', a: 'The festival runs for two weeks from late May to early June each year. Exact dates vary — check this page for the updated programme.' },
 				{ q: 'Where does the Bergen International Festival take place?', a: 'Main venues include Grieghallen concert hall, the medieval Håkonshallen, Den Nationale Scene theatre, and various churches and outdoor stages across Bergen.' },
 				{ q: 'Are there free events at the Bergen International Festival?', a: 'Yes — outdoor concerts, exhibition openings and selected performances are free. The Grieg concerts at Troldhaugen require tickets, but Lysøen island has free trail access.' },
 				{ q: 'How do I buy tickets for the Bergen International Festival?', a: 'Tickets are sold through festspillene.no and at the Grieghallen box office. Popular performances sell out quickly — book early.' },
-				{ q: 'Is the Bergen International Festival suitable for children?', a: 'The festival has a dedicated children\'s programme with theatre, music and workshops for different age groups.' }
+				{ q: 'Is the Bergen International Festival suitable for children?', a: 'The festival has a dedicated children\'s programme with theatre, music and workshops for different age groups.' },
+				{ q: 'What is the artistic theme of the Bergen International Festival?', a: "Each edition has an overarching artistic theme set by the artistic director, announced a few months in advance. Visit festspillene.no for the current theme and lineup." }
 			]
 		},
 		offSeasonHint: {
@@ -2268,14 +2282,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes Festspillene?', a: 'Grieghallen, Håkonshallen, Den Nationale Scene og diverse kirker og utendørsscener i Bergen sentrum.' },
 				{ q: 'Finnes det gratis arrangementer under Festspillene?', a: 'Ja — utendørskonserter, utstillingsåpninger og enkelte forestillinger er gratis.' },
 				{ q: 'Hvordan kjøper jeg billetter til Festspillene?', a: 'Via festspillene.no og Grieghallens billettkontor. Populære forestillinger selges raskt ut.' },
-				{ q: 'Passer Festspillene for barn?', a: 'Festivalen har eget barneprogram med teater, musikk og workshoper tilpasset ulike aldersgrupper.' }
+				{ q: 'Passer Festspillene for barn?', a: 'Festivalen har eget barneprogram med teater, musikk og workshoper tilpasset ulike aldersgrupper.' },
+				{ q: 'Hva er historien til Festspillene i Bergen?', a: 'Festspillene ble grunnlagt i 1953 og er knyttet til Edvard Grieg-arven. Nå i sitt åttende tiår er festivalen en av Nordeuropas mest prestisjefulle tverrkunstneriske festivaler med over 200 arrangementer årlig.' }
 			],
 			en: [
 				{ q: 'When is the Bergen International Festival?', a: 'The festival runs for two weeks from late May to early June each year. Exact dates vary — check this page for the updated programme.' },
 				{ q: 'Where does the Bergen International Festival take place?', a: 'Main venues include Grieghallen concert hall, the medieval Håkonshallen, Den Nationale Scene theatre, and various churches and outdoor stages across Bergen.' },
 				{ q: 'Are there free events at the Bergen International Festival?', a: 'Yes — outdoor concerts, exhibition openings and selected performances are free.' },
 				{ q: 'How do I buy tickets for the Bergen International Festival?', a: 'Tickets are sold through festspillene.no and at the Grieghallen box office. Popular performances sell out quickly — book early.' },
-				{ q: 'Is the Bergen International Festival suitable for children?', a: 'The festival has a dedicated children\'s programme with theatre, music and workshops for different age groups.' }
+				{ q: 'Is the Bergen International Festival suitable for children?', a: 'The festival has a dedicated children\'s programme with theatre, music and workshops for different age groups.' },
+				{ q: 'What is the history of the Bergen International Festival?', a: "The Bergen International Festival was founded in 1953, linked to the legacy of composer Edvard Grieg, who lived and worked in Bergen. Now in its eighth decade, it has grown into one of Northern Europe's most prestigious multi-arts festivals, hosting over 200 events annually." }
 			]
 		},
 		offSeasonHint: {
@@ -2327,14 +2343,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes Bergenfest?', a: 'Koengen ved Bergenhus Festning i Bergen sentrum. Nær Bryggen og lett tilgjengelig med buss og bybane.' },
 				{ q: 'Hvordan kjøper jeg billetter til Bergenfest?', a: 'Billetter selges via bergenfest.no. Du kan kjøpe dagspass eller festivalpass for alle fire dager.' },
 				{ q: 'Er det aldersgrense på Bergenfest?', a: 'Festivalen er åpen for alle aldre, men det kan være 18-årsgrense på visse soner etter kl. 23.' },
-				{ q: 'Hva er været i Bergen i juni?', a: 'Bergen i juni har lange, lyse dager (solnedgang ca. kl. 23) og temperaturer rundt 15-20°C. Ta med regnjakke — Bergen er Bergen.' }
+				{ q: 'Hva er været i Bergen i juni?', a: 'Bergen i juni har lange, lyse dager (solnedgang ca. kl. 23) og temperaturer rundt 15-20°C. Ta med regnjakke — Bergen er Bergen.' },
+				{ q: 'Hva er Koengen?', a: 'Koengen er utendørsarenaen ved Bergenhus Festning i Bergen sentrum, brukt til Norges største konserter og festivaler. Bergenfest bruker Koengen som sin hovedscene med utsikt over Vågen og Bryggen.' }
 			],
 			en: [
 				{ q: 'When is Bergenfest?', a: 'Bergenfest takes place over four days in mid-June each year. Exact dates vary — check this page for the updated lineup.' },
 				{ q: 'Where is Bergenfest held?', a: 'At Koengen, outside Bergenhus Fortress in central Bergen. Near Bryggen and easily accessible by bus and light rail.' },
 				{ q: 'How do I buy Bergenfest tickets?', a: 'Tickets are sold through bergenfest.no. You can buy single-day passes or full festival passes for all four days.' },
 				{ q: 'Is there an age limit at Bergenfest?', a: 'The festival is open to all ages, but certain zones may have 18+ restrictions after 23:00.' },
-				{ q: 'What is the weather like in Bergen in June?', a: 'Bergen in June has long, bright days (sunset around 23:00) and temperatures around 15-20°C. Bring a rain jacket — Bergen is Bergen.' }
+				{ q: 'What is the weather like in Bergen in June?', a: 'Bergen in June has long, bright days (sunset around 23:00) and temperatures around 15-20°C. Bring a rain jacket — Bergen is Bergen.' },
+				{ q: 'What is Koengen in Bergen?', a: "Koengen is the outdoor concert arena adjacent to the medieval Bergenhus Fortress in central Bergen. It is Norway's largest outdoor concert venue and serves as Bergenfest's main stage, with views over the harbour (Vågen)." }
 			]
 		},
 		offSeasonHint: {
@@ -2386,14 +2404,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes Bergenfest?', a: 'Koengen ved Bergenhus Festning i Bergen sentrum.' },
 				{ q: 'Hvordan kjøper jeg billetter til Bergenfest?', a: 'Via bergenfest.no. Dagspass eller festivalpass for alle dager.' },
 				{ q: 'Er det aldersgrense på Bergenfest?', a: 'Åpen for alle aldre, men 18-årsgrense på visse soner etter kl. 23.' },
-				{ q: 'Hva er været i Bergen i juni?', a: 'Lange dager (solnedgang ca. kl. 23), 15-20°C. Ta med regnjakke.' }
+				{ q: 'Hva er været i Bergen i juni?', a: 'Lange dager (solnedgang ca. kl. 23), 15-20°C. Ta med regnjakke.' },
+				{ q: 'Hvem har opptrådt på Bergenfest?', a: 'Bergenfest har hatt internasjonale artister som Beyoncé, Bob Dylan, Elton John og Kylie Minogue. Festivalen er kjent for sin blanding av globale stjerner og spennende oppdagelser. Sjekk bergenfest.no for årets program.' }
 			],
 			en: [
 				{ q: 'When is Bergenfest?', a: 'Bergenfest takes place over four days in mid-June each year. Exact dates vary — check this page for the updated lineup.' },
 				{ q: 'Where is Bergenfest held?', a: 'At Koengen, outside Bergenhus Fortress in central Bergen. Near Bryggen and easily accessible by bus and light rail.' },
 				{ q: 'How do I buy Bergenfest tickets?', a: 'Tickets are sold through bergenfest.no. You can buy single-day passes or full festival passes for all four days.' },
 				{ q: 'Is there an age limit at Bergenfest?', a: 'The festival is open to all ages, but certain zones may have 18+ restrictions after 23:00.' },
-				{ q: 'What is the weather like in Bergen in June?', a: 'Bergen in June has long, bright days (sunset around 23:00) and temperatures around 15-20°C. Bring a rain jacket — Bergen is Bergen.' }
+				{ q: 'What is the weather like in Bergen in June?', a: 'Bergen in June has long, bright days (sunset around 23:00) and temperatures around 15-20°C. Bring a rain jacket — Bergen is Bergen.' },
+				{ q: 'Who has performed at Bergenfest?', a: "Bergenfest has hosted major international artists including Beyoncé, Bob Dylan, Elton John and Kylie Minogue. The festival is known for mixing global superstars with emerging artists. Check bergenfest.no for the latest lineup." }
 			]
 		},
 		offSeasonHint: {
@@ -2444,14 +2464,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes Beyond the Gates?', a: 'Flere scener i Bergen: USF Verftet, Kulturhuset i Bergen og Grieghallen. Alle er i sentrum og gangavstand fra hverandre.' },
 				{ q: 'Hvordan kjøper jeg billetter til Beyond the Gates?', a: 'Billetter selges via Ticketmaster og festivalens nettside. Festivalpass og dagsbilletter tilgjengelig.' },
 				{ q: 'Er det aldersgrense på Beyond the Gates?', a: 'De fleste konserter er 18+. Sjekk enkeltarrangementer for spesifikk aldersgrense.' },
-				{ q: 'Hva slags musikk spilles på Beyond the Gates?', a: 'Primært metal i alle sjangre — black metal, doom, death, progressiv — pluss hardrock og eksperimentell musikk.' }
+				{ q: 'Hva slags musikk spilles på Beyond the Gates?', a: 'Primært metal i alle sjangre — black metal, doom, death, progressiv — pluss hardrock og eksperimentell musikk.' },
+				{ q: 'Hva er Bergens metalltradisjon?', a: 'Bergen har en sterk metalltradisjon med internasjonalt anerkjente band som Enslaved, Vreid og Taake. Beyond the Gates bygger på denne arven og trekker metalfans fra hele verden til Bergen hvert år.' }
 			],
 			en: [
 				{ q: 'When is Beyond the Gates?', a: 'Beyond the Gates takes place over four days in late July and early August each year.' },
 				{ q: 'Where is Beyond the Gates held?', a: 'Multiple venues in Bergen: USF Verftet, Kulturhuset i Bergen and Grieghallen. All are centrally located and within walking distance of each other.' },
 				{ q: 'How do I buy Beyond the Gates tickets?', a: 'Tickets are sold through Ticketmaster and the festival website. Festival passes and single-day tickets are available.' },
 				{ q: 'Is there an age limit at Beyond the Gates?', a: 'Most concerts are 18+. Check individual events for specific age restrictions.' },
-				{ q: 'What kind of music is played at Beyond the Gates?', a: 'Primarily metal across all subgenres — black metal, doom, death, progressive — plus hard rock and experimental music.' }
+				{ q: 'What kind of music is played at Beyond the Gates?', a: 'Primarily metal across all subgenres — black metal, doom, death, progressive — plus hard rock and experimental music.' },
+				{ q: "What is Bergen's metal music heritage?", a: "Bergen has a strong metal tradition with internationally acclaimed bands including Enslaved, Vreid and Taake. Beyond the Gates builds on this legacy, drawing metal fans from across the world to the city every year." }
 			]
 		},
 		offSeasonHint: {
@@ -2502,14 +2524,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes Beyond the Gates?', a: 'USF Verftet, Kulturhuset i Bergen og Grieghallen — alle i Bergen sentrum.' },
 				{ q: 'Hvordan kjøper jeg billetter?', a: 'Via Ticketmaster og festivalens nettside. Festivalpass og dagsbilletter tilgjengelig.' },
 				{ q: 'Er det aldersgrense?', a: 'De fleste konserter er 18+. Sjekk enkeltarrangementer.' },
-				{ q: 'Hva slags musikk spilles?', a: 'Metal i alle sjangre — black metal, doom, death, progressiv — pluss hardrock og eksperimentell musikk.' }
+				{ q: 'Hva slags musikk spilles?', a: 'Metal i alle sjangre — black metal, doom, death, progressiv — pluss hardrock og eksperimentell musikk.' },
+				{ q: 'Er Beyond the Gates bare for metalfans?', a: 'Beyond the Gates er primært en metalfestival, men programmet spenner fra black metal til progrock og eksperimentell musikk. Det appellerer til et bredt hardrock-publikum, ikke bare dedikerte metalfans.' }
 			],
 			en: [
 				{ q: 'When is Beyond the Gates?', a: 'Beyond the Gates takes place over four days in late July and early August each year.' },
 				{ q: 'Where is Beyond the Gates held?', a: 'Multiple venues in Bergen: USF Verftet, Kulturhuset i Bergen and Grieghallen. All centrally located.' },
 				{ q: 'How do I buy Beyond the Gates tickets?', a: 'Tickets are sold through Ticketmaster and the festival website. Festival passes and single-day tickets available.' },
 				{ q: 'Is there an age limit at Beyond the Gates?', a: 'Most concerts are 18+. Check individual events for specific age restrictions.' },
-				{ q: 'What kind of music is played at Beyond the Gates?', a: 'Primarily metal across all subgenres — black, doom, death, progressive — plus hard rock and experimental music.' }
+				{ q: 'What kind of music is played at Beyond the Gates?', a: 'Primarily metal across all subgenres — black, doom, death, progressive — plus hard rock and experimental music.' },
+				{ q: 'Is Beyond the Gates only for metal fans?', a: "Beyond the Gates is primarily a metal festival, but the programme spans genres from black metal to progressive rock and experimental music. It appeals to a broad heavy music audience beyond just die-hard metal fans." }
 			]
 		},
 		offSeasonHint: {
@@ -2560,14 +2584,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes Nattjazz?', a: 'USF Verftet på Nordnes i Bergen. Flere scener i samme bygg, inkludert Sardinen og Røkeriet.' },
 				{ q: 'Spilles det bare jazz på Nattjazz?', a: 'Nei — programmet spenner fra jazz og improvisasjon til elektronika, verdensmusikk og eksperimentelle sjangre.' },
 				{ q: 'Hvordan kjøper jeg billetter til Nattjazz?', a: 'Billetter selges via TicketCo og nattjazz.no. Enkeltbilletter og festivalpass tilgjengelig.' },
-				{ q: 'Er det aldersgrense på Nattjazz?', a: 'De fleste konserter er 18+, men utvalgte arrangementer er åpne for alle aldre.' }
+				{ q: 'Er det aldersgrense på Nattjazz?', a: 'De fleste konserter er 18+, men utvalgte arrangementer er åpne for alle aldre.' },
+				{ q: 'Hva er USF Verftet?', a: 'USF Verftet er et kulturhus i en ombygd sardinfabrikk på Nordnes-halvøya i Bergen. Det er hjemsted for Nattjazz og huser mange av Bergens beste konserter, med flere scener, restauranter og uteservering.' }
 			],
 			en: [
 				{ q: 'When is Nattjazz?', a: 'Nattjazz runs for nearly two weeks in May and June each year, overlapping with the Bergen International Festival.' },
 				{ q: 'Where is Nattjazz held?', a: 'USF Verftet on the Nordnes peninsula in Bergen. Multiple stages in the same building, including Sardinen and Røkeriet.' },
 				{ q: 'Is Nattjazz only jazz music?', a: 'No — the programme spans jazz and improvisation to electronic, world and experimental music.' },
 				{ q: 'How do I buy Nattjazz tickets?', a: 'Tickets are sold through TicketCo and nattjazz.no. Single tickets and festival passes available.' },
-				{ q: 'Is there an age limit at Nattjazz?', a: 'Most concerts are 18+, but selected events are open to all ages.' }
+				{ q: 'Is there an age limit at Nattjazz?', a: 'Most concerts are 18+, but selected events are open to all ages.' },
+				{ q: 'What is USF Verftet?', a: "USF Verftet is a cultural centre in a converted sardine factory on the Nordnes peninsula in Bergen. It is the home of Nattjazz and hosts many of Bergen's top concerts, with multiple stages, restaurants and outdoor seating with harbour views." }
 			]
 		},
 		offSeasonHint: {
@@ -2618,14 +2644,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes Nattjazz?', a: 'USF Verftet på Nordnes i Bergen.' },
 				{ q: 'Spilles det bare jazz?', a: 'Nei — jazz, improvisasjon, elektronika, verdensmusikk og eksperimentelle sjangre.' },
 				{ q: 'Hvordan kjøper jeg billetter?', a: 'Via TicketCo og nattjazz.no. Enkeltbilletter og festivalpass tilgjengelig.' },
-				{ q: 'Er det aldersgrense?', a: 'De fleste konserter er 18+, men utvalgte arrangementer er åpne for alle aldre.' }
+				{ q: 'Er det aldersgrense?', a: 'De fleste konserter er 18+, men utvalgte arrangementer er åpne for alle aldre.' },
+				{ q: 'Hva er historien til Nattjazz?', a: 'Nattjazz ble grunnlagt i 1972 og er en av Europas lengste jazzfestivaler. Den vokste frem fra studentjazzmiljøet og har siden holdt til på USF Verftet, og blitt en av Bergens kjæreste kulturinstitusjoner.' }
 			],
 			en: [
 				{ q: 'When is Nattjazz?', a: 'Nattjazz runs for nearly two weeks in May and June each year, overlapping with the Bergen International Festival.' },
 				{ q: 'Where is Nattjazz held?', a: 'USF Verftet on the Nordnes peninsula in Bergen. Multiple stages in the same building.' },
 				{ q: 'Is Nattjazz only jazz music?', a: 'No — the programme spans jazz, improvisation, electronic, world and experimental music.' },
 				{ q: 'How do I buy Nattjazz tickets?', a: 'Tickets are sold through TicketCo and nattjazz.no. Single tickets and festival passes available.' },
-				{ q: 'Is there an age limit at Nattjazz?', a: 'Most concerts are 18+, but selected events are open to all ages.' }
+				{ q: 'Is there an age limit at Nattjazz?', a: 'Most concerts are 18+, but selected events are open to all ages.' },
+				{ q: 'What is the history of Nattjazz?', a: "Nattjazz was founded in 1972, making it one of Europe's longest-running jazz festivals. It grew from the student jazz scene and has been held at USF Verftet for decades, becoming one of Bergen's most beloved cultural institutions." }
 			]
 		},
 		offSeasonHint: {
@@ -2677,14 +2705,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor er Bergen Pride?', a: 'Arrangementene foregår på ulike steder i Bergen sentrum. Paraden går gjennom sentrum med start fra Festplassen.' },
 				{ q: 'Er Bergen Pride gratis?', a: 'Mange arrangementer er gratis, inkludert paraden og Pride Park. Enkelte konserter og fester krever billett.' },
 				{ q: 'Er Bergen Pride familievennlig?', a: 'Ja — festivalen har egne familiesamlinger og ungdomsarrangementer. Paraden er åpen for alle aldre.' },
-				{ q: 'Hvordan kjøper jeg billetter til Bergen Pride?', a: 'Billetter til betalingsarrangementer selges via TicketCo og bergenpride.no.' }
+				{ q: 'Hvordan kjøper jeg billetter til Bergen Pride?', a: 'Billetter til betalingsarrangementer selges via TicketCo og bergenpride.no.' },
+				{ q: 'Hva er Regnbuedagene i Bergen?', a: 'Regnbuedagene er det offisielle navnet på Bergen Pride-festivalen. Ni dager i juni fylt med arrangementer som feirer LHBT+-mangfold — fra paraden gjennom sentrum til konserter, debatter og familiesamlinger.' }
 			],
 			en: [
 				{ q: 'When is Bergen Pride?', a: 'Bergen Pride takes place over nine days in June each year. The parade is usually on the final Saturday.' },
 				{ q: 'Where is Bergen Pride held?', a: 'Events take place at various venues across Bergen city centre. The parade routes through the centre starting from Festplassen.' },
 				{ q: 'Is Bergen Pride free?', a: 'Many events are free, including the parade and Pride Park. Some concerts and parties require tickets.' },
 				{ q: 'Is Bergen Pride family-friendly?', a: 'Yes — the festival has dedicated family gatherings and youth events. The parade is open to all ages.' },
-				{ q: 'How do I buy Bergen Pride tickets?', a: 'Tickets for paid events are sold via TicketCo and bergenpride.no.' }
+				{ q: 'How do I buy Bergen Pride tickets?', a: 'Tickets for paid events are sold via TicketCo and bergenpride.no.' },
+				{ q: 'What are the Bergen Rainbow Days (Regnbuedagene)?', a: 'Regnbuedagene (Rainbow Days) is the official name for the Bergen Pride festival — nine days of events celebrating LGBTQ+ diversity, from the main parade and debates to concerts and family gatherings.' }
 			]
 		},
 		offSeasonHint: {
@@ -2735,14 +2765,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor er Bergen Pride?', a: 'Ulike steder i Bergen sentrum. Paraden starter fra Festplassen.' },
 				{ q: 'Er Bergen Pride gratis?', a: 'Paraden og Pride Park er gratis. Enkelte konserter krever billett.' },
 				{ q: 'Er Bergen Pride familievennlig?', a: 'Ja — egne familiesamlinger og ungdomsarrangementer. Paraden er for alle.' },
-				{ q: 'Hvordan kjøper jeg billetter?', a: 'Via TicketCo og bergenpride.no.' }
+				{ q: 'Hvordan kjøper jeg billetter?', a: 'Via TicketCo og bergenpride.no.' },
+				{ q: 'Hva er Pride Park i Bergen?', a: 'Pride Park er et gratis, åpent festivalområde under Bergen Pride med scene, aktiviteter og samlingspunkt for alle — ingen billett nødvendig. Sjekk bergenpride.no for årets lokasjon.' }
 			],
 			en: [
 				{ q: 'When is Bergen Pride?', a: 'Bergen Pride takes place over nine days in June each year. The parade is usually on the final Saturday.' },
 				{ q: 'Where is Bergen Pride held?', a: 'Events take place at various venues across Bergen city centre. The parade starts from Festplassen.' },
 				{ q: 'Is Bergen Pride free?', a: 'Many events are free, including the parade and Pride Park. Some concerts require tickets.' },
 				{ q: 'Is Bergen Pride family-friendly?', a: 'Yes — dedicated family and youth events. The parade is open to all ages.' },
-				{ q: 'How do I buy Bergen Pride tickets?', a: 'Tickets for paid events are sold via TicketCo and bergenpride.no.' }
+				{ q: 'How do I buy Bergen Pride tickets?', a: 'Tickets for paid events are sold via TicketCo and bergenpride.no.' },
+				{ q: 'What is Bergen Pride Park?', a: "Bergen Pride Park is a free, open festival area during Bergen Pride week — a gathering space with a stage, activities and entertainment open to everyone. No ticket required. Check bergenpride.no for this year's location." }
 			]
 		},
 		offSeasonHint: {
@@ -2794,14 +2826,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes BIFF?', a: 'Filmene vises på Bergen Kino (Kinopaleet) og Cinemateket i Bergen (USF Verftet). Enkelte arrangementer holdes på andre steder.' },
 				{ q: 'Hvordan kjøper jeg BIFF-billetter?', a: 'Billetter selges via biff.no. Enkeltbilletter og festivalpass tilgjengelig. Populære filmer kan bli utsolgt tidlig.' },
 				{ q: 'Hva slags filmer vises på BIFF?', a: 'Alt fra internasjonal fiksjon og dokumentar til norsk film, kortfilm, animasjon og barnefilm. Festivalen har flere konkurranser, inkludert Gulluglen.' },
-				{ q: 'Er det aldersgrense på BIFF?', a: 'De fleste filmer følger vanlig aldersgrense. BIFF Ung har egne visninger for unge filmfans. Noen arrangementer er 18+.' }
+				{ q: 'Er det aldersgrense på BIFF?', a: 'De fleste filmer følger vanlig aldersgrense. BIFF Ung har egne visninger for unge filmfans. Noen arrangementer er 18+.' },
+				{ q: 'Hva er Gulluglen på BIFF?', a: 'Gulluglen er BIFFs prestisjeprema i den internasjonale konkurranseprogrammet. Filmer fra hele verden konkurrerer om prisen, som er en av de mest prestisjefulle filmprisene i Norden. Vinneren kunngjøres på avslutningsgallaen.' }
 			],
 			en: [
 				{ q: 'When is BIFF?', a: 'BIFF runs for nine days in October each year, usually starting mid-October.' },
 				{ q: 'Where is BIFF held?', a: 'Films are screened at Bergen Kino (Kinopaleet) and Cinemateket i Bergen (USF Verftet). Some events take place at other venues.' },
 				{ q: 'How do I buy BIFF tickets?', a: 'Tickets are sold through biff.no. Single tickets and festival passes available. Popular films may sell out early.' },
 				{ q: 'What kind of films are shown at BIFF?', a: 'Everything from international fiction and documentary to Norwegian cinema, short films, animation and children\'s films. The festival features several competitions, including the Golden Owl.' },
-				{ q: 'Is there an age limit at BIFF?', a: 'Most films follow standard age ratings. BIFF Young has dedicated screenings for young film fans. Some events are 18+.' }
+				{ q: 'Is there an age limit at BIFF?', a: 'Most films follow standard age ratings. BIFF Young has dedicated screenings for young film fans. Some events are 18+.' },
+				{ q: 'What is the Golden Owl (Gulluglen) award at BIFF?', a: "The Golden Owl (Gulluglen) is BIFF's prestigious award in the international competition programme. Films from around the world compete for the prize, one of the most prestigious film awards in the Nordic region. The winner is announced at the closing gala." }
 			]
 		},
 		offSeasonHint: {
@@ -2852,14 +2886,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes BIFF?', a: 'Bergen Kino (Kinopaleet) og Cinemateket i Bergen (USF Verftet).' },
 				{ q: 'Hvordan kjøper jeg billetter?', a: 'Via biff.no. Enkeltbilletter og festivalpass tilgjengelig.' },
 				{ q: 'Hva slags filmer vises?', a: 'Internasjonal fiksjon, dokumentar, norsk film, kortfilm, animasjon og barnefilm.' },
-				{ q: 'Er det aldersgrense?', a: 'Vanlig aldersgrense gjelder. BIFF Ung har egne visninger for unge.' }
+				{ q: 'Er det aldersgrense?', a: 'Vanlig aldersgrense gjelder. BIFF Ung har egne visninger for unge.' },
+				{ q: 'Har BIFF et norsk filmprogram?', a: 'Ja — BIFF har et eget norsk filmprogram med premiere- og dokumentarfilmer, kortfilmer og nye norske spillefilmer. Det er en viktig arena for norsk filmbransje.' }
 			],
 			en: [
 				{ q: 'When is BIFF?', a: 'BIFF runs for nine days in October each year, usually starting mid-October.' },
 				{ q: 'Where is BIFF held?', a: 'Films are screened at Bergen Kino (Kinopaleet) and Cinemateket i Bergen (USF Verftet).' },
 				{ q: 'How do I buy BIFF tickets?', a: 'Tickets are sold through biff.no. Single tickets and festival passes available.' },
 				{ q: 'What kind of films are shown?', a: 'International fiction, documentary, Norwegian cinema, short films, animation and children\'s films.' },
-				{ q: 'Is there an age limit?', a: 'Standard age ratings apply. BIFF Young has dedicated screenings for young film fans.' }
+				{ q: 'Is there an age limit?', a: 'Standard age ratings apply. BIFF Young has dedicated screenings for young film fans.' },
+				{ q: 'Does BIFF have a Norwegian film programme?', a: "Yes — BIFF has a dedicated Norwegian film section featuring world premieres, documentaries, short films and new Norwegian feature films. It is an important platform for the Norwegian film industry." }
 			]
 		},
 		offSeasonHint: {
@@ -2910,14 +2946,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes Borealis?', a: 'Arenaene inkluderer Cornerteateret, Bergen Kunsthall, USF Verftet, Bergen Kjøtt, Østre, Fløyen og Nordnes Sjøbad — pluss uventede steder som badstuer og lyttegammer.' },
 				{ q: 'Er det gratis arrangementer under Borealis?', a: 'Ja — festivalbarer, samtaler, utstillingsåpninger og enkelte konserter er gratis. Festivalen har også gratis familiedag.' },
 				{ q: 'Hvordan kjøper jeg billetter til Borealis?', a: 'Billetter selges via borealis.ticketco.events og i døren på enkelte arrangementer. Festivalpass gir rabatt.' },
-				{ q: 'Passer Borealis for barn?', a: 'Festivalen har egen familiedag med verksteder og aktiviteter. De fleste kveldsarrangementer passer best for voksne.' }
+				{ q: 'Passer Borealis for barn?', a: 'Festivalen har egen familiedag med verksteder og aktiviteter. De fleste kveldsarrangementer passer best for voksne.' },
+				{ q: 'Hva er eksperimentell musikk?', a: 'Eksperimentell musikk utfordrer konvensjonelle former og lyder — fra lydkunst og elektronika til samtidskomposisjon og improvisasjon. Borealis gjør denne musikken tilgjengelig ved å bruke uvanlige arenaer og kontekster.' }
 			],
 			en: [
 				{ q: 'When is the Borealis festival?', a: 'Borealis runs for five to six days in March each year. Exact dates vary — check the programme on this page.' },
 				{ q: 'Where does Borealis take place?', a: 'Venues include Cornerteateret, Bergen Kunsthall, USF Verftet, Bergen Kjøtt, Østre, Fløyen and Nordnes Sjøbad — plus unexpected sites like saunas and listening cabins.' },
 				{ q: 'Are there free events at Borealis?', a: 'Yes — festival bars, talks, exhibition openings and selected concerts are free. The festival also has a free family day.' },
 				{ q: 'How do I buy Borealis tickets?', a: 'Tickets are sold through borealis.ticketco.events and at the door for some events. A festival pass offers discounted admission.' },
-				{ q: 'Is Borealis suitable for children?', a: 'The festival has a dedicated family day with workshops and activities. Most evening events are better suited for adults.' }
+				{ q: 'Is Borealis suitable for children?', a: 'The festival has a dedicated family day with workshops and activities. Most evening events are better suited for adults.' },
+				{ q: 'What is experimental music?', a: "Experimental music challenges conventional forms and sounds — from sound art and electronics to contemporary composition and improvisation. Borealis makes this music accessible by placing it in unconventional settings and engaging new audiences." }
 			]
 		},
 		offSeasonHint: {
@@ -2968,14 +3006,16 @@ const collections: Collection[] = [
 				{ q: 'Hvor holdes Borealis?', a: 'Cornerteateret, Bergen Kunsthall, USF Verftet, Bergen Kjøtt, Østre, Fløyen og Nordnes Sjøbad.' },
 				{ q: 'Er det gratis arrangementer?', a: 'Ja — festivalbarer, samtaler og familiedag er gratis.' },
 				{ q: 'Hvordan kjøper jeg billetter?', a: 'Via borealis.ticketco.events eller i døren.' },
-				{ q: 'Passer det for barn?', a: 'Festivalen har familiedag med verksteder. Kveldsarrangementer passer best for voksne.' }
+				{ q: 'Passer det for barn?', a: 'Festivalen har familiedag med verksteder. Kveldsarrangementer passer best for voksne.' },
+				{ q: 'Hvem deltar på Borealis-festivalen?', a: 'Borealis inviterer internasjonale og norske artister som arbeider med eksperimentell musikk og lydkunst. Festivalen er kjent for å oppdage nye talenter og presentere etablerte samtidskomponister.' }
 			],
 			en: [
 				{ q: 'When is the Borealis festival?', a: 'Borealis runs for five to six days in March each year.' },
 				{ q: 'Where does Borealis take place?', a: 'Venues include Cornerteateret, Bergen Kunsthall, USF Verftet, Bergen Kjøtt, Østre, Fløyen and Nordnes Sjøbad.' },
 				{ q: 'Are there free Borealis events?', a: 'Yes — festival bars, talks, exhibition openings and the family day are free.' },
 				{ q: 'How do I buy tickets?', a: 'Tickets are sold through borealis.ticketco.events and at the door for some events.' },
-				{ q: 'Is Borealis family-friendly?', a: 'The festival has a dedicated family day with workshops. Most evening performances are better suited for adults.' }
+				{ q: 'Is Borealis family-friendly?', a: 'The festival has a dedicated family day with workshops. Most evening performances are better suited for adults.' },
+				{ q: 'Who performs at the Borealis festival?', a: "Borealis invites international and Norwegian artists working with experimental music and sound art. The festival is known for discovering new talent alongside established contemporary composers from around the world." }
 			]
 		},
 		offSeasonHint: {
