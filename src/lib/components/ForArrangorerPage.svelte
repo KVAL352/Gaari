@@ -140,9 +140,9 @@
 		</h1>
 		<p class="mx-auto mb-8 max-w-[640px] text-lg text-[var(--color-text-primary)]">
 			{#if $lang === 'no'}
-				Arrangementene dine når 10 000 bergensere som leter etter noe å gjøre. Automatisk. Daglig. Gratis å prøve.
+				Arrangementene dine når 10 000 bergensere som leter etter noe å gjøre. Automatisk. Daglig. Alltid gratis.
 			{:else}
-				Your events reach 10,000 people in Bergen looking for something to do. Automatically. Daily. Free to try.
+				Your events reach 10,000 people in Bergen looking for something to do. Automatically. Daily. Always free.
 			{/if}
 		</p>
 		<a
