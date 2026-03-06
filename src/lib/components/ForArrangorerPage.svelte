@@ -554,8 +554,8 @@
 				<h3 class="mb-2 text-lg font-bold">{$lang === 'no' ? 'Arrangementene dine i AI-svar' : 'Your events in AI answers'}</h3>
 				<p class="text-sm text-[var(--color-text-secondary)]">
 					{$lang === 'no'
-						? 'Gåri dukker opp når folk spør ChatGPT om hva som skjer i Bergen — en kanal de fleste arrangører ikke kjenner til ennå.'
-						: 'Gåri shows up when people ask ChatGPT what\'s on in Bergen — a channel most organizers haven\'t thought about yet.'}
+						? 'Gåri dukker opp når folk spør ChatGPT om hva som skjer i Bergen — og det gjør arrangementene dine også.'
+						: 'Gåri shows up when people ask ChatGPT what\'s on in Bergen — and so do your events.'}
 				</p>
 			</div>
 			<!-- Nyhetsbrev card -->
