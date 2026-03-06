@@ -133,14 +133,33 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const sourceUrl = event.detailPath ? `${BASE_URL}${event.detailPath}` : LIST_URL;
 		if (await eventExists(sourceUrl)) continue;
 
-		// Fetch detail page for og:image (only if we have a detail path)
+		// Fetch detail page for og:image and price (only if we have a detail path)
 		let imageUrl: string | undefined;
+		let price = '';
 		if (event.detailPath) {
 			if (i > 0) await delay(DELAY_MS);
 			const detailHtml = await fetchHTML(`${BASE_URL}${event.detailPath}`);
 			if (detailHtml) {
 				const d$ = cheerio.load(detailHtml);
 				imageUrl = d$('meta[property="og:image"]').attr('content') || undefined;
+
+				// Extract price from ticketDescription JSON in script tags
+				const scriptContent = d$('script').map((_, s) => d$(s).html() || '').get().join(' ');
+				const ticketDescMatch = scriptContent.match(/"ticketDescription":"((?:[^"\\]|\\.)*)"/);
+				if (ticketDescMatch) {
+					const raw = ticketDescMatch[1]
+						.replace(/\\n/g, ' ')
+						.replace(/\\"/g, '"')
+						.replace(/<[^>]+>/g, ' ')
+						.replace(/\s+/g, ' ')
+						.trim();
+					const priceMatches = [...raw.matchAll(/(\d+(?:[.,]\d+)?\s*(?:,-|kr|NOK))/gi)].map(m => m[1].trim());
+					if (priceMatches.length === 1) {
+						price = priceMatches[0];
+					} else if (priceMatches.length > 1) {
+						price = `Fra ${priceMatches[0]}`;
+					}
+				}
 			}
 		}
 
@@ -153,7 +172,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			venue: VENUE,
 			category,
 			date: new Date(parsed.start),
-			price: '',
+			price,
 		});
 
 		const success = await insertEvent({
@@ -167,7 +186,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			venue_name: VENUE,
 			address: 'Østre Skostredet 3, Bergen',
 			bydel,
-			price: '',
+			price,
 			ticket_url: event.ticketUrl || (event.detailPath ? `${BASE_URL}${event.detailPath}` : LIST_URL),
 			source: SOURCE,
 			source_url: sourceUrl,
