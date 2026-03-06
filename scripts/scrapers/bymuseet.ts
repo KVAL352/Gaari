@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bymuseet';
@@ -24,10 +24,15 @@ const LOCATION_MAP: Record<string, string> = {
 	'bergenhus': 'Bergenhus Festning',
 };
 
-/** Fetch detail page for price from .prices-cover section */
-async function fetchDetailPrice(url: string): Promise<string> {
+interface DetailData {
+	price: string;
+	time: string; // "HH:MM" or ''
+}
+
+/** Fetch detail page for price and time */
+async function fetchDetailData(url: string): Promise<DetailData> {
 	const html = await fetchHTML(url);
-	if (!html) return '';
+	if (!html) return { price: '', time: '' };
 	const $ = cheerio.load(html);
 
 	// Prices in .prices-cover: <div class="value">kr 200</div>
@@ -39,12 +44,23 @@ async function fetchDetailPrice(url: string): Promise<string> {
 		if (/gratis/i.test(text)) prices.push(0);
 	});
 
-	if (prices.length === 0) return '';
-	const nonZero = prices.filter(p => p > 0);
-	if (nonZero.length === 0) return 'Gratis';
-	const min = Math.min(...nonZero);
-	const max = Math.max(...nonZero);
-	return min === max ? `${min} kr` : `${min}–${max} kr`;
+	let price = '';
+	if (prices.length > 0) {
+		const nonZero = prices.filter(p => p > 0);
+		if (nonZero.length === 0) price = 'Gratis';
+		else {
+			const min = Math.min(...nonZero);
+			const max = Math.max(...nonZero);
+			price = min === max ? `${min} kr` : `${min}–${max} kr`;
+		}
+	}
+
+	// Time: look for "kl HH.MM" or "kl. HH.MM" pattern (event start time)
+	const pageText = $('body').text();
+	const timeMatch = pageText.match(/kl\.?\s*(\d{1,2})[.:](\d{2})/i);
+	const time = timeMatch ? `${timeMatch[1].padStart(2, '0')}:${timeMatch[2]}` : '';
+
+	return { price, time };
 }
 
 function guessCategory(title: string, location: string): string {
@@ -122,19 +138,27 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const category = guessCategory(title, locationText);
 
-		// Fetch detail page for price
+		// Fetch detail page for price and time
 		await delay(1000);
-		const price = await fetchDetailPrice(fullUrl);
+		const { price, time } = await fetchDetailData(fullUrl);
 
-		const aiDesc = await generateDescription({ title, venue: venueName, category, date: dateStart, price });
+		// Build time-aware date_start; fall back to noon UTC placeholder if no time found
+		const datePart = dateStart.slice(0, 10);
+		let finalDateStart = dateStart;
+		if (time) {
+			const offset = bergenOffset(datePart);
+			finalDateStart = new Date(`${datePart}T${time}:00${offset}`).toISOString();
+		}
+
+		const aiDesc = await generateDescription({ title, venue: venueName, category, date: finalDateStart, price });
 
 		const success = await insertEvent({
-			slug: makeSlug(title, dateStart),
+			slug: makeSlug(title, datePart),
 			title_no: title,
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
 			category,
-			date_start: dateStart,
+			date_start: finalDateStart,
 			venue_name: venueName,
 			address: venueName + ', Bergen',
 			bydel,
