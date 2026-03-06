@@ -18,6 +18,7 @@ const AGGREGATOR_DOMAINS = [
 	'linkedin.com',
 	'youtube.com',
 	'aftenposten.no', // Aftenposten Fordel subscriber discount links — not real ticket pages
+	'visitbergen.com', // Visit Bergen aggregator — scraper removed, block residual links
 ];
 
 // Venue name → website URL
