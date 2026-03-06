@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapCategory, mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenkommune';
@@ -217,17 +217,20 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const category = guessCategory(event.title, event.subtitle, event.tags);
 		const bydel = mapBydel(event.venue);
 
-		// Build time-aware date_start
-		let dateStart = `${event.dateStart}T12:00:00`;
+		// Build time-aware date_start (Oslo local time → UTC via bergenOffset)
+		const offset = bergenOffset(event.dateStart);
+		let dateStart = `${event.dateStart}T00:00:00Z`; // placeholder: midnight UTC = no known time
 		if (detail?.time) {
-			const timeMatch = detail.time.match(/(\d{1,2}[:.]\d{2})/);
+			const timeMatch = detail.time.match(/(\d{1,2})[.:](\d{2})/);
 			if (timeMatch) {
-				dateStart = `${event.dateStart}T${timeMatch[1].replace('.', ':')}:00`;
+				const h = timeMatch[1].padStart(2, '0');
+				const m = timeMatch[2];
+				dateStart = `${event.dateStart}T${h}:${m}:00${offset}`;
 			}
 		}
 
 		const dateEnd = event.dateEnd && event.dateEnd !== event.dateStart
-			? `${event.dateEnd}T23:59:00`
+			? `${event.dateEnd}T23:59:00${offset}`
 			: undefined;
 
 		const address = detail?.address || event.venue;

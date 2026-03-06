@@ -29,8 +29,8 @@ export function formatEventDate(dateStr: string, locale: 'no' | 'en' = 'no'): st
 
 export function formatEventTime(dateStr: string, locale: 'no' | 'en' = 'no'): string {
 	const date = new Date(dateStr);
-	// Don't show time if it's the default 12:00 UTC placeholder (scraped events without real times)
-	if (date.getUTCHours() === 12 && date.getUTCMinutes() === 0) return '';
+	// Don't show time if it's the midnight UTC placeholder (scraped events without known times)
+	if (date.getUTCHours() === 0 && date.getUTCMinutes() === 0) return '';
 	// Use Oslo timezone explicitly so SSR (UTC) and client (CET/CEST) produce identical output
 	return date.toLocaleTimeString(locale === 'no' ? 'nb-NO' : 'en-GB', {
 		hour: '2-digit',
