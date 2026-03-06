@@ -1,3 +1,4 @@
+import * as cheerio from 'cheerio';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -90,6 +91,14 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const category = guessCategory(title);
 
+		// Fetch og:image from detail page
+		let imageUrl: string | undefined;
+		const detailHtml = await fetchHTML(sourceUrl);
+		if (detailHtml) {
+			const $d = cheerio.load(detailHtml);
+			imageUrl = $d('meta[property="og:image"]').attr('content') || undefined;
+		}
+
 		const aiDesc = await generateDescription({ title, venue: 'Grieghallen', category, date: startDate, price: '' });
 		const success = await insertEvent({
 			slug: makeSlug(title, first.date.slice(0, 10)),
@@ -106,7 +115,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
-			image_url: undefined,
+			image_url: imageUrl,
 			age_group: category === 'family' ? 'family' : 'all',
 			language: 'no',
 			status: 'approved',
