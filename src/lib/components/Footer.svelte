@@ -52,7 +52,8 @@
 			<nav aria-label={$lang === 'no' ? 'Om Gåri' : 'About Gåri'}>
 				<h4 class="mb-2 text-sm font-semibold">Gåri</h4>
 				<ul class="space-y-1">
-					<li><a href="/{$lang}/guide" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Guide' : 'Guide'}</a></li>
+					<li><a href="/{$lang}/{$lang === 'no' ? 'for-arrangorer' : 'for-organizers'}" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'For arrangører' : 'For organizers'}</a></li>
+				<li><a href="/{$lang}/guide" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Guide' : 'Guide'}</a></li>
 					<li><a href="/{$lang}/about" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('about')}</a></li>
 					<li><a href="/{$lang}/datainnsamling" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('dataCollection')}</a></li>
 					<li><a href="/{$lang}/personvern" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Personvern' : 'Privacy Policy'}</a></li>
