@@ -22,7 +22,7 @@ Run these sequentially — stop on first failure:
    - Common issue: missing env vars in `.env` — check against `.env.ci` for required vars
 
 3. **Tests**: `npm test`
-   - All 791 tests must pass
+   - All 800 tests must pass
    - Test files are in `src/lib/__tests__/` and `scripts/lib/__tests__/`
 
 4. **Build**: `npm run build`

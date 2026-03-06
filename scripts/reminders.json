@@ -46,6 +46,11 @@
     "description": "Epost sendt 28. februar til André Marton Pedersen (andre.marton.pedersen@dnt.no) om ødelagte aktivitets-URLer fra DNT API. Han svarte 2. mars at han skulle sjekke opp. Verifiser om /aktiviteter-fra-deltager/-URLer fungerer nå. Hvis ikke, send oppfølging."
   },
   {
+    "date": "2026-03-27",
+    "title": "Sjekk svar: Google EØS-karusell-søknad",
+    "description": "Søknad om deltakelse i Google EEA aggregator features (Things to do / events) ble sendt 6. mars 2026 via support.google.com/websearch/contact/search_dma. Google tar typisk 2-4 uker. Sjekk post@gaari.no for svar. Hvis ingen respons: vent ytterligere 2 uker og send eventuell oppfølging."
+  },
+  {
     "date": "2027-02-01",
     "title": "Oppdater Borealis-skraper for 2027",
     "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i scripts/scrapers/borealis.ts. Sjekk at /festival-2027/hva-skjer-2027/ finnes. Oppdater også startDate/endDate i FESTIVALS-arrayen i send-daily-digest.ts."
