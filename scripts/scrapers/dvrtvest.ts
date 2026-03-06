@@ -21,6 +21,7 @@ interface ShowDetail {
 	image?: string;
 	description?: string;
 	scene?: string;
+	price?: string;
 }
 
 function guessCategory(title: string): string {
@@ -96,11 +97,12 @@ async function fetchShowDetail(path: string): Promise<ShowDetail> {
 		if (lead.length > 20) result.description = lead.slice(0, 500);
 	}
 
-	// Scene/venue from meta items
+	// Scene/venue and price from meta items
 	$('ol.PerformanceEntry__metaItems li.PerformanceEntry__metaItem').each((_, el) => {
 		const name = $(el).find('span.PerformanceEntry__metaName').text().trim().toLowerCase();
 		const value = $(el).find('span.PerformanceEntry__metaValue').text().trim();
 		if (name === 'scene' && value) result.scene = value;
+		if ((name === 'pris' || name === 'billettpris') && value) result.price = value;
 	});
 
 	return result;
@@ -176,7 +178,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const venueName = scene ? `${VENUE} – ${scene}` : VENUE;
 		const bydel = mapBydel(VENUE);
 
-		const aiDesc = await generateDescription({ title: event.title, venue: VENUE, category, date: dateStart, price: '' });
+		const price = detail.price || '';
+		const aiDesc = await generateDescription({ title: event.title, venue: VENUE, category, date: dateStart, price });
 		const success = await insertEvent({
 			slug: makeSlug(event.title, datePart),
 			title_no: event.title,
@@ -187,7 +190,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			venue_name: venueName,
 			address: ADDRESS,
 			bydel,
-			price: '',
+			price,
 			ticket_url: event.ticketUrl || `${BASE_URL}${event.detailPath}`,
 			source: SOURCE,
 			source_url: `${BASE_URL}${event.detailPath}`,

@@ -94,10 +94,11 @@ async function fetchDetail(url: string): Promise<DetailData | null> {
 
 	const $ = cheerio.load(html);
 
-	// Price detection: is-no-price → salesprice inputs → page text fallback
+	// Price detection: is-no-price → detail-event-price=0 → salesprice inputs → page text fallback
 	const isNoPrice = ($('#is-no-price').val() as string || '').toLowerCase() === 'true';
+	const detailEventPrice = parseInt($('input.detail-event-price').val() as string || '-1');
 	let price = '';
-	if (isNoPrice) {
+	if (isNoPrice || detailEventPrice === 0) {
 		price = 'Gratis';
 	} else {
 		// Extract non-zero ticket prices from salesprice inputs

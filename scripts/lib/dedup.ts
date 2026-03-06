@@ -3,50 +3,77 @@ import { normalizeTitle } from './utils.js';
 import { isAggregatorUrl } from './venues.js';
 
 // Source quality ranking — higher = prefer to keep
+// Tier 5: canonical venue sources (own website, authoritative)
+// Tier 4: venue/club sources (own website, good quality)
+// Tier 3: city/community aggregators (Bergen-focused, good coverage)
+// Tier 2: ticket platforms & general aggregators (prefer venue source when available)
+// Tier 1: low-quality / disabled sources
 const SOURCE_RANK: Record<string, number> = {
-	bergenlive: 5,
-	studentbergen: 4,
-	dnt: 4,
-	eventbrite: 3,
-	ticketco: 4,
-	hoopla: 3,
+	// Tier 5 — major performance venues & festivals
+	dns: 5,
+	olebull: 5,
+	grieghallen: 5,
+	usfverftet: 5,
+	forumscene: 5,
+	dvrtvest: 5,
+	bitteater: 5,
+	harmonien: 5,
+	kode: 5,
+	carteblanche: 5,
+	festspillene: 5,
+	bergenfest: 5,
+	beyondthegates: 5,
+	brann: 5,
+	kulturhusetibergen: 5,
+	biff: 5,
+	borealis: 5,
+	bergenpride: 5,
+	kvarteret: 5,
+	ostre: 5,
+	fyllingsdalenteater: 5,
+
+	// Tier 4 — venue / club sources
 	nordnessjobad: 4,
 	raabrent: 4,
-	bergenchamber: 3,
 	colonialen: 4,
 	bergenkjott: 4,
 	paintnsip: 4,
 	bergenfilmklubb: 4,
 	cornerteateret: 4,
-	dvrtvest: 5,
 	kunsthall: 4,
-	brettspill: 3,
-	mediacity: 3,
-	forumscene: 5,
-	usfverftet: 5,
-	dns: 5,
-	olebull: 5,
-	grieghallen: 5,
-	kode: 5,
 	litthusbergen: 4,
 	bergenbibliotek: 4,
 	floyen: 4,
-	bitteater: 5,
-	harmonien: 5,
 	oseana: 4,
-	carteblanche: 5,
-	festspillene: 5,
-	bergenfest: 5,
-	bjorgvinblues: 3,
+	bjorgvinblues: 4,
 	bek: 4,
-	beyondthegates: 5,
-	brann: 5,
-	kulturhusetibergen: 5,
 	vvv: 4,
 	bymuseet: 4,
+	akvariet: 4,
+	museumvest: 4,
+	oconnors: 4,
+	stenematglede: 4,
+	'gg-bergen': 4,
+	mediacity: 4,
+	bergenchamber: 4,
+	dnt: 4,
+	brettspill: 4,
+
+	// Tier 3 — city / community aggregators
+	studentbergen: 3,
+	bergenlive: 3,
 	bergenkommune: 3,
-	kulturikveld: 3,
-	barnasnorge: 2,
+
+	// Tier 2 — ticket platforms & general aggregators (prefer venue source when available)
+	ticketco: 2,
+	billetto: 2,
+	hoopla: 2,
+	eventbrite: 2,
+	tikkio: 2,
+
+	// Tier 1 — low-quality / disabled
+	kulturikveld: 1,
+	barnasnorge: 1,
 };
 
 export interface EventRow {

@@ -84,32 +84,32 @@ describe('scoreEvent', () => {
 	};
 
 	it('gives base score from SOURCE_RANK', () => {
-		expect(scoreEvent(baseEvent)).toBe(5); // bergenlive = 5
+		expect(scoreEvent(baseEvent)).toBe(3); // bergenlive = 3
 	});
 
 	it('adds 2 for image_url', () => {
-		expect(scoreEvent({ ...baseEvent, image_url: 'https://example.com/img.jpg' })).toBe(7);
+		expect(scoreEvent({ ...baseEvent, image_url: 'https://example.com/img.jpg' })).toBe(5);
 	});
 
 	it('adds 2 for non-aggregator ticket_url', () => {
 		expect(
 			scoreEvent({ ...baseEvent, ticket_url: 'https://ticketco.events/something' })
-		).toBe(7);
+		).toBe(5);
 	});
 
 	it('does NOT add ticket bonus for aggregator URLs', () => {
 		expect(
 			scoreEvent({ ...baseEvent, ticket_url: 'https://bergenlive.no/event/123' })
-		).toBe(5);
+		).toBe(3);
 	});
 
 	it('adds 1 for description longer than 50 chars', () => {
 		const longDesc = 'A'.repeat(51);
-		expect(scoreEvent({ ...baseEvent, description_no: longDesc })).toBe(6);
+		expect(scoreEvent({ ...baseEvent, description_no: longDesc })).toBe(4);
 	});
 
 	it('does not add description bonus for short descriptions', () => {
-		expect(scoreEvent({ ...baseEvent, description_no: 'Short' })).toBe(5);
+		expect(scoreEvent({ ...baseEvent, description_no: 'Short' })).toBe(3);
 	});
 
 	it('returns 0 for unknown source', () => {
@@ -123,7 +123,7 @@ describe('scoreEvent', () => {
 			ticket_url: 'https://ticketco.events/buy',
 			description_no: 'A'.repeat(60)
 		};
-		// 5 (bergenlive) + 2 (image) + 2 (ticket) + 1 (description) = 10
-		expect(scoreEvent(fullEvent)).toBe(10);
+		// 3 (bergenlive) + 2 (image) + 2 (ticket) + 1 (description) = 8
+		expect(scoreEvent(fullEvent)).toBe(8);
 	});
 });
