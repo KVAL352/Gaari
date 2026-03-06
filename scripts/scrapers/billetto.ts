@@ -89,11 +89,17 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const data = await res.json();
 		const hits: BillettoHit[] = data.hits || [];
 
+		// Bergen municipality includes several city areas not named "Bergen"
+		const BERGEN_CITIES = new Set([
+			'bergen', 'laksevåg', 'laksevag', 'damsgård', 'damsgard',
+			'nesttun', 'åsane', 'asane', 'arna', 'fana', 'fyllingsdalen',
+		]);
+
 		// Filter to published Bergen-area events
 		const bergenHits = hits.filter(h => {
 			if (h.state !== 'published') return false;
 			const city = (h.city || '').toLowerCase();
-			return city === 'bergen' || city.includes('bergen');
+			return city.includes('bergen') || BERGEN_CITIES.has(city);
 		});
 
 		console.log(`[${SOURCE}] Found ${bergenHits.length} Bergen events (${hits.length} total in radius)`);
