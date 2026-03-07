@@ -133,7 +133,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				: undefined;
 
 			const address = event.location?.content?.address?.full_address ?? '';
-			const category = mapCategory(title) || 'culture';
+			const category = /søndagsverksted/i.test(title) ? 'family' : mapCategory(title) || 'culture';
 			const price = /gratis/i.test(title) ? 'Gratis' : '';
 
 			await delay(200);
