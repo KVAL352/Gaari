@@ -8,8 +8,8 @@ const CALENDAR_URL = `${BASE_URL}/hva-skjer/aktivitetskalender/dag`;
 const DAYS_AHEAD = 14;
 
 // Akvariet fixed admission price — activities are included in general admission.
-// Update when prices change. (Last verified: Mar 2026)
-const ADMISSION_PRICE = '245–380 kr';
+// Update when prices change. (Last verified: Mar 2026, reminder set for Mar 2027)
+const ADMISSION_PRICE = 'fra 245 kr';
 
 // Recurring daily activities to skip — these repeat every day and are not discrete "events".
 // Only skip on exact (case-insensitive) title match. Unique variants like
