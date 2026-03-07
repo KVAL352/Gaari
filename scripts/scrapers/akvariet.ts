@@ -105,6 +105,17 @@ function parseDay($: cheerio.CheerioAPI, dateStr: string) {
 	return activities;
 }
 
+/**
+ * Fetch og:image from an Akvariet detail page as fallback when the calendar card has no image.
+ */
+async function fetchDetailImage(url: string): Promise<string | undefined> {
+	await delay(1200);
+	const html = await fetchHTML(url);
+	if (!html) return undefined;
+	const $ = cheerio.load(html);
+	return $('meta[property="og:image"]').attr('content') || undefined;
+}
+
 export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`\n[${SOURCE}] Scraping Akvariet activity calendar (next ${DAYS_AHEAD} days)...`);
 
@@ -148,6 +159,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 			if (await eventExists(sourceUrl)) continue;
 
+			// Fallback: fetch og:image from detail page if calendar card had no image
+			let imageUrl = activity.imageUrl;
+			if (!imageUrl && activity.detailUrl) {
+				imageUrl = await fetchDetailImage(activity.detailUrl);
+			}
+
 			// Build ISO timestamp
 			const offset = bergenOffset(dateStr);
 			const time = activity.time || '10:00';
@@ -179,7 +196,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				ticket_url: ticketUrl,
 				source: SOURCE,
 				source_url: sourceUrl,
-				image_url: activity.imageUrl,
+				image_url: imageUrl,
 				age_group: 'family',
 				language: 'no',
 				status: 'approved',
