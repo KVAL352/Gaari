@@ -232,6 +232,19 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 	const filterStr = filterParams.toString();
 	const ctaUrl = `${baseUrl}/${lang}?${filterStr ? filterStr + '&' : ''}${utmParams}`;
 
+	const forwardedText = lang === 'no'
+		? 'Fikk du dette videresendt?'
+		: 'Was this forwarded to you?';
+	const forwardedCta = lang === 'no'
+		? 'Meld deg på her'
+		: 'Subscribe here';
+	const shareText = lang === 'no'
+		? 'Kjenner du noen som vil like dette?'
+		: 'Know someone who\u2019d enjoy this?';
+	const shareCta = lang === 'no'
+		? 'Del nyhetsbrevet'
+		: 'Share the newsletter';
+
 	const footerText = lang === 'no'
 		? 'Du mottar dette fordi du abonnerer på Gåri sitt nyhetsbrev.'
 		: 'You receive this because you subscribed to the Gåri newsletter.';
@@ -239,6 +252,7 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 	const prefsLabel = lang === 'no' ? 'Endre preferanser' : 'Manage preferences';
 	const privacyLabel = lang === 'no' ? 'Personvern' : 'Privacy';
 	const prefsUrl = `${baseUrl}/${lang}/nyhetsbrev/preferanser?email={$email}&token={$preference_token}&${utmParams}`;
+	const subscribeUrl = `${baseUrl}/${lang}/about?${utmParams}#newsletter`;
 
 	return `<!DOCTYPE html>
 <html lang="${lang === 'no' ? 'nb' : 'en'}" xmlns="http://www.w3.org/1999/xhtml">
@@ -268,6 +282,13 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 					<!-- Red accent bar -->
 					<tr>
 						<td style="height:4px;background:#C82D2D;font-size:0;line-height:0;">&nbsp;</td>
+					</tr>
+
+					<!-- Forwarded banner -->
+					<tr>
+						<td style="padding:10px 32px;background:#F8F8F6;text-align:center;">
+							<p style="margin:0;color:#6B6862;font-size:12px;line-height:1.5;">${forwardedText} <a href="${subscribeUrl}" style="color:#C82D2D;text-decoration:underline;font-weight:600;">${forwardedCta}</a></p>
+						</td>
 					</tr>
 
 					<!-- Header -->
@@ -315,6 +336,14 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 									</td>
 								</tr>
 							</table>
+						</td>
+					</tr>
+
+					<!-- Share CTA -->
+					<tr>
+						<td style="padding:16px 32px;text-align:center;border-top:1px solid #E8E8E4;">
+							<p style="margin:0 0 8px;color:#4D4D4D;font-size:13px;">${shareText}</p>
+							<a href="mailto:?subject=${encodeURIComponent(data.subject)}&body=${encodeURIComponent((lang === 'no' ? 'Sjekk ut dette nyhetsbrevet fra Gåri: ' : 'Check out this newsletter from Gåri: ') + subscribeUrl)}" style="color:#C82D2D;font-size:13px;font-weight:600;text-decoration:underline;">${shareCta}</a>
 						</td>
 					</tr>
 

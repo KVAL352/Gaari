@@ -72,7 +72,7 @@
 		{description}
 	</p>
 	<p class="mt-1 text-sm text-[var(--color-text-muted)]">
-		{data.events.length} {$t('events')}
+		{data.events.length} {$t('events')} · {$lang === 'no' ? 'Oppdatert' : 'Updated'} {new Date().toLocaleDateString($lang === 'no' ? 'nb-NO' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
 	</p>
 	{#if quickAnswer}
 	<p class="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">

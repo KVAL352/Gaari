@@ -11,7 +11,7 @@
 	import EventCard from '$lib/components/EventCard.svelte';
 	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
 	import CalendarDropdown from '$lib/components/CalendarDropdown.svelte';
-	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquareDiff, Share2, Check } from 'lucide-svelte';
+	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquareDiff, Share2, Check, Navigation } from 'lucide-svelte';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 	import { slide } from 'svelte/transition';
@@ -168,6 +168,17 @@
 				<p class="text-sm font-semibold">{$t('where')}</p>
 				<p class="text-sm text-[var(--color-text-secondary)]">{event.venue_name}</p>
 				<p class="text-xs text-[var(--color-text-secondary)]">{event.address}, {event.bydel}</p>
+				{#if event.venue_name || event.address}
+					<a
+						href="https://maps.google.com/?q={encodeURIComponent((event.venue_name ? event.venue_name + ', ' : '') + (event.address || 'Bergen'))}"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-[var(--color-primary)] hover:underline"
+					>
+						<Navigation size={12} />
+						{$t('getDirections')}
+					</a>
+				{/if}
 			</div>
 		</div>
 		<div class="flex items-start gap-3 rounded-xl bg-[var(--color-surface)] p-4">
@@ -328,7 +339,7 @@
 
 	<!-- Newsletter CTA -->
 	<div class="mb-8">
-		<NewsletterCTA id="event-detail" variant="card" />
+		<NewsletterCTA id="event-detail" variant="card" contextCategory={event.category} />
 	</div>
 
 	<!-- Related events -->

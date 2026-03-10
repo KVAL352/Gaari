@@ -76,6 +76,7 @@ export const translations = {
 		share: 'Del',
 		linkCopied: 'Lenke kopiert!',
 		buyTickets: 'Kjøp billetter',
+		getDirections: 'Vis vei',
 		visitWebsite: 'Besøk nettside',
 
 		// Search
@@ -208,6 +209,19 @@ export const translations = {
 		nlMicrocopy: 'Gratis — ingen spam. Kun det beste fra Bergen.',
 		nlPlaceholder: 'Din e-post',
 		nlSubscribe: 'Abonner',
+		nlCustomize: 'Tilpass innholdet',
+		nlCatMusic: 'Konserter',
+		nlCatCulture: 'Kultur',
+		nlCatTheatre: 'Teater',
+		nlCatFamily: 'Familie',
+		nlCatFood: 'Mat & drikke',
+		nlCatFestival: 'Festivaler',
+		nlCatSports: 'Sport',
+		nlCatNightlife: 'Uteliv',
+		nlCatWorkshop: 'Kurs',
+		nlCatStudent: 'Student',
+		nlCatTours: 'Turer',
+		nlCatFree: 'Trolig gratis',
 
 		// Newsletter preferences
 		nlPrefsTitle: 'Dine nyhetsbrev-preferanser',
@@ -288,6 +302,7 @@ export const translations = {
 		share: 'Share',
 		linkCopied: 'Link copied!',
 		buyTickets: 'Buy Tickets',
+		getDirections: 'Get directions',
 		visitWebsite: 'Visit Website',
 
 		searchPlaceholder: 'Search events, venues, or artists...',
@@ -411,6 +426,19 @@ export const translations = {
 		nlMicrocopy: 'Free — no spam. Only the best from Bergen.',
 		nlPlaceholder: 'Your email',
 		nlSubscribe: 'Subscribe',
+		nlCustomize: 'Customize content',
+		nlCatMusic: 'Concerts',
+		nlCatCulture: 'Culture',
+		nlCatTheatre: 'Theatre',
+		nlCatFamily: 'Family',
+		nlCatFood: 'Food & drink',
+		nlCatFestival: 'Festivals',
+		nlCatSports: 'Sports',
+		nlCatNightlife: 'Nightlife',
+		nlCatWorkshop: 'Workshops',
+		nlCatStudent: 'Student',
+		nlCatTours: 'Tours',
+		nlCatFree: 'Likely free',
 
 		// Newsletter preferences
 		nlPrefsTitle: 'Your newsletter preferences',

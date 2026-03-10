@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 56 scrapers (53 active) collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 57 scrapers (54 active) collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -37,7 +37,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 5. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
 6. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
-## Scraper sources (56 total, 53 active, 3 disabled)
+## Scraper sources (57 total, 54 active, 3 disabled)
 
 ### General aggregators
 | Source | File | Method |
@@ -106,6 +106,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | O'Connor's Irish Pub | `oconnors.ts` | HTML (event cards with `<time datetime>`) |
 | GG Bergen | `ggbergen.ts` | Google Calendar iCal feeds (3 public calendars, 30-day lookahead) |
 | Stene Matglede | `stenematglede.ts` | Squarespace eventlist (cooking courses, food events) |
+| Swing 'n Sweet Jazzclub | `swingnsweetjazzclub.ts` | HTML (jazz events) |
 
 ### Sports & outdoor
 | Source | File | Method |
@@ -217,6 +218,7 @@ The homepage uses a discovery filter (`EventDiscovery.svelte`) instead of tradit
 - `/api/calendar.ics` — GET endpoint for iCal project calendar. Requires `?token=` matching `CALENDAR_FEED_TOKEN` env var (returns 401 otherwise). Reads from `project_calendar` Supabase table. 1h private cache.
 - `/api/events.ics` — Public iCal feed of upcoming events (30-day lookahead, 500 events). Optional `?filter=` param: category name or `free`. No auth required. `webcal://gaari.no/api/events.ics` linked from footer. 1h public cache, CORS open.
 - `/api/stripe-webhook` — POST endpoint for Stripe webhook events. Verifies HMAC signature (`stripe.webhooks.constructEvent`). Handles `checkout.session.completed` (inserts `promoted_placements` row from metadata: `venue_name`, `tier`, `collection_slugs`, `contact_email`) and `customer.subscription.deleted` (sets `active=false` by `stripe_subscription_id`). Requires `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` env vars (`$env/dynamic/private`).
+- `/qr` — QR redirect endpoint. Redirects to `/no/i-kveld?utm_source=sticker&utm_medium=qr` for physical sticker/poster campaigns.
 - `/api/csp-report` — POST endpoint for Content-Security-Policy violation reports. Receives browser CSP reports, logs structured JSON (type, blocked URI, violated directive, source file) for Vercel log system. Returns 204.
 - `/og/[slug].png` — Per-event OG image generation (Satori + ResvgJS)
 - `/og/c/[collection].png` — Collection-branded OG images (Funkis design: red accent bar, 72px title, subtitle, Gåri branding). 24h cache.
@@ -226,7 +228,7 @@ The homepage uses a discovery filter (`EventDiscovery.svelte`) instead of tradit
 
 - `Header.svelte` — Sticky header with language switch
 - `Footer.svelte` — Footer with dynamic collection links (via `getFooterCollections()`), static links (about, datainnsamling, personvern, tilgjengelighet, submit, contact) + inline NewsletterCTA. For-arrangorer link temporarily removed while page is under construction.
-- `NewsletterCTA.svelte` — Newsletter subscribe form (card + inline variants). Props: `id` (unique suffix), `variant`, optional `heading`/`subtext` overrides. Client-side fetch to `/api/newsletter`, success/error states. Placed in footer (inline), about page, collection pages (contextual headings), event detail pages (card).
+- `NewsletterCTA.svelte` — Newsletter subscribe form (card + inline variants). Props: `id` (unique suffix), `variant`, optional `heading`/`subtext` overrides, optional `contextCategory` (pre-selects category pill from event/collection context). Preference pills for categories below email field. Client-side fetch to `/api/newsletter`, success/error states. Placed in footer (inline), about page, collection pages (contextual headings), event detail pages (card).
 - `HeroSection.svelte` — Compact hero with tagline (hidden on mobile, visible on desktop)
 - `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer. Accepts `promoted` prop — renders "Fremhevet"/"Featured" badge (markedsføringsloven § 3).
 - `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates). Accepts `promotedEventIds` prop, passes `promoted` flag to each EventCard.

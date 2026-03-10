@@ -260,45 +260,45 @@
 	const faqNO = [
 		{
 			q: 'Hva skjer i Bergen i helgen?',
-			a: 'Bergen har typisk 40–80 arrangementer hver helg. Sjekk <a href="/no/denne-helgen" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">denne helgen</a>-siden for oppdatert program.'
+			a: 'Bergen har typisk 40–80 arrangementer hver helg, fra konserter og teater til familieaktiviteter og uteliv. Sjekk <a href="/no/denne-helgen" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">denne helgen</a>-siden for oppdatert program med alle arrangementer samlet.'
 		},
 		{
 			q: 'Er det gratis arrangementer i Bergen?',
-			a: 'Bergen har mange gratis aktiviteter — bibliotekkonserter, utstillinger, guidede turer og mer. Se <a href="/no/gratis" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">gratis-siden</a>.'
+			a: 'Bergen har over 20 gratis arrangementer hver uke, inkludert bibliotekkonserter, gallerivandringer, guidede turer og utendørsaktiviteter. Se <a href="/no/gratis" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">gratis-siden</a> for en oppdatert oversikt.'
 		},
 		{
 			q: 'Hvilke festivaler har Bergen?',
-			a: 'Bergen har festivaler gjennom hele året: Festspillene (mai/juni), Bergenfest (juni), Nattjazz (mai/juni), Beyond the Gates (august), Bergen Pride (juni), BIFF (oktober) og Borealis (mars).'
+			a: 'Bergen har 7 store festivaler fordelt gjennom året: Borealis (mars), Festspillene (mai/juni), Nattjazz (mai/juni), Bergenfest (juni), Bergen Pride (juni), Beyond the Gates (august) og BIFF (oktober). Gåri har egne samlingsider for hver festival med oppdatert program.'
 		},
 		{
 			q: 'Hva kan man gjøre med barn i Bergen?',
-			a: 'Bergen har barneforestillinger, museumsaktiviteter, Akvariet og familievennlige arrangementer. Se <a href="/no/familiehelg" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">familiehelg-siden</a>.'
+			a: 'Bergen har barneforestillinger, museumsaktiviteter, Akvariet og familievennlige arrangementer hver uke. Se <a href="/no/familiehelg" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">familiehelg-siden</a> for kommende aktiviteter tilpasset familier.'
 		},
 		{
 			q: 'Hvor ofte oppdateres Gåri?',
-			a: 'Gåri oppdateres daglig klokken 06:00 med data fra 54 lokale kilder i Bergen.'
+			a: 'Gåri oppdateres daglig klokken 06:00 med data fra 54 uavhengige kilder i Bergen. Arrangementsinformasjon hentes automatisk fra konsertscener, teatre, museer, biblioteker, festivaler og billettplattformer.'
 		}
 	];
 	const faqEN = [
 		{
 			q: "What's on in Bergen this weekend?",
-			a: 'Bergen typically has 40–80 events each weekend. Check the <a href="/en/this-weekend" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">this weekend</a> page for the updated programme.'
+			a: 'Bergen typically has 40–80 events each weekend, from concerts and theatre to family activities and nightlife. Check the <a href="/en/this-weekend" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">this weekend</a> page for the full updated programme.'
 		},
 		{
 			q: 'Are there free things to do in Bergen?',
-			a: 'Bergen has many free activities — library concerts, exhibitions, guided walks and more. See the <a href="/en/free-things-to-do-bergen" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">free events page</a>.'
+			a: 'Bergen has over 20 free events every week, including library concerts, gallery walks, guided tours and outdoor activities. See the <a href="/en/free-things-to-do-bergen" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">free events page</a> for an updated list.'
 		},
 		{
 			q: 'What festivals does Bergen have?',
-			a: 'Bergen has festivals throughout the year: Bergen International Festival (May/June), Bergenfest (June), Nattjazz (May/June), Beyond the Gates (August), Bergen Pride (June), BIFF (October) and Borealis (March).'
+			a: 'Bergen has 7 major festivals throughout the year: Borealis (March), Bergen International Festival (May/June), Nattjazz (May/June), Bergenfest (June), Bergen Pride (June), Beyond the Gates (August) and BIFF (October). Gåri has dedicated collection pages for each festival with updated programmes.'
 		},
 		{
 			q: 'What can families do in Bergen?',
-			a: 'Bergen has children\'s shows, museum activities, the Aquarium and family-friendly events. See the <a href="/en/familiehelg" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">family weekend page</a> for upcoming activities.'
+			a: 'Bergen has children\'s shows, museum activities, the Aquarium and family-friendly events every week. See the <a href="/en/familiehelg" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">family weekend page</a> for upcoming activities suited for families.'
 		},
 		{
 			q: 'How often is Gåri updated?',
-			a: 'Gåri updates daily at 06:00 with data from 54 local sources in Bergen.'
+			a: 'Gåri updates daily at 06:00 with data from 53 independent sources in Bergen. Event information is automatically collected from concert venues, theatres, museums, libraries, festivals and ticketing platforms.'
 		}
 	];
 
@@ -354,8 +354,8 @@
 			</h1>
 			<p class="mt-2 leading-relaxed text-[var(--color-text-secondary)]">
 				{$lang === 'no'
-					? 'Gåri samler alle arrangementer i Bergen på ett sted — oppdatert daglig fra 54 lokale kilder, fra konsertscener og teatre til museer, festivaler og friluftsliv.'
-					: 'Gåri brings all Bergen events together in one place — updated daily from 54 local sources, covering concert venues, theatres, museums, festivals and outdoor activities.'}
+					? 'Gåri samler arrangementer fra 54 uavhengige kilder i Bergen, oppdatert daglig klokken 06:00. Bergen har typisk 150–250 arrangementer hver uke, fordelt på konsertscener, teatre, museer, festivaler og friluftsliv.'
+					: 'Gåri aggregates events from 53 independent sources in Bergen, updated daily at 06:00. Bergen typically has 150–250 events every week, spanning concert venues, theatres, museums, festivals and outdoor activities.'}
 			</p>
 			<div class="mt-4 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
 				<p>
