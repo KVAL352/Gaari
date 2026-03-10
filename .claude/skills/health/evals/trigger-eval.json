@@ -1,0 +1,22 @@
+[
+  {"query": "helsesjekk", "should_trigger": true},
+  {"query": "er gaari.no oppe?", "should_trigger": true},
+  {"query": "sjekk at alt fungerer på siden", "should_trigger": true},
+  {"query": "health check — any issues?", "should_trigger": true},
+  {"query": "fungerer scraperne? ble det kjørt i natt?", "should_trigger": true},
+  {"query": "is everything ok with the site?", "should_trigger": true},
+  {"query": "sjekk gaari.no for meg", "should_trigger": true},
+  {"query": "has the scraper run today?", "should_trigger": true},
+  {"query": "er dataene ferske? noen scraper-feil?", "should_trigger": true},
+  {"query": "quick check — anything broken?", "should_trigger": true},
+  {"query": "god morgen, hva skjer?", "should_trigger": false},
+  {"query": "sjekk eposten", "should_trigger": false},
+  {"query": "run the full test suite", "should_trigger": false},
+  {"query": "er jul-samlingen klar for i år?", "should_trigger": false},
+  {"query": "fix the bug in the dedup algorithm", "should_trigger": false},
+  {"query": "add a new scraper for Grieghallen", "should_trigger": false},
+  {"query": "seo audit of the homepage", "should_trigger": false},
+  {"query": "commit these changes", "should_trigger": false},
+  {"query": "hva er Supabase-statusen?", "should_trigger": false},
+  {"query": "review PR #38", "should_trigger": false}
+]

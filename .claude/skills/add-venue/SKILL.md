@@ -1,7 +1,7 @@
 ---
 name: add-venue
 description: Register a new Bergen venue in venues.ts and categories.ts (bydel mapping)
-argument-hint: [venue-name] [website-url] [bydel]
+argument-hint: "[venue-name] [website-url] [bydel]"
 disable-model-invocation: true
 ---
 

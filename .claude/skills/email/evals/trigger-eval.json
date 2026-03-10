@@ -1,0 +1,22 @@
+[
+  {"query": "sjekk eposten", "should_trigger": true},
+  {"query": "la oss sjekke innboksen", "should_trigger": true},
+  {"query": "check email — any new inquiries?", "should_trigger": true},
+  {"query": "har vi fått noen henvendelser fra venues?", "should_trigger": true},
+  {"query": "noen meldinger i dag?", "should_trigger": true},
+  {"query": "er det noe i innboksen?", "should_trigger": true},
+  {"query": "har noen svart på utreet vårt?", "should_trigger": true},
+  {"query": "any messages from the Brann people?", "should_trigger": true},
+  {"query": "epost — noe nytt?", "should_trigger": true},
+  {"query": "let me check if Cafe Sanaa replied", "should_trigger": true},
+  {"query": "god morgen, hva skjer?", "should_trigger": false},
+  {"query": "er gaari.no oppe?", "should_trigger": false},
+  {"query": "send en velkomstepost til nye abonnenter", "should_trigger": false},
+  {"query": "hva er scraper-statusen?", "should_trigger": false},
+  {"query": "add a task: reply to Oseana by Friday", "should_trigger": false},
+  {"query": "skriv en pitch-epost til Oseana", "should_trigger": false},
+  {"query": "send a Resend test email", "should_trigger": false},
+  {"query": "check the GitHub Actions logs", "should_trigger": false},
+  {"query": "run the newsletter dry-run", "should_trigger": false},
+  {"query": "oppdater kontaktskjemaet på for-arrangorer-siden", "should_trigger": false}
+]

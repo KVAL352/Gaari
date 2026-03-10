@@ -1,6 +1,7 @@
 ---
 name: morgen
-description: Morning routine — email, tasks, site health, and git status in one go. Use when user says "god morgen", "morgen", "morning", "la oss starte", "la oss starte dagen", "hva skjer", "status", or similar start-of-day phrases.
+description: Morning routine — email, tasks, site health, and git status in one go. Make sure to use this skill whenever the user opens a session or asks what's going on — "god morgen", "morgen", "morning", "hva skjer", "la oss starte", "status", "what do we have today", or any session-opening phrase, even without saying "morgen".
+user-invocable: true
 argument-hint: "[quick]"
 ---
 

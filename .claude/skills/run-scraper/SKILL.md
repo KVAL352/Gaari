@@ -1,7 +1,7 @@
 ---
 name: run-scraper
 description: Run a single scraper by name and show the results summary
-argument-hint: [scraper-name]
+argument-hint: "[scraper-name]"
 disable-model-invocation: true
 allowed-tools: Bash(cd scripts && npx tsx scrape.ts *)
 ---

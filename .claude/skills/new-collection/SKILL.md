@@ -1,7 +1,7 @@
 ---
 name: new-collection
 description: Add a new curated collection page to the site. Scaffolds the collection config entry in collections.ts.
-argument-hint: [slug] [description]
+argument-hint: "[slug] [description]"
 disable-model-invocation: true
 ---
 

@@ -1,8 +1,8 @@
 ---
 name: tasks
-description: View, add, update, or complete tasks in the project calendar (Supabase project_calendar table)
-argument-hint: [action] [details]
-disable-model-invocation: false
+description: Manage project tasks and calendar. Make sure to use this skill whenever the user asks about tasks, priorities, or what to work on — "hva må jeg gjøre", "oppgaver", "add task", "legg til", "hva er viktigst nå?", "what's on the list?", "mark done", "ferdig med", or any task-related request.
+user-invocable: true
+argument-hint: "[action] [details]"
 ---
 
 # Project task management
@@ -10,14 +10,6 @@ disable-model-invocation: false
 Manage the project calendar: **$ARGUMENTS**
 
 The project calendar lives in the `project_calendar` Supabase table. It tracks milestones, deadlines, tasks, recurring items, and meetings.
-
-## When to use this skill
-
-- User says "what do I need to do" / "hva må jeg gjøre" → list pending tasks
-- User says "add task" / "legg til" → insert a new task
-- User says "done with X" / "ferdig med X" → mark task as done
-- User says "update tasks" / "oppdater oppgaver" → review and update statuses
-- After completing a feature/task → proactively ask if related calendar items should be updated
 
 ## Reading tasks
 

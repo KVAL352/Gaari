@@ -1,7 +1,7 @@
 ---
 name: review-pr
 description: Review a pull request against Gaari project conventions and coding standards
-argument-hint: [pr-number or branch]
+argument-hint: "[pr-number or branch]"
 disable-model-invocation: true
 ---
 

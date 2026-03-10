@@ -1,6 +1,7 @@
 ---
 name: seo
-description: Analyze pages for technical SEO, content optimization, and search visibility. Use when user says "seo", "søkeoptimalisering", "google", "søkeresultater", "search ranking", or similar.
+description: Analyze pages for technical SEO, content optimization, and search visibility. Make sure to use this skill whenever SEO is mentioned — rankings, meta tags, Google visibility, "søkeoptimalisering", "search ranking", "hvorfor finner ingen oss?", "er vi på google?", or any question about search performance.
+user-invocable: true
 argument-hint: "[page or URL to analyze]"
 ---
 

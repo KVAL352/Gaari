@@ -1,7 +1,7 @@
 ---
 name: new-scraper
 description: Scaffold a new event scraper for a Bergen venue or source. Creates the scraper file and registers it in scrape.ts.
-argument-hint: [source-name] [url]
+argument-hint: "[source-name] [url]"
 disable-model-invocation: true
 ---
 

@@ -1,0 +1,22 @@
+[
+  {"query": "vi er ferdige for i dag", "should_trigger": true},
+  {"query": "wrap up", "should_trigger": true},
+  {"query": "la oss runde av", "should_trigger": true},
+  {"query": "det var alt for nå, takk", "should_trigger": true},
+  {"query": "ferdig for nå", "should_trigger": true},
+  {"query": "ok vi tar resten i morgen", "should_trigger": true},
+  {"query": "that's all for today, let's close out", "should_trigger": true},
+  {"query": "jeg er ferdig for dagen", "should_trigger": true},
+  {"query": "ok takk, vi er done", "should_trigger": true},
+  {"query": "let's do a session summary before we stop", "should_trigger": true},
+  {"query": "god morgen!", "should_trigger": false},
+  {"query": "sjekk eposten", "should_trigger": false},
+  {"query": "commit these changes to git", "should_trigger": false},
+  {"query": "run the tests", "should_trigger": false},
+  {"query": "hva gjenstår å gjøre?", "should_trigger": false},
+  {"query": "add a new skill for the project", "should_trigger": false},
+  {"query": "er siden oppe?", "should_trigger": false},
+  {"query": "oppdater CLAUDE.md", "should_trigger": false},
+  {"query": "la oss se på SEO for helge-siden", "should_trigger": false},
+  {"query": "what should I work on next?", "should_trigger": false}
+]

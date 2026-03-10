@@ -1,6 +1,7 @@
 ---
 name: copywriter
-description: Write or review copy with a bilingual Bergen voice — SEO-aware, concise, warm. Use when user says "copywriter", "skriv tekst", "tekstforfatter", "write copy", or similar.
+description: Write or review bilingual Bergen copy — SEO-aware, concise, warm. Make sure to use this skill whenever text needs writing or reviewing — FAQ items, collection descriptions, hero text, email copy, "skriv tekst", "copywriter", "write copy", or any request to draft or improve text for the site.
+user-invocable: true
 argument-hint: "[what to write or review]"
 ---
 

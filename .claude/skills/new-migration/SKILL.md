@@ -1,7 +1,7 @@
 ---
 name: new-migration
 description: Create a new Supabase migration file with the correct timestamp naming convention
-argument-hint: [description]
+argument-hint: "[description]"
 disable-model-invocation: true
 ---
 

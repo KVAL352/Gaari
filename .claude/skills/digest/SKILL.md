@@ -1,7 +1,7 @@
 ---
 name: digest
 description: Run daily digest locally (dry-run or send)
-argument-hint: [dry-run|send]
+argument-hint: "[dry-run|send]"
 disable-model-invocation: true
 allowed-tools: Bash(cd scripts && npx tsx *)
 ---

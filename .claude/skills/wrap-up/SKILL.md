@@ -1,6 +1,7 @@
 ---
 name: wrap-up
-description: End-of-session checklist — commit status, docs, memory, tests, and summary. Use when user says "vi er ferdige", "wrap up", "la oss runde av", "det var alt", "ferdig for nå", or similar.
+description: End-of-session checklist — commit status, docs, memory, tests, and summary. Make sure to use this skill whenever the user signals they're done — "vi er ferdige", "wrap up", "la oss runde av", "det var alt", "ferdig for nå", "ok takk", "det holder for i dag", or any sign-off phrase.
+user-invocable: true
 ---
 
 # Session wrap-up

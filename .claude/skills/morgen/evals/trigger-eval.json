@@ -1,0 +1,22 @@
+[
+  {"query": "god morgen! hva skjer i dag?", "should_trigger": true},
+  {"query": "morgen, la oss komme i gang", "should_trigger": true},
+  {"query": "good morning, what's on the agenda?", "should_trigger": true},
+  {"query": "hva skjer? la oss starte dagen", "should_trigger": true},
+  {"query": "ok jeg er klar, hva har vi i dag?", "should_trigger": true},
+  {"query": "status — alt ok?", "should_trigger": true},
+  {"query": "la oss begynne. hva er viktigst i dag?", "should_trigger": true},
+  {"query": "morning! anything I should know before we start?", "should_trigger": true},
+  {"query": "hva er situasjonen?", "should_trigger": true},
+  {"query": "starting a new session, give me an overview", "should_trigger": true},
+  {"query": "add a new scraper for Håkonshallen", "should_trigger": false},
+  {"query": "sjekk eposten", "should_trigger": false},
+  {"query": "run the /verify pipeline for me", "should_trigger": false},
+  {"query": "how does the dedup algorithm work?", "should_trigger": false},
+  {"query": "skriv en FAQ for julemarked-siden", "should_trigger": false},
+  {"query": "er gaari.no oppe?", "should_trigger": false},
+  {"query": "hva må jeg gjøre denne uken?", "should_trigger": false},
+  {"query": "git status", "should_trigger": false},
+  {"query": "review PR #42", "should_trigger": false},
+  {"query": "oppdater CLAUDE.md med ny scraper", "should_trigger": false}
+]

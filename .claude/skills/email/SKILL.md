@@ -1,8 +1,8 @@
 ---
 name: email
-description: Check and triage Protonmail inbox. Use when the user says things like "sjekk epost", "la oss sjekke epost", "check email", "email", "epost", "innboks", "inbox", or similar.
+description: Check and triage Protonmail inbox. Make sure to use this skill whenever email is mentioned — "sjekk epost", "check email", "epost", "inbox", "noen henvendelser?", "any messages?", "har noen svart?", or any question about incoming contact from venues or users.
 user-invocable: true
-argument-hint: [optional: folder to check, e.g. "inbox" or "all"]
+argument-hint: "[folder: inbox | all]"
 ---
 
 # Email triage
@@ -18,71 +18,32 @@ List emails in **all** of these folders in parallel:
 
 **Gåri project (Unresolved):**
 - `Folders/Gaari/Inquiries/Unresolved`
-- `Folders/Gaari/Corrections/Unresolved`
-- `Folders/Gaari/Opt-outs/Unresolved`
-- `Folders/Gaari/Submissions/Unresolved`
-- `Folders/Gaari/Partnerships/Unresolved`
 
-**Other:**
-- `Folders/Personal` (service notifications, account emails, etc.)
-- `Folders/Receipts` (payments, invoices, order confirmations)
+## Step 2: Summarize
 
-## Step 2: Sort any unsorted inbox emails
+Present a unified inbox summary:
+- Count per folder
+- For each email: sender, subject, date, one-line summary
+- Flag anything urgent or time-sensitive
 
-If there are emails in INBOX, read each one and sort it:
+## Step 3: Triage
 
-| Subject contains | Move to |
-|-----------------|---------|
-| `[Inquiry]` | `Folders/Gaari/Inquiries/Unresolved` |
-| `[Correction]` | `Folders/Gaari/Corrections/Unresolved` |
-| `[Opt-out]` | `Folders/Gaari/Opt-outs/Unresolved` |
-| `[Submission]` | `Folders/Gaari/Submissions/Unresolved` |
-| Payment/receipt/invoice/kvittering/faktura/ordrebekreftelse | `Folders/Receipts` |
-| Personal (Domeneshop account, Proton onboarding, etc.) | `Folders/Personal` |
+For each unresolved email, suggest one of:
+- **Handle now** — reply, forward, or take action
+- **Archive** — no action needed
+- **Delete** — spam or handled
 
-If unclear where an email belongs, **ask the user** before moving it.
+Ask the user how to proceed on anything non-obvious.
 
-## Step 2b: Check daily digest for scraper alerts
+## Step 4: Actions
 
-If a **[Daglig oversikt]** email arrived today (from `noreply@gaari.no`), read it and check for:
-- **Scraper health warnings**: "scrapere nede" in subject, or broken/warning scrapers in the "Scraper-helse" section
-- **Stale sources**: sources with 0 upcoming events in the "Kilde-friskhet" section
-- **Pipeline issues**: missing/skipped/slow scrapers in "Siste pipeline-kjøring" section
-- **Data quality alerts**: anomalies flagged by the health endpoint
-
-If any alerts are found, flag them to the user with suggested actions:
-- Broken scraper → investigate source site for CSS/API changes
-- Stale source → check if venue has upcoming events, may be seasonal
-- Pipeline missed → check GitHub Actions for cron failures
-- Slow scraper (>60s) → may need optimization or the source site is slow
-
-The daily digest arrives around 09:00 CET. The scraper pipeline runs at 06:00 and 18:00 UTC.
-
-## Step 3: Summarize status
-
-Give a quick overview of **all** folders:
-- How many new/unread items in each Unresolved folder
-- Unread items in Personal and Receipts
-- Any items that need attention or action
-- Any scraper health alerts from the daily digest
-
-## Step 4: Review actionable items
-
-For each **unread** email across all folders (Unresolved, Personal, Receipts):
-1. Read the full email content
-2. Present a brief summary to the user:
-   - **From**: sender
-   - **Subject**: subject
-   - **Summary**: 1-2 sentence summary of what it is
-   - **Suggested action**: what to do about it (reply, investigate, resolve, delete, just FYI, etc.)
-3. Ask the user what they want to do (reply, mark as read, delete, move, etc.)
-4. If the user wants to reply: **always show the draft to the user before sending**. Never send emails without explicit approval.
+- Draft replies using `post@gaari.no` as sender
+- For outreach/personal replies: use `Kjersti.Therkildsen@gaari.no` with the HTML signature from MEMORY.md
+- **Always show draft before sending. Never send without explicit "send" or "ja, send".**
+- Delete emails after they are handled
 
 ## Rules
 
-- **Never send emails without showing the draft first** and getting explicit approval
-- **Never guess email addresses** — always ask or look them up
-- Replies go from `post@gaari.no` via Resend (from: `Gåri <noreply@gaari.no>`, mention `post@gaari.no` as reply-to)
-- When resolving items, move them from `Unresolved` to `Resolved` subfolder
-- Keep summaries concise — the user wants a quick triage, not a novel
-- Communicate in Norwegian (matching the user's language)
+- Use MCP protonmail tool for all email operations
+- IMAP folder paths use `Folders/` prefix (e.g. `Folders/Gaari/Inquiries/Unresolved`)
+- Sieve auto-sorts `[Inquiry]`, `[Correction]`, `[Opt-out]`, `[Submission]` subjects

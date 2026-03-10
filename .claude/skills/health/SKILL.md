@@ -1,8 +1,8 @@
 ---
 name: health
-description: Run website health audit — site status, data freshness, scrapers, security. Use when user says "helsesjekk", "er siden oppe?", "health check", "sjekk gaari.no", or similar.
+description: Website health audit — site status, data freshness, scrapers. Make sure to use this skill whenever the user asks if things are working — "helsesjekk", "er siden oppe?", "health check", "sjekk gaari.no", "fungerer alt?", "is everything ok?", or any question about uptime, scraper runs, or data freshness.
 user-invocable: true
-argument-hint: [quick|full]
+argument-hint: "[quick|full]"
 ---
 
 # Website health audit
