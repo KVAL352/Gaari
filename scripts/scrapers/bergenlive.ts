@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenlive';
@@ -32,8 +32,15 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Parse date from event info (e.g., "Lørdag 21. februar 2026")
 		const dateMatch = eventInfo.match(/(\d{1,2}\.\s*\w+\s*\d{4})/);
 		const dateStr = dateMatch ? dateMatch[1] : '';
-		const dateStart = parseNorwegianDate(dateStr);
-		if (!dateStart) continue;
+		const dateOnly = parseNorwegianDate(dateStr);
+		if (!dateOnly) continue;
+		const datePart = dateOnly.slice(0, 10); // "YYYY-MM-DD"
+
+		// Try to parse time from event info (e.g. "kl. 20.00")
+		const timeMatch = eventInfo.match(/kl\.\s*(\d{1,2})[.:](\d{2})/);
+		const dateStart = timeMatch
+			? new Date(`${datePart}T${timeMatch[1].padStart(2, '0')}:${timeMatch[2]}:00${bergenOffset(datePart)}`).toISOString()
+			: (() => { const [y, m, d] = datePart.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)).toISOString(); })(); // midnight UTC → time hidden on frontend
 
 		// Parse venue — it's whatever comes after the date
 		const venue = eventInfo.replace(/.*\d{4}\s*/, '').trim() || 'Bergen';
