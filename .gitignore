@@ -20,6 +20,7 @@ scripts/.digest-preview/
 docs/api_token.txt
 docs/gsc-sa.json
 scripts/venue-analysis.mjs
-print/
+print/*
+!print/*.svg
 scripts/test-stripe-webhook.ts
 scripts/test-stripe-webhook.ts
