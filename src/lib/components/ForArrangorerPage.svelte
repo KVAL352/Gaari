@@ -161,7 +161,7 @@
 <div class="border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] py-4">
 	<div class="mx-auto max-w-4xl px-4">
 		<p class="mb-2.5 text-center text-xs text-[var(--color-text-muted)]">
-			{$lang === 'no' ? 'Henter allerede fra 53 kilder i Bergen' : 'Already collecting from 53 sources in Bergen'}
+			{$lang === 'no' ? 'Henter allerede fra 54 kilder i Bergen' : 'Already collecting from 54 sources in Bergen'}
 		</p>
 		<div class="flex flex-wrap justify-center gap-1.5">
 			{#each venues.slice(0, 8) as venue (venue)}

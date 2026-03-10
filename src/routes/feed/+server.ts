@@ -75,8 +75,8 @@ export const GET: RequestHandler = async ({ url }) => {
 	const feedTitle = FEED_TITLES[filter]?.[lang] ?? FEED_TITLES.all[lang];
 	const feedUrl = `${BASE_URL}/feed${filter !== 'all' ? `?filter=${filter}` : ''}`;
 	const feedDescription = lang === 'en'
-		? `Events and activities in Bergen, Norway — updated daily from 53 sources.`
-		: `Arrangementer og aktiviteter i Bergen — oppdatert daglig fra 53 kilder.`;
+		? `Events and activities in Bergen, Norway — updated daily from 54 sources.`
+		: `Arrangementer og aktiviteter i Bergen — oppdatert daglig fra 54 kilder.`;
 
 	const items = (events ?? []).map((event) => {
 		const title = (lang === 'en' && event.title_en) ? event.title_en : event.title_no;

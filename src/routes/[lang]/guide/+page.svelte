@@ -276,7 +276,7 @@
 		},
 		{
 			q: 'Hvor ofte oppdateres Gåri?',
-			a: 'Gåri oppdateres daglig klokken 06:00 med data fra 53 lokale kilder i Bergen.'
+			a: 'Gåri oppdateres daglig klokken 06:00 med data fra 54 lokale kilder i Bergen.'
 		}
 	];
 	const faqEN = [
@@ -298,7 +298,7 @@
 		},
 		{
 			q: 'How often is Gåri updated?',
-			a: 'Gåri updates daily at 06:00 with data from 53 local sources in Bergen.'
+			a: 'Gåri updates daily at 06:00 with data from 54 local sources in Bergen.'
 		}
 	];
 
@@ -322,8 +322,8 @@
 <svelte:head>
 	<title>{$lang === 'no' ? 'Din guide til Bergen-arrangementer' : 'Your guide to Bergen events'} — Gåri</title>
 	<meta name="description" content={$lang === 'no'
-		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 53 kilder.'
-		: 'Complete guide to events in Bergen, Norway — concerts, theatre, festivals, family activities and more. Updated daily from 53 sources.'} />
+		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 54 kilder.'
+		: 'Complete guide to events in Bergen, Norway — concerts, theatre, festivals, family activities and more. Updated daily from 54 sources.'} />
 	<link rel="canonical" href={canonicalUrl} />
 	<link rel="alternate" hreflang="nb" href={getCanonicalUrl('/no/guide')} />
 	<link rel="alternate" hreflang="en" href={getCanonicalUrl('/en/guide')} />
@@ -354,8 +354,8 @@
 			</h1>
 			<p class="mt-2 leading-relaxed text-[var(--color-text-secondary)]">
 				{$lang === 'no'
-					? 'Gåri samler alle arrangementer i Bergen på ett sted — oppdatert daglig fra 53 lokale kilder, fra konsertscener og teatre til museer, festivaler og friluftsliv.'
-					: 'Gåri brings all Bergen events together in one place — updated daily from 53 local sources, covering concert venues, theatres, museums, festivals and outdoor activities.'}
+					? 'Gåri samler alle arrangementer i Bergen på ett sted — oppdatert daglig fra 54 lokale kilder, fra konsertscener og teatre til museer, festivaler og friluftsliv.'
+					: 'Gåri brings all Bergen events together in one place — updated daily from 54 local sources, covering concert venues, theatres, museums, festivals and outdoor activities.'}
 			</p>
 			<div class="mt-4 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
 				<p>

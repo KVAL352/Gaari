@@ -46,6 +46,7 @@ const SOURCE_RANK: Record<string, number> = {
 	floyen: 4,
 	oseana: 4,
 	bjorgvinblues: 4,
+	swingnsweetjazzclub: 4,
 	bek: 4,
 	vvv: 4,
 	bymuseet: 4,
