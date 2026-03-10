@@ -19,7 +19,10 @@ const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 /** Strip all emoji and zero-width joiners from text. */
 function stripEmojis(text: string): string {
 	return text
-		.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200D\uFE0F]/gu, '')
+		.replace(/\p{Emoji_Presentation}/gu, '')
+		.replace(/\p{Extended_Pictographic}/gu, '')
+		.replace(/\u200D/g, '')
+		.replace(/\uFE0F/g, '')
 		.replace(/\s{2,}/g, ' ')
 		.trim();
 }
