@@ -1,4 +1,4 @@
-name: Generate Social Posts
+name: Generate & Post Social Content
 
 on:
   schedule:
@@ -33,6 +33,16 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUMMARY_FILE: ${{ runner.temp }}/social-summary.json
         run: npx tsx social/generate-posts.ts
+
+      - name: Post to Bluesky
+        if: success()
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          BLUESKY_HANDLE: gaari.no
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+        run: npx tsx social/post-to-bluesky.ts
 
       - name: Generate job summary
         if: always()

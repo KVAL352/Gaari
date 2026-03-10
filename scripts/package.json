@@ -12,10 +12,13 @@
     "fix:barnas-images": "tsx fix-barnas-images.ts",
     "scrape:studentbergen": "tsx scrape.ts studentbergen",
     "social": "tsx social/generate-posts.ts",
+    "social:bluesky": "tsx social/post-to-bluesky.ts",
+    "social:bluesky:dry": "tsx social/post-to-bluesky.ts --dry-run",
     "newsletter": "tsx send-newsletter.ts",
     "newsletter:dry": "tsx send-newsletter.ts --dry-run"
   },
   "dependencies": {
+    "@atproto/api": "^0.19.3",
     "@google/genai": "^1.44.0",
     "@resvg/resvg-js": "^2.6.2",
     "@supabase/supabase-js": "^2.99.0",
