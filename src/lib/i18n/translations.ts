@@ -200,6 +200,7 @@ export const translations = {
 
 		// Event card
 		readMore: 'Les mer',
+		readLess: 'Vis mindre',
 
 		// Newsletter CTA
 		nlHeading: 'Nyhetsbrev fra Gåri',
@@ -402,6 +403,7 @@ export const translations = {
 
 		// Event card
 		readMore: 'Read more',
+		readLess: 'Show less',
 
 		// Newsletter CTA
 		nlHeading: 'Gåri Newsletter',

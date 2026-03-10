@@ -22,6 +22,14 @@
 
 	let title = $derived(($lang === 'en' && event.title_en) ? event.title_en : event.title_no);
 	let description = $derived(($lang === 'en' && event.description_en) ? event.description_en : event.description_no);
+	const DESC_LIMIT = 160;
+	let descExpanded = $state(false);
+	let descIsLong = $derived(description ? description.length > DESC_LIMIT : false);
+	let descTruncated = $derived.by(() => {
+		if (!description || !descIsLong) return description || '';
+		const cut = description.lastIndexOf(' ', DESC_LIMIT);
+		return description.slice(0, cut > 0 ? cut : DESC_LIMIT) + '…';
+	});
 	let metaDescription = $derived.by(() => {
 		const date = formatEventDate(event.date_start, $lang);
 		const venue = event.venue_name ? `${event.venue_name}, Bergen` : 'Bergen';
@@ -212,7 +220,16 @@
 	<section class="mb-8">
 		<h2 class="mb-3 text-xl font-semibold">{$t('description')}</h2>
 		<div class="prose max-w-none text-[var(--color-text-secondary)]">
-			<p class="whitespace-pre-line">{description}</p>
+			<p class="whitespace-pre-line">{descIsLong && !descExpanded ? descTruncated : description}</p>
+			{#if descIsLong}
+				<button
+					type="button"
+					class="mt-2 text-sm font-medium text-[var(--color-primary)] hover:underline"
+					onclick={() => descExpanded = !descExpanded}
+				>
+					{descExpanded ? $t('readLess') : $t('readMore')}
+				</button>
+			{/if}
 		</div>
 	</section>
 
