@@ -4,14 +4,9 @@ import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 
 const BLUESKY_MAX_TEXT = 300; // Bluesky character limit
 
-/** Bluesky collections to post (subset of all social posts — avoid flooding). */
+/** Bluesky collections to post — Phase 1: only weekend guide while building audience. */
 const BLUESKY_SLUGS = new Set([
 	'denne-helgen',   // Weekend guide (Thu)
-	'i-kveld',        // Tonight (daily)
-	'gratis',         // Free events (Mon)
-	'konserter',      // Concerts (Mon)
-	'this-weekend',   // Weekend EN (Thu)
-	'today-in-bergen' // Today EN (daily)
 ]);
 
 const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
