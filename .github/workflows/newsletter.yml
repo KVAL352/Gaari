@@ -51,29 +51,12 @@ jobs:
         if: always()
         run: |
           SUMMARY_FILE="${{ runner.temp }}/newsletter-summary.json"
-          echo "## 📬 Newsletter Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Newsletter Summary" >> "$GITHUB_STEP_SUMMARY"
           if [ ! -f "$SUMMARY_FILE" ]; then
             echo "> No summary file — script may have crashed." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          SUBS=$(jq -r '.subscribers // 0' "$SUMMARY_FILE")
-          GROUPS=$(jq -r '.groups // 0' "$SUMMARY_FILE")
-          SENT=$(jq -r '.sent // 0' "$SUMMARY_FILE")
-          ERRORS=$(jq -r '.errors // 0' "$SUMMARY_FILE")
-          DRY=$(jq -r '.dryRun // false' "$SUMMARY_FILE")
-          SKIPPED=$(jq -r '.skipped // ""' "$SUMMARY_FILE")
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Subscribers | $SUBS |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Preference groups | $GROUPS |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Emails sent | $SENT |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Errors | $ERRORS |" >> "$GITHUB_STEP_SUMMARY"
-          if [ "$DRY" = "true" ]; then
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "> 🧪 **Dry run** — no emails were actually sent." >> "$GITHUB_STEP_SUMMARY"
-          fi
-          if [ -n "$SKIPPED" ] && [ "$SKIPPED" != "" ]; then
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "> ⏭ Skipped: $SKIPPED" >> "$GITHUB_STEP_SUMMARY"
-          fi
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
