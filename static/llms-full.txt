@@ -196,31 +196,31 @@ Borealis — festival for eksperimentell musikk. Program fra borealisfestival.no
 
 ## Data sources (54 active)
 
-### Performance venues (15)
+### Performance venues
 Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, BIT Teatergarasjen, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater
 
-### Arts, culture and literature (6)
+### Arts, culture and literature
 KODE (Bergen art museums), Bergen Kunsthall, Litteraturhuset Bergen, Media City Bergen, BEK (Bergen Centre for Electronic Arts), Bergen Filmklubb
 
-### Libraries and museums (5)
+### Libraries and museums
 Bergen Bibliotek, Bymuseet i Bergen, Museum Vest (Fiskerimuseum, Sjøfartsmuseum, Hanseatiske Museum), Akvariet i Bergen, Fløyen
 
-### Ticket platforms (4)
+### Ticket platforms
 Eventbrite, TicketCo (multiple Bergen venues), Billetto, Hoopla
 
-### General aggregators (3)
+### General aggregators
 Bergen Kommune (official events calendar), StudentBergen, Bergen Live
 
-### Food, nightlife and recreation (10)
+### Food, nightlife and recreation
 Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad, O'Connor's Irish Pub, GG Bergen, Stene Matglede, Swing 'n Sweet Jazzclub
 
-### Sports and outdoor (2)
+### Sports and outdoor
 SK Brann (football), DNT Bergen (hiking tours)
 
-### Festivals (7)
-Festspillene i Bergen, Bergenfest, Beyond the Gates, Nattjazz, Bergen Pride, BIFF (Bergen International Film Festival), VVV (climate festival), Borealis
+### Festivals
+Festspillene i Bergen, Bergenfest, Beyond the Gates, Nattjazz, Bergen Pride, BIFF (Bergen International Film Festival), Borealis (experimental music), VVV (climate festival)
 
-### Other (2)
+### Other
 Bergen Chamber of Commerce events, Kvarteret (student venue)
 
 ---
