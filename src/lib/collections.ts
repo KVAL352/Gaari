@@ -206,7 +206,7 @@ const collections: Collection[] = [
 			],
 			en: [
 				'Bergen has cultural events on weekday evenings, not just at weekends. Music venues such as Ole Bull, Forum Scene, USF Verftet and Kulturhuset put on shows and concerts throughout the week. The theatres DNS, BIT Teatergarasjen, Det Vestnorske Teatret and Cornerteateret run performances Monday to Friday. Kvarteret and the student scene are active from Thursday onwards.',
-				'Gåri updates daily — morning and evening — so the evening picture is always fresh. Listings are pulled directly from 53 Bergen event sources, from Grieghallen to Brettspillkafeen, and include start times for all events.',
+				'Gåri updates daily — morning and evening — so the evening picture is always fresh. Listings are pulled directly from 54 Bergen event sources, from Grieghallen to Brettspillkafeen, and include start times for all events.',
 				'Concerts and performances typically start between 19:00 and 21:00. Planning a spontaneous evening? Use the time filter for late-night events from 22:00, or the free filter for no-cost evening options. Gåri removes sold-out events continuously — what you see here is available.'
 			]
 		},

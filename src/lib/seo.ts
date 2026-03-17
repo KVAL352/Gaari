@@ -63,7 +63,8 @@ const WHEN_COLLECTION: Record<string, Record<string, string>> = {
  *  1–3. Single category or bydel → self-referencing canonical
  *  4.   Both category + bydel → canonical to category-only version (more content)
  *  5.   Pagination without meaningful filters → keep page param, strip sort/noise
- *  6.   ?when=weekend or ?when=today (alone) → canonical to collection page
+ *  6a.  ?when=weekend or ?when=today (alone) → canonical to collection page
+ *  6b.  ?when=<other> (alone) → canonical to base URL + noindex (volatile)
  *  7.   <5 results → noindex (thin content)
  *
  * Noise params (time, price, audience, q) are stripped from the canonical.

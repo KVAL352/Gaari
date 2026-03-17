@@ -298,7 +298,7 @@
 		},
 		{
 			q: 'How often is Gåri updated?',
-			a: 'Gåri updates daily at 06:00 with data from 53 independent sources in Bergen. Event information is automatically collected from concert venues, theatres, museums, libraries, festivals and ticketing platforms.'
+			a: 'Gåri updates daily at 06:00 with data from 54 independent sources in Bergen. Event information is automatically collected from concert venues, theatres, museums, libraries, festivals and ticketing platforms.'
 		}
 	];
 
@@ -355,7 +355,7 @@
 			<p class="mt-2 leading-relaxed text-[var(--color-text-secondary)]">
 				{$lang === 'no'
 					? 'Gåri samler arrangementer fra 54 uavhengige kilder i Bergen, oppdatert daglig klokken 06:00. Bergen har typisk 150–250 arrangementer hver uke, fordelt på konsertscener, teatre, museer, festivaler og friluftsliv.'
-					: 'Gåri aggregates events from 53 independent sources in Bergen, updated daily at 06:00. Bergen typically has 150–250 events every week, spanning concert venues, theatres, museums, festivals and outdoor activities.'}
+					: 'Gåri aggregates events from 54 independent sources in Bergen, updated daily at 06:00. Bergen typically has 150–250 events every week, spanning concert venues, theatres, museums, festivals and outdoor activities.'}
 			</p>
 			<div class="mt-4 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
 				<p>
