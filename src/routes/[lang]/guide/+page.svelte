@@ -267,6 +267,10 @@
 			a: 'Bergen har over 20 gratis arrangementer hver uke, inkludert bibliotekkonserter, gallerivandringer, guidede turer og utendørsaktiviteter. Se <a href="/no/gratis" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">gratis-siden</a> for en oppdatert oversikt.'
 		},
 		{
+			q: 'Hvor finner jeg konserter i Bergen?',
+			a: 'Gåri samler konserter fra over 15 konsertscener i Bergen, inkludert Grieghallen, USF Verftet, Ole Bull og Forum Scene. Se <a href="/no/konserter" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">konserter i Bergen</a> for ukens program, eller <a href="/no/i-kveld" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">i kveld-siden</a> for kveldens arrangementer.'
+		},
+		{
 			q: 'Hvilke festivaler har Bergen?',
 			a: 'Bergen har 7 store festivaler fordelt gjennom året: Borealis (mars), Festspillene (mai/juni), Nattjazz (mai/juni), Bergenfest (juni), Bergen Pride (juni), Beyond the Gates (august) og BIFF (oktober). Gåri har egne samlingsider for hver festival med oppdatert program.'
 		},
@@ -287,6 +291,10 @@
 		{
 			q: 'Are there free things to do in Bergen?',
 			a: 'Bergen has over 20 free events every week, including library concerts, gallery walks, guided tours and outdoor activities. See the <a href="/en/free-things-to-do-bergen" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">free events page</a> for an updated list.'
+		},
+		{
+			q: 'Where can I find concerts in Bergen?',
+			a: 'Gåri lists concerts from over 15 venues in Bergen, including Grieghallen, USF Verftet, Ole Bull and Forum Scene. See <a href="/en/konserter" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">concerts in Bergen</a> for this week\'s programme, or <a href="/en/this-weekend" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">this weekend</a> for weekend events.'
 		},
 		{
 			q: 'What festivals does Bergen have?',
