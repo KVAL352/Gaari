@@ -1,6 +1,6 @@
 # Gåri
 
-> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. It collects events from 53 independent sources — concert venues, theatres, museums, libraries, festivals, ticket platforms and more — and presents them in one searchable, filterable calendar. Updated daily by automated scrapers. No registration required.
+> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. It collects events from 54 independent sources — concert venues, theatres, museums, libraries, festivals, ticket platforms and more — and presents them in one searchable, filterable calendar. Updated daily by automated scrapers. No registration required.
 
 The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's going on?".
 
@@ -93,7 +93,7 @@ The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's 
 - [Tilgjengelighet](https://gaari.no/no/tilgjengelighet) — accessibility statement (Norwegian)
 - [Accessibility](https://gaari.no/en/tilgjengelighet) — accessibility statement (English)
 
-## Data sources (53 active)
+## Data sources (54 active)
 
 ### Performance venues
 Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, BIT Teatergarasjen, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater
@@ -111,7 +111,7 @@ Eventbrite, TicketCo (multiple Bergen venues), Billetto, Hoopla
 Bergen Kommune (official events calendar), StudentBergen, Bergen Live
 
 ### Food and nightlife
-Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad, O'Connor's Irish Pub, GG Bergen, Stene Matglede
+Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad, O'Connor's Irish Pub, GG Bergen, Stene Matglede, Swing 'n Sweet Jazzclub
 
 ### Sports and outdoor
 SK Brann (football), DNT Bergen (hiking tours)
@@ -132,3 +132,4 @@ post@gaari.no
 - Events have bilingual AI-generated descriptions (Norwegian + English, <160 chars each)
 - All descriptions are original AI-generated content, not copied from source pages
 - Sitemap: https://gaari.no/sitemap.xml
+- Full version with FAQ and collection details: https://gaari.no/llms-full.txt
