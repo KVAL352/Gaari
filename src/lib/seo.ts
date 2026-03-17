@@ -86,7 +86,8 @@ export function computeCanonical(
 		if (slug) {
 			return { canonical: `${BASE_URL}/${lang}/${slug}`, noindex: false };
 		}
-		// Other when values (tomorrow, week, specific date, range) — fall through
+		// Other when values (tomorrow, week, specific date, range) — noindex volatile state
+		return { canonical: `${BASE_URL}/${lang}`, noindex: true };
 	}
 
 	// Rule 4: category + bydel both set → canonical to category version
@@ -158,11 +159,16 @@ export function generateEventJsonLd(
 		};
 	}
 
+	let availability = 'https://schema.org/InStock';
+	if (event.status === 'cancelled') {
+		availability = 'https://schema.org/Discontinued';
+	} else if (event.is_sold_out) {
+		availability = 'https://schema.org/SoldOut';
+	}
+
 	const offers: Record<string, unknown> = {
 		'@type': 'Offer',
-		availability: event.status === 'cancelled'
-			? 'https://schema.org/Discontinued'
-			: 'https://schema.org/InStock',
+		availability,
 		url: event.ticket_url || pageUrl
 	};
 

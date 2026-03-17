@@ -87,6 +87,16 @@ describe('generateEventJsonLd', () => {
 		expect(data.offers.availability).toBe('https://schema.org/Discontinued');
 	});
 
+	it('sets SoldOut availability for sold-out events', () => {
+		const json = generateEventJsonLd(
+			makeEvent({ is_sold_out: true }),
+			'no',
+			'https://gaari.no/no/events/test'
+		);
+		const data = JSON.parse(json);
+		expect(data.offers.availability).toBe('https://schema.org/SoldOut');
+	});
+
 	it('uses English title when lang=en and title_en exists', () => {
 		const json = generateEventJsonLd(
 			makeEvent({ title_en: 'English Title' }),
@@ -360,14 +370,16 @@ describe('computeCanonical', () => {
 		expect(canonical).toBe('https://gaari.no/en/today-in-bergen');
 	});
 
-	it('self-referencing for ?when=tomorrow (no collection)', () => {
-		const { canonical } = computeCanonical(url('?when=tomorrow'), 'no', 15);
+	it('noindex for ?when=tomorrow (volatile, no collection)', () => {
+		const { canonical, noindex } = computeCanonical(url('?when=tomorrow'), 'no', 15);
 		expect(canonical).toBe('https://gaari.no/no');
+		expect(noindex).toBe(true);
 	});
 
-	it('self-referencing for ?when=week (no collection)', () => {
-		const { canonical } = computeCanonical(url('?when=week'), 'no', 60);
+	it('noindex for ?when=week (volatile, no collection)', () => {
+		const { canonical, noindex } = computeCanonical(url('?when=week'), 'no', 60);
 		expect(canonical).toBe('https://gaari.no/no');
+		expect(noindex).toBe(true);
 	});
 
 	it('?when=weekend with category → canonical to category (not collection)', () => {
