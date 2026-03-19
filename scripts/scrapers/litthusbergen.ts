@@ -175,7 +175,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				if (detail.ticketUrl) ticketUrl = detail.ticketUrl;
 			}
 
-			const aiDesc = await generateDescription({ title: ev.title, venue: 'Litteraturhuset i Bergen', category, date: startDate, price });
+			const roomHint = ev.room && ev.room !== 'Litteraturhuset i Bergen' ? ev.room : undefined;
+			const aiDesc = await generateDescription({ title: ev.title, venue: 'Litteraturhuset i Bergen', category, date: startDate, price, room: roomHint });
 			const success = await insertEvent({
 				slug: makeSlug(ev.title, ev.dateStart),
 				title_no: ev.title,
@@ -184,7 +185,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				category,
 				date_start: dateStart,
 				date_end: dateEnd,
-				venue_name: ev.room || 'Litteraturhuset i Bergen',
+				venue_name: 'Litteraturhuset i Bergen',
 				address: 'Østre Skostredet 5-7, Bergen',
 				bydel,
 				price,

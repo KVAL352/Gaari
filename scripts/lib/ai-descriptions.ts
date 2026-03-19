@@ -7,6 +7,7 @@ interface EventMeta {
 	category: string;
 	date?: string | Date;
 	price?: string;
+	room?: string;
 }
 
 interface BilingualDescription {
@@ -43,6 +44,7 @@ function buildPrompt(event: EventMeta): string {
 		`Venue: ${event.venue}`,
 		`Category: ${CATEGORY_LABELS_NO[event.category] || event.category}`,
 	];
+	if (event.room) lines.push(`Room: ${event.room}`);
 	if (event.date) lines.push(`Date: ${event.date}`);
 	if (event.price) lines.push(`Price: ${event.price}`);
 	lines.push('', 'Respond in JSON only: {"no": "...", "en": "..."}');
