@@ -15,6 +15,7 @@
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 	import { slide } from 'svelte/transition';
+	import { ArrowRight } from 'lucide-svelte';
 
 	let { data } = $props();
 	let event: GaariEvent = $derived(data.event);
@@ -44,6 +45,16 @@
 	});
 
 	let isCancelled = $derived(event.status === 'cancelled');
+
+	// Contextual collection link based on event category
+	const CATEGORY_COLLECTIONS: Record<string, { slug: Record<string, string>; label: Record<string, string> }> = {
+		music: { slug: { no: 'konserter', en: 'konserter' }, label: { no: 'Se alle konserter denne uken', en: 'See all concerts this week' } },
+		family: { slug: { no: 'familiehelg', en: 'familiehelg' }, label: { no: 'Se alle familieaktiviteter', en: 'See all family activities' } },
+		culture: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+		theatre: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+		sports: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+	};
+	let collectionLink = $derived(CATEGORY_COLLECTIONS[event.category]);
 
 	let showCorrectionForm = $state(false);
 	let correctionSubmitted = $state(false);
@@ -346,6 +357,19 @@
 	<div class="mb-8">
 		<NewsletterCTA id="event-detail" variant="card" contextCategory={event.category} />
 	</div>
+
+	<!-- Collection link -->
+	{#if collectionLink}
+	<div class="mb-8">
+		<a
+			href="/{$lang}/{collectionLink.slug[$lang]}"
+			class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
+		>
+			{collectionLink.label[$lang]}
+			<ArrowRight size={16} />
+		</a>
+	</div>
+	{/if}
 
 	<!-- Related events -->
 	{#if related.length > 0}
