@@ -155,6 +155,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			// Skip recurring daily activities
 			if (isRecurring(activity.title)) continue;
 
+			// Only show activities Akvariet marks as highlights (bg-info)
+			if (!activity.isHighlight) continue;
+
 			daySpecialCount++;
 			found++;
 
