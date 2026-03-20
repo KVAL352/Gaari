@@ -1,5 +1,25 @@
 [
   {
+    "date": "2026-03-26",
+    "title": "Plausible: velg abonnementsplan",
+    "description": "Trial utløper 26. mars. Velg plan på plausible.io/settings. Uten betaling mister vi all trafikkdata."
+  },
+  {
+    "date": "2026-03-27",
+    "title": "Borealis scraper: marker som dormant eller fiks",
+    "description": "Nede 6+ kjøringer (broken i digest). Borealis-festivalen 2026 er trolig ferdig (mars). Verifiser på borealisfestival.no. Hvis ferdig: marker som dormant i scraper-health. Hvis nye events: fiks scraper."
+  },
+  {
+    "date": "2026-03-27",
+    "title": "Sjekk Litteraturhuset backlink",
+    "description": "Ingrid Brandvik (kommunikasjonsrådgiver) bekreftet 18. mars at de legger til lenke til Gåri på litthusbergen.no. Sjekk om lenken er live. Viktig for tredjepartssynlighet/AI-sitering."
+  },
+  {
+    "date": "2026-04-03",
+    "title": "Sjekk svar fra Perplexity Publishers",
+    "description": "Epost sendt 20. mars til publishers@perplexity.ai med forespørsel om å bli inkludert som Bergen-kilde. Sjekk innboks for svar."
+  },
+  {
     "date": "2026-03-27",
     "title": "Analyse: Mobil bounce rate etter SEO-tiltak",
     "description": "Sjekk Plausible-data for 14.-27. mars: 1) Bounce rate — har den gått ned fra 60%? 2) CTR-forbedring på event-sider etter description-first meta tag 3) Sammenlign Google-trafikk uke-over-uke. Endringer deployert 20. mars: mobil tagline, description-first meta desc, homepage 'Hva skjer i Bergen?', konserter FAQ, hreflang-fix."
@@ -72,6 +92,6 @@
   {
     "date": "2027-03-01",
     "title": "Sjekk hardkodede priser i scrapers",
-    "description": "Verifiser: Akvariet (akvariet.ts: ADMISSION_PRICE = '245–380 kr')."
+    "description": "Verifiser: Akvariet (akvariet.ts: ADMISSION_PRICE — nye priser fra 1. mai 2026, sjekk akvariet.no/kjop-billett)."
   }
 ]
