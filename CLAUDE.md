@@ -87,7 +87,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 ### Libraries, museums & landmarks
 | Source | File | Method |
 |--------|------|--------|
-| Akvariet i Bergen | `akvariet.ts` | Daily activity calendar, 14-day lookahead, recurring filter |
+| Akvariet i Bergen | `akvariet.ts` | Daily activity calendar, 14-day lookahead, highlight-only filter (bg-info), end times, admission pricing |
 | Bergen Bibliotek | `bergenbibliotek.ts` | HTML |
 | Bymuseet i Bergen | `bymuseet.ts` | WordPress HTML, event sitemap |
 | Museum Vest | `museumvest.ts` | Sitemap discovery + detail page scraping (3 Bergen museums) |
