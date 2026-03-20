@@ -8,8 +8,10 @@ const CALENDAR_URL = `${BASE_URL}/hva-skjer/aktivitetskalender/dag`;
 const DAYS_AHEAD = 14;
 
 // Akvariet fixed admission price — activities are included in general admission.
-// Update when prices change. (Last verified: Mar 2026, reminder set for Mar 2027)
-const ADMISSION_PRICE = 'fra 245 kr';
+// Update when prices change. Prices change from May 1, 2026.
+// (Last verified: Mar 2026, reminder set for Mar 2027)
+const ADMISSION_PRICE = 'Inkl. i billett (fra 245 kr)';
+const AFTERNOON_PRICE = 'Inkl. i billett (ettermiddagsbillett fra kl. 16)';
 
 // Recurring daily activities to skip — these repeat every day and are not discrete "events".
 // Only skip on exact (case-insensitive) title match. Unique variants like
@@ -61,21 +63,27 @@ function parseDay($: cheerio.CheerioAPI, dateStr: string) {
 	const activities: Array<{
 		title: string;
 		time: string;
+		endTime: string;
 		location: string;
 		description: string;
 		imageUrl?: string;
 		detailUrl?: string;
+		isHighlight: boolean;
 	}> = [];
 
 	// Each activity card is a div.row.mb-3.p-3.border inside the container
 	$('div.row.mb-3.p-3.border').each((_i, el) => {
 		const card = $(el);
 
+		// Highlight: Akvariet marks featured activities with bg-info (blue background)
+		const isHighlight = card.hasClass('bg-info');
+
 		// Time: first <span> with text-primary inside the time column
 		const timeText = card.find('.col-3 span.text-primary, .col-lg-2 span.text-primary').first().text().trim();
-		// Extract start time (e.g. "10:30" from "10:30 - 10:45")
-		const timeMatch = timeText.match(/(\d{1,2}:\d{2})/);
+		// Extract start and end time (e.g. "10:30" and "10:45" from "10:30 - 10:45")
+		const timeMatch = timeText.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
 		const time = timeMatch ? timeMatch[1] : '';
+		const endTime = timeMatch ? timeMatch[2] : '';
 
 		// Title: h3 inside the card
 		const rawTitle = card.find('h3').first().text().trim()
@@ -99,7 +107,7 @@ function parseDay($: cheerio.CheerioAPI, dateStr: string) {
 			detailUrl = detailLink.startsWith('http') ? detailLink : `${BASE_URL}${detailLink}`;
 		}
 
-		activities.push({ title: rawTitle, time, location, description, imageUrl, detailUrl });
+		activities.push({ title: rawTitle, time, endTime, location, description, imageUrl, detailUrl, isHighlight });
 	});
 
 	return activities;
@@ -170,6 +178,16 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const time = activity.time || '10:00';
 			const dateStart = new Date(`${dateStr}T${time}:00${offset}`).toISOString();
 
+			// date_end from parsed end time
+			let dateEnd: string | undefined;
+			if (activity.endTime) {
+				dateEnd = new Date(`${dateStr}T${activity.endTime}:00${offset}`).toISOString();
+			}
+
+			// Activities from 16:00+ have cheaper afternoon ticket
+			const startHour = parseInt(time.split(':')[0], 10);
+			const price = startHour >= 16 ? AFTERNOON_PRICE : ADMISSION_PRICE;
+
 			const category = guessCategory(activity.title);
 
 			const aiDesc = await generateDescription({
@@ -177,10 +195,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				venue: 'Akvariet i Bergen',
 				category,
 				date: dateStart,
-				price: ADMISSION_PRICE,
+				price,
 			});
 
-			const ticketUrl = activity.detailUrl || `${BASE_URL}/kjop-billett?date=${dateStr}`;
+			// Link to the day's calendar page so visitors see the full programme
+			const ticketUrl = activity.detailUrl || `${CALENDAR_URL}/${dateStr}`;
 
 			const success = await insertEvent({
 				slug: makeSlug(activity.title, dateStr),
@@ -189,10 +208,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				description_en: aiDesc.en,
 				category,
 				date_start: dateStart,
+				date_end: dateEnd,
 				venue_name: 'Akvariet i Bergen',
 				address: 'Nordnesbakken 4, 5005 Bergen',
 				bydel: 'Bergenhus',
-				price: ADMISSION_PRICE,
+				price,
 				ticket_url: ticketUrl,
 				source: SOURCE,
 				source_url: sourceUrl,
@@ -203,7 +223,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			});
 
 			if (success) {
-				console.log(`  + ${activity.title} (${dateStr} ${time}) [${category}]`);
+				console.log(`  + ${activity.title} (${dateStr} ${time}${activity.endTime ? '-' + activity.endTime : ''}) [${category}]${activity.isHighlight ? ' ★' : ''}`);
 				inserted++;
 			}
 		}
