@@ -120,8 +120,8 @@
 				</span>
 			{/if}
 		</div>
-		<div class="flex flex-1 flex-col p-4">
-			<h3 class="mb-1 line-clamp-2 text-lg font-semibold leading-tight">
+		<div class="card-body flex flex-1 flex-col p-4">
+			<h3 class="card-title mb-1 line-clamp-2 text-lg font-semibold leading-tight">
 				{title}
 			</h3>
 			<time datetime={event.date_start} class="tabular-nums mb-1 text-sm text-[var(--color-text-secondary)]">
@@ -130,9 +130,7 @@
 			<p class="mb-1 text-sm text-[var(--color-text-secondary)]">
 				{event.venue_name}, {event.bydel}
 			</p>
-			{#if description}
-				<p class="mb-2 line-clamp-1 text-xs text-[var(--color-text-muted)]">{description}</p>
-			{/if}
+			<p class="card-desc mb-2 line-clamp-1 text-xs text-[var(--color-text-muted)]">{description || '\u00A0'}</p>
 			<span class="read-more-btn" aria-hidden="true">{$t('readMore')} →</span>
 		</div>
 		<div class="relative z-20 pointer-events-none border-t border-[var(--color-border)] px-4 py-3">
@@ -165,6 +163,11 @@
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-lg);
 		border-color: var(--color-accent);
+	}
+
+	/* Reserve 2 lines for title so cards align even with short titles */
+	.card-title {
+		min-height: 2.6em; /* ~2 lines at leading-tight */
 	}
 
 	.read-more-btn {
