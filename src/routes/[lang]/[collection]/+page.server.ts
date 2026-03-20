@@ -1,4 +1,4 @@
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
 import { getCollection, getHreflangSlugs } from '$lib/collections';
 import { getOsloNow } from '$lib/event-filters';
@@ -14,6 +14,14 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 	const collection = getCollection(params.collection);
 	if (!collection) {
 		throw error(404, 'Not found');
+	}
+
+	// Redirect to canonical slug if user visits wrong language slug
+	// e.g. /en/sankthans → /en/midsummer-bergen, /no/this-weekend → /no/denne-helgen
+	const slugs = getHreflangSlugs(params.collection);
+	const canonicalSlug = slugs[params.lang as 'no' | 'en'];
+	if (canonicalSlug && canonicalSlug !== params.collection) {
+		throw redirect(301, `/${params.lang}/${canonicalSlug}`);
 	}
 
 	setHeaders({ 'cache-control': 's-maxage=300, stale-while-revalidate=600' });
