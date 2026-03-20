@@ -133,7 +133,7 @@
 			{#if description}
 				<p class="mb-2 line-clamp-1 text-xs text-[var(--color-text-muted)]">{description}</p>
 			{/if}
-			<span class="read-more mt-auto text-sm font-medium text-[var(--color-accent)]">{$t('readMore')} →</span>
+			<span class="read-more-btn" aria-hidden="true">{$t('readMore')} →</span>
 		</div>
 		<div class="relative z-20 pointer-events-none border-t border-[var(--color-border)] px-4 py-3">
 			<div class="flex items-center justify-between">
@@ -167,15 +167,24 @@
 		border-color: var(--color-accent);
 	}
 
-	.read-more {
-		text-decoration: underline;
-		text-underline-offset: 2px;
-		text-decoration-color: var(--color-border);
-		transition: text-decoration-color 0.15s;
+	.read-more-btn {
+		margin-top: auto;
+		display: inline-flex;
+		align-items: center;
+		align-self: flex-start;
+		padding: 0.3rem 0.875rem;
+		border: 1.5px solid var(--color-accent);
+		border-radius: 9999px;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: var(--color-accent);
+		background: transparent;
+		transition: background-color 0.15s, color 0.15s;
 	}
 
-	.card:hover .read-more {
-		text-decoration-color: var(--color-accent);
+	.card:hover .read-more-btn {
+		background: var(--color-accent);
+		color: white;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
