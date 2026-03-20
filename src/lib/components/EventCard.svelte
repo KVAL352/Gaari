@@ -84,7 +84,7 @@
 	}
 </script>
 
-<li class="group list-none">
+<li class="group list-none h-full">
 	<article class="card relative flex h-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-sm cursor-pointer">
 		<!-- Full-card link (z-10 covers image + text, action bar sits at z-20) -->
 		<a href={eventUrl} onclick={trackPromotedClick} class="absolute inset-0 z-10 no-underline" aria-label={title}></a>
