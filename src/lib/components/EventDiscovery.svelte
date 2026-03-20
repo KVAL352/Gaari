@@ -10,7 +10,7 @@
 	import { Users, Drama, GraduationCap, Moon, MapPin, Mail, Sparkle } from 'lucide-svelte';
 	import { slide } from 'svelte/transition';
 	import { browser } from '$app/environment';
-	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, addDays, getEndOfWeekDateStr, getContextualHighlight } from '$lib/event-filters';
+	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, addDays, getEndOfWeekDateStr, getContextualHighlight, matchesTimeOfDay } from '$lib/event-filters';
 
 	interface Props {
 		lang: Lang;
@@ -118,6 +118,14 @@
 		free: activeEvents.filter(e => isFreeEvent(e.price)).length,
 		paid: activeEvents.filter(e => !isFreeEvent(e.price)).length
 	}));
+
+	let timeCounts = $derived.by(() => {
+		const counts: Record<string, number> = {};
+		for (const opt of ['morning', 'daytime', 'evening', 'night', 'latenight']) {
+			counts[opt] = activeEvents.filter(e => matchesTimeOfDay(e.date_start, [opt])).length;
+		}
+		return counts;
+	});
 
 	// ── Step 1: When? ──
 	const whenOptions = [
@@ -579,6 +587,7 @@
 						{#each timeOptions as opt (opt.value)}
 							<FilterPill
 								label={$t(opt.labelKey)}
+								count={timeCounts[opt.value]}
 								selected={selectedTimes.includes(opt.value)}
 								onclick={() => handleTimeToggle(opt.value)}
 							/>
@@ -812,7 +821,7 @@
 		padding: 0.5rem 0.875rem;
 		border-radius: 9999px;
 		border: 1px solid var(--color-border-subtle);
-		background: white;
+		background: var(--color-bg-surface);
 		font-size: 0.8125rem;
 		font-weight: 500;
 		color: var(--color-text-secondary);
@@ -990,7 +999,7 @@
 		border: 1px solid var(--color-border);
 		border-radius: 0.375rem;
 		font-size: 0.8125rem;
-		background: white;
+		background: var(--color-bg-surface);
 		min-height: 36px;
 	}
 
@@ -1050,7 +1059,7 @@
 		padding: 0.5rem 0.875rem;
 		border-radius: 9999px;
 		border: 1.5px solid var(--funkis-red);
-		background: white;
+		background: var(--color-bg-surface);
 		font-size: 0.8125rem;
 		font-weight: 600;
 		color: var(--funkis-red);

@@ -128,8 +128,59 @@
 	--font-body:    'Inter', system-ui, sans-serif;
 }
 
-/* Dark mode disabled — all bg-white replaced with bg-[var(--color-bg-surface)] tokens.
-   To enable dark mode: override --color-bg-surface and other tokens in a @media (prefers-color-scheme: dark) block. */
+/* ── Dark mode ── */
+@media (prefers-color-scheme: dark) {
+	:root {
+		/* Backgrounds */
+		--color-bg:            #121212;
+		--color-bg-surface:    #1E1E1E;
+		--color-surface:       #252525;
+		--color-bg-elevated:   #2A2A2A;
+
+		/* Borders */
+		--color-border:        #3A3A3A;
+		--color-border-subtle: #2E2E2E;
+		--color-border-strong: #6B6862;
+
+		/* Text — light on dark, good contrast */
+		--color-text-primary:   #E8E8E6;
+		--color-text-secondary: #B0B0AE;
+		--color-text-muted:     #9A9A98;
+
+		/* Accent stays visible on dark bg */
+		--funkis-red-subtle:   #2A1616;
+		--funkis-green-subtle: #162A1A;
+		--funkis-amber-subtle: #2A2316;
+
+		/* Funkis primitives that need dark overrides */
+		--funkis-plaster:      #1A1A1A;
+		--funkis-plaster-warm: #1E1D1B;
+		--funkis-shadow-light: #2E2E2C;
+
+		/* Shadows — stronger on dark bg */
+		--shadow-sm:  0 1px 4px rgba(0, 0, 0, 0.3);
+		--shadow-md:  0 2px 8px rgba(0, 0, 0, 0.4);
+		--shadow-lg:  0 4px 16px rgba(0, 0, 0, 0.5);
+
+		/* Status badges — adjusted for dark backgrounds */
+		--color-free:          #2EAD5A;
+		--color-lasttickets-bg:   #3D3019;
+		--color-lasttickets-text: #E8C060;
+
+		/* Category placeholders — muted for dark mode */
+		--color-cat-music:     #2A4055;
+		--color-cat-culture:   #3A2E4A;
+		--color-cat-theatre:   #4A2E38;
+		--color-cat-family:    #4A3D20;
+		--color-cat-food:      #4A3525;
+		--color-cat-festival:  #4A4220;
+		--color-cat-sports:    #254A30;
+		--color-cat-nightlife: #253040;
+		--color-cat-workshop:  #403525;
+		--color-cat-student:   #2E4025;
+		--color-cat-tours:     #254040;
+	}
+}
 
 html {
 	font-family: var(--font-body);
