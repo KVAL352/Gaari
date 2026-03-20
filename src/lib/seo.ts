@@ -236,6 +236,7 @@ export function generateEventJsonLd(
 		description: description,
 		url: pageUrl,
 		startDate: toBergenIso(event.date_start),
+		dateModified: new Date().toISOString().slice(0, 10),
 		location,
 		offers,
 		organizer: {
@@ -445,6 +446,7 @@ export function generateCollectionJsonLd(
 		name: collection.title[lang],
 		description: collection.description[lang],
 		url: pageUrl,
+		dateModified: new Date().toISOString().slice(0, 10),
 		numberOfItems: events.length,
 		isPartOf: {
 			'@type': 'WebSite',

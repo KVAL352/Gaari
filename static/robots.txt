@@ -4,6 +4,9 @@ Disallow: /no/submit
 Disallow: /en/submit
 Disallow: /admin/
 
+# Cloudflare Content Signals — allow AI search citation, disallow training
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+
 # AI crawlers — explicitly allowed for indexing and knowledge base inclusion
 User-agent: GPTBot
 Allow: /
