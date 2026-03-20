@@ -87,7 +87,7 @@
 <li class="group list-none">
 	<article class="card relative flex h-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-sm cursor-pointer">
 		<!-- Full-card link (z-10 covers image + text, action bar sits at z-20) -->
-		<a href={eventUrl} onclick={trackPromotedClick} class="absolute inset-0 z-10" aria-label={title}></a>
+		<a href={eventUrl} onclick={trackPromotedClick} class="absolute inset-0 z-10 no-underline" aria-label={title}></a>
 
 		<div class="relative aspect-[16/9] overflow-hidden bg-[var(--color-surface)]">
 			{#if event.image_url && !imgError}
@@ -179,12 +179,14 @@
 		font-weight: 600;
 		color: var(--color-accent);
 		background: transparent;
+		text-decoration: none;
 		transition: background-color 0.15s, color 0.15s;
 	}
 
 	.card:hover .read-more-btn {
 		background: var(--color-accent);
 		color: white;
+		text-decoration: none;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
