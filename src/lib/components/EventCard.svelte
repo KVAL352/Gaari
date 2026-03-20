@@ -85,7 +85,7 @@
 </script>
 
 <li class="group list-none">
-	<article class="relative flex h-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg cursor-pointer">
+	<article class="card relative flex h-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-sm cursor-pointer">
 		<!-- Full-card link (z-10 covers image + text, action bar sits at z-20) -->
 		<a href={eventUrl} onclick={trackPromotedClick} class="absolute inset-0 z-10" aria-label={title}></a>
 
@@ -127,10 +127,13 @@
 			<time datetime={event.date_start} class="tabular-nums mb-1 text-sm text-[var(--color-text-secondary)]">
 				{dateText}{timeText ? ` · ${timeText}` : ''}
 			</time>
-			<p class="mb-2 text-sm text-[var(--color-text-secondary)]">
+			<p class="mb-1 text-sm text-[var(--color-text-secondary)]">
 				{event.venue_name}, {event.bydel}
 			</p>
-			<span class="mt-auto text-sm font-medium text-[var(--color-primary)] group-hover:underline">{$t('readMore')} &rarr;</span>
+			{#if description}
+				<p class="mb-2 line-clamp-1 text-xs text-[var(--color-text-muted)]">{description}</p>
+			{/if}
+			<span class="read-more mt-auto text-sm font-medium text-[var(--color-accent)]">{$t('readMore')} →</span>
 		</div>
 		<div class="relative z-20 pointer-events-none border-t border-[var(--color-border)] px-4 py-3">
 			<div class="flex items-center justify-between">
@@ -152,3 +155,32 @@
 		</div>
 	</article>
 </li>
+
+<style>
+	.card {
+		transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+	}
+
+	.card:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-lg);
+		border-color: var(--color-accent);
+	}
+
+	.read-more {
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		text-decoration-color: var(--color-border);
+		transition: text-decoration-color 0.15s;
+	}
+
+	.card:hover .read-more {
+		text-decoration-color: var(--color-accent);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.card {
+			transition: none;
+		}
+	}
+</style>
