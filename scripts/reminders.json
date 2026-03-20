@@ -1,33 +1,8 @@
 [
   {
-    "date": "2026-03-11",
-    "title": "Sjekk DNT ticket-URLer",
-    "description": "Verifiser at DNT-eventer på gaari.no har riktige registreringslenker (aktiviteter.dnt.no/register/{id}). Sjekk noen aktive DNT-eventer og verifiser at ticket_url peker til riktig registreringsside."
-  },
-  {
-    "date": "2026-03-15",
-    "title": "Analyse: Mobil bounce rate etter above-fold-fix",
-    "description": "Sjekk Plausible-data for 1.-15. mars: 1) Bounce rate — har den gått ned fra 68%? 2) Scroll depth — scroller folk lenger? 3) Sammenlign mobil vs. desktop. Endringer deployert 1. mars: hero skjult på mobil, discovery-panel komprimert, audience pills kollapset til 3, filter-toggles bak 'Flere filtre'-knapp, resultateller skjult uten filtre."
-  },
-  {
-    "date": "2026-03-12",
-    "title": "Følg opp Thomas Ottesen, Bergen Sentrum AS",
-    "description": "Steinar Kristoffersen (daglig leder) videresendte outreach-eposten til Thomas Ottesen (salgs- og markedssjef) 4. mars. Ingen svar ennå. Send oppfølgingsepost direkte til thomas@bergensentrum.no om han ikke har svart. Mål: få Bergen Sentrum til å dele Gåri med sine medlemmer (sentrumsbedrifter/arrangører)."
-  },
-  {
-    "date": "2026-03-14",
-    "title": "Følg opp Cafe Sanaa",
-    "description": "Epost sendt 28. februar til cafesanaa@gmail.com — tilbudt gratis plassering på Gåri + nevnt Google Calendar-mulighet. Ingen svar ennå. Vurder oppfølgingsepost eller annen kontaktkanal (Facebook/Instagram). Sanaa har konserter, DJ-kvelder, dansekurs, loppemarked — god match for Gåri."
-  },
-  {
-    "date": "2026-03-11",
-    "title": "Følg opp Tikkio",
-    "description": "Epost sendt 27. februar — forespørsel om tillatelse til å scrape Tikkio-arrangementer. Kun auto-svar fra Intercom-bot mottatt 3. mars. Ingen menneskelig respons ennå. Scraper klar (scripts/scrapers/tikkio.ts), venter på tillatelse. Send oppfølgingsepost om ingen svar."
-  },
-  {
-    "date": "2026-03-11",
-    "title": "Følg opp DNT (ødelagte URLer)",
-    "description": "Epost sendt 28. februar til André Marton Pedersen (andre.marton.pedersen@dnt.no) om ødelagte aktivitets-URLer fra DNT API. Han svarte 2. mars at han skulle sjekke opp. Verifiser om /aktiviteter-fra-deltager/-URLer fungerer nå. Hvis ikke, send oppfølging."
+    "date": "2026-03-27",
+    "title": "Analyse: Mobil bounce rate etter SEO-tiltak",
+    "description": "Sjekk Plausible-data for 14.-27. mars: 1) Bounce rate — har den gått ned fra 60%? 2) CTR-forbedring på event-sider etter description-first meta tag 3) Sammenlign Google-trafikk uke-over-uke. Endringer deployert 20. mars: mobil tagline, description-first meta desc, homepage 'Hva skjer i Bergen?', konserter FAQ, hreflang-fix."
   },
   {
     "date": "2026-03-27",
@@ -35,58 +10,68 @@
     "description": "Søknad om deltakelse i Google EEA aggregator features (Things to do / events) ble sendt 6. mars 2026 via support.google.com/websearch/contact/search_dma. Google tar typisk 2-4 uker. Sjekk post@gaari.no for svar. Hvis ingen respons: vent ytterligere 2 uker og send eventuell oppfølging."
   },
   {
-    "date": "2027-03-01",
-    "title": "Sjekk hardkodede priser i scrapers",
-    "description": "Noen scrapers har hardkodede inngangspriser som kan ha endret seg. Verifiser: 1) Akvariet (akvariet.ts: ADMISSION_PRICE = '245–380 kr', sist sjekket mar 2026 — sjekk akvariet.no/kjop-billett). Legg til nye scrapers med hardkodet pris i denne listen etterhvert."
-  },
-  {
-    "date": "2027-02-01",
-    "title": "Oppdater Borealis-skraper for 2027",
-    "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i scripts/scrapers/borealis.ts. Sjekk at /festival-2027/hva-skjer-2027/ finnes. Oppdater også startDate/endDate i FESTIVALS-arrayen i send-daily-digest.ts."
-  },
-  {
-    "date": "2026-06-01",
-    "title": "Kvartalsvis sikkerhetssjekk Q2 2026",
-    "description": "1) Roter ADMIN_PASSWORD og ADMIN_SESSION_SECRET — oppdater i .env og Vercel env vars. 2) Roter CALENDAR_FEED_TOKEN — generer ny (openssl rand -hex 16), oppdater .env + Vercel + kalender-app. 3) Sjekk om Dependabot-PRer er merget. 4) Kjør 'npm audit' i root og scripts/. 5) Sjekk Vercel logs for CSP-violations. 6) Vurder å rotere GEMINI_API_KEY og RESEND_API_KEY."
-  },
-  {
-    "date": "2026-09-01",
-    "title": "Kvartalsvis sikkerhetssjekk Q3 2026",
-    "description": "1) Roter ADMIN_PASSWORD og ADMIN_SESSION_SECRET — oppdater i .env og Vercel env vars. 2) Roter CALENDAR_FEED_TOKEN — generer ny (openssl rand -hex 16), oppdater .env + Vercel + kalender-app. 3) Sjekk om Dependabot-PRer er merget. 4) Kjør 'npm audit' i root og scripts/. 5) Sjekk Vercel logs for CSP-violations. 6) Vurder å rotere GEMINI_API_KEY og RESEND_API_KEY."
-  },
-  {
-    "date": "2026-12-01",
-    "title": "Kvartalsvis sikkerhetssjekk Q4 2026",
-    "description": "1) Roter ADMIN_PASSWORD og ADMIN_SESSION_SECRET — oppdater i .env og Vercel env vars. 2) Roter CALENDAR_FEED_TOKEN — generer ny (openssl rand -hex 16), oppdater .env + Vercel + kalender-app. 3) Sjekk om Dependabot-PRer er merget. 4) Kjør 'npm audit' i root og scripts/. 5) Sjekk Vercel logs for CSP-violations. 6) Vurder å rotere GEMINI_API_KEY og RESEND_API_KEY."
-  },
-  {
-    "date": "2026-03-10",
-    "title": "Sjekk SEO-rapport levering",
-    "description": "SEO-rapporten fra mandag 2. mars ankom aldri Protonmail (post@gaari.no), selv om GHA-loggen bekreftet sending via Resend. Test 4. mars viste at leveringen fungerer nå. Sjekk etter kl. 10:00 CET om dagens SEO-rapport (sendt mandag 09:00 UTC) har ankommet. Hvis ikke: legg til backup-adresse i seo-weekly-report.ts."
-  },
-  {
-    "date": "2027-01-15",
-    "title": "Oppdater festivaldatoer i guide-siden",
-    "description": "Guide-siden (src/routes/[lang]/guide/+page.svelte) har hardkodede festivaldatoer i getSeasonWindows() for sesong-badges (Pågår nå / Kommer snart). Oppdater datoene for 2027: Borealis, Festspillene, Nattjazz, Bergenfest, Bergen Pride, Beyond the Gates, BIFF. Sjekk festivalenes nettsider for offisielle datoer."
-  },
-  {
-    "date": "2026-03-11",
-    "title": "Sjekk svar fra outreach runde 1 + 2",
-    "description": "31 outreach-eposter sendt 4.-5. mars. Sjekk innboks (post@gaari.no og Kjersti.Therkildsen@gaari.no) for svar. Runde 1 (4. mars): Sammen, hoteller, UiB, HVL, NHH, Studvest, Bergen Global, Bergen Kommune, BA, Vestland fylke, Bergen Sentrum, BT, Bergen Næringsråd. Runde 2 (5. mars): NRK Vestland, Bergensmagasinet, Bergen.Works, BIKS, Media City Bergen, Life in Norway. Full oversikt i memory/outreach-drafts.md."
-  },
-  {
-    "date": "2026-03-19",
+    "date": "2026-03-27",
     "title": "Purring: outreach-kontakter uten svar",
-    "description": "Send oppfølgingsepost til kontakter fra runde 1 (4. mars) og runde 2 (5. mars) som ikke har svart. Sjekk outreach-loggen i memory/outreach-drafts.md for status. Skriv kort og vennlig purring — referer til original epost, ikke gjenta hele pitchen. Prioriter: media (NRK, BT, Bergensmagasinet), studenter (Sammen, UiB), community (BIKS, Bergen Global)."
+    "description": "Send oppfølgingsepost til kontakter fra runde 1 (4. mars) og runde 2 (5. mars) som ikke har svart. Sjekk outreach-loggen i memory/outreach-drafts.md for status. Prioriter: media (NRK, BT, Bergensmagasinet), studenter (Sammen, UiB), community (BIKS, Bergen Global)."
   },
   {
-    "date": "2026-03-12",
-    "title": "Videre gjennomgang: Prospect report",
-    "description": "Fortsett UX-gjennomgang av prospect-rapporten. Kjente gjenstående ting: 1) Kategorier-tallet viser bare 8 av 11 — sjekk mapCategory-logikken. 2) Vurder om alle metric-kort kommuniserer tydelig nok. 3) Test festival-rapport (--festival festspillene) med samme endringer. 4) Sjekk mobilvennlighet. Generer: cd scripts && npx tsx generate-prospect-report.ts 'Grieghallen' og --festival festspillene."
+    "date": "2026-03-27",
+    "title": "Følg opp Thomas Ottesen, Bergen Sentrum AS",
+    "description": "Steinar Kristoffersen videresendte outreach-eposten til Thomas Ottesen (salgs- og markedssjef) 4. mars. Ingen svar ennå. Send oppfølgingsepost direkte til thomas@bergensentrum.no."
+  },
+  {
+    "date": "2026-03-27",
+    "title": "Følg opp Cafe Sanaa",
+    "description": "Epost sendt 28. februar til cafesanaa@gmail.com — tilbudt gratis plassering på Gåri. Ingen svar. Vurder oppfølgingsepost eller kontakt via Facebook/Instagram."
+  },
+  {
+    "date": "2026-03-27",
+    "title": "Følg opp Tikkio",
+    "description": "Epost sendt 27. februar — forespørsel om scraping-tillatelse. Kun Intercom auto-svar mottatt. Scraper klar (scripts/scrapers/tikkio.ts), venter på tillatelse."
+  },
+  {
+    "date": "2026-03-27",
+    "title": "Følg opp DNT (ødelagte URLer)",
+    "description": "André Marton Pedersen (DNT) sa 2. mars at han skulle sjekke /aktiviteter-fra-deltager/-URLene. Verifiser om de fungerer nå. Vi har allerede fikset ticket_url til å bruke register-URLer (commit 2469484)."
+  },
+  {
+    "date": "2026-03-27",
+    "title": "Prospect report UX-gjennomgang",
+    "description": "Gjenstående: 1) Kategorier-tallet viser 8/11, sjekk mapCategory. 2) Test festival-rapport (--festival festspillene). 3) Sjekk mobilvennlighet. cd scripts && npx tsx generate-prospect-report.ts 'Grieghallen'."
   },
   {
     "date": "2026-04-06",
     "title": "Scrapers med manglende bilder: brann, bergenpride, beyondthegates",
-    "description": "Disse scrapers har image_url: undefined og ingen enkel fix (hash-basert source_url, ingen detail-sider). Vurder: 1) brann.ts — finn stabil logo-URL fra brann.no (unngå CMS content-hash). 2) bergenpride.ts — sjekk om pride 2026-programmet har egne eventsider med bilder når festivalen nærmer seg (juni). 3) beyondthegates.ts — har lineup-sider noen gang individuelt bilde-innhold?"
+    "description": "Disse scrapers har image_url: undefined. Vurder: 1) brann.ts — stabil logo-URL. 2) bergenpride.ts — sjekk juni-programmet. 3) beyondthegates.ts — lineup-sider med bilder?"
+  },
+  {
+    "date": "2026-06-01",
+    "title": "Kvartalsvis sikkerhetssjekk Q2 2026",
+    "description": "1) Roter ADMIN_PASSWORD og ADMIN_SESSION_SECRET. 2) Roter CALENDAR_FEED_TOKEN. 3) Merg Dependabot-PRer. 4) npm audit i root og scripts/. 5) Sjekk Vercel CSP-logs. 6) Vurder å rotere GEMINI_API_KEY og RESEND_API_KEY."
+  },
+  {
+    "date": "2026-09-01",
+    "title": "Kvartalsvis sikkerhetssjekk Q3 2026",
+    "description": "Samme sjekkliste som Q2."
+  },
+  {
+    "date": "2026-12-01",
+    "title": "Kvartalsvis sikkerhetssjekk Q4 2026",
+    "description": "Samme sjekkliste som Q2."
+  },
+  {
+    "date": "2027-01-15",
+    "title": "Oppdater festivaldatoer i guide-siden",
+    "description": "Guide-siden har hardkodede festivaldatoer i getSeasonWindows(). Oppdater for 2027."
+  },
+  {
+    "date": "2027-02-01",
+    "title": "Oppdater Borealis-skraper for 2027",
+    "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i borealis.ts. Oppdater også send-daily-digest.ts."
+  },
+  {
+    "date": "2027-03-01",
+    "title": "Sjekk hardkodede priser i scrapers",
+    "description": "Verifiser: Akvariet (akvariet.ts: ADMISSION_PRICE = '245–380 kr')."
   }
 ]
