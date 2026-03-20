@@ -21,6 +21,11 @@
   },
   {
     "date": "2026-03-27",
+    "title": "Verifiser Plausible newsletter-tracking",
+    "description": "Nyhetsbrevet 26. mars er første utsending med utm_content og gruppebasert utm_campaign. Sjekk i Plausible: 1) 'Newsletter click-through' goal viser data. 2) utm_content-verdier (event-{slug}, cta-all-events, manage-prefs) dukker opp under Campaign → Content. 3) utm_campaign viser gruppenavn (weekly-12-no, weekly-12-en-voksen-culture-food osv.)."
+  },
+  {
+    "date": "2026-03-27",
     "title": "Analyse: Mobil bounce rate etter SEO-tiltak",
     "description": "Sjekk Plausible-data for 14.-27. mars: 1) Bounce rate — har den gått ned fra 60%? 2) CTR-forbedring på event-sider etter description-first meta tag 3) Sammenlign Google-trafikk uke-over-uke. Endringer deployert 20. mars: mobil tagline, description-first meta desc, homepage 'Hva skjer i Bergen?', konserter FAQ, hreflang-fix."
   },

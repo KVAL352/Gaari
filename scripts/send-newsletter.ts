@@ -409,6 +409,7 @@ async function main() {
 				lang,
 				subject,
 				weekLabel: getWeekLabel(now, lang),
+				groupKey: key,
 				preferences: {
 					audience: profile.audience,
 					categories: profile.categories,
@@ -454,6 +455,7 @@ async function main() {
 				subject,
 				preheader,
 				weekLabel: getWeekLabel(now, lang),
+				groupKey: key,
 				preferences: {
 					audience: profile.audience,
 					categories: profile.categories,

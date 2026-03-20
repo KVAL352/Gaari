@@ -50,6 +50,7 @@ export interface NewsletterData {
 	subject: string;
 	preheader: string;
 	weekLabel: string;
+	groupKey?: string;
 	preferences?: {
 		audience?: string;
 		categories?: string;
@@ -161,12 +162,12 @@ function introContent(data: NewsletterData): IntroContent {
 	return { heading, body };
 }
 
-function eventCardDiv(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: string, utmParams: string): string {
+function eventCardDiv(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: string, utmBase: string): string {
 	const color = CATEGORY_COLORS[event.category] || '#D8D8D4';
 	const catLabel = (lang === 'no' ? CATEGORY_LABELS_NO : CATEGORY_LABELS_EN)[event.category] || event.category;
 	const date = formatDate(event.date_start, lang);
 	const time = formatTime(event.date_start);
-	const eventUrl = `${baseUrl}/${lang}/events/${event.slug}?${utmParams}`;
+	const eventUrl = `${baseUrl}/${lang}/events/${event.slug}?${utmBase}&utm_content=event-${event.slug}`;
 	const title = escapeHtml(event.title.length > 45 ? event.title.slice(0, 42) + '...' : event.title);
 	const venue = escapeHtml(event.venue_name.length > 25 ? event.venue_name.slice(0, 22) + '...' : event.venue_name);
 	const btnLabel = lang === 'no' ? 'Les mer' : 'Read more';
@@ -207,19 +208,22 @@ function eventCardDiv(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: string
 	</div>`;
 }
 
-function buildEventGrid(events: NewsletterEvent[], lang: 'no' | 'en', baseUrl: string, utmParams: string): string {
-	return events.map(event => eventCardDiv(event, lang, baseUrl, utmParams)).join('\n');
+function buildEventGrid(events: NewsletterEvent[], lang: 'no' | 'en', baseUrl: string, utmBase: string): string {
+	return events.map(event => eventCardDiv(event, lang, baseUrl, utmBase)).join('\n');
 }
 
 export function generateNewsletterHtml(data: NewsletterData): string {
 	const baseUrl = 'https://gaari.no';
-	const utmParams = `utm_source=gaari&utm_medium=newsletter&utm_campaign=weekly-${data.weekLabel}`;
+	const campaignSlug = data.groupKey
+		? `weekly-${data.weekLabel}-${data.groupKey.replace(/[|,]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`
+		: `weekly-${data.weekLabel}`;
+	const utmBase = `utm_source=gaari&utm_medium=newsletter&utm_campaign=${encodeURIComponent(campaignSlug)}`;
 	const intro = introContent(data);
 	const maxEvents = 9;
 	const events = data.events.slice(0, maxEvents);
 	const lang = data.lang;
 
-	const eventGrid = buildEventGrid(events, lang, baseUrl, utmParams);
+	const eventGrid = buildEventGrid(events, lang, baseUrl, utmBase);
 
 	const ctaLabel = lang === 'no' ? 'Se alle arrangementer' : 'See all events';
 
@@ -230,7 +234,7 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 	if (data.preferences?.bydel) filterParams.set('bydel', data.preferences.bydel);
 	if (data.preferences?.price) filterParams.set('price', data.preferences.price);
 	const filterStr = filterParams.toString();
-	const ctaUrl = `${baseUrl}/${lang}?${filterStr ? filterStr + '&' : ''}${utmParams}`;
+	const ctaUrl = `${baseUrl}/${lang}?${filterStr ? filterStr + '&' : ''}${utmBase}&utm_content=cta-all-events`;
 
 	const forwardedText = lang === 'no'
 		? 'Fikk du dette videresendt?'
@@ -251,8 +255,8 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 	const unsubLabel = lang === 'no' ? 'Avslutt abonnement' : 'Unsubscribe';
 	const prefsLabel = lang === 'no' ? 'Endre preferanser' : 'Manage preferences';
 	const privacyLabel = lang === 'no' ? 'Personvern' : 'Privacy';
-	const prefsUrl = `${baseUrl}/${lang}/nyhetsbrev/preferanser?email={$email}&token={$preference_token}&${utmParams}`;
-	const subscribeUrl = `${baseUrl}/${lang}/about?${utmParams}#newsletter`;
+	const prefsUrl = `${baseUrl}/${lang}/nyhetsbrev/preferanser?email={$email}&token={$preference_token}&${utmBase}&utm_content=manage-prefs`;
+	const subscribeUrl = `${baseUrl}/${lang}/about?${utmBase}&utm_content=subscribe#newsletter`;
 
 	return `<!DOCTYPE html>
 <html lang="${lang === 'no' ? 'nb' : 'en'}" xmlns="http://www.w3.org/1999/xhtml">
@@ -297,7 +301,7 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 							<table cellpadding="0" cellspacing="0" border="0" width="100%">
 								<tr>
 									<td>
-										<a href="${baseUrl}/${lang}?${utmParams}" style="text-decoration:none;color:#141414;font-size:32px;font-weight:700;font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:-0.02em;">Gåri</a>
+										<a href="${baseUrl}/${lang}?${utmBase}" style="text-decoration:none;color:#141414;font-size:32px;font-weight:700;font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:-0.02em;">Gåri</a>
 									</td>
 									<td align="right" style="color:#6B6862;font-size:13px;">
 										${escapeHtml(data.weekLabel)}
@@ -354,7 +358,7 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 								${escapeHtml(footerText)}<br />
 								<a href="{$unsubscribe}" style="color:#C82D2D;text-decoration:underline;">${escapeHtml(unsubLabel)}</a> &middot;
 								<a href="${prefsUrl}" style="color:#C82D2D;text-decoration:underline;">${escapeHtml(prefsLabel)}</a> &middot;
-								<a href="${baseUrl}/${lang}/personvern?${utmParams}" style="color:#C82D2D;text-decoration:underline;">${escapeHtml(privacyLabel)}</a>
+								<a href="${baseUrl}/${lang}/personvern?${utmBase}" style="color:#C82D2D;text-decoration:underline;">${escapeHtml(privacyLabel)}</a>
 							</p>
 						</td>
 					</tr>
@@ -370,6 +374,7 @@ export interface QuietWeekData {
 	lang: 'no' | 'en';
 	subject: string;
 	weekLabel: string;
+	groupKey?: string;
 	preferences: {
 		audience?: string;
 		categories?: string;
@@ -380,7 +385,10 @@ export interface QuietWeekData {
 
 export function generateQuietWeekHtml(data: QuietWeekData): string {
 	const baseUrl = 'https://gaari.no';
-	const utmParams = `utm_source=gaari&utm_medium=newsletter&utm_campaign=weekly-${data.weekLabel}`;
+	const campaignSlug = data.groupKey
+		? `weekly-${data.weekLabel}-${data.groupKey.replace(/[|,]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`
+		: `weekly-${data.weekLabel}`;
+	const utmBase = `utm_source=gaari&utm_medium=newsletter&utm_campaign=${encodeURIComponent(campaignSlug)}`;
 	const lang = data.lang;
 
 	const heading = lang === 'no'
@@ -394,8 +402,8 @@ export function generateQuietWeekHtml(data: QuietWeekData): string {
 	const prefsLabel = lang === 'no' ? 'Endre preferansene dine' : 'Update your preferences';
 	const browseLabel = lang === 'no' ? 'Se hva som skjer i Bergen' : 'See what\'s happening in Bergen';
 
-	const prefsUrl = `${baseUrl}/${lang}/nyhetsbrev/preferanser?email={$email}&token={$preference_token}&${utmParams}`;
-	const browseUrl = `${baseUrl}/${lang}?${utmParams}`;
+	const prefsUrl = `${baseUrl}/${lang}/nyhetsbrev/preferanser?email={$email}&token={$preference_token}&${utmBase}&utm_content=manage-prefs`;
+	const browseUrl = `${baseUrl}/${lang}?${utmBase}&utm_content=cta-browse`;
 
 	const footerText = lang === 'no'
 		? 'Du mottar dette fordi du abonnerer på Gåri sitt nyhetsbrev.'
@@ -433,7 +441,7 @@ export function generateQuietWeekHtml(data: QuietWeekData): string {
 							<table cellpadding="0" cellspacing="0" border="0" width="100%">
 								<tr>
 									<td>
-										<a href="${baseUrl}/${lang}?${utmParams}" style="text-decoration:none;color:#141414;font-size:32px;font-weight:700;font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:-0.02em;">Gåri</a>
+										<a href="${baseUrl}/${lang}?${utmBase}" style="text-decoration:none;color:#141414;font-size:32px;font-weight:700;font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:-0.02em;">Gåri</a>
 									</td>
 									<td align="right" style="color:#6B6862;font-size:13px;">
 										${escapeHtml(data.weekLabel)}
@@ -488,7 +496,7 @@ export function generateQuietWeekHtml(data: QuietWeekData): string {
 								${escapeHtml(footerText)}<br />
 								<a href="{$unsubscribe}" style="color:#C82D2D;text-decoration:underline;">${escapeHtml(unsubLabel)}</a> &middot;
 								<a href="${prefsUrl}" style="color:#C82D2D;text-decoration:underline;">${escapeHtml(managePrefsLabel)}</a> &middot;
-								<a href="${baseUrl}/${lang}/personvern?${utmParams}" style="color:#C82D2D;text-decoration:underline;">${escapeHtml(privacyLabel)}</a>
+								<a href="${baseUrl}/${lang}/personvern?${utmBase}" style="color:#C82D2D;text-decoration:underline;">${escapeHtml(privacyLabel)}</a>
 							</p>
 						</td>
 					</tr>
