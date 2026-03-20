@@ -429,10 +429,10 @@ async function checkTechnicalHealth(): Promise<ReportData['technicalHealth']> {
 			const locs = xml.match(/<loc>/g);
 			result.sitemapUrls = locs?.length ?? 0;
 
-			// Check hreflang pairs: every /no/ URL should have a /en/ counterpart
-			const noUrls = xml.match(/gaari\.no\/no\//g)?.length ?? 0;
-			const enUrls = xml.match(/gaari\.no\/en\//g)?.length ?? 0;
-			result.hreflangPairs = Math.abs(noUrls - enUrls) < 5; // Allow small margin
+			// Check hreflang pairs: count only <loc> URLs, not hreflang links
+			const noLocs = xml.match(/<loc>https:\/\/gaari\.no\/no\//g)?.length ?? 0;
+			const enLocs = xml.match(/<loc>https:\/\/gaari\.no\/en\//g)?.length ?? 0;
+			result.hreflangPairs = Math.abs(noLocs - enLocs) < 5; // Allow small margin
 		}
 	} catch { /* skip */ }
 
