@@ -90,8 +90,8 @@ const filterBIFF = (events: GaariEvent[]) => filterBySourceDomain(events, 'biff.
 const filterBorealis = (events: GaariEvent[]) => filterBySourceDomain(events, 'borealisfestival.no');
 
 const FAMILY_TITLE_RE = /familie|barnelørdag|barnas\s|for\s+barn|barneforestilling/i;
-const YOUTH_TEXT_RE = /\bungdom|\btenåring|\bfor\s+unge?\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
-const YOUTH_CATEGORIES = new Set(['music', 'culture', 'sports', 'workshop', 'festival', 'student']);
+const YOUTH_TEXT_RE = /\bungdom|\btenåring|\bteenåring|\bfor\s+unge?\b|\bunge\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
+const YOUTH_CATEGORIES = new Set(['sports', 'workshop', 'student']);
 const INDOOR_CATEGORIES = new Set(['music', 'culture', 'theatre', 'family', 'food', 'workshop', 'nightlife', 'student']);
 
 export interface Collection {
@@ -1419,7 +1419,10 @@ const collections: Collection[] = [
 				if (d < todayStr || d > endStr) return false;
 				if (e.age_group === '18+') return false;
 				if (e.category === 'nightlife' || e.category === 'food') return false;
-				return YOUTH_CATEGORIES.has(e.category) || e.age_group === 'family' || e.category === 'family' || YOUTH_TEXT_RE.test(e.title_no) || YOUTH_TEXT_RE.test(e.description_no);
+				if (e.age_group === 'family' || e.category === 'family') return true;
+				if (YOUTH_TEXT_RE.test(e.title_no) || YOUTH_TEXT_RE.test(e.description_no)) return true;
+				if (e.category === 'theatre') return false;
+				return YOUTH_CATEGORIES.has(e.category);
 			});
 		}
 	},

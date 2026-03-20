@@ -503,17 +503,25 @@ describe('youth filter (for-ungdom)', () => {
 	it('includes youth-relevant categories within 2 weeks', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'music', age_group: 'all' }),
-			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', category: 'sports', age_group: 'all' }),
-			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'workshop', age_group: 'all' }),
-			makeEvent({ id: '4', date_start: '2026-02-25T18:00:00Z', category: 'festival', age_group: 'all' }),
-			makeEvent({ id: '5', date_start: '2026-02-25T18:00:00Z', category: 'student', age_group: 'all' }),
-			makeEvent({ id: '6', date_start: '2026-02-25T18:00:00Z', category: 'culture', age_group: 'all' })
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'sports', age_group: 'all' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', category: 'workshop', age_group: 'all' }),
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'student', age_group: 'all' })
 		];
-		expect(collection.filterEvents(events, now)).toHaveLength(6);
+		expect(collection.filterEvents(events, now)).toHaveLength(3);
 	});
 
-	it('excludes 18+, nightlife, and food', () => {
+	it('excludes music, culture, festival, theatre without youth keywords', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'music', age_group: 'all' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', category: 'culture', age_group: 'all' }),
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'festival', age_group: 'all' }),
+			makeEvent({ id: '4', date_start: '2026-02-25T18:00:00Z', category: 'theatre', age_group: 'all' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
+	});
+
+	it('excludes 18+, nightlife, food', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
 			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'music', age_group: '18+' }),
@@ -532,12 +540,12 @@ describe('youth filter (for-ungdom)', () => {
 		expect(collection.filterEvents(events, now)).toHaveLength(2);
 	});
 
-	it('includes events with youth keywords in title', () => {
+	it('includes events with youth keywords in title (even excluded categories)', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
 			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', title_no: 'UKM ungdomskveld', category: 'theatre', age_group: 'all' }),
-			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', title_no: 'Kurs for unge filmskapere', category: 'theatre', age_group: 'all' }),
-			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', title_no: 'Tenåringsklubb', category: 'theatre', age_group: 'all' })
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', title_no: 'Kurs for unge filmskapere', category: 'music', age_group: 'all' }),
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', title_no: 'Tenåringsklubb', category: 'culture', age_group: 'all' })
 		];
 		expect(collection.filterEvents(events, now)).toHaveLength(3);
 	});
@@ -546,7 +554,7 @@ describe('youth filter (for-ungdom)', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
 			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', description_no: 'Åpent for ungdom og voksne', category: 'theatre', age_group: 'all' }),
-			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', description_no: 'For alle fra 13–18 år', category: 'theatre', age_group: 'all' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', description_no: 'For alle fra 13–18 år', category: 'culture', age_group: 'all' }),
 			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', description_no: 'Anbefalt fra 12 år', category: 'theatre', age_group: 'all' })
 		];
 		expect(collection.filterEvents(events, now)).toHaveLength(3);
@@ -563,7 +571,7 @@ describe('youth filter (for-ungdom)', () => {
 	it('excludes events outside 2-week window', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-03-10T18:00:00Z', category: 'music', age_group: 'all' })
+			makeEvent({ id: '1', date_start: '2026-03-10T18:00:00Z', category: 'sports', age_group: 'all' })
 		];
 		expect(collection.filterEvents(events, now)).toHaveLength(0);
 	});

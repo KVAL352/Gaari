@@ -63,9 +63,12 @@
 		counts.ungdom = activeEvents.filter(e => {
 			if (e.age_group === '18+') return false;
 			if (e.category === 'nightlife' || e.category === 'food') return false;
-			const youthCategories = new Set(['music', 'culture', 'sports', 'workshop', 'festival', 'student']);
-			const youthRe = /\bungdom|\btenåring|\bfor\s+unge?\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
-			return youthCategories.has(e.category) || e.age_group === 'family' || e.category === 'family' || youthRe.test(e.title_no) || youthRe.test(e.description_no);
+			if (e.age_group === 'family' || e.category === 'family') return true;
+			const youthCategories = new Set(['sports', 'workshop', 'student']);
+			const youthRe = /\bungdom|\btenåring|\bteenåring|\bfor\s+unge?\b|\bunge\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
+			if (youthRe.test(e.title_no) || youthRe.test(e.description_no)) return true;
+			if (e.category === 'theatre') return false;
+			return youthCategories.has(e.category);
 		}).length;
 		counts.voksen = activeEvents.filter(e => {
 			const adultCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop']);
