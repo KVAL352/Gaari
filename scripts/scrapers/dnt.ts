@@ -114,9 +114,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const vm = activity.activityViewModel;
 
 			const sourceUrl = `https://www.dnt.no${activity.url}`;
-			const ticketUrl = vm.isSignup
-				? `https://aktiviteter.dnt.no/register/${activity.id}`
-				: sourceUrl;
+			const ticketUrl = `https://aktiviteter.dnt.no/register/${activity.id}`;
 
 			// Skip cancelled/overdue, delete full (sold-out) activities
 			if (vm.isCancelled || vm.isOverdue) continue;
