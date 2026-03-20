@@ -33,9 +33,14 @@
 	let metaDescription = $derived.by(() => {
 		const date = formatEventDate(event.date_start, $lang);
 		const venue = event.venue_name ? `${event.venue_name}, Bergen` : 'Bergen';
-		const prefix = `${date} — ${venue}. `;
-		const desc = description || '';
-		return (prefix + desc).slice(0, 160);
+		const suffix = ` — ${date}, ${venue}`;
+		const desc = description || title;
+		const maxDescLen = 160 - suffix.length;
+		if (maxDescLen < 40) return (desc + suffix).slice(0, 160);
+		const trimmed = desc.length > maxDescLen
+			? desc.slice(0, desc.lastIndexOf(' ', maxDescLen) || maxDescLen) + '…'
+			: desc;
+		return trimmed + suffix;
 	});
 
 	let isCancelled = $derived(event.status === 'cancelled');

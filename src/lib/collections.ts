@@ -456,19 +456,23 @@ const collections: Collection[] = [
 		faq: {
 			no: [
 				{ q: 'Hvilke konserter er det i Bergen denne uken?', a: 'Gåri samler alle konserter og livemusikk-arrangementer i Bergen denne uken fra 54 lokale kilder. Oppdatert daglig.' },
+				{ q: 'Er det konserter i Bergen i dag?', a: 'Gåri oppdaterer konsertlisten daglig. Konserter som vises øverst på denne siden skjer først. Du kan også bruke filteret «I dag» på forsiden for å se alt som skjer i Bergen i dag.' },
 				{ q: 'Hvor kjøper jeg konsertbilletter i Bergen?', a: 'Gåri lenker direkte til billettsidene for alle konserter i Bergen. Klikk på arrangementet for kjøpslenke.' },
 				{ q: 'Er det gratis konserter i Bergen denne uken?', a: 'Bergen har jevnlig gratis konserter på bibliotek, i parker og på kulturhus. Sjekk Gåris gratis-side for oversikt.' },
 				{ q: 'Hvilke konsertscener har Bergen?', a: 'Grieghallen (klassisk), Ole Bull og Forum Scene (pop/rock), USF Verftet og Kulturhuset (alternativt), Hulen og Kvarteret (studenter). Totalt har Bergen over 20 konsertscener.' },
 				{ q: 'Når er konsertsesongen i Bergen?', a: 'Bergen har konserter hele året. Sommeren har festivaler som Bergenfest og Festspillene. Høst og vår har tett program på innendørsscenene. Desember har julekonserter.' },
-				{ q: 'Hva er den beste konsertscenen i Bergen?', a: 'Det avhenger av sjanger. Grieghallen er best for klassisk musikk og store navn. Ole Bull og Forum Scene dominerer pop og rock. USF Verftet er kjent for alternativt og eksperimentelt. Hulen er legendarisk for rock og metal.' }
+				{ q: 'Hva er den beste konsertscenen i Bergen?', a: 'Det avhenger av sjanger. Grieghallen er best for klassisk musikk og store navn. Ole Bull og Forum Scene dominerer pop og rock. USF Verftet er kjent for alternativt og eksperimentelt. Hulen er legendarisk for rock og metal.' },
+				{ q: 'Hvor finner jeg live musikk i Bergen?', a: 'Gåri samler all livemusikk i Bergen fra over 20 spillesteder. Hulen, Kvarteret og Bergen Kjøtt har konserter flere kvelder i uken. Ole Bull og Forum Scene har større artister. Sjekk denne siden for ukens komplette konsertprogram.' }
 			],
 			en: [
 				{ q: 'What concerts are on in Bergen this week?', a: 'Gåri collects all concerts and live music events in Bergen this week from 54 local sources. Updated daily.' },
+				{ q: 'Are there concerts in Bergen today?', a: 'Gåri updates the concert listing daily. Concerts shown at the top of this page happen first. You can also use the "Today" filter on the front page to see everything happening in Bergen today.' },
 				{ q: 'Where can I buy concert tickets in Bergen?', a: 'Gåri links directly to the ticket pages for all concerts in Bergen. Click any event to find the purchase link.' },
 				{ q: 'Are there free concerts in Bergen this week?', a: 'Bergen regularly has free concerts in libraries, parks and cultural venues. Check Gåri\'s free events page for listings.' },
 				{ q: 'What are the main concert venues in Bergen?', a: 'Grieghallen (classical), Ole Bull and Forum Scene (pop/rock), USF Verftet and Kulturhuset (alternative), Hulen and Kvarteret (students). Bergen has over 20 concert venues in total.' },
 				{ q: 'When is concert season in Bergen?', a: 'Bergen has concerts year-round. Summer brings festivals like Bergenfest and Festspillene. Autumn and spring have packed indoor programmes. December features Christmas concerts.' },
-				{ q: 'What is the best concert venue in Bergen?', a: 'It depends on the genre. Grieghallen is best for classical music and big names. Ole Bull and Forum Scene dominate pop and rock. USF Verftet is known for alternative and experimental music. Hulen is legendary for rock and metal.' }
+				{ q: 'What is the best concert venue in Bergen?', a: 'It depends on the genre. Grieghallen is best for classical music and big names. Ole Bull and Forum Scene dominate pop and rock. USF Verftet is known for alternative and experimental music. Hulen is legendary for rock and metal.' },
+				{ q: 'Where can I find live music in Bergen?', a: 'Gåri collects all live music in Bergen from over 20 venues. Hulen, Kvarteret and Bergen Kjøtt have gigs several nights a week. Ole Bull and Forum Scene host bigger acts. Check this page for the full concert schedule this week.' }
 			]
 		},
 		filterEvents: (events, now) => {

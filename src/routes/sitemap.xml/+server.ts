@@ -62,16 +62,23 @@ export async function GET() {
 		if (hreflang.en === slug) languages.push('en');
 		if (languages.length === 0) languages.push('no', 'en'); // fallback
 
+		const hasPair = hreflang.no !== hreflang.en;
+
 		for (const lang of languages) {
 			const altLang = lang === 'no' ? 'en' : 'no';
+			// Only emit cross-language hreflang if the collection has a real NO/EN pair
+			const hreflangLinks = hasPair
+				? `    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${hreflang[lang]}" />
+    <xhtml:link rel="alternate" hreflang="${altLang === 'no' ? 'nb' : 'en'}" href="${BASE}/${altLang}/${hreflang[altLang]}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/${hreflang.no}" />`
+				: `    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${slug}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/${lang}/${slug}" />`;
 			urls += `  <url>
     <loc>${BASE}/${lang}/${slug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${hreflang[lang]}" />
-    <xhtml:link rel="alternate" hreflang="${altLang === 'no' ? 'nb' : 'en'}" href="${BASE}/${altLang}/${hreflang[altLang]}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/${hreflang.no}" />
+${hreflangLinks}
   </url>\n`;
 		}
 	}
