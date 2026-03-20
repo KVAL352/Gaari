@@ -33,7 +33,12 @@
 	let editorial = $derived(data.collection.editorial?.[ssrLang] ?? []);
 	let faqItems = $derived(data.collection.faq?.[ssrLang] ?? []);
 	let faqJsonLd = $derived(faqItems.length > 0 ? generateFaqJsonLdFromItems(faqItems) : null);
-	let quickAnswer = $derived(data.collection.quickAnswer?.[ssrLang] ?? '');
+	let quickAnswerBase = $derived(data.collection.quickAnswer?.[ssrLang] ?? '');
+	let quickAnswer = $derived(
+		quickAnswerBase && data.events.length > 0
+			? `${quickAnswerBase} ${ssrLang === 'no' ? `Akkurat nå: ${data.events.length} arrangementer.` : `Right now: ${data.events.length} events.`}`
+			: quickAnswerBase
+	);
 
 	let relatedCollections: Collection[] = $derived(
 		(data.collection.relatedSlugs ?? [])
@@ -74,19 +79,16 @@
 	<p class="mt-1 text-sm text-[var(--color-text-muted)]">
 		{data.events.length} {$t('events')} · {$lang === 'no' ? 'Oppdatert' : 'Updated'} {new Date().toLocaleDateString($lang === 'no' ? 'nb-NO' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
 	</p>
-	{#if quickAnswer || editorial.length > 0}
-	{@const hasMore = quickAnswer || editorial.length > 0}
-	<details class="mt-3 max-w-2xl">
+	{#if quickAnswer}
+	<p class="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">{quickAnswer}</p>
+	{/if}
+	{#if editorial.length > 0}
+	<details class="mt-2 max-w-2xl">
 		<summary class="cursor-pointer text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">
 			{$lang === 'no' ? 'Les mer' : 'Read more'}
 		</summary>
 		<div class="mt-2 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-			{#if quickAnswer}
-			<p>{quickAnswer}</p>
-			{/if}
-			{#if editorial.length > 0}
 			<p>{editorial[0]}</p>
-			{/if}
 		</div>
 	</details>
 	{/if}

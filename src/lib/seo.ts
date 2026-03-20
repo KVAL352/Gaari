@@ -308,13 +308,19 @@ export function generateOrganizationJsonLd(): string {
 			'Bergen arrangementer'
 		],
 		inLanguage: ['nb', 'en'],
+		founder: {
+			'@type': 'Person',
+			name: 'Kjersti Valland Therkildsen',
+			jobTitle: 'Founder',
+			url: `${BASE_URL}/no/about`
+		},
 		contactPoint: {
 			'@type': 'ContactPoint',
 			email: 'post@gaari.no',
 			contactType: 'customer service',
 			availableLanguage: ['Norwegian', 'English']
 		},
-		sameAs: ['https://github.com/KKAL352/Gaari']
+		sameAs: ['https://github.com/KKAL352/Gaari', 'https://bsky.app/profile/gaari.no']
 	};
 
 	return safeJsonLd(jsonLd);

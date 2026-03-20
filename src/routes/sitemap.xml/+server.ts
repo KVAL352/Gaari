@@ -83,9 +83,10 @@ ${hreflangLinks}
 		}
 	}
 
-	// Event pages in both languages
+	// Event pages in both languages — use today as lastmod since events are
+	// re-validated daily by the scraper pipeline (freshness signal for AI crawlers)
 	for (const event of events || []) {
-		const lastmod = event.created_at?.slice(0, 10) || today;
+		const lastmod = today;
 		for (const lang of ['no', 'en']) {
 			const altLang = lang === 'no' ? 'en' : 'no';
 			urls += `  <url>

@@ -315,6 +315,14 @@
 		{
 			q: 'How often is Gåri updated?',
 			a: 'Gåri updates daily at 06:00 with data from 54 independent sources in Bergen. Event information is automatically collected from concert venues, theatres, museums, libraries, festivals and ticketing platforms.'
+		},
+		{
+			q: 'What is there to do in Bergen when it rains?',
+			a: 'Bergen has plenty of indoor events every week. Grieghallen, KODE art museums, Bergen Aquarium, Litteraturhuset and Kulturhuset all have regular programmes. See the <a href="/en/free-things-to-do-bergen" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">free events page</a> for ideas that don\'t require a ticket.'
+		},
+		{
+			q: 'Is Bergen worth visiting for a weekend?',
+			a: 'Bergen typically has 40 to 80 events every weekend across music, culture, food and outdoor activities. The city is compact and walkable, with most venues within 15 minutes of the centre. Check <a href="/en/this-weekend" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">this weekend in Bergen</a> for what\'s happening during your visit.'
 		}
 	];
 
