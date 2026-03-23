@@ -85,6 +85,18 @@
 		}
 	}
 
+	// Track newsletter click-through (fires once on landing from newsletter)
+	$effect(() => {
+		if (typeof window !== 'undefined' && 'plausible' in window) {
+			const params = new URLSearchParams(window.location.search);
+			if (params.get('utm_medium') === 'newsletter') {
+				(window as unknown as { plausible: (name: string, opts?: { props: Record<string, string> }) => void }).plausible('newsletter-click', {
+					props: { slug: event.slug, venue: event.venue_name || '' }
+				});
+			}
+		}
+	});
+
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/events/${event.slug}`));
 	let eventJsonLd = $derived(generateEventJsonLd(event, $lang, canonicalUrl));
 	let breadcrumbJsonLd = $derived(generateBreadcrumbJsonLd([
