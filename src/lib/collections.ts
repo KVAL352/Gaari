@@ -3035,8 +3035,13 @@ const collections: Collection[] = [
 
 const collectionMap = new Map(collections.map(c => [c.slug, c]));
 
+/** Aliases that 301-redirect to canonical collection slugs (SEO alternate queries) */
+const SLUG_ALIASES: Record<string, string> = {
+	'live-musikk': 'konserter',
+};
+
 export function getCollection(slug: string): Collection | undefined {
-	return collectionMap.get(slug);
+	return collectionMap.get(slug) ?? collectionMap.get(SLUG_ALIASES[slug] ?? '');
 }
 
 export function getAllCollectionSlugs(): string[] {
@@ -3085,6 +3090,8 @@ const HREFLANG_PAIRS: Record<string, Record<'no' | 'en', string>> = {
 	'biff-bergen': { no: 'biff', en: 'biff-bergen' },
 	'borealis': { no: 'borealis', en: 'borealis-bergen' },
 	'borealis-bergen': { no: 'borealis', en: 'borealis-bergen' },
+	// SEO aliases — redirect alternate search terms to canonical collections
+	'live-musikk': { no: 'konserter', en: 'konserter' },
 };
 
 /** Returns hreflang slugs for a collection. Unpaired collections use the same slug for both. */
