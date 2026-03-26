@@ -155,8 +155,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			// Skip recurring daily activities
 			if (isRecurring(activity.title)) continue;
 
-			// Only show activities Akvariet marks as highlights (bg-info)
-			if (!activity.isHighlight) continue;
+			// Previously filtered on bg-info highlight class, but Akvariet removed it (Mar 2026).
+			// Now we rely solely on isRecurring() to skip daily repeating activities.
 
 			daySpecialCount++;
 			found++;
