@@ -58,6 +58,55 @@ function formatPrice(price: number | null, priceRange: string | null): string {
 	return '';
 }
 
+/**
+ * Group events that are time-slots of the same parent event.
+ * Strips trailing date/time patterns from the title to find the base name,
+ * then keeps one event per base-name + calendar-date with the earliest start
+ * and latest end time.
+ */
+function deduplicateTimeSlots(hits: BillettoHit[]): BillettoHit[] {
+	// Match trailing patterns like "24.03.26 14:40-15:00" or "24.03.2026 14:40-15:00"
+	const TIME_SLOT_RE = /\s+\d{1,2}\.\d{1,2}\.\d{2,4}\s+\d{1,2}[:.]\d{2}\s*[-–]\s*\d{1,2}[:.]\d{2}\s*$/;
+
+	const groups = new Map<string, BillettoHit[]>();
+
+	for (const hit of hits) {
+		const baseName = hit.name.replace(TIME_SLOT_RE, '').trim();
+		const dateKey = new Date(hit.start_time * 1000).toISOString().slice(0, 10);
+		const key = `${baseName.toLowerCase()}|${dateKey}`;
+
+		const group = groups.get(key);
+		if (group) {
+			group.push(hit);
+		} else {
+			groups.set(key, [hit]);
+		}
+	}
+
+	const result: BillettoHit[] = [];
+	for (const group of groups.values()) {
+		if (group.length === 1) {
+			result.push(group[0]);
+			continue;
+		}
+
+		// Pick the one with earliest start, merge end time from latest slot
+		group.sort((a, b) => a.start_time - b.start_time);
+		const merged = { ...group[0] };
+		merged.name = merged.name.replace(TIME_SLOT_RE, '').trim();
+		const lastSlot = group[group.length - 1];
+		if (lastSlot.end_time) {
+			merged.end_time = lastSlot.end_time;
+		}
+		if (group.length > 1) {
+			console.log(`  [dedup] Merged ${group.length} time-slots for "${merged.name}"`);
+		}
+		result.push(merged);
+	}
+
+	return result;
+}
+
 export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`\n[${SOURCE}] Fetching Billetto Bergen events...`);
 
@@ -102,9 +151,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			return city.includes('bergen') || BERGEN_CITIES.has(city);
 		});
 
-		console.log(`[${SOURCE}] Found ${bergenHits.length} Bergen events (${hits.length} total in radius)`);
+		// Deduplicate time-slot events (e.g. "BRGN Vareprøvesalg 24.03.26 14:40-15:00")
+		// Group by base title (strip trailing date/time patterns) + same calendar date
+		const deduped = deduplicateTimeSlots(bergenHits);
 
-		for (const hit of bergenHits) {
+		console.log(`[${SOURCE}] Found ${bergenHits.length} Bergen events, ${deduped.length} after time-slot dedup (${hits.length} total in radius)`);
+
+		for (const hit of deduped) {
 			found++;
 
 			if (!hit.on_sale) continue;
