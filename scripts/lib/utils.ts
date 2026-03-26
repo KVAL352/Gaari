@@ -287,6 +287,18 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 		return false;
 	}
 
+	// Skip non-public events (members-only, kindergartens, school visits, etc.)
+	const NON_PUBLIC_KEYWORDS = [
+		'kun for medlemmer', 'members only', 'only for members',
+		'barnehage', 'barnehagebarn', 'barnehagar', 'barnehager',
+		'sfo', 'skoleklasse', 'skolebesøk', 'skolebesok', 'klassebesøk', 'klassebesok',
+	];
+	const titleLower = event.title_no?.toLowerCase() ?? '';
+	if (NON_PUBLIC_KEYWORDS.some(kw => titleLower.includes(kw))) {
+		console.warn(`  Skipping non-public event: "${event.title_no}"`);
+		return false;
+	}
+
 	// Infer free price from title/description when price is empty
 	if (!event.price && detectFreeFromText(event.title_no, event.description_no)) {
 		event.price = 'Gratis';
