@@ -1,11 +1,12 @@
 /**
  * SEO & Analytics Report Script
  *
- * Queries Plausible, Google Search Console, and Bing Webmaster Tools
+ * Queries Umami Analytics, Google Search Console, and Bing Webmaster Tools
  * to give a snapshot of search performance. Skips services without API keys.
  *
  * Required env vars (set in scripts/.env or pass inline):
- *   PLAUSIBLE_API_KEY     — from plausible.io → Settings → API Keys
+ *   UMAMI_API_KEY         — from cloud.umami.is → Profile → API Keys
+ *   UMAMI_WEBSITE_ID      — from cloud.umami.is → Settings → Website ID
  *   BING_WEBMASTER_KEY    — from Bing Webmaster Tools → Settings → API access
  *   GSC_SERVICE_ACCOUNT   — path to Google service account JSON file
  *
@@ -38,90 +39,84 @@ function table(rows: Record<string, string | number>[]) {
 
 function pct(n: number): string { return `${(n * 100).toFixed(1)}%`; }
 
-// ─── Plausible ──────────────────────────────────────────────────────
+// ─── Umami Analytics ────────────────────────────────────────────────
 
-async function plausibleReport() {
-	const key = process.env.PLAUSIBLE_API_KEY;
-	if (!key) { console.log('\n⏭  Plausible: skipped (no PLAUSIBLE_API_KEY)'); return; }
+async function umamiReport() {
+	const key = process.env.UMAMI_API_KEY;
+	const websiteId = process.env.UMAMI_WEBSITE_ID;
+	if (!key || !websiteId) { console.log('\n⏭  Umami: skipped (no UMAMI_API_KEY or UMAMI_WEBSITE_ID)'); return; }
 
-	header('PLAUSIBLE ANALYTICS');
-	const base = 'https://plausible.io/api/v1/stats';
-	const headers = { Authorization: `Bearer ${key}` };
+	header('UMAMI ANALYTICS');
+	const base = `https://api.umami.is/v1/websites/${websiteId}`;
+	const hdrs = { 'x-umami-api-key': key };
+
+	// Period → millisecond range
+	const periodDays = period === '30d' ? 30 : period === '7d' ? 7 : 1;
+	const endAt = Date.now();
+	const startAt = endAt - periodDays * 86400000;
 
 	// Realtime visitors
 	try {
-		const rt = await fetch(`${base}/realtime/visitors?site_id=${SITE_ID}`, { headers });
-		if (rt.ok) console.log(`  🟢 Realtime visitors: ${await rt.text()}`);
+		const rt = await fetch(`${base}/active`, { headers: hdrs });
+		if (rt.ok) {
+			const data = await rt.json() as { visitors: number };
+			console.log(`  🟢 Realtime visitors: ${data.visitors}`);
+		}
 	} catch { /* skip */ }
 
 	// Aggregate stats
 	try {
-		const agg = await fetch(
-			`${base}/aggregate?site_id=${SITE_ID}&period=${period}&metrics=visitors,pageviews,bounce_rate,visit_duration,visits`,
-			{ headers }
-		);
+		const agg = await fetch(`${base}/stats?startAt=${startAt}&endAt=${endAt}`, { headers: hdrs });
 		if (agg.ok) {
-			const data = await agg.json() as { results: Record<string, { value: number }> };
-			const r = data.results;
+			const d = await agg.json() as { pageviews: { value: number }; visitors: { value: number }; visits: { value: number }; bounces: { value: number }; totaltime: { value: number } };
+			const visits = d.visits?.value ?? 1;
 			console.log(`\n  Period: ${period}`);
-			console.log(`  Visitors:       ${r.visitors?.value ?? '—'}`);
-			console.log(`  Page views:     ${r.pageviews?.value ?? '—'}`);
-			console.log(`  Visits:         ${r.visits?.value ?? '—'}`);
-			console.log(`  Bounce rate:    ${r.bounce_rate?.value ?? '—'}%`);
-			console.log(`  Avg duration:   ${r.visit_duration?.value ?? '—'}s`);
+			console.log(`  Visitors:       ${d.visitors?.value ?? '—'}`);
+			console.log(`  Page views:     ${d.pageviews?.value ?? '—'}`);
+			console.log(`  Visits:         ${visits}`);
+			console.log(`  Bounce rate:    ${visits > 0 ? Math.round(((d.bounces?.value ?? 0) / visits) * 100) : '—'}%`);
+			console.log(`  Avg duration:   ${visits > 0 ? Math.round((d.totaltime?.value ?? 0) / visits) : '—'}s`);
 		}
 	} catch (e) { console.error('  Aggregate error:', e); }
 
 	// Top pages
 	try {
-		const pages = await fetch(
-			`${base}/breakdown?site_id=${SITE_ID}&period=${period}&property=event:page&limit=15&metrics=visitors,pageviews`,
-			{ headers }
-		);
+		const pages = await fetch(`${base}/metrics?startAt=${startAt}&endAt=${endAt}&type=url&limit=15`, { headers: hdrs });
 		if (pages.ok) {
-			const data = await pages.json() as { results: Array<{ page: string; visitors: number; pageviews: number }> };
+			const data = await pages.json() as Array<{ x: string; y: number }>;
 			console.log('\n  Top pages:');
-			table(data.results.map(r => ({ page: r.page, visitors: r.visitors, pageviews: r.pageviews })));
+			table(data.map(r => ({ page: r.x, visitors: r.y })));
 		}
 	} catch { /* skip */ }
 
 	// Top sources
 	try {
-		const sources = await fetch(
-			`${base}/breakdown?site_id=${SITE_ID}&period=${period}&property=visit:source&limit=10&metrics=visitors`,
-			{ headers }
-		);
+		const sources = await fetch(`${base}/metrics?startAt=${startAt}&endAt=${endAt}&type=referrer&limit=10`, { headers: hdrs });
 		if (sources.ok) {
-			const data = await sources.json() as { results: Array<{ source: string; visitors: number }> };
+			const data = await sources.json() as Array<{ x: string; y: number }>;
 			console.log('  Top traffic sources:');
-			table(data.results.map(r => ({ source: r.source, visitors: r.visitors })));
+			table(data.map(r => ({ source: r.x, visitors: r.y })));
 		}
 	} catch { /* skip */ }
 
 	// Top countries
 	try {
-		const countries = await fetch(
-			`${base}/breakdown?site_id=${SITE_ID}&period=${period}&property=visit:country&limit=5&metrics=visitors`,
-			{ headers }
-		);
+		const countries = await fetch(`${base}/metrics?startAt=${startAt}&endAt=${endAt}&type=country&limit=5`, { headers: hdrs });
 		if (countries.ok) {
-			const data = await countries.json() as { results: Array<{ country: string; visitors: number }> };
+			const data = await countries.json() as Array<{ x: string; y: number }>;
 			console.log('  Top countries:');
-			table(data.results.map(r => ({ country: r.country, visitors: r.visitors })));
+			table(data.map(r => ({ country: r.x, visitors: r.y })));
 		}
 	} catch { /* skip */ }
 
 	// AI referral custom event
 	try {
-		const ai = await fetch(
-			`${base}/breakdown?site_id=${SITE_ID}&period=${period}&property=event:props:source&filters=event:name==ai-referral&metrics=visitors`,
-			{ headers }
-		);
+		const ai = await fetch(`${base}/event-data/values?startAt=${startAt}&endAt=${endAt}&event=ai-referral&propertyName=source`, { headers: hdrs });
 		if (ai.ok) {
-			const data = await ai.json() as { results: Array<{ source?: string; visitors: number }> };
-			if (data.results.length > 0) {
+			const data = await ai.json() as Array<{ value: string; total: number }>;
+			if (data.length > 0) {
 				console.log('  AI search referrals:');
-				table(data.results.map(r => ({ source: r.source ?? 'unknown', visitors: r.visitors })));
+				table(data.map(r => ({ source: r.value ?? 'unknown', visitors: r.total })));
 			} else {
 				console.log('  AI search referrals: none yet');
 			}
@@ -332,7 +327,7 @@ async function main() {
 	console.log(`\n📊 SEO Report for ${SITE_ID} — ${new Date().toISOString().slice(0, 10)}`);
 	console.log(`   Period: ${period}`);
 
-	await plausibleReport();
+	await umamiReport();
 	await gscReport();
 	await bingReport();
 

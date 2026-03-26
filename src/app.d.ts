@@ -8,6 +8,15 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	// Umami Analytics global
+	const umami: {
+		track(event: string, data?: Record<string, string | number>): Promise<void>;
+	};
+
+	interface Window {
+		umami?: typeof umami;
+	}
 }
 
 export {};

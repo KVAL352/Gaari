@@ -58,15 +58,15 @@
 		</h2>
 		<p class="leading-relaxed text-[var(--color-text-secondary)]">
 			{#if $lang === 'no'}
-				Vi bruker <strong>Plausible Analytics</strong> for å forstå trafikkmønstre. Plausible plasserer ingen
+				Vi bruker <strong>Umami Analytics</strong> for å forstå trafikkmønstre. Umami plasserer ingen
 				informasjonskapsler, samler ikke inn IP-adresser og lagrer ingen personidentifiserbar informasjon.
-				Ingen samtykke er nødvendig. Data behandles innenfor EU/EØS.
-				Les mer på <a href="https://plausible.io/privacy" class="text-[var(--color-accent)] underline" rel="noopener noreferrer" target="_blank">plausible.io/privacy</a>.
+				Ingen samtykke er nødvendig. Data behandles innenfor EU.
+				Les mer på <a href="https://umami.is/privacy" class="text-[var(--color-accent)] underline" rel="noopener noreferrer" target="_blank">umami.is/privacy</a>.
 			{:else}
-				We use <strong>Plausible Analytics</strong> to understand traffic patterns. Plausible places no
+				We use <strong>Umami Analytics</strong> to understand traffic patterns. Umami places no
 				cookies, does not collect IP addresses, and stores no personally identifiable information.
-				No consent is required. Data is processed within the EU/EEA.
-				Learn more at <a href="https://plausible.io/privacy" class="text-[var(--color-accent)] underline" rel="noopener noreferrer" target="_blank">plausible.io/privacy</a>.
+				No consent is required. Data is processed within the EU.
+				Learn more at <a href="https://umami.is/privacy" class="text-[var(--color-accent)] underline" rel="noopener noreferrer" target="_blank">umami.is/privacy</a>.
 			{/if}
 		</p>
 	</section>
@@ -108,8 +108,8 @@
 		</h2>
 		<p class="leading-relaxed text-[var(--color-text-secondary)]">
 			{$lang === 'no'
-				? 'Gåri bruker ingen informasjonskapsler for vanlige besøkende. Analysetjenesten (Plausible) bruker heller ikke informasjonskapsler. Den eneste informasjonskapselen som plasseres er en admin-øktcookie — kun for interne administrasjonsider, aldri for vanlige besøkende.'
-				: 'Gåri uses no cookies for regular visitors. The analytics service (Plausible) also uses no cookies. The only cookie placed is an admin session cookie — only for internal administration pages, never for regular visitors.'}
+				? 'Gåri bruker ingen informasjonskapsler for vanlige besøkende. Analysetjenesten (Umami) bruker heller ikke informasjonskapsler. Den eneste informasjonskapselen som plasseres er en admin-øktcookie — kun for interne administrasjonsider, aldri for vanlige besøkende.'
+				: 'Gåri uses no cookies for regular visitors. The analytics service (Umami) also uses no cookies. The only cookie placed is an admin session cookie — only for internal administration pages, never for regular visitors.'}
 		</p>
 	</section>
 
@@ -120,7 +120,7 @@
 		<ul class="space-y-2 text-[var(--color-text-secondary)]">
 			<li><strong>Supabase</strong> — {$lang === 'no' ? 'databasevert (EU-region). Personvernerklæring:' : 'database host (EU region). Privacy policy:'} <a href="https://supabase.com/privacy" class="text-[var(--color-accent)] underline" rel="noopener noreferrer" target="_blank">supabase.com/privacy</a></li>
 			<li><strong>Vercel</strong> — {$lang === 'no' ? 'nettvert og CDN. Anonymiserte loggdata for feilsøking.' : 'hosting and CDN. Anonymized log data for debugging.'} <a href="https://vercel.com/legal/privacy-policy" class="text-[var(--color-accent)] underline" rel="noopener noreferrer" target="_blank">vercel.com/legal/privacy-policy</a></li>
-			<li><strong>Plausible Analytics</strong> — {$lang === 'no' ? 'personvernvennlig analyse, ingen informasjonskapsler.' : 'privacy-friendly analytics, no cookies.'} <a href="https://plausible.io/privacy" class="text-[var(--color-accent)] underline" rel="noopener noreferrer" target="_blank">plausible.io/privacy</a></li>
+			<li><strong>Umami Analytics</strong> — {$lang === 'no' ? 'personvernvennlig analyse, ingen informasjonskapsler.' : 'privacy-friendly analytics, no cookies.'} <a href="https://umami.is/privacy" class="text-[var(--color-accent)] underline" rel="noopener noreferrer" target="_blank">umami.is/privacy</a></li>
 		</ul>
 	</section>
 

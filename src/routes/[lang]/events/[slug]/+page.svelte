@@ -61,10 +61,8 @@
 	let correctionSubmitting = $state(false);
 
 	function trackTicketClick() {
-		if (typeof window !== 'undefined' && 'plausible' in window) {
-			(window as unknown as { plausible: (name: string, opts?: { props: Record<string, string> }) => void }).plausible('ticket-click', {
-				props: { venue: event.venue_name, slug: event.slug }
-			});
+		if (typeof window !== 'undefined' && window.umami) {
+			umami.track('ticket-click', { venue: event.venue_name, slug: event.slug });
 		}
 	}
 	let correctionError = $state(false);
@@ -87,12 +85,10 @@
 
 	// Track newsletter click-through (fires once on landing from newsletter)
 	$effect(() => {
-		if (typeof window !== 'undefined' && 'plausible' in window) {
+		if (typeof window !== 'undefined' && window.umami) {
 			const params = new URLSearchParams(window.location.search);
 			if (params.get('utm_medium') === 'newsletter') {
-				(window as unknown as { plausible: (name: string, opts?: { props: Record<string, string> }) => void }).plausible('newsletter-click', {
-					props: { slug: event.slug, venue: event.venue_name || '' }
-				});
+				umami.track('newsletter-click', { slug: event.slug, venue: event.venue_name || '' });
 			}
 		}
 	});

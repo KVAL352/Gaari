@@ -15,7 +15,7 @@
  *
  * Env vars:
  *   PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
- *   PLAUSIBLE_API_KEY (optional), MAILERLITE_API_KEY (optional),
+ *   UMAMI_API_KEY (optional), UMAMI_WEBSITE_ID (optional), MAILERLITE_API_KEY (optional),
  *   RESEND_API_KEY (for --email)
  */
 
@@ -384,44 +384,57 @@ if (isFestival && !FESTIVAL_META[festivalArg!]) {
 	process.exit(1);
 }
 
-// ─── Plausible API ───────────────────────────────────────────────────
+// ─── Umami Analytics API ─────────────────────────────────────────────
 
-async function plausibleAggregate(period: string, metrics: string, date?: string, filters?: string): Promise<Record<string, number> | null> {
-	const key = process.env.PLAUSIBLE_API_KEY;
-	if (!key) return null;
+const UMAMI_BASE = 'https://api.umami.is/v1';
 
-	const params = new URLSearchParams({ site_id: SITE_ID, period, metrics });
-	if (date) params.set('date', date);
-	if (filters) params.set('filters', filters);
+function umamiHeaders(): Record<string, string> {
+	return { 'x-umami-api-key': process.env.UMAMI_API_KEY! };
+}
+
+async function umamiStats(startAt: number, endAt: number): Promise<Record<string, number> | null> {
+	const websiteId = process.env.UMAMI_WEBSITE_ID;
+	if (!websiteId || !process.env.UMAMI_API_KEY) return null;
 
 	try {
-		const resp = await fetch(`https://plausible.io/api/v1/stats/aggregate?${params}`, {
-			headers: { Authorization: `Bearer ${key}` }
+		const resp = await fetch(`${UMAMI_BASE}/websites/${websiteId}/stats?startAt=${startAt}&endAt=${endAt}`, {
+			headers: umamiHeaders()
 		});
 		if (!resp.ok) return null;
-		const data = await resp.json() as { results: Record<string, { value: number }> };
-		const result: Record<string, number> = {};
-		for (const [k, v] of Object.entries(data.results)) {
-			result[k] = v.value;
-		}
-		return result;
+		const d = await resp.json() as { pageviews: { value: number }; visitors: { value: number }; visits: { value: number }; bounces: { value: number }; totaltime: { value: number } };
+		return {
+			visitors: d.visitors?.value ?? 0,
+			pageviews: d.pageviews?.value ?? 0,
+			visits: d.visits?.value ?? 0
+		};
 	} catch { return null; }
 }
 
-async function plausibleBreakdown(property: string, period: string, limit = 15, metrics = 'visitors,pageviews', filters?: string): Promise<Array<Record<string, unknown>>> {
-	const key = process.env.PLAUSIBLE_API_KEY;
-	if (!key) return [];
-
-	const params = new URLSearchParams({ site_id: SITE_ID, period, property, limit: String(limit), metrics });
-	if (filters) params.set('filters', filters);
+async function umamiMetrics(type: string, startAt: number, endAt: number, limit = 15): Promise<Array<Record<string, unknown>>> {
+	const websiteId = process.env.UMAMI_WEBSITE_ID;
+	if (!websiteId || !process.env.UMAMI_API_KEY) return [];
 
 	try {
-		const resp = await fetch(`https://plausible.io/api/v1/stats/breakdown?${params}`, {
-			headers: { Authorization: `Bearer ${key}` }
+		const resp = await fetch(`${UMAMI_BASE}/websites/${websiteId}/metrics?startAt=${startAt}&endAt=${endAt}&type=${type}&limit=${limit}`, {
+			headers: umamiHeaders()
 		});
 		if (!resp.ok) return [];
-		const data = await resp.json() as { results: Array<Record<string, unknown>> };
-		return data.results ?? [];
+		const data = await resp.json() as Array<{ x: string; y: number }>;
+		return data.map(r => ({ [type === 'url' ? 'page' : type]: r.x, visitors: r.y, pageviews: r.y }));
+	} catch { return []; }
+}
+
+async function umamiEventData(eventName: string, propertyName: string, startAt: number, endAt: number): Promise<Array<Record<string, unknown>>> {
+	const websiteId = process.env.UMAMI_WEBSITE_ID;
+	if (!websiteId || !process.env.UMAMI_API_KEY) return [];
+
+	try {
+		const resp = await fetch(`${UMAMI_BASE}/websites/${websiteId}/event-data/values?startAt=${startAt}&endAt=${endAt}&event=${encodeURIComponent(eventName)}&propertyName=${encodeURIComponent(propertyName)}`, {
+			headers: umamiHeaders()
+		});
+		if (!resp.ok) return [];
+		const data = await resp.json() as Array<{ value: string; total: number }>;
+		return data.map(r => ({ source: r.value, visitors: r.total }));
 	} catch { return []; }
 }
 
@@ -430,16 +443,16 @@ async function plausibleBreakdown(property: string, period: string, limit = 15, 
 async function collectPlatformStats(): Promise<PlatformStats> {
 	console.log('Henter plattformstatistikk...');
 
-	const prevDate = new Date();
-	prevDate.setDate(prevDate.getDate() - 30);
-	const prevDateStr = prevDate.toISOString().slice(0, 10);
+	const now = Date.now();
+	const thirtyDaysAgo = now - 30 * 86400000;
+	const sixtyDaysAgo = now - 60 * 86400000;
 
 	// Parallel data collection
 	const [current, previous, sourcesRaw, aiRaw, eventCount, subStats] = await Promise.all([
-		plausibleAggregate('30d', 'visitors,pageviews'),
-		plausibleAggregate('30d', 'visitors,pageviews', prevDateStr),
-		plausibleBreakdown('visit:source', '30d', 8, 'visitors'),
-		plausibleBreakdown('event:props:source', '30d', 10, 'visitors', 'event:name==ai-referral'),
+		umamiStats(thirtyDaysAgo, now),
+		umamiStats(sixtyDaysAgo, thirtyDaysAgo),
+		umamiMetrics('referrer', thirtyDaysAgo, now, 8),
+		umamiEventData('ai-referral', 'source', thirtyDaysAgo, now),
 		supabase
 			.from('events')
 			.select('id', { count: 'exact', head: true })
@@ -655,8 +668,10 @@ async function collectFestivalData(
 async function collectCollectionTraffic(slugs: string[]): Promise<CollectionInfo[]> {
 	console.log('Henter samlingstrafikk...');
 
-	// Fetch top pages from Plausible (30d) — covers collection pages
-	const topPages = await plausibleBreakdown('event:page', '30d', 200, 'visitors,pageviews');
+	// Fetch top pages from Umami (30d) — covers collection pages
+	const now = Date.now();
+	const thirtyDaysAgo = now - 30 * 86400000;
+	const topPages = await umamiMetrics('url', thirtyDaysAgo, now, 200);
 
 	const pageMap = new Map<string, { visitors: number; pageviews: number }>();
 	for (const p of topPages) {
@@ -687,8 +702,10 @@ async function collectCollectionTraffic(slugs: string[]): Promise<CollectionInfo
 async function collectEventPageViews(events: VenueEvent[]): Promise<Array<{ slug: string; title: string; visitors: number }>> {
 	if (events.length === 0) return [];
 
-	// Fetch all event page views from Plausible
-	const topPages = await plausibleBreakdown('event:page', '30d', 500, 'visitors', 'event:page==/no/events/*');
+	// Fetch all event page views from Umami
+	const now = Date.now();
+	const thirtyDaysAgo = now - 30 * 86400000;
+	const topPages = await umamiMetrics('url', thirtyDaysAgo, now, 500);
 
 	const pageMap = new Map<string, number>();
 	for (const p of topPages) {

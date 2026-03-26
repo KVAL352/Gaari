@@ -11,7 +11,7 @@
  *
  * Env vars:
  *   PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY,
- *   PLAUSIBLE_API_KEY (optional), MAILERLITE_API_KEY (optional)
+ *   UMAMI_API_KEY (optional), UMAMI_WEBSITE_ID (optional), MAILERLITE_API_KEY (optional)
  */
 
 import 'dotenv/config';
@@ -144,9 +144,10 @@ async function collectScraperActivity(): Promise<ScraperActivity> {
 }
 
 async function collectTraffic(): Promise<TrafficData | null> {
-	const key = process.env.PLAUSIBLE_API_KEY;
-	if (!key) {
-		console.log('⏭  Plausible: skipped (no PLAUSIBLE_API_KEY)');
+	const key = process.env.UMAMI_API_KEY;
+	const websiteId = process.env.UMAMI_WEBSITE_ID;
+	if (!key || !websiteId) {
+		console.log('⏭  Umami: skipped (no UMAMI_API_KEY or UMAMI_WEBSITE_ID)');
 		return null;
 	}
 
@@ -154,25 +155,19 @@ async function collectTraffic(): Promise<TrafficData | null> {
 
 	const yesterday = new Date();
 	yesterday.setDate(yesterday.getDate() - 1);
-	const dateStr = yesterday.toISOString().slice(0, 10);
+	const startAt = new Date(yesterday.toISOString().slice(0, 10) + 'T00:00:00Z').getTime();
+	const endAt = startAt + 86400000; // +24h
 
 	try {
-		const params = new URLSearchParams({
-			site_id: 'gaari.no',
-			period: 'day',
-			date: dateStr,
-			metrics: 'visitors,pageviews'
-		});
-
-		const resp = await fetch(`https://plausible.io/api/v1/stats/aggregate?${params}`, {
-			headers: { Authorization: `Bearer ${key}` }
+		const resp = await fetch(`https://api.umami.is/v1/websites/${websiteId}/stats?startAt=${startAt}&endAt=${endAt}`, {
+			headers: { 'x-umami-api-key': key }
 		});
 
 		if (!resp.ok) return null;
-		const data = await resp.json() as { results: Record<string, { value: number }> };
+		const data = await resp.json() as { pageviews: { value: number }; visitors: { value: number } };
 		return {
-			visitors: data.results.visitors?.value ?? 0,
-			pageviews: data.results.pageviews?.value ?? 0
+			visitors: data.visitors?.value ?? 0,
+			pageviews: data.pageviews?.value ?? 0
 		};
 	} catch { return null; }
 }

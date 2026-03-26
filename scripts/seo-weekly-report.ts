@@ -1,7 +1,7 @@
 /**
  * SEO Weekly Report — Automated Email Digest
  *
- * Gathers data from Plausible, Google Search Console, Bing Webmaster,
+ * Gathers data from Umami Analytics, Google Search Console, Bing Webmaster,
  * and Supabase. Sends an HTML email via Resend with traffic trends,
  * search insights, technical health checks, and content freshness.
  *
@@ -10,7 +10,7 @@
  *   cd scripts && npx tsx seo-weekly-report.ts --dry-run
  *
  * Env vars:
- *   PLAUSIBLE_API_KEY, GSC_SERVICE_ACCOUNT, BING_WEBMASTER_KEY,
+ *   UMAMI_API_KEY, UMAMI_WEBSITE_ID, GSC_SERVICE_ACCOUNT, BING_WEBMASTER_KEY,
  *   RESEND_API_KEY, PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  */
 
@@ -119,99 +119,106 @@ function deltaColor(current: number, previous: number, higherIsBetter = true): s
 	return good ? '#16a34a' : '#dc2626';
 }
 
-// ─── Plausible ──────────────────────────────────────────────────────
+// ─── Umami Analytics ────────────────────────────────────────────────
 
-async function fetchPlausibleAggregate(period: string, date?: string): Promise<{ visitors: number; pageviews: number; bounceRate: number; visitDuration: number; visits: number } | null> {
-	const key = process.env.PLAUSIBLE_API_KEY;
-	if (!key) return null;
+const UMAMI_BASE = 'https://api.umami.is/v1';
 
-	const params = new URLSearchParams({
-		site_id: SITE_ID,
-		period,
-		metrics: 'visitors,pageviews,bounce_rate,visit_duration,visits'
-	});
-	if (date) params.set('date', date);
+function umamiHeaders(): Record<string, string> {
+	return { 'x-umami-api-key': process.env.UMAMI_API_KEY! };
+}
+
+function dateRange(daysBack: number, durationDays: number): { startAt: number; endAt: number } {
+	const end = new Date();
+	end.setDate(end.getDate() - daysBack);
+	const start = new Date(end);
+	start.setDate(start.getDate() - durationDays);
+	return { startAt: start.getTime(), endAt: end.getTime() };
+}
+
+async function fetchUmamiStats(startAt: number, endAt: number): Promise<{ visitors: number; pageviews: number; bounceRate: number; visitDuration: number; visits: number } | null> {
+	const websiteId = process.env.UMAMI_WEBSITE_ID;
+	if (!websiteId) return null;
 
 	try {
-		const resp = await fetch(`https://plausible.io/api/v1/stats/aggregate?${params}`, {
-			headers: { Authorization: `Bearer ${key}` }
+		const resp = await fetch(`${UMAMI_BASE}/websites/${websiteId}/stats?startAt=${startAt}&endAt=${endAt}`, {
+			headers: umamiHeaders()
 		});
 		if (!resp.ok) return null;
-		const data = await resp.json() as { results: Record<string, { value: number }> };
-		const r = data.results;
+		const d = await resp.json() as { pageviews: { value: number }; visitors: { value: number }; visits: { value: number }; bounces: { value: number }; totaltime: { value: number } };
+		const visits = d.visits?.value ?? 1;
 		return {
-			visitors: r.visitors?.value ?? 0,
-			pageviews: r.pageviews?.value ?? 0,
-			bounceRate: r.bounce_rate?.value ?? 0,
-			visitDuration: r.visit_duration?.value ?? 0,
-			visits: r.visits?.value ?? 0
+			visitors: d.visitors?.value ?? 0,
+			pageviews: d.pageviews?.value ?? 0,
+			bounceRate: visits > 0 ? Math.round(((d.bounces?.value ?? 0) / visits) * 100) : 0,
+			visitDuration: visits > 0 ? Math.round((d.totaltime?.value ?? 0) / visits) : 0,
+			visits
 		};
 	} catch { return null; }
 }
 
-async function fetchPlausibleBreakdown(property: string, limit = 15, filters?: string): Promise<Array<Record<string, unknown>>> {
-	const key = process.env.PLAUSIBLE_API_KEY;
-	if (!key) return [];
-
-	const params = new URLSearchParams({
-		site_id: SITE_ID,
-		period: '7d',
-		property,
-		limit: String(limit),
-		metrics: 'visitors,pageviews'
-	});
-	if (filters) params.set('filters', filters);
+async function fetchUmamiMetrics(type: string, startAt: number, endAt: number, limit = 15): Promise<Array<{ x: string; y: number }>> {
+	const websiteId = process.env.UMAMI_WEBSITE_ID;
+	if (!websiteId) return [];
 
 	try {
-		const resp = await fetch(`https://plausible.io/api/v1/stats/breakdown?${params}`, {
-			headers: { Authorization: `Bearer ${key}` }
+		const resp = await fetch(`${UMAMI_BASE}/websites/${websiteId}/metrics?startAt=${startAt}&endAt=${endAt}&type=${type}&limit=${limit}`, {
+			headers: umamiHeaders()
 		});
 		if (!resp.ok) return [];
-		const data = await resp.json() as { results: Array<Record<string, unknown>> };
-		return data.results ?? [];
+		return await resp.json() as Array<{ x: string; y: number }>;
+	} catch { return []; }
+}
+
+async function fetchUmamiEventData(eventName: string, propertyName: string, startAt: number, endAt: number): Promise<Array<{ value: string; total: number }>> {
+	const websiteId = process.env.UMAMI_WEBSITE_ID;
+	if (!websiteId) return [];
+
+	try {
+		const resp = await fetch(`${UMAMI_BASE}/websites/${websiteId}/event-data/values?startAt=${startAt}&endAt=${endAt}&event=${encodeURIComponent(eventName)}&propertyName=${encodeURIComponent(propertyName)}`, {
+			headers: umamiHeaders()
+		});
+		if (!resp.ok) return [];
+		return await resp.json() as Array<{ value: string; total: number }>;
 	} catch { return []; }
 }
 
 async function collectPlausible(): Promise<Pick<ReportData, 'traffic' | 'topPages' | 'topSources' | 'aiReferrals'>> {
-	const key = process.env.PLAUSIBLE_API_KEY;
+	const key = process.env.UMAMI_API_KEY;
 	if (!key) {
-		console.log('⏭  Plausible: skipped (no PLAUSIBLE_API_KEY)');
+		console.log('⏭  Umami: skipped (no UMAMI_API_KEY)');
 		return { traffic: null, topPages: [], topSources: [], aiReferrals: [] };
 	}
 
-	console.log('📊 Fetching Plausible data...');
+	console.log('📊 Fetching Umami data...');
 
-	// Current and previous week
-	const prevDate = new Date();
-	prevDate.setDate(prevDate.getDate() - 7);
-	const prevDateStr = prevDate.toISOString().slice(0, 10);
+	const currentRange = dateRange(0, 7);
+	const previousRange = dateRange(7, 7);
 
 	const [current, previous] = await Promise.all([
-		fetchPlausibleAggregate('7d'),
-		fetchPlausibleAggregate('7d', prevDateStr)
+		fetchUmamiStats(currentRange.startAt, currentRange.endAt),
+		fetchUmamiStats(previousRange.startAt, previousRange.endAt)
 	]);
 
 	const traffic: TrafficData | null = current && previous ? { current, previous } : null;
 
-	// Breakdowns
 	const [pagesRaw, sourcesRaw, aiRaw] = await Promise.all([
-		fetchPlausibleBreakdown('event:page'),
-		fetchPlausibleBreakdown('visit:source', 10),
-		fetchPlausibleBreakdown('event:props:source', 10, 'event:name==ai-referral')
+		fetchUmamiMetrics('url', currentRange.startAt, currentRange.endAt),
+		fetchUmamiMetrics('referrer', currentRange.startAt, currentRange.endAt, 10),
+		fetchUmamiEventData('ai-referral', 'source', currentRange.startAt, currentRange.endAt)
 	]);
 
 	const topPages = pagesRaw.map(r => ({
-		page: r.page as string,
-		visitors: r.visitors as number,
-		pageviews: r.pageviews as number
+		page: r.x,
+		visitors: r.y,
+		pageviews: r.y
 	}));
 	const topSources = sourcesRaw.map(r => ({
-		source: r.source as string,
-		visitors: r.visitors as number
+		source: r.x,
+		visitors: r.y
 	}));
 	const aiReferrals = aiRaw.map(r => ({
-		source: (r.source ?? 'unknown') as string,
-		visitors: r.visitors as number
+		source: r.value ?? 'unknown',
+		visitors: r.total
 	}));
 
 	return { traffic, topPages, topSources, aiReferrals };
@@ -647,7 +654,7 @@ function renderHtml(data: ReportData): string {
 				`).join('')}
 			</tbody>
 		</table>
-	` : '<p style="color:#666">Plausible: ingen data (mangler API-nøkkel)</p>';
+	` : '<p style="color:#666">Umami: ingen data (mangler API-nøkkel)</p>';
 
 	// Top pages
 	const topPagesHtml = data.topPages.length > 0 ? `

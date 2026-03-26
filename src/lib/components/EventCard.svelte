@@ -76,10 +76,8 @@
 	});
 
 	function trackPromotedClick() {
-		if (promoted && typeof window !== 'undefined' && 'plausible' in window) {
-			(window as unknown as { plausible: (name: string, opts?: { props: Record<string, string> }) => void }).plausible('promoted-click', {
-				props: { venue: event.venue_name, slug: event.slug }
-			});
+		if (promoted && typeof window !== 'undefined' && window.umami) {
+			umami.track('promoted-click', { venue: event.venue_name, slug: event.slug });
 		}
 	}
 </script>

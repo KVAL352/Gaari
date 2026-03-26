@@ -40,8 +40,8 @@
 	);
 
 	function trackEvent(name: string) {
-		if (typeof window !== 'undefined' && 'plausible' in window) {
-			(window as unknown as { plausible: (name: string) => void }).plausible(name);
+		if (typeof window !== 'undefined' && window.umami) {
+			umami.track(name);
 		}
 	}
 
@@ -147,7 +147,7 @@
 		</p>
 		<a
 			href="#contact"
-			data-plausible-event="for-arrangorer-hero-cta"
+			data-umami-event="for-arrangorer-hero-cta"
 			onclick={() => trackEvent('for-arrangorer-hero-cta')}
 			class="inline-block rounded-xl bg-[var(--funkis-red)] px-8 py-3 text-base font-semibold text-white hover:opacity-90"
 			style="min-height: 44px; line-height: 24px;"
@@ -367,7 +367,7 @@
 			<!-- Mid-page CTA — peak motivation point -->
 			<a
 				href="#contact"
-				data-plausible-event="for-arrangorer-mid-cta"
+				data-umami-event="for-arrangorer-mid-cta"
 				onclick={() => trackEvent('for-arrangorer-mid-cta')}
 				class="inline-block rounded-xl bg-[var(--funkis-red)] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90"
 				style="min-height: 44px; line-height: 24px;"
@@ -865,7 +865,7 @@
 	<div class="bg-[var(--funkis-red)] px-4 py-2" style="box-shadow: 0 -2px 8px rgba(0,0,0,0.15);">
 		<a
 			href="#contact"
-			data-plausible-event="for-arrangorer-sticky-cta"
+			data-umami-event="for-arrangorer-sticky-cta"
 			onclick={() => trackEvent('for-arrangorer-sticky-cta')}
 			class="flex items-center justify-center text-base font-semibold text-white"
 			style="min-height: 44px;"
