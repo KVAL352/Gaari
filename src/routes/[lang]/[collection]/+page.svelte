@@ -3,6 +3,7 @@
 	import { lang, t } from '$lib/i18n';
 	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems } from '$lib/seo';
 	import { getCollection, type Collection } from '$lib/collections';
+	import { getOsloNow, getWeekendDates } from '$lib/event-filters';
 	import EventGrid from '$lib/components/EventGrid.svelte';
 	import LoadMore from '$lib/components/LoadMore.svelte';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
@@ -40,6 +41,29 @@
 			: quickAnswerBase
 	);
 
+	// Dynamic date hint for time-sensitive collections (SEO: shows freshness)
+	let dateHint = $derived.by(() => {
+		const slug = data.collection.slug;
+		const now = getOsloNow();
+		const locale = ssrLang === 'no' ? 'nb-NO' : 'en-GB';
+		const fmt = (d: Date) => d.toLocaleDateString(locale, { day: 'numeric', month: 'long' });
+		const fmtShort = (d: Date) => d.toLocaleDateString(locale, { day: 'numeric' });
+
+		if (slug === 'denne-helgen' || slug === 'this-weekend' || slug === 'familiehelg') {
+			const { start, end } = getWeekendDates(now);
+			const s = new Date(start + 'T12:00:00');
+			const e = new Date(end + 'T12:00:00');
+			return `${fmtShort(s)}.–${fmt(e)}`;
+		}
+		if (slug === 'i-dag' || slug === 'today-in-bergen') {
+			return fmt(now);
+		}
+		if (slug === 'i-kveld' || slug === 'studentkveld') {
+			return fmt(now);
+		}
+		return '';
+	});
+
 	let relatedCollections: Collection[] = $derived(
 		(data.collection.relatedSlugs ?? [])
 			.map((slug: string) => getCollection(slug))
@@ -73,6 +97,9 @@
 	<h1 class="text-3xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-4xl" style="font-family: var(--font-display)">
 		{title}
 	</h1>
+	{#if dateHint}
+		<p class="mt-1 text-lg font-medium text-[var(--color-text-secondary)]">{dateHint}</p>
+	{/if}
 	<p class="mt-2 text-[var(--color-text-secondary)]">
 		{description}
 	</p>
@@ -134,7 +161,27 @@
 		<EventGrid events={displayedEvents} promotedEventIds={data.promotedEventIds} />
 		<LoadMore shown={displayedEvents.length} total={data.events.length} href={nextPageHref} />
 
-		<div class="mt-8 text-center">
+		{#if relatedCollections.length > 0}
+		<nav class="mt-10" aria-label={ssrLang === 'no' ? 'Utforsk flere samlinger' : 'Explore more collections'}>
+			<h2 class="mb-3 text-base font-semibold text-[var(--color-text-primary)]">
+				{ssrLang === 'no' ? 'Utforsk mer' : 'Explore more'}
+			</h2>
+			<ul class="flex flex-wrap gap-2">
+				{#each relatedCollections as related (related.slug)}
+				<li>
+					<a
+						href="/{ssrLang}/{related.slug}"
+						class="inline-block rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
+					>
+						{related.title[ssrLang]}
+					</a>
+				</li>
+				{/each}
+			</ul>
+		</nav>
+		{/if}
+
+		<div class="mt-6 text-center">
 			<a
 				href="/{$lang}"
 				class="text-sm font-medium text-[var(--color-text-secondary)] underline transition-colors hover:text-[var(--color-text-primary)]"
