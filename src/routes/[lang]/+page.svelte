@@ -9,6 +9,7 @@
 	import type { Bydel, GaariEvent } from '$lib/types';
 	import { generateWebSiteJsonLd } from '$lib/seo';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
+	import { ArrowRight } from 'lucide-svelte';
 	import HeroSection from '$lib/components/HeroSection.svelte';
 	import EventDiscovery from '$lib/components/EventDiscovery.svelte';
 
@@ -193,6 +194,35 @@
 		}
 	});
 
+	// Contextual collection suggestions based on day/time
+	let collectionSuggestions = $derived.by(() => {
+		const now = getOsloNow();
+		const day = now.getDay(); // 0=Sun
+		const hour = now.getHours();
+		const isWeekend = day === 0 || day === 5 || day === 6;
+
+		const suggestions: Array<{ slug: string; label: Record<string, string> }> = [];
+
+		if (isWeekend) {
+			suggestions.push({ slug: 'denne-helgen', label: { no: 'Denne helgen', en: 'This weekend' } });
+		}
+		if (hour >= 14) {
+			suggestions.push({ slug: 'i-kveld', label: { no: 'I kveld', en: 'Tonight' } });
+		}
+		suggestions.push(
+			{ slug: 'gratis', label: { no: 'Gratis denne uken', en: 'Free this week' } },
+			{ slug: 'konserter', label: { no: 'Konserter', en: 'Concerts' } },
+			{ slug: 'familiehelg', label: { no: 'For familier', en: 'For families' } },
+		);
+		if (!isWeekend) {
+			suggestions.push({ slug: 'i-dag', label: { no: 'I dag', en: 'Today' } });
+		}
+		return suggestions.slice(0, 5);
+	});
+
+	// Only show collection suggestions when no filters are active
+	let hasActiveFilters = $derived(!!when || !!time || !!audience || !!category || !!bydel || !!price || !!q);
+
 	let homeDescription = $derived($lang === 'no'
 		? 'Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Gåri samler arrangementer fra 54 lokale kilder, oppdatert daglig.'
 		: 'What\u2019s on in Bergen? Concerts, exhibitions, theatre, food and more. Gåri collects events from 54 local sources, updated daily.');
@@ -247,6 +277,26 @@
 		</div>
 	{/if}
 </div>
+
+<!-- Collection suggestions -->
+{#if !hasActiveFilters && filteredEvents.length > 0}
+	<nav class="mx-auto max-w-7xl px-4 py-6" aria-label={$lang === 'no' ? 'Utforsk samlinger' : 'Explore collections'}>
+		<h2 class="mb-3 text-lg font-semibold text-[var(--color-text-primary)]">
+			{$lang === 'no' ? 'Utforsk' : 'Explore'}
+		</h2>
+		<div class="flex flex-wrap gap-2">
+			{#each collectionSuggestions as col}
+				<a
+					href="/{$lang}/{col.slug}"
+					class="inline-flex items-center gap-1 rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
+				>
+					{col.label[$lang]}
+					<ArrowRight size={14} />
+				</a>
+			{/each}
+		</div>
+	</nav>
+{/if}
 
 <style>
 	.event-results {

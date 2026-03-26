@@ -50,9 +50,15 @@
 	const CATEGORY_COLLECTIONS: Record<string, { slug: Record<string, string>; label: Record<string, string> }> = {
 		music: { slug: { no: 'konserter', en: 'konserter' }, label: { no: 'Se alle konserter denne uken', en: 'See all concerts this week' } },
 		family: { slug: { no: 'familiehelg', en: 'familiehelg' }, label: { no: 'Se alle familieaktiviteter', en: 'See all family activities' } },
+		student: { slug: { no: 'studentkveld', en: 'studentkveld' }, label: { no: 'Se alle studentarrangementer', en: 'See all student events' } },
+		nightlife: { slug: { no: 'i-kveld', en: 'i-kveld' }, label: { no: 'Se alt som skjer i kveld', en: 'See what\'s on tonight' } },
+		food: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+		workshop: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+		festival: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
 		culture: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
 		theatre: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
 		sports: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+		tours: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
 	};
 	let collectionLink = $derived(CATEGORY_COLLECTIONS[event.category]);
 
@@ -129,7 +135,7 @@
 	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
-<div class="mx-auto max-w-4xl px-4 py-6">
+<div class="mx-auto max-w-4xl px-4 py-6 pb-20 md:pb-6">
 	<!-- Back link -->
 	<a
 		href="/{$lang}"
@@ -222,7 +228,7 @@
 		</div>
 	</div>
 
-	<!-- Action buttons -->
+	<!-- Action buttons (inline) -->
 	<div class="mb-8 flex flex-wrap gap-3">
 		{#if (event.ticket_url || event.source_url) && !isCancelled}
 			<a
@@ -251,6 +257,22 @@
 		</button>
 	</div>
 
+	<!-- Sticky ticket button on mobile -->
+	{#if (event.ticket_url || event.source_url) && !isCancelled}
+		<div class="fixed bottom-0 left-0 right-0 z-30 border-t border-[var(--color-border)] bg-white/95 px-4 py-3 backdrop-blur-sm md:hidden">
+			<a
+				href={buildOutboundUrl(event.ticket_url || event.source_url!, 'event_detail', event.venue_name, event.slug)}
+				target="_blank"
+				rel="noopener noreferrer"
+				onclick={trackTicketClick}
+				class="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+			>
+				<ExternalLink size={16} />
+				{isFreeEvent(event.price) ? ($lang === 'no' ? 'Mer info' : 'More info') : event.ticket_url ? $t('buyTickets') : ($lang === 'no' ? 'Gå til arrangement' : 'Go to event')}
+			</a>
+		</div>
+	{/if}
+
 	<!-- Description -->
 	<section class="mb-8">
 		<h2 class="mb-3 text-xl font-semibold">{$t('description')}</h2>
@@ -267,6 +289,36 @@
 			{/if}
 		</div>
 	</section>
+
+	<!-- Collection link -->
+	{#if collectionLink}
+	<div class="mb-6">
+		<a
+			href="/{$lang}/{collectionLink.slug[$lang]}"
+			class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
+		>
+			{collectionLink.label[$lang]}
+			<ArrowRight size={16} />
+		</a>
+	</div>
+	{/if}
+
+	<!-- Related events -->
+	{#if related.length > 0}
+		<section class="mb-10">
+			<h2 class="mb-4 text-xl font-semibold">{$t('relatedEvents')}</h2>
+			<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+				{#each related as event (event.id)}
+					<EventCard {event} />
+				{/each}
+			</ul>
+		</section>
+	{/if}
+
+	<!-- Newsletter CTA -->
+	<div class="mb-8">
+		<NewsletterCTA id="event-detail" variant="card" contextCategory={event.category} />
+	</div>
 
 	<!-- Suggest correction -->
 	<section class="mb-12">
@@ -360,34 +412,4 @@
 			{/if}
 		{/if}
 	</section>
-
-	<!-- Newsletter CTA -->
-	<div class="mb-8">
-		<NewsletterCTA id="event-detail" variant="card" contextCategory={event.category} />
-	</div>
-
-	<!-- Collection link -->
-	{#if collectionLink}
-	<div class="mb-8">
-		<a
-			href="/{$lang}/{collectionLink.slug[$lang]}"
-			class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
-		>
-			{collectionLink.label[$lang]}
-			<ArrowRight size={16} />
-		</a>
-	</div>
-	{/if}
-
-	<!-- Related events -->
-	{#if related.length > 0}
-		<section>
-			<h2 class="mb-4 text-xl font-semibold">{$t('relatedEvents')}</h2>
-			<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-				{#each related as event (event.id)}
-					<EventCard {event} />
-				{/each}
-			</ul>
-		</section>
-	{/if}
 </div>
