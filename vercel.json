@@ -6,7 +6,7 @@
 		},
 		{
 			"source": "/u/api/send",
-			"destination": "https://cloud.umami.is/api/send"
+			"destination": "https://api-gateway.umami.dev/api/send"
 		}
 	]
 }
