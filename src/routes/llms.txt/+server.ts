@@ -111,7 +111,7 @@ const PAGES = `## Key pages
 const SOURCES = `## Data sources (54 active)
 
 ### Performance venues
-Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, BIT Teatergarasjen, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater
+Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, Bergen Internasjonale Teater (BIT), Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater
 
 ### Arts, culture and literature
 KODE (Bergen art museums), Bergen Kunsthall, Litteraturhuset Bergen, Media City Bergen, BEK (Bergen Centre for Electronic Arts), Bergen Filmklubb

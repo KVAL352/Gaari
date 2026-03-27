@@ -210,7 +210,7 @@
 						{$lang === 'no' ? 'Teater & dans' : 'Theatre & dance'}
 					</h4>
 					<p class="text-sm leading-relaxed">
-						Den Nationale Scene, Det Vestnorske Teateret, BIT Teatergarasjen, Carte Blanche,
+						Den Nationale Scene, Det Vestnorske Teateret, Bergen Internasjonale Teater (BIT), Carte Blanche,
 						Cornerteateret
 					</p>
 				</div>

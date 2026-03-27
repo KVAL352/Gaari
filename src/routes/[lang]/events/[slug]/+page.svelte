@@ -48,15 +48,15 @@
 
 	// Contextual collection link based on event category
 	const CATEGORY_COLLECTIONS: Record<string, { slug: Record<string, string>; label: Record<string, string> }> = {
-		music: { slug: { no: 'konserter', en: 'konserter' }, label: { no: 'Se alle konserter denne uken', en: 'See all concerts this week' } },
+		music: { slug: { no: 'konserter', en: 'konserter' }, label: { no: 'Se alle konserter i Bergen', en: 'See all concerts in Bergen' } },
 		family: { slug: { no: 'familiehelg', en: 'familiehelg' }, label: { no: 'Se alle familieaktiviteter', en: 'See all family activities' } },
 		student: { slug: { no: 'studentkveld', en: 'studentkveld' }, label: { no: 'Se alle studentarrangementer', en: 'See all student events' } },
 		nightlife: { slug: { no: 'i-kveld', en: 'i-kveld' }, label: { no: 'Se alt som skjer i kveld', en: 'See what\'s on tonight' } },
-		food: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+		food: { slug: { no: 'mat-og-drikke', en: 'mat-og-drikke' }, label: { no: 'Se alle matopplevelser', en: 'See all food events' } },
 		workshop: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
 		festival: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
-		culture: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
-		theatre: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+		culture: { slug: { no: 'utstillinger', en: 'utstillinger' }, label: { no: 'Se alle utstillinger i Bergen', en: 'See all exhibitions in Bergen' } },
+		theatre: { slug: { no: 'teater', en: 'teater' }, label: { no: 'Se alle forestillinger i Bergen', en: 'See all theatre in Bergen' } },
 		sports: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
 		tours: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
 	};

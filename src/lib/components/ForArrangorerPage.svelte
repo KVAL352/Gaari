@@ -21,7 +21,7 @@
 		'Grieghallen', 'Den Nationale Scene', 'KODE', 'USF Verftet',
 		'Bergen Bibliotek', 'Festspillene', 'Ole Bull Huset', 'Bergen Filharmoniske',
 		'Fløyen', 'Bergenfest', 'Bergen Kjøtt', 'Bjørgvin Blues Club',
-		'Cornerteateret', 'Det Vestnorske Teateret', 'BIT Teatergarasjen',
+		'Cornerteateret', 'Det Vestnorske Teateret', 'Bergen Internasjonale Teater',
 		'Carte Blanche', 'Bergen Kunsthall', 'Litteraturhuset', 'Akvariet',
 		'Bymuseet', 'Museum Vest', 'Forum Scene', 'Colonialen', 'Råbrent',
 		'SK Brann', 'DNT Bergen', 'Beyond the Gates', 'Oseana',

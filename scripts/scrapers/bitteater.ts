@@ -80,7 +80,7 @@ function mapCategory(cat: string): string {
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
-	console.log(`\n[${SOURCE}] Fetching BIT Teatergarasjen events...`);
+	console.log(`\n[${SOURCE}] Fetching Bergen Internasjonale Teater events...`);
 
 	const html = await fetchHTML(BASE_URL);
 	if (!html) {
@@ -128,7 +128,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			? new Date(`${parsed.end}T22:00:00${bergenOffset(parsed.end)}`).toISOString()
 			: undefined;
 
-		const aiDesc = await generateDescription({ title: fullTitle, venue: venue || 'BIT Teatergarasjen', category: gariCategory, date: startDate, price: '' });
+		const aiDesc = await generateDescription({ title: fullTitle, venue: venue || 'Bergen Internasjonale Teater', category: gariCategory, date: startDate, price: '' });
 
 		const success = await insertEvent({
 			slug: makeSlug(title, parsed.start),
@@ -138,7 +138,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			category: gariCategory,
 			date_start: dateStart,
 			date_end: dateEnd,
-			venue_name: venue || 'BIT Teatergarasjen',
+			venue_name: venue || 'Bergen Internasjonale Teater',
 			address: 'Nøstegaten 54, Bergen',
 			bydel: 'Sentrum',
 			price: '',

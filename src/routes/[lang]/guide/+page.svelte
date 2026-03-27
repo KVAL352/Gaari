@@ -62,6 +62,9 @@
 			label: 'Hva',
 			items: [
 				{ slug: 'konserter', label: 'Konserter' },
+				{ slug: 'teater', label: 'Teater' },
+				{ slug: 'utstillinger', label: 'Utstillinger' },
+				{ slug: 'mat-og-drikke', label: 'Mat og drikke' },
 				{ slug: 'gratis', label: 'Gratis' },
 				{ slug: 'regndagsguide', label: 'Regndagsguide' }
 			]
@@ -103,6 +106,9 @@
 			label: 'What',
 			items: [
 				{ slug: 'konserter', label: 'Concerts' },
+				{ slug: 'teater', label: 'Theatre' },
+				{ slug: 'utstillinger', label: 'Exhibitions' },
+				{ slug: 'mat-og-drikke', label: 'Food & Drink' },
 				{ slug: 'free-things-to-do-bergen', label: 'Free Events' },
 				{ slug: 'regndagsguide', label: 'Rainy Day Guide' }
 			]

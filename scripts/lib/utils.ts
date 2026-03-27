@@ -213,7 +213,7 @@ export function isOptedOut(sourceUrl: string): boolean {
 }
 
 // Detect free events from title/description text when price field is empty
-const FREE_KEYWORDS = /\b(gratis|fri inngang|free entry|free admission|free event|ingen inngangspenger|kostnadsfritt)\b/i;
+const FREE_KEYWORDS = /(?:^|\s|—)(gratis|fri inngang|free entry|free admission|free event|ingen inngangspenger|kostnadsfritt|åpen dag|open day|gratis inngang|fri entré|fri entre)(?:\s|$|[.,!?;:])/i;
 
 export function detectFreeFromText(title: string, description: string): boolean {
 	return FREE_KEYWORDS.test(title) || FREE_KEYWORDS.test(description);

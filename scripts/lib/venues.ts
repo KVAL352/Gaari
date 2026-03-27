@@ -81,6 +81,7 @@ const VENUE_URLS: Record<string, string> = {
 	'cinemateket i bergen': 'https://cinemateket.no',
 	'cinemateket': 'https://cinemateket.no',
 	'bergen domkirke': 'https://kirkemusikkibergen.no',
+	'bergen internasjonale teater': 'https://bitteater.no',
 	'bit teatergarasjen': 'https://bitteater.no',
 	'carte blanche': 'https://carteblanche.no',
 	'bergen filharmoniske orkester': 'https://harmonien.no',

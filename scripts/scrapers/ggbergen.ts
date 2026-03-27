@@ -344,9 +344,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			// Determine category from event title
 			const category = guessCategory(ev.summary);
 
-			// GG Bergen events are free with 13+ age limit
+			// GG Bergen is a youth centre (ungdomshus) — events target teens 13-18
 			const price = 'Gratis';
-			const ageGroup = 'all';
+			const ageGroup = 'youth';
 
 			// Clean up title — remove "GGB Laksevåg - " prefix
 			const title = ev.summary

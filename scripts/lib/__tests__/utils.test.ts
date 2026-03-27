@@ -267,6 +267,22 @@ describe('detectFreeFromText', () => {
 	it('does not match partial words', () => {
 		expect(detectFreeFromText('Gratiskonserter', '')).toBe(false);
 	});
+
+	it('detects "åpen dag"', () => {
+		expect(detectFreeFromText('Åpen dag på museet', '')).toBe(true);
+	});
+
+	it('detects "open day"', () => {
+		expect(detectFreeFromText('', 'Open day for everyone')).toBe(true);
+	});
+
+	it('detects "gratis inngang"', () => {
+		expect(detectFreeFromText('Gratis inngang for alle', '')).toBe(true);
+	});
+
+	it('detects "fri entré"', () => {
+		expect(detectFreeFromText('Utstilling — fri entré', '')).toBe(true);
+	});
 });
 
 describe('isOptedOut', () => {

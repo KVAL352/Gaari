@@ -124,7 +124,7 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'konsertpaleet': 'Sentrum',
 	'kulturhuset': 'Sentrum',
 	'kulturhuset i bergen': 'Sentrum',
-	'mandelhuset': '',
+	'mandelhuset': 'Bergenhus',
 	'stene matglede': 'Bergenhus',
 	'bergen kunsthall': 'Sentrum',
 	'kode': 'Sentrum',

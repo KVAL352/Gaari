@@ -23,6 +23,9 @@ Run all morning checks in parallel, then present a single unified briefing.
 ### Last digest
 !`gh run list --workflow=daily-digest.yml --limit 1 --json conclusion,startedAt 2>/dev/null || echo "gh unavailable"`
 
+### Umami traffic (last 24h)
+!`set -a && source .env && set +a && node -e "async function r(){const h={'x-umami-api-key':process.env.UMAMI_API_KEY};const w='5f889214-285b-4412-8066-015a18f8ce65';const n=Date.now();const s=await(await fetch('https://api.umami.is/v1/websites/'+w+'/stats?startAt='+(n-86400000)+'&endAt='+n,{headers:h})).json();const a=await(await fetch('https://api.umami.is/v1/websites/'+w+'/active',{headers:h})).json();console.log(JSON.stringify({active:a.visitors,pageviews:s.pageviews,visitors:s.visitors,bounces:s.bounces}));}r().catch(()=>console.log('Umami unavailable'));" 2>/dev/null || echo "Umami unavailable"`
+
 ## Then do these in parallel
 
 1. **Check email** — use the `email` skill to check all Protonmail folders
@@ -45,6 +48,10 @@ Present everything as one compact briefing:
 ### Oppgaver
 - X forfalt
 - Y denne uken
+
+### Trafikk (siste 24t)
+- X besøkende, Y sidevisninger, Z aktive nå
+- Bounce rate: X%
 
 ### Kode
 - Branch: <current>

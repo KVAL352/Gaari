@@ -102,18 +102,27 @@ Bergen har kulturliv på hverdagskvelder, ikke bare i helgene. Konserter, stand-
 **[I dag i Bergen](https://gaari.no/no/i-dag)**
 Hva skjer i Bergen i dag? Dagens arrangementer samlet fra 54 lokale kilder.
 
-**[Gratis i Bergen denne uken](https://gaari.no/no/gratis)**
-Gratis arrangementer og aktiviteter i Bergen denne uken — utstillinger, konserter, bibliotekaktiviteter og mer.
+**[Gratis i Bergen](https://gaari.no/no/gratis)**
+Gratis arrangementer og aktiviteter i Bergen de neste to ukene — utstillinger, konserter, bibliotekaktiviteter og mer.
 Bergen har et rikt kulturtilbud som ikke koster noe: åpne utstillinger, biblioteksarrangementer, gratiskonserter og frivillige aktiviteter.
 
 **[Konserter i Bergen](https://gaari.no/no/konserter)**
-Konserter og livemusikk i Bergen denne uken — fra jazz og klassisk til pop og rock.
+Konserter og livemusikk i Bergen de neste to ukene — fra jazz og klassisk til pop og rock.
 
 **[Familiehelg i Bergen](https://gaari.no/no/familiehelg)**
 Hva kan familier gjøre i Bergen denne helgen? Barneforestillinger, museumsaktiviteter og familievennlige arrangementer.
 
 **[Studentkveld i Bergen](https://gaari.no/no/studentkveld)**
-Studentliv i Bergen i kveld — konserter, quiz, uteliv og arrangementer på studentbudsjettet.
+Studentliv i Bergen denne uken — konserter, quiz, uteliv og arrangementer på studentbudsjettet.
+
+**[Teater i Bergen](https://gaari.no/no/teater)**
+Alle teaterforestillinger i Bergen de neste to ukene — DNS, Det Vestnorske Teateret, BIT Teatergarasjen og Cornerteateret.
+
+**[Utstillinger i Bergen](https://gaari.no/no/utstillinger)**
+Utstillinger, museer og gallerier i Bergen de neste to ukene — KODE, Bergen Kunsthall, Bymuseet og mer.
+
+**[Mat og drikke i Bergen](https://gaari.no/no/mat-og-drikke)**
+Matopplevelser i Bergen de neste to ukene — matmarkeder, kokekurs, smakinger og kulinariske arrangementer.
 
 **[Regnværsguide Bergen](https://gaari.no/no/regndagsguide)**
 Ting å gjøre i Bergen når det regner — museer, konserter, teater og innendørsaktiviteter de neste to ukene.
@@ -199,7 +208,7 @@ Borealis — festival for eksperimentell musikk. Program fra borealisfestival.no
 ## Data sources (54 active)
 
 ### Performance venues
-Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, BIT Teatergarasjen, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater
+Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, Bergen Internasjonale Teater (BIT), Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater
 
 ### Arts, culture and literature
 KODE (Bergen art museums), Bergen Kunsthall, Litteraturhuset Bergen, Media City Bergen, BEK (Bergen Centre for Electronic Arts), Bergen Filmklubb

@@ -188,7 +188,7 @@ async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inse
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: imageUrl,
-			age_group: subdomain === 'kvarteret' ? 'students' : 'all',
+			age_group: (subdomain === 'kvarteret' || subdomain === 'hulen') ? 'students' : 'all',
 			language: event.name.match(/[a-zA-Z]{5,}/) ? 'both' : 'no',
 			status: 'approved',
 		});
