@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'ticketco';
@@ -93,6 +93,18 @@ async function fetchTicketCoPrice(eventUrl: string): Promise<string> {
 	return String(Math.min(...prices));
 }
 
+/**
+ * TicketCo JSON-LD marks dates with 'Z' (UTC) but they are actually local Norwegian time.
+ * Strip the Z, apply the correct Bergen offset, then convert to proper UTC ISO string.
+ */
+function fixTicketCoDate(dateStr: string): string {
+	const local = dateStr.replace('Z', '');
+	const datePart = local.slice(0, 10);
+	const timePart = local.slice(11);
+	const offset = bergenOffset(datePart);
+	return new Date(`${datePart}T${timePart}${offset}`).toISOString();
+}
+
 async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inserted: number }> {
 	// Paginate through all pages for this subdomain
 	const events: TCEvent[] = [];
@@ -166,8 +178,8 @@ async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inse
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
 			category,
-			date_start: new Date(event.startDate).toISOString(),
-			date_end: event.endDate ? new Date(event.endDate).toISOString() : undefined,
+			date_start: fixTicketCoDate(event.startDate),
+			date_end: event.endDate ? fixTicketCoDate(event.endDate) : undefined,
 			venue_name: venueName,
 			address: venueName,
 			bydel,

@@ -21,6 +21,7 @@ export interface ScraperHealthStatus {
 
 // Seasonal scrapers that legitimately return 0 outside their season
 const SEASONAL_SCRAPERS = new Set([
+	'borealis',
 	'festspillene',
 	'bergenfest',
 	'beyondthegates',
