@@ -20,7 +20,14 @@
 		onClearAll: () => void;
 	}
 
-	let { lang, eventCount, allEvents, onFilterChange, onClearAll }: Props = $props();
+	let { lang, eventCount, allEvents, onFilterChange: rawFilterChange, onClearAll }: Props = $props();
+
+	function onFilterChange(key: string, value: string) {
+		if (value && typeof window !== 'undefined' && window.umami) {
+			umami.track('filter-used', { type: key, value });
+		}
+		rawFilterChange(key, value);
+	}
 
 	// Read current filter state from URL
 	let when = $derived($page.url.searchParams.get('when') || '');

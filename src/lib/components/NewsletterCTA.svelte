@@ -150,6 +150,9 @@
 			});
 			const data = await res.json();
 			status = data.success ? 'success' : 'error';
+			if (data.success && typeof window !== 'undefined' && window.umami) {
+				umami.track('newsletter-signup', { location: id, categories: categoriesValue || '' });
+			}
 		} catch {
 			status = 'error';
 		}

@@ -75,6 +75,9 @@
 	let linkCopied = $state(false);
 
 	async function handleShare() {
+		if (typeof window !== 'undefined' && window.umami) {
+			umami.track('event-share', { slug: event.slug });
+		}
 		const url = canonicalUrl;
 		if (typeof navigator !== 'undefined' && navigator.share) {
 			try {

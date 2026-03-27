@@ -761,6 +761,9 @@
 						if (result.type === 'success') {
 							contactStatus = 'success';
 							trackEvent('for-arrangorer-form-submit');
+							if (typeof window !== 'undefined' && window.umami) {
+								umami.track('inquiry-submit', { source: 'for-arrangorer' });
+							}
 						} else {
 							contactStatus = 'error';
 						}

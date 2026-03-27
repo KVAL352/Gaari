@@ -71,6 +71,22 @@
 	);
 
 	let nextPageHref = $derived(`?page=${pageNum + 1}`);
+
+	// Scroll depth tracking
+	let scrollSentinel: HTMLDivElement | undefined = $state();
+	let scrollTracked = false;
+	$effect(() => {
+		if (!scrollSentinel || typeof window === 'undefined' || !window.umami) return;
+		const observer = new IntersectionObserver((entries) => {
+			if (entries[0].isIntersecting && !scrollTracked) {
+				scrollTracked = true;
+				umami.track('collection-scroll', { slug: data.collection.slug, depth: '100' });
+				observer.disconnect();
+			}
+		}, { threshold: 0.1 });
+		observer.observe(scrollSentinel);
+		return () => observer.disconnect();
+	});
 </script>
 
 <svelte:head>
@@ -201,6 +217,7 @@
 	/>
 </div>
 
+<div bind:this={scrollSentinel}></div>
 {#if editorial.length > 1 || faqItems.length > 0 || relatedCollections.length > 0}
 <section class="mx-auto max-w-7xl px-4 pb-16 pt-8 border-t border-[var(--color-border)]">
 	<div class="max-w-2xl">
