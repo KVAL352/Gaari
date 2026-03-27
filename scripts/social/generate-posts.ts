@@ -65,6 +65,24 @@ const SCHEDULES: CollectionSchedule[] = [
 		days: [4], // Thursday
 		postTime: '10:00',
 		hashtags: ['#bergen', '#bergennorway', '#thisweekend', '#weekendinbergen', '#bergenevents', '#whattodoinbergen', '#norway', '#bergenweekend', '#vestland']
+	},
+	{
+		slug: 'teater',
+		days: [2], // Tuesday
+		postTime: '11:00',
+		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#bergenteater', '#teater', '#forestilling', '#dns', '#scenekunst', '#hvaskjeribergen']
+	},
+	{
+		slug: 'utstillinger',
+		days: [3], // Wednesday
+		postTime: '11:00',
+		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#bergenkunst', '#utstilling', '#kode', '#bergenkunsthall', '#samtidskunst', '#hvaskjeribergen']
+	},
+	{
+		slug: 'mat-og-drikke',
+		days: [5], // Friday
+		postTime: '11:00',
+		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#bergenmat', '#matibergen', '#bergenfood', '#kokekurs', '#matopplevelse', '#hvaskjeribergen']
 	}
 ];
 

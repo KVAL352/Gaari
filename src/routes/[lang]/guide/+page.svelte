@@ -289,6 +289,14 @@
 			a: 'Bergen har barneforestillinger, museumsaktiviteter, Akvariet og familievennlige arrangementer hver uke. Se <a href="/no/familiehelg" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">familiehelg-siden</a> for kommende aktiviteter tilpasset familier.'
 		},
 		{
+			q: 'Hvor finner jeg teater i Bergen?',
+			a: 'Bergen har Den Nationale Scene, Det Vestnorske Teateret, BIT Teatergarasjen og Cornerteateret. Se <a href="/no/teater" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">teater i Bergen</a> for alle forestillinger de neste to ukene.'
+		},
+		{
+			q: 'Hvilke utstillinger er det i Bergen?',
+			a: 'KODE er Norges største kunstmuseum med fire bygg i sentrum. Bergen Kunsthall viser samtidskunst. Se <a href="/no/utstillinger" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">utstillinger i Bergen</a> for en oppdatert oversikt.'
+		},
+		{
 			q: 'Hvor ofte oppdateres Gåri?',
 			a: 'Gåri oppdateres daglig klokken 06:00 med data fra 54 uavhengige kilder i Bergen. Arrangementsinformasjon hentes automatisk fra konsertscener, teatre, museer, biblioteker, festivaler og billettplattformer.'
 		}
@@ -317,6 +325,14 @@
 		{
 			q: 'What can families do in Bergen?',
 			a: 'Bergen has children\'s shows, museum activities, the Aquarium and family-friendly events every week. See the <a href="/en/familiehelg" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">family weekend page</a> for upcoming activities suited for families.'
+		},
+		{
+			q: 'Where can I see theatre in Bergen?',
+			a: 'Bergen has Den Nationale Scene, Det Vestnorske Teateret, BIT Teatergarasjen and Cornerteateret. See <a href="/en/teater" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">theatre in Bergen</a> for all performances over the next two weeks.'
+		},
+		{
+			q: 'What exhibitions are on in Bergen?',
+			a: 'KODE is Norway\'s largest art museum with four buildings in the city centre. Bergen Kunsthall shows contemporary art. See <a href="/en/utstillinger" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">exhibitions in Bergen</a> for an updated listing.'
 		},
 		{
 			q: 'How often is Gåri updated?',

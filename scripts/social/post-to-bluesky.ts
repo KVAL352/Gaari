@@ -78,6 +78,24 @@ const TEMPLATES: Record<string, { no?: (events: string[], count: number, url: st
 			const picks = events.slice(0, 3).join(', ');
 			return `Konserter i Bergen: ${picks}. ${count} konserter totalt.\n\nSjekk alle på ${url}`;
 		}
+	},
+	'teater': {
+		no: (events, count, url) => {
+			const picks = events.slice(0, 3).join(', ');
+			return `Teater i Bergen: ${picks}. ${count} forestillinger de neste to ukene.\n\nSe alle på ${url}`;
+		}
+	},
+	'utstillinger': {
+		no: (events, count, url) => {
+			const picks = events.slice(0, 3).join(', ');
+			return `Utstillinger i Bergen: ${picks}. ${count} kulturarrangementer de neste to ukene.\n\nSe alle på ${url}`;
+		}
+	},
+	'mat-og-drikke': {
+		no: (events, count, url) => {
+			const picks = events.slice(0, 3).join(', ');
+			return `Mat i Bergen: ${picks}. ${count} matopplevelser de neste to ukene.\n\nSe alle på ${url}`;
+		}
 	}
 };
 

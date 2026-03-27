@@ -16,7 +16,10 @@
 		'familiehelg': 'Familiehelg i Bergen',
 		'konserter': 'Konserter i Bergen',
 		'studentkveld': 'Studentkveld i Bergen',
-		'this-weekend': 'This Weekend in Bergen'
+		'this-weekend': 'This Weekend in Bergen',
+		'teater': 'Teater i Bergen',
+		'utstillinger': 'Utstillinger i Bergen',
+		'mat-og-drikke': 'Mat og drikke i Bergen'
 	};
 
 	function formatDate(dateStr: string): string {
