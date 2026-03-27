@@ -68,7 +68,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | Forum Scene | `forumscene.ts` | HTML |
 | Cornerteateret | `cornerteateret.ts` | HTML |
 | Det Vestnorske Teateret | `dvrtvest.ts` | HTML |
-| BIT Teatergarasjen | `bitteater.ts` | HTML |
+| Bergen Internasjonale Teater (BIT) | `bitteater.ts` | HTML |
 | Carte Blanche | `carteblanche.ts` | HTML |
 | Bergen Filharmoniske | `harmonien.ts` | HTML |
 | Fyllingsdalen Teater | `fyllingsdalenteater.ts` | HTML (EasyTicket select dropdown) |
