@@ -1554,8 +1554,8 @@ const collections: Collection[] = [
 			en: 'Easter in Bergen'
 		},
 		description: {
-			no: 'Påskeaktiviteter i Bergen: konserter, utstillinger, familieaktiviteter og arrangementer i påskeuken. Oppdatert fra 54 kilder.',
-			en: 'Easter events in Bergen: concerts, exhibitions, family activities and events during Easter week. Updated from 54 local sources.'
+			no: 'Påske i Bergen 2026: konserter, gudstjenester, familieaktiviteter og utstillinger. Komplett oversikt, oppdatert daglig.',
+			en: 'Easter in Bergen 2026: concerts, services, family activities and exhibitions. Complete guide, updated daily.'
 		},
 		ogSubtitle: {
 			no: 'Konserter, aktiviteter og påskeferie',
@@ -1963,8 +1963,8 @@ const collections: Collection[] = [
 			en: 'Easter in Bergen'
 		},
 		description: {
-			no: 'Påskeaktiviteter i Bergen: konserter, utstillinger og familieaktiviteter.',
-			en: 'Easter events in Bergen: concerts, exhibitions, family activities and things to do during Holy Week. Visitor guide.'
+			no: 'Påske i Bergen 2026: konserter, gudstjenester, familieaktiviteter og utstillinger. Komplett oversikt, oppdatert daglig.',
+			en: 'Easter in Bergen 2026: concerts, services, family activities and exhibitions. Complete guide, updated daily.'
 		},
 		ogSubtitle: {
 			no: 'Konserter og påskeaktiviteter',
