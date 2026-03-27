@@ -210,7 +210,7 @@
 			suggestions.push({ slug: 'i-kveld', label: { no: 'I kveld', en: 'Tonight' } });
 		}
 		suggestions.push(
-			{ slug: 'gratis', label: { no: 'Gratis denne uken', en: 'Free this week' } },
+			{ slug: 'gratis', label: { no: 'Gratis i Bergen', en: 'Free events' } },
 			{ slug: 'konserter', label: { no: 'Konserter', en: 'Concerts' } },
 			{ slug: 'familiehelg', label: { no: 'For familier', en: 'For families' } },
 		);

@@ -70,13 +70,13 @@ const TEMPLATES: Record<string, { no?: (events: string[], count: number, url: st
 	'gratis': {
 		no: (events, count, url) => {
 			const picks = events.slice(0, 3).join(', ');
-			return `Gratis i Bergen denne uken: ${picks}. Vi fant ${count} gratisarrangementer.\n\nSe alle på ${url}`;
+			return `Gratis i Bergen: ${picks}. Vi fant ${count} gratisarrangementer.\n\nSe alle på ${url}`;
 		}
 	},
 	'konserter': {
 		no: (events, count, url) => {
 			const picks = events.slice(0, 3).join(', ');
-			return `Konserter i Bergen denne uken: ${picks}. ${count} konserter totalt.\n\nSjekk alle på ${url}`;
+			return `Konserter i Bergen: ${picks}. ${count} konserter totalt.\n\nSjekk alle på ${url}`;
 		}
 	}
 };

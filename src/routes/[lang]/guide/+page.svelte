@@ -304,7 +304,7 @@
 		},
 		{
 			q: 'Where can I find concerts in Bergen?',
-			a: 'Gåri lists concerts from over 15 venues in Bergen, including Grieghallen, USF Verftet, Ole Bull and Forum Scene. See <a href="/en/konserter" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">concerts in Bergen</a> for this week\'s programme, or <a href="/en/this-weekend" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">this weekend</a> for weekend events.'
+			a: 'Gåri lists concerts from over 15 venues in Bergen, including Grieghallen, USF Verftet, Ole Bull and Forum Scene. See <a href="/en/konserter" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">concerts in Bergen</a> for the full programme, or <a href="/en/this-weekend" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">this weekend</a> for weekend events.'
 		},
 		{
 			q: 'What happens in Bergen at Easter?',
@@ -395,8 +395,8 @@
 				</p>
 				<p>
 					{$lang === 'no'
-						? 'Utforsk samlinger nedenfor for å finne det som passer deg — enten du leter etter gratisarrangementer, familiehelg, konserter denne uken eller noe å gjøre en regnværsdag. Sesongbaserte samlinger som jul i Bergen, 17. mai og påske fylles automatisk med aktuelle arrangementer når sesongen nærmer seg.'
-						: 'Browse the collections below to find what suits you — whether you\'re looking for free events, a family weekend, concerts this week or something to do on a rainy day. Seasonal collections like Christmas in Bergen, Constitution Day and Easter are automatically filled with relevant events as the season approaches.'}
+						? 'Utforsk samlinger nedenfor for å finne det som passer deg — enten du leter etter gratisarrangementer, familiehelg, konserter, teater, utstillinger eller noe å gjøre en regnværsdag. Sesongbaserte samlinger som jul i Bergen, 17. mai og påske fylles automatisk med aktuelle arrangementer når sesongen nærmer seg.'
+						: 'Browse the collections below to find what suits you — whether you\'re looking for free events, a family weekend, concerts, theatre, exhibitions or something to do on a rainy day. Seasonal collections like Christmas in Bergen, Constitution Day and Easter are automatically filled with relevant events as the season approaches.'}
 				</p>
 			</div>
 		</div>

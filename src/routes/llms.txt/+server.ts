@@ -24,7 +24,10 @@ const QUESTIONS = `## Questions Gåri answers
 - What's happening in Bergen this weekend?
 - What's on in Bergen tonight / today?
 - Free things to do in Bergen
-- Bergen concerts this week
+- Bergen concerts
+- Theatre in Bergen
+- Exhibitions in Bergen
+- Food events in Bergen
 - Family events in Bergen
 - Things to do in Bergen when it rains
 - Events in Bergen city centre
@@ -52,10 +55,13 @@ const PAGES = `## Key pages
 - [Hva skjer i Bergen i kveld](https://gaari.no/no/i-kveld) — tonight's events
 - [Denne helgen i Bergen](https://gaari.no/no/denne-helgen) — this weekend's events
 - [I dag i Bergen](https://gaari.no/no/i-dag) — today's events
-- [Gratis i Bergen denne uken](https://gaari.no/no/gratis) — free events this week
-- [Konserter i Bergen](https://gaari.no/no/konserter) — concerts and live music this week
+- [Gratis i Bergen](https://gaari.no/no/gratis) — free events next two weeks
+- [Konserter i Bergen](https://gaari.no/no/konserter) — concerts and live music next two weeks
+- [Teater i Bergen](https://gaari.no/no/teater) — theatre performances next two weeks
+- [Utstillinger i Bergen](https://gaari.no/no/utstillinger) — exhibitions and culture next two weeks
+- [Mat og drikke i Bergen](https://gaari.no/no/mat-og-drikke) — food events next two weeks
 - [Familiehelg i Bergen](https://gaari.no/no/familiehelg) — family events this weekend
-- [Studentkveld i Bergen](https://gaari.no/no/studentkveld) — student events tonight
+- [Studentkveld i Bergen](https://gaari.no/no/studentkveld) — student events this week
 - [Regnværsguide Bergen](https://gaari.no/no/regndagsguide) — indoor activities (rainy day)
 - [Bergen sentrum](https://gaari.no/no/sentrum) — city centre events
 - [For voksne](https://gaari.no/no/voksen) — culture and experiences for adults

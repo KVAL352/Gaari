@@ -11,10 +11,10 @@
 	const collectionNames: Record<string, string> = {
 		'denne-helgen': 'Denne helgen i Bergen',
 		'i-kveld': 'I kveld i Bergen',
-		'gratis': 'Gratis i Bergen denne uken',
+		'gratis': 'Gratis i Bergen',
 		'today-in-bergen': 'Today in Bergen',
 		'familiehelg': 'Familiehelg i Bergen',
-		'konserter': 'Konserter i Bergen denne uken',
+		'konserter': 'Konserter i Bergen',
 		'studentkveld': 'Studentkveld i Bergen',
 		'this-weekend': 'This Weekend in Bergen'
 	};
