@@ -15,14 +15,9 @@
     "description": "Epost sendt 20. mars til publishers@perplexity.ai med forespørsel om å bli inkludert som Bergen-kilde. Sjekk innboks for svar."
   },
   {
-    "date": "2026-03-27",
-    "title": "Verifiser Umami newsletter-tracking",
-    "description": "Nyhetsbrevet 26. mars er første utsending med utm_content og gruppebasert utm_campaign. Sjekk i Umami: 1) 'newsletter-click' event viser data. 2) utm_content-verdier (event-{slug}, cta-all-events, manage-prefs) dukker opp under UTM → Content. 3) utm_campaign viser gruppenavn."
-  },
-  {
-    "date": "2026-03-27",
-    "title": "Analyse: Mobil bounce rate etter SEO-tiltak",
-    "description": "Sjekk Umami-data for 14.-27. mars: 1) Bounce rate — har den gått ned fra 60%? 2) CTR-forbedring på event-sider etter description-first meta tag 3) Sammenlign Google-trafikk uke-over-uke. Endringer deployert 20. mars: mobil tagline, description-first meta desc, homepage 'Hva skjer i Bergen?', konserter FAQ, hreflang-fix."
+    "date": "2026-04-05",
+    "title": "Umami-analyse: første uke med full data",
+    "description": "Proxy-fix deployet ~26. mars. Nå har vi 7+ dager med ren data. Sjekk: 1) Daglig besøkstall — sammenlign med Plausible-baseline (~30/dag). 2) UTM-tracking — fungerer newsletter utm_source/utm_campaign/utm_content? 3) QR-klistremerke-trafikk (utm_source=sticker). 4) Bounce rate og snitt-tid. 5) Custom events: newsletter-click, ai-referral, promoted-click — dukker de opp? 6) Mobil vs desktop-fordeling."
   },
   {
     "date": "2026-03-27",
