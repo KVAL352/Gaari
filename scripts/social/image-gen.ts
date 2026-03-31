@@ -659,7 +659,42 @@ function eventSlideFallback(
 
 // ── Last slide: CTA ──
 
-function ctaSlideMarkup(collectionUrl: string, eventCount: number) {
+function ctaSlideMarkup(collectionUrl: string, eventCount: number, images: string[]) {
+	const gridImages = images.slice(0, 4);
+	const halfSize = Math.floor(WIDTH / 2);
+
+	const imageChildren = gridImages.map((src, i) => ({
+		type: 'img',
+		props: {
+			src,
+			style: {
+				position: 'absolute' as const,
+				left: `${(i % 2) * halfSize}px`,
+				top: `${Math.floor(i / 2) * halfSize}px`,
+				width: `${halfSize}px`,
+				height: `${halfSize}px`,
+				objectFit: 'cover' as const
+			}
+		}
+	}));
+
+	while (imageChildren.length < 4) {
+		const i = imageChildren.length;
+		imageChildren.push({
+			type: 'div' as any,
+			props: {
+				style: {
+					position: 'absolute' as const,
+					left: `${(i % 2) * halfSize}px`,
+					top: `${Math.floor(i / 2) * halfSize}px`,
+					width: `${halfSize}px`,
+					height: `${halfSize}px`,
+					backgroundColor: '#1C1C1E'
+				}
+			} as any
+		});
+	}
+
 	return {
 		type: 'div',
 		props: {
@@ -668,7 +703,8 @@ function ctaSlideMarkup(collectionUrl: string, eventCount: number) {
 				width: '100%',
 				height: '100%',
 				backgroundColor: FUNKIS_RED,
-				padding: `${FRAME}px`
+				padding: `${FRAME}px`,
+				position: 'relative'
 			},
 			children: [
 				{
@@ -676,72 +712,105 @@ function ctaSlideMarkup(collectionUrl: string, eventCount: number) {
 					props: {
 						style: {
 							display: 'flex',
-							flexDirection: 'column',
-							justifyContent: 'center',
-							alignItems: 'center',
 							width: '100%',
 							height: '100%',
-							backgroundColor: WHITE,
-							borderRadius: '8px',
-							padding: '64px 64px 80px 64px',
-							gap: '28px'
+							backgroundColor: '#1C1C1E',
+							position: 'relative',
+							overflow: 'hidden',
+							borderRadius: '8px'
 						},
 						children: [
-							// Gåri branding
+							...imageChildren,
+							// Heavy dimming
 							{
 								type: 'div',
 								props: {
 									style: {
-										display: 'flex',
-										fontSize: '96px',
-										fontFamily: 'Barlow Condensed',
-										color: FUNKIS_RED,
-										letterSpacing: '-0.02em',
-										lineHeight: 1
-									},
-									children: 'Gåri.no'
+										position: 'absolute',
+										top: 0,
+										left: 0,
+										right: 0,
+										bottom: 0,
+										backgroundColor: 'rgba(0,0,0,0.72)'
+									}
 								}
 							},
-							// Tagline
+							// Content
 							{
 								type: 'div',
 								props: {
 									style: {
+										position: 'absolute',
+										top: 0,
+										left: 0,
+										right: 0,
+										bottom: 0,
 										display: 'flex',
-										fontSize: '28px',
-										fontFamily: 'Inter',
-										color: TEXT_MUTED,
-										lineHeight: 1.4
+										flexDirection: 'column',
+										justifyContent: 'center',
+										alignItems: 'center',
+										padding: '64px',
+										gap: '24px'
 									},
-									children: 'Alt som skjer i Bergen på ett sted'
-								}
-							},
-							// CTA text
-							{
-								type: 'div',
-								props: {
-									style: {
-										display: 'flex',
-										fontSize: '32px',
-										fontFamily: 'Inter',
-										color: TEXT_PRIMARY,
-										marginTop: '20px'
-									},
-									children: `Se alle ${eventCount} arrangementer`
-								}
-							},
-							// Share CTA
-							{
-								type: 'div',
-								props: {
-									style: {
-										display: 'flex',
-										fontSize: '26px',
-										fontFamily: 'Inter',
-										color: TEXT_MUTED,
-										marginTop: '28px'
-									},
-									children: 'Send til noen som trenger helgeplaner!'
+									children: [
+										// Gåri branding
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '96px',
+													fontFamily: 'Barlow Condensed',
+													color: FUNKIS_RED,
+													letterSpacing: '-0.02em',
+													lineHeight: 1
+												},
+												children: 'G\u00e5ri.no'
+											}
+										},
+										// Tagline
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '32px',
+													fontFamily: 'Inter',
+													color: WHITE,
+													lineHeight: 1.4
+												},
+												children: 'Alt som skjer i Bergen p\u00e5 ett sted'
+											}
+										},
+										// CTA text
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '36px',
+													fontFamily: 'Inter',
+													color: WHITE,
+													marginTop: '20px'
+												},
+												children: `Se alle ${eventCount} arrangementer`
+											}
+										},
+										// Share CTA
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '28px',
+													fontFamily: 'Inter',
+													color: 'rgba(255,255,255,0.85)',
+													marginTop: '28px'
+												},
+												children: 'Send til noen som trenger helgeplaner!'
+											}
+										}
+									]
 								}
 							}
 						]
@@ -827,7 +896,9 @@ export async function generateCarousel(
 	}
 
 	// Last slide: CTA
-	slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount)));
+	// Use same images as hook for visual consistency
+	const ctaImages = indexed.filter(x => x.image).map(x => x.image as string).slice(0, 4);
+	slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount, ctaImages)));
 
 	return slides;
 }
