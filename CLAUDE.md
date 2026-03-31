@@ -182,6 +182,7 @@ The homepage uses a discovery filter (`EventDiscovery.svelte`) instead of tradit
 - **Category filter** supports comma-separated multi-select (`?category=music,culture`)
 - **Time-of-day filter uses Oslo timezone**: `matchesTimeOfDay()` in `$lib/event-filters.ts` converts UTC timestamps to Oslo local hours via `toLocaleString('sv-SE', { timeZone: 'Europe/Oslo' })` before comparing against time ranges. Handles CET/CEST automatically.
 - **Event filter helpers**: Date/time filter functions (`getOsloNow`, `toOsloDateStr`, `isSameDay`, `getWeekendDates`, `matchesTimeOfDay`) are extracted to `src/lib/event-filters.ts` for testability.
+- **Dismiss/hide events**: Users can hide single events, all from a venue, or an entire category via X button on EventCard (visible on hover). State in `$lib/hidden-events.svelte.ts`, persisted to `localStorage` (`gaari-hidden` key). Venues/categories expire after 7 days; single events persist until they pass. Applied after hydration (`$effect` flag) to prevent SSR mismatch. "Skjuler: X, Y" banner + reset button shown when active. Homepage only (not collection pages).
 
 ## Price disclaimer policy
 
@@ -230,8 +231,8 @@ The homepage uses a discovery filter (`EventDiscovery.svelte`) instead of tradit
 - `Footer.svelte` — Footer with dynamic collection links (via `getFooterCollections()`), static links (about, datainnsamling, personvern, tilgjengelighet, submit, contact) + inline NewsletterCTA. For-arrangorer link temporarily removed while page is under construction.
 - `NewsletterCTA.svelte` — Newsletter subscribe form (card + inline variants). Props: `id` (unique suffix), `variant`, optional `heading`/`subtext` overrides, optional `contextCategory` (pre-selects category pill from event/collection context). Preference pills for categories below email field. Client-side fetch to `/api/newsletter`, success/error states. Placed in footer (inline), about page, collection pages (contextual headings), event detail pages (card).
 - `HeroSection.svelte` — Compact hero with tagline. Mobile: single-line subtitle. Desktop: full display tagline + subtitle.
-- `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer. Accepts `promoted` prop — renders "Fremhevet"/"Featured" badge (markedsføringsloven § 3).
-- `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates). Accepts `promotedEventIds` prop, passes `promoted` flag to each EventCard.
+- `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer. Accepts `promoted` prop — renders "Fremhevet"/"Featured" badge (markedsføringsloven § 3). Dismiss menu (X button, top-right on hover): hide single event, all from venue, or entire category.
+- `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates). Accepts `promotedEventIds` prop, passes `promoted` flag to each EventCard. Passes dismiss callbacks (`onHideEvent`/`onHideVenue`/`onHideCategory`) to EventCard.
 - `EventDiscovery.svelte` — Filter panel (Who always visible, When/What/Where behind toggles). Mobile: audience pills collapsed to 3, filter toggles behind "Flere filtre" button, result counter hidden until filters active
 - `FilterPill.svelte` — Reusable pill/chip button (aria-pressed, 44px touch targets, Funkis styling)
 - `MiniCalendar.svelte` — Inline month-grid date picker (single date + range selection, bilingual). Proper ARIA grid structure: `role="grid"` > `role="row"` > `role="gridcell"` with chunked weeks.
