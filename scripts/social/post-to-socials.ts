@@ -133,38 +133,41 @@ async function pollMediaStatus(containerId: string, maxAttempts = 20): Promise<v
 
 // ── Facebook Graph API (direct, no Postiz) ──
 
-async function postToFacebook(message: string): Promise<string | null> {
+async function postToFacebookAlbum(imageUrls: string[], message: string): Promise<string | null> {
 	if (!META_TOKEN || !FB_PAGE_ID) {
 		console.log('  [skip] Facebook: META_ACCESS_TOKEN or FB_PAGE_ID not set');
 		return null;
 	}
 
-	const params = new URLSearchParams({
-		message,
-		access_token: META_TOKEN
-	});
-
-	const res = await fetch(`${GRAPH_API}/${FB_PAGE_ID}/feed`, { method: 'POST', body: params });
-	const data = await res.json();
-	if (data.error) throw new Error(`FB post: ${data.error.message}`);
-	return data.id;
-}
-
-async function postToFacebookWithLink(message: string, link: string): Promise<string | null> {
-	if (!META_TOKEN || !FB_PAGE_ID) {
-		console.log('  [skip] Facebook: META_ACCESS_TOKEN or FB_PAGE_ID not set');
+	if (imageUrls.length === 0) {
+		console.log('  [skip] Facebook: no images');
 		return null;
 	}
 
-	const params = new URLSearchParams({
-		message,
-		link,
-		access_token: META_TOKEN
-	});
+	// Upload photos as unpublished, then attach to a feed post
+	const photoIds: string[] = [];
+	for (const url of imageUrls) {
+		const params = new URLSearchParams({
+			url,
+			published: 'false',
+			access_token: META_TOKEN
+		});
+		const res = await fetch(`${GRAPH_API}/${FB_PAGE_ID}/photos`, { method: 'POST', body: params });
+		const data = await res.json() as any;
+		if (data.error) throw new Error(`FB photo upload: ${data.error.message}`);
+		photoIds.push(data.id);
+		await delay(500);
+	}
+
+	// Create feed post with attached photos (multi-photo post)
+	const params = new URLSearchParams({ message, access_token: META_TOKEN });
+	for (let i = 0; i < photoIds.length; i++) {
+		params.append(`attached_media[${i}]`, JSON.stringify({ media_fbid: photoIds[i] }));
+	}
 
 	const res = await fetch(`${GRAPH_API}/${FB_PAGE_ID}/feed`, { method: 'POST', body: params });
-	const data = await res.json();
-	if (data.error) throw new Error(`FB link post: ${data.error.message}`);
+	const data = await res.json() as any;
+	if (data.error) throw new Error(`FB album post: ${data.error.message}`);
 	return data.id;
 }
 
@@ -245,16 +248,16 @@ async function main() {
 			if (!dryRun) await delay(2000);
 		}
 
-		// ── Facebook ──
+		// ── Facebook (album with images) ──
 		if (FACEBOOK_SLUGS.has(slug) && !post.facebook_id) {
-			console.log(`--- ${slug} → Facebook ---`);
+			console.log(`--- ${slug} → Facebook (${imageUrls.length} images) ---`);
 			try {
-				const { message, link } = buildFacebookPost(post.caption, slug, post.event_count);
+				const { message } = buildFacebookPost(post.caption, slug, post.event_count);
 				if (dryRun) {
-					console.log(`  [DRY RUN] Would post:\n  ${message.split('\n').join('\n  ')}\n  Link: ${link}\n`);
+					console.log(`  [DRY RUN] Would post album with ${imageUrls.length} images\n`);
 					fbPosted++;
 				} else {
-					const fbId = await postToFacebookWithLink(message, link);
+					const fbId = await postToFacebookAlbum(imageUrls, message);
 					if (fbId) {
 						console.log(`  Posted: ${fbId}`);
 						await supabase
