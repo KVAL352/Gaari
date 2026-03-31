@@ -308,7 +308,8 @@ async function main() {
 				dateRange,
 				carouselEvents,
 				collectionUrl,
-				filtered.length
+				filtered.length,
+				{ lang }
 			);
 
 			// Build final hashtag list: base tags + category-specific, capped at 15, deduplicated

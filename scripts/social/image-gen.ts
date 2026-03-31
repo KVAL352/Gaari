@@ -112,7 +112,7 @@ function truncate(text: string, maxLen: number): string {
 
 // ── Slide 1: Hook (montage with dimmed event images) ──
 
-function hookSlideMarkup(title: string, eventCount: number, images: string[]) {
+function hookSlideMarkup(title: string, eventCount: number, images: string[], lang: 'no' | 'en' = 'no') {
 	// Use up to 4 images in a 2x2 grid
 	const gridImages = images.slice(0, 4);
 	const halfSize = Math.floor(WIDTH / 2);
@@ -237,7 +237,7 @@ function hookSlideMarkup(title: string, eventCount: number, images: string[]) {
 													color: WHITE,
 													lineHeight: 1.3
 												},
-												children: `${eventCount} arrangementer`
+												children: lang === 'en' ? `${eventCount} events` : `${eventCount} arrangementer`
 											}
 										},
 										// Swipe CTA
@@ -251,7 +251,7 @@ function hookSlideMarkup(title: string, eventCount: number, images: string[]) {
 													color: 'rgba(255,255,255,0.85)',
 													marginTop: '24px'
 												},
-												children: 'Swipe for \u00e5 utforske \u2192'
+												children: lang === 'en' ? 'Swipe to explore \u2192' : 'Swipe for \u00e5 utforske \u2192'
 											}
 										},
 										// Gåri branding
@@ -659,7 +659,7 @@ function eventSlideFallback(
 
 // ── Last slide: CTA ──
 
-function ctaSlideMarkup(collectionUrl: string, eventCount: number, images: string[]) {
+function ctaSlideMarkup(collectionUrl: string, eventCount: number, images: string[], lang: 'no' | 'en' = 'no') {
 	const gridImages = images.slice(0, 4);
 	const halfSize = Math.floor(WIDTH / 2);
 
@@ -793,7 +793,7 @@ function ctaSlideMarkup(collectionUrl: string, eventCount: number, images: strin
 													color: WHITE,
 													marginTop: '20px'
 												},
-												children: `Se alle ${eventCount} arrangementer`
+												children: lang === 'en' ? `See all ${eventCount} events` : `Se alle ${eventCount} arrangementer`
 											}
 										},
 										// Share CTA
@@ -807,7 +807,7 @@ function ctaSlideMarkup(collectionUrl: string, eventCount: number, images: strin
 													color: 'rgba(255,255,255,0.85)',
 													marginTop: '28px'
 												},
-												children: 'Send til noen som trenger helgeplaner!'
+												children: lang === 'en' ? 'Share with someone who needs plans!' : 'Send til noen som trenger helgeplaner!'
 											}
 										}
 									]
@@ -835,6 +835,8 @@ export interface CarouselEvent {
 export interface CarouselOptions {
 	/** If true, skip events whose image fails to render instead of using fallback */
 	imagesOnly?: boolean;
+	/** Language for hook/CTA slide text */
+	lang?: 'no' | 'en';
 }
 
 export async function generateCarousel(
@@ -866,7 +868,7 @@ export async function generateCarousel(
 	// Slide 1: Montage hook with dimmed event images
 	const hookImages = indexed.filter(x => x.image).map(x => x.image as string).slice(0, 4);
 	if (hookImages.length > 0) {
-		slides.push(await renderSlide(hookSlideMarkup(collectionTitle, totalEventCount, hookImages)));
+		slides.push(await renderSlide(hookSlideMarkup(collectionTitle, totalEventCount, hookImages, options?.lang ?? 'no')));
 	}
 
 	// Event slides
@@ -898,7 +900,7 @@ export async function generateCarousel(
 	// Last slide: CTA
 	// Use same images as hook for visual consistency
 	const ctaImages = indexed.filter(x => x.image).map(x => x.image as string).slice(0, 4);
-	slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount, ctaImages)));
+	slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount, ctaImages, options?.lang ?? 'no')));
 
 	return slides;
 }
