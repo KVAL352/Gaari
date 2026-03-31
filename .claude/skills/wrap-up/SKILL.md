@@ -43,7 +43,7 @@ Check if today's work introduced changes that should be reflected in CLAUDE.md. 
 - **New env vars or secrets** → update relevant sections
 - **New skills** added → mention in `new-skill` reference table if relevant
 
-If nothing changed, report PASS. If updates are needed, make them (or list what needs updating and ask user).
+If nothing changed, report PASS. If updates are needed, make them directly.
 
 ### 3. Verify skill test count
 
@@ -61,12 +61,9 @@ Read current MEMORY.md first — avoid duplicates. Only add genuinely useful, st
 
 If nothing to add, report PASS.
 
-### 5. Quick verification (optional)
+### 5. Quick verification
 
-If code was changed during the session, ask the user:
-> "Want me to run `/verify` (lint → type check → tests → build) before wrapping up?"
-
-Only run if user says yes. Don't run automatically — it takes time and the user may have already verified.
+If code was changed during the session, run type check and tests automatically (`svelte-check --threshold error` + `npm test`).
 
 ### 6. Session summary
 
@@ -90,7 +87,6 @@ Write a brief summary:
 
 ## Important
 
-- **Don't auto-commit** — always ask the user first
-- **Don't auto-edit CLAUDE.md** — show proposed changes and confirm
+- **Auto-execute all steps** — commit session changes, update CLAUDE.md, save memory patterns, and push without asking. Only pause if something is unclear or risky (e.g., unrecognized untracked files).
 - **Keep memory updates minimal** — only save patterns confirmed across the session, not speculative notes
 - **Be honest about open items** — flag anything that was started but not finished
