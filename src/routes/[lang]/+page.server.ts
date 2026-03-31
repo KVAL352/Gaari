@@ -24,10 +24,21 @@ export const load: PageServerLoad = async ({ setHeaders, url, params }) => {
 
 		if (data && data.length > 0) {
 			// Map price from string back to number where possible
-			const events: GaariEvent[] = data.map(e => ({
+			const mapped: GaariEvent[] = data.map(e => ({
 				...e,
 				price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
 			}));
+
+			// Cap Akvariet events to avoid flooding the homepage during holidays
+			const AKVARIET_MAX = 5;
+			let akvarietCount = 0;
+			const events = mapped.filter(e => {
+				if (e.venue_name === 'Akvariet i Bergen') {
+					if (++akvarietCount > AKVARIET_MAX) return false;
+				}
+				return true;
+			});
+
 			const { canonical, noindex } = computeCanonical(url, lang, countFiltered(events, url));
 			return { events, source: 'supabase' as const, canonical, noindex };
 		}
