@@ -63,7 +63,7 @@ function persist(s: HiddenState) {
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
 }
 
-let state = $state(loadState());
+const state = $state(loadState());
 
 export function isHidden(id: string, venue: string, category: string): boolean {
 	return (
