@@ -741,12 +741,18 @@ export interface CarouselEvent {
 	isFree?: boolean;
 }
 
+export interface CarouselOptions {
+	/** If true, skip events whose image fails to render instead of using fallback */
+	imagesOnly?: boolean;
+}
+
 export async function generateCarousel(
 	collectionTitle: string,
 	dateRange: string,
 	events: CarouselEvent[],
 	collectionUrl: string,
-	totalEventCount: number
+	totalEventCount: number,
+	options?: CarouselOptions
 ): Promise<Buffer[]> {
 	const slides: Buffer[] = [];
 
@@ -776,14 +782,20 @@ export async function generateCarousel(
 			if (image) {
 				const markup = eventSlideWithImage(event.title, event.venue, event.time, event.category, image, label, event.isFree);
 				slides.push(await renderSlide(markup));
-			} else {
+			} else if (!options?.imagesOnly) {
 				const markup = eventSlideFallback(event.title, event.venue, event.time, event.category, event.isFree);
 				slides.push(await renderSlide(markup));
+			} else {
+				console.log(`  [skip] "${event.title}" — no image (imagesOnly mode)`);
 			}
 		} catch (err: any) {
-			console.log(`  [warn] Slide for "${event.title}" with image failed (${err.message}), retrying without image`);
-			const markup = eventSlideFallback(event.title, event.venue, event.time, event.category, event.isFree);
-			slides.push(await renderSlide(markup));
+			if (!options?.imagesOnly) {
+				console.log(`  [warn] Slide for "${event.title}" with image failed (${err.message}), retrying without image`);
+				const markup = eventSlideFallback(event.title, event.venue, event.time, event.category, event.isFree);
+				slides.push(await renderSlide(markup));
+			} else {
+				console.log(`  [skip] "${event.title}" — image render failed (imagesOnly mode)`);
+			}
 		}
 	}
 

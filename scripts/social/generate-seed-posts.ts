@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
-import { generateCarousel, type CarouselEvent } from './image-gen.js';
+import { generateCarousel, type CarouselEvent, type CarouselOptions } from './image-gen.js';
 import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
@@ -112,7 +112,9 @@ async function main() {
 
 		// Cap per venue to avoid one source dominating the carousel
 		const MAX_PER_VENUE = 1;
-		const sorted = filtered.sort((a, b) => a.date_start.localeCompare(b.date_start));
+		// Only include events with images for seed posts
+		const withImages = filtered.filter(e => e.image_url);
+		const sorted = withImages.sort((a, b) => a.date_start.localeCompare(b.date_start));
 		const venueCounts = new Map<string, number>();
 		const topEvents: GaariEvent[] = [];
 		for (const e of sorted) {
@@ -155,7 +157,8 @@ async function main() {
 				dateRange,
 				carouselEvents,
 				collectionUrl,
-				filtered.length
+				filtered.length,
+				{ imagesOnly: true }
 			);
 
 			const caption = generateCaption(title, captionEvents, collectionUrl, seed.hashtags, seed.lang);
