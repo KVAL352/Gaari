@@ -99,12 +99,22 @@
 		}
 	}
 
-	// Track newsletter click-through (fires once on landing from newsletter)
+	// Track event detail view (fires once on page load)
+	$effect(() => {
+		if (typeof window !== 'undefined' && window.umami) {
+			umami.track('event-view', { slug: event.slug, venue: event.venue_name || '', category: event.category || '' });
+		}
+	});
+
+	// Track newsletter/social click-through (fires once on landing)
 	$effect(() => {
 		if (typeof window !== 'undefined' && window.umami) {
 			const params = new URLSearchParams(window.location.search);
 			if (params.get('utm_medium') === 'newsletter') {
 				umami.track('newsletter-click', { slug: event.slug, venue: event.venue_name || '' });
+			}
+			if (params.get('utm_source') === 'facebook' || params.get('utm_source') === 'instagram') {
+				umami.track('social-click', { source: params.get('utm_source')!, slug: event.slug });
 			}
 		}
 	});

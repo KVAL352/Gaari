@@ -18,6 +18,7 @@ import 'dotenv/config';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { supabase } from './lib/supabase.js';
 
 const SITE_ID = 'gaari.no';
 const SITE_URL = 'https://gaari.no';
@@ -329,6 +330,21 @@ async function collectGsc(): Promise<Pick<ReportData, 'gscQueries' | 'gscQueries
 		fetchGscPages(token, fmt(start), fmt(end)),
 		fetchGscSitemaps(token)
 	]);
+
+	// Store snapshot for position tracking over time
+	if (queries.length > 0) {
+		const snapshotDate = fmt(end);
+		const rows = queries.map(q => ({
+			snapshot_date: snapshotDate,
+			query: q.query,
+			clicks: q.clicks,
+			impressions: q.impressions,
+			ctr: q.ctr,
+			position: q.position
+		}));
+		await supabase.from('gsc_snapshots').upsert(rows, { onConflict: 'snapshot_date,query' });
+		console.log(`   Stored ${rows.length} GSC snapshots for ${snapshotDate}`);
+	}
 
 	return { gscQueries: queries, gscQueriesPrev: queriesPrev, gscPages: pages, sitemaps };
 }

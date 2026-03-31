@@ -43,6 +43,11 @@ interface ScraperActivity {
 interface TrafficData {
 	visitors: number;
 	pageviews: number;
+	visitorsDelta: number | null;
+	pageviewsDelta: number | null;
+	weekVisitors: number | null;
+	weekChange: number | null;
+	topReferrers: { name: string; count: number }[] | null;
 }
 
 interface ExpiringPlacement {
@@ -151,24 +156,67 @@ async function collectTraffic(): Promise<TrafficData | null> {
 		return null;
 	}
 
-	console.log('📊 Fetching yesterday\'s traffic...');
+	console.log('📊 Fetching traffic data...');
 
-	const yesterday = new Date();
-	yesterday.setDate(yesterday.getDate() - 1);
-	const startAt = new Date(yesterday.toISOString().slice(0, 10) + 'T00:00:00Z').getTime();
-	const endAt = startAt + 86400000; // +24h
-
-	try {
-		const resp = await fetch(`https://api.umami.is/v1/websites/${websiteId}/stats?startAt=${startAt}&endAt=${endAt}`, {
+	const umamiGet = async (endpoint: string) => {
+		const resp = await fetch(`https://api.umami.is/v1/websites/${websiteId}/${endpoint}`, {
 			headers: { 'x-umami-api-key': key }
 		});
+		return resp.ok ? resp.json() : null;
+	};
 
-		if (!resp.ok) return null;
-		const data = await resp.json() as { pageviews: { value: number }; visitors: { value: number } };
-		return {
-			visitors: data.visitors?.value ?? 0,
-			pageviews: data.pageviews?.value ?? 0
-		};
+	try {
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
+		const yesterdayStart = new Date(yesterday.toISOString().slice(0, 10) + 'T00:00:00Z').getTime();
+		const yesterdayEnd = yesterdayStart + 86400000;
+
+		// This week (last 7 days) vs previous week (7 days before that)
+		const now = Date.now();
+		const thisWeekStart = now - 7 * 86400000;
+		const prevWeekStart = now - 14 * 86400000;
+
+		const [yesterdayStats, thisWeekStats, prevWeekStats, referrerData] = await Promise.all([
+			umamiGet(`stats?startAt=${yesterdayStart}&endAt=${yesterdayEnd}`),
+			umamiGet(`stats?startAt=${thisWeekStart}&endAt=${now}`),
+			umamiGet(`stats?startAt=${prevWeekStart}&endAt=${thisWeekStart}`),
+			umamiGet(`metrics?startAt=${thisWeekStart}&endAt=${now}&type=referrer`)
+		]);
+
+		const visitors = yesterdayStats?.pageviews != null ? (yesterdayStats.visitors?.value ?? yesterdayStats.visitors ?? 0) : 0;
+		const pageviews = yesterdayStats?.pageviews != null ? (yesterdayStats.pageviews?.value ?? yesterdayStats.pageviews ?? 0) : 0;
+
+		// Store yesterday's traffic in daily_metrics
+		const dateStr = yesterday.toISOString().slice(0, 10);
+		await supabase.from('daily_metrics').upsert(
+			{ date: dateStr, visitors, pageviews },
+			{ onConflict: 'date' }
+		);
+
+		// Get day-before-yesterday for delta
+		const dayBefore = new Date(yesterday);
+		dayBefore.setDate(dayBefore.getDate() - 1);
+		const { data: prevRow } = await supabase.from('daily_metrics')
+			.select('visitors, pageviews')
+			.eq('date', dayBefore.toISOString().slice(0, 10))
+			.single();
+
+		const visitorsDelta = prevRow?.visitors != null ? visitors - prevRow.visitors : null;
+		const pageviewsDelta = prevRow?.pageviews != null ? pageviews - prevRow.pageviews : null;
+
+		// Week-over-week
+		const weekVisitors = thisWeekStats?.visitors?.value ?? thisWeekStats?.visitors ?? null;
+		const prevWeekVisitors = prevWeekStats?.visitors?.value ?? prevWeekStats?.visitors ?? null;
+		const weekChange = (weekVisitors != null && prevWeekVisitors != null && prevWeekVisitors > 0)
+			? Math.round((weekVisitors - prevWeekVisitors) / prevWeekVisitors * 100)
+			: null;
+
+		// Top referrers
+		const topReferrers = Array.isArray(referrerData)
+			? referrerData.slice(0, 5).map((r: { x: string; y: number }) => ({ name: r.x || '(direkte)', count: r.y }))
+			: null;
+
+		return { visitors, pageviews, visitorsDelta, pageviewsDelta, weekVisitors, weekChange, topReferrers };
 	} catch { return null; }
 }
 
@@ -648,21 +696,41 @@ function renderHtml(data: DigestData): string {
 		`;
 	})() : '';
 
-	const trafficHtml = data.traffic ? `
-		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Trafikk i går</h2>
-		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+	const trafficHtml = data.traffic ? (() => {
+		const t = data.traffic!;
+		const deltaBadge = (val: number | null) => val !== null
+			? ` <span style="font-size:13px;font-weight:400;color:${val > 0 ? '#16a34a' : val < 0 ? '#dc2626' : '#666'}">(${val > 0 ? '+' : ''}${val})</span>`
+			: '';
+		const weekRow = t.weekVisitors !== null ? `
+				<tr>
+					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Siste 7 dager</td>
+					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${t.weekVisitors} besøkende${t.weekChange !== null ? ` <span style="font-size:13px;font-weight:400;color:${t.weekChange > 0 ? '#16a34a' : t.weekChange < 0 ? '#dc2626' : '#666'}">(${t.weekChange > 0 ? '+' : ''}${t.weekChange}% fra forrige uke)</span>` : ''}</td>
+				</tr>` : '';
+		const referrerRows = t.topReferrers ? t.topReferrers.map(r => `
+				<tr>
+					<td style="padding:6px 12px;font-size:13px;color:#666">${r.name}</td>
+					<td style="padding:6px 12px;text-align:right;font-size:13px">${r.count}</td>
+				</tr>`).join('') : '';
+		return `
+		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Trafikk</h2>
+		<table style="width:100%;border-collapse:collapse;margin-bottom:12px">
 			<tbody>
 				<tr>
-					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Besøkende</td>
-					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${data.traffic.visitors}</td>
+					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Besøkende i går</td>
+					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${t.visitors}${deltaBadge(t.visitorsDelta)}</td>
 				</tr>
 				<tr>
-					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Sidevisninger</td>
-					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${data.traffic.pageviews}</td>
-				</tr>
+					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Sidevisninger i går</td>
+					<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${t.pageviews}${deltaBadge(t.pageviewsDelta)}</td>
+				</tr>${weekRow}
 			</tbody>
-		</table>
-	` : '';
+		</table>${referrerRows ? `
+		<p style="font-size:13px;color:#666;margin:0 0 4px">Topp kilder (7 dager):</p>
+		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+			<tbody>${referrerRows}
+			</tbody>
+		</table>` : ''}`;
+	})() : '';
 
 	const subscriberHtml = data.subscribers !== null ? (() => {
 		const delta = data.subscribersPrev !== null ? data.subscribers - data.subscribersPrev : null;
@@ -866,7 +934,11 @@ async function main() {
 	console.log(`   Pending tasks: ${total} (corrections: ${pending.corrections}, submissions: ${pending.submissions}, optouts: ${pending.optouts}, inquiries: ${pending.inquiries})`);
 	console.log(`   New events (24h): ${scraper.newEvents24h}`);
 	console.log(`   Active events: ${scraper.totalActiveEvents}`);
-	if (traffic) console.log(`   Yesterday traffic: ${traffic.visitors} visitors, ${traffic.pageviews} pageviews`);
+	if (traffic) {
+		const wd = traffic.visitorsDelta !== null ? ` (${traffic.visitorsDelta > 0 ? '+' : ''}${traffic.visitorsDelta})` : '';
+		const wk = traffic.weekChange !== null ? ` | Week: ${traffic.weekVisitors} (${traffic.weekChange > 0 ? '+' : ''}${traffic.weekChange}%)` : '';
+		console.log(`   Yesterday: ${traffic.visitors} visitors${wd}, ${traffic.pageviews} pageviews${wk}`);
+	}
 	if (subscriberData.current !== null) {
 		const delta = subscriberData.previous !== null ? ` (${subscriberData.current >= subscriberData.previous ? '+' : ''}${subscriberData.current - subscriberData.previous})` : '';
 		console.log(`   Subscribers: ${subscriberData.current}${delta}`);

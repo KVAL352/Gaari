@@ -73,6 +73,16 @@
 
 	let nextPageHref = $derived(`?page=${pageNum + 1}`);
 
+	// Track social media click-through
+	$effect(() => {
+		if (typeof window === 'undefined' || !window.umami) return;
+		const params = new URLSearchParams(window.location.search);
+		const source = params.get('utm_source');
+		if (source === 'facebook' || source === 'instagram' || source === 'sticker') {
+			umami.track('social-click', { source, slug: data.collection.slug, campaign: params.get('utm_campaign') || '' });
+		}
+	});
+
 	// Scroll depth tracking
 	let scrollSentinel: HTMLDivElement | undefined = $state();
 	let scrollTracked = false;
