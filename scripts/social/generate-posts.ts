@@ -259,7 +259,7 @@ async function main() {
 		}
 
 		// Pick top events for carousel (cap per venue to avoid one source dominating)
-		const MAX_PER_VENUE = 2;
+		const MAX_PER_VENUE = 1;
 		const sorted = filtered.sort((a, b) => a.date_start.localeCompare(b.date_start));
 		const venueCounts = new Map<string, number>();
 		const topEvents: GaariEvent[] = [];
