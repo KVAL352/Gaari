@@ -258,10 +258,18 @@ async function main() {
 			continue;
 		}
 
-		// Pick top events for carousel
-		const topEvents = filtered
-			.sort((a, b) => a.date_start.localeCompare(b.date_start))
-			.slice(0, MAX_CAROUSEL_EVENTS);
+		// Pick top events for carousel (cap per venue to avoid one source dominating)
+		const MAX_PER_VENUE = 2;
+		const sorted = filtered.sort((a, b) => a.date_start.localeCompare(b.date_start));
+		const venueCounts = new Map<string, number>();
+		const topEvents: GaariEvent[] = [];
+		for (const e of sorted) {
+			if (topEvents.length >= MAX_CAROUSEL_EVENTS) break;
+			const count = venueCounts.get(e.venue_name) ?? 0;
+			if (count >= MAX_PER_VENUE) continue;
+			venueCounts.set(e.venue_name, count + 1);
+			topEvents.push(e);
+		}
 
 		console.log(`  ${filtered.length} events matched, using ${topEvents.length} for carousel`);
 
@@ -284,7 +292,8 @@ async function main() {
 			}));
 
 			// Build caption event data
-			const captionEvents: CaptionEvent[] = filtered.map(e => ({
+			// Caption uses same venue-capped selection as carousel
+			const captionEvents: CaptionEvent[] = topEvents.map(e => ({
 				title: e.title_no,
 				venue: e.venue_name,
 				date_start: e.date_start,
