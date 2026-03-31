@@ -209,8 +209,8 @@ async function main() {
 			const link = isEn ? `https://gaari.no/en/${slug}` : `https://gaari.no/no/${slug}`;
 			const title = caption.split('\n')[0]?.trim() || slug;
 			const fbMessage = isEn
-				? `${title}\n\nSee all events: ${link}`
-				: `${title}\n\nSe alle arrangementer: ${link}`;
+				? `${title}\n${link}\n\nSee all events on Gåri.`
+				: `${title}\n${link}\n\nSe alle arrangementer på Gåri.`;
 
 			if (FB_PAGE_ID && !dryRun) {
 				console.log(`  Posting album to Facebook (${imageUrls.length} images)...`);

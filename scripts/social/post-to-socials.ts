@@ -183,8 +183,8 @@ function buildFacebookPost(caption: string, slug: string, eventCount: number): {
 	const title = caption.split('\n')[0]?.trim() || slug;
 
 	const message = isEn
-		? `${title}\n\n${eventCount} events in Bergen. See the full list on Gåri.`
-		: `${title}\n\n${eventCount} arrangementer i Bergen. Se hele listen på Gåri.`;
+		? `${title}\n${url}\n\n${eventCount} events in Bergen. See all on Gåri.`
+		: `${title}\n${url}\n\n${eventCount} arrangementer i Bergen. Se alle på Gåri.`;
 
 	return { message, link: url };
 }
