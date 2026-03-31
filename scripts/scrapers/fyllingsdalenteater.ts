@@ -142,6 +142,7 @@ async function scrapeShowPage(url: string): Promise<{ found: number; inserted: n
 			title_no: showTitle,
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
+			title_en: aiDesc.title_en,
 			category: 'theatre',
 			date_start: startDate.toISOString(),
 			venue_name: venueName,

@@ -157,6 +157,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			title_no: title,
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
+			title_en: aiDesc.title_en,
 			category,
 			date_start: finalDateStart,
 			venue_name: venueName,

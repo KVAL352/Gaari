@@ -177,6 +177,7 @@ async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inse
 			title_no: event.name,
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
+			title_en: aiDesc.title_en,
 			category,
 			date_start: fixTicketCoDate(event.startDate),
 			date_end: event.endDate ? fixTicketCoDate(event.endDate) : undefined,

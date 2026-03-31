@@ -123,6 +123,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			title_en: titleEn,
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
+			title_en: aiDesc.title_en,
 			category,
 			date_start: new Date(event.event_start).toISOString(),
 			date_end: event.event_end ? new Date(event.event_end).toISOString() : undefined,

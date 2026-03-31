@@ -67,6 +67,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			title_no: `Bjørgvin Blues: ${title}`,
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
+			title_en: aiDesc.title_en,
 			category: 'music',
 			date_start: startDate.toISOString(),
 			venue_name: 'Madam Felle',

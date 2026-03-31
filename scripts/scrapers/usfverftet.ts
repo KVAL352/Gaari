@@ -147,6 +147,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			title_no: post.name,
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
+			title_en: aiDesc.title_en,
 			category,
 			date_start: new Date(post.start_time).toISOString(),
 			date_end: cf.end_time ? new Date(cf.end_time).toISOString() : undefined,

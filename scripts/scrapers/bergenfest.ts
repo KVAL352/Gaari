@@ -76,6 +76,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			title_no: `Bergenfest: ${title}`,
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
+			title_en: aiDesc.title_en,
 			category: 'festival',
 			date_start: new Date(`${date}T18:00:00+02:00`).toISOString(),
 			venue_name: 'Bergenhus Festning',

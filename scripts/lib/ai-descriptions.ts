@@ -13,6 +13,7 @@ interface EventMeta {
 interface BilingualDescription {
 	no: string;
 	en: string;
+	title_en?: string;
 }
 
 const GEMINI_MODEL = 'gemini-2.5-flash';
@@ -37,6 +38,8 @@ function buildPrompt(event: EventMeta): string {
 	const lines = [
 		'You write short event descriptions for a Bergen, Norway event website.',
 		'Given the event metadata below, write an original 1-2 sentence description in both Norwegian (bokmål) and English.',
+		'Also translate the event title to English. Keep proper nouns, band names, and artwork titles unchanged.',
+		'If the title is already in English or is a proper noun, use it as-is.',
 		'Be factual — only use the information provided. Do not invent details.',
 		'Keep each description under 160 characters (for SEO meta descriptions).',
 		'',
@@ -47,7 +50,7 @@ function buildPrompt(event: EventMeta): string {
 	if (event.room) lines.push(`Room: ${event.room}`);
 	if (event.date) lines.push(`Date: ${event.date}`);
 	if (event.price) lines.push(`Price: ${event.price}`);
-	lines.push('', 'Respond in JSON only: {"no": "...", "en": "..."}');
+	lines.push('', 'Respond in JSON only: {"no": "...", "en": "...", "title_en": "..."}');
 	return lines.join('\n');
 }
 
@@ -104,6 +107,11 @@ export async function generateDescription(event: EventMeta): Promise<BilingualDe
 			// Enforce 160 char limit
 			if (parsed.no.length > 160) parsed.no = parsed.no.slice(0, 157) + '...';
 			if (parsed.en.length > 160) parsed.en = parsed.en.slice(0, 157) + '...';
+
+			// title_en is optional — keep if present and non-empty
+			if (!parsed.title_en || parsed.title_en.trim().length === 0) {
+				delete parsed.title_en;
+			}
 
 			// Rate limit delay between successful calls
 			await new Promise(resolve => setTimeout(resolve, MIN_DELAY_MS));
