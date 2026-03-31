@@ -1,6 +1,5 @@
 import type { Category } from '../../src/lib/types.js';
-import { getCategoryIcon } from '../../src/lib/utils.js';
-import { formatEventTime } from '../../src/lib/utils.js';
+import { getCategoryIcon, formatEventTime } from '../../src/lib/utils.js';
 import { getVenueInstagram } from '../lib/venues.js';
 
 export interface CaptionEvent {
@@ -27,14 +26,12 @@ export function generateCaption(
 
 	// Event list with auto venue-tagging
 	const listed = events.slice(0, MAX_LISTED_EVENTS);
-	const taggedHandles = new Set<string>();
 	for (const event of listed) {
 		const icon = getCategoryIcon(event.category);
 		const time = formatEventTime(event.date_start, lang);
 		const timePart = time ? (lang === 'en' ? `, ${time}` : `, kl. ${time}`) : '';
 		const igHandle = getVenueInstagram(event.venue);
 		if (igHandle) {
-			taggedHandles.add(igHandle);
 			lines.push(`${icon} ${event.title}, @${igHandle}${timePart}`);
 		} else {
 			lines.push(`${icon} ${event.title} @ ${event.venue}${timePart}`);
@@ -52,13 +49,13 @@ export function generateCaption(
 	const ctaText = lang === 'en'
 		? `See all ${events.length} events`
 		: `Se alle ${events.length} arrangementer`;
-	lines.push(`${ctaText} \u2192 ${collectionUrl}`);
+	lines.push(`${ctaText}: ${collectionUrl}`);
 
 	// Share CTA
 	lines.push('');
 	const shareText = lang === 'en'
-		? 'Know someone who needs weekend plans? Send them this \u2728'
-		: 'Kjenner du noen som trenger planer? Send dem dette \u2728';
+		? 'Know someone who needs weekend plans? Send them this'
+		: 'Kjenner du noen som trenger planer? Send dem dette';
 	lines.push(shareText);
 
 	// Hashtags

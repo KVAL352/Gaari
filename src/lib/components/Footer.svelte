@@ -3,6 +3,7 @@
 	import { CATEGORIES } from '$lib/types';
 	import { getFooterCollections } from '$lib/collections';
 	import NewsletterCTA from './NewsletterCTA.svelte';
+	import { Instagram, Facebook } from 'lucide-svelte';
 </script>
 
 <footer class="mt-16 border-t border-[var(--color-border)] bg-[var(--color-surface)]">
@@ -12,6 +13,26 @@
 			<div>
 				<h3 class="mb-2 text-lg font-bold">Gåri</h3>
 				<p class="text-sm text-[var(--color-text-secondary)]">{$t('footerTagline')}</p>
+				<div class="mt-3 flex gap-3">
+					<a
+						href="https://www.instagram.com/gaari_bergen/"
+						target="_blank"
+						rel="noopener"
+						aria-label="Instagram"
+						class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+					>
+						<Instagram size={20} />
+					</a>
+					<a
+						href="https://www.facebook.com/1062018946994640/"
+						target="_blank"
+						rel="noopener"
+						aria-label="Facebook"
+						class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+					>
+						<Facebook size={20} />
+					</a>
+				</div>
 			</div>
 
 			<!-- Categories -->
