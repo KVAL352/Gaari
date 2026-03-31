@@ -5,16 +5,19 @@
 	import StatusBadge from './StatusBadge.svelte';
 	import ImagePlaceholder from './ImagePlaceholder.svelte';
 	import CalendarDropdown from './CalendarDropdown.svelte';
-	import { Send } from 'lucide-svelte';
+	import { Send, X } from 'lucide-svelte';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 
 	interface Props {
 		event: GaariEvent;
 		eager?: boolean;
 		promoted?: boolean;
+		onHideEvent?: (id: string) => void;
+		onHideVenue?: (venue: string) => void;
+		onHideCategory?: (category: string) => void;
 	}
 
-	let { event, eager = false, promoted = false }: Props = $props();
+	let { event, eager = false, promoted = false, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
 
 	let title = $derived(($lang === 'en' && event.title_en) ? event.title_en : event.title_no);
 	let description = $derived(($lang === 'en' && event.description_en) ? event.description_en : event.description_no);
@@ -22,6 +25,7 @@
 	let timeText = $derived(formatEventTime(event.date_start, $lang));
 	let priceText = $derived(formatPrice(event.price, $lang));
 	let eventUrl = $derived(`/${$lang}/events/${event.slug}`);
+	let categoryLabel = $derived($t(`cat.${event.category}` as any));
 
 	// Compute today string once per component (not per render), using Oslo timezone
 	const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
@@ -47,6 +51,7 @@
 	});
 
 	let imgError = $state(false);
+	let showDismissMenu = $state(false);
 
 	async function handleShare(e: MouseEvent) {
 		e.preventDefault();
@@ -80,7 +85,44 @@
 			umami.track('promoted-click', { venue: event.venue_name, slug: event.slug });
 		}
 	}
+
+	function toggleDismissMenu(e: MouseEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		showDismissMenu = !showDismissMenu;
+	}
+
+	function dismissEvent(e: MouseEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		showDismissMenu = false;
+		onHideEvent?.(event.id);
+	}
+
+	function dismissVenue(e: MouseEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		showDismissMenu = false;
+		onHideVenue?.(event.venue_name);
+	}
+
+	function dismissCategory(e: MouseEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		showDismissMenu = false;
+		onHideCategory?.(event.category);
+	}
+
+	function handleClickOutside() {
+		if (showDismissMenu) {
+			showDismissMenu = false;
+		}
+	}
+
+	let canHide = $derived(!!onHideEvent);
 </script>
+
+<svelte:window onclick={handleClickOutside} />
 
 <li class="group list-none h-full">
 	<article class="card relative flex h-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-sm cursor-pointer">
@@ -112,8 +154,34 @@
 					{/each}
 				</div>
 			{/if}
+			{#if canHide}
+				<button
+					onclick={toggleDismissMenu}
+					aria-label={$lang === 'no' ? 'Skjul' : 'Hide'}
+					class="hide-btn absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-bg-surface)]/80 text-[var(--color-text-muted)] opacity-0 shadow-sm backdrop-blur-sm transition-all group-hover:opacity-100 focus-visible:opacity-100 hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-primary)]"
+				>
+					<X size={14} strokeWidth={2.5} />
+				</button>
+				{#if showDismissMenu}
+					<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+					<div
+						class="dismiss-menu absolute right-2 top-10 z-30 min-w-52 overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-lg)]"
+						onclick={(e: MouseEvent) => e.stopPropagation()}
+					>
+						<button onclick={dismissEvent} class="dismiss-option">
+							{$lang === 'no' ? 'Skjul dette arrangementet' : 'Hide this event'}
+						</button>
+						<button onclick={dismissVenue} class="dismiss-option">
+							{$lang === 'no' ? `Skjul alle fra ${event.venue_name}` : `Hide all from ${event.venue_name}`}
+						</button>
+						<button onclick={dismissCategory} class="dismiss-option">
+							{$lang === 'no' ? `Skjul ${categoryLabel}` : `Hide ${categoryLabel}`}
+						</button>
+					</div>
+				{/if}
+			{/if}
 			{#if promoted}
-				<span class="badge-fremhevet absolute right-2 top-2 rounded-full border border-[var(--color-primary)] bg-[var(--color-bg-surface)] px-2 py-0.5 text-[0.625rem] font-semibold text-[var(--color-text-primary)]">
+				<span class="badge-fremhevet absolute right-2 {canHide ? 'top-10' : 'top-2'} rounded-full border border-[var(--color-primary)] bg-[var(--color-bg-surface)] px-2 py-0.5 text-[0.625rem] font-semibold text-[var(--color-text-primary)]">
 					{$lang === 'no' ? 'Fremhevet' : 'Featured'}
 				</span>
 			{/if}
@@ -190,9 +258,45 @@
 		text-decoration: none;
 	}
 
+	.dismiss-menu {
+		animation: dismiss-menu-in 0.15s ease;
+	}
+
+	@keyframes dismiss-menu-in {
+		from { opacity: 0; transform: translateY(-4px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	.dismiss-option {
+		display: block;
+		width: 100%;
+		padding: 0.625rem 0.875rem;
+		text-align: left;
+		font-size: 0.8125rem;
+		font-family: var(--font-body);
+		color: var(--color-text-secondary);
+		background: none;
+		border: none;
+		border-bottom: 1px solid var(--color-border-subtle);
+		cursor: pointer;
+		transition: background-color 0.1s, color 0.1s;
+	}
+
+	.dismiss-option:last-child {
+		border-bottom: none;
+	}
+
+	.dismiss-option:hover {
+		background: var(--color-surface);
+		color: var(--color-text-primary);
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.card {
 			transition: none;
+		}
+		.dismiss-menu {
+			animation: none;
 		}
 	}
 </style>

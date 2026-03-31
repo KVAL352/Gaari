@@ -7,15 +7,19 @@
 	interface Props {
 		events: GaariEvent[];
 		promotedEventIds?: string[];
+		onHideEvent?: (id: string) => void;
+		onHideVenue?: (venue: string) => void;
+		onHideCategory?: (category: string) => void;
 	}
 
-	let { events, promotedEventIds = [] }: Props = $props();
+	let { events, promotedEventIds = [], onHideEvent, onHideVenue, onHideCategory }: Props = $props();
 
 	let grouped = $derived.by(() => {
 		const groups = groupEventsByDate(events);
 		return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
 	});
 
+	let canHide = $derived(!!onHideEvent);
 </script>
 
 {#each grouped as [dateKey, dayEvents], groupIdx (dateKey)}
@@ -30,7 +34,14 @@
 		</div>
 		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 			{#each dayEvents as event, i (event.id)}
-				<EventCard {event} eager={groupIdx === 0 && i < 4} promoted={promotedEventIds.includes(event.id)} />
+				<EventCard
+					{event}
+					eager={groupIdx === 0 && i < 4}
+					promoted={promotedEventIds.includes(event.id)}
+					onHideEvent={canHide ? onHideEvent : undefined}
+					onHideVenue={canHide ? onHideVenue : undefined}
+					onHideCategory={canHide ? onHideCategory : undefined}
+				/>
 			{/each}
 		</ul>
 	</section>

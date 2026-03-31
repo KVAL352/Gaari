@@ -5,6 +5,7 @@
 	import { browser } from '$app/environment';
 	import { lang, t } from '$lib/i18n';
 	import { isFreeEvent } from '$lib/utils';
+	import { hideEvent, hideVenue, hideCategory, isHidden, unhideAll, hiddenCount, hiddenSummary } from '$lib/hidden-events.svelte';
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString } from '$lib/event-filters';
 	import type { Bydel, GaariEvent } from '$lib/types';
 	import { generateWebSiteJsonLd } from '$lib/seo';
@@ -136,6 +137,12 @@
 		// Sort by date (ISO strings are lexicographically sortable — no Date allocation needed)
 		events.sort((a, b) => a.date_start < b.date_start ? -1 : a.date_start > b.date_start ? 1 : 0);
 
+		// Remove user-hidden events — only after hydration to prevent SSR mismatch
+		if (hydrated) {
+			void hiddenVersion; // explicit dependency for re-derive
+			events = events.filter(e => !isHidden(e.id, e.venue_name, e.category));
+		}
+
 		return events;
 	});
 
@@ -223,6 +230,33 @@
 	// Only show collection suggestions when no filters are active
 	let hasActiveFilters = $derived(!!when || !!time || !!audience || !!category || !!bydel || !!price || !!q);
 
+	// Hidden events — only apply after hydration to avoid SSR mismatch
+	let hiddenVersion = $state(0);
+	let hydrated = $state(false);
+	$effect(() => { hydrated = true; });
+	let numHidden = $derived.by(() => { void hiddenVersion; return hydrated ? hiddenCount() : 0; });
+	let hiddenLabels = $derived.by(() => { void hiddenVersion; return hydrated ? hiddenSummary($lang) : []; });
+
+	function handleHideEvent(id: string) {
+		hideEvent(id);
+		hiddenVersion++;
+	}
+
+	function handleHideVenue(venue: string) {
+		hideVenue(venue);
+		hiddenVersion++;
+	}
+
+	function handleHideCategory(category: string) {
+		hideCategory(category);
+		hiddenVersion++;
+	}
+
+	function handleUnhideAll() {
+		unhideAll();
+		hiddenVersion++;
+	}
+
 	let homeDescription = $derived($lang === 'no'
 		? 'Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Gåri samler arrangementer fra 54 lokale kilder, oppdatert daglig.'
 		: 'What\u2019s on in Bergen? Concerts, exhibitions, theatre, food and more. Gåri collects events from 54 local sources, updated daily.');
@@ -272,7 +306,20 @@
 		/>
 	{:else}
 		<div class="event-results" class:fading={transitioning}>
-			<EventGrid events={displayedEvents} />
+			<EventGrid events={displayedEvents} onHideEvent={handleHideEvent} onHideVenue={handleHideVenue} onHideCategory={handleHideCategory} />
+			{#if numHidden > 0}
+				<div class="mb-6 flex items-center justify-center gap-3 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-4 py-2.5">
+					<span class="text-sm text-[var(--color-text-muted)]">
+						{$lang === 'no' ? 'Skjuler' : 'Hiding'}: {hiddenLabels.join(', ')}
+					</span>
+					<button
+						onclick={handleUnhideAll}
+						class="rounded-full border border-[var(--color-border)] px-3 py-1 text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+					>
+						{$lang === 'no' ? 'Nullstill' : 'Reset'}
+					</button>
+				</div>
+			{/if}
 			<LoadMore shown={displayedEvents.length} total={filteredEvents.length} href={nextPageHref} />
 		</div>
 	{/if}
