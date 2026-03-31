@@ -291,6 +291,20 @@ const VENUE_INSTAGRAM: Record<string, string> = {
 	'bymuseet': 'bymuseetibergen',
 	'stene matglede': 'stenematglede',
 	'colonialen': 'colonialen',
+	'østre': 'ostrebergen',
+	'borealis': 'borealisfestival',
+	'borealis festival': 'borealisfestival',
+	'nattjazz': 'nattjazz',
+	'vilvite': 'vilvite',
+	'cinemateket': 'cinemateket_bergen',
+	'cinemateket i bergen': 'cinemateket_bergen',
+	'fyllingsdalen teater': 'fyllingsdalenteater',
+	'bjørgvin blues club': 'bjorgvinblues',
+	"o'connor's irish pub": 'oconnors_bergen',
+	"o'connor's": 'oconnors_bergen',
+	'bergen filmklubb': 'bergenfilmklubb',
+	"paint'n sip": 'paintnsip.bergen',
+	'paintnsip': 'paintnsip.bergen',
 };
 
 /**
