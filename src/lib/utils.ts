@@ -20,6 +20,17 @@ export function formatEventDate(dateStr: string, locale: 'no' | 'en' = 'no'): st
 	});
 }
 
+/** Compact absolute date for meta titles — always "28. mar 2026" / "28 Mar 2026", never relative */
+export function formatMetaDate(dateStr: string, locale: 'no' | 'en' = 'no'): string {
+	const date = new Date(dateStr);
+	return date.toLocaleDateString(locale === 'no' ? 'nb-NO' : 'en-GB', {
+		day: 'numeric',
+		month: 'short',
+		year: 'numeric',
+		timeZone: 'Europe/Oslo'
+	});
+}
+
 export function formatEventTime(dateStr: string, locale: 'no' | 'en' = 'no'): string {
 	const date = new Date(dateStr);
 	// Don't show time if it's the midnight UTC placeholder (scraped events without known times)

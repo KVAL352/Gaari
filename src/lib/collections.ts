@@ -1622,8 +1622,8 @@ const collections: Collection[] = [
 			en: '17th of May in Bergen'
 		},
 		description: {
-			no: '17. mai-program for Bergen: barnetog, buekorps, konserter og arrangementer. Komplett oversikt fra 54 lokale kilder.',
-			en: "Norway's Constitution Day in Bergen: children's parades, buekorps, concerts and events. Complete guide from 54 local sources."
+			no: '17. mai-program i Bergen: barnetog, buekorps, konserter og arrangementer. Oppdatert oversikt fra 54 lokale kilder.',
+			en: "Complete 17th of May programme for Bergen: children's parades, buekorps brigades, concerts and events. Updated daily from 54 local sources."
 		},
 		ogSubtitle: {
 			no: 'Barnetog, buekorps og feiring',
@@ -1666,8 +1666,8 @@ const collections: Collection[] = [
 			]
 		},
 		offSeasonHint: {
-			no: '17. mai-arrangementer publiseres vanligvis i begynnelsen av mai. Meld deg på nyhetsbrevet for påminnelse!',
-			en: '17th of May events are usually published in early May. Sign up for the newsletter to get notified!'
+			no: '17. mai-arrangementer legges ut fortløpende fra midten av april. Meld deg på nyhetsbrevet for påminnelse!',
+			en: '17th of May events are published from mid-April onwards. Sign up for the newsletter to get notified!'
 		},
 		filterEvents: filter17Mai
 	},
@@ -2031,8 +2031,8 @@ const collections: Collection[] = [
 			en: '17th of May in Bergen'
 		},
 		description: {
-			no: '17. mai-program for Bergen: barnetog, buekorps, konserter og arrangementer.',
-			en: "Norway's Constitution Day in Bergen: parades, buekorps brigades, concerts and celebrations. Complete visitor guide."
+			no: '17. mai-program i Bergen: barnetog, buekorps, konserter og arrangementer.',
+			en: "17th of May in Bergen: parades, buekorps brigades, concerts and celebrations. Complete visitor guide updated daily."
 		},
 		ogSubtitle: {
 			no: 'Barnetog, buekorps og feiring',
@@ -2075,8 +2075,8 @@ const collections: Collection[] = [
 			]
 		},
 		offSeasonHint: {
-			no: '17. mai-arrangementer publiseres vanligvis i begynnelsen av mai. Meld deg på nyhetsbrevet for påminnelse!',
-			en: '17th of May events are usually published in early May. Sign up for the newsletter to get notified!'
+			no: '17. mai-arrangementer legges ut fortløpende fra midten av april. Meld deg på nyhetsbrevet for påminnelse!',
+			en: '17th of May events are published from mid-April onwards. Sign up for the newsletter to get notified!'
 		},
 		filterEvents: filter17Mai
 	},

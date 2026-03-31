@@ -3,7 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { lang, t } from '$lib/i18n';
 	import {
-		formatEventDate, formatEventTime, formatPrice, isFreeEvent, buildOutboundUrl
+		formatEventDate, formatEventTime, formatMetaDate, formatPrice, isFreeEvent, buildOutboundUrl
 	} from '$lib/utils';
 	import type { GaariEvent } from '$lib/types';
 	import { generateEventJsonLd, generateBreadcrumbJsonLd, getCanonicalUrl } from '$lib/seo';
@@ -31,8 +31,15 @@
 		const cut = description.lastIndexOf(' ', DESC_LIMIT);
 		return description.slice(0, cut > 0 ? cut : DESC_LIMIT) + '…';
 	});
+	let metaTitle = $derived.by(() => {
+		const date = formatMetaDate(event.date_start, $lang);
+		const venue = event.venue_name || '';
+		const parts = [title, date];
+		if (venue) parts.push(venue);
+		return parts.join(' — ') + ' | Gåri';
+	});
 	let metaDescription = $derived.by(() => {
-		const date = formatEventDate(event.date_start, $lang);
+		const date = formatMetaDate(event.date_start, $lang);
 		const venue = event.venue_name ? `${event.venue_name}, Bergen` : 'Bergen';
 		const suffix = ` — ${date}, ${venue}`;
 		const desc = description || title;
@@ -120,17 +127,17 @@
 </script>
 
 <svelte:head>
-	<title>{title}{event.venue_name ? ` — ${event.venue_name}, Bergen` : ''} | Gåri</title>
+	<title>{metaTitle}</title>
 	<meta name="description" content={metaDescription} />
 	<link rel="canonical" href={canonicalUrl} />
-	<meta property="og:title" content={`${title}${event.venue_name ? ` — ${event.venue_name}, Bergen` : ''} | Gåri`} />
+	<meta property="og:title" content={metaTitle} />
 	<meta property="og:description" content={metaDescription} />
 	<meta property="og:type" content="event" />
 	<meta property="og:image" content={`${$page.url.origin}/og/${event.slug}.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content={`${title}${event.venue_name ? ` — ${event.venue_name}, Bergen` : ''} | Gåri`} />
+	<meta name="twitter:title" content={metaTitle} />
 	<meta name="twitter:description" content={metaDescription} />
 	<meta name="twitter:image" content={`${$page.url.origin}/og/${event.slug}.png`} />
 	<!-- eslint-disable svelte/no-at-html-tags -->
