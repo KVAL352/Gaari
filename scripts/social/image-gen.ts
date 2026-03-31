@@ -110,9 +110,46 @@ function truncate(text: string, maxLen: number): string {
 	return trimmed.trimEnd() + '\u2026';
 }
 
-// ── Slide 1: Hook (collection intro) ──
+// ── Slide 1: Hook (montage with dimmed event images) ──
 
-function hookSlideMarkup(title: string, dateRange: string, eventCount: number) {
+function hookSlideMarkup(title: string, eventCount: number, images: string[]) {
+	// Use up to 4 images in a 2x2 grid
+	const gridImages = images.slice(0, 4);
+	const halfSize = Math.floor(WIDTH / 2);
+
+	const imageChildren = gridImages.map((src, i) => ({
+		type: 'img',
+		props: {
+			src,
+			style: {
+				position: 'absolute' as const,
+				left: `${(i % 2) * halfSize + FRAME}px`,
+				top: `${Math.floor(i / 2) * halfSize + FRAME}px`,
+				width: `${halfSize}px`,
+				height: `${halfSize}px`,
+				objectFit: 'cover' as const
+			}
+		}
+	}));
+
+	// If fewer than 4 images, fill remaining slots with dark bg
+	while (imageChildren.length < 4) {
+		const i = imageChildren.length;
+		imageChildren.push({
+			type: 'div' as any,
+			props: {
+				style: {
+					position: 'absolute' as const,
+					left: `${(i % 2) * halfSize + FRAME}px`,
+					top: `${Math.floor(i / 2) * halfSize + FRAME}px`,
+					width: `${halfSize}px`,
+					height: `${halfSize}px`,
+					backgroundColor: '#1C1C1E'
+				}
+			} as any
+		});
+	}
+
 	return {
 		type: 'div',
 		props: {
@@ -120,136 +157,121 @@ function hookSlideMarkup(title: string, dateRange: string, eventCount: number) {
 				display: 'flex',
 				width: '100%',
 				height: '100%',
-				backgroundColor: WHITE,
+				backgroundColor: FUNKIS_RED,
+				padding: `${FRAME}px`,
 				position: 'relative'
 			},
 			children: [
-				// Left red accent bar
-				{
-					type: 'div',
-					props: {
-						style: {
-							position: 'absolute',
-							left: 0,
-							top: 0,
-							bottom: 0,
-							width: '16px',
-							backgroundColor: FUNKIS_RED
-						}
-					}
-				},
-				// Main content
+				// Inner container
 				{
 					type: 'div',
 					props: {
 						style: {
 							display: 'flex',
-							flexDirection: 'column',
-							justifyContent: 'center',
-							marginLeft: '16px',
-							padding: '64px 56px 64px 48px',
 							width: '100%',
 							height: '100%',
-							gap: '32px'
+							backgroundColor: '#1C1C1E',
+							position: 'relative',
+							overflow: 'hidden',
+							borderRadius: '8px'
 						},
 						children: [
-							// Collection title
+							// 2x2 image grid
+							...imageChildren,
+							// Heavy dimming overlay
 							{
 								type: 'div',
 								props: {
 									style: {
-										display: 'flex',
-										fontSize: '64px',
-										fontFamily: 'Barlow Condensed',
-										color: TEXT_PRIMARY,
-										lineHeight: 1.1,
-										letterSpacing: '-0.01em'
-									},
-									children: title
+										position: 'absolute',
+										top: 0,
+										left: 0,
+										right: 0,
+										bottom: 0,
+										backgroundColor: 'rgba(0,0,0,0.72)'
+									}
 								}
 							},
-							// Date range
+							// Text content (centered)
 							{
 								type: 'div',
 								props: {
 									style: {
+										position: 'absolute',
+										top: 0,
+										left: 0,
+										right: 0,
+										bottom: 0,
 										display: 'flex',
-										fontSize: '28px',
-										fontFamily: 'Inter',
-										color: TEXT_MUTED,
-										lineHeight: 1.4
-									},
-									children: dateRange
-								}
-							},
-							// Event count
-							{
-								type: 'div',
-								props: {
-									style: {
-										display: 'flex',
-										fontSize: '32px',
-										fontFamily: 'Barlow Condensed',
-										color: TEXT_SECONDARY,
-										lineHeight: 1.3
-									},
-									children: `${eventCount} arrangementer`
-								}
-							},
-							// Gåri branding
-							{
-								type: 'div',
-								props: {
-									style: {
-										display: 'flex',
-										alignItems: 'baseline',
-										gap: '12px',
-										marginTop: '24px'
+										flexDirection: 'column',
+										justifyContent: 'center',
+										alignItems: 'center',
+										padding: '64px',
+										gap: '24px'
 									},
 									children: [
+										// Collection title
 										{
 											type: 'div',
 											props: {
 												style: {
 													display: 'flex',
-													fontSize: '48px',
+													fontSize: '72px',
 													fontFamily: 'Barlow Condensed',
-													color: FUNKIS_RED,
-													letterSpacing: '0.02em'
+													color: WHITE,
+													lineHeight: 1.1,
+													letterSpacing: '-0.01em',
+													textAlign: 'center'
 												},
-												children: 'Gåri'
+												children: title
 											}
 										},
+										// Event count
 										{
 											type: 'div',
 											props: {
 												style: {
 													display: 'flex',
-													fontSize: '20px',
-													fontFamily: 'Barlow Condensed',
-													color: TEXT_MUTED
+													fontSize: '40px',
+													fontFamily: 'Inter',
+													color: WHITE,
+													lineHeight: 1.3
 												},
-												children: 'gaari.no'
+												children: `${eventCount} arrangementer`
+											}
+										},
+										// Swipe CTA
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '32px',
+													fontFamily: 'Inter',
+													color: 'rgba(255,255,255,0.85)',
+													marginTop: '24px'
+												},
+												children: 'Swipe for \u00e5 utforske \u2192'
+											}
+										},
+										// Gåri branding
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '36px',
+													fontFamily: 'Barlow Condensed',
+													color: FUNKIS_RED,
+													marginTop: '36px'
+												},
+												children: 'G\u00e5ri.no'
 											}
 										}
 									]
 								}
 							}
 						]
-					}
-				},
-				// Bottom accent line
-				{
-					type: 'div',
-					props: {
-						style: {
-							position: 'absolute',
-							left: 0,
-							right: 0,
-							bottom: 0,
-							height: '8px',
-							backgroundColor: FUNKIS_RED
-						}
 					}
 				}
 			]
@@ -772,9 +794,14 @@ export async function generateCarousel(
 		return 0;
 	});
 
-	// No hook slide — start directly with events (images first)
-	// First slide gets a collection label badge for context
-	let isFirst = true;
+	// Slide 1: Montage hook with dimmed event images
+	const hookImages = indexed.filter(x => x.image).map(x => x.image as string).slice(0, 4);
+	if (hookImages.length > 0) {
+		slides.push(await renderSlide(hookSlideMarkup(collectionTitle, totalEventCount, hookImages)));
+	}
+
+	// Event slides
+	let isFirst = !hookImages.length; // only show collection label if no hook
 	for (const { event, image } of indexed) {
 		const label = isFirst ? collectionTitle : undefined;
 		isFirst = false;
