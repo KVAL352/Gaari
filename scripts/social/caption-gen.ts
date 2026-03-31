@@ -1,6 +1,7 @@
 import type { Category } from '../../src/lib/types.js';
 import { getCategoryIcon } from '../../src/lib/utils.js';
 import { formatEventTime } from '../../src/lib/utils.js';
+import { getVenueInstagram } from '../lib/venues.js';
 
 export interface CaptionEvent {
 	title: string;
@@ -24,13 +25,20 @@ export function generateCaption(
 	lines.push(collectionTitle);
 	lines.push('');
 
-	// Event list
+	// Event list with auto venue-tagging
 	const listed = events.slice(0, MAX_LISTED_EVENTS);
+	const taggedHandles = new Set<string>();
 	for (const event of listed) {
 		const icon = getCategoryIcon(event.category);
 		const time = formatEventTime(event.date_start, lang);
 		const timePart = time ? (lang === 'en' ? `, ${time}` : `, kl. ${time}`) : '';
-		lines.push(`${icon} ${event.title} @ ${event.venue}${timePart}`);
+		const igHandle = getVenueInstagram(event.venue);
+		if (igHandle) {
+			taggedHandles.add(igHandle);
+			lines.push(`${icon} ${event.title}, @${igHandle}${timePart}`);
+		} else {
+			lines.push(`${icon} ${event.title} @ ${event.venue}${timePart}`);
+		}
 	}
 
 	if (events.length > MAX_LISTED_EVENTS) {

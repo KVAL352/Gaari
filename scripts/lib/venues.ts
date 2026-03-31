@@ -244,6 +244,68 @@ const VENUE_URLS: Record<string, string> = {
 	'bergen filmklubb': 'https://bergenfilmklubb.no',
 };
 
+// Venue name → Instagram handle (without @)
+const VENUE_INSTAGRAM: Record<string, string> = {
+	'grieghallen': 'grieghallen',
+	'den nationale scene': 'dennationalescene',
+	'dns': 'dennationalescene',
+	'usf verftet': 'usfverftet',
+	'usf': 'usfverftet',
+	'bergen kunsthall': 'bergenkunsthall',
+	'kode': 'kaborgen',
+	'litteraturhuset i bergen': 'litthusbergen',
+	'litteraturhuset': 'litthusbergen',
+	'hulen': 'hulenbergen',
+	'kvarteret': 'detakademiskekvarter',
+	'det akademiske kvarter': 'detakademiskekvarter',
+	'bergen kjøtt': 'bergenkjott',
+	'cornerteateret': 'cornerteateret',
+	'forum scene': 'forumscene',
+	'ole bull scene': 'olebullhuset',
+	'ole bull huset': 'olebullhuset',
+	'akvariet i bergen': 'akvarieti',
+	'akvariet': 'akvarieti',
+	'carte blanche': 'carteblanchedans',
+	'bergen filharmoniske orkester': 'bergenphilharmonic',
+	'harmonien': 'bergenphilharmonic',
+	'det vestnorske teateret': 'detvestnorsketeateret',
+	'kulturhuset i bergen': 'kulturhusetibergen',
+	'bergen offentlige bibliotek': 'bergenbibliotek',
+	'bergen bibliotek': 'bergenbibliotek',
+	'hovedbiblioteket': 'bergenbibliotek',
+	'nordnes sjøbad': 'nordnessjobad',
+	'sk brann': 'skbrann',
+	'brann stadion': 'skbrann',
+	'fløibanen': 'floaborgen',
+	'oseana': 'oseanakunstsenter',
+	'landmark': 'landmarkbergen',
+	'madam felle': 'madamfelle',
+	'bergenfest': 'bergenfest',
+	'festspillene': 'festspillene',
+	'bergen pride': 'bergenpride',
+	'biff': 'baborgen',
+	'bergen internasjonale filmfestival': 'baborgen',
+	'bergen internasjonale teater': 'bitteater',
+	'bit teatergarasjen': 'bitteater',
+	'bymuseet i bergen': 'bymuseet',
+	'bymuseet': 'bymuseet',
+	'stene matglede': 'stenematglede',
+	'colonialen': 'colonialen',
+};
+
+/**
+ * Look up a venue's Instagram handle by name (case-insensitive)
+ * Returns handle without @ prefix, or null if not found.
+ */
+export function getVenueInstagram(venueName: string): string | null {
+	const lower = venueName.toLowerCase().trim();
+	if (VENUE_INSTAGRAM[lower]) return VENUE_INSTAGRAM[lower];
+	for (const [key, handle] of Object.entries(VENUE_INSTAGRAM)) {
+		if (lower.includes(key)) return handle;
+	}
+	return null;
+}
+
 /**
  * Look up a venue's website URL by name (case-insensitive, partial match)
  */
