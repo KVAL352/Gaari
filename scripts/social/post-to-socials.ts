@@ -179,7 +179,9 @@ function delay(ms: number): Promise<void> {
 
 function buildFacebookPost(caption: string, slug: string, eventCount: number): { message: string; link: string } {
 	const isEn = ENGLISH_SLUGS.has(slug);
-	const url = isEn ? `https://gaari.no/en/${slug}` : `https://gaari.no/no/${slug}`;
+	const url = isEn
+		? `https://gaari.no/en/${slug}?utm_source=facebook&utm_medium=social&utm_campaign=${slug}`
+		: `https://gaari.no/no/${slug}?utm_source=facebook&utm_medium=social&utm_campaign=${slug}`;
 	const title = caption.split('\n')[0]?.trim() || slug;
 
 	const message = isEn

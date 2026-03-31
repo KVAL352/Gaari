@@ -129,8 +129,8 @@ async function main() {
 
 		const title = seed.lang === 'en' ? collection.title.en : collection.title.no;
 		const collectionUrl = seed.lang === 'en'
-			? `gaari.no/en/${seed.slug}`
-			: `gaari.no/no/${seed.slug}`;
+			? `gaari.no/en/${seed.slug}?utm_source=instagram&utm_medium=social&utm_campaign=${seed.slug}`
+			: `gaari.no/no/${seed.slug}?utm_source=instagram&utm_medium=social&utm_campaign=${seed.slug}`;
 
 		const carouselEvents: CarouselEvent[] = topEvents.map(e => ({
 			title: e.title_no,

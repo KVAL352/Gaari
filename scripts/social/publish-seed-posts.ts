@@ -206,7 +206,9 @@ async function main() {
 			// Post to Facebook (album with images)
 			let fbId: string | null = null;
 			const isEn = ['today-in-bergen', 'this-weekend'].includes(slug);
-			const link = isEn ? `https://gaari.no/en/${slug}` : `https://gaari.no/no/${slug}`;
+			const link = isEn
+					? `https://gaari.no/en/${slug}?utm_source=facebook&utm_medium=social&utm_campaign=${slug}`
+					: `https://gaari.no/no/${slug}?utm_source=facebook&utm_medium=social&utm_campaign=${slug}`;
 			const title = caption.split('\n')[0]?.trim() || slug;
 			const fbMessage = isEn
 				? `${title}\n${link}\n\nSee all events on Gåri.`

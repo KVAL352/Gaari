@@ -278,8 +278,8 @@ async function main() {
 			const lang = isEnglish ? 'en' as const : 'no' as const;
 			const title = isEnglish ? collection.title.en : collection.title.no;
 			const collectionUrl = isEnglish
-				? `gaari.no/en/${schedule.slug}`
-				: `gaari.no/no/${schedule.slug}`;
+				? `gaari.no/en/${schedule.slug}?utm_source=instagram&utm_medium=social&utm_campaign=${schedule.slug}`
+				: `gaari.no/no/${schedule.slug}?utm_source=instagram&utm_medium=social&utm_campaign=${schedule.slug}`;
 
 			// Build carousel event data
 			const carouselEvents: CarouselEvent[] = topEvents.map(e => ({
