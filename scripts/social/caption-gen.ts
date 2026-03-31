@@ -30,7 +30,7 @@ export function generateCaption(
 		const icon = getCategoryIcon(event.category);
 		const time = formatEventTime(event.date_start, lang);
 		const timePart = time ? (lang === 'en' ? `, ${time}` : `, kl. ${time}`) : '';
-		lines.push(`${icon} ${event.title} \u2014 ${event.venue}${timePart}`);
+		lines.push(`${icon} ${event.title} @ ${event.venue}${timePart}`);
 	}
 
 	if (events.length > MAX_LISTED_EVENTS) {
@@ -45,6 +45,13 @@ export function generateCaption(
 		? `See all ${events.length} events`
 		: `Se alle ${events.length} arrangementer`;
 	lines.push(`${ctaText} \u2192 ${collectionUrl}`);
+
+	// Share CTA
+	lines.push('');
+	const shareText = lang === 'en'
+		? 'Know someone who needs weekend plans? Send them this \u2728'
+		: 'Kjenner du noen som trenger planer? Send dem dette \u2728';
+	lines.push(shareText);
 
 	// Hashtags
 	lines.push('');

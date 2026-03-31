@@ -24,6 +24,7 @@ async function fetchImageAsBase64(url: string): Promise<string | null> {
 // ── Design tokens (matching og-image.ts + app.css) ──
 
 const FUNKIS_RED = '#C82D2D';
+const FREE_GREEN = '#1A6B35';
 const WHITE = '#FFFFFF';
 const TEXT_PRIMARY = '#141414';
 const TEXT_SECONDARY = '#4D4D4D';
@@ -216,7 +217,7 @@ function hookSlideMarkup(title: string, dateRange: string, eventCount: number) {
 													color: FUNKIS_RED,
 													letterSpacing: '0.02em'
 												},
-												children: 'Gaari'
+												children: 'Gåri'
 											}
 										},
 										{
@@ -258,12 +259,16 @@ function hookSlideMarkup(title: string, dateRange: string, eventCount: number) {
 
 // ── Slides 2–N: Event cards ──
 
+const FRAME = 12; // Red frame thickness in px
+
 function eventSlideWithImage(
 	title: string,
 	venue: string,
 	time: string,
 	category: Category,
-	imageBase64: string
+	imageBase64: string,
+	collectionLabel?: string,
+	isFree?: boolean
 ) {
 	const catColor = CATEGORY_COLORS[category] || '#D4D1CA';
 	const catLabel = CATEGORY_LABELS[category] || category;
@@ -277,127 +282,191 @@ function eventSlideWithImage(
 				display: 'flex',
 				width: '100%',
 				height: '100%',
-				backgroundColor: '#1C1C1E',
-				position: 'relative',
-				overflow: 'hidden'
+				backgroundColor: FUNKIS_RED,
+				padding: `${FRAME}px`,
+				position: 'relative'
 			},
 			children: [
-				// Background image
+				// Inner container (image + overlay)
 				{
-					type: 'img',
+					type: 'div',
 					props: {
-						src: imageBase64,
 						style: {
-							position: 'absolute',
-							top: 0,
-							left: 0,
+							display: 'flex',
 							width: '100%',
 							height: '100%',
-							objectFit: 'cover'
-						}
-					}
-				},
-				// Dark gradient overlay
-				{
-					type: 'div',
-					props: {
-						style: {
-							position: 'absolute',
-							left: 0,
-							right: 0,
-							bottom: 0,
-							height: '65%',
-							background: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.8))'
-						}
-					}
-				},
-				// Category pill (top-left)
-				{
-					type: 'div',
-					props: {
-						style: {
-							position: 'absolute',
-							top: '40px',
-							left: '40px',
-							display: 'flex'
+							backgroundColor: '#1C1C1E',
+							position: 'relative',
+							overflow: 'hidden',
+							borderRadius: '8px'
 						},
 						children: [
+							// Background image
 							{
-								type: 'div',
+								type: 'img',
 								props: {
+									src: imageBase64,
 									style: {
-										display: 'flex',
-										backgroundColor: catColor,
-										borderRadius: '32px',
-										padding: '16px 40px',
-										fontSize: '36px',
-										fontFamily: 'Inter',
-										color: TEXT_PRIMARY
-									},
-									children: catLabel
-								}
-							}
-						]
-					}
-				},
-				// Text content (bottom)
-				{
-					type: 'div',
-					props: {
-						style: {
-							position: 'absolute',
-							bottom: '56px',
-							left: '56px',
-							right: '56px',
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '20px'
-						},
-						children: [
-							{
-								type: 'div',
-								props: {
-									style: {
-										display: 'flex',
-										fontSize: '84px',
-										fontFamily: 'Barlow Condensed',
-										color: WHITE,
-										lineHeight: 1.1,
-										letterSpacing: '-0.01em',
-										textShadow: '0 3px 16px rgba(0,0,0,0.6)'
-									},
-									children: displayTitle
+										position: 'absolute',
+										top: 0,
+										left: 0,
+										width: '100%',
+										height: '100%',
+										objectFit: 'cover'
+									}
 								}
 							},
+							// Dark gradient overlay (stronger for readability)
 							{
 								type: 'div',
 								props: {
 									style: {
+										position: 'absolute',
+										left: 0,
+										right: 0,
+										bottom: 0,
+										height: '70%',
+										background: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.85))'
+									}
+								}
+							},
+							// Subtle top gradient for pill readability
+							{
+								type: 'div',
+								props: {
+									style: {
+										position: 'absolute',
+										left: 0,
+										right: 0,
+										top: 0,
+										height: '30%',
+										background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0))'
+									}
+								}
+							},
+							// Top bar: category pill (left) + optional collection label (right)
+							{
+								type: 'div',
+								props: {
+									style: {
+										position: 'absolute',
+										top: '36px',
+										left: '36px',
+										right: '36px',
 										display: 'flex',
-										fontSize: '44px',
-										fontFamily: 'Inter',
-										color: 'rgba(255,255,255,0.9)',
-										lineHeight: 1.3,
-										textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+										justifyContent: 'space-between',
+										alignItems: 'flex-start'
 									},
-									children: venueTime
+									children: [
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													backgroundColor: catColor,
+													borderRadius: '32px',
+													padding: '14px 36px',
+													fontSize: '32px',
+													fontFamily: 'Inter',
+													color: TEXT_PRIMARY,
+													boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
+												},
+												children: catLabel
+											}
+										},
+										...(collectionLabel ? [{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													backgroundColor: 'rgba(0,0,0,0.6)',
+													borderRadius: '32px',
+													padding: '14px 36px',
+													fontSize: '32px',
+													fontFamily: 'Inter',
+													color: WHITE,
+													boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
+												},
+												children: collectionLabel
+											}
+										}] : [])
+									]
+								}
+							},
+							// Text content (bottom)
+							{
+								type: 'div',
+								props: {
+									style: {
+										position: 'absolute',
+										bottom: '48px',
+										left: '48px',
+										right: '48px',
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '16px'
+									},
+									children: [
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '72px',
+													fontFamily: 'Barlow Condensed',
+													color: WHITE,
+													lineHeight: 1.1,
+													letterSpacing: '-0.01em',
+													textShadow: '0 3px 16px rgba(0,0,0,0.7)'
+												},
+												children: displayTitle
+											}
+										},
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													alignItems: 'center',
+													gap: '16px'
+												},
+												children: [
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '36px',
+																fontFamily: 'Inter',
+																color: 'rgba(255,255,255,0.92)',
+																lineHeight: 1.3,
+																textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+															},
+															children: venueTime
+														}
+													},
+													...(isFree ? [{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																backgroundColor: FREE_GREEN,
+																borderRadius: '24px',
+																padding: '8px 24px',
+																fontSize: '26px',
+																fontFamily: 'Inter',
+																color: WHITE
+															},
+															children: 'Trolig gratis'
+														}
+													}] : [])
+												]
+											}
+										}
+									]
 								}
 							}
 						]
-					}
-				},
-				// Bottom accent line
-				{
-					type: 'div',
-					props: {
-						style: {
-							position: 'absolute',
-							left: 0,
-							right: 0,
-							bottom: 0,
-							height: '8px',
-							backgroundColor: FUNKIS_RED
-						}
 					}
 				}
 			]
@@ -409,7 +478,8 @@ function eventSlideFallback(
 	title: string,
 	venue: string,
 	time: string,
-	category: Category
+	category: Category,
+	isFree?: boolean
 ) {
 	const catColor = CATEGORY_COLORS[category] || '#D4D1CA';
 	const catLabel = CATEGORY_LABELS[category] || category;
@@ -423,66 +493,25 @@ function eventSlideFallback(
 				display: 'flex',
 				width: '100%',
 				height: '100%',
-				backgroundColor: WHITE,
-				position: 'relative'
+				backgroundColor: FUNKIS_RED,
+				padding: `${FRAME}px`
 			},
 			children: [
-				// Category color bar (left)
-				{
-					type: 'div',
-					props: {
-						style: {
-							position: 'absolute',
-							left: 0,
-							top: 0,
-							bottom: 0,
-							width: '16px',
-							backgroundColor: catColor
-						}
-					}
-				},
-				// Main content
 				{
 					type: 'div',
 					props: {
 						style: {
 							display: 'flex',
 							flexDirection: 'column',
-							justifyContent: 'center',
-							marginLeft: '16px',
-							padding: '64px 56px 64px 48px',
+							justifyContent: 'space-between',
 							width: '100%',
 							height: '100%',
-							gap: '36px'
+							backgroundColor: WHITE,
+							borderRadius: '8px',
+							padding: '56px'
 						},
 						children: [
-							{
-								type: 'div',
-								props: {
-									style: {
-										display: 'flex',
-										fontSize: '84px',
-										fontFamily: 'Barlow Condensed',
-										color: TEXT_PRIMARY,
-										lineHeight: 1.1,
-										letterSpacing: '-0.01em'
-									},
-									children: displayTitle
-								}
-							},
-							{
-								type: 'div',
-								props: {
-									style: {
-										display: 'flex',
-										fontSize: '44px',
-										fontFamily: 'Inter',
-										color: TEXT_SECONDARY,
-										lineHeight: 1.3
-									},
-									children: venueTime
-								}
-							},
+							// Category pill top-left
 							{
 								type: 'div',
 								props: {
@@ -495,8 +524,8 @@ function eventSlideFallback(
 													display: 'flex',
 													backgroundColor: catColor,
 													borderRadius: '32px',
-													padding: '16px 40px',
-													fontSize: '36px',
+													padding: '14px 36px',
+													fontSize: '32px',
 													fontFamily: 'Inter',
 													color: TEXT_PRIMARY
 												},
@@ -505,22 +534,100 @@ function eventSlideFallback(
 										}
 									]
 								}
+							},
+							// Title + venue (lower center for optical balance)
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '24px',
+										marginTop: '40px'
+									},
+									children: [
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '72px',
+													fontFamily: 'Barlow Condensed',
+													color: TEXT_PRIMARY,
+													lineHeight: 1.1,
+													letterSpacing: '-0.01em'
+												},
+												children: displayTitle
+											}
+										},
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													alignItems: 'center',
+													gap: '16px'
+												},
+												children: [
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '36px',
+																fontFamily: 'Inter',
+																color: TEXT_SECONDARY,
+																lineHeight: 1.3
+															},
+															children: venueTime
+														}
+													},
+													...(isFree ? [{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																backgroundColor: FREE_GREEN,
+																borderRadius: '24px',
+																padding: '8px 24px',
+																fontSize: '26px',
+																fontFamily: 'Inter',
+																color: WHITE
+															},
+															children: 'Trolig gratis'
+														}
+													}] : [])
+												]
+											}
+										}
+									]
+								}
+							},
+							// Gåri branding bottom-right
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										justifyContent: 'flex-end'
+									},
+									children: [
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '32px',
+													fontFamily: 'Barlow Condensed',
+													color: FUNKIS_RED
+												},
+												children: 'Gåri.no'
+											}
+										}
+									]
+								}
 							}
 						]
-					}
-				},
-				// Bottom accent line
-				{
-					type: 'div',
-					props: {
-						style: {
-							position: 'absolute',
-							left: 0,
-							right: 0,
-							bottom: 0,
-							height: '6px',
-							backgroundColor: FUNKIS_RED
-						}
 					}
 				}
 			]
@@ -538,11 +645,10 @@ function ctaSlideMarkup(collectionUrl: string, eventCount: number) {
 				display: 'flex',
 				width: '100%',
 				height: '100%',
-				backgroundColor: WHITE,
-				position: 'relative'
+				backgroundColor: FUNKIS_RED,
+				padding: `${FRAME}px`
 			},
 			children: [
-				// Main content (centered)
 				{
 					type: 'div',
 					props: {
@@ -553,8 +659,10 @@ function ctaSlideMarkup(collectionUrl: string, eventCount: number) {
 							alignItems: 'center',
 							width: '100%',
 							height: '100%',
-							padding: '64px',
-							gap: '36px'
+							backgroundColor: WHITE,
+							borderRadius: '8px',
+							padding: '64px 64px 80px 64px',
+							gap: '28px'
 						},
 						children: [
 							// Gåri branding
@@ -569,7 +677,7 @@ function ctaSlideMarkup(collectionUrl: string, eventCount: number) {
 										letterSpacing: '-0.02em',
 										lineHeight: 1
 									},
-									children: 'Gaari'
+									children: 'Gåri.no'
 								}
 							},
 							// Tagline
@@ -578,12 +686,12 @@ function ctaSlideMarkup(collectionUrl: string, eventCount: number) {
 								props: {
 									style: {
 										display: 'flex',
-										fontSize: '24px',
+										fontSize: '28px',
 										fontFamily: 'Inter',
 										color: TEXT_MUTED,
 										lineHeight: 1.4
 									},
-									children: 'Alt som skjer i Bergen pa ett sted'
+									children: 'Alt som skjer i Bergen på ett sted'
 								}
 							},
 							// CTA text
@@ -592,42 +700,29 @@ function ctaSlideMarkup(collectionUrl: string, eventCount: number) {
 								props: {
 									style: {
 										display: 'flex',
-										fontSize: '28px',
+										fontSize: '32px',
 										fontFamily: 'Inter',
-										color: TEXT_SECONDARY,
-										marginTop: '16px'
+										color: TEXT_PRIMARY,
+										marginTop: '20px'
 									},
 									children: `Se alle ${eventCount} arrangementer`
 								}
 							},
-							// Collection URL
+							// Share CTA
 							{
 								type: 'div',
 								props: {
 									style: {
 										display: 'flex',
-										fontSize: '36px',
-										fontFamily: 'Barlow Condensed',
-										color: FUNKIS_RED
+										fontSize: '26px',
+										fontFamily: 'Inter',
+										color: TEXT_MUTED,
+										marginTop: '28px'
 									},
-									children: collectionUrl
+									children: 'Send til noen som trenger helgeplaner!'
 								}
 							}
 						]
-					}
-				},
-				// Bottom accent line
-				{
-					type: 'div',
-					props: {
-						style: {
-							position: 'absolute',
-							left: 0,
-							right: 0,
-							bottom: 0,
-							height: '8px',
-							backgroundColor: FUNKIS_RED
-						}
 					}
 				}
 			]
@@ -643,6 +738,7 @@ export interface CarouselEvent {
 	time: string;
 	category: Category;
 	imageUrl?: string;
+	isFree?: boolean;
 }
 
 export async function generateCarousel(
@@ -662,30 +758,36 @@ export async function generateCarousel(
 	const fetched = imageResults.filter(Boolean).length;
 	console.log(`  Fetched ${fetched}/${events.length} images`);
 
-	// Slide 1: Hook (shows total event count)
-	slides.push(await renderSlide(hookSlideMarkup(collectionTitle, dateRange, totalEventCount)));
+	// Sort: events with images first for visual impact
+	const indexed = events.map((e, i) => ({ event: e, image: imageResults[i] }));
+	indexed.sort((a, b) => {
+		if (a.image && !b.image) return -1;
+		if (!a.image && b.image) return 1;
+		return 0;
+	});
 
-	// Slides 2–N: Events
-	for (let i = 0; i < events.length; i++) {
-		const event = events[i];
-		const imageBase64 = imageResults[i];
-
+	// No hook slide — start directly with events (images first)
+	// First slide gets a collection label badge for context
+	let isFirst = true;
+	for (const { event, image } of indexed) {
+		const label = isFirst ? collectionTitle : undefined;
+		isFirst = false;
 		try {
-			if (imageBase64) {
-				const markup = eventSlideWithImage(event.title, event.venue, event.time, event.category, imageBase64);
+			if (image) {
+				const markup = eventSlideWithImage(event.title, event.venue, event.time, event.category, image, label, event.isFree);
 				slides.push(await renderSlide(markup));
 			} else {
-				const markup = eventSlideFallback(event.title, event.venue, event.time, event.category);
+				const markup = eventSlideFallback(event.title, event.venue, event.time, event.category, event.isFree);
 				slides.push(await renderSlide(markup));
 			}
 		} catch (err: any) {
 			console.log(`  [warn] Slide for "${event.title}" with image failed (${err.message}), retrying without image`);
-			const markup = eventSlideFallback(event.title, event.venue, event.time, event.category);
+			const markup = eventSlideFallback(event.title, event.venue, event.time, event.category, event.isFree);
 			slides.push(await renderSlide(markup));
 		}
 	}
 
-	// Last slide: CTA (shows total event count)
+	// Last slide: CTA
 	slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount)));
 
 	return slides;

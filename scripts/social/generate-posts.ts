@@ -2,7 +2,7 @@ import { writeFileSync } from 'fs';
 import { supabase } from '../lib/supabase.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
-import { formatEventTime } from '../../src/lib/utils.js';
+import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
 import { generateCarousel, type CarouselEvent } from './image-gen.js';
 import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import type { GaariEvent } from '../../src/lib/types.js';
@@ -279,7 +279,8 @@ async function main() {
 				venue: e.venue_name,
 				time: formatEventTime(e.date_start, lang),
 				category: e.category,
-				imageUrl: e.image_url || undefined
+				imageUrl: e.image_url || undefined,
+				isFree: isFreeEvent(e.price)
 			}));
 
 			// Build caption event data
