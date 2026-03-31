@@ -20,7 +20,8 @@
 	let baseTitle = $derived(data.collection.title[ssrLang]);
 	let year = new Date().getFullYear();
 	let title = $derived(data.collection.seasonal ? `${baseTitle} ${year}` : baseTitle);
-	let description = $derived(data.collection.description[ssrLang]);
+	let descriptionBase = $derived(data.collection.description[ssrLang]);
+	let description = $derived(data.collection.seasonal ? `${descriptionBase.replace(/\.$/, '')} ${year}.` : descriptionBase);
 	let canonicalUrl = $derived(getCanonicalUrl(`/${ssrLang}/${data.collection.slug}`));
 	let collectionJsonLd = $derived(
 		generateCollectionJsonLd(data.collection, ssrLang, canonicalUrl, data.events)

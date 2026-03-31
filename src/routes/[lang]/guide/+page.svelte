@@ -17,10 +17,10 @@
 	let guideCollectionJsonLd = $derived(safeJsonLd({
 		'@context': 'https://schema.org',
 		'@type': 'CollectionPage',
-		name: $lang === 'no' ? 'Din guide til Bergen-arrangementer' : 'Your guide to Bergen events',
+		name: $lang === 'no' ? 'Hva skjer i Bergen? Arrangementer og aktiviteter' : 'Things to Do in Bergen — Events and Activities',
 		description: $lang === 'no'
-			? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer.'
-			: 'Complete guide to events in Bergen — concerts, theatre, festivals, family activities and more.',
+			? 'Hva skjer i Bergen i dag, denne helgen og fremover? Konserter, teater, festivaler, familieaktiviteter og mer.'
+			: 'What\u2019s on in Bergen today, this weekend and beyond? Concerts, theatre, festivals, family activities and more.',
 		url: canonicalUrl,
 		isPartOf: { '@type': 'WebSite', name: 'Gåri', url: 'https://gaari.no' },
 		mainEntity: {
@@ -366,18 +366,18 @@
 </script>
 
 <svelte:head>
-	<title>{$lang === 'no' ? 'Din guide til Bergen-arrangementer' : 'Your guide to Bergen events'} — Gåri</title>
+	<title>{$lang === 'no' ? 'Hva skjer i Bergen? Arrangementer og aktiviteter' : 'Things to Do in Bergen — Events and Activities'} — Gåri</title>
 	<meta name="description" content={$lang === 'no'
-		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 54 kilder.'
-		: 'Complete guide to events in Bergen, Norway — concerts, theatre, festivals, family activities and more. Updated daily from 54 sources.'} />
+		? 'Hva skjer i Bergen i dag, denne helgen og fremover? Konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 54 lokale kilder.'
+		: 'What\u2019s on in Bergen today, this weekend and beyond? Concerts, theatre, festivals, family activities and more. Updated daily from 54 local sources.'} />
 	<link rel="canonical" href={canonicalUrl} />
 	<link rel="alternate" hreflang="nb" href={getCanonicalUrl('/no/guide')} />
 	<link rel="alternate" hreflang="en" href={getCanonicalUrl('/en/guide')} />
 	<link rel="alternate" hreflang="x-default" href={getCanonicalUrl('/no/guide')} />
-	<meta property="og:title" content={$lang === 'no' ? 'Din guide til Bergen-arrangementer' : 'Your guide to Bergen events'} />
+	<meta property="og:title" content={$lang === 'no' ? 'Hva skjer i Bergen? Arrangementer og aktiviteter' : 'Things to Do in Bergen — Events and Activities'} />
 	<meta property="og:description" content={$lang === 'no'
-		? 'Komplett oversikt over arrangementer i Bergen — konserter, teater, festivaler, familieaktiviteter og mer.'
-		: 'Complete guide to events in Bergen — concerts, theatre, festivals, family activities and more.'} />
+		? 'Hva skjer i Bergen i dag, denne helgen og fremover? Konserter, teater, festivaler, familieaktiviteter og mer.'
+		: 'What\u2019s on in Bergen today, this weekend and beyond? Concerts, theatre, festivals, family activities and more.'} />
 	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
@@ -396,7 +396,7 @@
 				<span aria-hidden="true">←</span> {$lang === 'no' ? 'Forsiden' : 'Home'}
 			</a>
 			<h1 class="text-2xl font-bold text-[var(--color-text-primary)] md:text-3xl" style="font-family: 'Barlow Condensed', sans-serif">
-				{$lang === 'no' ? 'Din guide til Bergen' : 'Your guide to Bergen events'}
+				{$lang === 'no' ? 'Hva skjer i Bergen?' : 'What\u2019s on in Bergen?'}
 			</h1>
 			<p class="mt-2 leading-relaxed text-[var(--color-text-secondary)]">
 				{$lang === 'no'
