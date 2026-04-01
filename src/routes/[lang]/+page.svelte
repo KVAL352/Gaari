@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { goto, beforeNavigate, afterNavigate } from '$app/navigation';
+	import { replaceState, beforeNavigate, afterNavigate } from '$app/navigation';
 	import { tick } from 'svelte';
 	import { browser } from '$app/environment';
 	import { lang, t } from '$lib/i18n';
@@ -149,9 +149,10 @@
 	// Pagination
 	let displayedEvents = $derived(filteredEvents.slice(0, pageNum * PAGE_SIZE));
 
-	// URL update helper
+	// URL update helper — use replaceState (shallow routing) to avoid re-running server load
 	function updateParam(key: string, value: string) {
-		goto(`?${buildQueryString($page.url.search, key, value)}`, { replaceState: true, noScroll: true, keepFocus: true });
+		const qs = buildQueryString($page.url.search, key, value);
+		replaceState(`?${qs}`, {});
 	}
 
 	function handleFilterChange(key: string, value: string) {
@@ -159,7 +160,7 @@
 	}
 
 	function handleClearAll() {
-		goto(`/${$lang}`, { replaceState: true, noScroll: true, keepFocus: true });
+		replaceState(`/${$lang}`, {});
 	}
 
 	let nextPageHref = $derived(`?${buildQueryString($page.url.search, 'page', String(pageNum + 1))}`);

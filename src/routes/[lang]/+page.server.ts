@@ -3,7 +3,7 @@ import { seedEvents } from '$lib/data/seed-events';
 import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ setHeaders, url, params }) => {
+export const load: PageServerLoad = async ({ setHeaders, params }) => {
 	setHeaders({ 'cache-control': 's-maxage=300, stale-while-revalidate=600' });
 
 	const lang = params.lang === 'en' ? 'en' : 'no';
