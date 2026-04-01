@@ -507,9 +507,9 @@ function detectAlerts(data: ReportData): Alert[] {
 		alerts.push({ severity: 'warning', message: 'Ingen nye events de siste 24 timene — scraper-pipeline kan ha feilet' });
 	}
 
-	// Index coverage drop
+	// Index coverage drop (note: GSC Sitemaps API 'indexed' field is deprecated and returns 0 — skip alert when indexed=0)
 	for (const sm of data.sitemaps) {
-		if (sm.submitted > 0) {
+		if (sm.submitted > 0 && sm.indexed > 0) {
 			const ratio = sm.indexed / sm.submitted;
 			if (ratio < 0.8) {
 				alerts.push({ severity: 'warning', message: `Indeksdekning: bare ${(ratio * 100).toFixed(0)}% av ${sm.submitted} sider indeksert` });
