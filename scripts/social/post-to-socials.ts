@@ -21,6 +21,12 @@ const GRAPH_API = 'https://graph.facebook.com/v22.0';
 
 const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
+/** Max posts per platform per day — keep low for new accounts to avoid rate limits */
+const MAX_POSTS_PER_PLATFORM = 3;
+
+/** Daily slugs deprioritized when daily cap is hit (weekly specials take precedence) */
+const DAILY_SLUGS = new Set(['i-kveld', 'today-in-bergen']);
+
 /** Collections to post to Instagram (carousels) */
 const INSTAGRAM_SLUGS = new Set([
 	'denne-helgen',
@@ -225,9 +231,18 @@ async function main() {
 		return;
 	}
 
-	console.log(`Found ${posts.length} generated posts: ${posts.map(p => p.collection_slug).join(', ')}\n`);
+	// Sort: weekly specials first, daily posts fill remaining slots
+	posts.sort((a, b) => {
+		const aDaily = DAILY_SLUGS.has(a.collection_slug) ? 1 : 0;
+		const bDaily = DAILY_SLUGS.has(b.collection_slug) ? 1 : 0;
+		return aDaily - bDaily;
+	});
+
+	console.log(`Found ${posts.length} generated posts: ${posts.map(p => p.collection_slug).join(', ')}`);
+	console.log(`Daily cap: ${MAX_POSTS_PER_PLATFORM} per platform\n`);
 
 	let igPosted = 0, igFailed = 0, fbPosted = 0, fbFailed = 0;
+	let igSkipped = 0, fbSkipped = 0;
 
 	for (const post of posts) {
 		const slug = post.collection_slug;
@@ -235,65 +250,75 @@ async function main() {
 
 		// ── Instagram ──
 		if (INSTAGRAM_SLUGS.has(slug) && !post.instagram_id) {
-			console.log(`--- ${slug} → Instagram (${imageUrls.length} slides) ---`);
-			try {
-				if (dryRun) {
-					console.log(`  [DRY RUN] Would post carousel\n`);
-					igPosted++;
-				} else {
-					const igId = await postToInstagram(imageUrls, post.caption);
-					if (igId) {
-						console.log(`  Posted: ${igId}`);
-						await supabase
-							.from('social_posts')
-							.update({ instagram_id: igId, instagram_posted_at: new Date().toISOString() })
-							.eq('id', post.id);
+			if (igPosted >= MAX_POSTS_PER_PLATFORM) {
+				console.log(`--- ${slug} → Instagram [skipped, daily cap reached] ---`);
+				igSkipped++;
+			} else {
+				console.log(`--- ${slug} → Instagram (${imageUrls.length} slides) ---`);
+				try {
+					if (dryRun) {
+						console.log(`  [DRY RUN] Would post carousel\n`);
 						igPosted++;
+					} else {
+						const igId = await postToInstagram(imageUrls, post.caption);
+						if (igId) {
+							console.log(`  Posted: ${igId}`);
+							await supabase
+								.from('social_posts')
+								.update({ instagram_id: igId, instagram_posted_at: new Date().toISOString() })
+								.eq('id', post.id);
+							igPosted++;
+						}
 					}
+				} catch (err: any) {
+					console.error(`  IG FAILED: ${err.message}`);
+					igFailed++;
 				}
-			} catch (err: any) {
-				console.error(`  IG FAILED: ${err.message}`);
-				igFailed++;
+				if (!dryRun) await delay(2000);
 			}
-			if (!dryRun) await delay(2000);
 		}
 
 		// ── Facebook (album with images) ──
 		if (FACEBOOK_SLUGS.has(slug) && !post.facebook_id) {
-			console.log(`--- ${slug} → Facebook (${imageUrls.length} images) ---`);
-			try {
-				const { message } = buildFacebookPost(post.caption, slug, post.event_count);
-				if (dryRun) {
-					console.log(`  [DRY RUN] Would post album with ${imageUrls.length} images\n`);
-					fbPosted++;
-				} else {
-					const fbId = await postToFacebookAlbum(imageUrls, message);
-					if (fbId) {
-						console.log(`  Posted: ${fbId}`);
-						await supabase
-							.from('social_posts')
-							.update({ facebook_id: fbId, facebook_posted_at: new Date().toISOString() })
-							.eq('id', post.id);
+			if (fbPosted >= MAX_POSTS_PER_PLATFORM) {
+				console.log(`--- ${slug} → Facebook [skipped, daily cap reached] ---`);
+				fbSkipped++;
+			} else {
+				console.log(`--- ${slug} → Facebook (${imageUrls.length} images) ---`);
+				try {
+					const { message } = buildFacebookPost(post.caption, slug, post.event_count);
+					if (dryRun) {
+						console.log(`  [DRY RUN] Would post album with ${imageUrls.length} images\n`);
 						fbPosted++;
+					} else {
+						const fbId = await postToFacebookAlbum(imageUrls, message);
+						if (fbId) {
+							console.log(`  Posted: ${fbId}`);
+							await supabase
+								.from('social_posts')
+								.update({ facebook_id: fbId, facebook_posted_at: new Date().toISOString() })
+								.eq('id', post.id);
+							fbPosted++;
+						}
 					}
+				} catch (err: any) {
+					console.error(`  FB FAILED: ${err.message}`);
+					fbFailed++;
 				}
-			} catch (err: any) {
-				console.error(`  FB FAILED: ${err.message}`);
-				fbFailed++;
+				if (!dryRun) await delay(2000);
 			}
-			if (!dryRun) await delay(2000);
 		}
 	}
 
 	// Summary
 	console.log(`\n=== Summary ===`);
-	console.log(`  Instagram: ${igPosted} posted, ${igFailed} failed`);
-	console.log(`  Facebook:  ${fbPosted} posted, ${fbFailed} failed`);
+	console.log(`  Instagram: ${igPosted} posted, ${igFailed} failed, ${igSkipped} skipped (cap)`);
+	console.log(`  Facebook:  ${fbPosted} posted, ${fbFailed} failed, ${fbSkipped} skipped (cap)`);
 
 	const summary = {
 		date: dateStr,
-		instagram: { posted: igPosted, failed: igFailed },
-		facebook: { posted: fbPosted, failed: fbFailed }
+		instagram: { posted: igPosted, failed: igFailed, skipped: igSkipped },
+		facebook: { posted: fbPosted, failed: fbFailed, skipped: fbSkipped }
 	};
 	console.log('\n' + JSON.stringify(summary));
 
