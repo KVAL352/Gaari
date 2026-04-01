@@ -24,20 +24,28 @@ const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 /** Collections to post to Instagram (carousels) */
 const INSTAGRAM_SLUGS = new Set([
 	'denne-helgen',
+	'i-kveld',
 	'gratis',
+	'today-in-bergen',
 	'familiehelg',
 	'konserter',
+	'studentkveld',
+	'this-weekend',
 	'teater',
 	'utstillinger',
 	'mat-og-drikke',
 ]);
 
-/** Collections to post to Facebook (link posts) */
+/** Collections to post to Facebook (album posts) */
 const FACEBOOK_SLUGS = new Set([
 	'denne-helgen',
+	'i-kveld',
 	'gratis',
+	'today-in-bergen',
 	'familiehelg',
 	'konserter',
+	'studentkveld',
+	'this-weekend',
 	'teater',
 	'utstillinger',
 	'mat-og-drikke',

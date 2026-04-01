@@ -868,7 +868,11 @@ export async function generateCarousel(
 	// Slide 1: Montage hook with dimmed event images
 	const hookImages = indexed.filter(x => x.image).map(x => x.image as string).slice(0, 4);
 	if (hookImages.length > 0) {
-		slides.push(await renderSlide(hookSlideMarkup(collectionTitle, totalEventCount, hookImages, options?.lang ?? 'no')));
+		try {
+			slides.push(await renderSlide(hookSlideMarkup(collectionTitle, totalEventCount, hookImages, options?.lang ?? 'no')));
+		} catch (err: any) {
+			console.log(`  [warn] Hook slide failed (${err.message}), skipping montage`);
+		}
 	}
 
 	// Event slides
@@ -900,7 +904,12 @@ export async function generateCarousel(
 	// Last slide: CTA
 	// Use same images as hook for visual consistency
 	const ctaImages = indexed.filter(x => x.image).map(x => x.image as string).slice(0, 4);
-	slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount, ctaImages, options?.lang ?? 'no')));
+	try {
+		slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount, ctaImages, options?.lang ?? 'no')));
+	} catch (err: any) {
+		console.log(`  [warn] CTA slide failed (${err.message}), rendering without images`);
+		slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount, [], options?.lang ?? 'no')));
+	}
 
 	return slides;
 }
