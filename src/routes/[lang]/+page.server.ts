@@ -1,6 +1,5 @@
 import { supabase } from '$lib/server/supabase';
 import { seedEvents } from '$lib/data/seed-events';
-import { computeCanonical } from '$lib/seo';
 import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad } from './$types';
 
@@ -39,36 +38,14 @@ export const load: PageServerLoad = async ({ setHeaders, url, params }) => {
 				return true;
 			});
 
-			const { canonical, noindex } = computeCanonical(url, lang, countFiltered(events, url));
-			return { events, source: 'supabase' as const, canonical, noindex };
+			return { events, source: 'supabase' as const, lang };
 		}
 
 		// Empty table — fall back to seed data
-		const { canonical, noindex } = computeCanonical(url, lang, seedEvents.length);
-		return { events: seedEvents, source: 'seed' as const, canonical, noindex };
+		return { events: seedEvents, source: 'seed' as const, lang };
 	} catch (err) {
 		// Supabase unreachable — fall back to seed data
 		console.error('Supabase load failed:', err);
-		const { canonical, noindex } = computeCanonical(url, lang, seedEvents.length);
-		return { events: seedEvents, source: 'seed' as const, canonical, noindex };
+		return { events: seedEvents, source: 'seed' as const, lang };
 	}
 };
-
-/**
- * Count events matching the indexable filters (category + bydel) for the
- * canonical/noindex decision. Time/date filters are excluded — they're too
- * volatile for a meaningful thin-content check.
- */
-function countFiltered(events: GaariEvent[], url: URL): number {
-	const category = url.searchParams.get('category') || '';
-	const bydel = url.searchParams.get('bydel') || '';
-	let filtered = events.filter(e => e.status !== 'cancelled');
-	if (category) {
-		const cats = category.split(',');
-		filtered = filtered.filter(e => cats.includes(e.category));
-	}
-	if (bydel) {
-		filtered = filtered.filter(e => e.bydel === bydel);
-	}
-	return filtered.length;
-}

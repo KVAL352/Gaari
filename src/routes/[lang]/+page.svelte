@@ -8,7 +8,7 @@
 	import { hideEvent, hideVenue, hideCategory, isHidden, unhideAll, hiddenCount, hiddenSummary } from '$lib/hidden-events.svelte';
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString } from '$lib/event-filters';
 	import type { Bydel, GaariEvent } from '$lib/types';
-	import { generateWebSiteJsonLd } from '$lib/seo';
+	import { generateWebSiteJsonLd, computeCanonical } from '$lib/seo';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import { ArrowRight } from 'lucide-svelte';
 	import HeroSection from '$lib/components/HeroSection.svelte';
@@ -151,7 +151,7 @@
 
 	// URL update helper
 	function updateParam(key: string, value: string) {
-		goto(`?${buildQueryString($page.url.search, key, value)}`, { replaceState: true, noScroll: true });
+		goto(`?${buildQueryString($page.url.search, key, value)}`, { replaceState: true, noScroll: true, keepFocus: true });
 	}
 
 	function handleFilterChange(key: string, value: string) {
@@ -159,7 +159,7 @@
 	}
 
 	function handleClearAll() {
-		goto(`/${$lang}`, { replaceState: true, noScroll: true });
+		goto(`/${$lang}`, { replaceState: true, noScroll: true, keepFocus: true });
 	}
 
 	let nextPageHref = $derived(`?${buildQueryString($page.url.search, 'page', String(pageNum + 1))}`);
@@ -257,6 +257,9 @@
 		hiddenVersion++;
 	}
 
+	// Compute canonical/noindex client-side to avoid server load re-runs on filter changes
+	let canonicalInfo = $derived(computeCanonical($page.url, $lang, filteredEvents.length));
+
 	let homeDescription = $derived($lang === 'no'
 		? 'Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Gåri samler arrangementer fra 54 lokale kilder, oppdatert daglig.'
 		: 'What\u2019s on in Bergen? Concerts, exhibitions, theatre, food and more. Gåri collects events from 54 local sources, updated daily.');
@@ -265,8 +268,8 @@
 <svelte:head>
 	<title>Gåri — {$t('tagline')}</title>
 	<meta name="description" content={homeDescription} />
-	<link rel="canonical" href={data.canonical} />
-	{#if data.noindex}<meta name="robots" content="noindex, follow" />{/if}
+	<link rel="canonical" href={canonicalInfo.canonical} />
+	{#if canonicalInfo.noindex}<meta name="robots" content="noindex, follow" />{/if}
 	<meta property="og:title" content={`Gåri — ${$t('tagline')}`} />
 	<meta property="og:description" content={homeDescription} />
 	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
