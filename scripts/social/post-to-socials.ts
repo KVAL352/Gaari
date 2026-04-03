@@ -24,6 +24,9 @@ const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 /** Max posts per platform per day — keep low for new accounts to avoid rate limits */
 const MAX_POSTS_PER_PLATFORM = 3;
 
+/** Max slides per IG carousel — keeps API calls low to avoid rate limits on new accounts */
+const MAX_IG_SLIDES = 5;
+
 /** Daily slugs deprioritized when daily cap is hit (weekly specials take precedence) */
 const DAILY_SLUGS = new Set(['i-kveld', 'today-in-bergen']);
 
@@ -59,6 +62,32 @@ const FACEBOOK_SLUGS = new Set([
 
 // ── Instagram Graph API ──
 
+/** Retry a fetch-based API call with exponential backoff for transient Meta errors */
+async function fetchWithRetry(
+	url: string,
+	init: RequestInit,
+	label: string,
+	maxRetries = 2
+): Promise<any> {
+	for (let attempt = 0; attempt <= maxRetries; attempt++) {
+		const res = await fetch(url, init);
+		const data = await res.json();
+		if (!data.error) return data;
+
+		const msg: string = data.error.message || '';
+		const isTransient = msg.includes('unexpected error') || msg.includes('Please retry');
+		const isRateLimit = msg.includes('request limit reached');
+
+		if (isRateLimit) throw new Error(`${label}: ${msg}`);
+		if (!isTransient || attempt === maxRetries) throw new Error(`${label}: ${msg}`);
+
+		const wait = (attempt + 1) * 5000;
+		console.log(`  [retry] ${label} attempt ${attempt + 1} failed (transient), waiting ${wait / 1000}s...`);
+		await delay(wait);
+	}
+	throw new Error(`${label}: max retries exceeded`);
+}
+
 async function postToInstagram(imageUrls: string[], caption: string): Promise<string | null> {
 	if (!META_TOKEN || !IG_USER_ID) {
 		console.log('  [skip] Instagram: META_ACCESS_TOKEN or IG_USER_ID not set');
@@ -78,16 +107,12 @@ async function postToInstagram(imageUrls: string[], caption: string): Promise<st
 			caption,
 			access_token: META_TOKEN
 		});
-		const res = await fetch(`${baseUrl}/media`, { method: 'POST', body: params });
-		const data = await res.json();
-		if (data.error) throw new Error(`IG container: ${data.error.message}`);
+		const data = await fetchWithRetry(`${baseUrl}/media`, { method: 'POST', body: params }, 'IG container');
 
 		await pollMediaStatus(data.id);
 
 		const pubParams = new URLSearchParams({ creation_id: data.id, access_token: META_TOKEN });
-		const pubRes = await fetch(`${baseUrl}/media_publish`, { method: 'POST', body: pubParams });
-		const pubData = await pubRes.json();
-		if (pubData.error) throw new Error(`IG publish: ${pubData.error.message}`);
+		const pubData = await fetchWithRetry(`${baseUrl}/media_publish`, { method: 'POST', body: pubParams }, 'IG publish');
 		return pubData.id;
 	}
 
@@ -99,11 +124,9 @@ async function postToInstagram(imageUrls: string[], caption: string): Promise<st
 			is_carousel_item: 'true',
 			access_token: META_TOKEN
 		});
-		const res = await fetch(`${baseUrl}/media`, { method: 'POST', body: params });
-		const data = await res.json();
-		if (data.error) throw new Error(`IG carousel child: ${data.error.message}`);
+		const data = await fetchWithRetry(`${baseUrl}/media`, { method: 'POST', body: params }, 'IG carousel child');
 		childIds.push(data.id);
-		await delay(1000);
+		await delay(2000);
 	}
 
 	// Wait for all children to be ready
@@ -118,17 +141,17 @@ async function postToInstagram(imageUrls: string[], caption: string): Promise<st
 		children: childIds.join(','),
 		access_token: META_TOKEN
 	});
-	const carouselRes = await fetch(`${baseUrl}/media`, { method: 'POST', body: carouselParams });
-	const carouselData = await carouselRes.json();
-	if (carouselData.error) throw new Error(`IG carousel: ${carouselData.error.message}`);
+	const carouselData = await fetchWithRetry(
+		`${baseUrl}/media`, { method: 'POST', body: carouselParams }, 'IG carousel'
+	);
 
 	await pollMediaStatus(carouselData.id);
 
 	// Publish
 	const pubParams = new URLSearchParams({ creation_id: carouselData.id, access_token: META_TOKEN });
-	const pubRes = await fetch(`${baseUrl}/media_publish`, { method: 'POST', body: pubParams });
-	const pubData = await pubRes.json();
-	if (pubData.error) throw new Error(`IG carousel publish: ${pubData.error.message}`);
+	const pubData = await fetchWithRetry(
+		`${baseUrl}/media_publish`, { method: 'POST', body: pubParams }, 'IG carousel publish'
+	);
 	return pubData.id;
 }
 
@@ -254,13 +277,17 @@ async function main() {
 				console.log(`--- ${slug} → Instagram [skipped, daily cap reached] ---`);
 				igSkipped++;
 			} else {
-				console.log(`--- ${slug} → Instagram (${imageUrls.length} slides) ---`);
+				const igSlides = imageUrls.slice(0, MAX_IG_SLIDES);
+				const capNote = igSlides.length < imageUrls.length
+					? ` (capped from ${imageUrls.length})`
+					: '';
+				console.log(`--- ${slug} → Instagram (${igSlides.length} slides${capNote}) ---`);
 				try {
 					if (dryRun) {
 						console.log(`  [DRY RUN] Would post carousel\n`);
 						igPosted++;
 					} else {
-						const igId = await postToInstagram(imageUrls, post.caption);
+						const igId = await postToInstagram(igSlides, post.caption);
 						if (igId) {
 							console.log(`  Posted: ${igId}`);
 							await supabase
