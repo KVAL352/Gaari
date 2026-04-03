@@ -38,9 +38,16 @@
 		open = !open;
 	}
 
+	function trackCalendarAdd(provider: string) {
+		if (typeof window !== 'undefined' && window.umami) {
+			umami.track('calendar-add', { provider });
+		}
+	}
+
 	function handleICS(e: MouseEvent) {
 		e.preventDefault();
 		e.stopPropagation();
+		trackCalendarAdd('ics');
 		downloadICS(event);
 		open = false;
 	}
@@ -155,7 +162,7 @@
 				rel="noopener noreferrer"
 				role="menuitem"
 				tabindex="-1"
-				onclick={handleLinkClick}
+				onclick={(e) => { trackCalendarAdd('google'); handleLinkClick(e); }}
 				class="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface)]"
 			>
 				<ExternalLink size={16} class="flex-shrink-0 text-[var(--color-text-secondary)]" />
@@ -167,7 +174,7 @@
 				rel="noopener noreferrer"
 				role="menuitem"
 				tabindex="-1"
-				onclick={handleLinkClick}
+				onclick={(e) => { trackCalendarAdd('outlook'); handleLinkClick(e); }}
 				class="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface)]"
 			>
 				<ExternalLink size={16} class="flex-shrink-0 text-[var(--color-text-secondary)]" />
