@@ -421,7 +421,7 @@ export const translations = {
 		readLess: 'Show less',
 
 		// Newsletter CTA
-		nlHeading: 'This week's highlights in Bergen',
+		nlHeading: "This week's highlights in Bergen",
 		nlSubtext: 'Hand-picked every Thursday. Always free.',
 		nlMicrocopy: 'Free — no spam. Only the best from Bergen.',
 		nlPlaceholder: 'Your email',

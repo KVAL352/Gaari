@@ -136,6 +136,14 @@
 	{#if quickAnswer}
 	<p class="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">{quickAnswer}</p>
 	{/if}
+	{#if data.events.length > 0}
+	<p class="mt-2 text-sm text-[var(--color-text-muted)]">
+		{ssrLang === 'no' ? 'Oppdateres ukentlig i nyhetsbrevet.' : 'Updated weekly in the newsletter.'}
+		<a href="#newsletter-cta" class="font-medium text-[var(--color-accent)] underline underline-offset-2">
+			{ssrLang === 'no' ? 'Meld deg p\u00e5' : 'Sign up'}
+		</a>
+	</p>
+	{/if}
 	{#if editorial.length > 0}
 	<details class="mt-2 max-w-2xl">
 		<summary class="cursor-pointer text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">
@@ -220,7 +228,7 @@
 </div>
 
 <!-- Newsletter CTA -->
-<div class="mx-auto max-w-7xl px-4 pt-4">
+<div id="newsletter-cta" class="mx-auto max-w-7xl px-4 pt-4">
 	<NewsletterCTA
 		id="collection"
 		variant="card"
