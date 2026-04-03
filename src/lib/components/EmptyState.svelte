@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { t } from '$lib/i18n';
+	import { lang, t } from '$lib/i18n';
 	import { Search } from 'lucide-svelte';
 	import type { GaariEvent } from '$lib/types';
 	import EventCard from './EventCard.svelte';
+	import NewsletterInline from './NewsletterInline.svelte';
 
 	interface Props {
 		popularEvents?: GaariEvent[];
@@ -32,6 +33,14 @@
 		>
 			{$t('browseAll')}
 		</button>
+	</div>
+
+	<!-- Newsletter CTA when no results match -->
+	<div class="mt-8 w-full max-w-lg">
+		<p class="mb-3 text-sm text-[var(--color-text-secondary)]">
+			{$lang === 'no' ? 'Få beskjed når det dukker opp noe:' : 'Get notified when something comes up:'}
+		</p>
+		<NewsletterInline />
 	</div>
 
 	{#if popularEvents.length > 0}
