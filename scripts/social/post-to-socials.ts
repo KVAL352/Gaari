@@ -126,7 +126,7 @@ async function postToInstagram(imageUrls: string[], caption: string): Promise<st
 		});
 		const data = await fetchWithRetry(`${baseUrl}/media`, { method: 'POST', body: params }, 'IG carousel child');
 		childIds.push(data.id);
-		await delay(2000);
+		await delay(3000);
 	}
 
 	// Wait for all children to be ready
@@ -301,7 +301,7 @@ async function main() {
 					console.error(`  IG FAILED: ${err.message}`);
 					igFailed++;
 				}
-				if (!dryRun) await delay(2000);
+				if (!dryRun) await delay(5000);
 			}
 		}
 
