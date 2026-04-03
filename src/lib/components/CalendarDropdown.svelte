@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import { t } from '$lib/i18n';
+	import { lang, t } from '$lib/i18n';
 	import type { CalendarEventData } from '$lib/utils';
 	import { getGoogleCalendarUrl, getOutlookCalendarUrl, downloadICS } from '$lib/utils';
 	import { CalendarPlus, ExternalLink, Download } from 'lucide-svelte';
@@ -14,6 +14,7 @@
 	let { event, compact = false }: Props = $props();
 
 	let open = $state(false);
+	let showNudge = $state(false);
 	let dropdownEl: HTMLDivElement | undefined = $state();
 	let focusedIndex = -1;
 
@@ -42,6 +43,7 @@
 		if (typeof window !== 'undefined' && window.umami) {
 			umami.track('calendar-add', { provider });
 		}
+		showNudge = true;
 	}
 
 	function handleICS(e: MouseEvent) {
@@ -190,5 +192,16 @@
 				{$t('appleCalendar')}
 			</button>
 		</div>
+	{/if}
+
+	{#if showNudge}
+		<p class="mt-2 text-xs text-[var(--color-text-muted)]">
+			{$lang === 'no'
+				? 'Vil du ha flere tips? Nyhetsbrevet kommer hver torsdag.'
+				: 'Want more tips? The newsletter arrives every Thursday.'}
+			<a href="/{$lang}/about#newsletter" class="font-medium text-[var(--color-accent)] underline underline-offset-2">
+				{$lang === 'no' ? 'Meld deg p\u00e5' : 'Sign up'}
+			</a>
+		</p>
 	{/if}
 </div>
