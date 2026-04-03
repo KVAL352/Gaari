@@ -23,6 +23,7 @@ const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
 /** Max posts per platform per day — keep low for new accounts to avoid rate limits */
 const MAX_POSTS_PER_PLATFORM = 3;
+const MAX_IG_POSTS_PER_DAY = 1;
 
 /** Max slides per IG carousel — keeps API calls low to avoid rate limits on new accounts */
 const MAX_IG_SLIDES = 5;
@@ -273,7 +274,7 @@ async function main() {
 
 		// ── Instagram ──
 		if (INSTAGRAM_SLUGS.has(slug) && !post.instagram_id) {
-			if (igPosted >= MAX_POSTS_PER_PLATFORM) {
+			if (igPosted >= MAX_IG_POSTS_PER_DAY) {
 				console.log(`--- ${slug} → Instagram [skipped, daily cap reached] ---`);
 				igSkipped++;
 			} else {
