@@ -3,16 +3,19 @@
 	import { lang, t } from '$lib/i18n';
 	import { groupEventsByDate, formatDateSectionHeader } from '$lib/utils';
 	import EventCard from './EventCard.svelte';
+	import NewsletterInline from './NewsletterInline.svelte';
 
 	interface Props {
 		events: GaariEvent[];
 		promotedEventIds?: string[];
+		/** Show inline newsletter CTA between date groups (default: false) */
+		showNewsletterCta?: boolean;
 		onHideEvent?: (id: string) => void;
 		onHideVenue?: (venue: string) => void;
 		onHideCategory?: (category: string) => void;
 	}
 
-	let { events, promotedEventIds = [], onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+	let { events, promotedEventIds = [], showNewsletterCta = false, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
 
 	let grouped = $derived.by(() => {
 		const groups = groupEventsByDate(events);
@@ -23,6 +26,9 @@
 </script>
 
 {#each grouped as [dateKey, dayEvents], groupIdx (dateKey)}
+	{#if showNewsletterCta && groupIdx === 3}
+		<NewsletterInline />
+	{/if}
 	<section class="mb-8">
 		<div class="mb-2 flex items-center gap-3 border-l-4 border-[var(--color-text-primary)] pl-3.5 md:mb-5">
 			<h2 class="text-lg font-semibold text-[var(--color-text-primary)]" style="font-family: var(--font-display)">

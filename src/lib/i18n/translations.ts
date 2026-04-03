@@ -204,11 +204,11 @@ export const translations = {
 		readLess: 'Vis mindre',
 
 		// Newsletter CTA
-		nlHeading: 'Nyhetsbrev fra Gåri',
-		nlSubtext: 'En e-post, rett i nebbet, hver torsdag.',
+		nlHeading: 'Ukens høydepunkter i Bergen',
+		nlSubtext: 'Håndplukket hver torsdag. Alltid gratis.',
 		nlMicrocopy: 'Gratis — ingen spam. Kun det beste fra Bergen.',
 		nlPlaceholder: 'Din e-post',
-		nlSubscribe: 'Abonner',
+		nlSubscribe: 'Meld meg på',
 		nlCustomize: 'Tilpass innholdet',
 		nlCatMusic: 'Konserter',
 		nlCatCulture: 'Kultur',
@@ -421,11 +421,11 @@ export const translations = {
 		readLess: 'Show less',
 
 		// Newsletter CTA
-		nlHeading: 'Gåri Newsletter',
-		nlSubtext: 'One email, straight to you, every Thursday.',
+		nlHeading: 'This week's highlights in Bergen',
+		nlSubtext: 'Hand-picked every Thursday. Always free.',
 		nlMicrocopy: 'Free — no spam. Only the best from Bergen.',
 		nlPlaceholder: 'Your email',
-		nlSubscribe: 'Subscribe',
+		nlSubscribe: 'Sign me up',
 		nlCustomize: 'Customize content',
 		nlCatMusic: 'Concerts',
 		nlCatCulture: 'Culture',

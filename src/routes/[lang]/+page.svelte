@@ -17,6 +17,7 @@
 	import EventGrid from '$lib/components/EventGrid.svelte';
 	import LoadMore from '$lib/components/LoadMore.svelte';
 	import EmptyState from '$lib/components/EmptyState.svelte';
+	import NewsletterInline from '$lib/components/NewsletterInline.svelte';
 
 	let { data } = $props();
 	let allEvents: GaariEvent[] = $derived(data.events);
@@ -310,7 +311,7 @@
 		/>
 	{:else}
 		<div class="event-results" class:fading={transitioning}>
-			<EventGrid events={displayedEvents} onHideEvent={handleHideEvent} onHideVenue={handleHideVenue} onHideCategory={handleHideCategory} />
+			<EventGrid events={displayedEvents} showNewsletterCta onHideEvent={handleHideEvent} onHideVenue={handleHideVenue} onHideCategory={handleHideCategory} />
 			{#if numHidden > 0}
 				<div class="mb-6 flex items-center justify-center gap-3 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-4 py-2.5">
 					<span class="text-sm text-[var(--color-text-muted)]">
@@ -325,6 +326,11 @@
 				</div>
 			{/if}
 			<LoadMore shown={displayedEvents.length} total={filteredEvents.length} href={nextPageHref} />
+			{#if pageNum > 1}
+				<div class="mt-4">
+					<NewsletterInline />
+				</div>
+			{/if}
 		</div>
 	{/if}
 </div>
