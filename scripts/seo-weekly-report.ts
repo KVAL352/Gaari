@@ -145,13 +145,18 @@ async function fetchUmamiStats(startAt: number, endAt: number): Promise<{ visito
 			headers: umamiHeaders()
 		});
 		if (!resp.ok) return null;
-		const d = await resp.json() as { pageviews: { value: number }; visitors: { value: number }; visits: { value: number }; bounces: { value: number }; totaltime: { value: number } };
-		const visits = d.visits?.value ?? 1;
+		const raw = await resp.json() as Record<string, unknown>;
+		// Umami Cloud API v1 returns flat numbers; self-hosted may wrap in { value: number }
+		const val = (key: string): number => {
+			const v = raw[key];
+			return typeof v === 'number' ? v : (v as { value?: number })?.value ?? 0;
+		};
+		const visits = val('visits') || 1;
 		return {
-			visitors: d.visitors?.value ?? 0,
-			pageviews: d.pageviews?.value ?? 0,
-			bounceRate: visits > 0 ? Math.round(((d.bounces?.value ?? 0) / visits) * 100) : 0,
-			visitDuration: visits > 0 ? Math.round((d.totaltime?.value ?? 0) / visits) : 0,
+			visitors: val('visitors'),
+			pageviews: val('pageviews'),
+			bounceRate: visits > 0 ? Math.round((val('bounces') / visits) * 100) : 0,
+			visitDuration: visits > 0 ? Math.round(val('totaltime') / visits) : 0,
 			visits
 		};
 	} catch { return null; }

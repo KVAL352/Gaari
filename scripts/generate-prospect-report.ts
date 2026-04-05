@@ -401,11 +401,12 @@ async function umamiStats(startAt: number, endAt: number): Promise<Record<string
 			headers: umamiHeaders()
 		});
 		if (!resp.ok) return null;
-		const d = await resp.json() as { pageviews: { value: number }; visitors: { value: number }; visits: { value: number }; bounces: { value: number }; totaltime: { value: number } };
+		const raw = await resp.json() as Record<string, unknown>;
+		const val = (key: string): number => { const v = raw[key]; return typeof v === 'number' ? v : (v as { value?: number })?.value ?? 0; };
 		return {
-			visitors: d.visitors?.value ?? 0,
-			pageviews: d.pageviews?.value ?? 0,
-			visits: d.visits?.value ?? 0
+			visitors: val('visitors'),
+			pageviews: val('pageviews'),
+			visits: val('visits')
 		};
 	} catch { return null; }
 }

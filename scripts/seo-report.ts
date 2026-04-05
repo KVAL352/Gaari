@@ -68,14 +68,15 @@ async function umamiReport() {
 	try {
 		const agg = await fetch(`${base}/stats?startAt=${startAt}&endAt=${endAt}`, { headers: hdrs });
 		if (agg.ok) {
-			const d = await agg.json() as { pageviews: { value: number }; visitors: { value: number }; visits: { value: number }; bounces: { value: number }; totaltime: { value: number } };
-			const visits = d.visits?.value ?? 1;
+			const raw = await agg.json() as Record<string, unknown>;
+			const val = (key: string): number => { const v = raw[key]; return typeof v === 'number' ? v : (v as { value?: number })?.value ?? 0; };
+			const visits = val('visits') || 1;
 			console.log(`\n  Period: ${period}`);
-			console.log(`  Visitors:       ${d.visitors?.value ?? '—'}`);
-			console.log(`  Page views:     ${d.pageviews?.value ?? '—'}`);
+			console.log(`  Visitors:       ${val('visitors') || '—'}`);
+			console.log(`  Page views:     ${val('pageviews') || '—'}`);
 			console.log(`  Visits:         ${visits}`);
-			console.log(`  Bounce rate:    ${visits > 0 ? Math.round(((d.bounces?.value ?? 0) / visits) * 100) : '—'}%`);
-			console.log(`  Avg duration:   ${visits > 0 ? Math.round((d.totaltime?.value ?? 0) / visits) : '—'}s`);
+			console.log(`  Bounce rate:    ${visits > 0 ? Math.round((val('bounces') / visits) * 100) : '—'}%`);
+			console.log(`  Avg duration:   ${visits > 0 ? Math.round(val('totaltime') / visits) : '—'}s`);
 		}
 	} catch (e) { console.error('  Aggregate error:', e); }
 
