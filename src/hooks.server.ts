@@ -105,8 +105,29 @@ export const handleError: HandleServerError = ({ error, event, status }) => {
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
-	// 301-redirect non-canonical domains (gåri.no, www) to gaari.no
 	const host = event.request.headers.get('host')?.replace(/:\d+$/, '') ?? '';
+
+	// Handle /qr directly on non-canonical domains (gåri.no) to avoid
+	// double-redirect chain that triggers Safari's fraud warning
+	if (event.url.pathname === '/qr' && host && host !== 'gaari.no' && host !== 'localhost') {
+		const oslo = new Date().toLocaleString('en-US', { timeZone: 'Europe/Oslo' });
+		const osloDate = new Date(oslo);
+		const day = osloDate.getDay();
+		const hour = osloDate.getHours();
+
+		let collection: string;
+		if (day === 0 || day === 5 || day === 6) {
+			collection = 'denne-helgen';
+		} else if (hour >= 16) {
+			collection = 'i-kveld';
+		} else {
+			collection = 'i-dag';
+		}
+
+		redirect(302, `https://gaari.no/no/${collection}?utm_source=sticker&utm_medium=qr`);
+	}
+
+	// 301-redirect non-canonical domains (gåri.no, www) to gaari.no
 	if (host && host !== 'gaari.no' && host !== 'localhost') {
 		const url = new URL(event.request.url);
 		url.host = 'gaari.no';
