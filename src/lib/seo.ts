@@ -439,6 +439,77 @@ export function generateFaqJsonLd(lang: Lang): string {
 	return generateFaqJsonLdFromItems(FAQ_ITEMS[lang]);
 }
 
+const B2B_FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
+	no: [
+		{
+			q: 'Kan jeg si opp når som helst?',
+			a: 'Ja. Det er ingen bindingstid. Du kan avslutte abonnementet når som helst, og det løper ut ved periodens slutt.'
+		},
+		{
+			q: 'Hva er inkludert i gratis-perioden?',
+			a: 'Du får full Standard-pakke i 3 måneder: fremhevet plassering i utvalgte sider, synlighet i nyhetsbrev og AI-søk, og månedlig rapport med statistikk.'
+		},
+		{
+			q: 'Hva betyr «fremhevet plassering»?',
+			a: 'Arrangementene dine vises øverst på utvalgte sider som «Denne helgen» og «Konserter denne uken». Alltid tydelig merket som «Fremhevet» i tråd med markedsføringsloven.'
+		},
+		{
+			q: 'Hvordan måler dere resultater?',
+			a: 'Du får en månedlig rapport med klikk fra Gåri til nettsiden din, hvilke arrangementer som traff best, synlighet i utvalgte sider, og om du dukker opp i AI-søk.'
+		},
+		{
+			q: 'Hva skjer etter prøveperioden?',
+			a: 'Du velger selv om du vil fortsette med en av våre tre pakker, eller stoppe. Ingen automatisk fakturering uten ditt samtykke.'
+		},
+		{
+			q: 'Hvor mange besøkende har Gåri?',
+			a: 'Gåri har rundt 10 000 ukentlige besøkende som aktivt leter etter noe å gjøre i Bergen. I tillegg når vi abonnenter via ukentlig nyhetsbrev og dukker opp i AI-søk.'
+		},
+		{
+			q: 'Passer dette for små arrangører?',
+			a: 'Absolutt. Basis-pakken koster omtrent 33 kr dagen, som er billigere enn de fleste andre markedsføringskanaler. Arrangementene dine er allerede på Gåri gratis. Fremhevet plassering gir dem ekstra synlighet.'
+		}
+	],
+	en: [
+		{
+			q: 'Can I cancel anytime?',
+			a: 'Yes. There is no commitment period. You can cancel your subscription at any time, and it runs until the end of the current period.'
+		},
+		{
+			q: 'What is included in the free trial?',
+			a: 'You get the full Standard package for 3 months: promoted placement on curated pages, visibility in the newsletter and AI search, and a monthly report with statistics.'
+		},
+		{
+			q: 'What does "promoted placement" mean?',
+			a: 'Your events appear at the top of curated pages like "This Weekend" and "Concerts This Week". Always clearly labeled as "Featured" in compliance with marketing regulations.'
+		},
+		{
+			q: 'How do you measure results?',
+			a: 'You receive a monthly report with clicks from Gåri to your website, which events performed best, visibility on curated pages, and whether you appear in AI search results.'
+		},
+		{
+			q: 'What happens after the trial period?',
+			a: 'You choose whether to continue with one of our three plans, or stop. No automatic billing without your consent.'
+		},
+		{
+			q: 'How many visitors does Gåri have?',
+			a: 'Gåri has around 10,000 weekly visitors actively looking for things to do in Bergen. We also reach subscribers via a weekly newsletter and appear in AI search results.'
+		},
+		{
+			q: 'Is this suitable for small organizers?',
+			a: 'Absolutely. The Basis plan costs about 33 NOK per day, which is cheaper than most other marketing channels. Your events are already on Gåri for free. Promoted placement gives them extra visibility.'
+		}
+	]
+};
+
+export function getB2bFaqItems(lang: Lang): Array<{ q: string; a: string }> {
+	return B2B_FAQ_ITEMS[lang];
+}
+
+export function generateB2bFaqJsonLd(lang: Lang): string {
+	return generateFaqJsonLdFromItems(B2B_FAQ_ITEMS[lang]);
+}
+
 export function generateCollectionJsonLd(
 	collection: Pick<Collection, 'title' | 'description' | 'slug'>,
 	lang: Lang,

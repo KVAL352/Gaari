@@ -1,18 +1,21 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { lang } from '$lib/i18n';
-	import { getCanonicalUrl } from '$lib/seo';
+	import { getCanonicalUrl, generateB2bFaqJsonLd } from '$lib/seo';
 	import ForArrangorerPage from '$lib/components/ForArrangorerPage.svelte';
 
+	let { data } = $props();
+
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/for-arrangorer`));
+	let faqJsonLd = $derived(generateB2bFaqJsonLd($lang));
 
 	let title = $derived($lang === 'no' ? 'For arrangører — Gåri' : 'For organizers — Gåri');
 	let metaDesc = $derived($lang === 'no'
-		? 'Nå flere i Bergen med Gåri. Synlig i AI-søk, på Google og på 13 utvalgte landingssider. Fremhevet synlighet for arrangører.'
-		: 'Reach more people in Bergen with Gåri. Visible in AI search, on Google and across 13 curated landing pages. Promoted visibility for organizers.');
+		? 'Fremhevet plassering i Bergens mest komplette eventkalender. Fra 1 000 kr/mnd. Prøv gratis i 3 måneder. Ingen bindingstid.'
+		: 'Promoted placement in Bergen\'s most complete event calendar. From 1,000 NOK/month. Try free for 3 months. No commitment.');
 	let ogDesc = $derived($lang === 'no'
-		? 'Når noen spør ChatGPT hva som skjer i Bergen, er det Gåri som blir sitert. Vi hjelper arrangører å nå flere.'
-		: "When someone asks ChatGPT what's on in Bergen, Gåri is cited. We help organizers reach more people.");
+		? 'Gjør arrangementet ditt synlig for tusenvis av bergensere. Fremhevet plassering, nyhetsbrev og AI-søk. Prøv gratis.'
+		: 'Make your event visible to thousands of people in Bergen. Promoted placement, newsletter and AI search. Try free.');
 	let ogImage = $derived($lang === 'no'
 		? `${$page.url.origin}/og/for-arrangorer.png`
 		: `${$page.url.origin}/og/for-organizers.png`);
@@ -34,6 +37,7 @@
 	<meta name="twitter:title" content={title} />
 	<meta name="twitter:description" content={ogDesc} />
 	<meta name="twitter:image" content={ogImage} />
+	{@html faqJsonLd}
 </svelte:head>
 
-<ForArrangorerPage />
+<ForArrangorerPage heroImages={data.heroImages} />
