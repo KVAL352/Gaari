@@ -85,9 +85,11 @@ function parseDay($: cheerio.CheerioAPI, dateStr: string) {
 		const time = timeMatch ? timeMatch[1] : '';
 		const endTime = timeMatch ? timeMatch[2] : '';
 
-		// Title: h3 inside the card
+		// Title: h3 inside the card — strip capacity notes that vary day-to-day
 		const rawTitle = card.find('h3').first().text().trim()
-			.replace(/&quot;/g, '"');
+			.replace(/&quot;/g, '"')
+			.replace(/\s*-\s*Begrenset antall.*/i, '')
+			.replace(/\s*\.\s*Spør etter.*/i, '');
 		if (!rawTitle) return;
 
 		// Location: span.fw-normal after the title
@@ -162,7 +164,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			found++;
 
 			// Build unique source_url per event per day
-			const titleSlug = activity.title
+			// Strip capacity notes ("Begrenset antall plasser...") before slugifying
+			// so the same activity with/without the suffix maps to one source_url
+			const titleForSlug = activity.title
+				.replace(/\s*-\s*Begrenset antall.*/i, '')
+				.replace(/\s*\.\s*Spør etter.*/i, '');
+			const titleSlug = titleForSlug
 				.toLowerCase()
 				.replace(/[æ]/g, 'ae').replace(/[ø]/g, 'o').replace(/[å]/g, 'a')
 				.replace(/["""]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
