@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 57 scrapers (54 active) collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 58 scrapers (55 active) collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -37,7 +37,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 5. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
 6. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
-## Scraper sources (57 total, 54 active, 3 disabled)
+## Scraper sources (58 total, 55 active, 3 disabled)
 
 ### General aggregators
 | Source | File | Method |
@@ -107,6 +107,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 | GG Bergen | `ggbergen.ts` | Google Calendar iCal feeds (3 public calendars, 30-day lookahead) |
 | Stene Matglede | `stenematglede.ts` | Squarespace eventlist (cooking courses, food events) |
 | Swing 'n Sweet Jazzclub | `swingnsweetjazzclub.ts` | HTML (jazz events) |
+| Bodega | `bodega.ts` | Google Calendar JSON API (public calendar, filters non-public events) |
 
 ### Sports & outdoor
 | Source | File | Method |
