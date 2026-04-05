@@ -42,6 +42,7 @@ function buildPrompt(event: EventMeta): string {
 		'If the title is already in English or is a proper noun, use it as-is.',
 		'Be factual — only use the information provided. Do not invent details.',
 		'Keep each description under 160 characters (for SEO meta descriptions).',
+		'When space allows, naturally include the venue name and a readable date reference (e.g. "på Grieghallen i mars" / "at Grieghallen in March"). Do not force it — skip venue/date if including them would make the description feel cramped or unnatural.',
 		'',
 		`Title: ${event.title}`,
 		`Venue: ${event.venue}`,
