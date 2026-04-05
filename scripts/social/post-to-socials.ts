@@ -19,6 +19,11 @@ const IG_USER_ID = process.env.IG_USER_ID || '';
 const FB_PAGE_ID = process.env.FB_PAGE_ID || '';
 const GRAPH_API = 'https://graph.facebook.com/v22.0';
 
+/** Platform filter: --platform=ig or --platform=fb to post only one */
+const PLATFORM_ARG = process.argv.find(a => a.startsWith('--platform='))?.split('=')[1] || 'all';
+const POST_IG = PLATFORM_ARG === 'all' || PLATFORM_ARG === 'ig';
+const POST_FB = PLATFORM_ARG === 'all' || PLATFORM_ARG === 'fb';
+
 const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
 /** Max posts per platform per day — keep low for new accounts to avoid rate limits */
@@ -63,6 +68,9 @@ const FACEBOOK_SLUGS = new Set([
 
 // ── Instagram Graph API ──
 
+/** Track API usage from x-app-usage header (percentage values 0-100) */
+let lastAppUsage = { call_count: 0, total_cputime: 0, total_time: 0 };
+
 /** Retry a fetch-based API call with exponential backoff for transient Meta errors */
 async function fetchWithRetry(
 	url: string,
@@ -72,6 +80,19 @@ async function fetchWithRetry(
 ): Promise<any> {
 	for (let attempt = 0; attempt <= maxRetries; attempt++) {
 		const res = await fetch(url, init);
+
+		// Parse x-app-usage header to track rate limit proximity
+		const appUsage = res.headers.get('x-app-usage');
+		if (appUsage) {
+			try {
+				lastAppUsage = JSON.parse(appUsage);
+				const maxPct = Math.max(lastAppUsage.call_count, lastAppUsage.total_cputime, lastAppUsage.total_time);
+				if (maxPct >= 80) {
+					console.log(`  [warn] API usage at ${maxPct}% — approaching rate limit`);
+				}
+			} catch {}
+		}
+
 		const data = await res.json();
 		if (!data.error) return data;
 
@@ -87,6 +108,27 @@ async function fetchWithRetry(
 		await delay(wait);
 	}
 	throw new Error(`${label}: max retries exceeded`);
+}
+
+/** Check IG content publishing quota before attempting to post */
+async function checkIgPublishingQuota(): Promise<{ canPost: boolean; used: number; total: number }> {
+	if (!META_TOKEN || !IG_USER_ID) return { canPost: false, used: 0, total: 0 };
+	try {
+		const url = `${GRAPH_API}/${IG_USER_ID}/content_publishing_limit?fields=config,quota_usage&access_token=${encodeURIComponent(META_TOKEN)}`;
+		const res = await fetch(url);
+		const data = await res.json() as any;
+		if (data.error) {
+			console.log(`  [warn] Could not check IG quota: ${data.error.message}`);
+			return { canPost: true, used: 0, total: 0 }; // optimistic fallback
+		}
+		const total = data.config?.quota_total ?? 100;
+		const used = data.quota_usage ?? 0;
+		console.log(`  IG publishing quota: ${used}/${total} used`);
+		return { canPost: used < total, used, total };
+	} catch (err: any) {
+		console.log(`  [warn] IG quota check failed: ${err.message}`);
+		return { canPost: true, used: 0, total: 0 };
+	}
 }
 
 async function postToInstagram(imageUrls: string[], caption: string): Promise<string | null> {
@@ -236,7 +278,8 @@ async function main() {
 	const dateStr = toOsloDateStr(now);
 	const dryRun = process.argv.includes('--dry-run');
 
-	console.log(`Social posting — ${dateStr}${dryRun ? ' (DRY RUN)' : ''}\n`);
+	const platforms = POST_IG && POST_FB ? 'IG + FB' : POST_IG ? 'IG only' : 'FB only';
+	console.log(`Social posting — ${dateStr} [${platforms}]${dryRun ? ' (DRY RUN)' : ''}\n`);
 
 	// Fetch today's social posts
 	const { data: posts, error } = await supabase
@@ -265,6 +308,16 @@ async function main() {
 	console.log(`Found ${posts.length} generated posts: ${posts.map(p => p.collection_slug).join(', ')}`);
 	console.log(`Daily cap: ${MAX_POSTS_PER_PLATFORM} per platform\n`);
 
+	// Check IG publishing quota before attempting any posts
+	let igQuotaBlocked = false;
+	if (POST_IG) {
+		const quota = await checkIgPublishingQuota();
+		if (!quota.canPost) {
+			console.log(`  IG quota exhausted (${quota.used}/${quota.total}) — skipping all IG posts\n`);
+			igQuotaBlocked = true;
+		}
+	}
+
 	let igPosted = 0, igFailed = 0, fbPosted = 0, fbFailed = 0;
 	let igSkipped = 0, fbSkipped = 0;
 
@@ -273,8 +326,8 @@ async function main() {
 		const imageUrls: string[] = post.image_urls || [];
 
 		// ── Instagram ──
-		if (INSTAGRAM_SLUGS.has(slug) && !post.instagram_id) {
-			if (igPosted >= MAX_IG_POSTS_PER_DAY) {
+		if (POST_IG && INSTAGRAM_SLUGS.has(slug) && !post.instagram_id) {
+			if (igQuotaBlocked || igPosted >= MAX_IG_POSTS_PER_DAY) {
 				console.log(`--- ${slug} → Instagram [skipped, daily cap reached] ---`);
 				igSkipped++;
 			} else {
@@ -307,7 +360,7 @@ async function main() {
 		}
 
 		// ── Facebook (album with images) ──
-		if (FACEBOOK_SLUGS.has(slug) && !post.facebook_id) {
+		if (POST_FB && FACEBOOK_SLUGS.has(slug) && !post.facebook_id) {
 			if (fbPosted >= MAX_POSTS_PER_PLATFORM) {
 				console.log(`--- ${slug} → Facebook [skipped, daily cap reached] ---`);
 				fbSkipped++;

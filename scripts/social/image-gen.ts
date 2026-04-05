@@ -496,167 +496,6 @@ function eventSlideWithImage(
 	};
 }
 
-function eventSlideFallback(
-	title: string,
-	venue: string,
-	time: string,
-	category: Category,
-	isFree?: boolean
-) {
-	const catColor = CATEGORY_COLORS[category] || '#D4D1CA';
-	const catLabel = CATEGORY_LABELS[category] || category;
-	const displayTitle = truncate(title, 40);
-	const venueTime = time ? `${venue}  \u00b7  kl. ${time}` : venue;
-
-	return {
-		type: 'div',
-		props: {
-			style: {
-				display: 'flex',
-				width: '100%',
-				height: '100%',
-				backgroundColor: FUNKIS_RED,
-				padding: `${FRAME}px`
-			},
-			children: [
-				{
-					type: 'div',
-					props: {
-						style: {
-							display: 'flex',
-							flexDirection: 'column',
-							justifyContent: 'space-between',
-							width: '100%',
-							height: '100%',
-							backgroundColor: WHITE,
-							borderRadius: '8px',
-							padding: '56px'
-						},
-						children: [
-							// Category pill top-left
-							{
-								type: 'div',
-								props: {
-									style: { display: 'flex' },
-									children: [
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													backgroundColor: catColor,
-													borderRadius: '32px',
-													padding: '14px 36px',
-													fontSize: '32px',
-													fontFamily: 'Inter',
-													color: TEXT_PRIMARY
-												},
-												children: catLabel
-											}
-										}
-									]
-								}
-							},
-							// Title + venue (lower center for optical balance)
-							{
-								type: 'div',
-								props: {
-									style: {
-										display: 'flex',
-										flexDirection: 'column',
-										gap: '24px',
-										marginTop: '40px'
-									},
-									children: [
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													fontSize: '72px',
-													fontFamily: 'Barlow Condensed',
-													color: TEXT_PRIMARY,
-													lineHeight: 1.1,
-													letterSpacing: '-0.01em'
-												},
-												children: displayTitle
-											}
-										},
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													alignItems: 'center',
-													gap: '16px'
-												},
-												children: [
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																fontSize: '36px',
-																fontFamily: 'Inter',
-																color: TEXT_SECONDARY,
-																lineHeight: 1.3
-															},
-															children: venueTime
-														}
-													},
-													...(isFree ? [{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																backgroundColor: FREE_GREEN,
-																borderRadius: '24px',
-																padding: '8px 24px',
-																fontSize: '26px',
-																fontFamily: 'Inter',
-																color: WHITE
-															},
-															children: 'Trolig gratis'
-														}
-													}] : [])
-												]
-											}
-										}
-									]
-								}
-							},
-							// Gåri branding bottom-right
-							{
-								type: 'div',
-								props: {
-									style: {
-										display: 'flex',
-										justifyContent: 'flex-end'
-									},
-									children: [
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													fontSize: '32px',
-													fontFamily: 'Barlow Condensed',
-													color: FUNKIS_RED
-												},
-												children: 'Gåri.no'
-											}
-										}
-									]
-								}
-							}
-						]
-					}
-				}
-			]
-		}
-	};
-}
-
 // ── Last slide: CTA ──
 
 function ctaSlideMarkup(collectionUrl: string, eventCount: number, images: string[], lang: 'no' | 'en' = 'no') {
@@ -833,8 +672,6 @@ export interface CarouselEvent {
 }
 
 export interface CarouselOptions {
-	/** If true, skip events whose image fails to render instead of using fallback */
-	imagesOnly?: boolean;
 	/** Language for hook/CTA slide text */
 	lang?: 'no' | 'en';
 }
@@ -884,20 +721,11 @@ export async function generateCarousel(
 			if (image) {
 				const markup = eventSlideWithImage(event.title, event.venue, event.time, event.category, image, label, event.isFree);
 				slides.push(await renderSlide(markup));
-			} else if (!options?.imagesOnly) {
-				const markup = eventSlideFallback(event.title, event.venue, event.time, event.category, event.isFree);
-				slides.push(await renderSlide(markup));
 			} else {
-				console.log(`  [skip] "${event.title}" — no image (imagesOnly mode)`);
+				console.log(`  [skip] "${event.title}" — no image`);
 			}
 		} catch (err: any) {
-			if (!options?.imagesOnly) {
-				console.log(`  [warn] Slide for "${event.title}" with image failed (${err.message}), retrying without image`);
-				const markup = eventSlideFallback(event.title, event.venue, event.time, event.category, event.isFree);
-				slides.push(await renderSlide(markup));
-			} else {
-				console.log(`  [skip] "${event.title}" — image render failed (imagesOnly mode)`);
-			}
+			console.log(`  [skip] "${event.title}" — slide render failed (${err.message})`)
 		}
 	}
 
@@ -907,8 +735,7 @@ export async function generateCarousel(
 	try {
 		slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount, ctaImages, options?.lang ?? 'no')));
 	} catch (err: any) {
-		console.log(`  [warn] CTA slide failed (${err.message}), rendering without images`);
-		slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount, [], options?.lang ?? 'no')));
+		console.log(`  [skip] CTA slide failed (${err.message})`);
 	}
 
 	return slides;

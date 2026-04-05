@@ -2,12 +2,18 @@ name: Generate & Post Social Content
 
 on:
   schedule:
-    # Run daily at 07:00 UTC (08:00 CET), 1 hour after scraper
+    # FB at 07:00 UTC (08:00 CET), IG at 14:00 UTC (15:00 CET / 16:00 CEST)
     - cron: '0 7 * * *'
-  workflow_dispatch: # Manual trigger from GitHub UI
+    - cron: '0 14 * * *'
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to post to (all, ig, fb)'
+        required: false
+        default: 'all'
 
 jobs:
-  generate:
+  generate-and-post:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -25,6 +31,19 @@ jobs:
         run: npm ci
         timeout-minutes: 2
 
+      - name: Determine platform
+        id: platform
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "target=${{ inputs.platform || 'all' }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 7 * * *" ]; then
+            echo "target=fb" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 14 * * *" ]; then
+            echo "target=ig" >> "$GITHUB_OUTPUT"
+          else
+            echo "target=all" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Generate social posts
         id: generate
         working-directory: scripts
@@ -34,7 +53,7 @@ jobs:
           SUMMARY_FILE: ${{ runner.temp }}/social-summary.json
         run: npx tsx social/generate-posts.ts
 
-      - name: Post to Instagram & Facebook
+      - name: Post to social platforms
         if: success()
         working-directory: scripts
         env:
@@ -43,12 +62,13 @@ jobs:
           META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
-        run: npx tsx social/post-to-socials.ts
+        run: npx tsx social/post-to-socials.ts --platform=${{ steps.platform.outputs.target }}
 
       - name: Generate job summary
         if: always()
         run: |
           SUMMARY_FILE="${{ runner.temp }}/social-summary.json"
+          PLATFORM="${{ steps.platform.outputs.target }}"
           if [ ! -f "$SUMMARY_FILE" ]; then
             echo "## Social Posts Summary" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
@@ -75,6 +95,7 @@ jobs:
           echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Status | **${STATUS}** |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Platform | ${PLATFORM} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Date | ${DATE} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Collections scheduled | ${SCHEDULED} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Collections generated | ${GENERATED} |" >> "$GITHUB_STEP_SUMMARY"

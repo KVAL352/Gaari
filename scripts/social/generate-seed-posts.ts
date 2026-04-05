@@ -158,7 +158,7 @@ async function main() {
 				carouselEvents,
 				collectionUrl,
 				filtered.length,
-				{ imagesOnly: true, lang: seed.lang }
+				{ lang: seed.lang }
 			);
 
 			const caption = generateCaption(title, captionEvents, collectionUrl, seed.hashtags, seed.lang);
