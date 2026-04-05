@@ -158,7 +158,7 @@
 				<button
 					onclick={toggleDismissMenu}
 					aria-label={$lang === 'no' ? 'Skjul' : 'Hide'}
-					class="hide-btn absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-bg-surface)]/80 text-[var(--color-text-muted)] opacity-0 shadow-sm backdrop-blur-sm transition-all group-hover:opacity-100 focus-visible:opacity-100 hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-primary)]"
+					class="hide-btn absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-bg-surface)]/80 text-[var(--color-text-muted)] shadow-sm backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-primary)]"
 				>
 					<X size={14} strokeWidth={2.5} />
 				</button>
@@ -289,6 +289,13 @@
 	.dismiss-option:hover {
 		background: var(--color-surface);
 		color: var(--color-text-primary);
+	}
+
+	/* Show dismiss button on touch devices where hover is unavailable */
+	@media (hover: none) {
+		.hide-btn {
+			opacity: 0.7;
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
