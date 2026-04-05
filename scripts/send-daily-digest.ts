@@ -81,6 +81,30 @@ interface FestivalReminder {
 	checklist: string[];
 }
 
+interface NewsletterCampaign {
+	name: string;
+	subject: string;
+	sentAt: string;
+	recipients: number;
+	opens: number;
+	clicks: number;
+	openRate: number;
+	clickRate: number;
+	unsubscribes: number;
+	bounces: number;
+}
+
+interface NewsletterReport {
+	campaigns: NewsletterCampaign[];
+	totalRecipients: number;
+	totalOpens: number;
+	totalClicks: number;
+	avgOpenRate: number;
+	avgClickRate: number;
+	totalUnsubscribes: number;
+	totalBounces: number;
+}
+
 interface Reminder {
 	date: string;
 	title: string;
@@ -100,6 +124,7 @@ interface DigestData {
 	expiringPlacements: ExpiringPlacement[];
 	festivalReminders: FestivalReminder[];
 	reminders: Reminder[];
+	newsletterReport: NewsletterReport | null;
 }
 
 // ─── Data collectors ────────────────────────────────────────────────
@@ -449,6 +474,84 @@ function collectFestivalReminders(): FestivalReminder[] {
 	return reminders.sort((a, b) => a.daysUntil - b.daysUntil);
 }
 
+async function collectNewsletterReport(): Promise<NewsletterReport | null> {
+	// Only run on Fridays (day after Thursday newsletter send)
+	const dayOfWeek = new Date().getUTCDay();
+	if (dayOfWeek !== 5) return null; // 5 = Friday
+
+	const key = process.env.MAILERLITE_API_KEY;
+	if (!key) {
+		console.log('⏭  Newsletter report: skipped (no MAILERLITE_API_KEY)');
+		return null;
+	}
+
+	console.log('📰 Fetching newsletter campaign results...');
+
+	try {
+		// Fetch recently sent campaigns (last 3 days to catch Thursday send)
+		const resp = await fetch('https://connect.mailerlite.com/api/campaigns?filter[status]=sent&limit=20', {
+			headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }
+		});
+		if (!resp.ok) return null;
+
+		const data = await resp.json();
+		const allCampaigns = data.data ?? [];
+
+		// Filter to Gåri campaigns sent in the last 3 days
+		const threeDaysAgo = new Date();
+		threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+		const recentCampaigns: NewsletterCampaign[] = [];
+		for (const c of allCampaigns) {
+			const name: string = c.name ?? '';
+			if (!name.startsWith('Gåri')) continue;
+
+			const sentAt = c.finished_at ?? c.scheduled_for ?? c.created_at ?? '';
+			if (!sentAt || new Date(sentAt) < threeDaysAgo) continue;
+
+			const stats = c.stats ?? {};
+			const sent = stats.sent ?? c.emails_sent ?? 0;
+			const opens = stats.unique_opens_count ?? stats.opens_count ?? 0;
+			const clicks = stats.unique_clicks_count ?? stats.clicks_count ?? 0;
+
+			recentCampaigns.push({
+				name,
+				subject: c.emails?.[0]?.subject ?? name,
+				sentAt,
+				recipients: sent,
+				opens,
+				clicks,
+				openRate: sent > 0 ? Math.round((opens / sent) * 100) : 0,
+				clickRate: sent > 0 ? Math.round((clicks / sent) * 100) : 0,
+				unsubscribes: stats.unsubscribes_count ?? 0,
+				bounces: (stats.hard_bounces_count ?? 0) + (stats.soft_bounces_count ?? 0),
+			});
+		}
+
+		if (recentCampaigns.length === 0) return null;
+
+		const totalRecipients = recentCampaigns.reduce((sum, c) => sum + c.recipients, 0);
+		const totalOpens = recentCampaigns.reduce((sum, c) => sum + c.opens, 0);
+		const totalClicks = recentCampaigns.reduce((sum, c) => sum + c.clicks, 0);
+		const totalUnsubscribes = recentCampaigns.reduce((sum, c) => sum + c.unsubscribes, 0);
+		const totalBounces = recentCampaigns.reduce((sum, c) => sum + c.bounces, 0);
+
+		return {
+			campaigns: recentCampaigns,
+			totalRecipients,
+			totalOpens,
+			totalClicks,
+			avgOpenRate: totalRecipients > 0 ? Math.round((totalOpens / totalRecipients) * 100) : 0,
+			avgClickRate: totalRecipients > 0 ? Math.round((totalClicks / totalRecipients) * 100) : 0,
+			totalUnsubscribes,
+			totalBounces,
+		};
+	} catch (err: any) {
+		console.error(`Newsletter report failed: ${err.message}`);
+		return null;
+	}
+}
+
 function collectReminders(): Reminder[] {
 	try {
 		const remindersPath = path.join(import.meta.dirname, 'reminders.json');
@@ -749,6 +852,60 @@ function renderHtml(data: DigestData): string {
 	`;
 	})() : '';
 
+	const newsletterHtml = data.newsletterReport ? (() => {
+		const nr = data.newsletterReport;
+		return `
+			<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Nyhetsbrev-rapport (torsdagens utsending)</h2>
+			<table style="width:100%;border-collapse:collapse;margin-bottom:12px">
+				<tbody>
+					<tr>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Mottakere</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${nr.totalRecipients}</td>
+					</tr>
+					<tr>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Åpnet</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;color:${nr.avgOpenRate >= 30 ? '#16a34a' : nr.avgOpenRate >= 15 ? '#d97706' : '#dc2626'}">${nr.totalOpens} (${nr.avgOpenRate}%)</td>
+					</tr>
+					<tr>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Klikket</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;color:${nr.avgClickRate >= 5 ? '#16a34a' : nr.avgClickRate >= 2 ? '#d97706' : '#dc2626'}">${nr.totalClicks} (${nr.avgClickRate}%)</td>
+					</tr>
+					${nr.totalUnsubscribes > 0 ? `<tr>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Avmeldt</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;color:#dc2626">${nr.totalUnsubscribes}</td>
+					</tr>` : ''}
+					${nr.totalBounces > 0 ? `<tr>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Bounces</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;color:#dc2626">${nr.totalBounces}</td>
+					</tr>` : ''}
+				</tbody>
+			</table>
+			${nr.campaigns.length > 1 ? `
+				<p style="font-size:13px;color:#666;margin:0 0 4px">Per segment:</p>
+				<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+					<thead><tr style="background:#f5f5f5">
+						<th style="text-align:left;padding:6px 8px;border:1px solid #ddd;font-size:12px">Segment</th>
+						<th style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:12px">Sendt</th>
+						<th style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:12px">Åpnet</th>
+						<th style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:12px">Klikk</th>
+					</tr></thead>
+					<tbody>
+						${nr.campaigns.map(c => {
+							// Extract segment key from campaign name (after " — ")
+							const seg = c.name.includes(' — ') ? c.name.split(' — ')[1] : c.subject;
+							return `<tr>
+								<td style="padding:6px 8px;border:1px solid #ddd;font-size:13px">${seg}</td>
+								<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:13px">${c.recipients}</td>
+								<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:13px;color:${c.openRate >= 30 ? '#16a34a' : '#666'}">${c.opens} (${c.openRate}%)</td>
+								<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:13px;color:${c.clickRate >= 5 ? '#16a34a' : '#666'}">${c.clicks} (${c.clickRate}%)</td>
+							</tr>`;
+						}).join('')}
+					</tbody>
+				</table>
+			` : ''}
+		`;
+	})() : '';
+
 	const festivalHtml = data.festivalReminders.length > 0 ? `
 		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Kommende festivaler</h2>
 		${data.festivalReminders.map(f => {
@@ -817,6 +974,7 @@ function renderHtml(data: DigestData): string {
 	${pipelineHtml}
 	${trafficHtml}
 	${subscriberHtml}
+	${newsletterHtml}
 	${festivalHtml}
 	${remindersHtml}
 	${placementsHtml}
@@ -899,7 +1057,7 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel
-	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements] = await Promise.all([
+	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, newsletterReport] = await Promise.all([
 		collectPendingCounts(),
 		collectScraperActivity(),
 		collectScraperHealth(),
@@ -907,7 +1065,8 @@ async function main() {
 		collectLastPipeline(),
 		collectTraffic(),
 		collectSubscribers(),
-		collectExpiringPlacements()
+		collectExpiringPlacements(),
+		collectNewsletterReport()
 	]);
 
 	const festivalReminders = collectFestivalReminders();
@@ -925,7 +1084,8 @@ async function main() {
 		subscribersPrev: subscriberData.previous,
 		expiringPlacements,
 		festivalReminders,
-		reminders
+		reminders,
+		newsletterReport
 	};
 
 	const total = pending.corrections + pending.submissions + pending.optouts + pending.inquiries;
@@ -954,6 +1114,9 @@ async function main() {
 	}
 	if (festivalReminders.length > 0) {
 		console.log(`   Festival reminders: ${festivalReminders.map(f => `${f.name} (${f.daysUntil <= 0 ? 'pågår' : f.daysUntil + 'd'})`).join(', ')}`);
+	}
+	if (newsletterReport) {
+		console.log(`   Newsletter: ${newsletterReport.totalRecipients} sent, ${newsletterReport.totalOpens} opens (${newsletterReport.avgOpenRate}%), ${newsletterReport.totalClicks} clicks (${newsletterReport.avgClickRate}%)`);
 	}
 	if (lastPipeline) {
 		console.log(`   Last pipeline: ${lastPipeline.scrapersRun} ran, ${lastPipeline.scrapersSkipped.length} skipped, ${lastPipeline.scrapersMissing.length} missing`);
