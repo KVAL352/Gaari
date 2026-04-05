@@ -9,7 +9,7 @@ const WEBSITE = 'https://bodega.part.no';
 const USER_AGENT = 'Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)';
 
 const CALENDAR_ID = 'c_c409dccf5a16127d2a7f0d580415f20414b709812e08bf6a3dc25e677f45e6cd@group.calendar.google.com';
-const API_KEY = 'AIzaSyAvji6BNSLC8hr5qdU4dJSTeigGoUep4WI';
+const API_KEY = process.env.BODEGA_GCAL_API_KEY || '';
 
 // Keywords for non-public events
 const EXCLUDE_KEYWORDS = [

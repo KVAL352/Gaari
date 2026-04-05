@@ -32,6 +32,7 @@ jobs:
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          BODEGA_GCAL_API_KEY: ${{ secrets.BODEGA_GCAL_API_KEY }}
           INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
           SUMMARY_FILE: ${{ runner.temp }}/scrape-summary.json
         run: npx tsx scrape.ts
