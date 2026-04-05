@@ -232,6 +232,7 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'oconnors': 'Bergenhus',
 	'østre': 'Sentrum',
 	'vestre': 'Sentrum',
+	'bodega': 'Sentrum',
 	'laugaren': 'Bergenhus',
 	'lydgalleriet': 'Sentrum',
 	'rommet': 'Bergenhus',

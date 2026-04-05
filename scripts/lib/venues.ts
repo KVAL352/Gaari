@@ -127,6 +127,7 @@ const VENUE_URLS: Record<string, string> = {
 	'regnbuedagene': 'https://bergenpride.no',
 
 	// Restaurants/bars with event programs
+	'bodega': 'https://bodega.part.no',
 	'børskjelleren': 'https://borskjelleren.no',
 	'pappa': 'https://pappa.no',
 
