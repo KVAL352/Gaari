@@ -125,6 +125,7 @@ function getCategoryHashtags(events: Array<{ category: string }>): string[] {
 }
 
 const MAX_CAROUSEL_EVENTS = 8;
+const MIN_IMAGES_FOR_POST = 4;
 
 function shouldGenerateToday(schedule: CollectionSchedule, dayOfWeek: number): boolean {
 	return schedule.days.length === 0 || schedule.days.includes(dayOfWeek);
@@ -258,9 +259,15 @@ async function main() {
 			continue;
 		}
 
-		// Pick top events for carousel (cap per venue to avoid one source dominating)
+		// Pick top events for carousel (cap per venue, prioritize events with images)
 		const MAX_PER_VENUE = 1;
-		const sorted = filtered.sort((a, b) => a.date_start.localeCompare(b.date_start));
+		const sorted = filtered.sort((a, b) => {
+			// Events with images first, then by date
+			const aImg = a.image_url ? 0 : 1;
+			const bImg = b.image_url ? 0 : 1;
+			if (aImg !== bImg) return aImg - bImg;
+			return a.date_start.localeCompare(b.date_start);
+		});
 		const venueCounts = new Map<string, number>();
 		const topEvents: GaariEvent[] = [];
 		for (const e of sorted) {
@@ -271,7 +278,14 @@ async function main() {
 			topEvents.push(e);
 		}
 
-		console.log(`  ${filtered.length} events matched, using ${topEvents.length} for carousel`);
+		const eventsWithImages = topEvents.filter(e => e.image_url).length;
+		console.log(`  ${filtered.length} events matched, ${topEvents.length} selected, ${eventsWithImages} with images`);
+
+		if (eventsWithImages < MIN_IMAGES_FOR_POST) {
+			console.log(`  [skip] Only ${eventsWithImages} events have images (need ${MIN_IMAGES_FOR_POST}), skipping post.\n`);
+			results[schedule.slug] = { eventCount: filtered.length, slideCount: 0, success: true };
+			continue;
+		}
 
 		try {
 			const isEnglish = ENGLISH_SLUGS.has(schedule.slug);
