@@ -95,6 +95,11 @@
     "description": "Ingvild (Akvariet) sa prisene justeres igjen tidlig januar 2027. Sjekk akvariet.no/kjop-billett og oppdater ADMISSION_PRICE i akvariet.ts."
   },
   {
+    "date": "2026-04-13",
+    "title": "Følg opp Troll Museum Bergen",
+    "description": "Epost sendt 6. april til bergen@trollmuseum.no. Forklarte at aktivitetssiden ikke kan scrapes (FooEvents + Elementor, JS-rendret). Foreslo tre løsninger: 1) Aktivere event-metadata i FooEvents API, 2) JSON-LD schema, 3) Statisk HTML-liste. Sjekk innboks for svar, send eventuelt vennlig oppfølging."
+  },
+  {
     "date": "2026-04-10",
     "title": "Følg opp ArtLab Studio",
     "description": "Epost sendt 1. april til art.lab.bergen@gmail.com. Foreslo samarbeid: vi vil vise deres workshops/kurs på Gåri. Wix Bookings kan ikke scrapes (client-rendered). Foreslo Wix Events eller Google Calendar som automatisk løsning, pluss manuelt innsendingsskjema. Sjekk innboks for svar, send eventuelt vennlig oppfølging."
