@@ -24,7 +24,7 @@ Run all morning checks in parallel, then present a single unified briefing.
 !`gh run list --workflow=daily-digest.yml --limit 1 --json conclusion,startedAt 2>/dev/null || echo "gh unavailable"`
 
 ### Umami traffic (last 24h)
-!`set -a && source .env && set +a && node -e "async function r(){const h={'x-umami-api-key':process.env.UMAMI_API_KEY};const w='5f889214-285b-4412-8066-015a18f8ce65';const n=Date.now();const s=await(await fetch('https://api.umami.is/v1/websites/'+w+'/stats?startAt='+(n-86400000)+'&endAt='+n,{headers:h})).json();const a=await(await fetch('https://api.umami.is/v1/websites/'+w+'/active',{headers:h})).json();console.log(JSON.stringify({active:a.visitors,pageviews:s.pageviews,visitors:s.visitors,bounces:s.bounces}));}r().catch(()=>console.log('Umami unavailable'));" 2>/dev/null || echo "Umami unavailable"`
+!`set -a && source .env && set +a && node -e "async function r(){const h={'x-umami-api-key':process.env.UMAMI_API_KEY};const w='5f889214-285b-4412-8066-015a18f8ce65';const n=Date.now();const s=await(await fetch('https://api.umami.is/v1/websites/'+w+'/stats?startAt='+(n-86400000)+'&endAt='+n,{headers:h})).json();const a=await(await fetch('https://api.umami.is/v1/websites/'+w+'/active',{headers:h})).json();console.log(JSON.stringify({active:a.visitors,pageviews:s.pageviews,visitors:s.visitors}));}r().catch(()=>console.log('Umami unavailable'));" 2>/dev/null || echo "Umami unavailable"`
 
 ### Newsletter (MailerLite)
 !`set -a && source .env && set +a && node -e "async function r(){const h={'Authorization':'Bearer '+process.env.MAILERLITE_API_KEY,'Content-Type':'application/json'};const[subs,camps]=await Promise.all([fetch('https://connect.mailerlite.com/api/subscribers?limit=0',{headers:h}).then(r=>r.json()),fetch('https://connect.mailerlite.com/api/campaigns?filter[status]=sent',{headers:h}).then(r=>r.json())]);const latest=camps.data?.[0];console.log(JSON.stringify({subscribers:subs.total,lastCampaign:latest?{name:latest.name,date:latest.scheduled_for||latest.created_at,open_rate:latest.stats?.open_rate?.string,click_rate:latest.stats?.click_rate?.string}:null,totalSent:camps.data?.length||0}));}r().catch(()=>console.log('MailerLite unavailable'));" 2>/dev/null || echo "MailerLite unavailable"`
@@ -57,7 +57,7 @@ Present everything as one compact briefing:
 
 ### Trafikk (siste 24t)
 - X besøkende, Y sidevisninger, Z aktive nå
-- Bounce rate: X%
+- Snitt sider/besøk: Y/X
 
 ### Nyhetsbrev
 - X abonnenter (milepæl: 50)
