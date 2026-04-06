@@ -105,6 +105,20 @@ interface NewsletterReport {
 	totalBounces: number;
 }
 
+interface SocialInsight {
+	platform: 'ig' | 'fb';
+	posted_at: string;
+	caption: string | null;
+	permalink: string | null;
+	metrics: Record<string, number>;
+}
+
+interface SocialInsightsData {
+	igTotal: number;
+	fbTotal: number;
+	recent: SocialInsight[];
+}
+
 interface Reminder {
 	date: string;
 	title: string;
@@ -125,6 +139,7 @@ interface DigestData {
 	festivalReminders: FestivalReminder[];
 	reminders: Reminder[];
 	newsletterReport: NewsletterReport | null;
+	socialInsights: SocialInsightsData | null;
 }
 
 // ─── Data collectors ────────────────────────────────────────────────
@@ -623,6 +638,38 @@ async function collectLastPipeline(): Promise<PipelineRun | null> {
 	}
 }
 
+async function collectSocialInsights(): Promise<SocialInsightsData | null> {
+	console.log('📱 Checking social insights...');
+	try {
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
+		const since = yesterday.toISOString().slice(0, 10);
+
+		// Count totals
+		const [igCount, fbCount] = await Promise.all([
+			supabase.from('social_insights').select('id', { count: 'exact', head: true }).eq('platform', 'ig'),
+			supabase.from('social_insights').select('id', { count: 'exact', head: true }).eq('platform', 'fb'),
+		]);
+
+		// Recent posts (last 7 days) with metrics
+		const { data: recent } = await supabase
+			.from('social_insights')
+			.select('platform, posted_at, caption, permalink, metrics')
+			.gte('posted_at', new Date(Date.now() - 7 * 86400000).toISOString())
+			.order('posted_at', { ascending: false })
+			.limit(10);
+
+		return {
+			igTotal: igCount.count ?? 0,
+			fbTotal: fbCount.count ?? 0,
+			recent: (recent ?? []) as SocialInsight[],
+		};
+	} catch (err: any) {
+		console.log(`  [warn] Social insights: ${err.message}`);
+		return null;
+	}
+}
+
 // ─── HTML Email Template ────────────────────────────────────────────
 
 function renderHtml(data: DigestData): string {
@@ -906,6 +953,58 @@ function renderHtml(data: DigestData): string {
 		`;
 	})() : '';
 
+	const socialHtml = data.socialInsights && (data.socialInsights.igTotal > 0 || data.socialInsights.fbTotal > 0) ? (() => {
+		const si = data.socialInsights!;
+		const recentRows = si.recent.map(p => {
+			const platform = p.platform === 'ig' ? 'IG' : 'FB';
+			const date = new Date(p.posted_at).toLocaleDateString('no-NO', { day: 'numeric', month: 'short' });
+			const m = p.metrics;
+			const reach = m.reach ?? null;
+			const engagement = p.platform === 'ig' ? (m.likes ?? null) : (m.reactions ?? null);
+			const shares = m.shares ?? null;
+			const link = p.permalink ? `<a href="${p.permalink}" style="color:#C82D2D;text-decoration:underline">${platform}</a>` : platform;
+			const preview = p.caption ? p.caption.split('\n')[0]?.slice(0, 40) + (p.caption.length > 40 ? '...' : '') : '';
+			return `<tr>
+				<td style="padding:6px 8px;border:1px solid #ddd;font-size:13px">${link}</td>
+				<td style="padding:6px 8px;border:1px solid #ddd;font-size:13px">${date}</td>
+				<td style="padding:6px 8px;border:1px solid #ddd;font-size:13px;color:#666">${preview}</td>
+				<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:13px">${reach ?? '-'}</td>
+				<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:13px">${engagement ?? '-'}</td>
+				<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:13px">${shares ?? '-'}</td>
+			</tr>`;
+		}).join('');
+
+		return `
+			<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Sosiale medier</h2>
+			<table style="width:100%;border-collapse:collapse;margin-bottom:12px">
+				<tbody>
+					<tr>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Instagram-poster (totalt)</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${si.igTotal}</td>
+					</tr>
+					<tr>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Facebook-poster (totalt)</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${si.fbTotal}</td>
+					</tr>
+				</tbody>
+			</table>
+			${si.recent.length > 0 ? `
+				<p style="font-size:13px;color:#666;margin:0 0 4px">Siste 7 dager:</p>
+				<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+					<thead><tr style="background:#f5f5f5">
+						<th style="text-align:left;padding:6px 8px;border:1px solid #ddd;font-size:12px"></th>
+						<th style="text-align:left;padding:6px 8px;border:1px solid #ddd;font-size:12px">Dato</th>
+						<th style="text-align:left;padding:6px 8px;border:1px solid #ddd;font-size:12px">Innhold</th>
+						<th style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:12px">Rekkevidde</th>
+						<th style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:12px">Engasjement</th>
+						<th style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:12px">Delinger</th>
+					</tr></thead>
+					<tbody>${recentRows}</tbody>
+				</table>
+			` : ''}
+		`;
+	})() : '';
+
 	const festivalHtml = data.festivalReminders.length > 0 ? `
 		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Kommende festivaler</h2>
 		${data.festivalReminders.map(f => {
@@ -975,6 +1074,7 @@ function renderHtml(data: DigestData): string {
 	${trafficHtml}
 	${subscriberHtml}
 	${newsletterHtml}
+	${socialHtml}
 	${festivalHtml}
 	${remindersHtml}
 	${placementsHtml}
@@ -1057,7 +1157,7 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel
-	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, newsletterReport] = await Promise.all([
+	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, newsletterReport, socialInsights] = await Promise.all([
 		collectPendingCounts(),
 		collectScraperActivity(),
 		collectScraperHealth(),
@@ -1066,7 +1166,8 @@ async function main() {
 		collectTraffic(),
 		collectSubscribers(),
 		collectExpiringPlacements(),
-		collectNewsletterReport()
+		collectNewsletterReport(),
+		collectSocialInsights()
 	]);
 
 	const festivalReminders = collectFestivalReminders();
@@ -1085,7 +1186,8 @@ async function main() {
 		expiringPlacements,
 		festivalReminders,
 		reminders,
-		newsletterReport
+		newsletterReport,
+		socialInsights
 	};
 
 	const total = pending.corrections + pending.submissions + pending.optouts + pending.inquiries;

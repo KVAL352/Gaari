@@ -64,6 +64,17 @@ jobs:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
         run: npx tsx social/post-to-socials.ts --platform=${{ steps.platform.outputs.target }}
 
+      - name: Fetch social insights
+        if: always()
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+        run: npx tsx social/fetch-social-insights.ts
+
       - name: Generate job summary
         if: always()
         run: |
