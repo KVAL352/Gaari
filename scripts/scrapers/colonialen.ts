@@ -56,15 +56,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const sourceUrl = `${BASE_URL}${detailPath}`;
 		if (await eventExists(sourceUrl)) continue;
 
-		// Fetch detail page to extract external ticket URL
-		let ticketUrl = sourceUrl;
-		const detailHtml = await fetchHTML(sourceUrl);
-		if (detailHtml) {
-			const $d = cheerio.load(detailHtml);
-			// Look for external ticket links (TicketCo, Billetto, etc.)
-			const extLink = $d('a[href*="ticketco"], a[href*="billetto"], a[href*="tikkio"]').first().attr('href');
-			if (extLink) ticketUrl = extLink;
-		}
+		// Use the Colonialen event page as ticket URL — it's the venue's own page
+		// and contains any external ticket links for the user to follow.
+		// Previously fetched each detail page to extract TicketCo/Billetto links,
+		// but N detail-page fetches added ~100s to the scraper runtime.
+		const ticketUrl = sourceUrl;
 
 		// Date — first time.event-date is start, second (if multiday) is end
 		const dateEls = el.find('time.event-date');
