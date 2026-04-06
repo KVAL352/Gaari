@@ -44,14 +44,13 @@ function getDateFromPageUrl(pageUrl: string): string | null {
 
 function guessCategory(title: string, venue: string): string {
 	const text = `${title} ${venue}`.toLowerCase();
-	if (text.includes('konsert') || text.includes('dj') || text.includes('musikk') ||
-		text.includes('drag') || text.includes('show')) return 'nightlife';
-	if (text.includes('parade') || text.includes('tog')) return 'festival';
-	if (text.includes('workshop') || text.includes('kurs') || text.includes('samtale')) return 'workshop';
-	if (text.includes('barn') || text.includes('familie') || text.includes('kids') ||
-		text.includes('ungdom') || text.includes('youth')) return 'family';
-	if (text.includes('fest') || text.includes('party') || text.includes('park')) return 'nightlife';
-	if (text.includes('utstilling') || text.includes('film') || text.includes('kunst')) return 'culture';
+	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(text);
+	if (w('konsert') || w('dj') || w('musikk') || w('drag') || w('show')) return 'nightlife';
+	if (w('parade') || w('tog')) return 'festival';
+	if (w('workshop') || w('kurs') || w('samtale')) return 'workshop';
+	if (w('barn') || w('familie') || w('kids') || w('ungdom') || w('youth')) return 'family';
+	if (w('fest') || w('party') || w('park')) return 'nightlife';
+	if (w('utstilling') || w('film') || w('kunst')) return 'culture';
 	return 'festival';
 }
 

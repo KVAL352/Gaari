@@ -19,16 +19,18 @@ interface SBEvent {
 
 function guessCategory(title: string, location: string): string {
 	const text = `${title} ${location}`.toLowerCase();
-	if (text.includes('konsert') || text.includes('musikk') || text.includes('jazz') || text.includes('fest')) return 'music';
-	if (text.includes('revy') || text.includes('teater') || text.includes('forestilling')) return 'theatre';
-	if (text.includes('film') || text.includes('kino') || text.includes('cinema')) return 'culture';
-	if (text.includes('quiz')) return 'nightlife';
-	if (text.includes('debatt') || text.includes('foredrag') || text.includes('konferanse') || text.includes('seminar')) return 'culture';
-	if (text.includes('karriere') || text.includes('workshop') || text.includes('kurs')) return 'workshop';
-	if (text.includes('løp') || text.includes('marathon') || text.includes('tur') || text.includes('fjell') || text.includes('sport')) return 'sports';
-	if (text.includes('festival') || text.includes('marked') || text.includes('loppemarked')) return 'festival';
-	if (text.includes('mat') || text.includes('smak')) return 'food';
-	if (text.includes('bar') || text.includes('klubb') || text.includes('party') || text.includes('90-tall')) return 'nightlife';
+	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(text);
+	if (w('konsert') || w('musikk') || w('jazz') || w('fest')) return 'music';
+	if (w('revy') || w('teater') || w('forestilling')) return 'theatre';
+	if (w('film') || w('kino') || w('cinema')) return 'culture';
+	if (w('quiz')) return 'nightlife';
+	if (w('debatt') || w('foredrag') || w('konferanse') || w('seminar')) return 'culture';
+	if (w('karriere') || w('workshop') || w('kurs')) return 'workshop';
+	if (w('løp') || w('marathon') || w('fjelltur') || w('sport')) return 'sports';
+	if (w('festival') || w('marked') || w('loppemarked')) return 'festival';
+	if (text.includes('mat og drikke') || new RegExp('\\w' + 'matkurs' + '\\b').test(text) || new RegExp('\\w' + 'smaking' + '\\b').test(text)) return 'food';
+	if (w('quiz') || new RegExp('\\w' + 'quiz' + '\\b').test(text) || new RegExp('\\w' + 'kviss' + '\\b').test(text)) return 'nightlife';
+	if (w('klubb') || w('party') || text.includes('90-tall')) return 'nightlife';
 	return 'student';
 }
 

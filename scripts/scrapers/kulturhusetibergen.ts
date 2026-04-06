@@ -24,17 +24,28 @@ function bergenOffset(dateStr: string): string {
 	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
 }
 
+/** Word-boundary check — avoids false positives like "format" matching "mat" */
+function hasWord(text: string, word: string): boolean {
+	return new RegExp(`\\b${word}\\b`).test(text);
+}
+/** Check for Norwegian compound words ending with the keyword */
+function hasCompound(text: string, suffix: string): boolean {
+	return new RegExp(`\\w${suffix}\\b`).test(text);
+}
+
 function guessCategory(title: string, excerpt: string): string {
 	const text = `${title} ${excerpt}`.toLowerCase();
-	if (text.includes('#konsert') || text.includes('konsert') || text.includes('dj') || text.includes('band')) return 'music';
-	if (text.includes('#dans') || text.includes('dans')) return 'culture';
-	if (text.includes('#teater') || text.includes('teater') || text.includes('standup') || text.includes('show') || text.includes('revy')) return 'theatre';
-	if (text.includes('#quiz') || text.includes('quiz') || text.includes('bingo')) return 'nightlife';
-	if (text.includes('#workshop') || text.includes('kurs')) return 'workshop';
-	if (text.includes('#festival') || text.includes('festival')) return 'festival';
-	if (text.includes('#barn') || text.includes('barn') || text.includes('familie')) return 'family';
-	if (text.includes('#mat') || text.includes('mat') || text.includes('food')) return 'food';
-	return 'music';
+	if (text.includes('#konsert') || hasWord(text, 'konsert') || hasWord(text, 'dj') || hasWord(text, 'band') || hasCompound(text, 'konsert')) return 'music';
+	if (text.includes('#dans') || hasWord(text, 'dans')) return 'culture';
+	if (text.includes('#teater') || hasWord(text, 'teater') || hasCompound(text, 'standup') || hasWord(text, 'stand-up') || hasWord(text, 'revy')) return 'theatre';
+	if (text.includes('#quiz') || hasWord(text, 'quiz') || hasCompound(text, 'quiz') || hasCompound(text, 'kviss') || hasWord(text, 'bingo') || hasCompound(text, 'bingo')) return 'nightlife';
+	if (text.includes('#workshop') || hasWord(text, 'kurs') || hasWord(text, 'workshop')) return 'workshop';
+	if (text.includes('#festival') || hasWord(text, 'festival')) return 'festival';
+	if (text.includes('#barn') || hasWord(text, 'barn') || hasWord(text, 'familie')) return 'family';
+	if (text.includes('#mat') || text.includes('mat og drikke') || hasCompound(text, 'matkurs') || hasCompound(text, 'smaking') || hasWord(text, 'food')) return 'food';
+	if (hasWord(text, 'yoga') || hasWord(text, 'trommesirkel')) return 'workshop';
+	if (hasWord(text, 'foredrag') || hasWord(text, 'debatt') || hasWord(text, 'utstilling')) return 'culture';
+	return 'culture';
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {

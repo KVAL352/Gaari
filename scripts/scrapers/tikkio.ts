@@ -66,21 +66,21 @@ function formatPrice(price: string | undefined, currency: string | undefined): s
 
 function guessCategory(title: string, venueName: string): string {
 	const text = `${title} ${venueName}`.toLowerCase();
-	if (text.includes('konsert') || text.includes('concert') || text.includes('musikk') || text.includes('jazz') || text.includes('blues') || text.includes('band')) return 'music';
-	if (text.includes('revy') || text.includes('teater') || text.includes('forestilling') || text.includes('theater')) return 'theatre';
-	if (text.includes('film') || text.includes('kino') || text.includes('cinema')) return 'culture';
-	if (text.includes('quiz')) return 'nightlife';
-	if (text.includes('debatt') || text.includes('foredrag') || text.includes('konferanse') || text.includes('seminar')) return 'culture';
-	if (text.includes('karriere') || text.includes('workshop') || text.includes('kurs')) return 'workshop';
-	if (text.includes('løp') || text.includes('marathon') || text.includes('sport') || text.includes('fotball')) return 'sports';
-	if (text.includes('festival') || text.includes('marked') || text.includes('loppemarked')) return 'festival';
-	if (text.includes('mat') || text.includes('smak') || text.includes('food')) return 'food';
-	if (text.includes('bar') || text.includes('klubb') || text.includes('party') || text.includes('dj')) return 'nightlife';
-	if (text.includes('standup') || text.includes('stand-up') || text.includes('humor') || text.includes('comedy')) return 'nightlife';
-	if (text.includes('omvisning') || text.includes('guidet') || text.includes('tour')) return 'tours';
-	if (text.includes('barn') || text.includes('familie') || text.includes('kids')) return 'family';
-	// Default — most Tikkio Bergen events are concerts/music
-	return 'music';
+	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(text);
+	if (w('konsert') || w('concert') || w('musikk') || w('jazz') || w('blues') || w('band')) return 'music';
+	if (w('revy') || w('teater') || w('forestilling') || w('theater')) return 'theatre';
+	if (w('film') || w('kino') || w('cinema')) return 'culture';
+	if (w('quiz')) return 'nightlife';
+	if (w('debatt') || w('foredrag') || w('konferanse') || w('seminar')) return 'culture';
+	if (w('karriere') || w('workshop') || w('kurs')) return 'workshop';
+	if (w('løp') || w('marathon') || w('sport') || w('fotball')) return 'sports';
+	if (w('festival') || w('marked') || w('loppemarked')) return 'festival';
+	if (text.includes('mat og drikke') || w('smaking') || w('matkurs') || w('food')) return 'food';
+	if (w('klubb') || w('party') || w('dj')) return 'nightlife';
+	if (w('standup') || w('stand-up') || w('humor') || w('comedy')) return 'nightlife';
+	if (w('omvisning') || w('guidet') || w('tour')) return 'tours';
+	if (w('barn') || w('familie') || w('kids')) return 'family';
+	return 'culture';
 }
 
 function extractVenueName(event: TikkioEvent): string {

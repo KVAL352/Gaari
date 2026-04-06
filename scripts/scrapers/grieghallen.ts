@@ -61,8 +61,10 @@ function mapCategory(catIds: number[], categories: GHCategory[], title: string):
 
 	const lower = title.toLowerCase();
 	if (lower.includes('konsert') || lower.includes('concert')) return 'music';
-	if (lower.includes('revy') || lower.includes('teater') || lower.includes('humor')) return 'nightlife';
+	if (lower.includes('revy') || lower.includes('teater') || new RegExp('\\bhumor\\b').test(lower)) return 'nightlife';
+	if (lower.includes('foredrag') || lower.includes('konferanse') || lower.includes('seminar')) return 'culture';
 	if (lower.includes('barn') || lower.includes('kids')) return 'family';
+	if (lower.includes('friluftsmesse') || lower.includes('messe')) return 'festival';
 	return 'music';
 }
 

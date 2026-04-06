@@ -27,15 +27,27 @@ interface JsonLdEvent {
 	url?: string;
 }
 
+/** Word-boundary check — avoids false positives like "format" matching "mat" */
+function hasWord(text: string, word: string): boolean {
+	return new RegExp(`\\b${word}\\b`).test(text);
+}
+
+/** Check for Norwegian compound words ending with the keyword */
+function hasCompound(text: string, suffix: string): boolean {
+	return new RegExp(`\\w${suffix}\\b`).test(text);
+}
+
 function guessCategory(title: string): string {
 	const t = title.toLowerCase();
-	if (t.includes('konsert') || t.includes('release') || t.includes('trio') || t.includes('band') || t.includes('dj')) return 'music';
-	if (t.includes('soup') || t.includes('mat') || t.includes('mela') || t.includes('food')) return 'food';
-	if (t.includes('festival') || t.includes('swap') || t.includes('marked')) return 'festival';
-	if (t.includes('workshop') || t.includes('kurs')) return 'workshop';
-	if (t.includes('quiz')) return 'nightlife';
-	if (t.includes('wrestling') || t.includes('sport')) return 'sports';
-	return 'music';
+	if (hasWord(t, 'konsert') || hasWord(t, 'release') || hasWord(t, 'trio') || hasWord(t, 'band') || hasWord(t, 'dj') || hasCompound(t, 'konsert')) return 'music';
+	if (hasWord(t, 'soup') || t.includes('mat og drikke') || hasWord(t, 'mela') || hasWord(t, 'food')) return 'food';
+	if (hasWord(t, 'festival') || hasWord(t, 'swap') || hasWord(t, 'marked')) return 'festival';
+	if (hasWord(t, 'workshop') || hasWord(t, 'kurs') || hasWord(t, 'draw')) return 'workshop';
+	if (hasWord(t, 'quiz') || hasCompound(t, 'quiz')) return 'nightlife';
+	if (t.includes('re-opening') || t.includes('party') || t.includes('afterparty')) return 'nightlife';
+	if (hasWord(t, 'wrestling') || hasWord(t, 'sport')) return 'sports';
+	if (hasWord(t, 'utstilling') || hasWord(t, 'kunst') || hasWord(t, 'art')) return 'culture';
+	return 'culture';
 }
 
 function decodeEntities(text: string): string {

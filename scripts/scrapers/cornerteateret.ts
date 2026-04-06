@@ -11,13 +11,14 @@ const ADDRESS = 'Kong Christian Frederiks Plass 4, Bergen';
 
 function guessCategory(title: string): string {
 	const t = title.toLowerCase();
-	if (t.includes('konsert') || t.includes('jazz') || t.includes('bass') || t.includes('feat.') || t.includes('dj')) return 'music';
-	if (t.includes('teater') || t.includes('impro') || t.includes('revy') || t.includes('forestilling')) return 'theatre';
-	if (t.includes('standup') || t.includes('stand-up') || t.includes('quiz') || t.includes('pub')) return 'nightlife';
-	if (t.includes('barn') || t.includes('kids') || t.includes('children')) return 'family';
-	if (t.includes('workshop') || t.includes('kurs')) return 'workshop';
-	if (t.includes('film') || t.includes('kino')) return 'culture';
-	if (t.includes('kor') || t.includes('choir') || t.includes('pubkor')) return 'music';
+	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(t);
+	if (w('konsert') || w('jazz') || w('bass') || t.includes('feat.') || w('dj')) return 'music';
+	if (w('teater') || w('impro') || w('revy') || w('forestilling')) return 'theatre';
+	if (w('standup') || w('stand-up') || w('quiz') || w('pub')) return 'nightlife';
+	if (w('barn') || w('kids') || w('children')) return 'family';
+	if (w('workshop') || w('kurs')) return 'workshop';
+	if (w('film') || w('kino')) return 'culture';
+	if (w('kor') || w('choir') || w('pubkor')) return 'music';
 	return 'theatre';
 }
 

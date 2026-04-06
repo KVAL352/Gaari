@@ -57,19 +57,31 @@ interface TCEvent {
 	};
 }
 
+/** Word-boundary check — avoids false positives like "format" matching "mat" */
+function hasWord(text: string, word: string): boolean {
+	return new RegExp(`\\b${word}\\b`).test(text);
+}
+
+/** Check for Norwegian compound words ending with the keyword (e.g. "musikkquiz" → quiz, "vinsmaking" → smaking) */
+function hasCompound(text: string, suffix: string): boolean {
+	return new RegExp(`\\w${suffix}\\b`).test(text);
+}
+
 function mapCategory(title: string, description: string, organizer: string): string {
 	const text = `${title} ${description} ${organizer}`.toLowerCase();
-	if (text.includes('konsert') || text.includes('musikk') || text.includes('jazz') || text.includes('rock') || text.includes('dj')) return 'music';
-	if (text.includes('øl') || text.includes('vin') || text.includes('smak') || text.includes('brygg') || text.includes('mat')) return 'food';
-	if (text.includes('kurs') || text.includes('workshop')) return 'workshop';
-	if (text.includes('teater') || text.includes('show') || text.includes('revy') || text.includes('standup')) return 'theatre';
-	if (text.includes('quiz')) return 'nightlife';
-	if (text.includes('barn') || text.includes('familie')) return 'family';
-	if (text.includes('sport') || text.includes('tur') || text.includes('løp')) return 'sports';
-	if (text.includes('festival') || text.includes('marked')) return 'festival';
-	// Organizer-based defaults
-	if (organizer.includes('7 fjell') || organizer.includes('vinfest')) return 'food';
-	if (organizer.includes('kvarteret')) return 'student';
+	const org = organizer.toLowerCase();
+	// Organizer-based overrides first (most reliable signal)
+	if (org.includes('7 fjell') || org.includes('vinfest') || org.includes('colonialen') || org.includes('fetevare')) return 'food';
+	if (org.includes('kvarteret')) return 'student';
+	// Keyword matching with word boundaries + compound words
+	if (hasWord(text, 'konsert') || hasWord(text, 'musikk') || hasWord(text, 'jazz') || hasWord(text, 'rock') || hasWord(text, 'dj') || hasCompound(text, 'konsert')) return 'music';
+	if (hasWord(text, 'øl') || hasWord(text, 'vin') || hasCompound(text, 'smaking') || hasWord(text, 'brygg') || text.includes('mat og drikke') || hasCompound(text, 'matkurs') || hasCompound(text, 'matopplevelse')) return 'food';
+	if (hasWord(text, 'kurs') || hasWord(text, 'workshop')) return 'workshop';
+	if (hasWord(text, 'teater') || hasWord(text, 'show') || hasWord(text, 'revy') || hasCompound(text, 'standup') || hasWord(text, 'stand-up')) return 'theatre';
+	if (hasWord(text, 'quiz') || hasCompound(text, 'quiz') || hasCompound(text, 'kviss') || hasWord(text, 'bingo') || hasCompound(text, 'bingo')) return 'nightlife';
+	if (hasWord(text, 'barn') || hasWord(text, 'familie') || hasCompound(text, 'barneforestilling')) return 'family';
+	if (hasWord(text, 'sport') || hasWord(text, 'fotball') || hasWord(text, 'løp')) return 'sports';
+	if (hasWord(text, 'festival') || hasWord(text, 'marked')) return 'festival';
 	return 'culture';
 }
 

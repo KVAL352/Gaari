@@ -10,14 +10,15 @@ const YEAR = new Date().getFullYear();
 
 function guessCategory(title: string, venue: string): string {
 	const text = `${title} ${venue}`.toLowerCase();
-	if (text.includes('konsert') || text.includes('dj') || text.includes('musikk') || text.includes('club')) return 'music';
-	if (text.includes('film') || text.includes('kino')) return 'culture';
-	if (text.includes('workshop') || text.includes('kurs') || text.includes('verksted')) return 'workshop';
-	if (text.includes('debatt') || text.includes('panel') || text.includes('samtale') || text.includes('seminar') || text.includes('konferanse')) return 'culture';
-	if (text.includes('barn') || text.includes('junior') || text.includes('familie')) return 'family';
-	if (text.includes('mat') || text.includes('food') || text.includes('frokost') || text.includes('middag')) return 'food';
-	if (text.includes('tur') || text.includes('vandring')) return 'tours';
-	if (text.includes('standup') || text.includes('komikk') || text.includes('comedy')) return 'theatre';
+	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(text);
+	if (w('konsert') || w('dj') || w('musikk') || w('club')) return 'music';
+	if (w('film') || w('kino')) return 'culture';
+	if (w('workshop') || w('kurs') || w('verksted')) return 'workshop';
+	if (w('debatt') || w('panel') || w('samtale') || w('seminar') || w('konferanse')) return 'culture';
+	if (w('barn') || w('junior') || w('familie')) return 'family';
+	if (text.includes('mat og drikke') || w('frokost') || w('middag') || w('food')) return 'food';
+	if (w('vandring') || w('byvandring')) return 'tours';
+	if (w('standup') || w('komikk') || w('comedy')) return 'theatre';
 	return 'culture';
 }
 

@@ -48,15 +48,26 @@ interface OBEvent {
 	}>;
 }
 
+/** Word-boundary check — avoids false positives */
+function hasWord(text: string, word: string): boolean {
+	return new RegExp(`\\b${word}\\b`).test(text);
+}
+
+/** Check for Norwegian compound words ending with the keyword */
+function hasCompound(text: string, suffix: string): boolean {
+	return new RegExp(`\\w${suffix}\\b`).test(text);
+}
+
 function mapCategory(title: string): string {
 	const lower = title.toLowerCase();
-	if (lower.includes('konsert') || lower.includes('concert') || lower.includes('live sessions') || lower.includes('fest:') || lower.includes('tribute')) return 'music';
-	if (lower.includes('humor') || lower.includes('standup') || lower.includes('stand-up') || lower.includes('comedy')) return 'nightlife';
-	if (lower.includes('forestilling') || lower.includes('teater') || lower.includes('musikal') || lower.includes('revy')) return 'theatre';
-	if (lower.includes('barn') || lower.includes('kids') || lower.includes('familieforestilling')) return 'family';
-	if (lower.includes('workshop') || lower.includes('kurs')) return 'workshop';
-	if (lower.includes('podcast') || lower.includes('foredrag')) return 'culture';
-	return 'music'; // Ole Bull Scene is primarily a music/performance venue
+	if (hasWord(lower, 'konsert') || hasWord(lower, 'concert') || lower.includes('live sessions') || lower.includes('fest:') || hasWord(lower, 'tribute') || hasCompound(lower, 'konsert')) return 'music';
+	if (hasWord(lower, 'humor') || hasCompound(lower, 'standup') || hasWord(lower, 'stand-up') || hasWord(lower, 'comedy') || hasWord(lower, 'komiker') || lower.includes('fermentert')) return 'nightlife';
+	if (hasWord(lower, 'forestilling') || hasWord(lower, 'teater') || hasWord(lower, 'musikal') || hasWord(lower, 'revy') || hasWord(lower, 'show')) return 'theatre';
+	if (hasWord(lower, 'barn') || hasWord(lower, 'kids') || hasCompound(lower, 'forestilling')) return 'family';
+	if (hasWord(lower, 'workshop') || hasWord(lower, 'kurs')) return 'workshop';
+	if (hasWord(lower, 'podcast') || hasWord(lower, 'foredrag') || hasWord(lower, 'livepod') || hasWord(lower, 'debatt') || hasWord(lower, 'samtale')) return 'culture';
+	if (hasWord(lower, 'quiz') || hasCompound(lower, 'quiz') || hasCompound(lower, 'kviss')) return 'nightlife';
+	return 'culture'; // default to culture — Ole Bull hosts diverse events
 }
 
 function bergenOffset(dateStr: string): string {

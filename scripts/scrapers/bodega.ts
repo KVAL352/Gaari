@@ -54,15 +54,24 @@ function parseDescription(raw: string): { subtitle: string; body: string; organi
 	return { subtitle, body, organizer };
 }
 
+/** Word-boundary check — avoids false positives like "format" matching "mat" */
+function hasWord(text: string, word: string): boolean {
+	return new RegExp(`\\b${word}\\b`).test(text);
+}
+/** Check for Norwegian compound words ending with the keyword */
+function hasCompound(text: string, suffix: string): boolean {
+	return new RegExp(`\\w${suffix}\\b`).test(text);
+}
+
 function guessCategory(title: string, description: string): string {
 	const text = `${title} ${description}`.toLowerCase();
-	if (text.includes('konsert') || text.includes('live') || text.includes('dj') || text.includes('musikk') || text.includes('music') || text.includes('band')) return 'music';
-	if (text.includes('quiz')) return 'nightlife';
-	if (text.includes('stand-up') || text.includes('standup') || text.includes('komedie') || text.includes('comedy')) return 'culture';
-	if (text.includes('fest') || text.includes('party') || text.includes('natt') || text.includes('klubb')) return 'nightlife';
-	if (text.includes('mat') || text.includes('food') || text.includes('øl') || text.includes('vin') || text.includes('tasting')) return 'food';
-	if (text.includes('workshop') || text.includes('kurs')) return 'workshop';
-	if (text.includes('utstilling') || text.includes('kunst') || text.includes('art')) return 'culture';
+	if (hasWord(text, 'konsert') || hasWord(text, 'live') || hasWord(text, 'dj') || hasWord(text, 'musikk') || hasWord(text, 'music') || hasWord(text, 'band')) return 'music';
+	if (hasWord(text, 'quiz') || hasCompound(text, 'quiz') || hasCompound(text, 'kviss')) return 'nightlife';
+	if (hasWord(text, 'stand-up') || hasCompound(text, 'standup') || hasWord(text, 'komedie') || hasWord(text, 'comedy')) return 'nightlife';
+	if (hasWord(text, 'fest') || hasWord(text, 'party') || hasWord(text, 'natt') || hasWord(text, 'klubb')) return 'nightlife';
+	if (text.includes('mat og drikke') || hasWord(text, 'food') || hasWord(text, 'øl') || hasWord(text, 'vin') || hasCompound(text, 'smaking') || hasWord(text, 'tasting')) return 'food';
+	if (hasWord(text, 'workshop') || hasWord(text, 'kurs')) return 'workshop';
+	if (hasWord(text, 'utstilling') || hasWord(text, 'kunst') || hasWord(text, 'art')) return 'culture';
 	return 'nightlife'; // bar venue default
 }
 

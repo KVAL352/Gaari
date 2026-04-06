@@ -45,7 +45,7 @@ function guessCategory(name: string, scene: string): string {
 		text.includes('hamlet') || text.includes('forestilling') || text.includes('sirkus')) return 'theatre';
 	if (text.includes('barn') || text.includes('familie') || text.includes('kids')) return 'family';
 	if (text.includes('workshop') || text.includes('kurs') || text.includes('klasse')) return 'workshop';
-	if (text.includes('vandring') || text.includes('tur') || text.includes('byvandring')) return 'tours';
+	if (text.includes('vandring') || text.includes('byvandring') || text.includes('guidet tur')) return 'tours';
 	if (text.includes('utstilling') || text.includes('kunst')) return 'culture';
 	if (text.includes('ordskifte') || text.includes('samtale') || text.includes('foredrag') ||
 		text.includes('litterær') || text.includes('dypdykk')) return 'culture';

@@ -407,12 +407,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 function guessCategory(title: string): string {
 	const lower = title.toLowerCase();
-	if (lower.includes('fighting game') || lower.includes('fgc') || lower.includes('turnering')) return 'culture';
-	if (lower.includes('smash') || lower.includes('nintendo') || lower.includes('mario')) return 'culture';
-	if (lower.includes('spillkveld') || lower.includes('spillkultur') || lower.includes('brettspill')) return 'culture';
+	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(lower);
+	if (lower.includes('fighting game') || lower.includes('fgc') || w('turnering')) return 'culture';
+	if (w('smash') || w('nintendo') || w('mario')) return 'culture';
+	if (lower.includes('spillkveld') || lower.includes('spillkultur') || w('brettspill')) return 'culture';
 	if (lower.includes('pokémon') || lower.includes('pokemon')) return 'culture';
-	if (lower.includes('konsert') || lower.includes('music')) return 'music';
-	if (lower.includes('fest') || lower.includes('party')) return 'nightlife';
-	if (lower.includes('barn') || lower.includes('familie')) return 'family';
+	if (w('konsert') || w('music')) return 'music';
+	if (w('fest') || w('party')) return 'nightlife';
+	if (w('barn') || w('familie')) return 'family';
 	return 'culture';
 }

@@ -54,7 +54,7 @@ function extractBlocks(html: string): Array<Record<string, unknown>> {
 function guessCategory(title: string): string {
 	const text = title.toLowerCase();
 	if (text.includes('barn') || text.includes('ung') || text.includes('kids') || text.includes('family')) return 'family';
-	if (text.includes('fest') || text.includes('party') || text.includes('prisutdeling')) return 'festival';
+	if (new RegExp('\\bfest\\b').test(text) || new RegExp('\\bparty\\b').test(text) || text.includes('prisutdeling')) return 'festival';
 	if (text.includes('samtale') || text.includes('debatt') || text.includes('panel') || text.includes('foredrag')) return 'culture';
 	if (text.includes('workshop') || text.includes('kurs') || text.includes('masterclass')) return 'workshop';
 	return 'culture'; // Films default to culture

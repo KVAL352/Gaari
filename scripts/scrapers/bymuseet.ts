@@ -65,14 +65,15 @@ async function fetchDetailData(url: string): Promise<DetailData> {
 
 function guessCategory(title: string, location: string): string {
 	const text = `${title} ${location}`.toLowerCase();
-	if (text.includes('omvisning') || text.includes('guiding') || text.includes('vandring') || text.includes('tur')) return 'tours';
-	if (text.includes('foredrag') || text.includes('seminar') || text.includes('samtale')) return 'culture';
-	if (text.includes('kurs') || text.includes('verksted') || text.includes('workshop')) return 'workshop';
-	if (text.includes('konsert') || text.includes('musikk')) return 'music';
-	if (text.includes('festival') || text.includes('marked')) return 'festival';
-	if (text.includes('barn') || text.includes('familie') || text.includes('junior') || text.includes('eventyr')) return 'family';
-	if (text.includes('teater') || text.includes('forestilling')) return 'theatre';
-	if (text.includes('strikk') || text.includes('spinn') || text.includes('tegne') || text.includes('ull')) return 'workshop';
+	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(text);
+	if (w('omvisning') || w('guiding') || w('vandring') || w('guidet tur')) return 'tours';
+	if (w('foredrag') || w('seminar') || w('samtale')) return 'culture';
+	if (w('kurs') || w('verksted') || w('workshop')) return 'workshop';
+	if (w('konsert') || w('musikk')) return 'music';
+	if (w('festival') || w('marked')) return 'festival';
+	if (w('barn') || w('familie') || w('junior') || w('eventyr')) return 'family';
+	if (w('teater') || w('forestilling')) return 'theatre';
+	if (w('strikk') || w('spinn') || w('tegne') || w('ull')) return 'workshop';
 	return 'culture';
 }
 

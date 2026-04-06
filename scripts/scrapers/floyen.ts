@@ -39,7 +39,7 @@ function guessCategory(title: string, description: string): string {
 	if (text.includes('barn') || text.includes('camp') || text.includes('naturskole') || text.includes('påskesprell')) return 'family';
 	if (text.includes('kurs') || text.includes('workshop')) return 'workshop';
 	if (text.includes('bad')) return 'sports';
-	if (text.includes('tur') || text.includes('ekspedisjon') || text.includes('vandring')) return 'tours';
+	if (new RegExp('\\btur\\b').test(text) || text.includes('ekspedisjon') || text.includes('vandring')) return 'tours';
 	return 'culture';
 }
 

@@ -153,18 +153,19 @@ function guessCategory(title: string, subtitle: string, tags: string): string {
 	// Family keywords in the title take priority — "Barnas kulturhus" is family even if subtitle says "forestilling"
 	if (/barnas\s|for\s+barn|barnelørdag|barneforestilling/.test(titleLower) || titleLower.includes('familie')) return 'family';
 
-	if (text.includes('konsert') || text.includes('musikk') || text.includes('jazz') || text.includes('kor')) return 'music';
-	if (text.includes('teater') || text.includes('revy') || text.includes('forestilling') || text.includes('opera')) return 'theatre';
-	if (text.includes('dans')) return 'theatre';
-	if (text.includes('kurs') || text.includes('verksted') || text.includes('workshop')) return 'workshop';
-	if (text.includes('barn') || text.includes('familie') || text.includes('ung')) return 'family';
-	if (text.includes('utstilling') || text.includes('galleri') || text.includes('kunst')) return 'culture';
-	if (text.includes('film') || text.includes('kino')) return 'culture';
-	if (text.includes('mat') || text.includes('smak')) return 'food';
-	if (text.includes('sport') || text.includes('idrett') || text.includes('trening') || text.includes('friluft')) return 'sports';
-	if (text.includes('tur') || text.includes('vandring') || text.includes('omvisning')) return 'tours';
-	if (text.includes('festival') || text.includes('marked')) return 'festival';
-	if (text.includes('foredrag') || text.includes('debatt') || text.includes('bibliotek')) return 'culture';
+	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(text);
+	if (w('konsert') || w('musikk') || w('jazz') || w('kor')) return 'music';
+	if (w('teater') || w('revy') || w('forestilling') || w('opera')) return 'theatre';
+	if (w('dans')) return 'theatre';
+	if (w('kurs') || w('verksted') || w('workshop')) return 'workshop';
+	if (w('barn') || w('familie') || w('ung')) return 'family';
+	if (w('utstilling') || w('galleri') || w('kunst')) return 'culture';
+	if (w('film') || w('kino')) return 'culture';
+	if (text.includes('mat og drikke') || w('matkurs') || w('smaking') || w('smakskurs')) return 'food';
+	if (w('sport') || w('idrett') || w('trening') || w('friluft')) return 'sports';
+	if (w('vandring') || w('omvisning') || w('guidet tur')) return 'tours';
+	if (w('festival') || w('marked')) return 'festival';
+	if (w('foredrag') || w('debatt') || w('bibliotek')) return 'culture';
 
 	return 'culture'; // Most kommune events are cultural
 }

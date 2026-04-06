@@ -71,7 +71,7 @@ function guessCategory(title: string): string {
 	if (t.includes('svømm') || t.includes('stup') || t.includes('vannsklie') || t.includes('bading')) return 'sports';
 	if (t.includes('seminar') || t.includes('kurs') || t.includes('førstehjelp')) return 'workshop';
 	if (t.includes('barn') || t.includes('familie')) return 'family';
-	if (t.includes('fest') || t.includes('konsert')) return 'music';
+	if (new RegExp('\\bfest\\b').test(t) || t.includes('konsert')) return 'music';
 	return 'sports';
 }
 

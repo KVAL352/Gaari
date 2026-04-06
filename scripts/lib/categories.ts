@@ -103,9 +103,9 @@ export function mapCategory(sourceCategory: string): string {
 	// Direct match
 	if (CATEGORY_MAP[lower]) return CATEGORY_MAP[lower];
 
-	// Partial match — only check if input contains the key (NOT reverse)
+	// Word-boundary match — avoids false positives like "format" matching "mat"
 	for (const [key, value] of SORTED_CATEGORY_ENTRIES) {
-		if (lower.includes(key)) return value;
+		if (new RegExp(`\\b${key}\\b`).test(lower)) return value;
 	}
 
 	// Default

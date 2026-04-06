@@ -18,10 +18,11 @@ function parseTime(timeStr: string): { hours: number; minutes: number } | null {
 
 function guessCategory(title: string): string {
 	const t = title.toLowerCase();
-	if (t.includes('quiz')) return 'nightlife';
-	if (t.includes('st. patrick') || t.includes('patrick')) return 'festival';
-	if (t.includes('sport') || t.includes('fotball') || t.includes('kamp')) return 'sports';
-	if (t.includes('live') || t.includes('music') || t.includes('musikk') || t.includes('dj') || t.includes('konsert')) return 'music';
+	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(t);
+	if (w('quiz')) return 'nightlife';
+	if (t.includes('st. patrick') || w('patrick')) return 'festival';
+	if (w('sport') || w('fotball') || w('kamp')) return 'sports';
+	if (w('live') || w('music') || w('musikk') || w('dj') || w('konsert')) return 'music';
 	return 'nightlife';
 }
 

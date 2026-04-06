@@ -26,12 +26,13 @@ interface ShowDetail {
 
 function guessCategory(title: string): string {
 	const t = title.toLowerCase();
-	if (t.includes('konsert') || t.includes('quintet') || t.includes('quartet') || t.includes('trio') || t.includes('jazz') || t.includes('band')) return 'music';
-	if (t.includes('barn') || t.includes('kids') || t.includes('famili')) return 'family';
-	if (t.includes('standup') || t.includes('stand-up') || t.includes('quiz')) return 'nightlife';
-	if (t.includes('festival') || t.includes('jubileum')) return 'festival';
-	if (t.includes('workshop') || t.includes('kurs')) return 'workshop';
-	if (t.includes('omvisning') || t.includes('vandring')) return 'tours';
+	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(t);
+	if (w('konsert') || w('quintet') || w('quartet') || w('trio') || w('jazz') || w('band')) return 'music';
+	if (w('barn') || w('kids') || w('famili')) return 'family';
+	if (w('standup') || w('stand-up') || w('quiz')) return 'nightlife';
+	if (w('festival') || w('jubileum')) return 'festival';
+	if (w('workshop') || w('kurs')) return 'workshop';
+	if (w('omvisning') || w('vandring')) return 'tours';
 	// DVT is primarily a theater
 	return 'theatre';
 }

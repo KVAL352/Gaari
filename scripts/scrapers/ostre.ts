@@ -69,7 +69,7 @@ function guessCategory(title: string, artists: string, organizer: string): strin
 	if (text.includes('film')) return 'culture';
 	if (text.includes('samtale') || text.includes('foredrag')) return 'culture';
 	if (text.includes('festival') || text.includes('fest ')) return 'festival';
-	if (text.includes('klubb') || text.includes('dj') || text.includes('club')) return 'nightlife';
+	if (new RegExp('\\bklubb\\b').test(text) || new RegExp('\\bdj\\b').test(text) || new RegExp('\\bclub\\b').test(text)) return 'nightlife';
 	return 'music'; // Østre is primarily a music venue
 }
 
