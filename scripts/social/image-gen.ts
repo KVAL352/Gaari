@@ -314,7 +314,7 @@ function eventSlideWithImage(
 ) {
 	const catColor = CATEGORY_COLORS[category] || '#D4D1CA';
 	const catLabel = CATEGORY_LABELS[category] || category;
-	const displayTitle = truncate(title, 40);
+	const displayTitle = truncate(title, 45);
 	const venueTime = time ? `${venue}  \u00b7  kl. ${time}` : venue;
 
 	return {
@@ -329,148 +329,72 @@ function eventSlideWithImage(
 				position: 'relative'
 			},
 			children: [
-				// Inner container (image + overlay)
 				{
 					type: 'div',
 					props: {
 						style: {
 							display: 'flex',
+							flexDirection: 'column',
 							width: '100%',
 							height: '100%',
 							backgroundColor: '#1C1C1E',
-							position: 'relative',
+							borderRadius: '8px',
 							overflow: 'hidden',
-							borderRadius: '8px'
+							position: 'relative'
 						},
 						children: [
-							// Background image
+							// Top: event image (~62% of height)
 							{
-								type: 'img',
+								type: 'div',
 								props: {
-									src: imageBase64,
 									style: {
-										position: 'absolute',
-										top: 0,
-										left: 0,
+										display: 'flex',
+										position: 'relative',
 										width: '100%',
-										height: '100%',
-										objectFit: 'cover'
-									}
-								}
-							},
-							// Dark gradient overlay (stronger for readability)
-							{
-								type: 'div',
-								props: {
-									style: {
-										position: 'absolute',
-										left: 0,
-										right: 0,
-										bottom: 0,
-										height: '70%',
-										background: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.85))'
-									}
-								}
-							},
-							// Subtle top gradient for pill readability
-							{
-								type: 'div',
-								props: {
-									style: {
-										position: 'absolute',
-										left: 0,
-										right: 0,
-										top: 0,
-										height: '30%',
-										background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0))'
-									}
-								}
-							},
-							// Top bar: category pill (left) + optional collection label (right)
-							{
-								type: 'div',
-								props: {
-									style: {
-										position: 'absolute',
-										top: '36px',
-										left: '36px',
-										right: '36px',
-										display: 'flex',
-										justifyContent: 'space-between',
-										alignItems: 'flex-start'
+										height: '650px',
+										overflow: 'hidden'
 									},
 									children: [
 										{
-											type: 'div',
+											type: 'img',
 											props: {
+												src: imageBase64,
 												style: {
-													display: 'flex',
-													backgroundColor: catColor,
-													borderRadius: '32px',
-													padding: '14px 36px',
-													fontSize: '32px',
-													fontFamily: 'Inter',
-													color: TEXT_PRIMARY,
-													boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
-												},
-												children: catLabel
+													position: 'absolute',
+													top: 0,
+													left: 0,
+													width: '100%',
+													height: '100%',
+													objectFit: 'cover'
+												}
 											}
 										},
-										...(collectionLabel ? [{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													backgroundColor: 'rgba(0,0,0,0.6)',
-													borderRadius: '32px',
-													padding: '14px 36px',
-													fontSize: '32px',
-													fontFamily: 'Inter',
-													color: WHITE,
-													boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
-												},
-												children: collectionLabel
-											}
-										}] : [])
-									]
-								}
-							},
-							// Text content (bottom)
-							{
-								type: 'div',
-								props: {
-									style: {
-										position: 'absolute',
-										bottom: '48px',
-										left: '48px',
-										right: '48px',
-										display: 'flex',
-										flexDirection: 'column',
-										gap: '16px'
-									},
-									children: [
+										// Gradient fade at bottom of image
 										{
 											type: 'div',
 											props: {
 												style: {
-													display: 'flex',
-													fontSize: '72px',
-													fontFamily: 'Barlow Condensed',
-													color: WHITE,
-													lineHeight: 1.1,
-													letterSpacing: '-0.01em',
-													textShadow: '0 3px 16px rgba(0,0,0,0.7)'
-												},
-												children: displayTitle
+													position: 'absolute',
+													left: 0,
+													right: 0,
+													bottom: 0,
+													height: '200px',
+													background: 'linear-gradient(to bottom, rgba(28,28,30,0), rgba(28,28,30,1))'
+												}
 											}
 										},
+										// Category pill (top-left) + optional collection label (top-right)
 										{
 											type: 'div',
 											props: {
 												style: {
+													position: 'absolute',
+													top: '28px',
+													left: '28px',
+													right: '28px',
 													display: 'flex',
-													alignItems: 'center',
-													gap: '16px'
+													justifyContent: 'space-between',
+													alignItems: 'flex-start'
 												},
 												children: [
 													{
@@ -478,11 +402,85 @@ function eventSlideWithImage(
 														props: {
 															style: {
 																display: 'flex',
-																fontSize: '36px',
+																backgroundColor: catColor,
+																borderRadius: '32px',
+																padding: '12px 32px',
+																fontSize: '30px',
 																fontFamily: 'Inter',
-																color: 'rgba(255,255,255,0.92)',
-																lineHeight: 1.3,
-																textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+																color: TEXT_PRIMARY,
+																boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
+															},
+															children: catLabel
+														}
+													},
+													...(collectionLabel ? [{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																backgroundColor: 'rgba(0,0,0,0.6)',
+																borderRadius: '32px',
+																padding: '12px 32px',
+																fontSize: '30px',
+																fontFamily: 'Inter',
+																color: WHITE,
+																boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
+															},
+															children: collectionLabel
+														}
+													}] : [])
+												]
+											}
+										}
+									]
+								}
+							},
+							// Bottom: event info
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										flexDirection: 'column',
+										flex: 1,
+										padding: '0 40px 32px',
+										justifyContent: 'flex-end',
+										gap: '16px'
+									},
+									children: [
+										// Event details
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													flexDirection: 'column',
+													gap: '12px'
+												},
+												children: [
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '56px',
+																fontFamily: 'Barlow Condensed',
+																color: WHITE,
+																lineHeight: 1.1,
+																letterSpacing: '-0.01em'
+															},
+															children: displayTitle
+														}
+													},
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '30px',
+																fontFamily: 'Inter',
+																color: 'rgba(255,255,255,0.85)',
+																lineHeight: 1.3
 															},
 															children: venueTime
 														}
@@ -497,11 +495,37 @@ function eventSlideWithImage(
 																padding: '8px 24px',
 																fontSize: '26px',
 																fontFamily: 'Inter',
-																color: WHITE
+																color: WHITE,
+																marginLeft: '-4px',
+																alignSelf: 'flex-start'
 															},
 															children: 'Trolig gratis'
 														}
 													}] : [])
+												]
+											}
+										},
+										// Branding
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													justifyContent: 'flex-end'
+												},
+												children: [
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '28px',
+																fontFamily: 'Barlow Condensed',
+																color: FUNKIS_RED
+															},
+															children: 'G\u00e5ri.no'
+														}
+													}
 												]
 											}
 										}
@@ -845,13 +869,13 @@ function storyEventSlideMarkup(
 												}
 											}
 										},
-										// Top pill bar (category + free badge)
+										// Top pill bar (category) — below IG's UI safe zone (~250px)
 										{
 											type: 'div',
 											props: {
 												style: {
 													position: 'absolute',
-													top: '32px',
+													top: '200px',
 													left: '32px',
 													right: '32px',
 													display: 'flex',
@@ -898,7 +922,7 @@ function storyEventSlideMarkup(
 										display: 'flex',
 										flexDirection: 'column',
 										flex: 1,
-										padding: '0 48px 36px',
+										padding: '0 48px 200px',
 										justifyContent: 'flex-end',
 										gap: '24px'
 									},
