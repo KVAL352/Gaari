@@ -6,6 +6,7 @@ import { generateDescription } from '../lib/ai-descriptions.js';
 const SOURCE = 'bergenpride';
 const BASE_URL = 'https://bergenpride.no';
 const DELAY_MS = 1500;
+const FALLBACK_IMAGE = 'https://cdn.vev.design/private/mC0LTzRlF5YCXni49Kl530JDBeE3/image/ohTUjkB0xN_2j7ucg.svg';
 
 // 2025 program page URLs — updated annually when program is published.
 // Bergen Pride 2026: June 13–21. URL pattern includes weekday + date.
@@ -198,7 +199,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				ticket_url: pageUrl,
 				source: SOURCE,
 				source_url: sourceUrl,
-				image_url: undefined,
+				image_url: FALLBACK_IMAGE,
 				age_group: 'all',
 				language: 'no',
 				status: 'approved',

@@ -6,6 +6,7 @@ const LIST_URL = 'https://www.brann.no/terminliste';
 const VENUE = 'Brann Stadion';
 const ADDRESS = 'Kniksens plass 1, Bergen';
 const BYDEL = 'Bergenhus';
+const FALLBACK_IMAGE = 'https://www.brann.no/_/asset/no.seeds.app.football:0000019d4ae55220/img/logo/bra/logo.png';
 
 function bergenOffset(dateStr: string): string {
 	const month = parseInt(dateStr.slice(3, 5));
@@ -85,7 +86,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: ticketUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
-			image_url: undefined,
+			image_url: FALLBACK_IMAGE,
 			age_group: 'all',
 			language: 'no',
 			status: 'approved',

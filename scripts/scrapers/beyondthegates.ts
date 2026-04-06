@@ -6,6 +6,7 @@ import { generateDescription } from '../lib/ai-descriptions.js';
 const SOURCE = 'beyondthegates';
 const BASE_URL = 'https://beyondthegates.no';
 const LINEUP_URL = `${BASE_URL}/lineup-23`;
+const FALLBACK_IMAGE = 'https://images.squarespace-cdn.com/content/v1/5e3c236dede67650c883ea81/608bedc8-b5c6-40bf-a1ff-51646f95bad6/6777483309_1f0ed349d8_b.jpg';
 
 // Festival dates — mapped from tab labels
 const DAY_MAP: Record<string, string> = {
@@ -116,7 +117,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 					ticket_url: 'https://www.ticketmaster.no/artist/beyond-the-gates-tickets/1180149',
 					source: SOURCE,
 					source_url: sourceUrl,
-					image_url: undefined,
+					image_url: FALLBACK_IMAGE,
 					age_group: 'all',
 					language: 'both',
 					status: 'approved',
