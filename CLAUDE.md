@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 58 scrapers (55 active) collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 58 scrapers (54 active) collect events from local sources, with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -37,7 +37,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 5. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
 6. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
 
-## Scraper sources (58 total, 55 active, 3 disabled)
+## Scraper sources (58 total, 54 active, 4 disabled)
 
 ### General aggregators
 | Source | File | Method |
@@ -49,11 +49,11 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 **Disabled scrapers:**
 - ~~BarnasNorge~~ (`barnasnorge.ts`) — disabled Feb 25, 2026. All venues covered by dedicated scrapers. Issues: AI-generated stock images from Webflow CDN, address-based venue names, complex URL resolution.
 - ~~Kulturikveld~~ — removed (unreliable, file deleted).
+- ~~Eventbrite~~ (`eventbrite.ts`) — disabled Apr 6, 2026. Cloudflare blocks GHA datacenter IPs. Search API deprecated (Dec 2019). Low value (~2 events/day, most covered by other scrapers).
 
 ### Ticket platforms
 | Source | File | Method |
 |--------|------|--------|
-| Eventbrite | `eventbrite.ts` | `__SERVER_DATA__` JSON extraction, pagination |
 | TicketCo | `ticketco.ts` | Multi-venue subdomains (Hulen, Kvarteret, Madam Felle, Landmark, Statsraad Lehmkuhl, Swing 'n Sweet, Mandelhuset, Bergen Pride, etc.) |
 | Billetto | `billetto.ts` | Algolia API geo-search (25km Bergen radius) |
 | Hoopla | `hoopla.ts` | Hoopla events platform |
