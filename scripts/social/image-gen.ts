@@ -952,6 +952,7 @@ function storyEventSlideMarkup(
 																fontFamily: 'Inter',
 																color: WHITE,
 																marginTop: '4px',
+																marginLeft: '-6px',
 																alignSelf: 'flex-start'
 															},
 															children: 'Trolig gratis'
