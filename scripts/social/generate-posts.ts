@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
-import { generateCarousel, type CarouselEvent } from './image-gen.js';
+import { generateCarousel, generateStories, type CarouselEvent } from './image-gen.js';
 import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
@@ -133,6 +133,9 @@ function shouldGenerateToday(schedule: CollectionSchedule, dayOfWeek: number): b
 
 const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
+/** Collections that also generate Stories (today's events) */
+const STORY_SLUGS = new Set(['i-kveld', 'today-in-bergen']);
+
 function formatDateRange(now: Date, slug: string): string {
 	const isEnSlug = ENGLISH_SLUGS.has(slug);
 	const locale = isEnSlug ? 'en-GB' : 'nb-NO';
@@ -205,6 +208,8 @@ async function upsertSocialPost(row: {
 	image_urls: string[];
 	caption: string;
 	post_time: string;
+	story_image_urls?: string[];
+	story_count?: number;
 }) {
 	const { error } = await supabase
 		.from('social_posts')
@@ -282,7 +287,42 @@ async function main() {
 		console.log(`  ${filtered.length} events matched, ${topEvents.length} selected, ${eventsWithImages} with images`);
 
 		if (eventsWithImages < MIN_IMAGES_FOR_POST) {
-			console.log(`  [skip] Only ${eventsWithImages} events have images (need ${MIN_IMAGES_FOR_POST}), skipping post.\n`);
+			// Still generate stories for today-collections even if carousel skipped
+			if (STORY_SLUGS.has(schedule.slug) && eventsWithImages >= 1) {
+				try {
+					const isEnglish = ENGLISH_SLUGS.has(schedule.slug);
+					const lang = isEnglish ? 'en' as const : 'no' as const;
+					const title = isEnglish ? collection.title.en : collection.title.no;
+					const carouselEvents: CarouselEvent[] = topEvents.map(e => ({
+						title: e.title_no, venue: e.venue_name,
+						time: formatEventTime(e.date_start, lang),
+						category: e.category, imageUrl: e.image_url || undefined,
+						isFree: isFreeEvent(e.price)
+					}));
+					console.log(`  Generating stories only (carousel skipped)...`);
+					const stories = await generateStories(title, carouselEvents, { lang });
+					const storyUrls: string[] = [];
+					for (let i = 0; i < stories.length; i++) {
+						const path = `${dateStr}/${schedule.slug}/story-${i + 1}.png`;
+						const url = await uploadToStorage(path, stories[i], 'image/png');
+						storyUrls.push(url);
+						console.log(`  Uploaded story ${i + 1}/${stories.length}`);
+					}
+					if (storyUrls.length > 0) {
+						await upsertSocialPost({
+							collection_slug: schedule.slug, generated_date: dateStr,
+							event_count: filtered.length, slide_count: 0, image_urls: [],
+							caption: '', post_time: schedule.postTime,
+							story_image_urls: storyUrls, story_count: storyUrls.length
+						});
+						console.log(`  Upserted social_posts row (stories only)\n`);
+					}
+				} catch (err: any) {
+					console.log(`  Story-only generation failed: ${err.message}`);
+				}
+			} else {
+				console.log(`  [skip] Only ${eventsWithImages} events have images (need ${MIN_IMAGES_FOR_POST}), skipping post.\n`);
+			}
 			results[schedule.slug] = { eventCount: filtered.length, slideCount: 0, success: true };
 			continue;
 		}
@@ -339,13 +379,30 @@ async function main() {
 				lang
 			);
 
-			// Upload to Supabase Storage
+			// Generate Stories (9:16) for today-collections
+			const storySlides: Buffer[] = [];
+			if (STORY_SLUGS.has(schedule.slug)) {
+				console.log(`  Generating stories (9:16)...`);
+				const stories = await generateStories(title, carouselEvents, { lang });
+				storySlides.push(...stories);
+			}
+
+			// Upload carousel slides to Supabase Storage
 			const imageUrls: string[] = [];
 			for (let i = 0; i < slides.length; i++) {
 				const path = `${dateStr}/${schedule.slug}/slide-${i + 1}.png`;
 				const url = await uploadToStorage(path, slides[i], 'image/png');
 				imageUrls.push(url);
 				console.log(`  Uploaded slide ${i + 1}/${slides.length}`);
+			}
+
+			// Upload story slides
+			const storyImageUrls: string[] = [];
+			for (let i = 0; i < storySlides.length; i++) {
+				const path = `${dateStr}/${schedule.slug}/story-${i + 1}.png`;
+				const url = await uploadToStorage(path, storySlides[i], 'image/png');
+				storyImageUrls.push(url);
+				console.log(`  Uploaded story ${i + 1}/${storySlides.length}`);
 			}
 
 			// Upload caption
@@ -361,7 +418,9 @@ async function main() {
 				slide_count: slides.length,
 				image_urls: imageUrls,
 				caption,
-				post_time: schedule.postTime
+				post_time: schedule.postTime,
+				story_image_urls: storyImageUrls.length > 0 ? storyImageUrls : undefined,
+				story_count: storyImageUrls.length
 			});
 			console.log(`  Upserted social_posts row\n`);
 

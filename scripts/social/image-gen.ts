@@ -61,6 +61,10 @@ const CATEGORY_LABELS: Record<Category, string> = {
 const WIDTH = 1080;
 const HEIGHT = 1080;
 
+// Story dimensions (9:16 vertical)
+const STORY_WIDTH = 1080;
+const STORY_HEIGHT = 1920;
+
 // ── Font loading ──
 
 let fontsCache: Font[] | null = null;
@@ -93,6 +97,22 @@ async function renderSlide(markup: Record<string, unknown>): Promise<Buffer> {
 
 	const resvg = new Resvg(svg, {
 		fitTo: { mode: 'width', value: WIDTH }
+	});
+
+	return Buffer.from(resvg.render().asPng());
+}
+
+async function renderStorySlide(markup: Record<string, unknown>): Promise<Buffer> {
+	const fonts = loadFonts();
+
+	const svg = await satori(markup, {
+		width: STORY_WIDTH,
+		height: STORY_HEIGHT,
+		fonts
+	});
+
+	const resvg = new Resvg(svg, {
+		fitTo: { mode: 'width', value: STORY_WIDTH }
 	});
 
 	return Buffer.from(resvg.render().asPng());
@@ -739,4 +759,331 @@ export async function generateCarousel(
 	}
 
 	return slides;
+}
+
+// ── Story slides (9:16 vertical format) ──
+
+const STORY_FRAME = 16;
+
+function storyEventSlideMarkup(
+	title: string,
+	venue: string,
+	time: string,
+	category: Category,
+	imageBase64: string,
+	collectionTitle: string,
+	isFree?: boolean
+) {
+	const catColor = CATEGORY_COLORS[category] || '#D4D1CA';
+	const catLabel = CATEGORY_LABELS[category] || category;
+	const displayTitle = truncate(title, 50);
+	const venueTime = time ? `${venue}  \u00b7  kl. ${time}` : venue;
+
+	return {
+		type: 'div',
+		props: {
+			style: {
+				display: 'flex',
+				width: '100%',
+				height: '100%',
+				backgroundColor: FUNKIS_RED,
+				padding: `${STORY_FRAME}px`,
+				position: 'relative'
+			},
+			children: [
+				{
+					type: 'div',
+					props: {
+						style: {
+							display: 'flex',
+							flexDirection: 'column',
+							width: '100%',
+							height: '100%',
+							backgroundColor: '#1C1C1E',
+							borderRadius: '12px',
+							overflow: 'hidden',
+							position: 'relative'
+						},
+						children: [
+							// Top: event image (fills ~60% of height)
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										position: 'relative',
+										width: '100%',
+										height: '1100px',
+										overflow: 'hidden'
+									},
+									children: [
+										{
+											type: 'img',
+											props: {
+												src: imageBase64,
+												style: {
+													position: 'absolute',
+													top: 0,
+													left: 0,
+													width: '100%',
+													height: '100%',
+													objectFit: 'cover'
+												}
+											}
+										},
+										// Gradient fade at bottom of image
+										{
+											type: 'div',
+											props: {
+												style: {
+													position: 'absolute',
+													left: 0,
+													right: 0,
+													bottom: 0,
+													height: '300px',
+													background: 'linear-gradient(to bottom, rgba(28,28,30,0), rgba(28,28,30,1))'
+												}
+											}
+										},
+										// Top pill bar (category + free badge)
+										{
+											type: 'div',
+											props: {
+												style: {
+													position: 'absolute',
+													top: '32px',
+													left: '32px',
+													right: '32px',
+													display: 'flex',
+													justifyContent: 'space-between',
+													alignItems: 'flex-start'
+												},
+												children: [
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																backgroundColor: catColor,
+																borderRadius: '32px',
+																padding: '12px 32px',
+																fontSize: '30px',
+																fontFamily: 'Inter',
+																color: TEXT_PRIMARY,
+																boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
+															},
+															children: catLabel
+														}
+													},
+													...(isFree ? [{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																backgroundColor: FREE_GREEN,
+																borderRadius: '32px',
+																padding: '12px 32px',
+																fontSize: '30px',
+																fontFamily: 'Inter',
+																color: WHITE,
+																boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
+															},
+															children: 'Trolig gratis'
+														}
+													}] : [])
+												]
+											}
+										}
+									]
+								}
+							},
+							// Bottom: event info
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										flexDirection: 'column',
+										flex: 1,
+										padding: '0 48px 48px',
+										justifyContent: 'space-between'
+									},
+									children: [
+										// Event details
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													flexDirection: 'column',
+													gap: '20px'
+												},
+												children: [
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '64px',
+																fontFamily: 'Barlow Condensed',
+																color: WHITE,
+																lineHeight: 1.1,
+																letterSpacing: '-0.01em'
+															},
+															children: displayTitle
+														}
+													},
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '34px',
+																fontFamily: 'Inter',
+																color: 'rgba(255,255,255,0.85)',
+																lineHeight: 1.3
+															},
+															children: venueTime
+														}
+													}
+												]
+											}
+										},
+										// Bottom bar: collection + branding
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													justifyContent: 'space-between',
+													alignItems: 'flex-end',
+													marginTop: '32px'
+												},
+												children: [
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '28px',
+																fontFamily: 'Inter',
+																color: 'rgba(255,255,255,0.6)'
+															},
+															children: collectionTitle
+														}
+													},
+													{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																fontSize: '36px',
+																fontFamily: 'Barlow Condensed',
+																color: FUNKIS_RED
+															},
+															children: 'G\u00e5ri.no'
+														}
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				}
+			]
+		}
+	};
+}
+
+/** Generate 9:16 story images from events (max 3 stories per collection) */
+export async function generateStories(
+	collectionTitle: string,
+	events: CarouselEvent[],
+	options?: CarouselOptions
+): Promise<Buffer[]> {
+	const MAX_STORIES = 3;
+	const stories: Buffer[] = [];
+
+	// Only events with images
+	const withImages = events.filter(e => e.imageUrl);
+	if (withImages.length === 0) return stories;
+
+	// Pre-fetch images
+	const toFetch = withImages.slice(0, MAX_STORIES);
+	console.log(`  Fetching ${toFetch.length} story images...`);
+	const imageResults = await Promise.all(
+		toFetch.map(e => fetchImageAsBase64(e.imageUrl!))
+	);
+
+	for (let i = 0; i < toFetch.length; i++) {
+		const image = imageResults[i];
+		if (!image) continue;
+
+		const event = toFetch[i];
+		try {
+			const markup = storyEventSlideMarkup(
+				event.title,
+				event.venue,
+				event.time,
+				event.category,
+				image,
+				collectionTitle,
+				event.isFree
+			);
+			stories.push(await renderStorySlide(markup));
+		} catch (err: any) {
+			console.log(`  [skip] Story "${event.title}" — render failed (${err.message})`);
+		}
+	}
+
+	console.log(`  Generated ${stories.length} story slides`);
+	return stories;
+}
+
+// ── Reels frames (9:16, for FFmpeg video encoding) ──
+
+/** Generate individual PNG frames for a Reels video. Each event gets one frame. */
+export async function generateReelsFrames(
+	collectionTitle: string,
+	events: CarouselEvent[],
+	options?: CarouselOptions
+): Promise<Buffer[]> {
+	const MAX_FRAMES = 8;
+	const frames: Buffer[] = [];
+
+	const withImages = events.filter(e => e.imageUrl);
+	if (withImages.length === 0) return frames;
+
+	const toFetch = withImages.slice(0, MAX_FRAMES);
+	console.log(`  Fetching ${toFetch.length} reels frame images...`);
+	const imageResults = await Promise.all(
+		toFetch.map(e => fetchImageAsBase64(e.imageUrl!))
+	);
+
+	for (let i = 0; i < toFetch.length; i++) {
+		const image = imageResults[i];
+		if (!image) continue;
+
+		const event = toFetch[i];
+		try {
+			const markup = storyEventSlideMarkup(
+				event.title,
+				event.venue,
+				event.time,
+				event.category,
+				image,
+				collectionTitle,
+				event.isFree
+			);
+			frames.push(await renderStorySlide(markup));
+		} catch (err: any) {
+			console.log(`  [skip] Reels frame "${event.title}" — render failed (${err.message})`);
+		}
+	}
+
+	console.log(`  Generated ${frames.length} reels frames`);
+	return frames;
 }

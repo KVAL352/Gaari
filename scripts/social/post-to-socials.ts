@@ -24,7 +24,15 @@ const PLATFORM_ARG = process.argv.find(a => a.startsWith('--platform='))?.split(
 const POST_IG = PLATFORM_ARG === 'all' || PLATFORM_ARG === 'ig';
 const POST_FB = PLATFORM_ARG === 'all' || PLATFORM_ARG === 'fb';
 
+const POST_STORIES = PLATFORM_ARG === 'all' || PLATFORM_ARG === 'ig' || PLATFORM_ARG === 'stories';
+
 const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
+
+/** Max stories per day */
+const MAX_STORIES_PER_DAY = 3;
+
+/** Collections that get Stories (today's events only) */
+const STORY_SLUGS = new Set(['i-kveld', 'today-in-bergen']);
 
 /** Max posts per platform per day — keep low for new accounts to avoid rate limits */
 const MAX_POSTS_PER_PLATFORM = 3;
@@ -251,6 +259,32 @@ async function postToFacebookAlbum(imageUrls: string[], message: string): Promis
 	return data.id;
 }
 
+// ── Instagram Stories ──
+
+async function postStoryToInstagram(imageUrl: string): Promise<string | null> {
+	if (!META_TOKEN || !IG_USER_ID) {
+		console.log('  [skip] Story: META_ACCESS_TOKEN or IG_USER_ID not set');
+		return null;
+	}
+
+	const baseUrl = `${GRAPH_API}/${IG_USER_ID}`;
+
+	// Create story container
+	const params = new URLSearchParams({
+		image_url: imageUrl,
+		media_type: 'STORIES',
+		access_token: META_TOKEN
+	});
+	const data = await fetchWithRetry(`${baseUrl}/media`, { method: 'POST', body: params }, 'IG story container');
+
+	await pollMediaStatus(data.id);
+
+	// Publish
+	const pubParams = new URLSearchParams({ creation_id: data.id, access_token: META_TOKEN });
+	const pubData = await fetchWithRetry(`${baseUrl}/media_publish`, { method: 'POST', body: pubParams }, 'IG story publish');
+	return pubData.id;
+}
+
 // ── Helpers ──
 
 function delay(ms: number): Promise<void> {
@@ -320,6 +354,7 @@ async function main() {
 
 	let igPosted = 0, igFailed = 0, fbPosted = 0, fbFailed = 0;
 	let igSkipped = 0, fbSkipped = 0;
+	let storiesPosted = 0, storiesFailed = 0;
 
 	for (const post of posts) {
 		const slug = post.collection_slug;
@@ -389,16 +424,55 @@ async function main() {
 				if (!dryRun) await delay(2000);
 			}
 		}
+
+		// ── Instagram Stories ──
+		const storyUrls: string[] = post.story_image_urls || [];
+		if (POST_STORIES && STORY_SLUGS.has(slug) && storyUrls.length > 0 && !post.story_posted_at) {
+			if (igQuotaBlocked) {
+				console.log(`--- ${slug} → Stories [skipped, IG quota exhausted] ---`);
+			} else {
+				const toPost = storyUrls.slice(0, MAX_STORIES_PER_DAY);
+				console.log(`--- ${slug} → Stories (${toPost.length} slides) ---`);
+				let storyOk = 0;
+				for (let i = 0; i < toPost.length; i++) {
+					try {
+						if (dryRun) {
+							console.log(`  [DRY RUN] Would post story ${i + 1}`);
+							storyOk++;
+						} else {
+							const storyId = await postStoryToInstagram(toPost[i]);
+							if (storyId) {
+								console.log(`  Story ${i + 1} posted: ${storyId}`);
+								storyOk++;
+							}
+							await delay(3000);
+						}
+					} catch (err: any) {
+						console.error(`  Story ${i + 1} FAILED: ${err.message}`);
+						storiesFailed++;
+					}
+				}
+				if (storyOk > 0 && !dryRun) {
+					await supabase
+						.from('social_posts')
+						.update({ story_posted_at: new Date().toISOString() })
+						.eq('id', post.id);
+				}
+				storiesPosted += storyOk;
+			}
+		}
 	}
 
 	// Summary
 	console.log(`\n=== Summary ===`);
 	console.log(`  Instagram: ${igPosted} posted, ${igFailed} failed, ${igSkipped} skipped (cap)`);
+	console.log(`  Stories:   ${storiesPosted} posted, ${storiesFailed} failed`);
 	console.log(`  Facebook:  ${fbPosted} posted, ${fbFailed} failed, ${fbSkipped} skipped (cap)`);
 
 	const summary = {
 		date: dateStr,
 		instagram: { posted: igPosted, failed: igFailed, skipped: igSkipped },
+		stories: { posted: storiesPosted, failed: storiesFailed },
 		facebook: { posted: fbPosted, failed: fbFailed, skipped: fbSkipped }
 	};
 	console.log('\n' + JSON.stringify(summary));
