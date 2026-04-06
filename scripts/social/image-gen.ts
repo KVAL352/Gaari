@@ -813,7 +813,7 @@ function storyEventSlideMarkup(
 										display: 'flex',
 										position: 'relative',
 										width: '100%',
-										height: '1100px',
+										height: '1400px',
 										overflow: 'hidden'
 									},
 									children: [
@@ -875,20 +875,13 @@ function storyEventSlideMarkup(
 															children: catLabel
 														}
 													},
+													// Empty spacer when not free (keeps layout stable)
 													...(isFree ? [{
 														type: 'div',
 														props: {
 															style: {
-																display: 'flex',
-																backgroundColor: FREE_GREEN,
-																borderRadius: '32px',
-																padding: '12px 32px',
-																fontSize: '30px',
-																fontFamily: 'Inter',
-																color: WHITE,
-																boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
-															},
-															children: 'Trolig gratis'
+																display: 'flex'
+															}
 														}
 													}] : [])
 												]
@@ -905,8 +898,9 @@ function storyEventSlideMarkup(
 										display: 'flex',
 										flexDirection: 'column',
 										flex: 1,
-										padding: '0 48px 48px',
-										justifyContent: 'space-between'
+										padding: '0 48px 36px',
+										justifyContent: 'flex-end',
+										gap: '24px'
 									},
 									children: [
 										// Event details
@@ -945,7 +939,24 @@ function storyEventSlideMarkup(
 															},
 															children: venueTime
 														}
-													}
+													},
+													...(isFree ? [{
+														type: 'div',
+														props: {
+															style: {
+																display: 'flex',
+																backgroundColor: FREE_GREEN,
+																borderRadius: '28px',
+																padding: '10px 28px',
+																fontSize: '30px',
+																fontFamily: 'Inter',
+																color: WHITE,
+																marginTop: '4px',
+																alignSelf: 'flex-start'
+															},
+															children: 'Trolig gratis'
+														}
+													}] : [])
 												]
 											}
 										},
@@ -956,8 +967,7 @@ function storyEventSlideMarkup(
 												style: {
 													display: 'flex',
 													justifyContent: 'space-between',
-													alignItems: 'flex-end',
-													marginTop: '32px'
+													alignItems: 'flex-end'
 												},
 												children: [
 													{

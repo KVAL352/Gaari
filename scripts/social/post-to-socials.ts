@@ -425,40 +425,40 @@ async function main() {
 			}
 		}
 
-		// ── Instagram Stories ──
+		// ── Instagram Stories (1 per run, staggered through the day) ──
 		const storyUrls: string[] = post.story_image_urls || [];
-		if (POST_STORIES && STORY_SLUGS.has(slug) && storyUrls.length > 0 && !post.story_posted_at) {
+		const alreadyPosted: number = post.story_posted_count ?? 0;
+		const nextStoryIdx = alreadyPosted;
+		if (POST_STORIES && STORY_SLUGS.has(slug) && nextStoryIdx < storyUrls.length) {
 			if (igQuotaBlocked) {
-				console.log(`--- ${slug} → Stories [skipped, IG quota exhausted] ---`);
+				console.log(`--- ${slug} → Story [skipped, IG quota exhausted] ---`);
+			} else if (storiesPosted >= 1) {
+				console.log(`--- ${slug} → Story [skipped, 1 story per run] ---`);
 			} else {
-				const toPost = storyUrls.slice(0, MAX_STORIES_PER_DAY);
-				console.log(`--- ${slug} → Stories (${toPost.length} slides) ---`);
-				let storyOk = 0;
-				for (let i = 0; i < toPost.length; i++) {
-					try {
-						if (dryRun) {
-							console.log(`  [DRY RUN] Would post story ${i + 1}`);
-							storyOk++;
-						} else {
-							const storyId = await postStoryToInstagram(toPost[i]);
-							if (storyId) {
-								console.log(`  Story ${i + 1} posted: ${storyId}`);
-								storyOk++;
-							}
-							await delay(3000);
+				const storyUrl = storyUrls[nextStoryIdx];
+				console.log(`--- ${slug} → Story ${nextStoryIdx + 1}/${storyUrls.length} ---`);
+				try {
+					if (dryRun) {
+						console.log(`  [DRY RUN] Would post story ${nextStoryIdx + 1}`);
+						storiesPosted++;
+					} else {
+						const storyId = await postStoryToInstagram(storyUrl);
+						if (storyId) {
+							console.log(`  Story posted: ${storyId}`);
+							await supabase
+								.from('social_posts')
+								.update({
+									story_posted_count: nextStoryIdx + 1,
+									story_posted_at: new Date().toISOString()
+								})
+								.eq('id', post.id);
+							storiesPosted++;
 						}
-					} catch (err: any) {
-						console.error(`  Story ${i + 1} FAILED: ${err.message}`);
-						storiesFailed++;
 					}
+				} catch (err: any) {
+					console.error(`  Story FAILED: ${err.message}`);
+					storiesFailed++;
 				}
-				if (storyOk > 0 && !dryRun) {
-					await supabase
-						.from('social_posts')
-						.update({ story_posted_at: new Date().toISOString() })
-						.eq('id', post.id);
-				}
-				storiesPosted += storyOk;
 			}
 		}
 	}

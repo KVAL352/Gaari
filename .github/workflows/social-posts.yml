@@ -2,9 +2,14 @@ name: Generate & Post Social Content
 
 on:
   schedule:
-    # FB at 07:00 UTC (08:00 CET), IG at 14:00 UTC (15:00 CET / 16:00 CEST)
+    # FB at 07:00 UTC (08:00 CET)
     - cron: '0 7 * * *'
+    # IG carousel at 14:00 UTC (16:00 CEST)
     - cron: '0 14 * * *'
+    # Stories staggered: 09:00 UTC (11:00 CEST), 12:00 UTC (14:00 CEST), 16:00 UTC (18:00 CEST)
+    - cron: '0 9 * * *'
+    - cron: '0 12 * * *'
+    - cron: '0 16 * * *'
   workflow_dispatch:
     inputs:
       platform:
@@ -40,11 +45,14 @@ jobs:
             echo "target=fb" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 14 * * *" ]; then
             echo "target=ig" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 9 * * *" ] || [ "${{ github.event.schedule }}" = "0 12 * * *" ] || [ "${{ github.event.schedule }}" = "0 16 * * *" ]; then
+            echo "target=stories" >> "$GITHUB_OUTPUT"
           else
             echo "target=all" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Generate social posts
+        if: steps.platform.outputs.target != 'stories'
         id: generate
         working-directory: scripts
         env:
@@ -65,7 +73,7 @@ jobs:
         run: npx tsx social/post-to-socials.ts --platform=${{ steps.platform.outputs.target }}
 
       - name: Fetch social insights
-        if: always()
+        if: always() && steps.platform.outputs.target != 'stories'
         working-directory: scripts
         env:
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
