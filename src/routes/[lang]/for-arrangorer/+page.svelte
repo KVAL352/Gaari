@@ -37,6 +37,7 @@
 	<meta name="twitter:title" content={title} />
 	<meta name="twitter:description" content={ogDesc} />
 	<meta name="twitter:image" content={ogImage} />
+	<!-- eslint-disable svelte/no-at-html-tags -- server-generated JSON-LD, no user input -->
 	{@html faqJsonLd}
 </svelte:head>
 
