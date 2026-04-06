@@ -5,7 +5,8 @@ import { scrape as scrapeBergenKommune } from './scrapers/bergenkommune.js';
 // import { scrape as scrapeBarnasNorge } from './scrapers/barnasnorge.js';
 import { scrape as scrapeStudentBergen } from './scrapers/studentbergen.js';
 import { scrape as scrapeDNT } from './scrapers/dnt.js';
-import { scrape as scrapeEventbrite } from './scrapers/eventbrite.js';
+// Eventbrite disabled — unreliable __SERVER_DATA__ extraction, most Bergen events covered by venue scrapers.
+// import { scrape as scrapeEventbrite } from './scrapers/eventbrite.js';
 import { scrape as scrapeBorealis } from './scrapers/borealis.js';
 import { scrape as scrapeTicketCo } from './scrapers/ticketco.js';
 import { scrape as scrapeHoopla } from './scrapers/hoopla.js';
@@ -132,7 +133,7 @@ const scrapers: Record<string, () => Promise<{ found: number; inserted: number }
 	akvariet: scrapeAkvariet,
 	dnt: scrapeDNT,
 	studentbergen: scrapeStudentBergen,
-	eventbrite: scrapeEventbrite,
+	// eventbrite: scrapeEventbrite, // Disabled — see import comment above
 	// --- Slow scrapers (multi-page + detail fetches) ---
 	ticketco: scrapeTicketCo,
 	bergenkommune: scrapeBergenKommune,

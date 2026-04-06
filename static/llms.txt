@@ -81,9 +81,9 @@
 - https://gaari.no/no/guide — Hva skjer i Bergen – Guide
 - https://gaari.no/en/guide — Things to Do in Bergen – Guide
 
-## Data sources (55 active)
+## Data sources (54 active)
 
-Venues: Grieghallen, DNS, Ole Bull, USF Verftet, Forum Scene, Harmonien, Carte Blanche, BIT, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Oseana, Kulturhuset, Fyllingsdalen Teater, KODE, Bergen Kunsthall, Litteraturhuset, Media City Bergen, BEK, Bergen Filmklubb, Bergen Bibliotek, Bymuseet, Museum Vest, Akvariet, Fløyen, Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad, O'Connor's, GG Bergen, Stene Matglede, Swing 'n Sweet, SK Brann, DNT Bergen, Kvarteret. Festivals: Festspillene, Bergenfest, Beyond the Gates, Nattjazz, Bergen Pride, BIFF, Borealis, VVV. Platforms: Eventbrite, TicketCo, Billetto, Hoopla. Aggregators: Bergen Kommune, StudentBergen, Bergen Live.
+Venues: Grieghallen, DNS, Ole Bull, USF Verftet, Forum Scene, Harmonien, Carte Blanche, BIT, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Oseana, Kulturhuset, Fyllingsdalen Teater, KODE, Bergen Kunsthall, Litteraturhuset, Media City Bergen, BEK, Bergen Filmklubb, Bergen Bibliotek, Bymuseet, Museum Vest, Akvariet, Fløyen, Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad, O'Connor's, GG Bergen, Stene Matglede, Swing 'n Sweet, SK Brann, DNT Bergen, Kvarteret. Festivals: Festspillene, Bergenfest, Beyond the Gates, Nattjazz, Bergen Pride, BIFF, Borealis, VVV. Platforms: TicketCo, Billetto, Hoopla. Aggregators: Bergen Kommune, StudentBergen, Bergen Live.
 
 ## Contact
 

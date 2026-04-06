@@ -70,12 +70,12 @@ const SOURCE_RANK: Record<string, number> = {
 	ticketco: 2,
 	billetto: 2,
 	hoopla: 2,
-	eventbrite: 2,
 	tikkio: 2,
 
 	// Tier 1 — low-quality / disabled
 	kulturikveld: 1,
 	barnasnorge: 1,
+	eventbrite: 1,
 };
 
 export interface EventRow {
