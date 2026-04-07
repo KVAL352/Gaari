@@ -5,6 +5,18 @@ import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'jungelfest';
 const TICKETCO_URL = 'https://jungelfest.ticketco.events/no/nb/e/jungelfest_2026';
+const JUNGELEN_URL = 'https://jungelen.org/JUNGELFEST';
+
+// Map artist name → filename hint on jungelen.org. The site hosts per-artist
+// "{hint}-IG.png" images we can pluck out for nicer event cards.
+const ARTIST_IMAGE_HINTS: Record<string, RegExp> = {
+	candura: /Candura-IG/i,
+	'la vacanza': /La-Vacanza-IG/i,
+	'vestland sound machine': /VSM-IG/i,
+	'mc magnus': /MC-Magnus-IG/i,
+	sula: /SULA-IG/i,
+	'giorgio lopez': /GIO-IG/i,
+};
 
 // Festival edition — update yearly
 const YEAR = 2026;
@@ -174,6 +186,17 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	const items = parseProgram(text);
 	console.log(`[${SOURCE}] Parsed ${items.length} program items`);
 
+	// Pull per-artist images from the jungelen.org Cargo page (best-effort).
+	const artistImages: Record<string, string> = {};
+	const jungelenHtml = await fetchHTML(JUNGELEN_URL);
+	if (jungelenHtml) {
+		for (const [artist, pattern] of Object.entries(ARTIST_IMAGE_HINTS)) {
+			const m = jungelenHtml.match(new RegExp(`https://freight\\.cargo\\.site/[^\\s"']*?${pattern.source}[^\\s"']*`, 'i'));
+			if (m) artistImages[artist] = m[0];
+		}
+		console.log(`[${SOURCE}] Found ${Object.keys(artistImages).length}/${Object.keys(ARTIST_IMAGE_HINTS).length} artist images`);
+	}
+
 	let inserted = 0;
 	for (const item of items) {
 		const date = DAY_DATES[item.day];
@@ -233,7 +256,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: TICKETCO_URL,
 			source: SOURCE,
 			source_url: sourceUrl,
-			image_url: ogImage,
+			image_url: artistImages[item.artist.toLowerCase()] || ogImage,
 			age_group: 'all',
 			language: 'both',
 			status: 'approved',
