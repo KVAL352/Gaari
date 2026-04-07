@@ -16,7 +16,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 
 	// Build forwarded headers — preserve essential metadata, drop
 	// hop-by-hop headers, and explicitly set the client IP.
-	let clientIp = '';
+	let clientIp: string;
 	try {
 		clientIp = getClientAddress();
 	} catch {
