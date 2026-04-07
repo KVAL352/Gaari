@@ -5,19 +5,9 @@
     "description": "Søknad om deltakelse i Google EEA aggregator features (Things to do / events) ble sendt 6. mars 2026 via support.google.com/websearch/contact/search_dma. Google tar typisk 2-4 uker. Sjekk post@gaari.no for svar. Hvis ingen respons: vent ytterligere 2 uker og send eventuell oppfølging."
   },
   {
-    "date": "2026-03-27",
-    "title": "Purring: outreach-kontakter uten svar",
-    "description": "Send oppfølgingsepost til kontakter fra runde 1 (4. mars) og runde 2 (5. mars) som ikke har svart. Sjekk outreach-loggen i memory/outreach-drafts.md for status. Prioriter: media (NRK, BT, Bergensmagasinet), studenter (Sammen, UiB), community (BIKS, Bergen Global)."
-  },
-  {
     "date": "2026-04-28",
     "title": "Følg opp Tikkio",
     "description": "Epost sendt 27. februar — forespørsel om scraping-tillatelse. Kun Intercom auto-svar mottatt. Venter på svar — send eventuell oppfølging nå (3 uker etter 7. april). Scraper klar (scripts/scrapers/tikkio.ts)."
-  },
-  {
-    "date": "2026-03-27",
-    "title": "Prospect report UX-gjennomgang",
-    "description": "Gjenstående: 1) Kategorier-tallet viser 8/11, sjekk mapCategory. 2) Test festival-rapport (--festival festspillene). 3) Sjekk mobilvennlighet. cd scripts && npx tsx generate-prospect-report.ts 'Grieghallen'."
   },
   {
     "date": "2026-04-06",
