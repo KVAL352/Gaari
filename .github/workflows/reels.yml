@@ -1,0 +1,50 @@
+name: Generate Weekly Reels
+
+on:
+  schedule:
+    # Thursday 06:00 UTC (08:00 CEST) — fresh reels delivered before posting window
+    - cron: '0 6 * * 4'
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: 'Single collection slug (leave empty for default trio: denne-helgen, konserter, gratis)'
+        required: false
+        default: ''
+
+jobs:
+  generate-and-email:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          ffmpeg -version | head -1
+
+      - name: Install dependencies
+        working-directory: scripts
+        run: npm ci
+        timeout-minutes: 3
+
+      - name: Generate reels and email delivery
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          if [ -n "${{ inputs.slug }}" ]; then
+            npx tsx social/generate-reels.ts --slug=${{ inputs.slug }} --email
+          else
+            npx tsx social/generate-reels.ts --email
+          fi
