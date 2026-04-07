@@ -306,6 +306,36 @@ const VENUE_INSTAGRAM: Record<string, string> = {
 	'bergen filmklubb': 'bergenfilmklubb',
 	"paint'n sip": 'paintnsip.bergen',
 	'paintnsip': 'paintnsip.bergen',
+	// KODE-bygg (alle del av samme institusjon)
+	'permanenten': 'kodebergen',
+	'lysverket': 'kodebergen',
+	'rasmus meyer': 'kodebergen',
+	'stenersen': 'kodebergen',
+	// Bymuseet-bygg
+	'det hanseatiske museum': 'bymuseetibergen',
+	'bergens sjøfartsmuseum': 'bymuseetibergen',
+	'håkonshallen': 'bymuseetibergen',
+	'bergenhus festning': 'bymuseetibergen',
+	// Troldhaugen / Edvard Grieg Museum
+	'troldhaugen': 'edvardgriegmuseum',
+	'troldsalen': 'edvardgriegmuseum',
+	'siljustøl': 'edvardgriegmuseum',
+	// Museum Vest
+	'norges fiskerimuseum': 'museumvest',
+	// Bibliotek-filialer (alle del av Bergen Bibliotek)
+	'laksevåg bibliotek': 'bergenbibliotek',
+	'åsane bibliotek': 'bergenbibliotek',
+	'landås bibliotek': 'bergenbibliotek',
+	'loddefjord bibliotek': 'bergenbibliotek',
+	'ny-krohnborg fellesbibliotek': 'bergenbibliotek',
+	'fana bibliotek': 'bergenbibliotek',
+	'ytre arna bibliotek': 'bergenbibliotek',
+	'fyllingsdalen bibliotek': 'bergenbibliotek',
+	// Grieghallen-saler (alle del av Grieghallen)
+	'griegsalen': 'grieghallen',
+	'peer gynt-salen': 'grieghallen',
+	// Ole Bull Scene-saler
+	'lille ole bull': 'olebullhuset',
 };
 
 /**
@@ -313,7 +343,9 @@ const VENUE_INSTAGRAM: Record<string, string> = {
  * Returns handle without @ prefix, or null if not found.
  */
 export function getVenueInstagram(venueName: string): string | null {
-	const lower = venueName.toLowerCase().trim();
+	// Normalize whitespace (collapse newlines/tabs, trim) so DB-imported names
+	// like "Rasmus\nMeyer" still match "rasmus meyer".
+	const lower = venueName.toLowerCase().replace(/\s+/g, ' ').trim();
 	if (VENUE_INSTAGRAM[lower]) return VENUE_INSTAGRAM[lower];
 	for (const [key, handle] of Object.entries(VENUE_INSTAGRAM)) {
 		if (lower.includes(key)) return handle;
