@@ -336,6 +336,25 @@ const VENUE_INSTAGRAM: Record<string, string> = {
 	'peer gynt-salen': 'grieghallen',
 	// Ole Bull Scene-saler
 	'lille ole bull': 'olebullhuset',
+	// Bekreftet av bruker 2026-04-07 (har IG-konto)
+	'bodega': 'bodega.bergen',
+	'bergen næringsråd': 'bergennaringsrad',
+	'art lab bergen': 'artlabbergen',
+	'råbrent keramikkverksted': 'raabrent',
+	'råbrent': 'raabrent',
+	'7 fjell bryggeri': '7fjellbryggeri',
+	'7fjell bryggeri': '7fjellbryggeri',
+	'fana kulturhus': 'fanakulturhus',
+	'gg bergen': 'gg.bergen',
+	'olav h hauge': 'litthusbergen',
+	'fløyen': 'floyenbergen',
+	'ado arena': 'adoarena',
+	'rosenkrantztårnet': 'bymuseetibergen',
+	// Bekreftet av bruker 2026-04-07 (har IKKE IG-konto, ikke legg til handle):
+	// - Mandelhuset
+	// - Rasmussen Samlingene
+	// - Studio Bergen
+	// - Nordnes Bydelshus
 };
 
 /**
