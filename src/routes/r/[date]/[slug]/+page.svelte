@@ -97,12 +97,14 @@
 				<div class="stories-grid">
 					{#each data.stories as story, i (story.url)}
 						<article class="story-card">
-							<img
-								src={`/r/${data.date}/${data.slug}/story/${i + 1}.png`}
-								alt={story.title}
-								class="story-img"
-								loading="lazy"
-							/>
+							<div class="story-img-wrap">
+								<img
+									src={`/r/${data.date}/${data.slug}/story/${i + 1}.png`}
+									alt={story.title}
+									class="story-img"
+									loading="lazy"
+								/>
+							</div>
 							<div class="story-meta">
 								<p class="story-title">{story.title}</p>
 								<p class="story-venue">{story.venue}</p>
@@ -352,15 +354,21 @@
 		border-radius: 12px;
 	}
 
+	.story-img-wrap {
+		width: 100%;
+		max-width: 360px;
+		aspect-ratio: 9 / 16;
+		margin: 0 auto;
+		border-radius: 8px;
+		overflow: hidden;
+		background: #1c1c1e;
+	}
+
 	.story-img {
 		display: block;
 		width: 100%;
-		max-width: 420px;
-		aspect-ratio: 9 / 16;
+		height: 100%;
 		object-fit: cover;
-		border-radius: 8px;
-		background: #1c1c1e;
-		margin: 0 auto;
 		-webkit-touch-callout: default;
 		touch-action: manipulation;
 	}
