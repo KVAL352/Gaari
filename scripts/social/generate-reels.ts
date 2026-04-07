@@ -7,7 +7,7 @@
  * Env vars: PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  */
 import 'dotenv/config';
-import { writeFileSync, mkdirSync, existsSync, unlinkSync } from 'fs';
+import { writeFileSync, mkdirSync, existsSync, unlinkSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 import { execSync } from 'child_process';
 import { supabase } from '../lib/supabase.js';
@@ -123,12 +123,11 @@ async function main() {
 		}
 
 		// Create FFmpeg concat file (each frame shown for FRAME_DURATION seconds)
+		// Repeat last frame to avoid FFmpeg trimming
 		const concatLines = frames.map((_, i) =>
 			`file 'frame-${String(i).padStart(3, '0')}.png'\nduration ${FRAME_DURATION}`
-		).join('\n');
-		// Repeat last frame to avoid FFmpeg trimming
-		concatLines + `\nfile 'frame-${String(frames.length - 1).padStart(3, '0')}.png'`;
-		writeFileSync(resolve(tmpDir, 'concat.txt'), concatLines + `\nfile 'frame-${String(frames.length - 1).padStart(3, '0')}.png'`);
+		).join('\n') + `\nfile 'frame-${String(frames.length - 1).padStart(3, '0')}.png'`;
+		writeFileSync(resolve(tmpDir, 'concat.txt'), concatLines);
 
 		const outputPath = resolve(tmpDir, `${slug}-${dateStr}.mp4`);
 
@@ -158,7 +157,7 @@ async function main() {
 		}
 
 		// Upload to Supabase storage
-		const videoBuffer = require('fs').readFileSync(outputPath);
+		const videoBuffer = readFileSync(outputPath);
 		const storagePath = `${dateStr}/${slug}/reel.mp4`;
 		const { error: uploadError } = await supabase.storage
 			.from('social-media')
