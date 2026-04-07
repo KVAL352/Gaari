@@ -24,13 +24,15 @@ const VENUE_INFO: Record<string, { name: string; address: string }> = {
 	'bergen assembly': { name: 'Bergen Assembly', address: 'Bergen' },
 };
 
+// Acronyms to keep all-caps (everything else gets title-cased).
+const KEEP_UPPER = new Set(['MC', 'DJ', 'EP', 'LP', 'USF', 'BIT', 'BIFF', 'SULA']);
+
 function titleCase(s: string): string {
-	// Preserve all-caps acronyms (DJ, MC, USF, SULA), title-case the rest.
 	return s
 		.split(/(\s+)/)
 		.map((word) => {
 			if (/^\s+$/.test(word)) return word;
-			if (word.length <= 3 && word === word.toUpperCase()) return word; // MC, DJ, SULA-like
+			if (KEEP_UPPER.has(word)) return word;
 			if (word === word.toUpperCase()) {
 				return word.charAt(0) + word.slice(1).toLowerCase();
 			}
@@ -44,7 +46,7 @@ interface ParsedItem {
 	artist: string;
 	venueKey: string;
 	kind: 'concert' | 'talk' | 'afterparty';
-	freeText?: string; // for talk title or DJ list
+	talkTitle?: string; // full talk subject, used in description
 	free?: boolean;
 }
 
@@ -111,12 +113,15 @@ function parseProgram(text: string): ParsedItem[] {
 			const talkMatch = content.match(/^(.*?)(?:–|-)\s*talk/i);
 			const raw = (talkMatch ? talkMatch[1] : content).trim().replace(/[:]+$/, '').trim();
 			if (!raw) continue;
+			// Split "Speaker: \"Talk Title\"" — speaker becomes the artist, full subject stored separately
+			const colonIdx = raw.indexOf(':');
+			const speaker = colonIdx > 0 ? raw.slice(0, colonIdx).trim() : raw;
 			items.push({
 				day,
-				artist: raw,
+				artist: speaker,
 				venueKey: 'bergen assembly',
 				kind: 'talk',
-				freeText: raw,
+				talkTitle: raw,
 			});
 		}
 	}
@@ -134,7 +139,7 @@ function parseProgram(text: string): ParsedItem[] {
 			const free = !venueKey.includes('rommet');
 			items.push({
 				day,
-				artist: `Jungelfest afterparty @ ${VENUE_INFO[venueKey]?.name || m[2].trim()}`,
+				artist: VENUE_INFO[venueKey]?.name || titleCase(m[2].trim()),
 				venueKey,
 				kind: 'afterparty',
 				free,
@@ -186,19 +191,26 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const venue = VENUE_INFO[item.venueKey] || { name: item.venueKey, address: 'Bergen' };
 		const bydel = mapBydel(venue.name) || 'Sentrum';
 
-		const titlePrefix = item.kind === 'talk' ? 'Jungelfest talk' : 'Jungelfest';
 		const title =
-			item.kind === 'afterparty'
-				? item.artist
-				: `${titlePrefix}: ${item.artist}`;
+			item.kind === 'talk'
+				? `Jungelfest talk: ${item.artist}`
+				: item.kind === 'afterparty'
+					? `Jungelfest afterparty @ ${item.artist}`
+					: `Jungelfest: ${item.artist}`;
 
-		const slug = makeSlug(`jungelfest-${item.artist}`, date);
+		const slugBase =
+			item.kind === 'afterparty'
+				? `afterparty-${item.artist}`
+				: item.kind === 'talk'
+					? `talk-${item.artist}`
+					: item.artist;
+		const slug = makeSlug(`jungelfest-${slugBase}`, date);
 		const sourceUrl = `${TICKETCO_URL}#${date}-${slug}`;
 		if (await eventExists(sourceUrl)) continue;
 
 		const category = item.kind === 'talk' ? 'culture' : 'music';
 		const aiDesc = await generateDescription({
-			title: item.artist,
+			title: item.talkTitle || item.artist,
 			venue: venue.name,
 			category,
 			date: dateStart,
