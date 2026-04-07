@@ -124,10 +124,15 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			}
 			if (await eventExists(sourceUrl)) continue;
 
-			const { venue, address } = parseVenue(vm.eventLocation);
+			const { venue: rawVenue, address } = parseVenue(vm.eventLocation);
+			// Prefix with "DNT Bergen — " so it is obvious DNT organizes the trip
+			// (raw venue is just the trail location, e.g. "Ulriken").
+			const venue = rawVenue && rawVenue.toLowerCase() !== 'bergen'
+				? `DNT Bergen — ${rawVenue}`
+				: 'DNT Bergen';
 			const category = mapCategory(vm.mainType);
 			const ageGroup = mapAgeGroup(vm.targetGroups);
-			const bydel = mapBydel(venue);
+			const bydel = mapBydel(rawVenue);
 			const datePart = vm.start.slice(0, 10);
 
 			const subType = vm.subTypes?.replace(/^,\s*/, '').trim();

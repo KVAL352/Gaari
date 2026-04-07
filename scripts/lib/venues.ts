@@ -350,6 +350,8 @@ const VENUE_INSTAGRAM: Record<string, string> = {
 	'fløyen': 'floyenbergen',
 	'ado arena': 'adoarena',
 	'rosenkrantztårnet': 'bymuseetibergen',
+	'dnt bergen': 'bergenturlag',
+	'dnt': 'bergenturlag',
 	// Bekreftet av bruker 2026-04-07 (har IKKE IG-konto, ikke legg til handle):
 	// - Mandelhuset
 	// - Rasmussen Samlingene
