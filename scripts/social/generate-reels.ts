@@ -134,7 +134,7 @@ async function emailReelDelivery(deliveries: ReelDelivery[]): Promise<void> {
 				<tr>
 					<td style="background:#C82D2D;border-radius:8px;">
 						<a href="${d.mp4Url}" download style="display:inline-block;padding:14px 28px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:#fff;text-decoration:none;">
-							\u2b07\ufe0f Last ned MP4
+							Last ned MP4
 						</a>
 					</td>
 				</tr>
@@ -190,9 +190,9 @@ async function emailReelDelivery(deliveries: ReelDelivery[]): Promise<void> {
 
 	if (resp.ok) {
 		const data = await resp.json() as { id: string };
-		console.log(`\n  \u2709\ufe0f  Reels delivery email sent (Resend ID: ${data.id})`);
+		console.log(`\n  Reels delivery email sent (Resend ID: ${data.id})`);
 	} else {
-		console.error(`\n  \u274c Email failed: ${resp.status} ${await resp.text()}`);
+		console.error(`\n  Email failed: ${resp.status} ${await resp.text()}`);
 	}
 }
 
