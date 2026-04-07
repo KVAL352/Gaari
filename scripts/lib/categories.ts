@@ -236,6 +236,10 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'laugaren': 'Bergenhus',
 	'lydgalleriet': 'Sentrum',
 	'rommet': 'Bergenhus',
+	// Jungelfest venues
+	'kennel': 'Sentrum',
+	'steppeulven': 'Sentrum',
+	'bergen assembly': 'Sentrum',
 };
 
 export function isKnownBergenVenue(venueName: string): boolean {

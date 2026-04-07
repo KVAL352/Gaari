@@ -31,6 +31,7 @@ const SOURCE_RANK: Record<string, number> = {
 	kvarteret: 5,
 	ostre: 5,
 	fyllingsdalenteater: 5,
+	jungelfest: 5,
 
 	// Tier 4 — venue / club sources
 	nordnessjobad: 4,
