@@ -39,7 +39,10 @@ export const load: PageServerLoad = async ({ params }) => {
 	return {
 		date,
 		slug,
-		mp4Url: mp4Url.publicUrl,
+		// Same-origin proxy URL — required for iOS Safari long-press "Save to Photos"
+		mp4Url: `/r/${date}/${slug}/video.mp4`,
+		// Direct CDN URL kept as a fallback link for desktop / debugging
+		mp4DirectUrl: mp4Url.publicUrl,
 		caption,
 		collectionTitle: title,
 		lang

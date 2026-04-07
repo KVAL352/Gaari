@@ -69,7 +69,7 @@
 		{/if}
 
 		<section class="alt-download">
-			<a href={data.mp4Url} class="alt-link" target="_blank" rel="noopener">Direkte MP4-lenke</a>
+			<a href={data.mp4DirectUrl} class="alt-link" target="_blank" rel="noopener">Direkte MP4-lenke (CDN)</a>
 		</section>
 	</main>
 </div>
