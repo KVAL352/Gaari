@@ -30,6 +30,14 @@ const SEASONAL_SCRAPERS = new Set([
 	'biff',
 ]);
 
+// Scrapers removed from the pipeline — historical scraper_runs rows linger
+// in the 14-day window. Skip them so they don't show up in health checks.
+const DISABLED_SCRAPERS = new Set([
+	'eventbrite',
+	'barnasnorge',
+	'kulturikveld',
+]);
+
 interface RunRow {
 	scraper_name: string;
 	found: number;
@@ -72,6 +80,9 @@ export function classifyScrapers(runs: RunRow[]): ScraperHealthStatus[] {
 	const results: ScraperHealthStatus[] = [];
 
 	for (const [name, scraperRuns] of byName) {
+		// Skip scrapers that have been removed from the pipeline
+		if (DISABLED_SCRAPERS.has(name)) continue;
+
 		// Filter out skipped runs (deadline cutoff)
 		const realRuns = scraperRuns.filter(r => !r.skipped);
 		if (realRuns.length === 0) continue;
