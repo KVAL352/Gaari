@@ -3,6 +3,7 @@
 
 	let { data }: { data: PageData } = $props();
 	let copyState = $state<'idle' | 'copied' | 'error'>('idle');
+	let saveState = $state<'idle' | 'loading' | 'shared' | 'error'>('idle');
 
 	async function copyCaption() {
 		try {
@@ -12,6 +13,47 @@
 		} catch {
 			copyState = 'error';
 			setTimeout(() => (copyState = 'idle'), 2500);
+		}
+	}
+
+	/**
+	 * iOS Safari (15+) and modern Android Chrome support sharing files via the
+	 * Web Share API. Fetching the MP4 as a Blob and passing it through
+	 * navigator.share opens the native share sheet — on iOS that includes a
+	 * "Save Video" action that drops the file straight into Photos, which is
+	 * what Instagram Reels reads from. Falls back to opening the MP4 in a new
+	 * tab on browsers that lack file-sharing support.
+	 */
+	async function shareVideo() {
+		saveState = 'loading';
+		try {
+			const res = await fetch(data.mp4Url);
+			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+			const blob = await res.blob();
+			const file = new File([blob], `reel-${data.slug}.mp4`, { type: 'video/mp4' });
+			const canShareFiles =
+				typeof navigator !== 'undefined' &&
+				typeof navigator.canShare === 'function' &&
+				navigator.canShare({ files: [file] });
+			if (canShareFiles) {
+				await navigator.share({ files: [file], title: data.collectionTitle });
+				saveState = 'shared';
+			} else {
+				window.location.href = data.mp4Url;
+				saveState = 'idle';
+				return;
+			}
+		} catch (err) {
+			// User cancellation throws AbortError — treat as idle, not error
+			if ((err as Error)?.name === 'AbortError') {
+				saveState = 'idle';
+				return;
+			}
+			saveState = 'error';
+		} finally {
+			setTimeout(() => {
+				if (saveState === 'shared' || saveState === 'error') saveState = 'idle';
+			}, 3000);
 		}
 	}
 </script>
@@ -43,11 +85,19 @@
 			></video>
 		</div>
 
+		<button type="button" class="save-btn" onclick={shareVideo} disabled={saveState === 'loading'}>
+			{#if saveState === 'loading'}Henter video...
+			{:else if saveState === 'shared'}Delt
+			{:else if saveState === 'error'}Noe gikk galt
+			{:else}Lagre videoen{/if}
+		</button>
+
 		<section class="instructions">
 			<h2>Slik lagrer du videoen</h2>
 			<ol>
-				<li><strong>iPhone:</strong> trykk og hold på videoen over → velg <strong>Lagre i Bilder</strong>.</li>
-				<li><strong>Android:</strong> trykk og hold → <strong>Last ned video</strong> (eller bruk de tre prikkene i avspilleren).</li>
+				<li>Trykk <strong>Lagre videoen</strong> over.</li>
+				<li><strong>iPhone:</strong> i delemenyen som åpnes, velg <strong>Lagre video</strong>. Videoen havner i Bilder.</li>
+				<li><strong>Android:</strong> velg <strong>Lagre i Galleri</strong> eller en filbehandler.</li>
 				<li>Åpne <strong>Instagram</strong> → Reels → velg klippet fra kamerarullen.</li>
 				<li>Trykk <strong>Kopier caption</strong> under, lim inn i Reels og publiser.</li>
 				<li>Toggle <strong>Del på Facebook</strong> på publish-skjermen for cross-post.</li>
@@ -137,6 +187,34 @@
 		display: block;
 		width: 100%;
 		height: 100%;
+	}
+
+	.save-btn {
+		display: block;
+		width: 100%;
+		max-width: 420px;
+		margin: 0 auto 24px;
+		padding: 18px 24px;
+		background: var(--color-primary);
+		color: #fff;
+		border: none;
+		border-radius: 12px;
+		font-family: 'Barlow Condensed', sans-serif;
+		font-size: 22px;
+		font-weight: 700;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+		cursor: pointer;
+		min-height: 56px;
+	}
+
+	.save-btn:active {
+		transform: scale(0.98);
+	}
+
+	.save-btn:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
 	}
 
 	.instructions {
