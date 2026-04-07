@@ -7,9 +7,24 @@ const SOURCE = 'bergenchamber';
 const LIST_URL = 'https://bergen-chamber.no/arrangementer';
 const BASE_URL = 'https://bergen-chamber.no';
 
-function parseDetailPage($: cheerio.CheerioAPI): { time?: string; venue?: string; price?: string; description?: string } {
+// Phrases that indicate the event is restricted to Bergen Næringsråd members
+const MEMBERS_ONLY_PATTERNS = [
+	/tilbud til\s+(bergen\s+n[æa]ringsr[åa]ds?\s+)?medlemmer/i,
+	/kun for\s+(bergen\s+n[æa]ringsr[åa]ds?\s+)?medlemmer/i,
+	/forbeholdt\s+(bergen\s+n[æa]ringsr[åa]ds?\s+)?medlemmer/i,
+	/bare for\s+medlemmer/i,
+	/medlemsarrangement/i,
+];
+
+function isMembersOnly(text: string): boolean {
+	return MEMBERS_ONLY_PATTERNS.some(re => re.test(text));
+}
+
+function parseDetailPage($: cheerio.CheerioAPI): { time?: string; venue?: string; price?: string; description?: string; membersOnly?: boolean } {
 	const text = $('body').text();
-	const result: { time?: string; venue?: string; price?: string; description?: string } = {};
+	const result: { time?: string; venue?: string; price?: string; description?: string; membersOnly?: boolean } = {};
+
+	if (isMembersOnly(text)) result.membersOnly = true;
 
 	// Time: "08:30-10:30" or "08:30 - 10:30"
 	const timeMatch = text.match(/(\d{2}:\d{2})\s*[-–]\s*(\d{2}:\d{2})/);
@@ -93,10 +108,15 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Fetch detail page for time, venue, price, description
 		await delay(1500);
 		const detailHtml = await fetchHTML(sourceUrl);
-		let detail: { time?: string; venue?: string; price?: string; description?: string } = {};
+		let detail: { time?: string; venue?: string; price?: string; description?: string; membersOnly?: boolean } = {};
 		if (detailHtml) {
 			const d$ = cheerio.load(detailHtml);
 			detail = parseDetailPage(d$);
+		}
+
+		if (detail.membersOnly) {
+			console.log(`    ? Skipped (members only): ${event.title}`);
+			continue;
 		}
 
 		// Parse date
