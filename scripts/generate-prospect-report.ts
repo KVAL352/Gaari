@@ -908,7 +908,7 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 
 	// Category breadth
 	if (venue.categories.length >= 3) {
-		const catLabels = venue.categories.slice(0, 4).map(c => CATEGORY_LABELS[c]?.[lang] ?? c).join(', ');
+		const catLabels = venue.categories.map(c => CATEGORY_LABELS[c]?.[lang] ?? c).join(', ');
 		recs.push({
 			icon: '🎭',
 			title: isNo ? 'Bred kategoridekning' : 'Broad category coverage',
