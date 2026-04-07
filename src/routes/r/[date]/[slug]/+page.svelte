@@ -352,9 +352,9 @@
 	.story-img {
 		display: block;
 		width: 100%;
-		max-width: 280px;
+		max-width: 420px;
 		aspect-ratio: 9 / 16;
-		object-fit: contain;
+		object-fit: cover;
 		border-radius: 8px;
 		background: #1c1c1e;
 		margin: 0 auto;
