@@ -41,7 +41,7 @@ const CATEGORY_COLORS: Record<Category, string> = {
 	nightlife: '#9BAED4',
 	workshop: '#D4B89A',
 	student: '#B8D4A8',
-	tours: '#A8CCCC'
+	tours: '#7FB8B8'
 };
 
 const CATEGORY_LABELS: Record<Category, string> = {
@@ -130,176 +130,7 @@ function truncate(text: string, maxLen: number): string {
 	return trimmed.trimEnd() + '\u2026';
 }
 
-// ── Slide 1: Hook (montage with dimmed event images) ──
-
-function hookSlideMarkup(title: string, eventCount: number, images: string[], lang: 'no' | 'en' = 'no') {
-	// Use up to 4 images in a 2x2 grid
-	const gridImages = images.slice(0, 4);
-	const halfSize = Math.floor(WIDTH / 2);
-
-	const imageChildren = gridImages.map((src, i) => ({
-		type: 'img',
-		props: {
-			src,
-			style: {
-				position: 'absolute' as const,
-				left: `${(i % 2) * halfSize + FRAME}px`,
-				top: `${Math.floor(i / 2) * halfSize + FRAME}px`,
-				width: `${halfSize}px`,
-				height: `${halfSize}px`,
-				objectFit: 'cover' as const
-			}
-		}
-	}));
-
-	// If fewer than 4 images, fill remaining slots with dark bg
-	while (imageChildren.length < 4) {
-		const i = imageChildren.length;
-		imageChildren.push({
-			type: 'div' as any,
-			props: {
-				style: {
-					position: 'absolute' as const,
-					left: `${(i % 2) * halfSize + FRAME}px`,
-					top: `${Math.floor(i / 2) * halfSize + FRAME}px`,
-					width: `${halfSize}px`,
-					height: `${halfSize}px`,
-					backgroundColor: '#1C1C1E'
-				}
-			} as any
-		});
-	}
-
-	return {
-		type: 'div',
-		props: {
-			style: {
-				display: 'flex',
-				width: '100%',
-				height: '100%',
-				backgroundColor: FUNKIS_RED,
-				padding: `${FRAME}px`,
-				position: 'relative'
-			},
-			children: [
-				// Inner container
-				{
-					type: 'div',
-					props: {
-						style: {
-							display: 'flex',
-							width: '100%',
-							height: '100%',
-							backgroundColor: '#1C1C1E',
-							position: 'relative',
-							overflow: 'hidden',
-							borderRadius: '8px'
-						},
-						children: [
-							// 2x2 image grid
-							...imageChildren,
-							// Heavy dimming overlay
-							{
-								type: 'div',
-								props: {
-									style: {
-										position: 'absolute',
-										top: 0,
-										left: 0,
-										right: 0,
-										bottom: 0,
-										backgroundColor: 'rgba(0,0,0,0.72)'
-									}
-								}
-							},
-							// Text content (centered)
-							{
-								type: 'div',
-								props: {
-									style: {
-										position: 'absolute',
-										top: 0,
-										left: 0,
-										right: 0,
-										bottom: 0,
-										display: 'flex',
-										flexDirection: 'column',
-										justifyContent: 'center',
-										alignItems: 'center',
-										padding: '64px',
-										gap: '24px'
-									},
-									children: [
-										// Collection title
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													fontSize: '72px',
-													fontFamily: 'Barlow Condensed',
-													color: WHITE,
-													lineHeight: 1.1,
-													letterSpacing: '-0.01em',
-													textAlign: 'center'
-												},
-												children: title
-											}
-										},
-										// Event count
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													fontSize: '40px',
-													fontFamily: 'Inter',
-													color: WHITE,
-													lineHeight: 1.3
-												},
-												children: lang === 'en' ? `${eventCount} events` : `${eventCount} arrangementer`
-											}
-										},
-										// Swipe CTA
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													fontSize: '32px',
-													fontFamily: 'Inter',
-													color: 'rgba(255,255,255,0.85)',
-													marginTop: '24px'
-												},
-												children: lang === 'en' ? 'Swipe to explore \u2192' : 'Swipe for \u00e5 utforske \u2192'
-											}
-										},
-										// Gåri branding
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													fontSize: '36px',
-													fontFamily: 'Barlow Condensed',
-													color: FUNKIS_RED,
-													marginTop: '36px'
-												},
-												children: 'G\u00e5ri.no'
-											}
-										}
-									]
-								}
-							}
-						]
-					}
-				}
-			]
-		}
-	};
-}
-
-// ── Slides 2–N: Event cards ──
+// ── Slides 1–N: Event cards ──
 
 const FRAME = 12; // Red frame thickness in px
 
@@ -324,7 +155,7 @@ function eventSlideWithImage(
 				display: 'flex',
 				width: '100%',
 				height: '100%',
-				backgroundColor: FUNKIS_RED,
+				backgroundColor: catColor,
 				padding: `${FRAME}px`,
 				position: 'relative'
 			},
@@ -540,170 +371,6 @@ function eventSlideWithImage(
 	};
 }
 
-// ── Last slide: CTA ──
-
-function ctaSlideMarkup(collectionUrl: string, eventCount: number, images: string[], lang: 'no' | 'en' = 'no') {
-	const gridImages = images.slice(0, 4);
-	const halfSize = Math.floor(WIDTH / 2);
-
-	const imageChildren = gridImages.map((src, i) => ({
-		type: 'img',
-		props: {
-			src,
-			style: {
-				position: 'absolute' as const,
-				left: `${(i % 2) * halfSize}px`,
-				top: `${Math.floor(i / 2) * halfSize}px`,
-				width: `${halfSize}px`,
-				height: `${halfSize}px`,
-				objectFit: 'cover' as const
-			}
-		}
-	}));
-
-	while (imageChildren.length < 4) {
-		const i = imageChildren.length;
-		imageChildren.push({
-			type: 'div' as any,
-			props: {
-				style: {
-					position: 'absolute' as const,
-					left: `${(i % 2) * halfSize}px`,
-					top: `${Math.floor(i / 2) * halfSize}px`,
-					width: `${halfSize}px`,
-					height: `${halfSize}px`,
-					backgroundColor: '#1C1C1E'
-				}
-			} as any
-		});
-	}
-
-	return {
-		type: 'div',
-		props: {
-			style: {
-				display: 'flex',
-				width: '100%',
-				height: '100%',
-				backgroundColor: FUNKIS_RED,
-				padding: `${FRAME}px`,
-				position: 'relative'
-			},
-			children: [
-				{
-					type: 'div',
-					props: {
-						style: {
-							display: 'flex',
-							width: '100%',
-							height: '100%',
-							backgroundColor: '#1C1C1E',
-							position: 'relative',
-							overflow: 'hidden',
-							borderRadius: '8px'
-						},
-						children: [
-							...imageChildren,
-							// Heavy dimming
-							{
-								type: 'div',
-								props: {
-									style: {
-										position: 'absolute',
-										top: 0,
-										left: 0,
-										right: 0,
-										bottom: 0,
-										backgroundColor: 'rgba(0,0,0,0.72)'
-									}
-								}
-							},
-							// Content
-							{
-								type: 'div',
-								props: {
-									style: {
-										position: 'absolute',
-										top: 0,
-										left: 0,
-										right: 0,
-										bottom: 0,
-										display: 'flex',
-										flexDirection: 'column',
-										justifyContent: 'center',
-										alignItems: 'center',
-										padding: '64px',
-										gap: '24px'
-									},
-									children: [
-										// Gåri branding
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													fontSize: '96px',
-													fontFamily: 'Barlow Condensed',
-													color: FUNKIS_RED,
-													letterSpacing: '-0.02em',
-													lineHeight: 1
-												},
-												children: 'G\u00e5ri.no'
-											}
-										},
-										// Tagline
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													fontSize: '32px',
-													fontFamily: 'Inter',
-													color: WHITE,
-													lineHeight: 1.4
-												},
-												children: 'Alt som skjer i Bergen p\u00e5 ett sted'
-											}
-										},
-										// CTA text
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													fontSize: '36px',
-													fontFamily: 'Inter',
-													color: WHITE,
-													marginTop: '20px'
-												},
-												children: lang === 'en' ? `See all ${eventCount} events` : `Se alle ${eventCount} arrangementer`
-											}
-										},
-										// Share CTA
-										{
-											type: 'div',
-											props: {
-												style: {
-													display: 'flex',
-													fontSize: '28px',
-													fontFamily: 'Inter',
-													color: 'rgba(255,255,255,0.85)',
-													marginTop: '28px'
-												},
-												children: lang === 'en' ? 'Share with someone who needs plans!' : 'Send til noen som trenger helgeplaner!'
-											}
-										}
-									]
-								}
-							}
-						]
-					}
-				}
-			]
-		}
-	};
-}
-
 // ── Public API ──
 
 export interface CarouselEvent {
@@ -716,17 +383,13 @@ export interface CarouselEvent {
 }
 
 export interface CarouselOptions {
-	/** Language for hook/CTA slide text */
+	/** Language for slide text (used by stories/reels). */
 	lang?: 'no' | 'en';
 }
 
 export async function generateCarousel(
 	collectionTitle: string,
-	dateRange: string,
-	events: CarouselEvent[],
-	collectionUrl: string,
-	totalEventCount: number,
-	options?: CarouselOptions
+	events: CarouselEvent[]
 ): Promise<Buffer[]> {
 	const slides: Buffer[] = [];
 
@@ -746,40 +409,23 @@ export async function generateCarousel(
 		return 0;
 	});
 
-	// Slide 1: Montage hook with dimmed event images
-	const hookImages = indexed.filter(x => x.image).map(x => x.image as string).slice(0, 4);
-	if (hookImages.length > 0) {
-		try {
-			slides.push(await renderSlide(hookSlideMarkup(collectionTitle, totalEventCount, hookImages, options?.lang ?? 'no')));
-		} catch (err: any) {
-			console.log(`  [warn] Hook slide failed (${err.message}), skipping montage`);
-		}
-	}
-
-	// Event slides
-	let isFirst = !hookImages.length; // only show collection label if no hook
+	// Carousel = only real event slides. The collection label appears on the
+	// first slide so viewers know what they're looking at; the caption above the
+	// post does the rest of the framing — no separate hook or CTA filler slides.
+	let isFirst = true;
 	for (const { event, image } of indexed) {
 		const label = isFirst ? collectionTitle : undefined;
-		isFirst = false;
 		try {
 			if (image) {
 				const markup = eventSlideWithImage(event.title, event.venue, event.time, event.category, image, label, event.isFree);
 				slides.push(await renderSlide(markup));
+				isFirst = false;
 			} else {
 				console.log(`  [skip] "${event.title}" — no image`);
 			}
 		} catch (err: any) {
 			console.log(`  [skip] "${event.title}" — slide render failed (${err.message})`)
 		}
-	}
-
-	// Last slide: CTA
-	// Use same images as hook for visual consistency
-	const ctaImages = indexed.filter(x => x.image).map(x => x.image as string).slice(0, 4);
-	try {
-		slides.push(await renderSlide(ctaSlideMarkup(collectionUrl, totalEventCount, ctaImages, options?.lang ?? 'no')));
-	} catch (err: any) {
-		console.log(`  [skip] CTA slide failed (${err.message})`);
 	}
 
 	return slides;
@@ -810,7 +456,7 @@ function storyEventSlideMarkup(
 				display: 'flex',
 				width: '100%',
 				height: '100%',
-				backgroundColor: FUNKIS_RED,
+				backgroundColor: catColor,
 				padding: `${STORY_FRAME}px`,
 				position: 'relative'
 			},

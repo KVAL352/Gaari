@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
-import { generateCarousel, type CarouselEvent, type CarouselOptions } from './image-gen.js';
+import { generateCarousel, type CarouselEvent } from './image-gen.js';
 import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
@@ -33,31 +33,6 @@ const SEED_COLLECTIONS = [
 	{ slug: 'today-in-bergen', lang: 'en' as const, hashtags: ['#bergen', '#bergennorway', '#todayinbergen', '#whattodoinbergen', '#bergentoday', '#norway'] },
 	{ slug: 'i-dag', lang: 'no' as const, hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#hvaskjeribergen', '#bergenliv', '#idagibergen'] },
 ];
-
-function formatDateRange(now: Date, slug: string, lang: 'no' | 'en'): string {
-	const locale = lang === 'en' ? 'en-GB' : 'nb-NO';
-
-	if (['denne-helgen', 'familiehelg', 'this-weekend'].includes(slug)) {
-		const day = now.getDay();
-		const daysToFri = day <= 5 ? 5 - day : 5 - day + 7;
-		const fri = new Date(now);
-		fri.setDate(now.getDate() + daysToFri);
-		const sun = new Date(fri);
-		sun.setDate(fri.getDate() + 2);
-		const dateOpts: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'short' };
-		return `${fri.toLocaleDateString(locale, dateOpts)} \u2013 ${sun.toLocaleDateString(locale, dateOpts)}`;
-	}
-
-	if (['gratis', 'konserter', 'teater', 'utstillinger', 'mat-og-drikke'].includes(slug)) {
-		const end = new Date(now);
-		end.setDate(now.getDate() + 14);
-		const nowStr = now.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
-		const endStr = end.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
-		return `${nowStr} \u2013 ${endStr}`;
-	}
-
-	return now.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' });
-}
 
 async function fetchEvents(): Promise<GaariEvent[]> {
 	const todayOslo = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
@@ -149,17 +124,8 @@ async function main() {
 			category: e.category
 		}));
 
-		const dateRange = formatDateRange(now, seed.slug, seed.lang);
-
 		try {
-			const slides = await generateCarousel(
-				title,
-				dateRange,
-				carouselEvents,
-				collectionUrl,
-				filtered.length,
-				{ lang: seed.lang }
-			);
+			const slides = await generateCarousel(title, carouselEvents);
 
 			const caption = generateCaption(title, captionEvents, collectionUrl, seed.hashtags, seed.lang);
 

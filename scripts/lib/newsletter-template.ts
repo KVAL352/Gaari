@@ -15,7 +15,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 	nightlife: '#9BAED4',
 	workshop: '#D4B89A',
 	student: '#B8D4A8',
-	tours: '#A8CCCC'
+	tours: '#7FB8B8'
 };
 
 const CATEGORY_LABELS_NO: Record<string, string> = {

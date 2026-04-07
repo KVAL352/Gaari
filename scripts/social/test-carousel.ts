@@ -70,13 +70,7 @@ async function main() {
 
 	console.log('Generating test carousel...');
 
-	const slides = await generateCarousel(
-		'Denne helgen i Bergen',
-		'fredag 3. apr. \u2013 søndag 5. apr.',
-		DUMMY_EVENTS,
-		'gaari.no/no/denne-helgen',
-		23
-	);
+	const slides = await generateCarousel('Denne helgen i Bergen', DUMMY_EVENTS);
 
 	for (let i = 0; i < slides.length; i++) {
 		const path = resolve(OUTPUT_DIR, `slide-${i + 1}.png`);

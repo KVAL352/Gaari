@@ -72,20 +72,11 @@ async function main() {
 
 	const lang = process.argv.includes('--no') ? 'no' as const : 'en' as const;
 	const title = lang === 'no' ? 'Påske i Bergen 2026' : 'Easter in Bergen 2026';
-	const dateRange = lang === 'no' ? '29. mars – 6. april' : 'March 29 – April 6';
-	const slug = lang === 'no' ? 'paske' : 'easter-bergen';
 	const outDir = resolve(OUTPUT_DIR, lang === 'no' ? 'no' : '.');
 
 	mkdirSync(outDir, { recursive: true });
 
-	const slides = await generateCarousel(
-		title,
-		dateRange,
-		carouselEvents,
-		`gaari.no/${lang}/${slug}`,
-		filtered.length,
-		{ lang }
-	);
+	const slides = await generateCarousel(title, carouselEvents);
 
 	for (let i = 0; i < slides.length; i++) {
 		const path = resolve(outDir, `slide-${i + 1}.png`);

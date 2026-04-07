@@ -77,7 +77,7 @@ Used when an event has no image — colored background with category icon.
 | Nightlife | `--color-cat-nightlife` | #9BAED4 |
 | Workshop | `--color-cat-workshop` | #D4B89A |
 | Student | `--color-cat-student` | #B8D4A8 |
-| Tours | `--color-cat-tours` | #A8CCCC |
+| Tours | `--color-cat-tours` | #7FB8B8 |
 
 ---
 

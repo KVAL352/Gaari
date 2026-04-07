@@ -136,37 +136,6 @@ const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 /** Collections that also generate Stories (today's events) */
 const STORY_SLUGS = new Set(['i-kveld']);
 
-function formatDateRange(now: Date, slug: string): string {
-	const isEnSlug = ENGLISH_SLUGS.has(slug);
-	const locale = isEnSlug ? 'en-GB' : 'nb-NO';
-
-	// Weekend collections: show "fredag 28. feb – søndag 2. mars" range
-	if (slug === 'denne-helgen' || slug === 'familiehelg' || slug === 'this-weekend') {
-		const day = now.getDay();
-		const daysToFri = day <= 5 ? 5 - day : 5 - day + 7;
-		const fri = new Date(now);
-		fri.setDate(now.getDate() + daysToFri);
-		const sun = new Date(fri);
-		sun.setDate(fri.getDate() + 2);
-		const dateOpts: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'short' };
-		const friStr = fri.toLocaleDateString(locale, dateOpts);
-		const sunStr = sun.toLocaleDateString(locale, dateOpts);
-		return `${friStr} \u2013 ${sunStr}`;
-	}
-
-	// Week-range collections
-	if (slug === 'gratis' || slug === 'konserter') {
-		const endOfWeek = new Date(now);
-		const daysToSun = now.getDay() === 0 ? 0 : 7 - now.getDay();
-		endOfWeek.setDate(now.getDate() + daysToSun);
-		const nowStr = now.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
-		const endStr = endOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
-		return `${nowStr} \u2013 ${endStr}`;
-	}
-
-	return now.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' });
-}
-
 async function fetchEvents(): Promise<GaariEvent[]> {
 	// Use start of today (Oslo) so evening events are included even when run late
 	const todayOslo = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
@@ -354,17 +323,8 @@ async function main() {
 				category: e.category
 			}));
 
-			const dateRange = formatDateRange(now, schedule.slug);
-
-			// Generate carousel images (pass total event count for hook + CTA)
-			const slides = await generateCarousel(
-				title,
-				dateRange,
-				carouselEvents,
-				collectionUrl,
-				filtered.length,
-				{ lang }
-			);
+			// Generate carousel images (event slides only)
+			const slides = await generateCarousel(title, carouselEvents);
 
 			// Build final hashtag list: base tags + category-specific, capped at 15, deduplicated
 			const categoryTags = getCategoryHashtags(topEvents);

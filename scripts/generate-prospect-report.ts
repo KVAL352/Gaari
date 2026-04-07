@@ -1151,7 +1151,7 @@ const CATEGORY_BADGE_COLORS: Record<string, string> = {
 	music: '#AECDE8', culture: '#C5B8D9', theatre: '#E8B8C2',
 	family: '#F5D49A', food: '#E8C4A0', festival: '#F5E0A0',
 	sports: '#A8D4B8', nightlife: '#9BAED4', workshop: '#D4B89A',
-	student: '#B8D4A8', tours: '#A8CCCC'
+	student: '#B8D4A8', tours: '#7FB8B8'
 };
 
 // ─── HTML Template ───────────────────────────────────────────────────
