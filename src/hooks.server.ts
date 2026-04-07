@@ -56,13 +56,14 @@ const securityHeaders: Record<string, string> = {
 	'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
 };
 
-// CSP: allow self, inline scripts/styles (SvelteKit needs these), Supabase images
+// CSP: allow self, inline scripts/styles (SvelteKit needs these), Supabase images + media
 const csp = [
 	"default-src 'self'",
 	"script-src 'self' 'unsafe-inline'",
 	"style-src 'self' 'unsafe-inline'",
 	"font-src 'self'",
 	"img-src 'self' data: https:",
+	"media-src 'self' https://*.supabase.co",
 	"connect-src 'self' https://*.supabase.co",
 	"frame-ancestors 'none'",
 	"base-uri 'self'",
