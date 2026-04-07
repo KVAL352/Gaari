@@ -134,7 +134,7 @@ function shouldGenerateToday(schedule: CollectionSchedule, dayOfWeek: number): b
 const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
 /** Collections that also generate Stories (today's events) */
-const STORY_SLUGS = new Set(['i-kveld', 'today-in-bergen']);
+const STORY_SLUGS = new Set(['i-kveld']);
 
 function formatDateRange(now: Date, slug: string): string {
 	const isEnSlug = ENGLISH_SLUGS.has(slug);

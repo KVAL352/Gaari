@@ -32,7 +32,7 @@ const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 const MAX_STORIES_PER_DAY = 3;
 
 /** Collections that get Stories (today's events only) */
-const STORY_SLUGS = new Set(['i-kveld', 'today-in-bergen']);
+const STORY_SLUGS = new Set(['i-kveld']);
 
 /** Max posts per platform per day — keep low for new accounts to avoid rate limits */
 const MAX_POSTS_PER_PLATFORM = 3;
@@ -445,14 +445,19 @@ async function main() {
 						const storyId = await postStoryToInstagram(storyUrl);
 						if (storyId) {
 							console.log(`  Story posted: ${storyId}`);
-							await supabase
+							const { error: updateErr } = await supabase
 								.from('social_posts')
 								.update({
 									story_posted_count: nextStoryIdx + 1,
 									story_posted_at: new Date().toISOString()
 								})
 								.eq('id', post.id);
-							storiesPosted++;
+							if (updateErr) {
+								console.error(`  Story update FAILED: ${updateErr.message}`);
+								storiesFailed++;
+							} else {
+								storiesPosted++;
+							}
 						}
 					}
 				} catch (err: any) {
