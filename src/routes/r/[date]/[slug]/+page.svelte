@@ -354,10 +354,12 @@
 		border-radius: 12px;
 	}
 
+	/* Fixed pixel height (360 * 16/9 = 640) so the preview is reliably 9:16
+	   even on browsers where aspect-ratio resolves late or fails on flex children. */
 	.story-img-wrap {
-		width: 100%;
-		max-width: 360px;
-		aspect-ratio: 9 / 16;
+		width: 360px;
+		max-width: 100%;
+		height: 640px;
 		margin: 0 auto;
 		border-radius: 8px;
 		overflow: hidden;
@@ -371,6 +373,13 @@
 		object-fit: cover;
 		-webkit-touch-callout: default;
 		touch-action: manipulation;
+	}
+
+	@media (max-width: 380px) {
+		.story-img-wrap {
+			width: 280px;
+			height: 498px;
+		}
 	}
 
 	.story-meta {
