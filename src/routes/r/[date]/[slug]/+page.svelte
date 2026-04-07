@@ -107,15 +107,18 @@
 								<p class="story-title">{story.title}</p>
 								<p class="story-venue">{story.venue}</p>
 								{#if story.igHandle}
-									<button
-										type="button"
-										class="handle-btn"
-										onclick={() => copyHandle(story.igHandle!)}
-									>
-										@{story.igHandle} — kopier
-									</button>
+									<div class="handle-row">
+										<span class="handle-pill">@{story.igHandle}</span>
+										<button
+											type="button"
+											class="copy-handle-btn"
+											onclick={() => copyHandle(story.igHandle!)}
+										>
+											Kopier
+										</button>
+									</div>
 								{:else}
-									<span class="no-handle">Ingen IG-handle registrert</span>
+									<span class="no-handle">Ingen IG-konto</span>
 								{/if}
 							</div>
 						</article>
@@ -385,20 +388,40 @@
 		color: var(--color-text-secondary);
 	}
 
-	.handle-btn {
+	.handle-row {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	.handle-pill {
+		display: inline-flex;
+		align-items: center;
+		background: #fafaf7;
+		border: 2px solid var(--color-primary);
+		color: var(--color-primary);
+		font-size: 15px;
+		font-weight: 700;
+		padding: 8px 16px;
+		border-radius: 999px;
+	}
+
+	.copy-handle-btn {
 		background: var(--color-primary);
 		border: none;
 		color: #fff;
 		font-size: 14px;
 		font-weight: 700;
-		padding: 10px 20px;
+		padding: 10px 18px;
 		border-radius: 8px;
 		cursor: pointer;
-		min-height: 44px;
+		min-height: 40px;
 	}
 
-	.handle-btn:active {
-		transform: scale(0.98);
+	.copy-handle-btn:active {
+		transform: scale(0.97);
 	}
 
 	.no-handle {
