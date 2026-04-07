@@ -207,10 +207,18 @@ function eventSlideWithImage(
 	collectionLabel?: string,
 	isFree?: boolean
 ) {
+	// Carousel: 1080×1080 square. Same full-bleed cover layout as story slides
+	// (heksebal example) — image fills the whole card, dark gradient bottom-half,
+	// title + venue anchored above the bottom with text shadow.
 	const catColor = CATEGORY_COLORS[category] || '#D4D1CA';
 	const catLabel = CATEGORY_LABELS[category] || category;
-	const displayTitle = truncate(title, 45);
+	const displayTitle = truncate(title, 50);
 	const venueTime = time ? `${venue}  \u00b7  kl. ${time}` : venue;
+
+	const INNER_PAD_X = 48;
+	const PILLS_TOP = 36;
+	const TEXT_BOTTOM = 56;
+	const isUrgentLabel = false; // collection label is informational, never urgent-styled
 
 	return {
 		type: 'div',
@@ -220,8 +228,7 @@ function eventSlideWithImage(
 				width: '100%',
 				height: '100%',
 				backgroundColor: catColor,
-				padding: `${FRAME}px`,
-				position: 'relative'
+				padding: `${FRAME}px`
 			},
 			children: [
 				{
@@ -229,202 +236,168 @@ function eventSlideWithImage(
 					props: {
 						style: {
 							display: 'flex',
-							flexDirection: 'column',
+							position: 'relative',
 							width: '100%',
 							height: '100%',
 							backgroundColor: '#1C1C1E',
 							borderRadius: '8px',
 							overflow: 'hidden',
-							position: 'relative'
+							backgroundImage: `url(${imageBase64})`,
+							backgroundSize: '100% 100%',
+							backgroundRepeat: 'no-repeat'
 						},
 						children: [
-							// Top: event image (~62% of height)
+							// Layer 1 — bottom-half dark gradient for text legibility
 							{
 								type: 'div',
 								props: {
 									style: {
 										display: 'flex',
-										position: 'relative',
-										width: '100%',
-										height: '650px',
-										overflow: 'hidden'
+										position: 'absolute',
+										left: 0,
+										right: 0,
+										bottom: 0,
+										height: '60%',
+										background: 'linear-gradient(to bottom, rgba(20,20,22,0), rgba(20,20,22,0.55) 35%, rgba(20,20,22,0.92) 100%)'
+									}
+								}
+							},
+							// Layer 2 — pills row (category + optional collection label)
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										position: 'absolute',
+										top: `${PILLS_TOP}px`,
+										left: `${INNER_PAD_X}px`,
+										right: `${INNER_PAD_X}px`,
+										justifyContent: 'space-between',
+										alignItems: 'flex-start'
 									},
 									children: [
 										{
-											type: 'img',
-											props: {
-												src: imageBase64,
-												style: {
-													position: 'absolute',
-													top: 0,
-													left: 0,
-													width: '100%',
-													height: '100%',
-													objectFit: 'cover'
-												}
-											}
-										},
-										// Gradient fade at bottom of image
-										{
 											type: 'div',
 											props: {
 												style: {
-													position: 'absolute',
-													left: 0,
-													right: 0,
-													bottom: 0,
-													height: '200px',
-													background: 'linear-gradient(to bottom, rgba(28,28,30,0), rgba(28,28,30,1))'
-												}
-											}
-										},
-										// Category pill (top-left) + optional collection label (top-right)
-										{
-											type: 'div',
-											props: {
-												style: {
-													position: 'absolute',
-													top: '28px',
-													left: '28px',
-													right: '28px',
 													display: 'flex',
-													justifyContent: 'space-between',
-													alignItems: 'flex-start'
+													backgroundColor: catColor,
+													borderRadius: '40px',
+													padding: '14px 32px',
+													fontSize: '36px',
+													fontFamily: 'Barlow Condensed',
+													fontWeight: 700,
+													color: TEXT_PRIMARY,
+													letterSpacing: '0.02em',
+													boxShadow: '0 4px 18px rgba(0,0,0,0.55)',
+													textTransform: 'uppercase'
 												},
-												children: [
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																backgroundColor: catColor,
-																borderRadius: '32px',
-																padding: '12px 32px',
-																fontSize: '30px',
-																fontFamily: 'Inter',
-																color: TEXT_PRIMARY,
-																boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
-															},
-															children: catLabel
-														}
-													},
-													...(collectionLabel ? [{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																backgroundColor: 'rgba(0,0,0,0.6)',
-																borderRadius: '32px',
-																padding: '12px 32px',
-																fontSize: '30px',
-																fontFamily: 'Inter',
-																color: WHITE,
-																boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
-															},
-															children: collectionLabel
-														}
-													}] : [])
-												]
+												children: catLabel
+											}
+										},
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: collectionLabel ? 'flex' : 'none',
+													backgroundColor: isUrgentLabel ? FUNKIS_RED : WHITE,
+													borderRadius: '40px',
+													padding: '14px 32px',
+													fontSize: '36px',
+													fontFamily: 'Barlow Condensed',
+													fontWeight: 700,
+													color: isUrgentLabel ? WHITE : TEXT_PRIMARY,
+													letterSpacing: '0.02em',
+													boxShadow: '0 4px 18px rgba(0,0,0,0.55)',
+													textTransform: 'uppercase'
+												},
+												children: collectionLabel || ''
 											}
 										}
 									]
 								}
 							},
-							// Bottom: event info
+							// Layer 3 — title + venue + Trolig gratis pill, anchored near bottom
 							{
 								type: 'div',
 								props: {
 									style: {
 										display: 'flex',
 										flexDirection: 'column',
-										flex: 1,
-										padding: '0 40px 32px',
-										justifyContent: 'flex-end',
-										gap: '16px'
+										position: 'absolute',
+										left: `${INNER_PAD_X}px`,
+										right: `${INNER_PAD_X}px`,
+										bottom: `${TEXT_BOTTOM}px`,
+										gap: '14px'
 									},
 									children: [
-										// Event details
 										{
 											type: 'div',
 											props: {
 												style: {
-													display: 'flex',
-													flexDirection: 'column',
-													gap: '12px'
+													display: isFree ? 'flex' : 'none',
+													backgroundColor: FREE_GREEN,
+													borderRadius: '28px',
+													padding: '10px 28px',
+													fontSize: '28px',
+													fontFamily: 'Inter',
+													fontWeight: 600,
+													color: WHITE,
+													alignSelf: 'flex-start',
+													boxShadow: '0 4px 14px rgba(0,0,0,0.45)'
 												},
-												children: [
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																fontSize: '56px',
-																fontFamily: 'Barlow Condensed',
-																color: WHITE,
-																lineHeight: 1.1,
-																letterSpacing: '-0.01em'
-															},
-															children: displayTitle
-														}
-													},
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																fontSize: '30px',
-																fontFamily: 'Inter',
-																color: 'rgba(255,255,255,0.85)',
-																lineHeight: 1.3
-															},
-															children: venueTime
-														}
-													},
-													...(isFree ? [{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																backgroundColor: FREE_GREEN,
-																borderRadius: '24px',
-																padding: '8px 24px',
-																fontSize: '26px',
-																fontFamily: 'Inter',
-																color: WHITE,
-																marginLeft: '-4px',
-																alignSelf: 'flex-start'
-															},
-															children: 'Trolig gratis'
-														}
-													}] : [])
-												]
+												children: 'Trolig gratis'
 											}
 										},
-										// Branding
 										{
 											type: 'div',
 											props: {
 												style: {
 													display: 'flex',
-													justifyContent: 'flex-end'
+													fontSize: '64px',
+													fontFamily: 'Barlow Condensed',
+													fontWeight: 700,
+													color: WHITE,
+													lineHeight: 1.05,
+													letterSpacing: '-0.015em',
+													textShadow: '0 4px 24px rgba(0,0,0,0.6)'
 												},
-												children: [
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																fontSize: '28px',
-																fontFamily: 'Barlow Condensed',
-																color: FUNKIS_RED
-															},
-															children: 'G\u00e5ri.no'
-														}
-													}
-												]
+												children: displayTitle
+											}
+										},
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '30px',
+													fontFamily: 'Inter',
+													fontWeight: 500,
+													color: 'rgba(255,255,255,0.92)',
+													lineHeight: 1.3,
+													textShadow: '0 2px 12px rgba(0,0,0,0.6)'
+												},
+												children: venueTime
 											}
 										}
 									]
+								}
+							},
+							// Layer 4 — Gåri.no branding (bottom-right)
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										position: 'absolute',
+										right: `${INNER_PAD_X}px`,
+										bottom: '20px',
+										fontSize: '32px',
+										fontFamily: 'Barlow Condensed',
+										fontWeight: 700,
+										color: WHITE
+									},
+									children: 'G\u00e5ri.no'
 								}
 							}
 						]
@@ -541,13 +514,10 @@ function storyEventSlideMarkup(
 	//   IG top safe ~220px → inner top: 220 - 24 = 196px
 	//   TikTok bottom safe ~480px → inner bottom: 480 - 24 = 456px
 	const INNER_PAD_X = 48;
-	// Bumped from 196 → 360 after IG screenshots showed pills hidden behind
-	// the back arrow + camera icon at the top of the IG Reels/Stories chrome.
-	const PILLS_TOP = 360;
-	// Bumped from 320 → 520 after FB Reels screenshot showed title clipped
-	// by the "See insights" / "Boost reel" bar. Both IG and FB reserve a
-	// larger bottom UI than originally measured.
-	const TEXT_BOTTOM = 520;
+	const PILLS_TOP = 196;
+	// Lowered from 470 → 250 so title/venue sits closer to the bottom of the
+	// slide (user said original 470 was too high, 320 was right ballpark).
+	const TEXT_BOTTOM = 250;
 	const BRANDING_BOTTOM = 36;  // IG-only zone
 
 	return {
