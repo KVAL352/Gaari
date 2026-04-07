@@ -26,3 +26,4 @@ scripts/test-stripe-webhook.ts
 scripts/test-stripe-webhook.ts
 scripts/social/seed-posts/
 scripts/social/test-output/
+scripts/social/.reels-tmp/
