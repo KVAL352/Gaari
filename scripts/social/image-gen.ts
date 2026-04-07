@@ -61,17 +61,17 @@ async function fetchImageAsBase64(url: string, mode: ImageMode = 'story'): Promi
 		// Verify actual format from magic bytes — header may lie
 		const realType = detectImageType(buf);
 		if (!realType) return null;
-		// Normalize via sharp `contain` so the full poster is preserved on wide
-		// landscape sources. Letterbox bars use the slide's dark inner colour so
-		// they disappear into the layout instead of looking like grey margins.
+		// Normalize via sharp `cover` so the image fills the full slide area
+		// (no letterbox bars). Source aspect ratios that don't match 9:16 get
+		// center-cropped — acceptable trade-off for a uniform full-bleed look.
 		try {
 			const sharp = (await import('sharp')).default;
 			const w = mode === 'carousel' ? CAROUSEL_IMAGE_W : STORY_IMAGE_W;
 			const h = mode === 'carousel' ? CAROUSEL_IMAGE_H : STORY_IMAGE_H;
 			const normalized = await sharp(buf)
 				.resize(w, h, {
-					fit: 'contain',
-					background: SLIDE_INNER_BG
+					fit: 'cover',
+					position: 'centre'
 				})
 				.jpeg({ quality: 85 })
 				.toBuffer();
