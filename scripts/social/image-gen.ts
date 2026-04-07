@@ -1033,13 +1033,13 @@ function storyEventSlideMarkup(
 	};
 }
 
-/** Generate 9:16 story images from events (max 3 stories per collection) */
+/** Generate 9:16 story images from events (max 4 stories per collection) */
 export async function generateStories(
 	collectionTitle: string,
 	events: CarouselEvent[],
 	options?: CarouselOptions
 ): Promise<Buffer[]> {
-	const MAX_STORIES = 3;
+	const MAX_STORIES = 4;
 	const stories: Buffer[] = [];
 
 	// Only events with images
