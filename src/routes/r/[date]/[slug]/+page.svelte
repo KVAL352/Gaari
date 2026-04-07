@@ -3,6 +3,7 @@
 
 	let { data }: { data: PageData } = $props();
 	let copyState = $state<'idle' | 'copied' | 'error'>('idle');
+	let handleCopyState = $state<'idle' | 'copied' | 'error'>('idle');
 
 	let downloadUrl = $derived(`${data.mp4Url}?download=1`);
 	let downloadName = $derived(`reel-${data.slug}.mp4`);
@@ -15,6 +16,17 @@
 		} catch {
 			copyState = 'error';
 			setTimeout(() => (copyState = 'idle'), 2500);
+		}
+	}
+
+	async function copyHandle(handle: string) {
+		try {
+			await navigator.clipboard.writeText(`@${handle}`);
+			handleCopyState = 'copied';
+			setTimeout(() => (handleCopyState = 'idle'), 2500);
+		} catch {
+			handleCopyState = 'error';
+			setTimeout(() => (handleCopyState = 'idle'), 2500);
 		}
 	}
 </script>
@@ -71,6 +83,51 @@
 					</button>
 				</div>
 				<pre class="caption">{data.caption}</pre>
+			</section>
+		{/if}
+
+		{#if data.stories.length > 0}
+			<section class="stories-section">
+				<h2>Stories — én per spillested</h2>
+				<p class="stories-intro">
+					Last ned hver story, åpne IG → Stories, og bruk <strong>@-mention</strong>-klistremerket
+					med handlen som vises under hver. Trykk på @-handlen for å kopiere den.
+				</p>
+				<div class="stories-grid">
+					{#each data.stories as story, i (story.url)}
+						<article class="story-card">
+							<img src={story.url} alt={story.title} class="story-img" loading="lazy" />
+							<div class="story-meta">
+								<p class="story-title">{story.title}</p>
+								<p class="story-venue">{story.venue}</p>
+								{#if story.igHandle}
+									<button
+										type="button"
+										class="handle-btn"
+										onclick={() => copyHandle(story.igHandle!)}
+									>
+										@{story.igHandle}
+									</button>
+								{:else}
+									<span class="no-handle">Ingen IG-handle registrert</span>
+								{/if}
+								<a
+									class="story-download-btn"
+									href={`/r/${data.date}/${data.slug}/story/${i + 1}.png?download=1`}
+									download={`story-${data.slug}-${i + 1}.png`}
+								>
+									Last ned story
+								</a>
+							</div>
+						</article>
+					{/each}
+				</div>
+				{#if handleCopyState !== 'idle'}
+					<p class="copy-toast">
+						{#if handleCopyState === 'copied'}@-handle kopiert
+						{:else}Kopiering feilet{/if}
+					</p>
+				{/if}
 			</section>
 		{/if}
 
@@ -253,6 +310,119 @@
 		word-wrap: break-word;
 		max-height: 320px;
 		overflow-y: auto;
+	}
+
+	.stories-section {
+		background: var(--color-bg-surface);
+		border: 2px solid var(--color-border);
+		border-radius: 12px;
+		padding: 20px;
+		margin-bottom: 20px;
+	}
+
+	.stories-section h2 {
+		margin: 0 0 8px;
+		font-size: 18px;
+		font-weight: 700;
+		color: var(--color-text-primary);
+	}
+
+	.stories-intro {
+		margin: 0 0 16px;
+		font-size: 14px;
+		line-height: 1.5;
+		color: var(--color-text-secondary);
+	}
+
+	.stories-grid {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.story-card {
+		display: flex;
+		gap: 16px;
+		padding: 12px;
+		background: #fff;
+		border: 1px solid var(--color-border);
+		border-radius: 12px;
+	}
+
+	.story-img {
+		flex-shrink: 0;
+		width: 90px;
+		height: 160px;
+		object-fit: cover;
+		border-radius: 8px;
+		background: #000;
+	}
+
+	.story-meta {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		min-width: 0;
+		flex: 1;
+	}
+
+	.story-title {
+		margin: 0;
+		font-family: 'Barlow Condensed', sans-serif;
+		font-size: 17px;
+		font-weight: 700;
+		line-height: 1.15;
+		color: var(--color-text-primary);
+	}
+
+	.story-venue {
+		margin: 0;
+		font-size: 13px;
+		color: var(--color-text-secondary);
+	}
+
+	.handle-btn {
+		align-self: flex-start;
+		background: var(--color-bg-base);
+		border: 1px solid var(--color-border);
+		color: var(--color-primary);
+		font-size: 13px;
+		font-weight: 600;
+		padding: 6px 12px;
+		border-radius: 8px;
+		cursor: pointer;
+		min-height: 32px;
+	}
+
+	.handle-btn:active {
+		transform: scale(0.98);
+	}
+
+	.no-handle {
+		font-size: 12px;
+		color: var(--color-text-muted);
+		font-style: italic;
+	}
+
+	.story-download-btn {
+		align-self: flex-start;
+		background: var(--color-primary);
+		color: #fff;
+		text-decoration: none;
+		font-size: 13px;
+		font-weight: 600;
+		padding: 8px 14px;
+		border-radius: 8px;
+		min-height: 36px;
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.copy-toast {
+		margin: 12px 0 0;
+		text-align: center;
+		font-size: 13px;
+		color: var(--color-text-secondary);
 	}
 
 	.alt-download {

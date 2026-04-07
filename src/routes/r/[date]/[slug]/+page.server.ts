@@ -15,9 +15,11 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const mp4Path = `${date}/${slug}/reel.mp4`;
 	const captionPath = `${date}/${slug}/caption.txt`;
+	const storiesManifestPath = `${date}/${slug}/stories.json`;
 
 	const { data: mp4Url } = supabase.storage.from(BUCKET).getPublicUrl(mp4Path);
 	const { data: capUrl } = supabase.storage.from(BUCKET).getPublicUrl(captionPath);
+	const { data: storyManifestUrl } = supabase.storage.from(BUCKET).getPublicUrl(storiesManifestPath);
 
 	// Verify the MP4 actually exists before rendering the page
 	const head = await fetch(mp4Url.publicUrl, { method: 'HEAD' });
@@ -28,6 +30,19 @@ export const load: PageServerLoad = async ({ params }) => {
 	try {
 		const capRes = await fetch(capUrl.publicUrl);
 		if (capRes.ok) caption = await capRes.text();
+	} catch {
+		/* ignore */
+	}
+
+	// Story manifest is best-effort — empty array if missing
+	type StoryEntry = { url: string; venue: string; igHandle: string | null; title: string };
+	let stories: StoryEntry[] = [];
+	try {
+		const manRes = await fetch(storyManifestUrl.publicUrl);
+		if (manRes.ok) {
+			const parsed = await manRes.json();
+			if (Array.isArray(parsed)) stories = parsed as StoryEntry[];
+		}
 	} catch {
 		/* ignore */
 	}
@@ -44,6 +59,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		// Direct CDN URL kept as a fallback link for desktop / debugging
 		mp4DirectUrl: mp4Url.publicUrl,
 		caption,
+		stories,
 		collectionTitle: title,
 		lang
 	};

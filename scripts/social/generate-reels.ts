@@ -19,8 +19,9 @@ import { supabase } from '../lib/supabase.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
-import { generateReelsFrames, generateReelsOutro, type CarouselEvent } from './image-gen.js';
+import { generateReelsFrames, generateReelsOutro, generateStories, type CarouselEvent } from './image-gen.js';
 import { generateCaption, type CaptionEvent } from './caption-gen.js';
+import { getVenueInstagram } from '../lib/venues.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
 const DRY_RUN = process.argv.includes('--dry-run');
@@ -102,6 +103,7 @@ interface ReelDelivery {
 	caption: string;
 	frameCount: number;
 	durationSec: number;
+	storyCount: number;
 }
 
 /** Send a mobile-optimized email so the user can download the MP4 and copy the caption. */
@@ -129,7 +131,7 @@ async function emailReelDelivery(deliveries: ReelDelivery[]): Promise<void> {
 				${escapeHtml(d.collectionTitle)}
 			</h2>
 			<p style="margin:0 0 18px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#4D4D4D;">
-				${d.frameCount} slides &middot; ${d.durationSec} sek
+				Reel: ${d.frameCount} slides &middot; ${d.durationSec} sek${d.storyCount > 0 ? ` &middot; ${d.storyCount} stories klar til tagging` : ''}
 			</p>
 
 			<table cellpadding="0" cellspacing="0" border="0" style="margin:0;">
@@ -398,6 +400,46 @@ async function main() {
 				});
 			if (capErr) console.warn(`  Caption upload failed: ${capErr.message}`);
 
+			// Generate per-event story slides + upload + manifest. Stories cannot be
+			// auto-published with venue mention stickers (Graph API does not support
+			// it), so we ship them via the landing page for manual posting + tagging.
+			console.log(`  Generating story slides...`);
+			const storyImages = await generateStories(title, carouselEvents, { lang });
+			const storyManifest: { url: string; venue: string; igHandle: string | null; title: string }[] = [];
+			for (let i = 0; i < storyImages.length; i++) {
+				const storyPath = `${dateStr}/${slug}/story-${i + 1}.png`;
+				const { error: storyErr } = await supabase.storage
+					.from(STORAGE_BUCKET)
+					.upload(storyPath, storyImages[i], {
+						contentType: 'image/png',
+						upsert: true
+					});
+				if (storyErr) {
+					console.warn(`  Story ${i + 1} upload failed: ${storyErr.message}`);
+					continue;
+				}
+				const { data: storyUrlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storyPath);
+				const ev = selected[i];
+				storyManifest.push({
+					url: storyUrlData.publicUrl,
+					venue: ev.venue_name,
+					igHandle: getVenueInstagram(ev.venue_name),
+					title: isEnglish ? (ev.title_en || ev.title_no) : ev.title_no
+				});
+			}
+
+			if (storyManifest.length > 0) {
+				const manifestPath = `${dateStr}/${slug}/stories.json`;
+				const { error: manErr } = await supabase.storage
+					.from(STORAGE_BUCKET)
+					.upload(manifestPath, Buffer.from(JSON.stringify(storyManifest), 'utf-8'), {
+						contentType: 'application/json; charset=utf-8',
+						upsert: true
+					});
+				if (manErr) console.warn(`  Story manifest upload failed: ${manErr.message}`);
+				else console.log(`  ${storyManifest.length} story slides uploaded`);
+			}
+
 			deliveries.push({
 				slug,
 				dateStr,
@@ -407,7 +449,8 @@ async function main() {
 				landingUrl: `https://gaari.no/r/${dateStr}/${slug}`,
 				caption,
 				frameCount: frames.length,
-				durationSec: frames.length * FRAME_DURATION
+				durationSec: frames.length * FRAME_DURATION,
+				storyCount: storyManifest.length
 			});
 		}
 
