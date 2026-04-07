@@ -14,7 +14,7 @@ import { supabase } from '../lib/supabase.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
-import { generateReelsFrames, type CarouselEvent } from './image-gen.js';
+import { generateReelsFrames, generateReelsOutro, type CarouselEvent } from './image-gen.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
 const DRY_RUN = process.argv.includes('--dry-run');
@@ -24,7 +24,30 @@ const FFMPEG = process.env.FFMPEG_PATH || 'ffmpeg';
 const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
 /** Seconds each frame is shown */
-const FRAME_DURATION = 3;
+const FRAME_DURATION = 2;
+
+/** Build a prominent, locale-aware date label for a slide. */
+function buildDateLabel(dateStart: string, lang: 'no' | 'en', now: Date): string {
+	const eventDate = new Date(dateStart);
+	const osloDateStr = (d: Date) =>
+		d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+	const today = osloDateStr(now);
+	const tomorrow = osloDateStr(new Date(now.getTime() + 24 * 60 * 60 * 1000));
+	const eventDay = osloDateStr(eventDate);
+
+	if (eventDay === today) return lang === 'en' ? 'TODAY' : 'I DAG';
+	if (eventDay === tomorrow) return lang === 'en' ? 'TOMORROW' : 'I MORGEN';
+
+	const locale = lang === 'en' ? 'en-GB' : 'nb-NO';
+	const fmt = eventDate.toLocaleDateString(locale, {
+		timeZone: 'Europe/Oslo',
+		weekday: 'long',
+		day: 'numeric',
+		month: 'short'
+	});
+	// Capitalize first letter (nb-NO uses lowercase weekdays)
+	return fmt.charAt(0).toUpperCase() + fmt.slice(1);
+}
 
 /** Collections that get Reels (weekly specials) */
 const REELS_SLUGS = SLUG_ARG ? [SLUG_ARG] : ['denne-helgen', 'konserter', 'gratis'];
@@ -66,22 +89,38 @@ async function main() {
 			continue;
 		}
 
-		// Pick events with images, max 1 per venue
-		const sorted = [...filtered].sort((a, b) => {
-			const aImg = a.image_url ? 0 : 1;
-			const bImg = b.image_url ? 0 : 1;
-			if (aImg !== bImg) return aImg - bImg;
-			return a.date_start.localeCompare(b.date_start);
-		});
+		// Bucket events with images by Oslo day, then round-robin pick across days
+		// so a multi-day collection (e.g. denne-helgen Fri+Sat+Sun) gets balanced coverage.
+		const byDay = new Map<string, GaariEvent[]>();
+		for (const e of filtered) {
+			if (!e.image_url) continue;
+			const day = new Date(e.date_start).toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+			if (!byDay.has(day)) byDay.set(day, []);
+			byDay.get(day)!.push(e);
+		}
+		for (const list of byDay.values()) {
+			list.sort((a, b) => a.date_start.localeCompare(b.date_start));
+		}
 
+		const dayKeys = [...byDay.keys()].sort();
 		const venueSeen = new Set<string>();
 		const selected: GaariEvent[] = [];
-		for (const e of sorted) {
-			if (selected.length >= 8) break;
-			if (venueSeen.has(e.venue_name)) continue;
-			if (!e.image_url) continue;
-			venueSeen.add(e.venue_name);
-			selected.push(e);
+		const dayIdx = new Map(dayKeys.map(k => [k, 0]));
+		let progress = true;
+		while (selected.length < 8 && progress) {
+			progress = false;
+			for (const day of dayKeys) {
+				if (selected.length >= 8) break;
+				const list = byDay.get(day)!;
+				let i = dayIdx.get(day)!;
+				while (i < list.length && venueSeen.has(list[i].venue_name)) i++;
+				if (i < list.length) {
+					selected.push(list[i]);
+					venueSeen.add(list[i].venue_name);
+					dayIdx.set(day, i + 1);
+					progress = true;
+				}
+			}
 		}
 
 		if (selected.length < 4) {
@@ -94,12 +133,13 @@ async function main() {
 		const title = isEnglish ? collection.title.en : collection.title.no;
 
 		const carouselEvents: CarouselEvent[] = selected.map(e => ({
-			title: e.title_no,
+			title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
 			venue: e.venue_name,
 			time: formatEventTime(e.date_start, lang),
 			category: e.category,
 			imageUrl: e.image_url || undefined,
-			isFree: isFreeEvent(e.price)
+			isFree: isFreeEvent(e.price),
+			dateLabel: buildDateLabel(e.date_start, lang, now)
 		}));
 
 		console.log(`  ${selected.length} events selected for reel`);
@@ -109,6 +149,17 @@ async function main() {
 		if (frames.length < 2) {
 			console.log(`  Too few frames (${frames.length}), skipping.\n`);
 			continue;
+		}
+
+		// Append outro slide ("More on gaari.no")
+		try {
+			const outro = await generateReelsOutro(title, lang);
+			if (outro) {
+				frames.push(outro);
+				console.log(`  Outro slide appended (${frames.length} frames total)`);
+			}
+		} catch (err: any) {
+			console.log(`  [skip] Outro render failed: ${err.message}`);
 		}
 
 		if (DRY_RUN) {
@@ -168,17 +219,20 @@ async function main() {
 
 		if (uploadError) {
 			console.error(`  Upload failed: ${uploadError.message}`);
+			console.log(`  Local MP4 kept at: ${outputPath}`);
 		} else {
 			const { data: urlData } = supabase.storage.from('social-media').getPublicUrl(storagePath);
 			console.log(`  Uploaded: ${urlData.publicUrl}`);
 		}
 
-		// Cleanup temp files
+		// Cleanup temp frame files (keep MP4 if upload failed)
 		for (let i = 0; i < frames.length; i++) {
 			try { unlinkSync(resolve(tmpDir, `frame-${String(i).padStart(3, '0')}.png`)); } catch {}
 		}
 		try { unlinkSync(resolve(tmpDir, 'concat.txt')); } catch {}
-		try { unlinkSync(outputPath); } catch {}
+		if (!uploadError) {
+			try { unlinkSync(outputPath); } catch {}
+		}
 
 		console.log('');
 	}

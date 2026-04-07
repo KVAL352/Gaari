@@ -6,6 +6,34 @@ import type { Category } from '../../src/lib/types.js';
 
 // ── Image fetching ──
 
+/** Image content-types Satori can reliably decode. */
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+
+/** Verify image format from magic bytes — protects against mislabeled / corrupt files. */
+function detectImageType(buf: Buffer): 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif' | null {
+	if (buf.length < 12) return null;
+	// JPEG: FF D8 FF
+	if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
+	// PNG: 89 50 4E 47 0D 0A 1A 0A
+	if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return 'image/png';
+	// GIF: 47 49 46 38 (37|39) 61
+	if (buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x38) return 'image/gif';
+	// WebP: "RIFF" .... "WEBP"
+	if (
+		buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46 &&
+		buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50
+	) return 'image/webp';
+	return null;
+}
+
+/**
+ * Target dimensions for normalized event images on 9:16 story/reel slides.
+ * Story canvas is 1080×1920 with a 24px category-color frame on every side,
+ * giving an inner full-bleed image area of 1032×1872.
+ */
+const TARGET_IMAGE_W = 1032;
+const TARGET_IMAGE_H = 1872;
+
 async function fetchImageAsBase64(url: string): Promise<string | null> {
 	try {
 		const controller = new AbortController();
@@ -13,9 +41,31 @@ async function fetchImageAsBase64(url: string): Promise<string | null> {
 		const res = await fetch(url, { signal: controller.signal });
 		clearTimeout(timeout);
 		if (!res.ok) return null;
+		const headerType = (res.headers.get('content-type') || '').toLowerCase().split(';')[0].trim();
+		// Early reject formats Satori can't decode (SVG, AVIF, etc.) when header is honest
+		if (headerType && !ACCEPTED_IMAGE_TYPES.includes(headerType)) return null;
 		const buf = Buffer.from(await res.arrayBuffer());
-		const contentType = res.headers.get('content-type') || 'image/jpeg';
-		return `data:${contentType};base64,${buf.toString('base64')}`;
+		// Reject tiny/empty payloads (placeholders, broken images)
+		if (buf.length < 4096) return null;
+		// Verify actual format from magic bytes — header may lie
+		const realType = detectImageType(buf);
+		if (!realType) return null;
+		// Normalize to exact target dimensions via smart-crop so Satori never has to scale.
+		// This eliminates aspect-ratio surprises (panoramic/portrait crops, off-center subjects).
+		try {
+			const sharp = (await import('sharp')).default;
+			const normalized = await sharp(buf)
+				.resize(TARGET_IMAGE_W, TARGET_IMAGE_H, {
+					fit: 'cover',
+					position: 'centre'
+				})
+				.jpeg({ quality: 85 })
+				.toBuffer();
+			return `data:image/jpeg;base64,${normalized.toString('base64')}`;
+		} catch {
+			// If sharp fails (corrupt input, etc.), drop the image rather than risk a bad slide.
+			return null;
+		}
 	} catch {
 		return null;
 	}
@@ -380,6 +430,8 @@ export interface CarouselEvent {
 	category: Category;
 	imageUrl?: string;
 	isFree?: boolean;
+	/** Prominent date label shown on story/reel slides (e.g. "I DAG · lør 11. apr"). */
+	dateLabel?: string;
 }
 
 export interface CarouselOptions {
@@ -432,8 +484,26 @@ export async function generateCarousel(
 }
 
 // ── Story slides (9:16 vertical format) ──
-
-const STORY_FRAME = 16;
+//
+// Layout architecture (1080×1920 canvas):
+//   ┌─────────────────────┐ 0
+//   │ catColor frame 24px │
+//   │ ┌─────────────────┐ │ 24
+//   │ │  IG safe top    │ │ 220 (top 220px hidden by IG handle/nav)
+//   │ │ [CAT]    [DATE] │ │ ~250  ← pills row, just below IG safe
+//   │ │                 │ │
+//   │ │   (image)       │ │
+//   │ │                 │ │
+//   │ │   gradient      │ │
+//   │ │   ───── fade    │ │
+//   │ │   GRATIS        │ │ ~1200
+//   │ │   TITLE         │ │ ~1250  ← critical content stays above
+//   │ │   venue · time  │ │ ~1380     TikTok 480px bottom safe (=1440)
+//   │ │                 │ │
+//   │ │ collection · Gn │ │ ~1820  ← visible on IG (~280 bottom safe),
+//   │ └─────────────────┘ │            hidden on TikTok (acceptable)
+//   └─────────────────────┘ 1920
+const STORY_FRAME = 24;
 
 function storyEventSlideMarkup(
 	title: string,
@@ -442,12 +512,24 @@ function storyEventSlideMarkup(
 	category: Category,
 	imageBase64: string,
 	collectionTitle: string,
-	isFree?: boolean
+	isFree?: boolean,
+	dateLabel?: string
 ) {
 	const catColor = CATEGORY_COLORS[category] || '#D4D1CA';
 	const catLabel = CATEGORY_LABELS[category] || category;
-	const displayTitle = truncate(title, 50);
+	// Truncate aggressively so the huge 84px title fits 2-3 lines comfortably.
+	const displayTitle = truncate(title, 42);
 	const venueTime = time ? `${venue}  \u00b7  kl. ${time}` : venue;
+	const isUrgentDate = /^(I DAG|I MORGEN|TODAY|TOMORROW)$/i.test(dateLabel || '');
+
+	// Coordinates relative to the inner (post-frame) area of 1032×1872.
+	// Convert canvas safe-zones to inner-relative offsets:
+	//   IG top safe ~220px → inner top: 220 - 24 = 196px
+	//   TikTok bottom safe ~480px → inner bottom: 480 - 24 = 456px
+	const INNER_PAD_X = 48;
+	const PILLS_TOP = 196;
+	const TEXT_BOTTOM = 470;     // critical content above TikTok UI
+	const BRANDING_BOTTOM = 36;  // IG-only zone
 
 	return {
 		type: 'div',
@@ -457,8 +539,7 @@ function storyEventSlideMarkup(
 				width: '100%',
 				height: '100%',
 				backgroundColor: catColor,
-				padding: `${STORY_FRAME}px`,
-				position: 'relative'
+				padding: `${STORY_FRAME}px`
 			},
 			children: [
 				{
@@ -466,206 +547,190 @@ function storyEventSlideMarkup(
 					props: {
 						style: {
 							display: 'flex',
-							flexDirection: 'column',
+							position: 'relative',
 							width: '100%',
 							height: '100%',
 							backgroundColor: '#1C1C1E',
 							borderRadius: '12px',
 							overflow: 'hidden',
-							position: 'relative'
+							backgroundImage: `url(${imageBase64})`,
+							backgroundSize: '100% 100%',
+							backgroundRepeat: 'no-repeat'
 						},
 						children: [
-							// Top: event image (fills ~60% of height)
+							// Layer 1 — bottom-half dark gradient for text legibility over any image
 							{
 								type: 'div',
 								props: {
 									style: {
 										display: 'flex',
-										position: 'relative',
-										width: '100%',
-										height: '1400px',
-										overflow: 'hidden'
+										position: 'absolute',
+										left: 0,
+										right: 0,
+										bottom: 0,
+										height: '60%',
+										background: 'linear-gradient(to bottom, rgba(20,20,22,0), rgba(20,20,22,0.55) 35%, rgba(20,20,22,0.92) 100%)'
+									}
+								}
+							},
+							// Layer 2 — pills row (category + date) just below IG handle safe zone
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										position: 'absolute',
+										top: `${PILLS_TOP}px`,
+										left: `${INNER_PAD_X}px`,
+										right: `${INNER_PAD_X}px`,
+										justifyContent: 'space-between',
+										alignItems: 'flex-start'
 									},
 									children: [
 										{
-											type: 'img',
-											props: {
-												src: imageBase64,
-												style: {
-													position: 'absolute',
-													top: 0,
-													left: 0,
-													width: '100%',
-													height: '100%',
-													objectFit: 'cover'
-												}
-											}
-										},
-										// Gradient fade at bottom of image
-										{
 											type: 'div',
 											props: {
 												style: {
-													position: 'absolute',
-													left: 0,
-													right: 0,
-													bottom: 0,
-													height: '300px',
-													background: 'linear-gradient(to bottom, rgba(28,28,30,0), rgba(28,28,30,1))'
-												}
-											}
-										},
-										// Top pill bar (category) — below IG's UI safe zone (~250px)
-										{
-											type: 'div',
-											props: {
-												style: {
-													position: 'absolute',
-													top: '200px',
-													left: '32px',
-													right: '32px',
 													display: 'flex',
-													justifyContent: 'space-between',
-													alignItems: 'flex-start'
+													backgroundColor: catColor,
+													borderRadius: '40px',
+													padding: '18px 40px',
+													fontSize: '44px',
+													fontFamily: 'Barlow Condensed',
+													fontWeight: 700,
+													color: TEXT_PRIMARY,
+													letterSpacing: '0.02em',
+													boxShadow: '0 4px 18px rgba(0,0,0,0.55)',
+													textTransform: 'uppercase'
 												},
-												children: [
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																backgroundColor: catColor,
-																borderRadius: '32px',
-																padding: '12px 32px',
-																fontSize: '30px',
-																fontFamily: 'Inter',
-																color: TEXT_PRIMARY,
-																boxShadow: '0 2px 12px rgba(0,0,0,0.35)'
-															},
-															children: catLabel
-														}
-													},
-													// Empty spacer when not free (keeps layout stable)
-													...(isFree ? [{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex'
-															}
-														}
-													}] : [])
-												]
+												children: catLabel
+											}
+										},
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													backgroundColor: isUrgentDate ? FUNKIS_RED : WHITE,
+													borderRadius: '40px',
+													padding: '18px 40px',
+													fontSize: '44px',
+													fontFamily: 'Barlow Condensed',
+													fontWeight: 700,
+													color: isUrgentDate ? WHITE : TEXT_PRIMARY,
+													letterSpacing: '0.02em',
+													boxShadow: '0 4px 18px rgba(0,0,0,0.55)',
+													textTransform: 'uppercase'
+												},
+												children: dateLabel || ''
 											}
 										}
 									]
 								}
 							},
-							// Bottom: event info
+							// Layer 3 — title + venue/time + free pill, anchored above TikTok UI
 							{
 								type: 'div',
 								props: {
 									style: {
 										display: 'flex',
 										flexDirection: 'column',
-										flex: 1,
-										padding: '0 48px 200px',
-										justifyContent: 'flex-end',
-										gap: '24px'
+										position: 'absolute',
+										left: `${INNER_PAD_X}px`,
+										right: `${INNER_PAD_X}px`,
+										bottom: `${TEXT_BOTTOM}px`,
+										gap: '18px'
 									},
 									children: [
-										// Event details
 										{
 											type: 'div',
 											props: {
 												style: {
-													display: 'flex',
-													flexDirection: 'column',
-													gap: '20px'
+													display: isFree ? 'flex' : 'none',
+													backgroundColor: FREE_GREEN,
+													borderRadius: '32px',
+													padding: '12px 32px',
+													fontSize: '32px',
+													fontFamily: 'Inter',
+													fontWeight: 600,
+													color: WHITE,
+													alignSelf: 'flex-start',
+													boxShadow: '0 4px 14px rgba(0,0,0,0.45)'
 												},
-												children: [
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																fontSize: '64px',
-																fontFamily: 'Barlow Condensed',
-																color: WHITE,
-																lineHeight: 1.1,
-																letterSpacing: '-0.01em'
-															},
-															children: displayTitle
-														}
-													},
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																fontSize: '34px',
-																fontFamily: 'Inter',
-																color: 'rgba(255,255,255,0.85)',
-																lineHeight: 1.3
-															},
-															children: venueTime
-														}
-													},
-													...(isFree ? [{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																backgroundColor: FREE_GREEN,
-																borderRadius: '28px',
-																padding: '10px 28px',
-																fontSize: '30px',
-																fontFamily: 'Inter',
-																color: WHITE,
-																marginTop: '4px',
-																marginLeft: '-6px',
-																alignSelf: 'flex-start'
-															},
-															children: 'Trolig gratis'
-														}
-													}] : [])
-												]
+												children: 'Trolig gratis'
 											}
 										},
-										// Bottom bar: collection + branding
 										{
 											type: 'div',
 											props: {
 												style: {
 													display: 'flex',
-													justifyContent: 'space-between',
-													alignItems: 'flex-end'
+													fontSize: '88px',
+													fontFamily: 'Barlow Condensed',
+													fontWeight: 700,
+													color: WHITE,
+													lineHeight: 1.02,
+													letterSpacing: '-0.015em',
+													textShadow: '0 4px 24px rgba(0,0,0,0.6)'
 												},
-												children: [
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																fontSize: '28px',
-																fontFamily: 'Inter',
-																color: 'rgba(255,255,255,0.6)'
-															},
-															children: collectionTitle
-														}
-													},
-													{
-														type: 'div',
-														props: {
-															style: {
-																display: 'flex',
-																fontSize: '36px',
-																fontFamily: 'Barlow Condensed',
-																color: FUNKIS_RED
-															},
-															children: 'G\u00e5ri.no'
-														}
-													}
-												]
+												children: displayTitle
+											}
+										},
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '38px',
+													fontFamily: 'Inter',
+													fontWeight: 500,
+													color: 'rgba(255,255,255,0.92)',
+													lineHeight: 1.3,
+													textShadow: '0 2px 12px rgba(0,0,0,0.6)'
+												},
+												children: venueTime
+											}
+										}
+									]
+								}
+							},
+							// Layer 4 — branding (visible on IG only, hidden by TikTok UI). Acceptable: outro slide repeats this.
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										position: 'absolute',
+										left: `${INNER_PAD_X}px`,
+										right: `${INNER_PAD_X}px`,
+										bottom: `${BRANDING_BOTTOM}px`,
+										justifyContent: 'space-between',
+										alignItems: 'flex-end'
+									},
+									children: [
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '28px',
+													fontFamily: 'Inter',
+													color: 'rgba(255,255,255,0.6)'
+												},
+												children: collectionTitle
+											}
+										},
+										{
+											type: 'div',
+											props: {
+												style: {
+													display: 'flex',
+													fontSize: '40px',
+													fontFamily: 'Barlow Condensed',
+													fontWeight: 700,
+													color: WHITE
+												},
+												children: 'G\u00e5ri.no'
 											}
 										}
 									]
@@ -701,9 +766,12 @@ export async function generateStories(
 
 	for (let i = 0; i < toFetch.length; i++) {
 		const image = imageResults[i];
-		if (!image) continue;
-
 		const event = toFetch[i];
+		if (!image) {
+			console.log(`  [skip] Story "${event.title}" — image fetch failed or too small`);
+			continue;
+		}
+
 		try {
 			const markup = storyEventSlideMarkup(
 				event.title,
@@ -712,7 +780,8 @@ export async function generateStories(
 				event.category,
 				image,
 				collectionTitle,
-				event.isFree
+				event.isFree,
+				event.dateLabel
 			);
 			stories.push(await renderStorySlide(markup));
 		} catch (err: any) {
@@ -746,9 +815,12 @@ export async function generateReelsFrames(
 
 	for (let i = 0; i < toFetch.length; i++) {
 		const image = imageResults[i];
-		if (!image) continue;
-
 		const event = toFetch[i];
+		if (!image) {
+			console.log(`  [skip] Reels frame "${event.title}" — image fetch failed or too small`);
+			continue;
+		}
+
 		try {
 			const markup = storyEventSlideMarkup(
 				event.title,
@@ -757,7 +829,8 @@ export async function generateReelsFrames(
 				event.category,
 				image,
 				collectionTitle,
-				event.isFree
+				event.isFree,
+				event.dateLabel
 			);
 			frames.push(await renderStorySlide(markup));
 		} catch (err: any) {
@@ -767,4 +840,119 @@ export async function generateReelsFrames(
 
 	console.log(`  Generated ${frames.length} reels frames`);
 	return frames;
+}
+
+/** Render a closing/outro slide for a Reel: "More on gaari.no" with collection context. */
+export async function generateReelsOutro(
+	collectionTitle: string,
+	lang: 'no' | 'en' = 'no'
+): Promise<Buffer | null> {
+	const headline = lang === 'en' ? 'See it all' : 'Se alt sammen';
+	const sub = lang === 'en'
+		? `Plus everything else happening in Bergen`
+		: `Pluss alt annet som skjer i Bergen`;
+	const url = 'gaari.no';
+
+	const markup = {
+		type: 'div',
+		props: {
+			style: {
+				display: 'flex',
+				width: '100%',
+				height: '100%',
+				backgroundColor: FUNKIS_RED,
+				padding: `${STORY_FRAME}px`
+			},
+			children: [
+				{
+					type: 'div',
+					props: {
+						style: {
+							display: 'flex',
+							flexDirection: 'column',
+							width: '100%',
+							height: '100%',
+							backgroundColor: '#1C1C1E',
+							borderRadius: '12px',
+							justifyContent: 'center',
+							alignItems: 'center',
+							padding: '0 80px',
+							gap: '32px'
+						},
+						children: [
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										fontSize: '52px',
+										fontFamily: 'Inter',
+										color: 'rgba(255,255,255,0.7)',
+										textAlign: 'center'
+									},
+									children: collectionTitle
+								}
+							},
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										fontSize: '180px',
+										fontFamily: 'Barlow Condensed',
+										fontWeight: 700,
+										color: WHITE,
+										lineHeight: 1,
+										letterSpacing: '-0.02em',
+										textAlign: 'center'
+									},
+									children: headline
+								}
+							},
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										fontSize: '40px',
+										fontFamily: 'Inter',
+										color: 'rgba(255,255,255,0.75)',
+										textAlign: 'center',
+										marginTop: '12px',
+										maxWidth: '820px'
+									},
+									children: sub
+								}
+							},
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										marginTop: '60px',
+										backgroundColor: WHITE,
+										borderRadius: '48px',
+										padding: '28px 64px',
+										fontSize: '64px',
+										fontFamily: 'Barlow Condensed',
+										fontWeight: 700,
+										color: FUNKIS_RED,
+										letterSpacing: '0.02em'
+									},
+									children: url
+								}
+							}
+						]
+					}
+				}
+			]
+		}
+	};
+
+	try {
+		return await renderStorySlide(markup);
+	} catch (err: any) {
+		console.log(`  [skip] Reels outro — render failed (${err.message})`);
+		return null;
+	}
 }
