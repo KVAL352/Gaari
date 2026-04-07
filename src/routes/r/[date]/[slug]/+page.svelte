@@ -3,7 +3,9 @@
 
 	let { data }: { data: PageData } = $props();
 	let copyState = $state<'idle' | 'copied' | 'error'>('idle');
-	let saveState = $state<'idle' | 'loading' | 'shared' | 'error'>('idle');
+
+	let downloadUrl = $derived(`${data.mp4Url}?download=1`);
+	let downloadName = $derived(`reel-${data.slug}.mp4`);
 
 	async function copyCaption() {
 		try {
@@ -13,47 +15,6 @@
 		} catch {
 			copyState = 'error';
 			setTimeout(() => (copyState = 'idle'), 2500);
-		}
-	}
-
-	/**
-	 * iOS Safari (15+) and modern Android Chrome support sharing files via the
-	 * Web Share API. Fetching the MP4 as a Blob and passing it through
-	 * navigator.share opens the native share sheet — on iOS that includes a
-	 * "Save Video" action that drops the file straight into Photos, which is
-	 * what Instagram Reels reads from. Falls back to opening the MP4 in a new
-	 * tab on browsers that lack file-sharing support.
-	 */
-	async function shareVideo() {
-		saveState = 'loading';
-		try {
-			const res = await fetch(data.mp4Url);
-			if (!res.ok) throw new Error(`HTTP ${res.status}`);
-			const blob = await res.blob();
-			const file = new File([blob], `reel-${data.slug}.mp4`, { type: 'video/mp4' });
-			const canShareFiles =
-				typeof navigator !== 'undefined' &&
-				typeof navigator.canShare === 'function' &&
-				navigator.canShare({ files: [file] });
-			if (canShareFiles) {
-				await navigator.share({ files: [file], title: data.collectionTitle });
-				saveState = 'shared';
-			} else {
-				window.location.href = data.mp4Url;
-				saveState = 'idle';
-				return;
-			}
-		} catch (err) {
-			// User cancellation throws AbortError — treat as idle, not error
-			if ((err as Error)?.name === 'AbortError') {
-				saveState = 'idle';
-				return;
-			}
-			saveState = 'error';
-		} finally {
-			setTimeout(() => {
-				if (saveState === 'shared' || saveState === 'error') saveState = 'idle';
-			}, 3000);
 		}
 	}
 </script>
@@ -85,19 +46,14 @@
 			></video>
 		</div>
 
-		<button type="button" class="save-btn" onclick={shareVideo} disabled={saveState === 'loading'}>
-			{#if saveState === 'loading'}Henter video...
-			{:else if saveState === 'shared'}Delt
-			{:else if saveState === 'error'}Noe gikk galt
-			{:else}Lagre videoen{/if}
-		</button>
+		<a class="save-btn" href={downloadUrl} download={downloadName}>Last ned videoen</a>
 
 		<section class="instructions">
-			<h2>Slik lagrer du videoen</h2>
+			<h2>Slik får du videoen til Instagram</h2>
 			<ol>
-				<li>Trykk <strong>Lagre videoen</strong> over.</li>
-				<li><strong>iPhone:</strong> i delemenyen som åpnes, velg <strong>Lagre video</strong>. Videoen havner i Bilder.</li>
-				<li><strong>Android:</strong> velg <strong>Lagre i Galleri</strong> eller en filbehandler.</li>
+				<li>Trykk <strong>Last ned videoen</strong> over. Videoen havner i <strong>Safari Downloads</strong>.</li>
+				<li>Åpne <strong>Files</strong>-appen → <strong>Downloads</strong> → trykk på reel-videoen.</li>
+				<li>Trykk del-ikonet (firkant med pil opp) → velg <strong>Lagre i Bilder</strong>.</li>
 				<li>Åpne <strong>Instagram</strong> → Reels → velg klippet fra kamerarullen.</li>
 				<li>Trykk <strong>Kopier caption</strong> under, lim inn i Reels og publiser.</li>
 				<li>Toggle <strong>Del på Facebook</strong> på publish-skjermen for cross-post.</li>
