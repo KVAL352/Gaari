@@ -42,7 +42,7 @@
 	"dependencies": {
 		"@resvg/resvg-js": "^2.6.2",
 		"@supabase/supabase-js": "^2.97.0",
-		"bits-ui": "^1.0.0",
+		"bits-ui": "^2.17.2",
 		"clsx": "^2.1.0",
 		"lucide-svelte": "^0.577.0",
 		"resend": "^6.9.3",
