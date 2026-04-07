@@ -94,9 +94,11 @@ async function ensureBucket() {
 
 interface ReelDelivery {
 	slug: string;
+	dateStr: string;
 	collectionTitle: string;
 	collectionUrl: string;
 	mp4Url: string;
+	landingUrl: string;
 	caption: string;
 	frameCount: number;
 	durationSec: number;
@@ -122,33 +124,23 @@ async function emailReelDelivery(deliveries: ReelDelivery[]): Promise<void> {
 	const subject = `[Reels klar] ${deliveries.length} video${deliveries.length === 1 ? '' : 'er'} \u2014 ${today}`;
 
 	const sectionsHtml = deliveries.map(d => `
-		<div style="margin-bottom:32px;border:2px solid #e6e3da;border-radius:12px;padding:20px;">
-			<h2 style="margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;font-size:22px;color:#141414;">
-				${d.collectionTitle}
+		<div style="margin-bottom:24px;border:2px solid #e6e3da;border-radius:12px;padding:20px;">
+			<h2 style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:22px;color:#141414;">
+				${escapeHtml(d.collectionTitle)}
 			</h2>
 			<p style="margin:0 0 18px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#4D4D4D;">
 				${d.frameCount} slides &middot; ${d.durationSec} sek
 			</p>
 
-			<table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 18px;">
+			<table cellpadding="0" cellspacing="0" border="0" style="margin:0;">
 				<tr>
 					<td style="background:#C82D2D;border-radius:8px;">
-						<a href="${d.mp4Url}" download style="display:inline-block;padding:14px 28px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:#fff;text-decoration:none;">
-							Last ned MP4
+						<a href="${d.landingUrl}" style="display:inline-block;padding:16px 32px;font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:bold;color:#fff;text-decoration:none;">
+							\u00c5pne reel-side
 						</a>
 					</td>
 				</tr>
 			</table>
-
-			<p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#595959;">
-				<strong>Caption</strong> (langtrykk for \u00e5 kopiere alt):
-			</p>
-			<pre style="margin:0;padding:14px;background:#f5f3ec;border-radius:8px;font-family:Menlo,Consolas,monospace;font-size:12px;color:#141414;white-space:pre-wrap;word-wrap:break-word;line-height:1.5;">${escapeHtml(d.caption)}</pre>
-
-			<p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#737373;">
-				Last opp manuelt: <strong>Instagram</strong> &rarr; Reels &rarr; lim inn caption.
-				Cross-post til <strong>Facebook</strong> via "Del p\u00e5 Facebook"-bryteren n\u00e5r du publiserer.
-			</p>
 		</div>
 	`).join('');
 
@@ -162,9 +154,10 @@ async function emailReelDelivery(deliveries: ReelDelivery[]): Promise<void> {
 <body style="margin:0;padding:24px;background:#fafaf7;font-family:Arial,Helvetica,sans-serif;color:#141414;">
 	<div style="max-width:600px;margin:0 auto;">
 		<h1 style="margin:0 0 8px;font-size:28px;color:#141414;">Reels klar til publisering</h1>
-		<p style="margin:0 0 24px;font-size:15px;color:#4D4D4D;">
+		<p style="margin:0 0 24px;font-size:15px;color:#4D4D4D;line-height:1.5;">
 			${deliveries.length} video${deliveries.length === 1 ? '' : 'er'} generert. \u00c5pne denne eposten p\u00e5 mobilen,
-			trykk "Last ned MP4", lagre i camera roll, og last opp manuelt p\u00e5 Instagram Reels.
+			trykk knappen for hver reel \u2014 du kommer til en side med video, kopier-knapp for caption,
+			og enkel anvisning for \u00e5 lagre til Bilder.
 		</p>
 		${sectionsHtml}
 		<p style="margin:32px 0 0;font-size:12px;color:#737373;text-align:center;">
@@ -394,11 +387,24 @@ async function main() {
 			}));
 			const hashtags = HASHTAGS[slug] || ['#bergen', '#bergenby', '#hvaskjeribergen'];
 			const caption = generateCaption(title, captionEvents, collectionUrl, hashtags, lang, { categoryIcons: false });
+
+			// Upload caption alongside MP4 so the /r/[date]/[slug] landing page can read it.
+			const captionPath = `${dateStr}/${slug}/caption.txt`;
+			const { error: capErr } = await supabase.storage
+				.from(STORAGE_BUCKET)
+				.upload(captionPath, Buffer.from(caption, 'utf-8'), {
+					contentType: 'text/plain; charset=utf-8',
+					upsert: true
+				});
+			if (capErr) console.warn(`  Caption upload failed: ${capErr.message}`);
+
 			deliveries.push({
 				slug,
+				dateStr,
 				collectionTitle: title,
 				collectionUrl,
 				mp4Url: publicUrl,
+				landingUrl: `https://gaari.no/r/${dateStr}/${slug}`,
 				caption,
 				frameCount: frames.length,
 				durationSec: frames.length * FRAME_DURATION
