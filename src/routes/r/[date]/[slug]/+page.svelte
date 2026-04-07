@@ -90,13 +90,19 @@
 			<section class="stories-section">
 				<h2>Stories — én per spillested</h2>
 				<p class="stories-intro">
-					Last ned hver story, åpne IG → Stories, og bruk <strong>@-mention</strong>-klistremerket
-					med handlen som vises under hver. Trykk på @-handlen for å kopiere den.
+					<strong>iPhone:</strong> trykk og hold på bildet → <strong>Lagre i Bilder</strong>.<br />
+					<strong>Android:</strong> trykk og hold → <strong>Last ned bilde</strong>.<br />
+					Trykk på @-handlen for å kopiere den, så kan du bruke @-mention-klistremerket i IG Stories.
 				</p>
 				<div class="stories-grid">
 					{#each data.stories as story, i (story.url)}
 						<article class="story-card">
-							<img src={story.url} alt={story.title} class="story-img" loading="lazy" />
+							<img
+								src={`/r/${data.date}/${data.slug}/story/${i + 1}.png`}
+								alt={story.title}
+								class="story-img"
+								loading="lazy"
+							/>
 							<div class="story-meta">
 								<p class="story-title">{story.title}</p>
 								<p class="story-venue">{story.venue}</p>
@@ -106,18 +112,11 @@
 										class="handle-btn"
 										onclick={() => copyHandle(story.igHandle!)}
 									>
-										@{story.igHandle}
+										@{story.igHandle} — kopier
 									</button>
 								{:else}
 									<span class="no-handle">Ingen IG-handle registrert</span>
 								{/if}
-								<a
-									class="story-download-btn"
-									href={`/r/${data.date}/${data.slug}/story/${i + 1}.png?download=1`}
-									download={`story-${data.slug}-${i + 1}.png`}
-								>
-									Last ned story
-								</a>
 							</div>
 						</article>
 					{/each}
@@ -342,28 +341,33 @@
 
 	.story-card {
 		display: flex;
-		gap: 16px;
-		padding: 12px;
+		flex-direction: column;
+		gap: 12px;
+		padding: 16px;
 		background: #fff;
 		border: 1px solid var(--color-border);
 		border-radius: 12px;
 	}
 
 	.story-img {
-		flex-shrink: 0;
-		width: 90px;
-		height: 160px;
-		object-fit: cover;
+		display: block;
+		width: 100%;
+		max-width: 280px;
+		aspect-ratio: 9 / 16;
+		object-fit: contain;
 		border-radius: 8px;
-		background: #000;
+		background: #1c1c1e;
+		margin: 0 auto;
+		-webkit-touch-callout: default;
+		touch-action: manipulation;
 	}
 
 	.story-meta {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		min-width: 0;
-		flex: 1;
+		gap: 8px;
+		align-items: center;
+		text-align: center;
 	}
 
 	.story-title {
@@ -382,16 +386,15 @@
 	}
 
 	.handle-btn {
-		align-self: flex-start;
-		background: var(--color-bg-base);
-		border: 1px solid var(--color-border);
-		color: var(--color-primary);
-		font-size: 13px;
-		font-weight: 600;
-		padding: 6px 12px;
+		background: var(--color-primary);
+		border: none;
+		color: #fff;
+		font-size: 14px;
+		font-weight: 700;
+		padding: 10px 20px;
 		border-radius: 8px;
 		cursor: pointer;
-		min-height: 32px;
+		min-height: 44px;
 	}
 
 	.handle-btn:active {
@@ -402,20 +405,6 @@
 		font-size: 12px;
 		color: var(--color-text-muted);
 		font-style: italic;
-	}
-
-	.story-download-btn {
-		align-self: flex-start;
-		background: var(--color-primary);
-		color: #fff;
-		text-decoration: none;
-		font-size: 13px;
-		font-weight: 600;
-		padding: 8px 14px;
-		border-radius: 8px;
-		min-height: 36px;
-		display: inline-flex;
-		align-items: center;
 	}
 
 	.copy-toast {
