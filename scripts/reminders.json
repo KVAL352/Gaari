@@ -20,9 +20,9 @@
     "description": "Send oppfølgingsepost til kontakter fra runde 1 (4. mars) og runde 2 (5. mars) som ikke har svart. Sjekk outreach-loggen i memory/outreach-drafts.md for status. Prioriter: media (NRK, BT, Bergensmagasinet), studenter (Sammen, UiB), community (BIKS, Bergen Global)."
   },
   {
-    "date": "2026-03-27",
+    "date": "2026-04-28",
     "title": "Følg opp Tikkio",
-    "description": "Epost sendt 27. februar — forespørsel om scraping-tillatelse. Kun Intercom auto-svar mottatt. Scraper klar (scripts/scrapers/tikkio.ts), venter på tillatelse."
+    "description": "Epost sendt 27. februar — forespørsel om scraping-tillatelse. Kun Intercom auto-svar mottatt. Venter på svar — send eventuell oppfølging nå (3 uker etter 7. april). Scraper klar (scripts/scrapers/tikkio.ts)."
   },
   {
     "date": "2026-03-27",
