@@ -5,11 +5,6 @@
     "description": "Nede 6+ kjøringer (broken i digest). Borealis-festivalen 2026 er trolig ferdig (mars). Verifiser på borealisfestival.no. Hvis ferdig: marker som dormant i scraper-health. Hvis nye events: fiks scraper."
   },
   {
-    "date": "2026-03-27",
-    "title": "Sjekk Litteraturhuset backlink",
-    "description": "Ingrid Brandvik (kommunikasjonsrådgiver) bekreftet 18. mars at de legger til lenke til Gåri på litthusbergen.no. Sjekk om lenken er live. Viktig for tredjepartssynlighet/AI-sitering."
-  },
-  {
     "date": "2026-04-05",
     "title": "Umami-analyse: første uke med full data",
     "description": "Proxy-fix deployet ~26. mars. Nå har vi 7+ dager med ren data. Sjekk: 1) Daglig besøkstall — sammenlign med Plausible-baseline (~30/dag). 2) UTM-tracking — fungerer newsletter utm_source/utm_campaign/utm_content? 3) QR-klistremerke-trafikk (utm_source=sticker). 4) Bounce rate og snitt-tid. 5) Custom events: newsletter-click, ai-referral, promoted-click — dukker de opp? 6) Mobil vs desktop-fordeling."
@@ -26,23 +21,8 @@
   },
   {
     "date": "2026-03-27",
-    "title": "Følg opp Thomas Ottesen, Bergen Sentrum AS",
-    "description": "Steinar Kristoffersen videresendte outreach-eposten til Thomas Ottesen (salgs- og markedssjef) 4. mars. Ingen svar ennå. Send oppfølgingsepost direkte til thomas@bergensentrum.no."
-  },
-  {
-    "date": "2026-03-27",
-    "title": "Følg opp Cafe Sanaa",
-    "description": "Epost sendt 28. februar til cafesanaa@gmail.com — tilbudt gratis plassering på Gåri. Ingen svar. Vurder oppfølgingsepost eller kontakt via Facebook/Instagram."
-  },
-  {
-    "date": "2026-03-27",
     "title": "Følg opp Tikkio",
     "description": "Epost sendt 27. februar — forespørsel om scraping-tillatelse. Kun Intercom auto-svar mottatt. Scraper klar (scripts/scrapers/tikkio.ts), venter på tillatelse."
-  },
-  {
-    "date": "2026-03-27",
-    "title": "Følg opp DNT (ødelagte URLer)",
-    "description": "André Marton Pedersen (DNT) sa 2. mars at han skulle sjekke /aktiviteter-fra-deltager/-URLene. Verifiser om de fungerer nå. Vi har allerede fikset ticket_url til å bruke register-URLer (commit 2469484)."
   },
   {
     "date": "2026-03-27",
