@@ -27,14 +27,25 @@ function detectImageType(buf: Buffer): 'image/jpeg' | 'image/png' | 'image/webp'
 }
 
 /**
- * Target dimensions for normalized event images on 9:16 story/reel slides.
- * Story canvas is 1080×1920 with a 24px category-color frame on every side,
- * giving an inner full-bleed image area of 1032×1872.
+ * Target dimensions for normalized event images.
+ *  - story:    1032×1872 (matches story/reel inner area, after 24px frame)
+ *  - carousel: 1056×1056 (matches carousel inner area, after 12px frame)
+ *
+ * We use `fit: contain` (not cover) so the entire poster is preserved — wide
+ * landscape posters used to lose left/right edges to center-crop. Letterbox
+ * bars are filled with the slide's dark inner background (#1C1C1E) so they
+ * blend invisibly into the slide design.
  */
-const TARGET_IMAGE_W = 1032;
-const TARGET_IMAGE_H = 1872;
+const STORY_IMAGE_W = 1032;
+const STORY_IMAGE_H = 1872;
+const CAROUSEL_IMAGE_W = 1056;
+const CAROUSEL_IMAGE_H = 1056;
+/** Matches the dark inner backgroundColor used by both slide layouts. */
+const SLIDE_INNER_BG = { r: 28, g: 28, b: 30, alpha: 1 };
 
-async function fetchImageAsBase64(url: string): Promise<string | null> {
+type ImageMode = 'story' | 'carousel';
+
+async function fetchImageAsBase64(url: string, mode: ImageMode = 'story'): Promise<string | null> {
 	try {
 		const controller = new AbortController();
 		const timeout = setTimeout(() => controller.abort(), 8000);
@@ -50,14 +61,17 @@ async function fetchImageAsBase64(url: string): Promise<string | null> {
 		// Verify actual format from magic bytes — header may lie
 		const realType = detectImageType(buf);
 		if (!realType) return null;
-		// Normalize to exact target dimensions via smart-crop so Satori never has to scale.
-		// This eliminates aspect-ratio surprises (panoramic/portrait crops, off-center subjects).
+		// Normalize via sharp `contain` so the full poster is preserved on wide
+		// landscape sources. Letterbox bars use the slide's dark inner colour so
+		// they disappear into the layout instead of looking like grey margins.
 		try {
 			const sharp = (await import('sharp')).default;
+			const w = mode === 'carousel' ? CAROUSEL_IMAGE_W : STORY_IMAGE_W;
+			const h = mode === 'carousel' ? CAROUSEL_IMAGE_H : STORY_IMAGE_H;
 			const normalized = await sharp(buf)
-				.resize(TARGET_IMAGE_W, TARGET_IMAGE_H, {
-					fit: 'cover',
-					position: 'centre'
+				.resize(w, h, {
+					fit: 'contain',
+					background: SLIDE_INNER_BG
 				})
 				.jpeg({ quality: 85 })
 				.toBuffer();
@@ -448,7 +462,7 @@ export async function generateCarousel(
 	// Pre-fetch all event images in parallel
 	console.log(`  Fetching ${events.filter(e => e.imageUrl).length} event images...`);
 	const imageResults = await Promise.all(
-		events.map(e => e.imageUrl ? fetchImageAsBase64(e.imageUrl) : Promise.resolve(null))
+		events.map(e => e.imageUrl ? fetchImageAsBase64(e.imageUrl, 'carousel') : Promise.resolve(null))
 	);
 	const fetched = imageResults.filter(Boolean).length;
 	console.log(`  Fetched ${fetched}/${events.length} images`);
@@ -761,7 +775,7 @@ export async function generateStories(
 	const toFetch = withImages.slice(0, MAX_STORIES);
 	console.log(`  Fetching ${toFetch.length} story images...`);
 	const imageResults = await Promise.all(
-		toFetch.map(e => fetchImageAsBase64(e.imageUrl!))
+		toFetch.map(e => fetchImageAsBase64(e.imageUrl!, 'story'))
 	);
 
 	for (let i = 0; i < toFetch.length; i++) {
@@ -810,7 +824,7 @@ export async function generateReelsFrames(
 	const toFetch = withImages.slice(0, MAX_FRAMES);
 	console.log(`  Fetching ${toFetch.length} reels frame images...`);
 	const imageResults = await Promise.all(
-		toFetch.map(e => fetchImageAsBase64(e.imageUrl!))
+		toFetch.map(e => fetchImageAsBase64(e.imageUrl!, 'story'))
 	);
 
 	for (let i = 0; i < toFetch.length; i++) {
