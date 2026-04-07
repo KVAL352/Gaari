@@ -1,11 +1,26 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate, bergenOffset, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenlive';
 const URL = 'https://www.bergenlive.no/konsertkalender';
+
+/**
+ * Fetch the detail page and extract the start time from
+ * `<meta itemprop="startDate" content="YYYY-MM-DD HH:MM" />`.
+ * Returns "HH:MM" or null.
+ */
+async function fetchDetailTime(detailUrl: string): Promise<string | null> {
+	const html = await fetchHTML(detailUrl);
+	if (!html) return null;
+	const $ = cheerio.load(html);
+	const startDate = $('meta[itemprop="startDate"]').attr('content') || '';
+	const m = startDate.match(/\d{4}-\d{2}-\d{2}\s+(\d{1,2}):(\d{2})/);
+	if (!m) return null;
+	return `${m[1].padStart(2, '0')}:${m[2]}`;
+}
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`\n[${SOURCE}] Fetching ${URL}...`);
@@ -36,12 +51,6 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (!dateOnly) continue;
 		const datePart = dateOnly.slice(0, 10); // "YYYY-MM-DD"
 
-		// Try to parse time from event info (e.g. "kl. 20.00")
-		const timeMatch = eventInfo.match(/kl\.\s*(\d{1,2})[.:](\d{2})/);
-		const dateStart = timeMatch
-			? new Date(`${datePart}T${timeMatch[1].padStart(2, '0')}:${timeMatch[2]}:00${bergenOffset(datePart)}`).toISOString()
-			: (() => { const [y, m, d] = datePart.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)).toISOString(); })(); // midnight UTC → time hidden on frontend
-
 		// Parse venue — it's whatever comes after the date
 		const venue = eventInfo.replace(/.*\d{4}\s*/, '').trim() || 'Bergen';
 
@@ -60,6 +69,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		// Check dedup
 		if (await eventExists(detailUrl)) continue;
+
+		// Fetch detail page for the actual start time (listing has only the date)
+		const detailTime = await fetchDetailTime(detailUrl);
+		await delay(1000);
+		const dateStart = detailTime
+			? new Date(`${datePart}T${detailTime}:00${bergenOffset(datePart)}`).toISOString()
+			: (() => { const [y, m, d] = datePart.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)).toISOString(); })(); // midnight UTC → time hidden on frontend
 
 		const bydel = mapBydel(venue);
 
