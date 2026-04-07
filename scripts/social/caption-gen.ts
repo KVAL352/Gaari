@@ -56,8 +56,8 @@ export function generateCaption(
 	// Share CTA
 	lines.push('');
 	const shareText = lang === 'en'
-		? 'Know someone who needs weekend plans? Send them this'
-		: 'Kjenner du noen som trenger planer? Send dem dette';
+		? 'Send to someone you want to hang out with'
+		: 'Send til en du har lyst til å henge med';
 	lines.push(shareText);
 
 	// Hashtags
