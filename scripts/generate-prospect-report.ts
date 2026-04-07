@@ -727,7 +727,6 @@ async function collectEventPageViews(events: VenueEvent[]): Promise<Array<{ slug
 // ─── Recommendation engine ───────────────────────────────────────────
 
 interface Recommendation {
-	icon: string;
 	title: string;
 	body: string;
 	priority: 'high' | 'medium' | 'low';
@@ -745,7 +744,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 		const growth = ((platform.visitors30d - platform.visitorsPrev30d) / platform.visitorsPrev30d) * 100;
 		if (growth > 10) {
 			recs.push({
-				icon: '📈',
 				title: isNo ? 'Økende trafikk' : 'Growing traffic',
 				body: isNo
 					? `Gåri har ${growth.toFixed(0)}% trafikkvekst siste måned. Tidlig posisjonering gir mest verdi mens plattformen vokser.`
@@ -760,7 +758,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 	if (totalAi > 0) {
 		const aiNames = platform.aiReferrals.map(a => a.source.replace('.com', '').replace('.ai', '')).join(', ');
 		recs.push({
-			icon: '🤖',
 			title: isNo ? 'AI-oppdagelse' : 'AI discovery',
 			body: isNo
 				? `${fmt(totalAi)} brukere fant Gåri via AI-søk (${aiNames}) siste 30 dager. Arrangementer på Gåri blir anbefalt av AI-assistenter — en kanal tradisjonell markedsføring ikke når.`
@@ -776,7 +773,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 
 		// Collection page is live
 		recs.push({
-			icon: '📄',
 			title: isNo ? 'Din festivalside er live' : 'Your festival page is live',
 			body: isNo
 				? `${fMeta.name.no} har en dedikert samlingside på Gåri (gaari.no/no/${fMeta.collectionSlugs.no}). Alle arrangementer vises her med daglig oppdatering.`
@@ -787,7 +783,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 		// Scraping coverage or "not yet published"
 		if (eventCount > 0) {
 			recs.push({
-				icon: '🔄',
 				title: isNo ? 'Automatisk dekning' : 'Automatic coverage',
 				body: isNo
 					? `Gåri henter ${eventCount} arrangementer automatisk fra ${fMeta.domains.join(' og ')}. Programmet oppdateres to ganger daglig.`
@@ -797,7 +792,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 		} else {
 			const year = new Date().getFullYear();
 			recs.push({
-				icon: '⏳',
 				title: isNo ? `${year}-programmet er ikke ute ennå` : `${year} programme not yet published`,
 				body: isNo
 					? `Vi har ikke funnet arrangementer fra ${fMeta.domains.join('/')} ennå. Når programmet publiseres, henter Gåri det automatisk.`
@@ -810,7 +804,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 		const totalTraffic = (festival.collectionTraffic.no?.visitors30d ?? 0) + (festival.collectionTraffic.en?.visitors30d ?? 0);
 		if (totalTraffic > 0) {
 			recs.push({
-				icon: '👀',
 				title: isNo ? 'Samlingside-trafikk' : 'Collection page traffic',
 				body: isNo
 					? `Festivalsiden din hadde ${fmt(totalTraffic)} besøkende siste 30 dager. Med promotert plassering vises dine høydepunkter øverst.`
@@ -821,7 +814,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 
 		// Festival-specific tier recommendation
 		recs.push({
-			icon: '💡',
 			title: isNo ? 'Anbefalt synlighet' : 'Recommended visibility',
 			body: isNo
 				? `For festivaler tilbyr vi egne festivalpakker tilpasset korte, intensive perioder. Festival Basis (3 000 kr) gir promotert plassering på festivalsiden. Festival Standard (6 000 kr) inkluderer også nyhetsbrev og relevante samlinger. Kontakt oss for en tilpasset løsning.`
@@ -843,7 +835,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 		const missing = q.total - q.withImage;
 		const pct = Math.round((q.withImage / q.total) * 100);
 		recs.push({
-			icon: '🖼️',
 			title: isNo ? 'Legg til bilder' : 'Add images',
 			body: isNo
 				? `${missing} av ${q.total} arrangementer mangler bilde (${pct}% har). Arrangementer med bilde får betydelig mer oppmerksomhet i listene og deles oftere.`
@@ -856,7 +847,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 	if (q.total > 0 && q.withTicket < q.total) {
 		const missing = q.total - q.withTicket;
 		recs.push({
-			icon: '🎟️',
 			title: isNo ? 'Legg til billettlenker' : 'Add ticket links',
 			body: isNo
 				? `${missing} arrangementer mangler direktelenke til billettkjøp. Med lenke kan besøkende gå rett til kjøp — det øker konvertering.`
@@ -874,7 +864,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 		const best = topRelevant[0];
 		const totalRelevantVisitors = topRelevant.reduce((s, c) => s + c.visitors30d, 0);
 		recs.push({
-			icon: '🎯',
 			title: isNo ? 'Samlingene dine publikum bruker' : 'Collections your audience uses',
 			body: isNo
 				? `Dine arrangementer er relevante for ${topRelevant.length} samlinger med til sammen ${fmt(totalRelevantVisitors)} besøkende/mnd. "${best.title}" er størst med ${fmt(best.visitors30d)} besøkende. Med promotert plassering vises du først her.`
@@ -888,7 +877,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 		const totalViews = venue.eventPageViews.reduce((s, e) => s + e.visitors, 0);
 		const topEvent = venue.eventPageViews[0];
 		recs.push({
-			icon: '👀',
 			title: isNo ? 'Folk ser på dine arrangementer' : 'People are viewing your events',
 			body: isNo
 				? `${fmt(totalViews)} besøkende har sett dine arrangementer siste 30 dager. "${topEvent.title}" topper med ${fmt(topEvent.visitors)} visninger. Promotert plassering multipliserer denne synligheten.`
@@ -897,7 +885,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 		});
 	} else if (venue.upcomingEvents.length > 0) {
 		recs.push({
-			icon: '📊',
 			title: isNo ? 'Bygg synlighet' : 'Build visibility',
 			body: isNo
 				? `Du har ${venue.upcomingEvents.length} kommende arrangementer på Gåri, men trafikken til detaljsidene er lav. Promotert plassering løfter arrangementene dine til toppen av samlingene der folk leter.`
@@ -910,7 +897,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 	if (venue.categories.length >= 3) {
 		const catLabels = venue.categories.map(c => CATEGORY_LABELS[c]?.[lang] ?? c).join(', ');
 		recs.push({
-			icon: '🎭',
 			title: isNo ? 'Bred kategoridekning' : 'Broad category coverage',
 			body: isNo
 				? `Dere dekker ${venue.categories.length} kategorier (${catLabels}). Det betyr at dere er relevante i mange samlinger — Partner-tier gir synlighet i alle.`
@@ -920,7 +906,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 	} else if (venue.categories.length === 1) {
 		const catLabel = CATEGORY_LABELS[venue.categories[0]]?.[lang] ?? venue.categories[0];
 		recs.push({
-			icon: '🎯',
 			title: isNo ? 'Nisje-styrke' : 'Niche strength',
 			body: isNo
 				? `Alle arrangementene deres er innen ${catLabel}. Basis-tier med fokus på den mest relevante samlingen gir best avkastning.`
@@ -932,7 +917,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 	// High volume venue
 	if (venue.upcomingEvents.length >= 20) {
 		recs.push({
-			icon: '🏢',
 			title: isNo ? 'Høyt volum' : 'High volume',
 			body: isNo
 				? `Med ${venue.upcomingEvents.length} kommende arrangementer er dere en av de mest aktive arenaene i Bergen. Promotert plassering sikrer at dere ikke drukner i mengden.`
@@ -956,7 +940,6 @@ function generateRecommendations(platform: PlatformStats, venue: VenueData | nul
 			tierRecEn = 'Basis is a great starting point — 15% visibility in your most important collection. Upgrade when you see the results.';
 		}
 		recs.push({
-			icon: '💡',
 			title: isNo ? 'Anbefalt tier' : 'Recommended tier',
 			body: isNo ? tierRec : tierRecEn,
 			priority: 'high'
@@ -1424,7 +1407,7 @@ function buildHtml(platform: PlatformStats, venue: VenueData | null, festival: F
 			<h2 style="font-size:22px;margin:0 0 16px">${recsTitle}</h2>
 			${recommendations.map(r => `
 				<div style="${priorityStyles[r.priority]};border-radius:8px;padding:14px 16px;margin-bottom:12px">
-					<h4 style="margin:0 0 4px;font-size:14px">${r.icon} ${r.title}</h4>
+					<h4 style="margin:0 0 4px;font-size:14px">${r.title}</h4>
 					<p style="margin:0;font-size:13px;color:#334155;line-height:1.5">${r.body}</p>
 				</div>
 			`).join('')}
