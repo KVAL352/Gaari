@@ -541,8 +541,13 @@ function storyEventSlideMarkup(
 	//   IG top safe ~220px → inner top: 220 - 24 = 196px
 	//   TikTok bottom safe ~480px → inner bottom: 480 - 24 = 456px
 	const INNER_PAD_X = 48;
-	const PILLS_TOP = 196;
-	const TEXT_BOTTOM = 470;     // critical content above TikTok UI
+	// Bumped from 196 → 360 after IG screenshots showed pills hidden behind
+	// the back arrow + camera icon at the top of the IG Reels/Stories chrome.
+	const PILLS_TOP = 360;
+	// Bumped from 320 → 520 after FB Reels screenshot showed title clipped
+	// by the "See insights" / "Boost reel" bar. Both IG and FB reserve a
+	// larger bottom UI than originally measured.
+	const TEXT_BOTTOM = 520;
 	const BRANDING_BOTTOM = 36;  // IG-only zone
 
 	return {
@@ -874,8 +879,7 @@ export async function generateReelsOutro(
 				display: 'flex',
 				width: '100%',
 				height: '100%',
-				backgroundColor: FUNKIS_RED,
-				padding: `${STORY_FRAME}px`
+				backgroundColor: '#1C1C1E'
 			},
 			children: [
 				{
@@ -887,7 +891,6 @@ export async function generateReelsOutro(
 							width: '100%',
 							height: '100%',
 							backgroundColor: '#1C1C1E',
-							borderRadius: '12px',
 							justifyContent: 'center',
 							alignItems: 'center',
 							padding: '0 80px',
