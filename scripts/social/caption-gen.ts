@@ -16,9 +16,11 @@ export function generateCaption(
 	events: CaptionEvent[],
 	collectionUrl: string,
 	hashtags: string[],
-	lang: 'no' | 'en' = 'no'
+	lang: 'no' | 'en' = 'no',
+	options: { categoryIcons?: boolean } = {}
 ): string {
 	const lines: string[] = [];
+	const useIcons = options.categoryIcons !== false; // default true to preserve existing callers
 
 	// Header
 	lines.push(collectionTitle);
@@ -27,14 +29,14 @@ export function generateCaption(
 	// Event list with auto venue-tagging
 	const listed = events.slice(0, MAX_LISTED_EVENTS);
 	for (const event of listed) {
-		const icon = getCategoryIcon(event.category);
+		const iconPart = useIcons ? `${getCategoryIcon(event.category)} ` : '';
 		const time = formatEventTime(event.date_start, lang);
 		const timePart = time ? (lang === 'en' ? `, ${time}` : `, kl. ${time}`) : '';
 		const igHandle = getVenueInstagram(event.venue);
 		if (igHandle) {
-			lines.push(`${icon} ${event.title}, @${igHandle}${timePart}`);
+			lines.push(`${iconPart}${event.title}, @${igHandle}${timePart}`);
 		} else {
-			lines.push(`${icon} ${event.title} @ ${event.venue}${timePart}`);
+			lines.push(`${iconPart}${event.title} @ ${event.venue}${timePart}`);
 		}
 	}
 

@@ -393,7 +393,7 @@ async function main() {
 				category: e.category
 			}));
 			const hashtags = HASHTAGS[slug] || ['#bergen', '#bergenby', '#hvaskjeribergen'];
-			const caption = generateCaption(title, captionEvents, collectionUrl, hashtags, lang);
+			const caption = generateCaption(title, captionEvents, collectionUrl, hashtags, lang, { categoryIcons: false });
 			deliveries.push({
 				slug,
 				collectionTitle: title,
