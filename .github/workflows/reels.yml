@@ -1,9 +1,9 @@
-name: Generate Weekly Reels
+name: Generate Single Reel (manual)
 
+# Cron schedule removed 2026-04-08 — superseded by weekly-reels.yml which
+# generates Mon-Sat for the upcoming week in one batch. This workflow stays
+# available for manual ad-hoc generation of a single collection.
 on:
-  schedule:
-    # Thursday 06:00 UTC (08:00 CEST) — fresh reels delivered before posting window
-    - cron: '0 6 * * 4'
   workflow_dispatch:
     inputs:
       slug:
