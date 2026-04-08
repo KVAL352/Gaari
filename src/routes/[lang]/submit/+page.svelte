@@ -51,7 +51,7 @@
 		return url;
 	}
 
-	async function decodeImage(file: File): Promise<{ width: number; height: number; source: CanvasImageSource; close: () => void }> {
+	async function decodeImage(file: File): Promise<{ width: number; height: number; source: ImageBitmap | HTMLImageElement; close: () => void }> {
 		// Prefer createImageBitmap — decodes off the main thread, dramatically lower
 		// memory pressure than `new Image()` + objectURL on iOS Safari (where
 		// large PNGs would silently break canvas.toBlob).
