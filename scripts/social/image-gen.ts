@@ -150,7 +150,7 @@ export function loadFonts(): Font[] {
 
 // ── Rendering ──
 
-async function renderSlide(markup: Record<string, unknown>): Promise<Buffer> {
+export async function renderSlide(markup: Record<string, unknown>): Promise<Buffer> {
 	const fonts = loadFonts();
 
 	const svg = await satori(markup, {
