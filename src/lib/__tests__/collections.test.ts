@@ -32,10 +32,10 @@ describe('getCollection', () => {
 		expect(getCollection('gibberish')).toBeUndefined();
 	});
 
-	it('returns all 51 collections', () => {
+	it('returns all 52 collections', () => {
 		const slugs = getAllCollectionSlugs();
-		expect(slugs).toHaveLength(51);
-		// Original 14 + 3 new evergreen
+		expect(slugs).toHaveLength(52);
+		// 18 evergreen
 		expect(slugs).toContain('denne-helgen');
 		expect(slugs).toContain('i-kveld');
 		expect(slugs).toContain('gratis');
@@ -43,6 +43,7 @@ describe('getCollection', () => {
 		expect(slugs).toContain('familiehelg');
 		expect(slugs).toContain('konserter');
 		expect(slugs).toContain('studentkveld');
+		expect(slugs).toContain('uteliv');
 		expect(slugs).toContain('this-weekend');
 		expect(slugs).toContain('i-dag');
 		expect(slugs).toContain('free-things-to-do-bergen');

@@ -549,6 +549,68 @@ const collections: Collection[] = [
 		}
 	},
 	{
+		id: 'uteliv',
+		slug: 'uteliv',
+		title: {
+			no: 'Uteliv i Bergen denne uken',
+			en: 'Nightlife in Bergen This Week'
+		},
+		description: {
+			no: 'Uteliv i Bergen denne uken — konserter, klubber, livemusikk og barer med arrangement på Hulen, Madam Felle, USF Verftet, Bergen Kjøtt og flere.',
+			en: 'Bergen nightlife this week — concerts, clubs, live music and bar events at Hulen, Madam Felle, USF Verftet, Bergen Kjøtt and more.'
+		},
+		ogSubtitle: {
+			no: 'Uteliv denne uken',
+			en: "This week's nightlife"
+		},
+		relatedSlugs: ['konserter', 'i-kveld', 'studentkveld'],
+		footerLabel: { no: 'Uteliv', en: 'Nightlife' },
+		footer: { langs: ['no', 'en'], order: 10 },
+		newsletterHeading: { no: 'Helgens uteliv rett i innboksen', en: 'Weekend nightlife in your inbox' },
+		quickAnswer: {
+			no: 'Uteliv i Bergen denne uken — konserter, klubber, livemusikk og kveldsarrangementer for voksne. Oppdatert daglig fra Hulen, Madam Felle, USF Verftet, Bergen Kjøtt og flere.',
+			en: 'Bergen nightlife this week — concerts, clubs, live music and adult evening events. Updated daily from Hulen, Madam Felle, USF Verftet, Bergen Kjøtt and more.'
+		},
+		editorial: {
+			no: [
+				'Bergen har et rikt uteliv som strekker seg langt utover det rent kommersielle. Live-musikkscener som Hulen, Madam Felle, Landmark og USF Verftet er bærebjelker — alle med solid bookingprofil og lavterskel for å oppleve nye band. Bergen Kjøtt og Det Akademiske Kvarter har jevnlige konserter og klubbkvelder, og sentrum har et tett nett av barer, vinbarer og hybridplasser med live-program.',
+				'Uteliv-siden på Gåri samler alle kveldsarrangementer denne uken som passer for voksne — konserter, klubber, livemusikk, jazz, bar-events og kulturelle kveldsbegivenheter. Filteret henter events fra kategoriene musikk og uteliv som starter etter klokka 19, slik at du finner alt fra rolig livejazz på Bergen Kjøtt til høyenergi konserter på Hulen og sene klubbnetter på Landmark.',
+				'Bergen er en kompakt by, så de fleste utelivstedene ligger i gangavstand fra hverandre. Bryggen, sentrum og Nordnes har alle sine egne klynger av spillesteder. Gåri er uavhengig og oppdaterer listen daglig — utsolgte arrangementer fjernes automatisk, og ingen arrangører betaler for plassering.'
+			],
+			en: [
+				'Bergen has a rich nightlife scene that goes well beyond the purely commercial. Live music venues like Hulen, Madam Felle, Landmark and USF Verftet are the backbone — all with strong booking profiles and a low threshold for discovering new bands. Bergen Kjøtt and Det Akademiske Kvarter host regular concerts and club nights, and the city centre has a dense network of bars, wine bars and hybrid venues with live programmes.',
+				"Gåri's nightlife page gathers every evening event this week aimed at adults — concerts, clubs, live music, jazz, bar events and cultural night-time happenings. The filter pulls events in the music and nightlife categories that start after 19:00, so you find everything from quiet live jazz at Bergen Kjøtt to high-energy concerts at Hulen and late club nights at Landmark.",
+				'Bergen is a compact city, so most nightlife venues are within walking distance of each other. Bryggen, the centre and Nordnes each have their own clusters of stages. Gåri is independent and updates the listing daily — sold-out events are removed automatically, and no venue pays for placement.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hva er uteliv i Bergen denne uken?', a: 'Gåri viser konserter, klubber, livemusikk og bar-events i Bergen denne uken — alt for voksne, oppdatert daglig fra Hulen, Madam Felle, USF Verftet, Bergen Kjøtt og flere.' },
+				{ q: 'Hvor er det livemusikk i Bergen?', a: 'Hulen, Madam Felle, USF Verftet, Landmark, Bergen Kjøtt, Ole Bull Scene, Forum Scene og Det Akademiske Kvarter har jevnlige konserter. Sjekk Gåri for ukens program.' },
+				{ q: 'Er det noe uteliv i Bergen midt i uken?', a: 'Ja — Hulen, Madam Felle og Bergen Kjøtt har konserter og klubbkvelder gjennom hele uken. Onsdag og torsdag er typiske jazz- og bandkvelder. Sjekk Gåri for kveldens program.' },
+				{ q: 'Hvilke bar-events finnes i Bergen?', a: 'Mange av Bergens barer arrangerer livemusikk, quiz, vinkurs eller temakvelder. Madam Felle, Landmark, Bergen Kjøtt og flere har jevnlige bar-events. Gåri viser dem som ordinære arrangementer.' },
+				{ q: 'Er Bergen en god by for uteliv?', a: 'Bergen har et av Norges mest varierte utelivstilbud per innbygger. Hulen er landets eldste rockeklubb, Madam Felle er en institusjon for live-musikk, og det er sjelden en kveld uten noe på programmet et eller annet sted.' }
+			],
+			en: [
+				{ q: "What's the nightlife in Bergen this week?", a: "Gåri shows concerts, clubs, live music and bar events in Bergen this week — all aimed at adults, updated daily from Hulen, Madam Felle, USF Verftet, Bergen Kjøtt and more." },
+				{ q: 'Where is live music in Bergen?', a: 'Hulen, Madam Felle, USF Verftet, Landmark, Bergen Kjøtt, Ole Bull Scene, Forum Scene and Det Akademiske Kvarter all host regular concerts. Check Gåri for this week\'s programme.' },
+				{ q: 'Is there nightlife in Bergen midweek?', a: 'Yes — Hulen, Madam Felle and Bergen Kjøtt run concerts and club nights all week. Wednesdays and Thursdays are typical jazz and band nights. Check Gåri for tonight\'s programme.' },
+				{ q: 'What bar events are there in Bergen?', a: 'Many Bergen bars host live music, quizzes, wine tastings or themed nights. Madam Felle, Landmark, Bergen Kjøtt and others have regular bar events. Gåri lists them as standard events.' },
+				{ q: 'Is Bergen good for nightlife?', a: "Bergen has one of Norway's most varied nightlife scenes per capita. Hulen is the country's oldest rock club, Madam Felle is a live-music institution, and there's rarely a night without something happening somewhere." }
+			]
+		},
+		filterEvents: (events, now) => {
+			const todayStr = toOsloDateStr(now);
+			const endStr = getEndOfWeekDateStr(now);
+			return events.filter(e => {
+				const d = e.date_start.slice(0, 10);
+				return d >= todayStr && d <= endStr &&
+					matchesTimeOfDay(e.date_start, ['evening', 'night']) &&
+					(e.category === 'nightlife' || e.category === 'music');
+			});
+		}
+	},
+	{
 		id: 'this-weekend',
 		slug: 'this-weekend',
 		title: {
