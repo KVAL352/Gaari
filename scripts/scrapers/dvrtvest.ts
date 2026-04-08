@@ -27,7 +27,10 @@ interface ShowDetail {
 function guessCategory(title: string): string {
 	const t = title.toLowerCase();
 	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(t);
-	if (w('konsert') || w('quintet') || w('quartet') || w('trio') || w('jazz') || w('band')) return 'music';
+	// Skifte Bar formats — pub nights, magic, sing-along, karaoke etc.
+	// (these are nightlife/music, not theatre, even though they happen at the theatre)
+	if (/pub\b/.test(t) || w('karaoke') || w('disco')) return 'nightlife';
+	if (w('konsert') || w('quintet') || w('quartet') || w('trio') || w('jazz') || w('band') || w('vise') || w('viseaften') || w('viseskifte')) return 'music';
 	if (w('barn') || w('kids') || w('famili')) return 'family';
 	if (w('standup') || w('stand-up') || w('quiz')) return 'nightlife';
 	if (w('festival') || w('jubileum')) return 'festival';

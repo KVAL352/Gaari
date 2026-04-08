@@ -1484,9 +1484,16 @@ const collections: Collection[] = [
 		filterEvents: (events, now) => {
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
+			// Defensive title filter — exclude events whose titles clearly indicate
+			// nightlife/music/club categories that occasionally get tagged as `theatre`
+			// upstream (e.g. DVT's Skifte Bar pub nights, Billetto performing_arts dance parties).
+			const NON_THEATRE_TITLE_RE = /\b(pub|quiz|line\s*dance|country\s*dance|after[\s-]?party|klubb|nightclub|disco|karaoke|festkveld|festklubb|countrykveld|salsa(kveld| night)?)\b/i;
 			return events.filter(e => {
 				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && e.category === 'theatre';
+				if (d < todayStr || d > endStr) return false;
+				if (e.category !== 'theatre') return false;
+				if (NON_THEATRE_TITLE_RE.test(e.title_no)) return false;
+				return true;
 			});
 		}
 	},
