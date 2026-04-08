@@ -27,6 +27,15 @@
 	let websiteSubmitting = $state(false);
 	let websiteError = $state('');
 
+	// Scroll back to the top of the page when either form transitions to its
+	// success state, so the user actually sees the thank-you message instead
+	// of landing wherever the submit button used to be (often the footer).
+	$effect(() => {
+		if (submitted || websiteSubmitted) {
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+	});
+
 	function goBack() {
 		mode = null;
 		submitError = '';
