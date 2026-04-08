@@ -15,6 +15,9 @@
  * Env vars: PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  */
 import 'dotenv/config';
+import { createWriteStream, readFileSync, unlinkSync, mkdirSync, existsSync } from 'fs';
+import { resolve } from 'path';
+import archiver from 'archiver';
 import { supabase } from '../lib/supabase.js';
 import { renderSlide } from './image-gen.js';
 import type { GaariEvent, Category } from '../../src/lib/types.js';
@@ -648,7 +651,51 @@ Se hele programmet: ${utmLink}
 		});
 	if (capErr) console.warn(`  Caption upload failed: ${capErr.message}`);
 
+	// Bundle all slides + caption into a single ZIP for one-click download
+	console.log('\nBuilding boost.zip...');
+	const tmpDir = resolve(import.meta.dirname, '.reels-tmp');
+	if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
+	const zipPath = resolve(tmpDir, `boost-${startDate}.zip`);
+
+	await new Promise<void>((resolveDone, rejectDone) => {
+		const output = createWriteStream(zipPath);
+		const archive = archiver('zip', { zlib: { level: 6 } });
+		output.on('close', () => resolveDone());
+		output.on('error', rejectDone);
+		archive.on('error', rejectDone);
+		archive.pipe(output);
+
+		archive.append(caption, { name: 'caption.txt' });
+
+		for (const slide of allSlides) {
+			// Re-encode to JPEG inside the ZIP for consistent compression
+			archive.append(slide.buffer, { name: slide.name });
+		}
+
+		archive.finalize();
+	});
+
+	const zipBuffer = readFileSync(zipPath);
+	const zipStoragePath = `boost/${startDate}/boost.zip`;
+	const { error: zipErr } = await supabase.storage
+		.from(STORAGE_BUCKET)
+		.upload(zipStoragePath, zipBuffer, {
+			contentType: 'application/zip',
+			upsert: true
+		});
+	try { unlinkSync(zipPath); } catch { /* ignore */ }
+
+	let zipUrl: string | null = null;
+	if (zipErr) {
+		console.warn(`  ZIP upload failed: ${zipErr.message}`);
+	} else {
+		const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(zipStoragePath);
+		zipUrl = data.publicUrl;
+		console.log(`  boost.zip uploaded: ${zipUrl}`);
+	}
+
 	console.log(`\nDone. Boost ad ready at boost/${startDate}/`);
+	if (zipUrl) console.log(`\n--- Download all (ZIP) ---\n${zipUrl}`);
 	console.log(`\n--- Caption ---\n${caption}`);
 	console.log(`\n--- Link ---\n${utmLink}`);
 }
