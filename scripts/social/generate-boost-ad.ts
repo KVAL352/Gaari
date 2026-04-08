@@ -419,7 +419,26 @@ function categoryShowcaseMarkup(label: string, eventTitle: string, venue: string
 	};
 }
 
-function ctaSlideMarkup() {
+function ctaSlideMarkup(collageImages: string[]) {
+	const padded = [...collageImages];
+	while (padded.length < 4 && padded.length > 0) padded.push(padded[0]);
+	const [tl, tr, bl, br] = padded;
+
+	const cell = (img: string | undefined) => ({
+		type: 'div',
+		props: {
+			style: {
+				display: 'flex',
+				width: '50%',
+				height: '50%',
+				backgroundColor: '#1c1c1e',
+				backgroundImage: img ? `url(${img})` : 'none',
+				backgroundSize: '100% 100%',
+				backgroundRepeat: 'no-repeat'
+			}
+		}
+	});
+
 	return {
 		type: 'div',
 		props: {
@@ -427,20 +446,56 @@ function ctaSlideMarkup() {
 				display: 'flex',
 				width: '100%',
 				height: '100%',
-				backgroundColor: FUNKIS_RED,
-				alignItems: 'center',
-				justifyContent: 'center',
-				padding: '0 80px'
+				position: 'relative'
 			},
 			children: [
+				// Layer 1 — 2x2 image collage as background (bookend with hero)
+				{
+					type: 'div',
+					props: {
+						style: {
+							display: 'flex',
+							flexWrap: 'wrap',
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							width: '100%',
+							height: '100%'
+						},
+						children: [cell(tl), cell(tr), cell(bl), cell(br)]
+					}
+				},
+				// Layer 2 — red-to-dark gradient overlay
+				{
+					type: 'div',
+					props: {
+						style: {
+							display: 'flex',
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							background: 'linear-gradient(135deg, rgba(200,45,45,0.85) 0%, rgba(20,20,22,0.88) 100%)'
+						}
+					}
+				},
+				// Layer 3 — CTA text + branded URL pill, centered
 				{
 					type: 'div',
 					props: {
 						style: {
 							display: 'flex',
 							flexDirection: 'column',
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
 							alignItems: 'center',
-							gap: '40px'
+							justifyContent: 'center',
+							padding: '0 80px',
+							gap: '24px'
 						},
 						children: [
 							{
@@ -448,12 +503,14 @@ function ctaSlideMarkup() {
 								props: {
 									style: {
 										display: 'flex',
-										fontSize: '64px',
-										fontFamily: 'Inter',
-										fontWeight: 600,
-										color: 'rgba(255,255,255,0.92)',
+										fontSize: '72px',
+										fontFamily: 'Barlow Condensed',
+										fontWeight: 700,
+										color: WHITE,
 										textAlign: 'center',
-										lineHeight: 1.2
+										lineHeight: 1.05,
+										letterSpacing: '-0.01em',
+										textShadow: '0 4px 24px rgba(0,0,0,0.85)'
 									},
 									children: '1500+ arrangementer'
 								}
@@ -463,10 +520,11 @@ function ctaSlideMarkup() {
 								props: {
 									style: {
 										display: 'flex',
-										fontSize: '48px',
+										fontSize: '40px',
 										fontFamily: 'Inter',
-										color: 'rgba(255,255,255,0.85)',
-										textAlign: 'center'
+										color: 'rgba(255,255,255,0.92)',
+										textAlign: 'center',
+										textShadow: '0 2px 12px rgba(0,0,0,0.85)'
 									},
 									children: 'Oppdatert daglig · helt gratis'
 								}
@@ -484,7 +542,8 @@ function ctaSlideMarkup() {
 										fontFamily: 'Barlow Condensed',
 										fontWeight: 700,
 										color: FUNKIS_RED,
-										letterSpacing: '0.02em'
+										letterSpacing: '0.02em',
+										boxShadow: '0 8px 28px rgba(0,0,0,0.55)'
 									},
 									children: 'gaari.no'
 								}
@@ -540,9 +599,9 @@ async function main() {
 		categorySlides.push({ label: pick.label, buffer: slideBuffer });
 	}
 
-	// Slide 5: CTA
+	// Slide 5: CTA — same collage as hero so the carousel bookends visually
 	console.log('Rendering CTA slide...');
-	const ctaBuffer = await renderSlide(ctaSlideMarkup());
+	const ctaBuffer = await renderSlide(ctaSlideMarkup(collageImages));
 
 	// Convert PNGs to JPEG and upload
 	const sharp = (await import('sharp')).default;
