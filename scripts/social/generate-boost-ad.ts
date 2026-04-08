@@ -33,28 +33,92 @@ interface CategoryPick {
 	preferVenues?: string[];
 }
 
-// Curated venues per category — these tend to have the best concert/event photos
-// in the database, so we get good visuals without manual selection.
+// Curated venues per category — these tend to have the best photos in the
+// database AND are unambiguously the right kind of venue for the label.
 const CATEGORY_PICKS: CategoryPick[] = [
 	{
+		// Hulen, Madam Felle, Landmark and Det Akademiske Kvarter sit in the
+		// uteliv side of the spectrum — kept out of the "konserter" slide.
 		label: 'Konserter',
 		categories: ['music'],
-		preferVenues: ['Hulen', 'USF Verftet', 'Bergen Kjøtt', 'Madam Felle', 'Landmark', 'Forum Scene', 'Ole Bull Scene', 'Grieghallen', 'Det Akademiske Kvarter']
+		preferVenues: ['USF Verftet', 'Bergen Kjøtt', 'Forum Scene', 'Ole Bull Scene', 'Grieghallen', 'Bergen Filharmoniske Orkester']
 	},
 	{
+		// Only "pure" theatre / visual-art venues — Bergen Kunsthall and
+		// Cornerteateret host release parties / concerts under culture tag, so
+		// they get cropped out to avoid misleading imagery.
 		label: 'Teater & kultur',
 		categories: ['theatre', 'culture'],
-		preferVenues: ['Den Nationale Scene', 'Det Vestnorske Teateret', 'Cornerteateret', 'Bergen Internasjonale Teater', 'Carte Blanche', 'KODE', 'Bergen Kunsthall']
+		preferVenues: ['Den Nationale Scene', 'Det Vestnorske Teateret', 'Bergen Internasjonale Teater', 'Carte Blanche', 'Fyllingsdalen Teater', 'KODE']
 	},
 	{
-		label: 'Familie · uteliv · gratis',
-		categories: ['family', 'nightlife'],
-		preferVenues: ['Akvariet i Bergen', 'Fløyen', 'Bymuseet i Bergen', 'Bergen Filharmoniske Orkester', 'VilVite']
+		// Don't claim "gratis" — Akvariet etc. are paid. Family/experiences only.
+		label: 'Familie & opplevelser',
+		categories: ['family'],
+		preferVenues: ['Akvariet i Bergen', 'Fløyen', 'Bymuseet i Bergen', 'VilVite', 'KODE']
 	}
 ];
 
+async function fetchCollageEvents(): Promise<GaariEvent[]> {
+	// Pull a wide spread of events with images for the hero collage so the
+	// background actually looks like "lots of different stuff happening".
+	const categories: Category[] = ['music', 'theatre', 'culture', 'family', 'food', 'festival'];
+	const picked: GaariEvent[] = [];
+	const seenVenues = new Set<string>();
+
+	for (const cat of categories) {
+		const { data } = await supabase
+			.from('events')
+			.select('*')
+			.eq('status', 'approved')
+			.eq('category', cat)
+			.gte('date_start', new Date().toISOString())
+			.not('image_url', 'is', null)
+			.order('date_start', { ascending: true })
+			.limit(10);
+
+		if (!data) continue;
+		for (const e of data) {
+			if (seenVenues.has(e.venue_name)) continue;
+			picked.push(e as GaariEvent);
+			seenVenues.add(e.venue_name);
+			break;
+		}
+		if (picked.length >= 4) break;
+	}
+
+	return picked.slice(0, 4);
+}
+
 async function fetchEventsForCategories(pick: CategoryPick): Promise<GaariEvent | null> {
-	const { data } = await supabase
+	// Step 1 — explicitly query for events at curated venues only.
+	if (pick.preferVenues && pick.preferVenues.length > 0) {
+		const orFilter = pick.preferVenues
+			.map(v => `venue_name.ilike.%${v.replace(/'/g, "''")}%`)
+			.join(',');
+		const { data: curated } = await supabase
+			.from('events')
+			.select('*')
+			.eq('status', 'approved')
+			.in('category', pick.categories)
+			.or(orFilter)
+			.gte('date_start', new Date().toISOString())
+			.not('image_url', 'is', null)
+			.order('date_start', { ascending: true })
+			.limit(50);
+		if (curated && curated.length > 0) {
+			// Walk preferVenues in priority order and return the first hit.
+			for (const preferred of pick.preferVenues) {
+				const match = curated.find(e =>
+					(e.venue_name || '').toLowerCase().includes(preferred.toLowerCase())
+				);
+				if (match) return match as GaariEvent;
+			}
+		}
+	}
+
+	// Step 2 — fall back to any event of the matching category.
+	const { data: any } = await supabase
 		.from('events')
 		.select('*')
 		.eq('status', 'approved')
@@ -62,21 +126,10 @@ async function fetchEventsForCategories(pick: CategoryPick): Promise<GaariEvent 
 		.gte('date_start', new Date().toISOString())
 		.not('image_url', 'is', null)
 		.order('date_start', { ascending: true })
-		.limit(100);
+		.limit(20);
 
-	if (!data || data.length === 0) return null;
-
-	// Prefer events from curated venues — match by partial name (case-insensitive).
-	if (pick.preferVenues) {
-		for (const preferred of pick.preferVenues) {
-			const match = data.find(e =>
-				(e.venue_name || '').toLowerCase().includes(preferred.toLowerCase())
-			);
-			if (match) return match as GaariEvent;
-		}
-	}
-
-	return data[0] as GaariEvent;
+	if (!any || any.length === 0) return null;
+	return any[0] as GaariEvent;
 }
 
 async function fetchImageAsBase64(url: string): Promise<string | null> {
@@ -96,7 +149,27 @@ async function fetchImageAsBase64(url: string): Promise<string | null> {
 	}
 }
 
-function heroSlideMarkup() {
+function heroSlideMarkup(collageImages: string[]) {
+	// Pad with the first image if we have fewer than 4
+	const padded = [...collageImages];
+	while (padded.length < 4 && padded.length > 0) padded.push(padded[0]);
+	const [tl, tr, bl, br] = padded;
+
+	const cell = (img: string | undefined) => ({
+		type: 'div',
+		props: {
+			style: {
+				display: 'flex',
+				width: '50%',
+				height: '50%',
+				backgroundColor: '#1c1c1e',
+				backgroundImage: img ? `url(${img})` : 'none',
+				backgroundSize: '100% 100%',
+				backgroundRepeat: 'no-repeat'
+			}
+		}
+	});
+
 	return {
 		type: 'div',
 		props: {
@@ -104,20 +177,56 @@ function heroSlideMarkup() {
 				display: 'flex',
 				width: '100%',
 				height: '100%',
-				backgroundColor: FUNKIS_RED,
-				alignItems: 'center',
-				justifyContent: 'center',
-				padding: '0 80px'
+				position: 'relative'
 			},
 			children: [
+				// Layer 1 — 2x2 image collage as background
+				{
+					type: 'div',
+					props: {
+						style: {
+							display: 'flex',
+							flexWrap: 'wrap',
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							width: '100%',
+							height: '100%'
+						},
+						children: [cell(tl), cell(tr), cell(bl), cell(br)]
+					}
+				},
+				// Layer 2 — full dark overlay so text remains legible against any image
+				{
+					type: 'div',
+					props: {
+						style: {
+							display: 'flex',
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							background: 'linear-gradient(135deg, rgba(200,45,45,0.78) 0%, rgba(20,20,22,0.82) 100%)'
+						}
+					}
+				},
+				// Layer 3 — hero text centered
 				{
 					type: 'div',
 					props: {
 						style: {
 							display: 'flex',
 							flexDirection: 'column',
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
 							alignItems: 'center',
-							gap: '24px'
+							justifyContent: 'center',
+							padding: '0 80px',
+							gap: '20px'
 						},
 						children: [
 							{
@@ -125,12 +234,13 @@ function heroSlideMarkup() {
 								props: {
 									style: {
 										display: 'flex',
-										fontSize: '180px',
+										fontSize: '160px',
 										fontFamily: 'Barlow Condensed',
 										fontWeight: 700,
 										color: WHITE,
 										lineHeight: 1,
 										letterSpacing: '-0.02em',
+										textShadow: '0 4px 24px rgba(0,0,0,0.85)',
 										textAlign: 'center'
 									},
 									children: 'Hva skjer i'
@@ -147,6 +257,7 @@ function heroSlideMarkup() {
 										color: WHITE,
 										lineHeight: 1,
 										letterSpacing: '-0.02em',
+										textShadow: '0 4px 24px rgba(0,0,0,0.85)',
 										textAlign: 'center'
 									},
 									children: 'Bergen?'
@@ -157,11 +268,15 @@ function heroSlideMarkup() {
 								props: {
 									style: {
 										display: 'flex',
+										marginTop: '50px',
+										backgroundColor: WHITE,
+										borderRadius: '40px',
+										padding: '16px 36px',
 										fontSize: '36px',
 										fontFamily: 'Inter',
-										color: 'rgba(255,255,255,0.9)',
-										marginTop: '40px',
-										textAlign: 'center'
+										fontWeight: 600,
+										color: TEXT_PRIMARY,
+										boxShadow: '0 6px 20px rgba(0,0,0,0.5)'
 									},
 									children: '1500+ arrangementer · oppdatert daglig'
 								}
@@ -390,9 +505,19 @@ async function main() {
 	const startDate = START_ARG || todayDateStr();
 	console.log(`Generating boost ad for ${startDate}\n`);
 
-	// Slide 1: Hero
+	// Slide 1: Hero with 2x2 collage of real event images behind the text
+	console.log('Fetching collage events for hero...');
+	const collageEvents = await fetchCollageEvents();
+	console.log(`  ${collageEvents.length} events for hero collage`);
+	const collageImages: string[] = [];
+	for (const e of collageEvents) {
+		if (!e.image_url) continue;
+		const img = await fetchImageAsBase64(e.image_url);
+		if (img) collageImages.push(img);
+	}
+	console.log(`  ${collageImages.length} collage images fetched`);
 	console.log('Rendering hero slide...');
-	const heroBuffer = await renderSlide(heroSlideMarkup());
+	const heroBuffer = await renderSlide(heroSlideMarkup(collageImages));
 
 	// Slides 2-4: Category showcases
 	const categorySlides: { label: string; buffer: Buffer }[] = [];
