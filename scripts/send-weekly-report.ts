@@ -41,6 +41,7 @@ interface TrafficSection {
 	weekChangePct: number | null;
 	topPages: { url: string; views: number }[];
 	topReferrers: { name: string; views: number }[];
+	customEvents: { name: string; count: number }[];
 }
 
 interface SocialSection {
@@ -48,9 +49,11 @@ interface SocialSection {
 	igFollowersDelta: number | null;
 	fbFollowers: number | null;
 	fbFollowersDelta: number | null;
-	bestIgPost: { caption: string; permalink: string; reach: number; likes: number; comments: number } | null;
-	bestFbPost: { message: string; permalink: string; reach: number; reactions: number; comments: number } | null;
+	bestIgPost: { caption: string; permalink: string; reach: number; likes: number; comments: number; engagementRate: number | null } | null;
+	bestFbPost: { message: string; permalink: string; reach: number; reactions: number; comments: number; engagementRate: number | null } | null;
 	totalReach: number | null;
+	avgIgEngagementRate: number | null;
+	avgFbEngagementRate: number | null;
 }
 
 interface NewsletterSection {
@@ -91,6 +94,38 @@ function pct(curr: number | null, prev: number | null): number | null {
 	return Math.round(((curr - prev) / prev) * 100);
 }
 
+/**
+ * Collapse Umami referrer hostnames to a single logical source.
+ * Facebook alone has four variants: facebook.com, m.facebook.com,
+ * l.facebook.com, lm.facebook.com — they all mean "came from Facebook".
+ * Same for Google, Instagram, Twitter/X, LinkedIn.
+ */
+function normalizeReferrer(raw: string): string {
+	if (!raw) return '(direkte)';
+	const host = raw.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+	if (/(^|\.)facebook\.com$|(^|\.)fb\.com$/.test(host)) return 'facebook.com';
+	if (/(^|\.)google\.[a-z.]+$/.test(host)) return 'google';
+	if (/(^|\.)instagram\.com$/.test(host)) return 'instagram.com';
+	if (/(^|\.)twitter\.com$|(^|\.)x\.com$|(^|\.)t\.co$/.test(host)) return 'x.com';
+	if (/(^|\.)linkedin\.com$|(^|\.)lnkd\.in$/.test(host)) return 'linkedin.com';
+	if (/(^|\.)reddit\.com$|(^|\.)redd\.it$/.test(host)) return 'reddit.com';
+	if (/(^|\.)bing\.com$/.test(host)) return 'bing.com';
+	if (/(^|\.)duckduckgo\.com$/.test(host)) return 'duckduckgo.com';
+	return host;
+}
+
+function aggregateReferrers(raw: { x: string; y: number }[]): { name: string; views: number }[] {
+	const map = new Map<string, number>();
+	for (const r of raw) {
+		const name = normalizeReferrer(r.x);
+		map.set(name, (map.get(name) ?? 0) + r.y);
+	}
+	return [...map.entries()]
+		.map(([name, views]) => ({ name, views }))
+		.sort((a, b) => b.views - a.views)
+		.slice(0, 5);
+}
+
 // ── Data collection ──
 
 async function collectTraffic(): Promise<TrafficSection | null> {
@@ -114,11 +149,12 @@ async function collectTraffic(): Promise<TrafficSection | null> {
 		const thisWeekStart = now - week;
 		const prevWeekStart = now - 2 * week;
 
-		const [thisWeek, prevWeek, urlsRaw, refRaw] = await Promise.all([
+		const [thisWeek, prevWeek, urlsRaw, refRaw, eventsRaw] = await Promise.all([
 			get(`stats?startAt=${thisWeekStart}&endAt=${now}`),
 			get(`stats?startAt=${prevWeekStart}&endAt=${thisWeekStart}`),
 			get(`metrics?startAt=${thisWeekStart}&endAt=${now}&type=url`),
-			get(`metrics?startAt=${thisWeekStart}&endAt=${now}&type=referrer`)
+			get(`metrics?startAt=${thisWeekStart}&endAt=${now}&type=referrer`),
+			get(`metrics?startAt=${thisWeekStart}&endAt=${now}&type=event`)
 		]);
 
 		const visitors = (s: any): number | null => s?.visitors?.value ?? s?.visitors ?? null;
@@ -133,8 +169,16 @@ async function collectTraffic(): Promise<TrafficSection | null> {
 			? urlsRaw.slice(0, 5).map((p: { x: string; y: number }) => ({ url: p.x, views: p.y }))
 			: [];
 
-		const topReferrers = Array.isArray(refRaw)
-			? refRaw.slice(0, 5).map((r: { x: string; y: number }) => ({ name: r.x || '(direkte)', views: r.y }))
+		const topReferrers = Array.isArray(refRaw) ? aggregateReferrers(refRaw) : [];
+
+		// Custom events — these are click conversions we care about:
+		// ticket-click, newsletter-signup/click, bio-link-click, social-click,
+		// promoted-click, event-share, filter-used, inquiry-submit, ai-referral
+		const customEvents = Array.isArray(eventsRaw)
+			? eventsRaw
+				.map((e: { x: string; y: number }) => ({ name: e.x, count: e.y }))
+				.sort((a, b) => b.count - a.count)
+				.slice(0, 8)
 			: [];
 
 		return {
@@ -144,7 +188,8 @@ async function collectTraffic(): Promise<TrafficSection | null> {
 			prevWeekPageviews,
 			weekChangePct: pct(thisWeekVisitors, prevWeekVisitors),
 			topPages,
-			topReferrers
+			topReferrers,
+			customEvents
 		};
 	} catch (err) {
 		console.error('Umami fetch failed:', err);
@@ -223,15 +268,21 @@ async function collectSocial(): Promise<SocialSection | null> {
 
 	let bestIgPost: SocialSection['bestIgPost'] = null;
 	let totalReach = 0;
+	let avgIgEngagementRate: number | null = null;
 	if (igInsights && igInsights.length > 0) {
-		const ranked = igInsights
-			.map(p => {
-				const m = p.metrics || {};
-				const reach = Number(m.reach ?? 0);
-				totalReach += reach;
-				return { post: p, reach, likes: Number(m.like_count ?? m.likes ?? 0), comments: Number(m.comments_count ?? m.comments ?? 0) };
-			})
-			.sort((a, b) => b.reach - a.reach);
+		const scored = igInsights.map(p => {
+			const m = p.metrics || {};
+			const reach = Number(m.reach ?? 0);
+			totalReach += reach;
+			const likes = Number(m.like_count ?? m.likes ?? 0);
+			const comments = Number(m.comments_count ?? m.comments ?? 0);
+			const saved = Number(m.saved ?? 0);
+			const shares = Number(m.shares ?? 0);
+			const engagement = likes + comments + saved + shares;
+			const engagementRate = reach > 0 ? Math.round((engagement / reach) * 1000) / 10 : null;
+			return { post: p, reach, likes, comments, saved, shares, engagement, engagementRate };
+		});
+		const ranked = [...scored].sort((a, b) => (b.engagementRate ?? 0) - (a.engagementRate ?? 0));
 		const top = ranked[0];
 		if (top && top.reach > 0) {
 			bestIgPost = {
@@ -239,25 +290,32 @@ async function collectSocial(): Promise<SocialSection | null> {
 				permalink: top.post.permalink || '',
 				reach: top.reach,
 				likes: top.likes,
-				comments: top.comments
+				comments: top.comments,
+				engagementRate: top.engagementRate
 			};
+		}
+		const valid = scored.filter(p => p.engagementRate != null);
+		if (valid.length > 0) {
+			avgIgEngagementRate = Math.round(
+				(valid.reduce((sum, p) => sum + (p.engagementRate ?? 0), 0) / valid.length) * 10
+			) / 10;
 		}
 	}
 
 	let bestFbPost: SocialSection['bestFbPost'] = null;
+	let avgFbEngagementRate: number | null = null;
 	if (fbInsights && fbInsights.length > 0) {
-		const ranked = fbInsights
-			.map(p => {
-				const m = p.metrics || {};
-				const reach = Number(m.reach ?? m.impressions ?? 0);
-				return {
-					post: p,
-					reach,
-					reactions: Number(m.reactions ?? 0),
-					comments: Number(m.comments ?? 0)
-				};
-			})
-			.sort((a, b) => b.reach - a.reach);
+		const scored = fbInsights.map(p => {
+			const m = p.metrics || {};
+			const reach = Number(m.reach ?? m.impressions ?? 0);
+			const reactions = Number(m.reactions ?? 0);
+			const comments = Number(m.comments ?? 0);
+			const shares = Number(m.shares ?? 0);
+			const engagement = reactions + comments + shares;
+			const engagementRate = reach > 0 ? Math.round((engagement / reach) * 1000) / 10 : null;
+			return { post: p, reach, reactions, comments, shares, engagement, engagementRate };
+		});
+		const ranked = [...scored].sort((a, b) => (b.engagementRate ?? 0) - (a.engagementRate ?? 0));
 		const top = ranked[0];
 		if (top) {
 			bestFbPost = {
@@ -265,8 +323,15 @@ async function collectSocial(): Promise<SocialSection | null> {
 				permalink: top.post.permalink || '',
 				reach: top.reach,
 				reactions: top.reactions,
-				comments: top.comments
+				comments: top.comments,
+				engagementRate: top.engagementRate
 			};
+		}
+		const valid = scored.filter(p => p.engagementRate != null);
+		if (valid.length > 0) {
+			avgFbEngagementRate = Math.round(
+				(valid.reduce((sum, p) => sum + (p.engagementRate ?? 0), 0) / valid.length) * 10
+			) / 10;
 		}
 	}
 
@@ -277,7 +342,9 @@ async function collectSocial(): Promise<SocialSection | null> {
 		fbFollowersDelta,
 		bestIgPost,
 		bestFbPost,
-		totalReach: totalReach > 0 ? totalReach : null
+		totalReach: totalReach > 0 ? totalReach : null,
+		avgIgEngagementRate,
+		avgFbEngagementRate
 	};
 }
 
@@ -462,6 +529,16 @@ function buildHtml(d: ReportData): string {
 		<ol style="margin:0;padding-left:20px;font-size:14px;color:#141414;">
 			${d.traffic.topReferrers.map(r => `<li>${r.name} (${r.views})</li>`).join('')}
 		</ol>` : ''}
+
+		${d.traffic.customEvents.length > 0 ? `
+		<p style="margin:16px 0 6px;font-size:13px;color:#737373;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Klikk og konverteringer</p>
+		<table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+			${d.traffic.customEvents.map(e => `
+			<tr>
+				<td style="padding:6px 0;color:#4D4D4D;font-size:14px;">${e.name}</td>
+				<td style="padding:6px 0;text-align:right;font-weight:700;font-size:14px;">${e.count}</td>
+			</tr>`).join('')}
+		</table>` : ''}
 	` : '<p style="color:#737373;">Ingen trafikkdata tilgjengelig (Umami-keys mangler).</p>';
 
 	const socialHtml = d.social ? `
@@ -476,12 +553,30 @@ function buildHtml(d: ReportData): string {
 				<td style="padding:8px 0;text-align:right;font-weight:700;">${d.social.fbFollowers ?? '—'}</td>
 				<td style="padding:8px 0;text-align:right;width:80px;color:${(d.social.fbFollowersDelta ?? 0) >= 0 ? '#1A6B35' : '#C82D2D'};font-weight:700;">${fmtDelta(d.social.fbFollowersDelta)}</td>
 			</tr>
+			${d.social.avgIgEngagementRate != null ? `
+			<tr>
+				<td style="padding:8px 0;color:#4D4D4D;">Snittengasjement IG</td>
+				<td style="padding:8px 0;text-align:right;font-weight:700;">${d.social.avgIgEngagementRate}%</td>
+				<td style="padding:8px 0;text-align:right;width:80px;"></td>
+			</tr>` : ''}
+			${d.social.avgFbEngagementRate != null ? `
+			<tr>
+				<td style="padding:8px 0;color:#4D4D4D;">Snittengasjement FB</td>
+				<td style="padding:8px 0;text-align:right;font-weight:700;">${d.social.avgFbEngagementRate}%</td>
+				<td style="padding:8px 0;text-align:right;width:80px;"></td>
+			</tr>` : ''}
 		</table>
 
 		${d.social.bestIgPost ? `
 		<p style="margin:16px 0 6px;font-size:13px;color:#737373;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Beste IG-post denne uka</p>
 		<p style="margin:0 0 4px;font-size:14px;">${d.social.bestIgPost.caption}…</p>
-		<p style="margin:0;font-size:13px;color:#737373;">Reach ${d.social.bestIgPost.reach} · ${d.social.bestIgPost.likes} likes · ${d.social.bestIgPost.comments} kommentarer</p>
+		<p style="margin:0;font-size:13px;color:#737373;">Reach ${d.social.bestIgPost.reach} · ${d.social.bestIgPost.likes} likes · ${d.social.bestIgPost.comments} kommentarer${d.social.bestIgPost.engagementRate != null ? ` · <strong>${d.social.bestIgPost.engagementRate}% engasjement</strong>` : ''}</p>
+		` : ''}
+
+		${d.social.bestFbPost ? `
+		<p style="margin:16px 0 6px;font-size:13px;color:#737373;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Beste FB-post denne uka</p>
+		<p style="margin:0 0 4px;font-size:14px;">${d.social.bestFbPost.message}…</p>
+		<p style="margin:0;font-size:13px;color:#737373;">Reach ${d.social.bestFbPost.reach} · ${d.social.bestFbPost.reactions} reaksjoner · ${d.social.bestFbPost.comments} kommentarer${d.social.bestFbPost.engagementRate != null ? ` · <strong>${d.social.bestFbPost.engagementRate}% engasjement</strong>` : ''}</p>
 		` : ''}
 	` : '';
 
