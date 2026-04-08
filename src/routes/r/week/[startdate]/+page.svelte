@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -8,21 +9,30 @@
 	const storageKey = `gaari-posted-${data.manifest.startMonday}`;
 	let posted = $state<Record<string, boolean>>({});
 
-	$effect(() => {
+	onMount(() => {
 		try {
 			const raw = localStorage.getItem(storageKey);
-			if (raw) posted = JSON.parse(raw);
+			if (raw) {
+				const parsed = JSON.parse(raw);
+				if (parsed && typeof parsed === 'object') {
+					for (const k of Object.keys(parsed)) posted[k] = parsed[k];
+				}
+			}
 		} catch { /* ignore */ }
 	});
 
-	function togglePosted(key: string) {
-		posted = { ...posted, [key]: !posted[key] };
+	function persist() {
 		try { localStorage.setItem(storageKey, JSON.stringify(posted)); } catch { /* ignore */ }
+	}
+
+	function togglePosted(key: string) {
+		posted[key] = !posted[key];
+		persist();
 	}
 
 	function resetWeek() {
 		if (confirm('Nullstille hele uka?')) {
-			posted = {};
+			for (const k of Object.keys(posted)) delete posted[k];
 			try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
 		}
 	}
