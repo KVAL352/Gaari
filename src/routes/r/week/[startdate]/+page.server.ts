@@ -25,6 +25,7 @@ interface WeekManifest {
 	endSaturday: string;
 	generatedAt: string;
 	days: DayManifest[];
+	zipUrl?: string;
 }
 
 export const load: PageServerLoad = async ({ params }) => {

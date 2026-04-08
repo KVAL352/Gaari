@@ -34,12 +34,22 @@
 		<h1 class="title">Ukens reels</h1>
 		<p class="sub">{successCount} av {data.manifest.days.length} reels klare for Meta Business Suite</p>
 
+		{#if data.manifest.zipUrl}
+			<a class="bulk-download" href={data.manifest.zipUrl} download={`gaari-reels-uke-${data.manifest.startMonday}.zip`}>
+				Last ned alle reels (ZIP)
+			</a>
+			<p class="bulk-hint">
+				ZIP-en inneholder alle MP4-er navngitt som <code>YYYY-MM-DD-ukedag-slug.mp4</code> så de sorterer seg
+				automatisk i mappen din.
+			</p>
+		{/if}
+
 		<section class="instructions">
 			<h2>Hvordan bruke denne siden</h2>
 			<ol>
+				<li>Trykk <strong>Last ned alle reels</strong> for å hente alle 6 i én ZIP, eller last ned per dag under.</li>
 				<li>Åpne <strong>Meta Business Suite</strong> på desktop.</li>
-				<li>For hver dag under: trykk <strong>Åpne reel-side</strong>, last ned MP4 og kopier caption.</li>
-				<li>Lim inn i Meta Business Suite, planlegg til den dagen reel-en hører til.</li>
+				<li>For hver dag: dra MP4-en inn, kopier caption fra reel-siden, planlegg til riktig dag.</li>
 				<li>Stories (link sticker + @-mention) må fortsatt postes manuelt fra mobilen den dagen.</li>
 			</ol>
 		</section>
@@ -132,6 +142,41 @@
 		margin: 0 0 24px;
 		font-size: 16px;
 		color: var(--color-text-secondary);
+	}
+
+	.bulk-download {
+		display: block;
+		text-align: center;
+		background: var(--color-primary);
+		color: #fff;
+		text-decoration: none;
+		padding: 16px 24px;
+		border-radius: 12px;
+		font-family: 'Barlow Condensed', sans-serif;
+		font-size: 22px;
+		font-weight: 700;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+		margin-bottom: 8px;
+	}
+
+	.bulk-download:active {
+		transform: scale(0.99);
+	}
+
+	.bulk-hint {
+		margin: 0 0 24px;
+		font-size: 13px;
+		color: var(--color-text-secondary);
+		text-align: center;
+		line-height: 1.5;
+	}
+
+	.bulk-hint code {
+		background: var(--color-bg-surface);
+		padding: 2px 6px;
+		border-radius: 4px;
+		font-size: 12px;
 	}
 
 	.instructions {

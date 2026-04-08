@@ -23,7 +23,9 @@
  * Env vars: PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY (--email only)
  */
 import 'dotenv/config';
+import { createWriteStream, readFileSync, unlinkSync, mkdirSync, existsSync } from 'fs';
 import { resolve } from 'path';
+import archiver from 'archiver';
 import { supabase } from '../lib/supabase.js';
 import { generateOneCollection, fetchActiveEvents } from './generate-reels.js';
 
@@ -70,6 +72,89 @@ interface WeekManifest {
 	endSaturday: string;
 	generatedAt: string;
 	days: DayManifest[];
+	zipUrl?: string;
+}
+
+/** Strip diacritics + lowercase + replace spaces so filenames stay portable. */
+function safeFilename(s: string): string {
+	return s
+		.toLowerCase()
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.replace(/[æø]/g, c => (c === 'æ' ? 'ae' : 'o'))
+		.replace(/å/g, 'a')
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Build a single ZIP containing all six MP4s with date-prefixed filenames
+ * and upload it to Supabase. Inside the ZIP each file is named like
+ * "2026-04-13-mandag-gratis.mp4" so when extracted into a folder they sort
+ * naturally and are immediately distinguishable.
+ */
+async function buildAndUploadZip(startMonday: string, days: DayManifest[]): Promise<string | null> {
+	const eligible = days.filter(d => !d.skipped && d.mp4Url);
+	if (eligible.length === 0) return null;
+
+	const tmpDir = resolve(import.meta.dirname, '.reels-tmp');
+	if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
+	const zipPath = resolve(tmpDir, `week-${startMonday}.zip`);
+
+	console.log(`\nBuilding ZIP with ${eligible.length} reels...`);
+
+	// Pre-fetch all MP4s in parallel from Supabase CDN
+	const fetched = await Promise.all(
+		eligible.map(async d => {
+			const res = await fetch(d.mp4Url!);
+			if (!res.ok) {
+				console.warn(`  Could not fetch ${d.dateStr} ${d.slug}: HTTP ${res.status}`);
+				return null;
+			}
+			const buffer = Buffer.from(await res.arrayBuffer());
+			const dayNameSafe = safeFilename(d.dayName);
+			const slugSafe = safeFilename(d.slug);
+			const filename = `${d.dateStr}-${dayNameSafe}-${slugSafe}.mp4`;
+			return { day: d, buffer, filename };
+		})
+	);
+
+	const valid = fetched.filter((f): f is NonNullable<typeof f> => f !== null);
+	if (valid.length === 0) return null;
+
+	// Stream archive to file
+	await new Promise<void>((resolveDone, rejectDone) => {
+		const output = createWriteStream(zipPath);
+		const archive = archiver('zip', { zlib: { level: 6 } });
+		output.on('close', () => resolveDone());
+		output.on('error', rejectDone);
+		archive.on('error', rejectDone);
+		archive.pipe(output);
+		for (const f of valid) {
+			archive.append(f.buffer, { name: f.filename });
+		}
+		archive.finalize();
+	});
+
+	const zipBuffer = readFileSync(zipPath);
+	const zipStoragePath = `week/${startMonday}/reels.zip`;
+	const { error } = await supabase.storage
+		.from(STORAGE_BUCKET)
+		.upload(zipStoragePath, zipBuffer, {
+			contentType: 'application/zip',
+			upsert: true
+		});
+
+	try { unlinkSync(zipPath); } catch { /* ignore */ }
+
+	if (error) {
+		console.warn(`  ZIP upload failed: ${error.message}`);
+		return null;
+	}
+
+	const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(zipStoragePath);
+	console.log(`  ZIP uploaded: ${data.publicUrl}`);
+	return data.publicUrl;
 }
 
 /** Compute the date string of the next Monday in Oslo time. */
@@ -250,11 +335,15 @@ async function main() {
 		}
 	}
 
+	// Build + upload ZIP of all reels with date-prefixed filenames
+	const zipUrl = await buildAndUploadZip(startMonday, days);
+
 	const manifest: WeekManifest = {
 		startMonday,
 		endSaturday,
 		generatedAt: new Date().toISOString(),
-		days
+		days,
+		zipUrl: zipUrl || undefined
 	};
 
 	const weekUrl = `https://gaari.no/r/week/${startMonday}`;
