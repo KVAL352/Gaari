@@ -42,14 +42,14 @@ interface DaySchedule {
 	label: string;
 }
 
-const SCHEDULE: DaySchedule[] = [
-	{ dayOfWeek: 1, dayName: { no: 'Mandag', en: 'Monday' }, slug: 'gratis', label: 'Gratis denne uka' },
-	{ dayOfWeek: 2, dayName: { no: 'Tirsdag', en: 'Tuesday' }, slug: 'teater', label: 'Teater denne uka' },
-	{ dayOfWeek: 3, dayName: { no: 'Onsdag', en: 'Wednesday' }, slug: 'utstillinger', label: 'Utstillinger denne uka' },
-	{ dayOfWeek: 4, dayName: { no: 'Torsdag', en: 'Thursday' }, slug: 'denne-helgen', label: 'Helgens høydepunkter' },
-	{ dayOfWeek: 5, dayName: { no: 'Fredag', en: 'Friday' }, slug: 'uteliv', label: 'Uteliv i helgen' },
-	{ dayOfWeek: 6, dayName: { no: 'Lørdag', en: 'Saturday' }, slug: 'i-dag', label: 'Lørdagens program' }
-];
+const SCHEDULE_BY_DOW = new Map<number, DaySchedule>([
+	[1, { dayOfWeek: 1, dayName: { no: 'Mandag', en: 'Monday' }, slug: 'gratis', label: 'Gratis denne uka' }],
+	[2, { dayOfWeek: 2, dayName: { no: 'Tirsdag', en: 'Tuesday' }, slug: 'teater', label: 'Teater denne uka' }],
+	[3, { dayOfWeek: 3, dayName: { no: 'Onsdag', en: 'Wednesday' }, slug: 'utstillinger', label: 'Utstillinger denne uka' }],
+	[4, { dayOfWeek: 4, dayName: { no: 'Torsdag', en: 'Thursday' }, slug: 'denne-helgen', label: 'Helgens høydepunkter' }],
+	[5, { dayOfWeek: 5, dayName: { no: 'Fredag', en: 'Friday' }, slug: 'uteliv', label: 'Uteliv i helgen' }],
+	[6, { dayOfWeek: 6, dayName: { no: 'Lørdag', en: 'Saturday' }, slug: 'i-dag', label: 'Lørdagens program' }]
+]);
 
 interface DayManifest {
 	dayOfWeek: number;
@@ -167,10 +167,29 @@ function nextMondayDateStr(now: Date): string {
 	return monday.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
 }
 
+/** Today's date string in Oslo. */
+function todayDateStr(): string {
+	return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+}
+
+/** ISO day of week for a YYYY-MM-DD string in Oslo: 1=Mon, 7=Sun. */
+function isoDayOfWeek(dateStr: string): number {
+	const d = new Date(`${dateStr}T12:00:00+02:00`);
+	const js = d.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+	return js === 0 ? 7 : js;
+}
+
 function addDays(dateStr: string, days: number): string {
 	const d = new Date(`${dateStr}T12:00:00`);
 	d.setDate(d.getDate() + days);
 	return d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+}
+
+/** Saturday of the same ISO week as the given date. */
+function saturdayOfWeek(dateStr: string): string {
+	const dow = isoDayOfWeek(dateStr); // 1=Mon, 7=Sun
+	const daysToSat = dow <= 6 ? 6 - dow : -1; // Sunday goes back to previous Sat
+	return addDays(dateStr, daysToSat);
 }
 
 /** Build a Date that represents Oslo midnight on the given date. */
@@ -277,19 +296,35 @@ async function emailWeekDelivery(startMonday: string, manifest: WeekManifest, we
 }
 
 async function main() {
-	const startMonday = START_ARG || nextMondayDateStr(new Date());
-	const endSaturday = addDays(startMonday, 5);
+	// --start can be any date. If today, generate Today→Saturday of this week.
+	// If next Monday (default), generate Mon→Sat of next week.
+	const startDate = START_ARG || nextMondayDateStr(new Date());
+	const endSaturday = saturdayOfWeek(startDate);
 	const tmpDir = resolve(import.meta.dirname, '.reels-tmp');
 
-	console.log(`Weekly reel batch — ${startMonday} to ${endSaturday}\n`);
+	// Build list of dates from startDate through endSaturday (inclusive)
+	const dates: string[] = [];
+	let cursor = startDate;
+	while (cursor <= endSaturday) {
+		dates.push(cursor);
+		cursor = addDays(cursor, 1);
+	}
+
+	console.log(`Weekly reel batch — ${startDate} to ${endSaturday} (${dates.length} day${dates.length === 1 ? '' : 's'})\n`);
 
 	const activeEvents = await fetchActiveEvents();
 	console.log(`Fetched ${activeEvents.length} active events\n`);
 
 	const days: DayManifest[] = [];
 
-	for (const day of SCHEDULE) {
-		const dateStr = addDays(startMonday, day.dayOfWeek - 1);
+	for (const dateStr of dates) {
+		const dow = isoDayOfWeek(dateStr); // 1=Mon..7=Sun
+		const day = SCHEDULE_BY_DOW.get(dow);
+		if (!day) {
+			console.log(`--- ${dateStr} (Sunday) — no schedule entry, skipping.\n`);
+			continue;
+		}
+
 		const now = osloMidnight(dateStr);
 
 		const delivery = await generateOneCollection({
@@ -336,22 +371,22 @@ async function main() {
 	}
 
 	// Build + upload ZIP of all reels with date-prefixed filenames
-	const zipUrl = await buildAndUploadZip(startMonday, days);
+	const zipUrl = await buildAndUploadZip(startDate, days);
 
 	const manifest: WeekManifest = {
-		startMonday,
+		startMonday: startDate,
 		endSaturday,
 		generatedAt: new Date().toISOString(),
 		days,
 		zipUrl: zipUrl || undefined
 	};
 
-	const weekUrl = `https://gaari.no/r/week/${startMonday}`;
-	await uploadWeekManifest(startMonday, manifest);
+	const weekUrl = `https://gaari.no/r/week/${startDate}`;
+	await uploadWeekManifest(startDate, manifest);
 	console.log(`\nWeek manifest uploaded. Aggregate page: ${weekUrl}`);
 
 	if (SEND_EMAIL) {
-		await emailWeekDelivery(startMonday, manifest, weekUrl);
+		await emailWeekDelivery(startDate, manifest, weekUrl);
 	}
 
 	console.log('Done.');
