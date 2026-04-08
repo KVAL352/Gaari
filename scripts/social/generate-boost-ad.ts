@@ -29,26 +29,53 @@ const TEXT_PRIMARY = '#141414';
 interface CategoryPick {
 	label: string;
 	categories: Category[];
+	/** Venues to prefer when picking — first match wins. Falls back to any venue. */
+	preferVenues?: string[];
 }
 
+// Curated venues per category — these tend to have the best concert/event photos
+// in the database, so we get good visuals without manual selection.
 const CATEGORY_PICKS: CategoryPick[] = [
-	{ label: 'Konserter', categories: ['music'] },
-	{ label: 'Teater & kultur', categories: ['theatre', 'culture'] },
-	{ label: 'Familie · uteliv · gratis', categories: ['family', 'nightlife'] }
+	{
+		label: 'Konserter',
+		categories: ['music'],
+		preferVenues: ['Hulen', 'USF Verftet', 'Bergen Kjøtt', 'Madam Felle', 'Landmark', 'Forum Scene', 'Ole Bull Scene', 'Grieghallen', 'Det Akademiske Kvarter']
+	},
+	{
+		label: 'Teater & kultur',
+		categories: ['theatre', 'culture'],
+		preferVenues: ['Den Nationale Scene', 'Det Vestnorske Teateret', 'Cornerteateret', 'Bergen Internasjonale Teater', 'Carte Blanche', 'KODE', 'Bergen Kunsthall']
+	},
+	{
+		label: 'Familie · uteliv · gratis',
+		categories: ['family', 'nightlife'],
+		preferVenues: ['Akvariet i Bergen', 'Fløyen', 'Bymuseet i Bergen', 'Bergen Filharmoniske Orkester', 'VilVite']
+	}
 ];
 
-async function fetchEventsForCategories(categories: Category[]): Promise<GaariEvent | null> {
+async function fetchEventsForCategories(pick: CategoryPick): Promise<GaariEvent | null> {
 	const { data } = await supabase
 		.from('events')
 		.select('*')
 		.eq('status', 'approved')
-		.in('category', categories)
+		.in('category', pick.categories)
 		.gte('date_start', new Date().toISOString())
 		.not('image_url', 'is', null)
 		.order('date_start', { ascending: true })
-		.limit(20);
+		.limit(100);
 
 	if (!data || data.length === 0) return null;
+
+	// Prefer events from curated venues — match by partial name (case-insensitive).
+	if (pick.preferVenues) {
+		for (const preferred of pick.preferVenues) {
+			const match = data.find(e =>
+				(e.venue_name || '').toLowerCase().includes(preferred.toLowerCase())
+			);
+			if (match) return match as GaariEvent;
+		}
+	}
+
 	return data[0] as GaariEvent;
 }
 
@@ -147,7 +174,13 @@ function heroSlideMarkup() {
 	};
 }
 
-function categoryShowcaseMarkup(label: string, imageBase64: string) {
+function truncate(s: string, max: number): string {
+	return s.length <= max ? s : s.slice(0, max - 1).trimEnd() + '…';
+}
+
+function categoryShowcaseMarkup(label: string, eventTitle: string, venue: string, imageBase64: string) {
+	const displayTitle = truncate(eventTitle, 55);
+	const displayVenue = truncate(venue, 60);
 	return {
 		type: 'div',
 		props: {
@@ -162,7 +195,7 @@ function categoryShowcaseMarkup(label: string, imageBase64: string) {
 				position: 'relative'
 			},
 			children: [
-				// Bottom dark gradient for text legibility
+				// Bottom dark gradient — reaches further up to make room for title + venue
 				{
 					type: 'div',
 					props: {
@@ -172,30 +205,77 @@ function categoryShowcaseMarkup(label: string, imageBase64: string) {
 							left: 0,
 							right: 0,
 							bottom: 0,
-							height: '60%',
-							background: 'linear-gradient(to bottom, rgba(20,20,22,0) 0%, rgba(20,20,22,0.55) 35%, rgba(20,20,22,0.92) 100%)'
+							height: '70%',
+							background: 'linear-gradient(to bottom, rgba(20,20,22,0) 0%, rgba(20,20,22,0.55) 30%, rgba(20,20,22,0.95) 100%)'
 						}
 					}
 				},
-				// Big label at bottom
+				// Bottom text block: category label + event title + venue
 				{
 					type: 'div',
 					props: {
 						style: {
 							display: 'flex',
+							flexDirection: 'column',
 							position: 'absolute',
 							left: '60px',
 							right: '60px',
-							bottom: '80px',
-							fontSize: '110px',
-							fontFamily: 'Barlow Condensed',
-							fontWeight: 700,
-							color: WHITE,
-							lineHeight: 1.05,
-							letterSpacing: '-0.015em',
-							textShadow: '0 4px 24px rgba(0,0,0,0.7)'
+							bottom: '60px',
+							gap: '14px'
 						},
-						children: label
+						children: [
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										alignSelf: 'flex-start',
+										backgroundColor: FUNKIS_RED,
+										borderRadius: '40px',
+										padding: '12px 28px',
+										fontSize: '34px',
+										fontFamily: 'Barlow Condensed',
+										fontWeight: 700,
+										color: WHITE,
+										letterSpacing: '0.02em',
+										textTransform: 'uppercase',
+										boxShadow: '0 4px 18px rgba(0,0,0,0.55)'
+									},
+									children: label
+								}
+							},
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										fontSize: '64px',
+										fontFamily: 'Barlow Condensed',
+										fontWeight: 700,
+										color: WHITE,
+										lineHeight: 1.05,
+										letterSpacing: '-0.015em',
+										textShadow: '0 2px 8px rgba(0,0,0,0.95), 0 4px 24px rgba(0,0,0,0.85)'
+									},
+									children: displayTitle
+								}
+							},
+							{
+								type: 'div',
+								props: {
+									style: {
+										display: 'flex',
+										fontSize: '32px',
+										fontFamily: 'Inter',
+										fontWeight: 500,
+										color: 'rgba(255,255,255,0.92)',
+										lineHeight: 1.3,
+										textShadow: '0 2px 12px rgba(0,0,0,0.7)'
+									},
+									children: displayVenue
+								}
+							}
+						]
 					}
 				},
 				// Top-right Gåri brand pill
@@ -318,7 +398,7 @@ async function main() {
 	const categorySlides: { label: string; buffer: Buffer }[] = [];
 	for (const pick of CATEGORY_PICKS) {
 		console.log(`Picking event for "${pick.label}" (${pick.categories.join(', ')})...`);
-		const event = await fetchEventsForCategories(pick.categories);
+		const event = await fetchEventsForCategories(pick);
 		if (!event || !event.image_url) {
 			console.warn(`  No event with image for ${pick.label}, skipping`);
 			continue;
@@ -329,7 +409,9 @@ async function main() {
 			console.warn(`  Image fetch failed for ${event.title_no}, skipping`);
 			continue;
 		}
-		const slideBuffer = await renderSlide(categoryShowcaseMarkup(pick.label, imageBase64));
+		const slideBuffer = await renderSlide(
+			categoryShowcaseMarkup(pick.label, event.title_no, event.venue_name, imageBase64)
+		);
 		categorySlides.push({ label: pick.label, buffer: slideBuffer });
 	}
 
