@@ -73,6 +73,7 @@ interface WeekManifest {
 	generatedAt: string;
 	days: DayManifest[];
 	zipUrl?: string;
+	storiesZipUrl?: string;
 }
 
 /** Strip diacritics + lowercase + replace spaces so filenames stay portable. */
@@ -154,6 +155,141 @@ async function buildAndUploadZip(startMonday: string, days: DayManifest[]): Prom
 
 	const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(zipStoragePath);
 	console.log(`  ZIP uploaded: ${data.publicUrl}`);
+	return data.publicUrl;
+}
+
+interface StoryEntry {
+	url: string;
+	venue: string;
+	igHandle: string | null;
+	title: string;
+}
+
+/**
+ * Build a single ZIP containing every story PNG generated for the week, plus
+ * a handles.txt index. Each PNG is named like
+ * "2026-04-08-onsdag-utstillinger-01.png" so they sort by day in the gallery,
+ * and handles.txt maps every filename to its venue, @-handle and the
+ * collection link the user should drop into the IG link sticker.
+ */
+async function buildAndUploadStoriesZip(startDate: string, days: DayManifest[]): Promise<string | null> {
+	const eligible = days.filter(d => !d.skipped && d.storyCount > 0);
+	if (eligible.length === 0) return null;
+
+	const tmpDir = resolve(import.meta.dirname, '.reels-tmp');
+	if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
+	const zipPath = resolve(tmpDir, `week-${startDate}-stories.zip`);
+
+	console.log(`\nBuilding stories ZIP for ${eligible.length} days...`);
+
+	const handlesLines: string[] = [
+		`Stories for uka ${startDate}`,
+		'',
+		'Slik bruker du:',
+		'1. Pakk ut hele ZIP-en på telefonen og lagre PNG-ene i Bilder.',
+		'2. Hver dag i uka, plukk 5-10 stories fra dagens bunke.',
+		'3. I IG-Stories: legg til @-mention sticker (handle nedenfor) og link sticker (Gåri-lenke nedenfor).',
+		'',
+		'Format: filnavn — @-handle — collection-lenke',
+		''
+	];
+
+	const fetchedByDay = new Map<string, { filename: string; buffer: Buffer }[]>();
+	let totalAdded = 0;
+
+	// Pre-fetch story manifests + images per day. Buffers are kept in a local
+	// Map (NOT mutated onto the DayManifest) so the manifest stays JSON-safe.
+	for (const day of eligible) {
+		const manifestUrl = `https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/${STORAGE_BUCKET}/${day.dateStr}/${day.slug}/stories.json`;
+		const manRes = await fetch(manifestUrl);
+		if (!manRes.ok) {
+			console.warn(`  No story manifest for ${day.dateStr} ${day.slug}`);
+			continue;
+		}
+		const stories: StoryEntry[] = await manRes.json();
+		if (!Array.isArray(stories) || stories.length === 0) continue;
+
+		const dayNameSafe = safeFilename(day.dayName);
+		const slugSafe = safeFilename(day.slug);
+		const collectionLink = `https://gaari.no/no/${day.slug}?utm_source=instagram&utm_medium=story&utm_campaign=${day.slug}`;
+		const dayBuffers: { filename: string; buffer: Buffer }[] = [];
+		const sharp = (await import('sharp')).default;
+
+		handlesLines.push(`--- ${day.dayName} ${day.dateStr} (${day.label}) ---`);
+
+		for (let i = 0; i < stories.length; i++) {
+			const story = stories[i];
+			const idx = String(i + 1).padStart(2, '0');
+			// Convert PNG -> JPEG to keep the ZIP under Supabase's 50 MB limit.
+			// IG re-encodes anyway when you upload a story, so the visual hit is nil.
+			const filename = `${day.dateStr}-${dayNameSafe}-${slugSafe}-${idx}.jpg`;
+
+			try {
+				const res = await fetch(story.url);
+				if (!res.ok) {
+					console.warn(`  Skip ${filename}: HTTP ${res.status}`);
+					continue;
+				}
+				const pngBuffer = Buffer.from(await res.arrayBuffer());
+				const jpegBuffer = await sharp(pngBuffer).jpeg({ quality: 88 }).toBuffer();
+				dayBuffers.push({ filename, buffer: jpegBuffer });
+
+				const handle = story.igHandle ? `@${story.igHandle}` : '(ingen IG-konto)';
+				handlesLines.push(`${filename} — ${story.venue} — ${handle} — ${collectionLink}`);
+				totalAdded++;
+			} catch (err: any) {
+				console.warn(`  Skip ${filename}: ${err.message}`);
+			}
+		}
+		handlesLines.push('');
+		fetchedByDay.set(day.dateStr, dayBuffers);
+	}
+
+	if (totalAdded === 0) {
+		console.warn('  No stories fetched, skipping stories ZIP');
+		return null;
+	}
+
+	// Stream archive to file
+	await new Promise<void>((resolveDone, rejectDone) => {
+		const output = createWriteStream(zipPath);
+		const archive = archiver('zip', { zlib: { level: 6 } });
+		output.on('close', () => resolveDone());
+		output.on('error', rejectDone);
+		archive.on('error', rejectDone);
+		archive.pipe(output);
+
+		archive.append(handlesLines.join('\n'), { name: 'handles.txt' });
+
+		for (const day of eligible) {
+			const fetched = fetchedByDay.get(day.dateStr);
+			if (!fetched) continue;
+			for (const f of fetched) {
+				archive.append(f.buffer, { name: f.filename });
+			}
+		}
+
+		archive.finalize();
+	});
+
+	const zipBuffer = readFileSync(zipPath);
+	const zipStoragePath = `week/${startDate}/stories.zip`;
+	const { error } = await supabase.storage
+		.from(STORAGE_BUCKET)
+		.upload(zipStoragePath, zipBuffer, {
+			contentType: 'application/zip',
+			upsert: true
+		});
+
+	try { unlinkSync(zipPath); } catch { /* ignore */ }
+
+	if (error) {
+		console.warn(`  Stories ZIP upload failed: ${error.message}`);
+		return null;
+	}
+
+	const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(zipStoragePath);
+	console.log(`  Stories ZIP uploaded (${totalAdded} stories): ${data.publicUrl}`);
 	return data.publicUrl;
 }
 
@@ -370,15 +506,17 @@ async function main() {
 		}
 	}
 
-	// Build + upload ZIP of all reels with date-prefixed filenames
+	// Build + upload ZIPs (reels MP4s + stories PNGs) with date-prefixed filenames
 	const zipUrl = await buildAndUploadZip(startDate, days);
+	const storiesZipUrl = await buildAndUploadStoriesZip(startDate, days);
 
 	const manifest: WeekManifest = {
 		startMonday: startDate,
 		endSaturday,
 		generatedAt: new Date().toISOString(),
 		days,
-		zipUrl: zipUrl || undefined
+		zipUrl: zipUrl || undefined,
+		storiesZipUrl: storiesZipUrl || undefined
 	};
 
 	const weekUrl = `https://gaari.no/r/week/${startDate}`;

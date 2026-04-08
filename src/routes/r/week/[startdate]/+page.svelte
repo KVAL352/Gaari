@@ -39,8 +39,19 @@
 				Last ned alle reels (ZIP)
 			</a>
 			<p class="bulk-hint">
-				ZIP-en inneholder alle MP4-er navngitt som <code>YYYY-MM-DD-ukedag-slug.mp4</code> så de sorterer seg
-				automatisk i mappen din.
+				MP4-er navngitt som <code>YYYY-MM-DD-ukedag-slug.mp4</code> så de sorterer seg
+				automatisk i mappen din. Last opp i Meta Business Suite og planlegg.
+			</p>
+		{/if}
+
+		{#if data.manifest.storiesZipUrl}
+			<a class="bulk-download stories" href={data.manifest.storiesZipUrl} download={`gaari-stories-uke-${data.manifest.startMonday}.zip`}>
+				Last ned alle stories (ZIP)
+			</a>
+			<p class="bulk-hint">
+				PNG-er navngitt som <code>YYYY-MM-DD-ukedag-slug-NN.png</code> + en
+				<code>handles.txt</code> med @-handle og collection-link per story. Lagre i kamerarullen
+				og post manuelt fra IG-appen med link sticker + @-mention sticker.
 			</p>
 		{/if}
 
