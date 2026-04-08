@@ -48,5 +48,39 @@ export const load: PageServerLoad = async ({ params }) => {
 		throw error(500, 'Invalid week manifest');
 	}
 
-	return { manifest };
+	// Fetch each day's stories.json so the checklist can render thumbnails per item.
+	type StoryItem = { url: string; venue: string; igHandle: string | null; title: string };
+	type DayChecklist = {
+		dateStr: string;
+		dayName: string;
+		slug: string;
+		label: string;
+		stories: StoryItem[];
+	};
+
+	const checklist: DayChecklist[] = await Promise.all(
+		manifest.days
+			.filter(d => !d.skipped && d.storyCount > 0)
+			.map(async d => {
+				const { data: storyManifestUrl } = supabase.storage
+					.from(BUCKET)
+					.getPublicUrl(`${d.dateStr}/${d.slug}/stories.json`);
+				try {
+					const r = await fetch(storyManifestUrl.publicUrl);
+					if (!r.ok) return { dateStr: d.dateStr, dayName: d.dayName, slug: d.slug, label: d.label, stories: [] };
+					const stories = await r.json();
+					return {
+						dateStr: d.dateStr,
+						dayName: d.dayName,
+						slug: d.slug,
+						label: d.label,
+						stories: Array.isArray(stories) ? stories : []
+					};
+				} catch {
+					return { dateStr: d.dateStr, dayName: d.dayName, slug: d.slug, label: d.label, stories: [] };
+				}
+			})
+	);
+
+	return { manifest, checklist };
 };

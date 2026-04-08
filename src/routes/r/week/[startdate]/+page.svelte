@@ -4,6 +4,29 @@
 	let { data }: { data: PageData } = $props();
 	let copyState = $state<Record<string, 'idle' | 'copied' | 'error'>>({});
 
+	// localStorage-backed posted state, keyed per week so multiple weeks don't bleed.
+	const storageKey = `gaari-posted-${data.manifest.startMonday}`;
+	let posted = $state<Record<string, boolean>>({});
+
+	$effect(() => {
+		try {
+			const raw = localStorage.getItem(storageKey);
+			if (raw) posted = JSON.parse(raw);
+		} catch { /* ignore */ }
+	});
+
+	function togglePosted(key: string) {
+		posted = { ...posted, [key]: !posted[key] };
+		try { localStorage.setItem(storageKey, JSON.stringify(posted)); } catch { /* ignore */ }
+	}
+
+	function resetWeek() {
+		if (confirm('Nullstille hele uka?')) {
+			posted = {};
+			try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
+		}
+	}
+
 	async function copyCaption(slug: string, caption: string) {
 		try {
 			await navigator.clipboard.writeText(caption);
@@ -15,7 +38,22 @@
 		}
 	}
 
+	async function copyHandle(handle: string) {
+		try {
+			await navigator.clipboard.writeText(`@${handle}`);
+		} catch { /* ignore */ }
+	}
+
 	const successCount = $derived(data.manifest.days.filter((d) => !d.skipped).length);
+
+	const checklistTotal = $derived(
+		data.checklist.reduce((sum, d) => sum + d.stories.length, 0)
+	);
+	const checklistDone = $derived(
+		data.checklist.reduce((sum, d) => {
+			return sum + d.stories.filter((_, i) => posted[`${d.dateStr}-${d.slug}-${i}`]).length;
+		}, 0)
+	);
 </script>
 
 <svelte:head>
@@ -111,6 +149,57 @@
 				</article>
 			{/each}
 		</div>
+
+		{#if data.checklist.length > 0}
+			<section class="checklist-section">
+				<header class="checklist-header">
+					<div>
+						<h2>Sjekkliste — hva er lagt ut</h2>
+						<p class="checklist-progress">{checklistDone} av {checklistTotal} stories ferdig denne uka</p>
+					</div>
+					<button type="button" class="reset-btn" onclick={resetWeek}>Nullstill</button>
+				</header>
+				<p class="checklist-hint">
+					Trykk på et bilde når du har lagt det ut. Status lagres lokalt i nettleseren din,
+					så du ser det igjen når du åpner siden senere.
+				</p>
+
+				{#each data.checklist as day (day.dateStr + day.slug)}
+					{@const dayDone = day.stories.filter((_, i) => posted[`${day.dateStr}-${day.slug}-${i}`]).length}
+					<div class="checklist-day">
+						<header class="checklist-day-header">
+							<h3>{day.dayName} {day.dateStr.slice(8, 10)}.{day.dateStr.slice(5, 7)} — {day.label}</h3>
+							<span class="checklist-day-count" class:complete={dayDone === day.stories.length}>
+								{dayDone}/{day.stories.length}
+							</span>
+						</header>
+						<div class="checklist-grid">
+							{#each day.stories as story, i (story.url)}
+								{@const key = `${day.dateStr}-${day.slug}-${i}`}
+								{@const isDone = posted[key]}
+								<button
+									type="button"
+									class="checklist-item"
+									class:done={isDone}
+									onclick={() => togglePosted(key)}
+								>
+									<img src={story.url} alt={story.title} loading="lazy" />
+									<div class="checklist-item-overlay">
+										{#if isDone}
+											<span class="check-mark">Lagt ut</span>
+										{/if}
+									</div>
+									<p class="checklist-item-venue">{story.venue}</p>
+									{#if story.igHandle}
+										<p class="checklist-item-handle">@{story.igHandle}</p>
+									{/if}
+								</button>
+							{/each}
+						</div>
+					</div>
+				{/each}
+			</section>
+		{/if}
 
 		<footer class="footer">
 			Generert {new Date(data.manifest.generatedAt).toLocaleString('nb-NO', { timeZone: 'Europe/Oslo' })}
@@ -335,6 +424,169 @@
 		font-size: 13px;
 		color: var(--color-text-muted);
 		font-style: italic;
+	}
+
+	.checklist-section {
+		background: var(--color-bg-surface);
+		border: 2px solid var(--color-border);
+		border-radius: 12px;
+		padding: 24px;
+		margin-bottom: 32px;
+	}
+
+	.checklist-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 16px;
+		margin-bottom: 8px;
+	}
+
+	.checklist-header h2 {
+		margin: 0;
+		font-size: 20px;
+		font-weight: 700;
+	}
+
+	.checklist-progress {
+		margin: 4px 0 0;
+		font-size: 14px;
+		color: var(--color-text-secondary);
+	}
+
+	.reset-btn {
+		background: transparent;
+		border: 1px solid var(--color-border);
+		color: var(--color-text-secondary);
+		padding: 8px 14px;
+		border-radius: 8px;
+		font-size: 13px;
+		cursor: pointer;
+	}
+
+	.reset-btn:hover {
+		border-color: var(--color-primary);
+		color: var(--color-primary);
+	}
+
+	.checklist-hint {
+		margin: 0 0 24px;
+		font-size: 13px;
+		color: var(--color-text-muted);
+		line-height: 1.5;
+	}
+
+	.checklist-day {
+		margin-bottom: 28px;
+	}
+
+	.checklist-day:last-child {
+		margin-bottom: 0;
+	}
+
+	.checklist-day-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 12px;
+		padding-bottom: 8px;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	.checklist-day-header h3 {
+		margin: 0;
+		font-family: 'Barlow Condensed', sans-serif;
+		font-size: 18px;
+		font-weight: 700;
+	}
+
+	.checklist-day-count {
+		font-size: 13px;
+		font-weight: 700;
+		color: var(--color-text-muted);
+		padding: 2px 10px;
+		border-radius: 999px;
+		background: #fff;
+		border: 1px solid var(--color-border);
+	}
+
+	.checklist-day-count.complete {
+		background: #1A6B35;
+		color: #fff;
+		border-color: #1A6B35;
+	}
+
+	.checklist-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+		gap: 12px;
+	}
+
+	.checklist-item {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		padding: 0;
+		background: #fff;
+		border: 2px solid var(--color-border);
+		border-radius: 8px;
+		overflow: hidden;
+		cursor: pointer;
+		text-align: left;
+		transition: border-color 120ms ease, opacity 120ms ease;
+	}
+
+	.checklist-item img {
+		display: block;
+		width: 100%;
+		aspect-ratio: 9 / 16;
+		object-fit: cover;
+		background: #1c1c1e;
+	}
+
+	.checklist-item.done {
+		border-color: #1A6B35;
+		opacity: 0.65;
+	}
+
+	.checklist-item-overlay {
+		position: absolute;
+		top: 6px;
+		right: 6px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		pointer-events: none;
+	}
+
+	.check-mark {
+		background: #1A6B35;
+		color: #fff;
+		font-size: 11px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		padding: 4px 8px;
+		border-radius: 999px;
+	}
+
+	.checklist-item-venue {
+		margin: 4px 8px 0;
+		font-size: 12px;
+		font-weight: 600;
+		color: var(--color-text-primary);
+		line-height: 1.3;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.checklist-item-handle {
+		margin: 0 8px 8px;
+		font-size: 11px;
+		color: var(--color-primary);
 	}
 
 	.footer {
