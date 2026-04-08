@@ -39,14 +39,21 @@ interface FbGroup {
 	id: string;
 	name: string;
 	lang: 'no' | 'en';
+	/** Only post in this group for these collection slugs. Empty = all days. */
+	allowSlugs?: string[];
 }
 
 const FB_GROUPS: FbGroup[] = [
 	{ id: 'hva-skjer-bergen', name: 'Hva skjer i Bergen', lang: 'no' },
-	{ id: 'hva-skjer-bergen-i-dag', name: 'Hva skjer i bergen i dag', lang: 'no' },
+	// Strictly for "today" content per group rules — only i-dag (Saturday) qualifies.
+	{ id: 'hva-skjer-bergen-i-dag', name: 'Hva skjer i bergen i dag', lang: 'no', allowSlugs: ['i-dag', 'today-in-bergen'] },
 	{ id: 'det-skjer-bergen', name: 'Det Skjer i Bergen', lang: 'no' },
 	{ id: 'bergen-expats', name: 'Bergen Expats', lang: 'en' }
 ];
+
+function isGroupEligible(group: FbGroup, slug: string): boolean {
+	return !group.allowSlugs || group.allowSlugs.includes(slug);
+}
 
 const HASHTAGS_NO = ['#bergen', '#bergenby', '#hvaskjeribergen', '#bergenliv', '#bergensentrum'];
 const HASHTAGS_EN = ['#bergen', '#bergennorway', '#thingstodoinbergen', '#bergenevents', '#visitbergen'];
@@ -440,6 +447,8 @@ async function buildAndUploadCarouselsZip(
 		captionsLines.push('');
 
 		for (const group of FB_GROUPS) {
+			if (!isGroupEligible(group, day.slug)) continue;
+
 			const groupLang = group.lang;
 			const groupTitle = groupLang === 'en' ? collection.title.en : collection.title.no;
 

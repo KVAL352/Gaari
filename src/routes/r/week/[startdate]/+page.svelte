@@ -55,22 +55,32 @@
 		}, 0)
 	);
 
-	// Carousel checklist: one row per day, 4 group checkboxes per row.
-	const FB_GROUPS = [
+	// Carousel checklist: one row per day. Each FB group can be restricted to
+	// specific collection slugs (e.g. "Hva skjer i bergen i dag" only accepts
+	// today-content like i-dag/today-in-bergen — kept in sync with FB_GROUPS
+	// in scripts/social/generate-week.ts).
+	type FbGroupConfig = { id: string; name: string; allowSlugs?: string[] };
+	const FB_GROUPS: FbGroupConfig[] = [
 		{ id: 'hva-skjer-bergen', name: 'Hva skjer i Bergen' },
-		{ id: 'hva-skjer-bergen-i-dag', name: 'Hva skjer i bergen i dag' },
+		{ id: 'hva-skjer-bergen-i-dag', name: 'Hva skjer i bergen i dag', allowSlugs: ['i-dag', 'today-in-bergen'] },
 		{ id: 'det-skjer-bergen', name: 'Det Skjer i Bergen' },
 		{ id: 'bergen-expats', name: 'Bergen Expats' }
-	] as const;
+	];
+
+	function groupsForSlug(slug: string): FbGroupConfig[] {
+		return FB_GROUPS.filter(g => !g.allowSlugs || g.allowSlugs.includes(slug));
+	}
 
 	const carouselDays = $derived(
 		data.manifest.days.filter(d => !d.skipped)
 	);
 
-	const carouselTotal = $derived(carouselDays.length * FB_GROUPS.length);
+	const carouselTotal = $derived(
+		carouselDays.reduce((sum, d) => sum + groupsForSlug(d.slug).length, 0)
+	);
 	const carouselDone = $derived(
 		carouselDays.reduce((sum, d) => {
-			return sum + FB_GROUPS.filter(g => posted[`${d.dateStr}-${d.slug}-fb-${g.id}`]).length;
+			return sum + groupsForSlug(d.slug).filter(g => posted[`${d.dateStr}-${d.slug}-fb-${g.id}`]).length;
 		}, 0)
 	);
 
@@ -238,7 +248,8 @@
 				</p>
 
 				{#each carouselDays as day (day.dateStr + day.slug)}
-					{@const dayDone = FB_GROUPS.filter(g => posted[`${day.dateStr}-${day.slug}-fb-${g.id}`]).length}
+					{@const eligibleGroups = groupsForSlug(day.slug)}
+					{@const dayDone = eligibleGroups.filter(g => posted[`${day.dateStr}-${day.slug}-fb-${g.id}`]).length}
 					<div class="carousel-day">
 						<img
 							class="carousel-thumb"
@@ -249,12 +260,12 @@
 						<div class="carousel-day-body">
 							<header class="checklist-day-header">
 								<h3>{day.dayName} {day.dateStr.slice(8, 10)}.{day.dateStr.slice(5, 7)} — {day.label}</h3>
-								<span class="checklist-day-count" class:complete={dayDone === FB_GROUPS.length}>
-									{dayDone}/{FB_GROUPS.length}
+								<span class="checklist-day-count" class:complete={dayDone === eligibleGroups.length}>
+									{dayDone}/{eligibleGroups.length}
 								</span>
 							</header>
 							<div class="group-grid">
-								{#each FB_GROUPS as group (group.id)}
+								{#each eligibleGroups as group (group.id)}
 									{@const key = `${day.dateStr}-${day.slug}-fb-${group.id}`}
 									{@const isDone = posted[key]}
 									<button
