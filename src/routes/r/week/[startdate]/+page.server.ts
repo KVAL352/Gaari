@@ -27,6 +27,7 @@ interface WeekManifest {
 	days: DayManifest[];
 	zipUrl?: string;
 	storiesZipUrl?: string;
+	carouselsZipUrl?: string;
 }
 
 export const load: PageServerLoad = async ({ params }) => {

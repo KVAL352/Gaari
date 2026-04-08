@@ -28,6 +28,36 @@ import { resolve } from 'path';
 import archiver from 'archiver';
 import { supabase } from '../lib/supabase.js';
 import { generateOneCollection, fetchActiveEvents } from './generate-reels.js';
+import { generateCarousel, type CarouselEvent } from './image-gen.js';
+import { generateCaption, type CaptionEvent } from './caption-gen.js';
+import { pickDiverseEvents } from './event-picker.js';
+import { getCollection } from '../../src/lib/collections.js';
+import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
+import type { GaariEvent } from '../../src/lib/types.js';
+
+interface FbGroup {
+	id: string;
+	name: string;
+	lang: 'no' | 'en';
+}
+
+const FB_GROUPS: FbGroup[] = [
+	{ id: 'hva-skjer-bergen', name: 'Hva skjer i Bergen', lang: 'no' },
+	{ id: 'hva-skjer-bergen-i-dag', name: 'Hva skjer i bergen i dag', lang: 'no' },
+	{ id: 'det-skjer-bergen', name: 'Det Skjer i Bergen', lang: 'no' },
+	{ id: 'bergen-expats', name: 'Bergen Expats', lang: 'en' }
+];
+
+const HASHTAGS_NO = ['#bergen', '#bergenby', '#hvaskjeribergen', '#bergenliv', '#bergensentrum'];
+const HASHTAGS_EN = ['#bergen', '#bergennorway', '#thingstodoinbergen', '#bergenevents', '#visitbergen'];
+
+/** Map NO collection slug to its EN-routable counterpart (when one exists). */
+const EN_COUNTERPART: Record<string, string> = {
+	'denne-helgen': 'this-weekend',
+	'i-dag': 'today-in-bergen',
+	'gratis': 'free-things-to-do-bergen'
+	// teater / utstillinger / uteliv / mat-og-drikke have no EN route — fall back to /no/ URL
+};
 
 const SEND_EMAIL = process.argv.includes('--email');
 const START_ARG = process.argv.find(a => a.startsWith('--start='))?.split('=')[1];
@@ -74,6 +104,7 @@ interface WeekManifest {
 	days: DayManifest[];
 	zipUrl?: string;
 	storiesZipUrl?: string;
+	carouselsZipUrl?: string;
 }
 
 /** Strip diacritics + lowercase + replace spaces so filenames stay portable. */
@@ -299,6 +330,187 @@ async function buildAndUploadStoriesZip(startDate: string, days: DayManifest[]):
 	return data.publicUrl;
 }
 
+/**
+ * Build a single ZIP containing the carousel slides (1080×1080) for every day,
+ * plus a captions.txt with four caption variants per day — one per Facebook
+ * group with a unique utm_campaign so we can attribute clicks back to the
+ * source group in Umami. The user opens each FB group, uploads the same image
+ * set, and pastes the matching caption.
+ */
+async function buildAndUploadCarouselsZip(
+	startDate: string,
+	days: DayManifest[],
+	activeEvents: GaariEvent[]
+): Promise<string | null> {
+	const eligible = days.filter(d => !d.skipped);
+	if (eligible.length === 0) return null;
+
+	const tmpDir = resolve(import.meta.dirname, '.reels-tmp');
+	if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
+	const zipPath = resolve(tmpDir, `week-${startDate}-carousels.zip`);
+
+	console.log(`\nBuilding carousels ZIP for ${eligible.length} days...`);
+
+	const captionsLines: string[] = [
+		`GAARI — UKENS CAROUSELS FOR FB-GRUPPER`,
+		`Uka ${startDate}`,
+		'',
+		'Slik bruker du:',
+		'1. Pakk ut hele ZIP-en på desktop.',
+		'2. For hver dag: åpne riktig FB-gruppe, last opp HELE bilde-sekvensen for den dagen,',
+		'   og lim inn captionen som matcher gruppen (forskjellig UTM-tagging).',
+		'3. Bilder ligger i carousels/ — captioner er listet under per dag og per gruppe.',
+		''
+	];
+
+	const fetchedByDay = new Map<string, { filename: string; buffer: Buffer }[]>();
+	let totalSlidesAdded = 0;
+	const sharp = (await import('sharp')).default;
+
+	for (const day of eligible) {
+		const collection = getCollection(day.slug);
+		if (!collection) {
+			console.warn(`  ${day.slug}: collection not found, skipping`);
+			continue;
+		}
+
+		// Use the same diverse picker as the reel so the carousel matches the
+		// reel's events for that day. now = midnight of that day in Oslo.
+		const now = new Date(`${day.dateStr}T08:00:00+02:00`);
+		const filtered = collection.filterEvents(activeEvents as any, now);
+		const selected = pickDiverseEvents(filtered, 8);
+
+		if (selected.length < 4) {
+			console.warn(`  ${day.dateStr} ${day.slug}: only ${selected.length} events with images, skipping carousel`);
+			continue;
+		}
+
+		const isEnglish = ['today-in-bergen', 'this-weekend', 'free-things-to-do-bergen'].includes(day.slug);
+		const lang = isEnglish ? 'en' as const : 'no' as const;
+		const title = isEnglish ? collection.title.en : collection.title.no;
+
+		const carouselEvents: CarouselEvent[] = selected.map(e => ({
+			title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
+			venue: e.venue_name,
+			time: formatEventTime(e.date_start, lang),
+			category: e.category,
+			imageUrl: e.image_url || undefined,
+			isFree: isFreeEvent(e.price)
+		}));
+
+		console.log(`  Generating carousel for ${day.dayName} ${day.dateStr} (${day.slug})...`);
+		const slides = await generateCarousel(title, carouselEvents);
+		if (slides.length === 0) {
+			console.warn(`  ${day.dateStr} ${day.slug}: no slides rendered, skipping`);
+			continue;
+		}
+
+		const dayNameSafe = safeFilename(day.dayName);
+		const slugSafe = safeFilename(day.slug);
+		const dayBuffers: { filename: string; buffer: Buffer }[] = [];
+
+		for (let i = 0; i < slides.length; i++) {
+			const idx = String(i + 1).padStart(2, '0');
+			const filename = `carousels/${day.dateStr}-${dayNameSafe}-${slugSafe}-${idx}.jpg`;
+			const jpegBuffer = await sharp(slides[i]).jpeg({ quality: 88 }).toBuffer();
+			dayBuffers.push({ filename, buffer: jpegBuffer });
+
+			// Also upload to {date}/{slug}/carousel-NN.jpg for per-day landing-page reuse later
+			const perDayPath = `${day.dateStr}/${day.slug}/carousel-${idx}.jpg`;
+			await supabase.storage
+				.from(STORAGE_BUCKET)
+				.upload(perDayPath, jpegBuffer, { contentType: 'image/jpeg', upsert: true })
+				.catch(() => { /* non-critical */ });
+
+			totalSlidesAdded++;
+		}
+		fetchedByDay.set(day.dateStr, dayBuffers);
+
+		// Build captions per FB group
+		const captionEvents: CaptionEvent[] = selected.map(e => ({
+			title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
+			venue: e.venue_name,
+			date_start: e.date_start,
+			category: e.category
+		}));
+
+		captionsLines.push(`================================================================`);
+		captionsLines.push(`${day.dayName.toUpperCase()} ${day.dateStr} — ${day.label}`);
+		captionsLines.push(`Bilder: ${slides.length} slides (carousels/${day.dateStr}-${dayNameSafe}-${slugSafe}-NN.jpg)`);
+		captionsLines.push('');
+
+		for (const group of FB_GROUPS) {
+			const groupLang = group.lang;
+			const groupTitle = groupLang === 'en' ? collection.title.en : collection.title.no;
+
+			// For EN groups: use the EN counterpart slug when one exists, else fall
+			// back to the NO URL (page still renders, just in Norwegian).
+			let urlPath: string;
+			if (groupLang === 'en') {
+				const enSlug = EN_COUNTERPART[day.slug] || day.slug;
+				urlPath = EN_COUNTERPART[day.slug] ? `en/${enSlug}` : `no/${day.slug}`;
+			} else {
+				urlPath = `no/${day.slug}`;
+			}
+			const collectionUrl = `https://gaari.no/${urlPath}?utm_source=facebook&utm_medium=group&utm_campaign=${group.id}`;
+			const hashtags = groupLang === 'en' ? HASHTAGS_EN : HASHTAGS_NO;
+			const caption = generateCaption(groupTitle, captionEvents, collectionUrl, hashtags, groupLang);
+
+			captionsLines.push(`--- ${group.name} (${groupLang.toUpperCase()}) ---`);
+			captionsLines.push(caption);
+			captionsLines.push('');
+		}
+		captionsLines.push('');
+	}
+
+	if (totalSlidesAdded === 0) {
+		console.warn('  No carousel slides generated, skipping carousels ZIP');
+		return null;
+	}
+
+	// Stream archive to file
+	await new Promise<void>((resolveDone, rejectDone) => {
+		const output = createWriteStream(zipPath);
+		const archive = archiver('zip', { zlib: { level: 6 } });
+		output.on('close', () => resolveDone());
+		output.on('error', rejectDone);
+		archive.on('error', rejectDone);
+		archive.pipe(output);
+
+		archive.append(captionsLines.join('\n'), { name: 'captions.txt' });
+
+		for (const day of eligible) {
+			const fetched = fetchedByDay.get(day.dateStr);
+			if (!fetched) continue;
+			for (const f of fetched) {
+				archive.append(f.buffer, { name: f.filename });
+			}
+		}
+
+		archive.finalize();
+	});
+
+	const zipBuffer = readFileSync(zipPath);
+	const zipStoragePath = `week/${startDate}/carousels.zip`;
+	const { error } = await supabase.storage
+		.from(STORAGE_BUCKET)
+		.upload(zipStoragePath, zipBuffer, {
+			contentType: 'application/zip',
+			upsert: true
+		});
+
+	try { unlinkSync(zipPath); } catch { /* ignore */ }
+
+	if (error) {
+		console.warn(`  Carousels ZIP upload failed: ${error.message}`);
+		return null;
+	}
+
+	const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(zipStoragePath);
+	console.log(`  Carousels ZIP uploaded (${totalSlidesAdded} slides): ${data.publicUrl}`);
+	return data.publicUrl;
+}
+
 /** Compute the date string of the next Monday in Oslo time. */
 function nextMondayDateStr(now: Date): string {
 	const oslo = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Oslo' }));
@@ -512,9 +724,10 @@ async function main() {
 		}
 	}
 
-	// Build + upload ZIPs (reels MP4s + stories PNGs) with date-prefixed filenames
+	// Build + upload ZIPs (reels MP4s + stories JPGs + carousel JPGs)
 	const zipUrl = await buildAndUploadZip(startDate, days);
 	const storiesZipUrl = await buildAndUploadStoriesZip(startDate, days);
+	const carouselsZipUrl = await buildAndUploadCarouselsZip(startDate, days, activeEvents);
 
 	const manifest: WeekManifest = {
 		startMonday: startDate,
@@ -522,7 +735,8 @@ async function main() {
 		generatedAt: new Date().toISOString(),
 		days,
 		zipUrl: zipUrl || undefined,
-		storiesZipUrl: storiesZipUrl || undefined
+		storiesZipUrl: storiesZipUrl || undefined,
+		carouselsZipUrl: carouselsZipUrl || undefined
 	};
 
 	const weekUrl = `https://gaari.no/r/week/${startDate}`;

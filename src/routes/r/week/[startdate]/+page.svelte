@@ -49,9 +49,20 @@
 				Last ned alle stories (ZIP)
 			</a>
 			<p class="bulk-hint">
-				PNG-er navngitt som <code>YYYY-MM-DD-ukedag-slug-NN.png</code> + en
+				JPG-er navngitt som <code>YYYY-MM-DD-ukedag-slug-NN.jpg</code> + en
 				<code>handles.txt</code> med @-handle og collection-link per story. Lagre i kamerarullen
 				og post manuelt fra IG-appen med link sticker + @-mention sticker.
+			</p>
+		{/if}
+
+		{#if data.manifest.carouselsZipUrl}
+			<a class="bulk-download carousels" href={data.manifest.carouselsZipUrl} download={`gaari-carousels-uke-${data.manifest.startMonday}.zip`}>
+				Last ned alle carousels for FB-grupper (ZIP)
+			</a>
+			<p class="bulk-hint">
+				1080×1080 carousel-slides per dag + en <code>captions.txt</code> med fire caption-varianter
+				per dag — én per FB-gruppe (Hva skjer i Bergen, Hva skjer i bergen i dag, Det Skjer i Bergen,
+				Bergen Expats). Hver caption har sin egen UTM-tag så Umami kan attribuere klikk per gruppe.
 			</p>
 		{/if}
 
