@@ -211,7 +211,6 @@ async function buildAndUploadStoriesZip(startDate: string, days: DayManifest[]):
 
 		const dayNameSafe = safeFilename(day.dayName);
 		const slugSafe = safeFilename(day.slug);
-		const collectionLink = `https://gaari.no/no/${day.slug}?utm_source=instagram&utm_medium=story&utm_campaign=${day.slug}`;
 		const dayBuffers: { filename: string; buffer: Buffer }[] = [];
 		const sharp = (await import('sharp')).default;
 
@@ -233,6 +232,13 @@ async function buildAndUploadStoriesZip(startDate: string, days: DayManifest[]):
 				const pngBuffer = Buffer.from(await res.arrayBuffer());
 				const jpegBuffer = await sharp(pngBuffer).jpeg({ quality: 88 }).toBuffer();
 				dayBuffers.push({ filename, buffer: jpegBuffer });
+
+				// Per-story link with utm_content = venue-slug, so Umami can attribute
+				// each click to the specific story that drove it. This lets the weekly
+				// report show "Hulen-story drove 14 ticket clicks" vs "Bibliotek-story
+				// drove 2 newsletter signups".
+				const venueSlug = safeFilename(story.venue) || `story-${idx}`;
+				const collectionLink = `https://gaari.no/no/${day.slug}?utm_source=instagram&utm_medium=story&utm_campaign=${day.slug}&utm_content=${venueSlug}`;
 
 				const handle = story.igHandle ? `@${story.igHandle}` : '(ingen IG-konto)';
 				handlesLines.push(`${filename} — ${story.venue} — ${handle} — ${collectionLink}`);
