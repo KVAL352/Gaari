@@ -291,18 +291,22 @@ function delay(ms: number): Promise<void> {
 	return new Promise(r => setTimeout(r, ms));
 }
 
-function buildFacebookPost(caption: string, slug: string, eventCount: number): { message: string; link: string } {
+function buildFacebookPost(caption: string, slug: string, _eventCount: number): { message: string; link: string } {
 	const isEn = ENGLISH_SLUGS.has(slug);
 	const url = isEn
 		? `https://gaari.no/en/${slug}?utm_source=facebook&utm_medium=social&utm_campaign=${slug}`
 		: `https://gaari.no/no/${slug}?utm_source=facebook&utm_medium=social&utm_campaign=${slug}`;
-	const title = caption.split('\n')[0]?.trim() || slug;
 
-	const message = isEn
-		? `${title}\n${url}\n\n${eventCount} events in Bergen. See all on Gåri.`
-		: `${title}\n${url}\n\n${eventCount} arrangementer i Bergen. Se alle på Gåri.`;
+	// Use the full IG caption (with venue @-handles, event list and hashtags)
+	// but swap the IG collection URL for the FB UTM-tagged one. Even though FB
+	// won't render @venuehandle as a clickable mention, the text is still
+	// informative and matches the IG version for visual consistency.
+	const fbCaption = caption.replace(
+		/gaari\.no\/(no|en)\/[^\s?]+\?utm_source=instagram&utm_medium=social&utm_campaign=[^\s]+/g,
+		url
+	);
 
-	return { message, link: url };
+	return { message: fbCaption, link: url };
 }
 
 // ── Main ──

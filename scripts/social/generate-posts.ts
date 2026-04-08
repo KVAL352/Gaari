@@ -5,6 +5,7 @@ import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
 import { generateCarousel, generateStories, type CarouselEvent } from './image-gen.js';
 import { generateCaption, type CaptionEvent } from './caption-gen.js';
+import { pickDiverseEvents } from './event-picker.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
 // ── Schedule config ──
@@ -233,24 +234,11 @@ async function main() {
 			continue;
 		}
 
-		// Pick top events for carousel (cap per venue, prioritize events with images)
-		const MAX_PER_VENUE = 1;
-		const sorted = filtered.sort((a, b) => {
-			// Events with images first, then by date
-			const aImg = a.image_url ? 0 : 1;
-			const bImg = b.image_url ? 0 : 1;
-			if (aImg !== bImg) return aImg - bImg;
-			return a.date_start.localeCompare(b.date_start);
-		});
-		const venueCounts = new Map<string, number>();
-		const topEvents: GaariEvent[] = [];
-		for (const e of sorted) {
-			if (topEvents.length >= MAX_CAROUSEL_EVENTS) break;
-			const count = venueCounts.get(e.venue_name) ?? 0;
-			if (count >= MAX_PER_VENUE) continue;
-			venueCounts.set(e.venue_name, count + 1);
-			topEvents.push(e);
-		}
+		// Pick top events for carousel using the diverse picker shared with
+		// generate-reels.ts: IG-handle cap (so bibliotek branches and Akvariet
+		// activities don't dominate), time-bucket spread, and day-bucket spread
+		// for multi-day collections.
+		const topEvents = pickDiverseEvents(filtered, MAX_CAROUSEL_EVENTS);
 
 		const eventsWithImages = topEvents.filter(e => e.image_url).length;
 		console.log(`  ${filtered.length} events matched, ${topEvents.length} selected, ${eventsWithImages} with images`);

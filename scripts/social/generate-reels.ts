@@ -21,6 +21,7 @@ import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
 import { generateReelsFrames, generateReelsOutro, generateStories, type CarouselEvent } from './image-gen.js';
 import { generateCaption, type CaptionEvent } from './caption-gen.js';
+import { pickDiverseEvents } from './event-picker.js';
 import { getVenueInstagram } from '../lib/venues.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
@@ -47,6 +48,10 @@ const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
 /** Seconds each frame is shown */
 const FRAME_DURATION = 2;
+
+/** Number of stories generated per landing page (i-dag gets the full batch). */
+const STORY_BATCH_SIZE = 10;
+const STORY_BATCH_SIZE_OTHER = 6;
 
 /** Build a prominent, locale-aware date label for a slide. */
 function buildDateLabel(dateStart: string, lang: 'no' | 'en', now: Date): string {
@@ -240,39 +245,10 @@ async function main() {
 			continue;
 		}
 
-		// Bucket events with images by Oslo day, then round-robin pick across days
-		// so a multi-day collection (e.g. denne-helgen Fri+Sat+Sun) gets balanced coverage.
-		const byDay = new Map<string, GaariEvent[]>();
-		for (const e of filtered) {
-			if (!e.image_url) continue;
-			const day = new Date(e.date_start).toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
-			if (!byDay.has(day)) byDay.set(day, []);
-			byDay.get(day)!.push(e);
-		}
-		for (const list of byDay.values()) {
-			list.sort((a, b) => a.date_start.localeCompare(b.date_start));
-		}
-
-		const dayKeys = [...byDay.keys()].sort();
-		const venueSeen = new Set<string>();
-		const selected: GaariEvent[] = [];
-		const dayIdx = new Map(dayKeys.map(k => [k, 0]));
-		let progress = true;
-		while (selected.length < 8 && progress) {
-			progress = false;
-			for (const day of dayKeys) {
-				if (selected.length >= 8) break;
-				const list = byDay.get(day)!;
-				let i = dayIdx.get(day)!;
-				while (i < list.length && venueSeen.has(list[i].venue_name)) i++;
-				if (i < list.length) {
-					selected.push(list[i]);
-					venueSeen.add(list[i].venue_name);
-					dayIdx.set(day, i + 1);
-					progress = true;
-				}
-			}
-		}
+		// Reel selection: use the diverse picker (IG-handle cap + time spread +
+		// day spread) so the same logic that protects stories from bibliotek/
+		// akvariet domination also protects the reel.
+		const selected = pickDiverseEvents(filtered, 8);
 
 		if (selected.length < 4) {
 			console.log(`  Only ${selected.length} events with images, need 4. Skipping.\n`);
@@ -400,11 +376,25 @@ async function main() {
 				});
 			if (capErr) console.warn(`  Caption upload failed: ${capErr.message}`);
 
-			// Generate per-event story slides + upload + manifest. Stories cannot be
-			// auto-published with venue mention stickers (Graph API does not support
-			// it), so we ship them via the landing page for manual posting + tagging.
-			console.log(`  Generating story slides...`);
-			const storyImages = await generateStories(title, carouselEvents, { lang });
+			// Generate per-event story slides + upload + manifest. Stories use a
+			// fresh, larger pick from the full filtered pool — independent of the
+			// reel selection — so we get up to 10 diverse stories for i-dag (the
+			// daily posting target) and don't repeat the reel's 8 events verbatim.
+			const storyTarget = slug === 'i-dag' || slug === 'today-in-bergen'
+				? STORY_BATCH_SIZE
+				: STORY_BATCH_SIZE_OTHER;
+			const storyEvents = pickDiverseEvents(filtered, storyTarget);
+			const storyCarouselEvents: CarouselEvent[] = storyEvents.map(e => ({
+				title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
+				venue: e.venue_name,
+				time: formatEventTime(e.date_start, lang),
+				category: e.category,
+				imageUrl: e.image_url || undefined,
+				isFree: isFreeEvent(e.price),
+				dateLabel: buildDateLabel(e.date_start, lang, now)
+			}));
+			console.log(`  Generating ${storyEvents.length} story slides...`);
+			const storyImages = await generateStories(title, storyCarouselEvents, { lang });
 			const storyManifest: { url: string; venue: string; igHandle: string | null; title: string }[] = [];
 			for (let i = 0; i < storyImages.length; i++) {
 				const storyPath = `${dateStr}/${slug}/story-${i + 1}.png`;
@@ -419,7 +409,7 @@ async function main() {
 					continue;
 				}
 				const { data: storyUrlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storyPath);
-				const ev = selected[i];
+				const ev = storyEvents[i];
 				storyManifest.push({
 					url: storyUrlData.publicUrl,
 					venue: ev.venue_name,

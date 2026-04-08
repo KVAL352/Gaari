@@ -739,7 +739,7 @@ export async function generateStories(
 	events: CarouselEvent[],
 	options?: CarouselOptions
 ): Promise<Buffer[]> {
-	const MAX_STORIES = 6;
+	const MAX_STORIES = 12;
 	const stories: Buffer[] = [];
 
 	// Only events with images
