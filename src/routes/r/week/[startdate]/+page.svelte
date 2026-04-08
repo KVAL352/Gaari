@@ -54,6 +54,29 @@
 			return sum + d.stories.filter((_, i) => posted[`${d.dateStr}-${d.slug}-${i}`]).length;
 		}, 0)
 	);
+
+	// Carousel checklist: one row per day, 4 group checkboxes per row.
+	const FB_GROUPS = [
+		{ id: 'hva-skjer-bergen', name: 'Hva skjer i Bergen' },
+		{ id: 'hva-skjer-bergen-i-dag', name: 'Hva skjer i bergen i dag' },
+		{ id: 'det-skjer-bergen', name: 'Det Skjer i Bergen' },
+		{ id: 'bergen-expats', name: 'Bergen Expats' }
+	] as const;
+
+	const carouselDays = $derived(
+		data.manifest.days.filter(d => !d.skipped)
+	);
+
+	const carouselTotal = $derived(carouselDays.length * FB_GROUPS.length);
+	const carouselDone = $derived(
+		carouselDays.reduce((sum, d) => {
+			return sum + FB_GROUPS.filter(g => posted[`${d.dateStr}-${d.slug}-fb-${g.id}`]).length;
+		}, 0)
+	);
+
+	function carouselThumbUrl(dateStr: string, slug: string): string {
+		return `https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/social-media/${dateStr}/${slug}/carousel-01.jpg`;
+	}
 </script>
 
 <svelte:head>
@@ -195,6 +218,56 @@
 									{/if}
 								</button>
 							{/each}
+						</div>
+					</div>
+				{/each}
+			</section>
+		{/if}
+
+		{#if carouselDays.length > 0 && data.manifest.carouselsZipUrl}
+			<section class="checklist-section">
+				<header class="checklist-header">
+					<div>
+						<h2>Sjekkliste — carousels i FB-grupper</h2>
+						<p class="checklist-progress">{carouselDone} av {carouselTotal} gruppe-poster ferdig</p>
+					</div>
+				</header>
+				<p class="checklist-hint">
+					Hver dag har én carousel som skal postes til fire FB-grupper med ulik UTM-tag.
+					Trykk på en gruppe når du har postet i den.
+				</p>
+
+				{#each carouselDays as day (day.dateStr + day.slug)}
+					{@const dayDone = FB_GROUPS.filter(g => posted[`${day.dateStr}-${day.slug}-fb-${g.id}`]).length}
+					<div class="carousel-day">
+						<img
+							class="carousel-thumb"
+							src={carouselThumbUrl(day.dateStr, day.slug)}
+							alt={day.label}
+							loading="lazy"
+						/>
+						<div class="carousel-day-body">
+							<header class="checklist-day-header">
+								<h3>{day.dayName} {day.dateStr.slice(8, 10)}.{day.dateStr.slice(5, 7)} — {day.label}</h3>
+								<span class="checklist-day-count" class:complete={dayDone === FB_GROUPS.length}>
+									{dayDone}/{FB_GROUPS.length}
+								</span>
+							</header>
+							<div class="group-grid">
+								{#each FB_GROUPS as group (group.id)}
+									{@const key = `${day.dateStr}-${day.slug}-fb-${group.id}`}
+									{@const isDone = posted[key]}
+									<button
+										type="button"
+										class="group-pill"
+										class:done={isDone}
+										onclick={() => togglePosted(key)}
+									>
+										{group.name}
+										{#if isDone}<span class="group-done">Lagt ut</span>{/if}
+									</button>
+								{/each}
+							</div>
 						</div>
 					</div>
 				{/each}
@@ -587,6 +660,80 @@
 		margin: 0 8px 8px;
 		font-size: 11px;
 		color: var(--color-primary);
+	}
+
+	.carousel-day {
+		display: flex;
+		gap: 16px;
+		padding: 16px;
+		background: #fff;
+		border: 1px solid var(--color-border);
+		border-radius: 12px;
+		margin-bottom: 16px;
+	}
+
+	.carousel-day:last-child {
+		margin-bottom: 0;
+	}
+
+	.carousel-thumb {
+		flex-shrink: 0;
+		width: 96px;
+		height: 96px;
+		object-fit: cover;
+		border-radius: 8px;
+		background: #1c1c1e;
+	}
+
+	.carousel-day-body {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.carousel-day-body .checklist-day-header {
+		margin-bottom: 12px;
+		padding-bottom: 8px;
+	}
+
+	.group-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+		gap: 8px;
+	}
+
+	.group-pill {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		background: #fff;
+		border: 2px solid var(--color-border);
+		color: var(--color-text-primary);
+		font-size: 13px;
+		font-weight: 600;
+		padding: 10px 14px;
+		border-radius: 999px;
+		cursor: pointer;
+		text-align: left;
+		transition: border-color 120ms ease, background 120ms ease;
+	}
+
+	.group-pill:hover {
+		border-color: var(--color-primary);
+	}
+
+	.group-pill.done {
+		background: #1A6B35;
+		border-color: #1A6B35;
+		color: #fff;
+	}
+
+	.group-done {
+		font-size: 10px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		opacity: 0.85;
 	}
 
 	.footer {
