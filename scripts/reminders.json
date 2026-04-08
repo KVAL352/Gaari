@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-04-13",
+    "title": "Ukentlig: post i FB-grupper (Hva skjer i Bergen)",
+    "description": "FB-grupper er Gåris #1 trafikkilde (~30% av all trafikk pr. april 2026). Post denne ukens høydepunkter i 'Hva skjer i Bergen' og lignende lokale grupper. Pek til relevant collection (denne-helgen / i-kveld / familiehelg). Etter posting: oppdater denne reminderen til neste mandag."
+  },
+  {
     "date": "2026-04-21",
     "title": "Sjekk svar: Google EØS-karusell-søknad",
     "description": "Søknad om deltakelse i Google EEA aggregator features (Things to do / events) ble sendt 6. mars 2026 via support.google.com/websearch/contact/search_dma. Sjekket innboks 7. april — ingen svar. Sjekk på nytt 21. april (6 uker etter sending). Hvis fortsatt stille: anta dødt spor."
@@ -68,5 +73,15 @@
     "date": "2026-04-21",
     "title": "Følg opp Art Lab Bergen (Konstantin)",
     "description": "Konstantin svarte 7. april: positiv, har sendt info om 3 kurs (botanisk akvarell + hyttekos publisert, barnekurs venter på datoer). Sa han skulle teste Wix Events. Sjekk: 1) Har vi fått oppstartsdatoer for barnekurset? 2) Har Wix Events-lenken kommet? 3) Har de lagt Gåri-link i footeren på artlabstudio.no? 13 barnekurs-bilder ligger i C:/Users/kjers/Pictures/artlab-barnekurs-bilder/ klar til bruk."
+  },
+  {
+    "date": "2026-04-12",
+    "title": "FB boost midtveis-sjekk (boost-2026-04-08)",
+    "description": "Boost-kampanje (350 NOK / 50 NOK per dag, 7 dager, trafikk-mål) startet 9. april 15:00. Halvveis: sjekk Meta Ads Manager for visninger / klikk / CPM, og Umami for utm_campaign=boost-2026-04-08. Hvis CTR < 1%: vurder å pause og endre målgruppe. Hvis trafikken kommer inn: la den gå."
+  },
+  {
+    "date": "2026-04-16",
+    "title": "FB boost ferdig — generer rapport (boost-2026-04-08)",
+    "description": "Boost-kampanjen ble ferdig 16. april 15:00. Spør Claude: 'lag boost-rapport for boost-2026-04-08'. Skal sammenligne uka 9-16 april med uka før: visninger, klikk, CTR, kostnad per klikk, og konverteringer (newsletter / ticket-click) attribuert via utm_campaign=boost-2026-04-08."
   }
 ]
