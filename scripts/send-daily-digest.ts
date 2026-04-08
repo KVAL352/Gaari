@@ -105,18 +105,14 @@ interface NewsletterReport {
 	totalBounces: number;
 }
 
-interface SocialInsight {
-	platform: 'ig' | 'fb';
-	posted_at: string;
-	caption: string | null;
-	permalink: string | null;
-	metrics: Record<string, number>;
-}
-
-interface SocialInsightsData {
-	igTotal: number;
-	fbTotal: number;
-	recent: SocialInsight[];
+interface SocialStatus {
+	postedYesterday: { ig: number; fb: number; stories: number };
+	failedYesterday: number;
+	failureNotes: string[];
+	igFollowers: number | null;
+	igFollowersDelta: number | null;
+	fbFollowers: number | null;
+	fbFollowersDelta: number | null;
 }
 
 interface Reminder {
@@ -139,7 +135,7 @@ interface DigestData {
 	festivalReminders: FestivalReminder[];
 	reminders: Reminder[];
 	newsletterReport: NewsletterReport | null;
-	socialInsights: SocialInsightsData | null;
+	socialStatus: SocialStatus | null;
 }
 
 // ─── Data collectors ────────────────────────────────────────────────
@@ -638,36 +634,98 @@ async function collectLastPipeline(): Promise<PipelineRun | null> {
 	}
 }
 
-async function collectSocialInsights(): Promise<SocialInsightsData | null> {
-	console.log('📱 Checking social insights...');
+async function collectSocialStatus(): Promise<SocialStatus | null> {
+	console.log('Checking social status...');
+	const META_TOKEN = process.env.META_ACCESS_TOKEN || process.env.IG_ACCESS_TOKEN || '';
+	const IG_USER_ID = process.env.IG_USER_ID || '';
+	const FB_PAGE_ID = process.env.FB_PAGE_ID || '';
+
+	const yesterday = new Date();
+	yesterday.setDate(yesterday.getDate() - 1);
+	const yesterdayStart = yesterday.toISOString().slice(0, 10) + 'T00:00:00Z';
+	const yesterdayEnd = yesterday.toISOString().slice(0, 10) + 'T23:59:59Z';
+	const yesterdayDateStr = yesterday.toISOString().slice(0, 10);
+
+	// Count posts published yesterday from social_posts table
+	let igPosted = 0;
+	let fbPosted = 0;
+	let storiesPosted = 0;
+	const failureNotes: string[] = [];
+
 	try {
-		const yesterday = new Date();
-		yesterday.setDate(yesterday.getDate() - 1);
-		const since = yesterday.toISOString().slice(0, 10);
+		const { data: posts } = await supabase
+			.from('social_posts')
+			.select('instagram_id, facebook_id, story_posted_count, instagram_posted_at, facebook_posted_at')
+			.gte('generated_date', yesterdayDateStr)
+			.lte('generated_date', yesterdayDateStr);
 
-		// Count totals
-		const [igCount, fbCount] = await Promise.all([
-			supabase.from('social_insights').select('id', { count: 'exact', head: true }).eq('platform', 'ig'),
-			supabase.from('social_insights').select('id', { count: 'exact', head: true }).eq('platform', 'fb'),
-		]);
-
-		// Recent posts (last 7 days) with metrics
-		const { data: recent } = await supabase
-			.from('social_insights')
-			.select('platform, posted_at, caption, permalink, metrics')
-			.gte('posted_at', new Date(Date.now() - 7 * 86400000).toISOString())
-			.order('posted_at', { ascending: false })
-			.limit(10);
-
-		return {
-			igTotal: igCount.count ?? 0,
-			fbTotal: fbCount.count ?? 0,
-			recent: (recent ?? []) as SocialInsight[],
-		};
+		for (const p of posts || []) {
+			if (p.instagram_posted_at && p.instagram_posted_at >= yesterdayStart && p.instagram_posted_at <= yesterdayEnd) igPosted++;
+			if (p.facebook_posted_at && p.facebook_posted_at >= yesterdayStart && p.facebook_posted_at <= yesterdayEnd) fbPosted++;
+			if (p.story_posted_count) storiesPosted += p.story_posted_count;
+		}
 	} catch (err: any) {
-		console.log(`  [warn] Social insights: ${err.message}`);
-		return null;
+		failureNotes.push(`Could not read social_posts: ${err.message}`);
 	}
+
+	// Live follower counts via Graph API
+	let igFollowers: number | null = null;
+	let fbFollowers: number | null = null;
+	if (META_TOKEN && IG_USER_ID) {
+		try {
+			const res = await fetch(
+				`https://graph.facebook.com/v22.0/${IG_USER_ID}?fields=followers_count&access_token=${encodeURIComponent(META_TOKEN)}`
+			);
+			const data = await res.json();
+			if (data.followers_count != null) igFollowers = data.followers_count;
+		} catch { /* ignore */ }
+	}
+	if (META_TOKEN && FB_PAGE_ID) {
+		try {
+			const res = await fetch(
+				`https://graph.facebook.com/v22.0/${FB_PAGE_ID}?fields=followers_count,fan_count&access_token=${encodeURIComponent(META_TOKEN)}`
+			);
+			const data = await res.json();
+			if (data.followers_count != null) fbFollowers = data.followers_count;
+			else if (data.fan_count != null) fbFollowers = data.fan_count;
+		} catch { /* ignore */ }
+	}
+
+	// Snapshot today and read yesterday for delta
+	const today = new Date().toISOString().slice(0, 10);
+	if (igFollowers != null || fbFollowers != null) {
+		try {
+			await supabase
+				.from('daily_metrics')
+				.upsert({ date: today, ig_followers: igFollowers, fb_followers: fbFollowers }, { onConflict: 'date' });
+		} catch { /* non-critical */ }
+	}
+
+	let igFollowersDelta: number | null = null;
+	let fbFollowersDelta: number | null = null;
+	try {
+		const { data } = await supabase
+			.from('daily_metrics')
+			.select('ig_followers, fb_followers')
+			.eq('date', yesterdayDateStr)
+			.maybeSingle();
+		if (data?.ig_followers != null && igFollowers != null) {
+			igFollowersDelta = igFollowers - data.ig_followers;
+		}
+		if (data?.fb_followers != null && fbFollowers != null) {
+			fbFollowersDelta = fbFollowers - data.fb_followers;
+		}
+	} catch { /* ignore */ }
+
+	return {
+		postedYesterday: { ig: igPosted, fb: fbPosted, stories: storiesPosted },
+		failedYesterday: failureNotes.length,
+		failureNotes,
+		igFollowers,
+		igFollowersDelta,
+		fbFollowers,
+		fbFollowersDelta
+	};
 }
 
 // ─── HTML Email Template ────────────────────────────────────────────
@@ -953,55 +1011,46 @@ function renderHtml(data: DigestData): string {
 		`;
 	})() : '';
 
-	const socialHtml = data.socialInsights && (data.socialInsights.igTotal > 0 || data.socialInsights.fbTotal > 0) ? (() => {
-		const si = data.socialInsights!;
-		const recentRows = si.recent.map(p => {
-			const platform = p.platform === 'ig' ? 'IG' : 'FB';
-			const date = new Date(p.posted_at).toLocaleDateString('no-NO', { day: 'numeric', month: 'short' });
-			const m = p.metrics;
-			const reach = m.reach ?? null;
-			const engagement = p.platform === 'ig' ? (m.likes ?? null) : (m.reactions ?? null);
-			const shares = m.shares ?? null;
-			const link = p.permalink ? `<a href="${p.permalink}" style="color:#C82D2D;text-decoration:underline">${platform}</a>` : platform;
-			const preview = p.caption ? p.caption.split('\n')[0]?.slice(0, 40) + (p.caption.length > 40 ? '...' : '') : '';
-			return `<tr>
-				<td style="padding:6px 8px;border:1px solid #ddd;font-size:13px">${link}</td>
-				<td style="padding:6px 8px;border:1px solid #ddd;font-size:13px">${date}</td>
-				<td style="padding:6px 8px;border:1px solid #ddd;font-size:13px;color:#666">${preview}</td>
-				<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:13px">${reach ?? '-'}</td>
-				<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:13px">${engagement ?? '-'}</td>
-				<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:13px">${shares ?? '-'}</td>
-			</tr>`;
-		}).join('');
+	const socialHtml = data.socialStatus ? (() => {
+		const ss = data.socialStatus!;
+		const fmtDelta = (n: number | null) => {
+			if (n == null) return '<span style="color:#737373">—</span>';
+			if (n === 0) return '<span style="color:#737373">±0</span>';
+			const color = n > 0 ? '#1A6B35' : '#C82D2D';
+			const sign = n > 0 ? '+' : '';
+			return `<span style="color:${color};font-weight:700">${sign}${n}</span>`;
+		};
+
+		const totalPosts = ss.postedYesterday.ig + ss.postedYesterday.fb + ss.postedYesterday.stories;
+		const allOk = ss.failedYesterday === 0;
+		const statusLine = totalPosts === 0
+			? '<span style="color:#737373">Ingen poster i går</span>'
+			: allOk
+				? `<span style="color:#1A6B35;font-weight:700">Alt gikk etter planen</span> · ${ss.postedYesterday.ig} IG · ${ss.postedYesterday.fb} FB · ${ss.postedYesterday.stories} stories`
+				: `<span style="color:#C82D2D;font-weight:700">Problemer i går</span> · ${ss.postedYesterday.ig} IG · ${ss.postedYesterday.fb} FB · ${ss.postedYesterday.stories} stories`;
+
+		const failuresHtml = ss.failureNotes.length > 0
+			? `<ul style="margin:8px 0 0;padding-left:20px;font-size:13px;color:#C82D2D">${ss.failureNotes.map(n => `<li>${n}</li>`).join('')}</ul>`
+			: '';
 
 		return `
 			<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Sosiale medier</h2>
-			<table style="width:100%;border-collapse:collapse;margin-bottom:12px">
+			<p style="margin:0 0 12px;font-size:14px">${statusLine}</p>
+			${failuresHtml}
+			<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
 				<tbody>
 					<tr>
-						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Instagram-poster (totalt)</td>
-						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${si.igTotal}</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px;color:#4D4D4D">Instagram-følgere</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:700">${ss.igFollowers ?? '—'}</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;width:80px">${fmtDelta(ss.igFollowersDelta)}</td>
 					</tr>
 					<tr>
-						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">Facebook-poster (totalt)</td>
-						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${si.fbTotal}</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px;color:#4D4D4D">Facebook-følgere</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:700">${ss.fbFollowers ?? '—'}</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;width:80px">${fmtDelta(ss.fbFollowersDelta)}</td>
 					</tr>
 				</tbody>
 			</table>
-			${si.recent.length > 0 ? `
-				<p style="font-size:13px;color:#666;margin:0 0 4px">Siste 7 dager:</p>
-				<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
-					<thead><tr style="background:#f5f5f5">
-						<th style="text-align:left;padding:6px 8px;border:1px solid #ddd;font-size:12px"></th>
-						<th style="text-align:left;padding:6px 8px;border:1px solid #ddd;font-size:12px">Dato</th>
-						<th style="text-align:left;padding:6px 8px;border:1px solid #ddd;font-size:12px">Innhold</th>
-						<th style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:12px">Rekkevidde</th>
-						<th style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:12px">Engasjement</th>
-						<th style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-size:12px">Delinger</th>
-					</tr></thead>
-					<tbody>${recentRows}</tbody>
-				</table>
-			` : ''}
 		`;
 	})() : '';
 
@@ -1157,7 +1206,7 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel
-	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, newsletterReport, socialInsights] = await Promise.all([
+	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, newsletterReport, socialStatus] = await Promise.all([
 		collectPendingCounts(),
 		collectScraperActivity(),
 		collectScraperHealth(),
@@ -1167,7 +1216,7 @@ async function main() {
 		collectSubscribers(),
 		collectExpiringPlacements(),
 		collectNewsletterReport(),
-		collectSocialInsights()
+		collectSocialStatus()
 	]);
 
 	const festivalReminders = collectFestivalReminders();
@@ -1187,7 +1236,7 @@ async function main() {
 		festivalReminders,
 		reminders,
 		newsletterReport,
-		socialInsights
+		socialStatus
 	};
 
 	const total = pending.corrections + pending.submissions + pending.optouts + pending.inquiries;

@@ -367,25 +367,63 @@ describe('concerts filter (konserter)', () => {
 describe('student night filter (studentkveld)', () => {
 	const collection = getCollection('studentkveld')!;
 
-	it('includes student/nightlife evening events this week', () => {
+	it('includes student-tagged or student-venue evening events this week', () => {
 		// Feb 24, 2026 (Tuesday, CET = UTC+1)
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-02-24T18:00:00Z', age_group: 'students' }),  // Today evening, students
-			makeEvent({ id: '2', date_start: '2026-02-24T21:00:00Z', category: 'nightlife' }),   // Today night, nightlife
-			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'student' }),     // Tomorrow evening, student cat
-			makeEvent({ id: '4', date_start: '2026-02-24T08:00:00Z', age_group: 'students' }),   // Today morning — excluded
-			makeEvent({ id: '5', date_start: '2026-02-26T18:00:00Z', category: 'nightlife' }),   // Thursday evening — included (within week)
-			makeEvent({ id: '6', date_start: '2026-03-03T18:00:00Z', category: 'nightlife' })    // Next week — excluded
+			makeEvent({ id: '1', date_start: '2026-02-24T18:00:00Z', age_group: 'students' }),                                  // Today evening, students ✓
+			makeEvent({ id: '2', date_start: '2026-02-24T21:00:00Z', category: 'nightlife', venue_name: 'Bergen Kjøtt' }),       // Generic nightlife, non-student venue ✗
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'student' }),                                    // Tomorrow evening, student cat ✓
+			makeEvent({ id: '4', date_start: '2026-02-24T08:00:00Z', age_group: 'students' }),                                  // Today morning — excluded (time)
+			makeEvent({ id: '5', date_start: '2026-02-26T18:00:00Z', category: 'nightlife', venue_name: 'Det Akademiske Kvarter' }), // Nightlife at student venue ✓
+			makeEvent({ id: '6', date_start: '2026-03-03T18:00:00Z', category: 'student' }),                                    // Next week — excluded
+			makeEvent({ id: '7', date_start: '2026-02-25T20:00:00Z', category: 'music', venue_name: 'Hulen' }),                  // Concert at Hulen ✓
+			makeEvent({ id: '8', date_start: '2026-02-25T20:00:00Z', category: 'theatre', venue_name: 'Forum Scene' })           // Theatre at non-student venue ✗
 		];
 		const result = collection.filterEvents(events, now);
-		expect(result.map(e => e.id)).toEqual(['1', '2', '3', '5']);
+		expect(result.map(e => e.id)).toEqual(['1', '3', '5', '7']);
 	});
 
 	it('returns empty when no matching events', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-02-24T18:00:00Z', category: 'culture', age_group: 'all' })
+			makeEvent({ id: '1', date_start: '2026-02-24T18:00:00Z', category: 'culture', age_group: 'all', venue_name: 'KODE' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
+	});
+});
+
+describe('exhibitions filter (utstillinger)', () => {
+	const collection = getCollection('utstillinger')!;
+
+	it('includes culture events at known exhibition venues, excludes café/film/lecture noise', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			// Real exhibitions ✓
+			makeEvent({ id: '1', date_start: '2026-02-25T12:00:00Z', category: 'culture', venue_name: 'KODE', title_no: 'Edvard Munch — utstilling' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T12:00:00Z', category: 'culture', venue_name: 'Bergen Kunsthall', title_no: 'Bergen Art Book Fair 2026' }),
+			makeEvent({ id: '3', date_start: '2026-02-25T19:00:00Z', category: 'culture', venue_name: 'Galleri X', title_no: 'Vernissage: Ny samtidskunst' }),
+			makeEvent({ id: '4', date_start: '2026-02-25T11:00:00Z', category: 'culture', venue_name: 'Bymuseet', title_no: 'Rommene i Schøtstuene' }),
+			// Noise that should be filtered out ✗
+			makeEvent({ id: '5', date_start: '2026-02-25T12:00:00Z', category: 'culture', venue_name: 'Museum Vest', title_no: 'Kafe Hjemom — din nabolagskafé' }),
+			makeEvent({ id: '6', date_start: '2026-02-25T15:00:00Z', category: 'culture', venue_name: 'Bergen bibliotek', title_no: 'Spillkveld for ungdom' }),
+			makeEvent({ id: '7', date_start: '2026-02-25T19:00:00Z', category: 'culture', venue_name: 'Det Akademiske Kvarter', title_no: 'Paprika (2006)' }),
+			makeEvent({ id: '8', date_start: '2026-02-25T17:00:00Z', category: 'culture', venue_name: 'Bergen Turlag', title_no: 'Padling 7-10 år med GOD TUR' }),
+			makeEvent({ id: '9', date_start: '2026-02-25T19:00:00Z', category: 'culture', venue_name: 'Fanakulturhus', title_no: 'Vinsmaking — Frankrike rundt' }),
+			makeEvent({ id: '10', date_start: '2026-02-25T14:00:00Z', category: 'culture', venue_name: 'Litteraturhuset', title_no: 'Lillelørdag litteraturkafé' }),
+			// Wrong category ✗
+			makeEvent({ id: '11', date_start: '2026-02-25T12:00:00Z', category: 'music', venue_name: 'KODE', title_no: 'KODE-konsert' }),
+			// Outside window ✗
+			makeEvent({ id: '12', date_start: '2026-03-15T12:00:00Z', category: 'culture', venue_name: 'KODE', title_no: 'Utstillingsåpning' })
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['1', '2', '3', '4']);
+	});
+
+	it('returns empty when no events match', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T12:00:00Z', category: 'culture', venue_name: 'Bergen bibliotek', title_no: 'Foredrag' })
 		];
 		expect(collection.filterEvents(events, now)).toHaveLength(0);
 	});

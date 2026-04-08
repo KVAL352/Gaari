@@ -94,6 +94,14 @@ const YOUTH_TEXT_RE = /\bungdom|\btenåring|\bteenåring|\bfor\s+unge?\b|\bunge\
 const YOUTH_CATEGORIES = new Set(['sports', 'workshop', 'student']);
 const INDOOR_CATEGORIES = new Set(['music', 'culture', 'theatre', 'family', 'food', 'workshop', 'nightlife', 'student']);
 
+// Exhibition / gallery filter — only true exhibition venues or exhibition-keyword titles
+const EXHIBITION_VENUE_RE = /\b(KODE|Bergen Kunsthall|Bymuseet|Museum Vest|BEK|Bryggens Museum|Håkonshallen|Schøtstuene|Rosenkrantztårnet|Permanenten|Lysverket|Stenersen|Rasmus Meyer|Gamle Bergen|Damsgård|Hordamuseet|Norsk Trikotasjemuseum|Norges Fiskerimuseum|Vil[\s-]?Vite)\b/i;
+const EXHIBITION_TITLE_RE = /\b(utstilling|åpning|vernissage|exhibition|kunstutstilling|gallerivandring|kunstvandring|book\s*fair|art\s*book|kunstvisning|samling)\b/i;
+const NON_EXHIBITION_TITLE_RE = /\b(kafé|kafe|café|cafe|spillkveld|padling|paddl|vinsmaking|matkurs|matklubb|trylleshow|quiz|nabolagsk|brunsj|frokost|lunsj|middag|konsert|jazz|disko|klubb|pub|bar|drop[\s-]?in|familiesøndag|familielørdag|verksted|workshop|forelesning|debatt|foredrag|panel|filmkveld|kinokveld|litteratur|forfatterkveld|babysang|yoga|trening|svømming|løpetur|hiketur|fjelltur)\b/i;
+
+// Student-night filter — known student venues across Bergen
+const STUDENT_VENUE_RE = /\b(Det\s+Akademiske\s+Kvarter|Kvarteret\b|Hulen\b|Madam\s+Felle|Café\s+Opera|Cafe\s+Opera|Kronbar|Studentersamfunnet|Bergens?\s+Studentersamfunn|Stud[\s-]?vik|StudentBergen|UiB\b|HVL\b|NHH\b|Studentkroa)\b/i;
+
 export interface Collection {
 	id: string;
 	slug: string;
@@ -542,9 +550,13 @@ const collections: Collection[] = [
 			const endStr = getEndOfWeekDateStr(now);
 			return events.filter(e => {
 				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr &&
-					matchesTimeOfDay(e.date_start, ['evening', 'night']) &&
-					(e.age_group === 'students' || e.category === 'student' || e.category === 'nightlife');
+				if (d < todayStr || d > endStr) return false;
+				if (!matchesTimeOfDay(e.date_start, ['evening', 'night'])) return false;
+				// Must be either explicitly tagged for students OR happen at a recognised
+				// student venue. Plain `nightlife` at non-student venues belongs in `uteliv`.
+				if (e.age_group === 'students' || e.category === 'student') return true;
+				const venue = e.venue_name || '';
+				return STUDENT_VENUE_RE.test(venue);
 			});
 		}
 	},
@@ -1615,7 +1627,16 @@ const collections: Collection[] = [
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
 				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && e.category === 'culture';
+				if (d < todayStr || d > endStr) return false;
+				if (e.category !== 'culture') return false;
+				// Defensive title filter — exclude clearly non-exhibition activities that
+				// occasionally get tagged as `culture` (cafés, paddling, wine tasting, film nights, etc.)
+				const title = e.title_no || '';
+				if (NON_EXHIBITION_TITLE_RE.test(title)) return false;
+				// Only include events that are either at a recognised exhibition venue
+				// OR whose title clearly signals an exhibition / opening / vernissage.
+				const venue = e.venue_name || '';
+				return EXHIBITION_VENUE_RE.test(venue) || EXHIBITION_TITLE_RE.test(title);
 			});
 		}
 	},

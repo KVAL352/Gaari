@@ -27,3 +27,4 @@ scripts/test-stripe-webhook.ts
 scripts/social/seed-posts/
 scripts/social/test-output/
 scripts/social/.reels-tmp/
+scripts/.weekly-report-preview.html

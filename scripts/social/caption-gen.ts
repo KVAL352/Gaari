@@ -20,9 +20,16 @@ export function generateCaption(
 ): string {
 	const lines: string[] = [];
 
-	// Header
+	// Line 1 — opening (collection title doubles as the hook)
 	lines.push(collectionTitle);
+
+	// Line 2 — link ALWAYS comes second (feedback_fb_caption_style)
+	const linkLabel = lang === 'en' ? 'Full overview' : 'Full oversikt';
+	lines.push(`${linkLabel}: ${collectionUrl}`);
+
+	// Highlights intro
 	lines.push('');
+	lines.push(lang === 'en' ? 'Some handpicked highlights:' : 'Her er noen utvalgte godbiter:');
 
 	// Event list with auto venue-tagging (no emojis — feedback_no_emojis)
 	const listed = events.slice(0, MAX_LISTED_EVENTS);
@@ -41,21 +48,6 @@ export function generateCaption(
 		const remaining = events.length - MAX_LISTED_EVENTS;
 		lines.push(lang === 'en' ? `... and ${remaining} more` : `... og ${remaining} til`);
 	}
-
-	lines.push('');
-
-	// CTA
-	const ctaText = lang === 'en'
-		? `See all ${events.length} events`
-		: `Se alle ${events.length} arrangementer`;
-	lines.push(`${ctaText}: ${collectionUrl}`);
-
-	// Share CTA
-	lines.push('');
-	const shareText = lang === 'en'
-		? 'Send to someone you want to hang out with'
-		: 'Send til en du har lyst til å henge med';
-	lines.push(shareText);
 
 	// Hashtags
 	lines.push('');
