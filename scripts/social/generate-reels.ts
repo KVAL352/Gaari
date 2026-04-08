@@ -205,6 +205,248 @@ function escapeHtml(s: string): string {
 		.replace(/'/g, '&#39;');
 }
 
+/**
+ * Generate one reel + story batch for a single (slug, date) combination.
+ * Extracted from main() so generate-week.ts can call it for each day in
+ * the upcoming week without duplicating the encoding/upload pipeline.
+ *
+ * Returns a ReelDelivery on success, or null when the collection has no
+ * events / not enough images / encoding fails.
+ */
+export async function generateOneCollection(opts: {
+	slug: string;
+	dateStr: string;
+	now: Date;
+	activeEvents: GaariEvent[];
+	tmpDir: string;
+	dryRun?: boolean;
+}): Promise<ReelDelivery | null> {
+	const { slug, dateStr, now, activeEvents, tmpDir, dryRun = false } = opts;
+	console.log(`--- ${slug} (${dateStr}) ---`);
+	const collection = getCollection(slug);
+	if (!collection) {
+		console.log(`  Collection not found, skipping.\n`);
+		return null;
+	}
+
+	const filtered = collection.filterEvents(activeEvents as any, now);
+	if (filtered.length === 0) {
+		console.log(`  0 events, skipping.\n`);
+		return null;
+	}
+
+	const selected = pickDiverseEvents(filtered, 8);
+	if (selected.length < 4) {
+		console.log(`  Only ${selected.length} events with images, need 4. Skipping.\n`);
+		return null;
+	}
+
+	const isEnglish = ENGLISH_SLUGS.has(slug);
+	const lang = isEnglish ? 'en' as const : 'no' as const;
+	const title = isEnglish ? collection.title.en : collection.title.no;
+
+	const carouselEvents: CarouselEvent[] = selected.map(e => ({
+		title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
+		venue: e.venue_name,
+		time: formatEventTime(e.date_start, lang),
+		category: e.category,
+		imageUrl: e.image_url || undefined,
+		isFree: isFreeEvent(e.price),
+		dateLabel: buildDateLabel(e.date_start, lang, now)
+	}));
+
+	console.log(`  ${selected.length} events selected for reel`);
+
+	const frames = await generateReelsFrames(title, carouselEvents, { lang });
+	if (frames.length < 2) {
+		console.log(`  Too few frames (${frames.length}), skipping.\n`);
+		return null;
+	}
+
+	try {
+		const outro = await generateReelsOutro(title, lang);
+		if (outro) {
+			frames.push(outro);
+			console.log(`  Outro slide appended (${frames.length} frames total)`);
+		}
+	} catch (err: any) {
+		console.log(`  [skip] Outro render failed: ${err.message}`);
+	}
+
+	if (dryRun) {
+		console.log(`  [DRY RUN] Would encode ${frames.length} frames → MP4\n`);
+		return null;
+	}
+
+	if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
+	for (let i = 0; i < frames.length; i++) {
+		writeFileSync(resolve(tmpDir, `frame-${String(i).padStart(3, '0')}.png`), frames[i]);
+	}
+
+	const concatLines = frames.map((_, i) =>
+		`file 'frame-${String(i).padStart(3, '0')}.png'\nduration ${FRAME_DURATION}`
+	).join('\n') + `\nfile 'frame-${String(frames.length - 1).padStart(3, '0')}.png'`;
+	writeFileSync(resolve(tmpDir, 'concat.txt'), concatLines);
+
+	const outputPath = resolve(tmpDir, `${slug}-${dateStr}.mp4`);
+
+	try {
+		const cmd = [
+			`"${FFMPEG}"`,
+			'-y',
+			'-f concat',
+			'-safe 0',
+			`-i "${resolve(tmpDir, 'concat.txt')}"`,
+			'-vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,format=yuv420p"',
+			'-c:v libx264',
+			'-preset medium',
+			'-crf 23',
+			'-r 30',
+			'-movflags +faststart',
+			`"${outputPath}"`
+		].join(' ');
+		console.log(`  Encoding ${frames.length} frames → MP4...`);
+		execSync(cmd, { stdio: 'pipe', timeout: 60000 });
+		console.log(`  Encoded: ${outputPath}`);
+	} catch (err: any) {
+		console.error(`  FFmpeg failed: ${err.message}`);
+		return null;
+	}
+
+	const videoBuffer = readFileSync(outputPath);
+	const storagePath = `${dateStr}/${slug}/reel.mp4`;
+	const { error: uploadError } = await supabase.storage
+		.from(STORAGE_BUCKET)
+		.upload(storagePath, videoBuffer, {
+			contentType: 'video/mp4',
+			upsert: true
+		});
+
+	let publicUrl: string | null = null;
+	if (uploadError) {
+		console.error(`  Upload failed: ${uploadError.message}`);
+		console.log(`  Local MP4 kept at: ${outputPath}`);
+	} else {
+		const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storagePath);
+		publicUrl = urlData.publicUrl;
+		console.log(`  Uploaded: ${publicUrl}`);
+	}
+
+	let delivery: ReelDelivery | null = null;
+	if (publicUrl) {
+		const collectionUrl = `https://gaari.no/${lang}/${slug}?utm_source=instagram&utm_medium=reels&utm_campaign=${slug}`;
+		const captionEvents: CaptionEvent[] = selected.map(e => ({
+			title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
+			venue: e.venue_name,
+			date_start: e.date_start,
+			category: e.category
+		}));
+		const hashtags = HASHTAGS[slug] || ['#bergen', '#bergenby', '#hvaskjeribergen'];
+		const caption = generateCaption(title, captionEvents, collectionUrl, hashtags, lang);
+
+		const captionPath = `${dateStr}/${slug}/caption.txt`;
+		const { error: capErr } = await supabase.storage
+			.from(STORAGE_BUCKET)
+			.upload(captionPath, Buffer.from(caption, 'utf-8'), {
+				contentType: 'text/plain; charset=utf-8',
+				upsert: true
+			});
+		if (capErr) console.warn(`  Caption upload failed: ${capErr.message}`);
+
+		const storyTarget = slug === 'i-dag' || slug === 'today-in-bergen'
+			? STORY_BATCH_SIZE
+			: STORY_BATCH_SIZE_OTHER;
+		const storyEvents = pickDiverseEvents(filtered, storyTarget);
+		const storyCarouselEvents: CarouselEvent[] = storyEvents.map(e => ({
+			title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
+			venue: e.venue_name,
+			time: formatEventTime(e.date_start, lang),
+			category: e.category,
+			imageUrl: e.image_url || undefined,
+			isFree: isFreeEvent(e.price),
+			dateLabel: buildDateLabel(e.date_start, lang, now)
+		}));
+		console.log(`  Generating ${storyEvents.length} story slides...`);
+		const storyImages = await generateStories(title, storyCarouselEvents, { lang });
+		const storyManifest: { url: string; venue: string; igHandle: string | null; title: string }[] = [];
+		for (let i = 0; i < storyImages.length; i++) {
+			const storyPath = `${dateStr}/${slug}/story-${i + 1}.png`;
+			const { error: storyErr } = await supabase.storage
+				.from(STORAGE_BUCKET)
+				.upload(storyPath, storyImages[i], {
+					contentType: 'image/png',
+					upsert: true
+				});
+			if (storyErr) {
+				console.warn(`  Story ${i + 1} upload failed: ${storyErr.message}`);
+				continue;
+			}
+			const { data: storyUrlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storyPath);
+			const ev = storyEvents[i];
+			storyManifest.push({
+				url: storyUrlData.publicUrl,
+				venue: ev.venue_name,
+				igHandle: getVenueInstagram(ev.venue_name),
+				title: isEnglish ? (ev.title_en || ev.title_no) : ev.title_no
+			});
+		}
+
+		if (storyManifest.length > 0) {
+			const manifestPath = `${dateStr}/${slug}/stories.json`;
+			const { error: manErr } = await supabase.storage
+				.from(STORAGE_BUCKET)
+				.upload(manifestPath, Buffer.from(JSON.stringify(storyManifest), 'utf-8'), {
+					contentType: 'application/json; charset=utf-8',
+					upsert: true
+				});
+			if (manErr) console.warn(`  Story manifest upload failed: ${manErr.message}`);
+			else console.log(`  ${storyManifest.length} story slides uploaded`);
+		}
+
+		delivery = {
+			slug,
+			dateStr,
+			collectionTitle: title,
+			collectionUrl,
+			mp4Url: publicUrl,
+			landingUrl: `https://gaari.no/r/${dateStr}/${slug}`,
+			caption,
+			frameCount: frames.length,
+			durationSec: frames.length * FRAME_DURATION,
+			storyCount: storyManifest.length
+		};
+	}
+
+	for (let i = 0; i < frames.length; i++) {
+		try { unlinkSync(resolve(tmpDir, `frame-${String(i).padStart(3, '0')}.png`)); } catch {}
+	}
+	try { unlinkSync(resolve(tmpDir, 'concat.txt')); } catch {}
+	if (!uploadError) {
+		try { unlinkSync(outputPath); } catch {}
+	}
+
+	console.log('');
+	return delivery;
+}
+
+/**
+ * Fetch active upcoming events once. Shared between main() and generate-week.ts
+ * so we don't hit Supabase repeatedly when generating a whole week of reels.
+ */
+export async function fetchActiveEvents(): Promise<GaariEvent[]> {
+	const { data, error } = await supabase
+		.from('events')
+		.select('*')
+		.eq('status', 'approved')
+		.gte('date_start', new Date().toISOString())
+		.order('date_start', { ascending: true })
+		.limit(500);
+	if (error || !data) {
+		throw new Error(`Failed to fetch events: ${error?.message}`);
+	}
+	return (data as any).filter((e: any) => e.status !== 'cancelled') as GaariEvent[];
+}
+
 async function main() {
 	const now = getOsloNow();
 	const dateStr = toOsloDateStr(now);
@@ -215,245 +457,18 @@ async function main() {
 
 	if (!DRY_RUN) await ensureBucket();
 
-	// Fetch events
-	const { data: allEvents, error } = await supabase
-		.from('events')
-		.select('*')
-		.eq('status', 'approved')
-		.gte('date_start', new Date().toISOString())
-		.order('date_start', { ascending: true })
-		.limit(500);
-
-	if (error || !allEvents) {
-		console.error(`Failed to fetch events: ${error?.message}`);
-		process.exit(1);
-	}
-
-	const active = allEvents.filter((e: any) => e.status !== 'cancelled');
+	const activeEvents = await fetchActiveEvents();
 
 	for (const slug of REELS_SLUGS) {
-		console.log(`--- ${slug} ---`);
-		const collection = getCollection(slug);
-		if (!collection) {
-			console.log(`  Collection not found, skipping.\n`);
-			continue;
-		}
-
-		const filtered = collection.filterEvents(active as any, now);
-		if (filtered.length === 0) {
-			console.log(`  0 events, skipping.\n`);
-			continue;
-		}
-
-		// Reel selection: use the diverse picker (IG-handle cap + time spread +
-		// day spread) so the same logic that protects stories from bibliotek/
-		// akvariet domination also protects the reel.
-		const selected = pickDiverseEvents(filtered, 8);
-
-		if (selected.length < 4) {
-			console.log(`  Only ${selected.length} events with images, need 4. Skipping.\n`);
-			continue;
-		}
-
-		const isEnglish = ENGLISH_SLUGS.has(slug);
-		const lang = isEnglish ? 'en' as const : 'no' as const;
-		const title = isEnglish ? collection.title.en : collection.title.no;
-
-		const carouselEvents: CarouselEvent[] = selected.map(e => ({
-			title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
-			venue: e.venue_name,
-			time: formatEventTime(e.date_start, lang),
-			category: e.category,
-			imageUrl: e.image_url || undefined,
-			isFree: isFreeEvent(e.price),
-			dateLabel: buildDateLabel(e.date_start, lang, now)
-		}));
-
-		console.log(`  ${selected.length} events selected for reel`);
-
-		// Generate frames
-		const frames = await generateReelsFrames(title, carouselEvents, { lang });
-		if (frames.length < 2) {
-			console.log(`  Too few frames (${frames.length}), skipping.\n`);
-			continue;
-		}
-
-		// Append outro slide ("More on gaari.no")
-		try {
-			const outro = await generateReelsOutro(title, lang);
-			if (outro) {
-				frames.push(outro);
-				console.log(`  Outro slide appended (${frames.length} frames total)`);
-			}
-		} catch (err: any) {
-			console.log(`  [skip] Outro render failed: ${err.message}`);
-		}
-
-		if (DRY_RUN) {
-			console.log(`  [DRY RUN] Would encode ${frames.length} frames → MP4\n`);
-			continue;
-		}
-
-		// Write frames to temp dir
-		if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
-		for (let i = 0; i < frames.length; i++) {
-			writeFileSync(resolve(tmpDir, `frame-${String(i).padStart(3, '0')}.png`), frames[i]);
-		}
-
-		// Create FFmpeg concat file (each frame shown for FRAME_DURATION seconds)
-		// Repeat last frame to avoid FFmpeg trimming
-		const concatLines = frames.map((_, i) =>
-			`file 'frame-${String(i).padStart(3, '0')}.png'\nduration ${FRAME_DURATION}`
-		).join('\n') + `\nfile 'frame-${String(frames.length - 1).padStart(3, '0')}.png'`;
-		writeFileSync(resolve(tmpDir, 'concat.txt'), concatLines);
-
-		const outputPath = resolve(tmpDir, `${slug}-${dateStr}.mp4`);
-
-		// Encode with FFmpeg — slideshow with crossfade
-		try {
-			const cmd = [
-				`"${FFMPEG}"`,
-				'-y',
-				'-f concat',
-				'-safe 0',
-				`-i "${resolve(tmpDir, 'concat.txt')}"`,
-				'-vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,format=yuv420p"',
-				'-c:v libx264',
-				'-preset medium',
-				'-crf 23',
-				'-r 30',
-				'-movflags +faststart',
-				`"${outputPath}"`
-			].join(' ');
-
-			console.log(`  Encoding ${frames.length} frames → MP4...`);
-			execSync(cmd, { stdio: 'pipe', timeout: 60000 });
-			console.log(`  Encoded: ${outputPath}`);
-		} catch (err: any) {
-			console.error(`  FFmpeg failed: ${err.message}`);
-			continue;
-		}
-
-		// Upload to Supabase storage
-		const videoBuffer = readFileSync(outputPath);
-		const storagePath = `${dateStr}/${slug}/reel.mp4`;
-		const { error: uploadError } = await supabase.storage
-			.from(STORAGE_BUCKET)
-			.upload(storagePath, videoBuffer, {
-				contentType: 'video/mp4',
-				upsert: true
-			});
-
-		let publicUrl: string | null = null;
-		if (uploadError) {
-			console.error(`  Upload failed: ${uploadError.message}`);
-			console.log(`  Local MP4 kept at: ${outputPath}`);
-		} else {
-			const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storagePath);
-			publicUrl = urlData.publicUrl;
-			console.log(`  Uploaded: ${publicUrl}`);
-		}
-
-		// Build caption and queue email delivery (only on successful upload)
-		if (publicUrl) {
-			const collectionUrl = `https://gaari.no/${lang}/${slug}?utm_source=instagram&utm_medium=reels&utm_campaign=${slug}`;
-			const captionEvents: CaptionEvent[] = selected.map(e => ({
-				title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
-				venue: e.venue_name,
-				date_start: e.date_start,
-				category: e.category
-			}));
-			const hashtags = HASHTAGS[slug] || ['#bergen', '#bergenby', '#hvaskjeribergen'];
-			const caption = generateCaption(title, captionEvents, collectionUrl, hashtags, lang, { categoryIcons: false });
-
-			// Upload caption alongside MP4 so the /r/[date]/[slug] landing page can read it.
-			const captionPath = `${dateStr}/${slug}/caption.txt`;
-			const { error: capErr } = await supabase.storage
-				.from(STORAGE_BUCKET)
-				.upload(captionPath, Buffer.from(caption, 'utf-8'), {
-					contentType: 'text/plain; charset=utf-8',
-					upsert: true
-				});
-			if (capErr) console.warn(`  Caption upload failed: ${capErr.message}`);
-
-			// Generate per-event story slides + upload + manifest. Stories use a
-			// fresh, larger pick from the full filtered pool — independent of the
-			// reel selection — so we get up to 10 diverse stories for i-dag (the
-			// daily posting target) and don't repeat the reel's 8 events verbatim.
-			const storyTarget = slug === 'i-dag' || slug === 'today-in-bergen'
-				? STORY_BATCH_SIZE
-				: STORY_BATCH_SIZE_OTHER;
-			const storyEvents = pickDiverseEvents(filtered, storyTarget);
-			const storyCarouselEvents: CarouselEvent[] = storyEvents.map(e => ({
-				title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
-				venue: e.venue_name,
-				time: formatEventTime(e.date_start, lang),
-				category: e.category,
-				imageUrl: e.image_url || undefined,
-				isFree: isFreeEvent(e.price),
-				dateLabel: buildDateLabel(e.date_start, lang, now)
-			}));
-			console.log(`  Generating ${storyEvents.length} story slides...`);
-			const storyImages = await generateStories(title, storyCarouselEvents, { lang });
-			const storyManifest: { url: string; venue: string; igHandle: string | null; title: string }[] = [];
-			for (let i = 0; i < storyImages.length; i++) {
-				const storyPath = `${dateStr}/${slug}/story-${i + 1}.png`;
-				const { error: storyErr } = await supabase.storage
-					.from(STORAGE_BUCKET)
-					.upload(storyPath, storyImages[i], {
-						contentType: 'image/png',
-						upsert: true
-					});
-				if (storyErr) {
-					console.warn(`  Story ${i + 1} upload failed: ${storyErr.message}`);
-					continue;
-				}
-				const { data: storyUrlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storyPath);
-				const ev = storyEvents[i];
-				storyManifest.push({
-					url: storyUrlData.publicUrl,
-					venue: ev.venue_name,
-					igHandle: getVenueInstagram(ev.venue_name),
-					title: isEnglish ? (ev.title_en || ev.title_no) : ev.title_no
-				});
-			}
-
-			if (storyManifest.length > 0) {
-				const manifestPath = `${dateStr}/${slug}/stories.json`;
-				const { error: manErr } = await supabase.storage
-					.from(STORAGE_BUCKET)
-					.upload(manifestPath, Buffer.from(JSON.stringify(storyManifest), 'utf-8'), {
-						contentType: 'application/json; charset=utf-8',
-						upsert: true
-					});
-				if (manErr) console.warn(`  Story manifest upload failed: ${manErr.message}`);
-				else console.log(`  ${storyManifest.length} story slides uploaded`);
-			}
-
-			deliveries.push({
-				slug,
-				dateStr,
-				collectionTitle: title,
-				collectionUrl,
-				mp4Url: publicUrl,
-				landingUrl: `https://gaari.no/r/${dateStr}/${slug}`,
-				caption,
-				frameCount: frames.length,
-				durationSec: frames.length * FRAME_DURATION,
-				storyCount: storyManifest.length
-			});
-		}
-
-		// Cleanup temp frame files (keep MP4 if upload failed)
-		for (let i = 0; i < frames.length; i++) {
-			try { unlinkSync(resolve(tmpDir, `frame-${String(i).padStart(3, '0')}.png`)); } catch {}
-		}
-		try { unlinkSync(resolve(tmpDir, 'concat.txt')); } catch {}
-		if (!uploadError) {
-			try { unlinkSync(outputPath); } catch {}
-		}
-
-		console.log('');
+		const delivery = await generateOneCollection({
+			slug,
+			dateStr,
+			now,
+			activeEvents,
+			tmpDir,
+			dryRun: DRY_RUN
+		});
+		if (delivery) deliveries.push(delivery);
 	}
 
 	if (SEND_EMAIL && !DRY_RUN) {

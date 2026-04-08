@@ -257,8 +257,8 @@ function eventSlideWithImage(
 										left: 0,
 										right: 0,
 										bottom: 0,
-										height: '60%',
-										background: 'linear-gradient(to bottom, rgba(20,20,22,0), rgba(20,20,22,0.55) 35%, rgba(20,20,22,0.92) 100%)'
+										height: '72%',
+										background: 'linear-gradient(to bottom, rgba(20,20,22,0) 0%, rgba(20,20,22,0.2) 35%, rgba(20,20,22,0.6) 70%, rgba(20,20,22,0.9) 100%)'
 									}
 								}
 							},
@@ -360,7 +360,7 @@ function eventSlideWithImage(
 													color: WHITE,
 													lineHeight: 1.05,
 													letterSpacing: '-0.015em',
-													textShadow: '0 4px 24px rgba(0,0,0,0.6)'
+													textShadow: '0 2px 8px rgba(0,0,0,0.95), 0 4px 24px rgba(0,0,0,0.85)'
 												},
 												children: displayTitle
 											}
@@ -370,12 +370,12 @@ function eventSlideWithImage(
 											props: {
 												style: {
 													display: 'flex',
-													fontSize: '30px',
+													fontSize: '36px',
 													fontFamily: 'Inter',
-													fontWeight: 500,
-													color: 'rgba(255,255,255,0.92)',
+													fontWeight: 600,
+													color: '#FFFFFF',
 													lineHeight: 1.3,
-													textShadow: '0 2px 12px rgba(0,0,0,0.6)'
+													textShadow: '0 1px 4px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.85)'
 												},
 												children: venueTime
 											}
@@ -557,8 +557,8 @@ function storyEventSlideMarkup(
 										left: 0,
 										right: 0,
 										bottom: 0,
-										height: '60%',
-										background: 'linear-gradient(to bottom, rgba(20,20,22,0), rgba(20,20,22,0.55) 35%, rgba(20,20,22,0.92) 100%)'
+										height: '72%',
+										background: 'linear-gradient(to bottom, rgba(20,20,22,0) 0%, rgba(20,20,22,0.2) 35%, rgba(20,20,22,0.6) 70%, rgba(20,20,22,0.9) 100%)'
 									}
 								}
 							},
@@ -660,7 +660,7 @@ function storyEventSlideMarkup(
 													color: WHITE,
 													lineHeight: 1.02,
 													letterSpacing: '-0.015em',
-													textShadow: '0 4px 24px rgba(0,0,0,0.6)'
+													textShadow: '0 2px 8px rgba(0,0,0,0.95), 0 4px 24px rgba(0,0,0,0.85)'
 												},
 												children: displayTitle
 											}
@@ -672,10 +672,10 @@ function storyEventSlideMarkup(
 													display: 'flex',
 													fontSize: '38px',
 													fontFamily: 'Inter',
-													fontWeight: 500,
-													color: 'rgba(255,255,255,0.92)',
+													fontWeight: 600,
+													color: '#FFFFFF',
 													lineHeight: 1.3,
-													textShadow: '0 2px 12px rgba(0,0,0,0.6)'
+													textShadow: '0 1px 4px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.85)'
 												},
 												children: venueTime
 											}
