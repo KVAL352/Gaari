@@ -19,6 +19,8 @@
 	let imagePreview = $state('');
 	let imageWarning = $state('');
 	let processedBlob = $state<Blob | null>(null);
+	let uploadExt = $state('jpg');
+	let uploadMime = $state('image/jpeg');
 
 	// Website form state
 	let websiteSubmitted = $state(false);
@@ -49,78 +51,102 @@
 		return url;
 	}
 
-	function processImage(file: File): Promise<{ blob: Blob; warning: string }> {
+	async function decodeImage(file: File): Promise<{ width: number; height: number; source: CanvasImageSource; close: () => void }> {
+		// Prefer createImageBitmap — decodes off the main thread, dramatically lower
+		// memory pressure than `new Image()` + objectURL on iOS Safari (where
+		// large PNGs would silently break canvas.toBlob).
+		if (typeof createImageBitmap === 'function') {
+			try {
+				const bitmap = await createImageBitmap(file);
+				return {
+					width: bitmap.width,
+					height: bitmap.height,
+					source: bitmap,
+					close: () => bitmap.close()
+				};
+			} catch (err) {
+				console.warn('[submit] createImageBitmap failed, falling back to Image():', err);
+			}
+		}
+		// Fallback for older browsers
 		return new Promise((resolve, reject) => {
 			const img = new Image();
-			img.onload = () => {
-				try {
-					let warning = '';
-					const w = img.naturalWidth;
-					const h = img.naturalHeight;
-
-					// Check minimum width
-					if (w < 800) {
-						reject(new Error($lang === 'no'
-							? `Bildet er for lite (${w}px bredt). Minimum 800px bredde.`
-							: `Image is too small (${w}px wide). Minimum 800px width.`));
-						return;
-					}
-
-					// Aspect ratio check
-					const ratio = w / h;
-					if (ratio < 1.2) {
-						warning = $lang === 'no'
-							? 'Tips: Liggende format (16:9) ser best ut på siden.'
-							: 'Tip: Landscape format (16:9) looks best on the site.';
-					}
-
-					// Resize if wider than 1200px
-					const maxWidth = 1200;
-					const canvas = document.createElement('canvas');
-					const ctx = canvas.getContext('2d');
-
-					if (!ctx) {
-						reject(new Error($lang === 'no'
-							? 'Kunne ikke behandle bildet. Prøv et annet bilde.'
-							: 'Could not process the image. Please try another image.'));
-						return;
-					}
-
-					if (w > maxWidth) {
-						const scale = maxWidth / w;
-						canvas.width = maxWidth;
-						canvas.height = Math.round(h * scale);
-					} else {
-						canvas.width = w;
-						canvas.height = h;
-					}
-
-					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-					canvas.toBlob(
-						(blob) => {
-							if (blob) {
-								resolve({ blob, warning });
-							} else {
-								reject(new Error($lang === 'no'
-									? 'Kunne ikke behandle bildet. Prøv et mindre bilde.'
-									: 'Could not process the image. Try a smaller image.'));
-							}
-						},
-						'image/jpeg',
-						0.85
-					);
-				} catch {
-					reject(new Error($lang === 'no'
-						? 'Bildebehandling feilet. Prøv et mindre eller annet bilde.'
-						: 'Image processing failed. Try a smaller or different image.'));
-				}
+			const url = URL.createObjectURL(file);
+			img.onload = () => resolve({
+				width: img.naturalWidth,
+				height: img.naturalHeight,
+				source: img,
+				close: () => URL.revokeObjectURL(url)
+			});
+			img.onerror = (e) => {
+				URL.revokeObjectURL(url);
+				console.error('[submit] image load failed:', e);
+				reject(new Error($lang === 'no'
+					? 'Kunne ikke lese bildet. Prøv et annet format (JPG eller PNG).'
+					: 'Could not read the image. Try another format (JPG or PNG).'));
 			};
-			img.onerror = () => reject(new Error($lang === 'no'
-				? 'Kunne ikke lese bildet. Prøv et annet format (JPG eller PNG).'
-				: 'Could not read the image. Try another format (JPG or PNG).'));
-			img.src = URL.createObjectURL(file);
+			img.src = url;
 		});
+	}
+
+	async function processImage(file: File): Promise<{ blob: Blob; warning: string }> {
+		const decoded = await decodeImage(file);
+		try {
+			let warning = '';
+			const w = decoded.width;
+			const h = decoded.height;
+
+			// Check minimum width
+			if (w < 800) {
+				throw new Error($lang === 'no'
+					? `Bildet er for lite (${w}px bredt). Minimum 800px bredde.`
+					: `Image is too small (${w}px wide). Minimum 800px width.`);
+			}
+
+			// Aspect ratio check
+			const ratio = w / h;
+			if (ratio < 1.2) {
+				warning = $lang === 'no'
+					? 'Tips: Liggende format (16:9) ser best ut på siden.'
+					: 'Tip: Landscape format (16:9) looks best on the site.';
+			}
+
+			// Resize if wider than 1200px
+			const maxWidth = 1200;
+			const canvas = document.createElement('canvas');
+			const ctx = canvas.getContext('2d');
+
+			if (!ctx) {
+				throw new Error($lang === 'no'
+					? 'Kunne ikke behandle bildet. Prøv et annet bilde.'
+					: 'Could not process the image. Please try another image.');
+			}
+
+			if (w > maxWidth) {
+				const scale = maxWidth / w;
+				canvas.width = maxWidth;
+				canvas.height = Math.round(h * scale);
+			} else {
+				canvas.width = w;
+				canvas.height = h;
+			}
+
+			ctx.drawImage(decoded.source, 0, 0, canvas.width, canvas.height);
+
+			const blob = await new Promise<Blob | null>((res) => {
+				canvas.toBlob(res, 'image/jpeg', 0.85);
+			});
+
+			if (!blob) {
+				throw new Error($lang === 'no'
+					? 'Kunne ikke behandle bildet. Prøv et mindre bilde.'
+					: 'Could not process the image. Try a smaller image.');
+			}
+
+			return { blob, warning };
+		} finally {
+			decoded.close();
+		}
 	}
 
 	async function handleImageSelect(e: Event) {
@@ -143,17 +169,41 @@
 		try {
 			const { blob, warning } = await processImage(file);
 			processedBlob = blob;
+			uploadExt = 'jpg';
+			uploadMime = 'image/jpeg';
 			imageWarning = warning;
 			if (imagePreview) URL.revokeObjectURL(imagePreview);
 			imagePreview = URL.createObjectURL(blob);
 		} catch (err: unknown) {
-			submitError = err instanceof Error ? err.message : 'Failed to process image';
-			input.value = '';
+			console.error('[submit] processImage failed, attempting fallback:', err);
+			// Fallback: upload original file as-is if it's a reasonable size and format
+			const MAX_FALLBACK = 5 * 1024 * 1024;
+			const allowedTypes: Record<string, string> = {
+				'image/jpeg': 'jpg',
+				'image/png': 'png',
+				'image/webp': 'webp'
+			};
+			const ext = allowedTypes[file.type];
+			if (file.size <= MAX_FALLBACK && ext) {
+				processedBlob = file;
+				uploadExt = ext;
+				uploadMime = file.type;
+				imageWarning = $lang === 'no'
+					? 'Bildet kunne ikke optimaliseres i nettleseren, men lastes opp som det er.'
+					: 'Image could not be optimised in the browser, but will be uploaded as-is.';
+				if (imagePreview) URL.revokeObjectURL(imagePreview);
+				imagePreview = URL.createObjectURL(file);
+			} else {
+				submitError = err instanceof Error ? err.message : 'Failed to process image';
+				input.value = '';
+			}
 		}
 	}
 
 	function removeImage() {
 		processedBlob = null;
+		uploadExt = 'jpg';
+		uploadMime = 'image/jpeg';
 		imageWarning = '';
 		if (imagePreview) URL.revokeObjectURL(imagePreview);
 		imagePreview = '';
@@ -162,16 +212,19 @@
 	async function uploadImage(slug: string): Promise<string | null> {
 		if (!processedBlob) return null;
 
-		const path = `events/${slug}.jpg`;
+		const path = `events/${slug}.${uploadExt}`;
 
 		const { error } = await supabase.storage
 			.from('event-images')
 			.upload(path, processedBlob, {
-				contentType: 'image/jpeg',
+				contentType: uploadMime,
 				upsert: true
 			});
 
-		if (error) return null;
+		if (error) {
+			console.error('[submit] uploadImage failed:', error);
+			return null;
+		}
 
 		const { data } = supabase.storage
 			.from('event-images')
