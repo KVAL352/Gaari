@@ -171,12 +171,14 @@ async function collectTraffic(): Promise<TrafficSection | null> {
 
 		const topReferrers = Array.isArray(refRaw) ? aggregateReferrers(refRaw) : [];
 
-		// Custom events — these are click conversions we care about:
-		// ticket-click, newsletter-signup/click, bio-link-click, social-click,
-		// promoted-click, event-share, filter-used, inquiry-submit, ai-referral
+		// Custom events — only true conversions belong in the weekly report.
+		// Behavioural / discovery events (collection-scroll, event-view,
+		// filter-used) are useful for site analysis but noise in the report.
+		const EXCLUDED_EVENTS = new Set(['collection-scroll', 'event-view', 'filter-used']);
 		const customEvents = Array.isArray(eventsRaw)
 			? eventsRaw
 				.map((e: { x: string; y: number }) => ({ name: e.x, count: e.y }))
+				.filter(e => !EXCLUDED_EVENTS.has(e.name))
 				.sort((a, b) => b.count - a.count)
 				.slice(0, 8)
 			: [];
