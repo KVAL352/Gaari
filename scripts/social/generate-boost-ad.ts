@@ -641,6 +641,31 @@ Se hele programmet: ${utmLink}
 
 #bergen #bergenby #hvaskjeribergen #bergenkultur #bergenliv #bergensentrum`;
 
+	// Per-slide Meta carousel headline + description.
+	// In Ads Manager → Carousel → each card has its own Headline (≤40 char)
+	// and an optional Description (≤30 char). Headlines below match the
+	// 5 slides we generated, in the same order.
+	const slideMeta = [
+		{ slide: '01-hero',                  headline: 'Hva skjer i Bergen?',     description: '1500+ arrangementer' },
+		{ slide: '02-konserter',             headline: 'Konserter i Bergen',      description: 'Live denne uka' },
+		{ slide: '03-teater-kultur',         headline: 'Teater og kultur',        description: 'På scenene i Bergen' },
+		{ slide: '04-familie-opplevelser',   headline: 'Familie og opplevelser',  description: 'For hele familien' },
+		{ slide: '05-cta',                   headline: 'Se hele programmet',      description: 'Oppdatert daglig' }
+	];
+
+	const headlinesText = `META CAROUSEL HEADLINES + DESCRIPTIONS
+========================================
+Lim inn i Meta Ads Manager når du oppretter carousel-annonsen.
+Hver slide har sin egen Headline (≤40 tegn) og Description (≤30 tegn).
+
+URL for ALLE slides (samme lenke):
+${utmLink}
+
+`+ slideMeta.map(m => `--- ${m.slide} ---
+Headline:    ${m.headline}
+Description: ${m.description}
+`).join('\n');
+
 	// Upload caption file
 	const captionPath = `boost/${startDate}/caption.txt`;
 	const { error: capErr } = await supabase.storage
@@ -650,6 +675,16 @@ Se hele programmet: ${utmLink}
 			upsert: true
 		});
 	if (capErr) console.warn(`  Caption upload failed: ${capErr.message}`);
+
+	// Upload headlines/descriptions file
+	const headlinesPath = `boost/${startDate}/headlines.txt`;
+	const { error: hdlErr } = await supabase.storage
+		.from(STORAGE_BUCKET)
+		.upload(headlinesPath, Buffer.from(headlinesText, 'utf-8'), {
+			contentType: 'text/plain; charset=utf-8',
+			upsert: true
+		});
+	if (hdlErr) console.warn(`  Headlines upload failed: ${hdlErr.message}`);
 
 	// Bundle all slides + caption into a single ZIP for one-click download
 	console.log('\nBuilding boost.zip...');
@@ -666,6 +701,7 @@ Se hele programmet: ${utmLink}
 		archive.pipe(output);
 
 		archive.append(caption, { name: 'caption.txt' });
+		archive.append(headlinesText, { name: 'headlines.txt' });
 
 		for (const slide of allSlides) {
 			// Re-encode to JPEG inside the ZIP for consistent compression
