@@ -1,5 +1,5 @@
 import type { Category } from '../../src/lib/types.js';
-import { getCategoryIcon, formatEventTime } from '../../src/lib/utils.js';
+import { formatEventTime } from '../../src/lib/utils.js';
 import { getVenueInstagram } from '../lib/venues.js';
 
 export interface CaptionEvent {
@@ -16,27 +16,24 @@ export function generateCaption(
 	events: CaptionEvent[],
 	collectionUrl: string,
 	hashtags: string[],
-	lang: 'no' | 'en' = 'no',
-	options: { categoryIcons?: boolean } = {}
+	lang: 'no' | 'en' = 'no'
 ): string {
 	const lines: string[] = [];
-	const useIcons = options.categoryIcons !== false; // default true to preserve existing callers
 
 	// Header
 	lines.push(collectionTitle);
 	lines.push('');
 
-	// Event list with auto venue-tagging
+	// Event list with auto venue-tagging (no emojis — feedback_no_emojis)
 	const listed = events.slice(0, MAX_LISTED_EVENTS);
 	for (const event of listed) {
-		const iconPart = useIcons ? `${getCategoryIcon(event.category)} ` : '';
 		const time = formatEventTime(event.date_start, lang);
 		const timePart = time ? (lang === 'en' ? `, ${time}` : `, kl. ${time}`) : '';
 		const igHandle = getVenueInstagram(event.venue);
 		if (igHandle) {
-			lines.push(`${iconPart}${event.title}, @${igHandle}${timePart}`);
+			lines.push(`${event.title}, @${igHandle}${timePart}`);
 		} else {
-			lines.push(`${iconPart}${event.title} @ ${event.venue}${timePart}`);
+			lines.push(`${event.title} @ ${event.venue}${timePart}`);
 		}
 	}
 
