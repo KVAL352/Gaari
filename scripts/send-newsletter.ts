@@ -20,11 +20,13 @@ import { writeFileSync, mkdirSync } from 'fs';
 dotenv.config({ path: resolve(import.meta.dirname, '../.env') });
 
 const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const NEWSLETTER_SIGNING_SECRET = process.env.NEWSLETTER_SIGNING_SECRET;
 const SUMMARY_FILE = process.env.SUMMARY_FILE;
 const DRY_RUN = process.argv.includes('--dry-run');
 const MAX_EVENTS_PER_EMAIL = 12;
 const MAILERLITE_BASE = 'https://connect.mailerlite.com/api';
+const VERIFICATION_EMAIL = 'post@gaari.no';
 
 function generatePreferenceToken(email: string): string {
 	if (!NEWSLETTER_SIGNING_SECRET) throw new Error('NEWSLETTER_SIGNING_SECRET not set');
@@ -384,6 +386,8 @@ async function main() {
 	const weekLabel = getWeekLabel(now, 'no');
 	let sentCount = 0;
 	let errorCount = 0;
+	let firstSubject = '';
+	let firstHtml = '';
 
 	for (const [key, group] of groups) {
 		const { profile, emails } = group;
@@ -465,6 +469,12 @@ async function main() {
 			});
 		}
 
+		// Capture first group for verification copy
+		if (!firstHtml) {
+			firstSubject = subject;
+			firstHtml = html;
+		}
+
 		if (DRY_RUN) {
 			// Write HTML to disk for inspection
 			const outDir = resolve(import.meta.dirname, '../.newsletter-preview');
@@ -497,6 +507,12 @@ async function main() {
 	console.log('─'.repeat(50));
 	console.log(`Done. ${sentCount} emails ${DRY_RUN ? 'previewed' : 'sent'}, ${errorCount} errors.`);
 
+	// Send verification copy to post@gaari.no (live sends only)
+	if (!DRY_RUN && firstHtml && sentCount > 0) {
+		console.log('Sending verification copy...');
+		await sendVerificationCopy(firstSubject, firstHtml, groups.size, sentCount);
+	}
+
 	writeSummary({
 		subscribers: subscribers.length,
 		groups: groups.size,
@@ -504,6 +520,40 @@ async function main() {
 		errors: errorCount,
 		dryRun: DRY_RUN
 	});
+}
+
+async function sendVerificationCopy(subject: string, html: string, groupCount: number, sentCount: number): Promise<void> {
+	if (!RESEND_API_KEY) {
+		console.log('  No RESEND_API_KEY — skipping verification copy');
+		return;
+	}
+
+	const verifySubject = `[Nyhetsbrev-kopi] ${subject}`;
+	const wrapper = `<div style="font-family:Arial,sans-serif;font-size:14px;color:#555;padding:16px;border-bottom:2px solid #C82D2D;margin-bottom:16px;">
+		<strong>Nyhetsbrev sendt</strong> — ${sentCount} mottakere i ${groupCount} grupper. Dette er en kopi av den første gruppen.<br>
+		<a href="https://app.mailerlite.com/campaigns" style="color:#C82D2D;">Se kampanjer i MailerLite</a>
+	</div>${html}`;
+
+	const resp = await fetch('https://api.resend.com/emails', {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${RESEND_API_KEY}`,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			from: 'Gåri <noreply@gaari.no>',
+			to: [VERIFICATION_EMAIL],
+			subject: verifySubject,
+			html: wrapper
+		})
+	});
+
+	if (resp.ok) {
+		const data = await resp.json() as { id: string };
+		console.log(`  Verification copy sent to ${VERIFICATION_EMAIL} (Resend ID: ${data.id})`);
+	} else {
+		console.error(`  Verification copy failed: ${resp.status} ${await resp.text()}`);
+	}
 }
 
 function writeSummary(data: Record<string, unknown>) {
