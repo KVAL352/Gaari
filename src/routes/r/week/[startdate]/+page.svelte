@@ -124,28 +124,50 @@
 						<p class="day-label">{day.label}</p>
 					</div>
 					{#if day.skipped}
-							<span class="status-pill skip">Skippet</span>
-						{/if}
+						<span class="status-pill skip">Skippet</span>
+					{/if}
 				</header>
 
 				{#if day.skipped}
 					<p class="skip-reason">{day.skipReason || 'Ingen events tilgjengelig'}</p>
 				{:else}
-					<p class="day-meta">
-						{day.frameCount} carousel-bilder · {day.storyCount} stories{#if day.mp4Url} · reel{/if}
-					</p>
-
-					<div class="day-actions">
-						{#if day.dayZipUrl}
-							<a class="zip-btn" href={day.dayZipUrl} download={`gaari-${day.dateStr}-${day.slug}.zip`}>
-								Last ned dagens innhold (ZIP)
+					<!-- Download buttons -->
+					<div class="download-row">
+						{#if day.carouselZipUrl}
+							<a class="dl-btn carousel" href={day.carouselZipUrl} download={`gaari-${day.dateStr}-carousel.zip`}>
+								Carousel ({day.frameCount})
 							</a>
 						{/if}
-						{#if day.caption}
-							<button type="button" class="caption-btn" onclick={() => copyCaption(day.slug, day.caption!)}>
-								{#if copyState[day.slug] === 'copied'}Kopiert
-								{:else if copyState[day.slug] === 'error'}Feilet
-								{:else}Kopier caption{/if}
+						{#if day.storiesZipUrl}
+							<a class="dl-btn stories" href={day.storiesZipUrl} download={`gaari-${day.dateStr}-stories.zip`}>
+								Stories ({day.storyCount})
+							</a>
+						{/if}
+						{#if day.mp4Url}
+							<a class="dl-btn reel" href={day.mp4Url} download={`gaari-${day.dateStr}-reel.mp4`}>
+								Reel
+							</a>
+						{/if}
+					</div>
+
+					<!-- Copy buttons -->
+					<div class="copy-row">
+						{#if day.storyLink}
+							<button type="button" class="copy-btn" onclick={() => copyCaption(`${day.slug}-link`, day.storyLink!)}>
+								{#if copyState[`${day.slug}-link`] === 'copied'}Kopiert
+								{:else}Kopier story-lenke{/if}
+							</button>
+						{/if}
+						{#if day.captionNo}
+							<button type="button" class="copy-btn" onclick={() => copyCaption(`${day.slug}-no`, day.captionNo!)}>
+								{#if copyState[`${day.slug}-no`] === 'copied'}Kopiert
+								{:else}Kopier caption (NO){/if}
+							</button>
+						{/if}
+						{#if day.captionEn}
+							<button type="button" class="copy-btn" onclick={() => copyCaption(`${day.slug}-en`, day.captionEn!)}>
+								{#if copyState[`${day.slug}-en`] === 'copied'}Kopiert
+								{:else}Kopier caption (EN){/if}
 							</button>
 						{/if}
 					</div>
@@ -299,48 +321,54 @@
 		margin-bottom: 12px;
 	}
 
-	.day-header-actions {
+	.download-row {
 		display: flex;
 		gap: 8px;
-		flex-shrink: 0;
-		align-items: center;
+		margin-bottom: 10px;
 	}
 
-	.zip-btn {
-		display: block;
-		width: 100%;
+	.dl-btn {
+		flex: 1;
 		text-align: center;
-		background: #C82D2D;
-		color: #fff;
 		text-decoration: none;
-		padding: 14px 24px;
+		padding: 12px 8px;
 		border-radius: 10px;
 		font-family: 'Barlow Condensed', sans-serif;
 		font-weight: 700;
-		font-size: 18px;
-		letter-spacing: 0.02em;
+		font-size: 16px;
+		color: #fff;
 	}
 
-	.zip-btn:active {
+	.dl-btn.carousel { background: #C82D2D; }
+	.dl-btn.stories { background: #2D6BC8; }
+	.dl-btn.reel { background: #141414; }
+
+	.dl-btn:active {
 		transform: scale(0.98);
 	}
 
-	.caption-btn {
-		display: block;
-		width: 100%;
+	.copy-row {
+		display: flex;
+		gap: 8px;
+		margin-bottom: 16px;
+	}
+
+	.copy-btn {
+		flex: 1;
 		text-align: center;
 		background: #fff;
-		color: #C82D2D;
-		border: 2px solid #C82D2D;
-		padding: 12px 24px;
+		color: #141414;
+		border: 2px solid #e6e3da;
+		padding: 10px 8px;
 		border-radius: 10px;
-		font-weight: 700;
-		font-size: 15px;
+		font-weight: 600;
+		font-size: 13px;
 		cursor: pointer;
 	}
 
-	.caption-btn:active {
+	.copy-btn:active {
 		transform: scale(0.98);
+		background: #f5f4f0;
 	}
 
 	.day-name {
@@ -354,19 +382,6 @@
 		margin: 4px 0 0;
 		font-size: 14px;
 		color: #4D4D4D;
-	}
-
-	.day-meta {
-		margin: 0 0 8px;
-		font-size: 13px;
-		color: #595959;
-	}
-
-	.day-actions {
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		margin-bottom: 20px;
 	}
 
 	.status-pill {

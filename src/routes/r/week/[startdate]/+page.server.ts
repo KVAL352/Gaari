@@ -18,7 +18,11 @@ interface DayManifest {
 	durationSec: number;
 	skipped: boolean;
 	skipReason?: string;
-	dayZipUrl?: string;
+	storiesZipUrl?: string;
+	carouselZipUrl?: string;
+	storyLink?: string;
+	captionNo?: string;
+	captionEn?: string;
 }
 
 interface WeekManifest {
