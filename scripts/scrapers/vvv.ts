@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'vvv';
@@ -78,8 +78,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			}
 		}
 
-		// March is CET (+01:00)
-		const offset = '+01:00';
+		const offset = bergenOffset(dateStr);
 		const dateStart = new Date(`${dateStr}T${startTime}:00${offset}`).toISOString();
 		const dateEnd = endTime ? new Date(`${dateStr}T${endTime}:00${offset}`).toISOString() : undefined;
 

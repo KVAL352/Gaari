@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bitteater';
@@ -9,11 +9,6 @@ const NORWEGIAN_MONTHS: Record<string, number> = {
 	'januar': 1, 'februar': 2, 'mars': 3, 'april': 4, 'mai': 5, 'juni': 6,
 	'juli': 7, 'august': 8, 'september': 9, 'oktober': 10, 'november': 11, 'desember': 12,
 };
-
-function bergenOffset(dateStr: string): string {
-	const month = parseInt(dateStr.slice(5, 7));
-	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
-}
 
 /** Parse BIT date strings like "27. – 28. februar" or "28. januar- 24. juni" or "6. mars" */
 function parseBITDate(dateStr: string): { start: string; end: string | undefined } | null {

@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'stenematglede';
@@ -8,11 +8,6 @@ const BASE_URL = 'https://www.stenematglede.com';
 const PROGRAM_URL = `${BASE_URL}/popup-kalender`;
 const VENUE = 'Stene Matglede';
 const ADDRESS = 'Rogagaten 26, Bergen';
-
-function bergenOffset(dateStr: string): string {
-	const month = parseInt(dateStr.slice(5, 7));
-	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
-}
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`\n[${SOURCE}] Fetching Stene Matglede events...`);

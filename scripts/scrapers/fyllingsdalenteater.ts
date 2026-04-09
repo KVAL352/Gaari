@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'fyllingsdalenteater';
@@ -8,9 +8,6 @@ const VENUE = 'Fyllingsdalen Teater';
 const ADDRESS = 'Folke Bernadottes vei 21, 5147 Fyllingsdalen';
 const BYDEL = 'Fyllingsdalen';
 
-function bergenOffset(month: number): string {
-	return (month >= 3 && month <= 9) ? '+02:00' : '+01:00';
-}
 
 /**
  * Discover show page URLs from the homepage navigation.
@@ -93,7 +90,7 @@ async function scrapeShowPage(url: string): Promise<{ found: number; inserted: n
 
 		if (expiry) {
 			// data-expiry format: "2026-02-28T15:00" or "2026-02-28T15:30"
-			const offset = bergenOffset(parseInt(expiry.slice(5, 7)) - 1);
+			const offset = bergenOffset(expiry.slice(0, 10));
 			// Use the time from the text (kl. HH:MM) since data-expiry sometimes has +30min offset
 			const timeMatch = text.match(/kl\.?\s*(\d{1,2}):(\d{2})/);
 			if (timeMatch) {

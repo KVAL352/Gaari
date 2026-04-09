@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, deleteEventByUrl } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, deleteEventByUrl, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'oseana';
@@ -13,11 +13,6 @@ const NORWEGIAN_MONTHS: Record<string, number> = {
 };
 
 const MONTH_PATTERN = '(?:januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)';
-
-function bergenOffset(dateStr: string): string {
-	const month = parseInt(dateStr.slice(5, 7));
-	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
-}
 
 function buildDate(day: number, month: number, year: number): string {
 	return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;

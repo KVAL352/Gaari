@@ -1,5 +1,5 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bek';
@@ -15,9 +15,6 @@ const NORWEGIAN_MONTHS: Record<string, number> = {
 	juli: 6, august: 7, september: 8, oktober: 9, november: 10, desember: 11,
 };
 
-function bergenOffset(month: number): string {
-	return (month >= 3 && month <= 9) ? '+02:00' : '+01:00'; // April(3)–October(9) = CEST
-}
 
 function stripHtml(html: string): string {
 	return html
@@ -155,7 +152,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		// Extract time
 		const time = extractTime(content);
-		const offset = bergenOffset(eventDate.month);
+		const offset = bergenOffset(eventDate.dateStr);
 
 		let dateStart: string;
 		let dateEnd: string | undefined;

@@ -1,4 +1,4 @@
-import { makeSlug, eventExists, insertEvent, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'festspillene';
@@ -29,11 +29,6 @@ interface ProductionContent {
 	thumbnail: { filename: string; alt: string };
 	mobileThumbnail: { filename: string };
 	Categories: string[];
-}
-
-function bergenOffset(dateStr: string): string {
-	const month = parseInt(dateStr.slice(5, 7));
-	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
 }
 
 function guessCategory(name: string, scene: string): string {

@@ -410,7 +410,7 @@ export async function removeExpiredEvents(): Promise<number> {
 // Scrapers that set date_start/date_end to discrete show dates (first/last performance).
 // When the first show passes, the event shows a stale date — delete so the scraper
 // re-inserts with the next future show date.
-const DISCRETE_DATE_SOURCES = ['olebull', 'dns', 'grieghallen', 'carteblanche', 'oseana'];
+const DISCRETE_DATE_SOURCES = ['olebull', 'dns', 'grieghallen', 'carteblanche', 'oseana', 'harmonien'];
 
 export async function refreshStaleMultiDateEvents(): Promise<number> {
 	const todayStart = new Date();

@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, deleteEventByUrl, fetchHTML } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, deleteEventByUrl, fetchHTML, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'dns';
@@ -29,11 +29,6 @@ function mapCategory(title: string): string {
 	if (lower.includes('konsert') || lower.includes('musikal')) return 'music';
 	if (lower.includes('barn') || lower.includes('brødrene')) return 'family';
 	return 'theatre';
-}
-
-function bergenOffset(dateISO: string): string {
-	const month = parseInt(dateISO.slice(5, 7));
-	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
 }
 
 interface ProductionInfo {

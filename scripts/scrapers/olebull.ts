@@ -1,5 +1,5 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'olebull';
@@ -68,11 +68,6 @@ function mapCategory(title: string): string {
 	if (hasWord(lower, 'podcast') || hasWord(lower, 'foredrag') || hasWord(lower, 'livepod') || hasWord(lower, 'debatt') || hasWord(lower, 'samtale')) return 'culture';
 	if (hasWord(lower, 'quiz') || hasCompound(lower, 'quiz') || hasCompound(lower, 'kviss')) return 'nightlife';
 	return 'culture'; // default to culture — Ole Bull hosts diverse events
-}
-
-function bergenOffset(dateStr: string): string {
-	const month = parseInt(dateStr.slice(5, 7));
-	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {

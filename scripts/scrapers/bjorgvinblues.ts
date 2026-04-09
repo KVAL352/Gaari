@@ -1,14 +1,9 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bjorgvinblues';
 const BASE_URL = 'https://www.bjorgvinblues.no/Konserter';
-
-function bergenOffset(dateStr: string): string {
-	const month = parseInt(dateStr.slice(5, 7));
-	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
-}
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`\n[${SOURCE}] Fetching Bjørgvin Bluesklubb concerts...`);

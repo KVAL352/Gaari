@@ -1,14 +1,9 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'harmonien';
 const BASE_URL = 'https://harmonien.no/program/';
-
-function bergenOffset(dateStr: string): string {
-	const month = parseInt(dateStr.slice(5, 7));
-	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
-}
 
 function guessCategory(title: string): string {
 	const lower = title.toLowerCase();

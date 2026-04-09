@@ -1,5 +1,5 @@
 import { mapCategory } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'museumvest';
@@ -55,10 +55,6 @@ function nextWeekday(day: string, after: Date): Date {
 	return result;
 }
 
-/** Bergen UTC offset string for a given month (1-indexed) */
-function bergenOffset(month: number): string {
-	return month >= 4 && month <= 10 ? '+02:00' : '+01:00';
-}
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`\n[${SOURCE}] Fetching Museum Vest events (Museum24 API)...`);
@@ -116,8 +112,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				eventDate = d;
 			}
 
-			const month = parseInt(eventDate.slice(5, 7));
-			const offset = bergenOffset(month);
+			const offset = bergenOffset(eventDate);
 			const dateStart = `${eventDate}T${startTime}:00${offset}`;
 			const dateEnd = (endTime && endTime !== startTime)
 				? `${eventDate}T${endTime}:00${offset}`

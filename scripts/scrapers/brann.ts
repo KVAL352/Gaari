@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, bergenOffset } from '../lib/utils.js';
 
 const SOURCE = 'brann';
 const LIST_URL = 'https://www.brann.no/terminliste';
@@ -7,11 +7,6 @@ const VENUE = 'Brann Stadion';
 const ADDRESS = 'Kniksens plass 1, Bergen';
 const BYDEL = 'Bergenhus';
 const FALLBACK_IMAGE = 'https://www.brann.no/_/asset/no.seeds.app.football:0000019d4ae55220/img/logo/bra/logo.png';
-
-function bergenOffset(dateStr: string): string {
-	const month = parseInt(dateStr.slice(3, 5));
-	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
-}
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`\n[${SOURCE}] Fetching SK Brann home fixtures...`);
@@ -51,7 +46,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const dateStr = `${dd}.${mm}`;
 		const time = timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : '17:00';
 		const isoDate = `${yyyy}-${mm}-${dd}`;
-		const offset = bergenOffset(dateStr);
+		const offset = bergenOffset(isoDate);
 
 		const dateStart = new Date(`${isoDate}T${time}:00${offset}`).toISOString();
 

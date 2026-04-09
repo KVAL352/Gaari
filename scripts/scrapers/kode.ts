@@ -1,5 +1,5 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'kode';
@@ -45,11 +45,6 @@ function mapCategory(title: string, startDate: string, endDate: string): string 
 	if (days > 14) return 'culture'; // Exhibition
 
 	return 'culture';
-}
-
-function bergenOffset(dateStr: string): string {
-	const month = parseInt(dateStr.slice(5, 7));
-	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {

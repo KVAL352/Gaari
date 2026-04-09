@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, deleteEventByUrl } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, deleteEventByUrl, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'forumscene';
@@ -30,11 +30,6 @@ function buildDateISO(day: number, month: number): string {
 	const m = String(month + 1).padStart(2, '0');
 	const d = String(day).padStart(2, '0');
 	return `${year}-${m}-${d}`;
-}
-
-function bergenOffset(dateISO: string): string {
-	const month = parseInt(dateISO.slice(5, 7));
-	return (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
 }
 
 function mapCategory(filterType: string, title: string): string {
