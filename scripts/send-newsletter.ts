@@ -24,7 +24,7 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const NEWSLETTER_SIGNING_SECRET = process.env.NEWSLETTER_SIGNING_SECRET;
 const SUMMARY_FILE = process.env.SUMMARY_FILE;
 const DRY_RUN = process.argv.includes('--dry-run');
-const MAX_EVENTS_PER_EMAIL = 12;
+const MAX_EVENTS_PER_EMAIL = 9; // 1 hero + 8 grid cards
 const MAILERLITE_BASE = 'https://connect.mailerlite.com/api';
 const VERIFICATION_EMAIL = 'post@gaari.no';
 
@@ -433,7 +433,22 @@ async function main() {
 			}
 			const promotedIds = new Set(promotedPicks.map(e => e.id));
 			const rest = events.filter(e => !promotedIds.has(e.id));
-			const ordered = [...promotedPicks, ...rest];
+
+			// Category-diverse selection: max 2 per category to avoid monotony
+			const catCount = new Map<string, number>();
+			const diverse: GaariEvent[] = [];
+			const overflow: GaariEvent[] = [];
+			for (const e of rest) {
+				const c = catCount.get(e.category) || 0;
+				if (c < 2) {
+					diverse.push(e);
+					catCount.set(e.category, c + 1);
+				} else {
+					overflow.push(e);
+				}
+			}
+			// Fill remaining slots from overflow if needed
+			const ordered = [...promotedPicks, ...diverse, ...overflow];
 
 			const newsletterEvents = ordered.slice(0, MAX_EVENTS_PER_EMAIL).map(e => ({
 				slug: e.slug,
@@ -449,9 +464,12 @@ async function main() {
 				promoted: promotedIds.has(e.id)
 			}));
 
+			// Build preheader with unique venue names for curiosity
+			const uniqueVenues = [...new Set(ordered.slice(0, MAX_EVENTS_PER_EMAIL).map(e => e.venue_name))].slice(0, 3);
+			const venueStr = uniqueVenues.join(', ');
 			const preheader = lang === 'no'
-				? `${events.length} arrangementer i Bergen denne uken`
-				: `${events.length} events in Bergen this week`;
+				? `${venueStr} og mer denne uken`
+				: `${venueStr} and more this week`;
 
 			html = generateNewsletterHtml({
 				lang,

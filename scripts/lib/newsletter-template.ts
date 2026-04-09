@@ -105,6 +105,15 @@ function escapeHtml(str: string): string {
 	return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+/** Truncate at last whole word within limit, add ellipsis */
+function truncateWord(str: string, max: number): string {
+	if (str.length <= max) return str;
+	const trimmed = str.slice(0, max);
+	const lastSpace = trimmed.lastIndexOf(' ');
+	const cut = lastSpace > max * 0.4 ? lastSpace : max - 1;
+	return trimmed.slice(0, cut).replace(/[\s,–\-]+$/, '') + '\u2026';
+}
+
 function isFreeEvent(price: string | number | null | undefined): boolean {
 	if (price === 0) return true;
 	if (typeof price !== 'string' || price === '') return false;
@@ -189,8 +198,8 @@ function heroEventCard(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: strin
 	const date = formatDate(event.date_start, lang);
 	const time = formatTime(event.date_start);
 	const eventUrl = `${baseUrl}/${lang}/events/${event.slug}?${utmBase}&utm_content=hero-${event.slug}`;
-	const title = escapeHtml(event.title.length > 60 ? event.title.slice(0, 57) + '...' : event.title);
-	const venue = escapeHtml(event.venue_name.length > 35 ? event.venue_name.slice(0, 32) + '...' : event.venue_name);
+	const title = escapeHtml(truncateWord(event.title, 60));
+	const venue = escapeHtml(truncateWord(event.venue_name, 35));
 	const btnLabel = lang === 'no' ? 'Les mer' : 'Read more';
 	const free = isFreeEvent(event.price);
 	const freeLabel = lang === 'no' ? 'Trolig gratis' : 'Likely free';
@@ -227,7 +236,7 @@ function heroEventCard(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: strin
 						</tr>
 						<!-- CTA bar -->
 						<tr>
-							<td style="background:${FUNKIS.iron};padding:0;" align="center">
+							<td style="background:${FUNKIS.red};padding:0;" align="center">
 								<table cellpadding="0" cellspacing="0" border="0" width="100%">
 									<tr>
 										<td style="padding:14px 28px;" align="center">
@@ -243,31 +252,25 @@ function heroEventCard(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: strin
 		</table>`;
 	}
 
-	// Fallback: no image — solid category-color header
+	// Fallback: no image — category-color background
 	return `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">
 		<tr>
 			<td style="padding:0 24px;">
 				<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;border-radius:8px;overflow:hidden;border-top:4px solid ${color};">
 					<tr>
-						<td style="background:${FUNKIS.iron};padding:28px;">
+						<td style="background:${color};padding:28px;">
 							<div style="margin:0 0 4px;">
-								<span style="display:inline-block;background:${color};color:${FUNKIS.textPrimary};font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:4px 12px;border-radius:20px;font-family:'Arial Narrow',Arial,sans-serif;">${escapeHtml(catLabel)}</span>${promotedBadge}${freeBadge}
+								<span style="display:inline-block;background:${FUNKIS.white};color:${FUNKIS.textPrimary};font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:4px 12px;border-radius:20px;font-family:'Arial Narrow',Arial,sans-serif;">${escapeHtml(catLabel)}</span>${promotedBadge}${freeBadge}
 							</div>
-							<p style="margin:8px 0 0;color:${FUNKIS.white};font-size:24px;font-weight:700;line-height:1.15;font-family:'Arial Narrow',Arial,sans-serif;">${title}</p>
-							<p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:14px;line-height:1.4;">
+							<p style="margin:8px 0 0;color:${FUNKIS.textPrimary};font-size:24px;font-weight:700;line-height:1.15;font-family:'Arial Narrow',Arial,sans-serif;">${title}</p>
+							<p style="margin:6px 0 0;color:${FUNKIS.textSecondary};font-size:14px;line-height:1.4;">
 								${escapeHtml(date)}${time ? ` &middot; ${time}` : ''} &middot; ${venue}
 							</p>
 						</td>
 					</tr>
 					<tr>
-						<td style="background:${FUNKIS.iron};padding:0 28px 20px;" align="center">
-							<table cellpadding="0" cellspacing="0" border="0">
-								<tr>
-									<td style="border-radius:6px;background:${FUNKIS.red};" align="center">
-										<a href="${eventUrl}" style="display:inline-block;padding:12px 32px;color:${FUNKIS.white};text-decoration:none;font-size:14px;font-weight:600;">${btnLabel}</a>
-									</td>
-								</tr>
-							</table>
+						<td style="background:${FUNKIS.red};padding:14px 28px;" align="center">
+							<a href="${eventUrl}" style="color:${FUNKIS.white};text-decoration:none;font-size:14px;font-weight:600;letter-spacing:0.02em;">${btnLabel} &rarr;</a>
 						</td>
 					</tr>
 				</table>
@@ -284,84 +287,107 @@ function gridEventCard(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: strin
 	const date = formatDate(event.date_start, lang);
 	const time = formatTime(event.date_start);
 	const eventUrl = `${baseUrl}/${lang}/events/${event.slug}?${utmBase}&utm_content=event-${event.slug}`;
-	const title = escapeHtml(event.title.length > 50 ? event.title.slice(0, 47) + '...' : event.title);
-	const venue = escapeHtml(event.venue_name.length > 28 ? event.venue_name.slice(0, 25) + '...' : event.venue_name);
+	const title = escapeHtml(truncateWord(event.title, 50));
+	const venue = escapeHtml(truncateWord(event.venue_name, 30));
 	const btnLabel = lang === 'no' ? 'Les mer' : 'Read more';
 	const free = isFreeEvent(event.price);
 	const freeLabel = lang === 'no' ? 'Trolig gratis' : 'Likely free';
 
+	// Image or category-colored placeholder with centered label
+	// Use dark text on light category colors for contrast
+	const lightCategories = new Set(['family', 'festival', 'food', 'sports', 'student']);
+	const placeholderTextColor = lightCategories.has(event.category) ? FUNKIS.textPrimary : FUNKIS.white;
+	const placeholderShadow = lightCategories.has(event.category) ? 'none' : '0 1px 4px rgba(0,0,0,0.15)';
+
 	const imageBlock = event.image_url
 		? `<a href="${eventUrl}" style="text-decoration:none;display:block;line-height:0;"><img src="${event.image_url}" alt="" width="260" height="150" style="width:100%;height:150px;object-fit:cover;display:block;" /></a>`
-		: `<div style="width:100%;height:150px;background:${color};"></div>`;
+		: `<a href="${eventUrl}" style="text-decoration:none;display:block;">
+			<div style="width:100%;height:150px;background:${color};text-align:center;line-height:150px;">
+				<span style="font-family:'Arial Narrow',Arial,sans-serif;font-size:14px;font-weight:700;color:${placeholderTextColor};text-transform:uppercase;letter-spacing:0.06em;text-shadow:${placeholderShadow};">${escapeHtml(catLabel)}</span>
+			</div>
+		</a>`;
 
 	const badges: string[] = [];
-	badges.push(`<span style="display:inline-block;background:${color};color:${FUNKIS.textPrimary};font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;padding:3px 9px;border-radius:16px;font-family:'Arial Narrow',Arial,sans-serif;">${escapeHtml(catLabel)}</span>`);
+	badges.push(`<span style="display:inline-block;background:${color};color:${FUNKIS.textPrimary};font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;padding:3px 9px;border-radius:16px;font-family:'Arial Narrow',Arial,sans-serif;">${escapeHtml(catLabel)}</span>`);
 	if (event.promoted) {
-		badges.push(`<span style="display:inline-block;background:${FUNKIS.red};color:${FUNKIS.white};font-size:10px;font-weight:600;padding:3px 9px;border-radius:16px;margin-left:4px;">${lang === 'no' ? 'Fremhevet' : 'Featured'}</span>`);
+		badges.push(`<span style="display:inline-block;background:${FUNKIS.red};color:${FUNKIS.white};font-size:11px;font-weight:600;padding:3px 9px;border-radius:16px;margin-left:4px;">${lang === 'no' ? 'Fremhevet' : 'Featured'}</span>`);
 	}
 	if (free) {
-		badges.push(`<span style="display:inline-block;background:${FUNKIS.green};color:${FUNKIS.white};font-size:10px;font-weight:600;padding:3px 9px;border-radius:16px;margin-left:4px;">${escapeHtml(freeLabel)}</span>`);
+		badges.push(`<span style="display:inline-block;background:${FUNKIS.green};color:${FUNKIS.white};font-size:11px;font-weight:600;padding:3px 9px;border-radius:16px;margin-left:4px;">${escapeHtml(freeLabel)}</span>`);
 	}
 
-	return `<div style="display:inline-block;width:100%;max-width:264px;vertical-align:top;padding:0 6px 16px;">
-		<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;border-radius:8px;overflow:hidden;background:${FUNKIS.white};border:1px solid ${FUNKIS.borderSubtle};border-top:4px solid ${color};">
+	return `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;border-radius:8px;overflow:hidden;background:${FUNKIS.white};border:1px solid ${FUNKIS.borderSubtle};border-top:4px solid ${color};">
 			<tr>
 				<td style="line-height:0;font-size:0;overflow:hidden;height:150px;">${imageBlock}</td>
 			</tr>
 			<tr>
-				<td style="padding:12px 14px 16px;">
-					<div style="margin:0 0 8px;">${badges.join('')}</div>
+				<td style="padding:12px 14px 14px;">
+					<div style="margin:0 0 6px;">${badges.join('')}</div>
 					<a href="${eventUrl}" style="text-decoration:none;">
-						<p style="margin:0;color:${FUNKIS.textPrimary};font-size:16px;font-weight:700;line-height:1.25;min-height:40px;max-height:40px;overflow:hidden;">${title}</p>
+						<p style="margin:0;color:${FUNKIS.textPrimary};font-size:15px;font-weight:700;line-height:1.3;">${title}</p>
 					</a>
-					<p style="margin:8px 0 0;color:${FUNKIS.textMuted};font-size:12px;line-height:1.4;">
+					<p style="margin:6px 0 0;color:${FUNKIS.textMuted};font-size:13px;line-height:1.4;">
 						${escapeHtml(date)}${time ? ` &middot; ${time}` : ''}
 					</p>
-					<p style="margin:3px 0 0;color:${FUNKIS.textMuted};font-size:12px;">
+					<p style="margin:2px 0 0;color:${FUNKIS.textMuted};font-size:13px;">
 						${venue}
 					</p>
-					<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:12px;">
-						<tr>
-							<td style="border-radius:6px;background:${FUNKIS.red};" align="center">
-								<a href="${eventUrl}" style="display:inline-block;padding:9px 0;width:100%;color:${FUNKIS.white};text-decoration:none;font-size:13px;font-weight:600;text-align:center;">${btnLabel}</a>
-							</td>
-						</tr>
-					</table>
+					<p style="margin:10px 0 0;">
+						<a href="${eventUrl}" style="color:${FUNKIS.red};text-decoration:none;font-size:13px;font-weight:600;">${btnLabel} &rarr;</a>
+					</p>
 				</td>
 			</tr>
-		</table>
-	</div>`;
+		</table>`;
 }
 
 function buildEventGrid(events: NewsletterEvent[], lang: 'no' | 'en', baseUrl: string, utmBase: string): string {
-	return events.map(event => gridEventCard(event, lang, baseUrl, utmBase)).join('\n');
+	const cards = events.map(event => gridEventCard(event, lang, baseUrl, utmBase));
+	const rows: string[] = [];
+
+	for (let i = 0; i < cards.length; i += 2) {
+		const left = cards[i];
+		const right = cards[i + 1] || '';
+
+		if (right) {
+			rows.push(`<tr>
+				<td width="50%" style="padding:0 6px 12px 0;vertical-align:top;">${left}</td>
+				<td width="50%" style="padding:0 0 12px 6px;vertical-align:top;">${right}</td>
+			</tr>`);
+		} else {
+			// Odd card — single column, half width
+			rows.push(`<tr>
+				<td width="50%" style="padding:0 6px 12px 0;vertical-align:top;">${left}</td>
+				<td width="50%" style="padding:0 0 12px 6px;vertical-align:top;"></td>
+			</tr>`);
+		}
+	}
+
+	return `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">
+		${rows.join('\n')}
+	</table>`;
 }
 
 // ── Shared layout pieces ──
 
-function darkHeader(baseUrl: string, lang: 'no' | 'en', weekLabel: string, utmBase: string): string {
-	return `<!-- Dark header -->
+function brandHeader(baseUrl: string, lang: 'no' | 'en', weekLabel: string, utmBase: string): string {
+	return `<!-- Header -->
 		<tr>
-			<td style="background:${FUNKIS.iron};padding:24px 32px;">
+			<td style="background:${FUNKIS.white};padding:28px 32px 20px;">
 				<table cellpadding="0" cellspacing="0" border="0" width="100%">
 					<tr>
 						<td>
-							<a href="${baseUrl}/${lang}?${utmBase}" style="text-decoration:none;color:${FUNKIS.white};font-size:36px;font-weight:700;font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:-0.02em;">G&aring;ri</a>
+							<a href="${baseUrl}/${lang}?${utmBase}" style="text-decoration:none;color:${FUNKIS.red};font-size:36px;font-weight:700;font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:-0.02em;">G&aring;ri</a>
 						</td>
 						<td align="right" style="vertical-align:bottom;">
-							<span style="color:rgba(255,255,255,0.5);font-size:13px;font-weight:500;">${escapeHtml(weekLabel)}</span>
+							<span style="color:${FUNKIS.textMuted};font-size:13px;font-weight:500;">${escapeHtml(weekLabel)}</span>
 						</td>
 					</tr>
 				</table>
 			</td>
-		</tr>
-		<!-- Red accent bar -->
-		<tr>
-			<td style="height:4px;background:${FUNKIS.red};font-size:0;line-height:0;">&nbsp;</td>
 		</tr>`;
 }
 
-function darkFooter(lang: 'no' | 'en', baseUrl: string, utmBase: string, prefsUrl: string): string {
+function brandFooter(lang: 'no' | 'en', baseUrl: string, utmBase: string, prefsUrl: string): string {
 	const footerText = lang === 'no'
 		? 'Du mottar dette fordi du abonnerer p&aring; G&aring;ri sitt nyhetsbrev.'
 		: 'You receive this because you subscribed to the G&aring;ri newsletter.';
@@ -369,18 +395,14 @@ function darkFooter(lang: 'no' | 'en', baseUrl: string, utmBase: string, prefsUr
 	const managePrefsLabel = lang === 'no' ? 'Endre preferanser' : 'Manage preferences';
 	const privacyLabel = lang === 'no' ? 'Personvern' : 'Privacy';
 
-	return `<!-- Footer -->
+	return `<!-- Legal footer -->
 		<tr>
-			<td style="background:${FUNKIS.iron};padding:24px 32px;">
-				<p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;line-height:1.7;">
+			<td style="padding:16px 32px;background:${FUNKIS.plaster};text-align:center;">
+				<p style="margin:0;color:${FUNKIS.textMuted};font-size:11px;line-height:1.7;">
 					${footerText}<br />
-					<a href="{$unsubscribe}" style="color:rgba(255,255,255,0.7);text-decoration:underline;">${escapeHtml(unsubLabel)}</a> &middot;
-					<a href="${prefsUrl}" style="color:rgba(255,255,255,0.7);text-decoration:underline;">${escapeHtml(managePrefsLabel)}</a> &middot;
-					<a href="${baseUrl}/${lang}/personvern?${utmBase}" style="color:rgba(255,255,255,0.7);text-decoration:underline;">${escapeHtml(privacyLabel)}</a>
-				</p>
-				<p style="margin:16px 0 0;text-align:center;">
-					<a href="${baseUrl}/${lang}?${utmBase}" style="text-decoration:none;color:${FUNKIS.white};font-size:20px;font-weight:700;font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:-0.02em;">G&aring;ri</a>
-					<span style="display:block;color:rgba(255,255,255,0.35);font-size:11px;margin-top:2px;">gaari.no</span>
+					<a href="{$unsubscribe}" style="color:${FUNKIS.textMuted};text-decoration:underline;">${escapeHtml(unsubLabel)}</a> &middot;
+					<a href="${prefsUrl}" style="color:${FUNKIS.textMuted};text-decoration:underline;">${escapeHtml(managePrefsLabel)}</a> &middot;
+					<a href="${baseUrl}/${lang}/personvern?${utmBase}" style="color:${FUNKIS.textMuted};text-decoration:underline;">${escapeHtml(privacyLabel)}</a>
 				</p>
 			</td>
 		</tr>`;
@@ -415,9 +437,16 @@ function emailShell(lang: 'no' | 'en', subject: string, preheader: string, inner
 	<table cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;min-width:100%;margin:0;padding:0;background:${FUNKIS.plaster};">
 		<tr>
 			<td align="center" style="padding:24px 16px;">
-				<!-- Container -->
-				<table align="center" cellpadding="0" cellspacing="0" border="0" width="600" class="email-container" style="max-width:600px;width:100%;margin:0 auto;background:${FUNKIS.white};border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(20,20,20,0.08);">
-					${innerRows}
+				<!-- Red frame (like social media slides) -->
+				<table align="center" cellpadding="0" cellspacing="0" border="0" width="600" class="email-container" style="max-width:600px;width:100%;margin:0 auto;background:${FUNKIS.red};border-radius:12px;overflow:hidden;">
+					<tr>
+						<td style="padding:8px;">
+							<!-- Inner container -->
+							<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${FUNKIS.white};border-radius:6px;overflow:hidden;">
+								${innerRows}
+							</table>
+						</td>
+					</tr>
 				</table>
 			</td>
 		</tr>
@@ -439,21 +468,20 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 	const prefsUrl = `${baseUrl}/${lang}/nyhetsbrev/preferanser?email={$email}&token={$preference_token}&${utmBase}&utm_content=manage-prefs`;
 	const subscribeUrl = `${baseUrl}/${lang}/about?${utmBase}&utm_content=subscribe#newsletter`;
 
-	// Split events: first with image = hero, rest = grid
-	const maxEvents = 9;
-	const allEvents = data.events.slice(0, maxEvents);
+	// All events come pre-sliced from the sender (MAX_EVENTS_PER_EMAIL)
+	const allEvents = data.events;
 
-	// Pick hero: first event with an image (prefer promoted)
-	let heroEvent: NewsletterEvent | null = null;
-	let gridEvents: NewsletterEvent[] = [];
+	// Pick hero: promoted > broad-appeal category with image > any with image
+	const heroCategories = new Set(['music', 'culture', 'festival', 'theatre', 'food']);
+	const heroEvent =
+		allEvents.find(e => e.promoted && e.image_url) ||
+		allEvents.find(e => e.image_url && heroCategories.has(e.category)) ||
+		allEvents.find(e => e.image_url) ||
+		allEvents[0] || null;
 
-	const promotedWithImage = allEvents.find(e => e.promoted && e.image_url);
-	const firstWithImage = allEvents.find(e => e.image_url);
-	heroEvent = promotedWithImage || firstWithImage || allEvents[0] || null;
-
-	if (heroEvent) {
-		gridEvents = allEvents.filter(e => e !== heroEvent);
-	}
+	const gridEvents = heroEvent
+		? allEvents.filter(e => e !== heroEvent)
+		: [];
 
 	const ctaLabel = lang === 'no' ? 'Se alle arrangementer' : 'See all events';
 	const filterParams = new URLSearchParams();
@@ -470,14 +498,7 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 	const shareCta = lang === 'no' ? 'Del nyhetsbrevet' : 'Share the newsletter';
 
 	const innerRows = `
-		${darkHeader(baseUrl, lang, data.weekLabel, utmBase)}
-
-		<!-- Forwarded banner -->
-		<tr>
-			<td style="padding:10px 32px;background:${FUNKIS.plaster};text-align:center;">
-				<p style="margin:0;color:${FUNKIS.textMuted};font-size:12px;line-height:1.5;">${forwardedText} <a href="${subscribeUrl}" style="color:${FUNKIS.red};text-decoration:underline;font-weight:600;">${forwardedCta}</a></p>
-			</td>
-		</tr>
+		${brandHeader(baseUrl, lang, data.weekLabel, utmBase)}
 
 		<!-- Intro -->
 		<tr>
@@ -498,16 +519,16 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 			</td>
 		</tr>
 
-		<!-- Event grid (2-column) -->
+		<!-- Event grid (2-column) on subtle background -->
 		${gridEvents.length > 0 ? `<tr>
-			<td style="padding:12px 18px 4px;font-size:0;text-align:center;">
+			<td style="padding:16px 24px 8px;background:${FUNKIS.plaster};">
 				${buildEventGrid(gridEvents, lang, baseUrl, utmBase)}
 			</td>
 		</tr>` : ''}
 
 		<!-- Main CTA -->
 		<tr>
-			<td style="padding:24px 32px 32px;" align="center">
+			<td style="padding:24px 32px 28px;" align="center">
 				<table cellpadding="0" cellspacing="0" border="0">
 					<tr>
 						<td style="border-radius:8px;background:${FUNKIS.red};" align="center">
@@ -518,15 +539,20 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 			</td>
 		</tr>
 
-		<!-- Share -->
+		<!-- Footer (share + forwarded + links combined) -->
 		<tr>
-			<td style="padding:16px 32px;text-align:center;border-top:1px solid ${FUNKIS.borderSubtle};">
-				<p style="margin:0 0 8px;color:${FUNKIS.textSecondary};font-size:13px;">${shareText}</p>
-				<a href="mailto:?subject=${encodeURIComponent(data.subject)}&body=${encodeURIComponent((lang === 'no' ? 'Sjekk ut dette nyhetsbrevet fra Gåri: ' : 'Check out this newsletter from Gåri: ') + subscribeUrl)}" style="color:${FUNKIS.red};font-size:13px;font-weight:600;text-decoration:underline;">${shareCta}</a>
+			<td style="padding:20px 32px;border-top:1px solid ${FUNKIS.borderSubtle};background:${FUNKIS.plaster};text-align:center;">
+				<p style="margin:0 0 12px;color:${FUNKIS.textSecondary};font-size:13px;">${shareText}
+					<a href="mailto:?subject=${encodeURIComponent(data.subject)}&body=${encodeURIComponent((lang === 'no' ? 'Sjekk ut dette nyhetsbrevet fra Gåri: ' : 'Check out this newsletter from Gåri: ') + subscribeUrl)}" style="color:${FUNKIS.red};font-weight:600;text-decoration:underline;margin-left:4px;">${shareCta}</a>
+				</p>
+				<p style="margin:0 0 16px;color:${FUNKIS.textMuted};font-size:12px;">${forwardedText} <a href="${subscribeUrl}" style="color:${FUNKIS.red};text-decoration:underline;font-weight:600;">${forwardedCta}</a></p>
+				<p style="margin:0 0 12px;">
+					<a href="${baseUrl}/${lang}?${utmBase}" style="text-decoration:none;color:${FUNKIS.red};font-size:20px;font-weight:700;font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:-0.02em;">G&aring;ri</a>
+					<span style="display:block;color:${FUNKIS.textMuted};font-size:11px;margin-top:2px;">gaari.no</span>
+				</p>
 			</td>
 		</tr>
-
-		${darkFooter(lang, baseUrl, utmBase, prefsUrl)}`;
+		${brandFooter(lang, baseUrl, utmBase, prefsUrl)}`;
 
 	return emailShell(lang, data.subject, data.preheader, innerRows);
 }
@@ -564,7 +590,7 @@ export function generateQuietWeekHtml(data: QuietWeekData): string {
 	const browseLabel = lang === 'no' ? 'Se hva som skjer i Bergen' : 'See what\u2019s happening in Bergen';
 
 	const innerRows = `
-		${darkHeader(baseUrl, lang, data.weekLabel, utmBase)}
+		${brandHeader(baseUrl, lang, data.weekLabel, utmBase)}
 
 		<!-- Message -->
 		<tr>
@@ -604,7 +630,7 @@ export function generateQuietWeekHtml(data: QuietWeekData): string {
 			</td>
 		</tr>
 
-		${darkFooter(lang, baseUrl, utmBase, prefsUrl)}`;
+		${brandFooter(lang, baseUrl, utmBase, prefsUrl)}`;
 
 	return emailShell(lang, data.subject, body, innerRows);
 }
