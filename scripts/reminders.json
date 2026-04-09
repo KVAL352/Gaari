@@ -90,6 +90,11 @@
     "description": "9. april: oppdaterte collection-titler til søkefrase-match ('Hva skjer i Bergen denne helgen/i kveld/i dag'), venue name-dropping i meta descriptions, nye FAQ-items for long-tail (mat-og-drikke, studentkveld, utstillinger, 17-mai). Google bruker 1-3 uker på å oppdatere. Sjekk GSC: har CTR/posisjon endret seg for de berørte sidene? Kjør 'sjekk posisjonering på søk' i Claude."
   },
   {
+    "date": "2026-04-23",
+    "title": "Følg opp backlink-forespørsler (runde 2)",
+    "description": "Sendt 9. april: Fyllingsdalen Teater, DNT Bergen (André), Bymuseet (oppfølging #2), UiB (studentsider). Sjekk innboks for svar. Hvis stille: vurder om det er verdt en siste oppfølging eller om det bør parkeres."
+  },
+  {
     "date": "2026-05-01",
     "title": "Månedlig AI-synlighetssjekk",
     "description": "Spør Claude: 'sjekk AI-søk posisjonering'. Sjekker: 1) Søk 'hva skjer i Bergen' på ChatGPT, Perplexity, Gemini — siteres gaari.no? 2) Umami ai-referral events siste 30 dager. 3) Bing indeksdekning (Bing Webmaster). 4) GSC-impressions på collection-sider. Etter sjekk: oppdater denne reminderen til 1. juni."
