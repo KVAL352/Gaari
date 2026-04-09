@@ -1,6 +1,7 @@
 import type { GaariEvent, Lang, Category } from './types';
 import type { Collection } from './collections';
 import { isFreeEvent } from './utils';
+import { getVenueLocation } from './venue-locations';
 
 const BASE_URL = 'https://gaari.no';
 
@@ -140,23 +141,34 @@ export function generateEventJsonLd(
 	const title = (lang === 'en' && event.title_en) ? event.title_en : event.title_no;
 	const description = (lang === 'en' && event.description_en) ? event.description_en : event.description_no;
 
+	// Enrich location with venue lookup data (street address, postal code, coordinates)
+	const venueLoc = event.venue_name ? getVenueLocation(event.venue_name) : null;
+
+	const address: Record<string, string> = {
+		'@type': 'PostalAddress',
+		streetAddress: venueLoc?.street || event.address || event.venue_name || '',
+		addressLocality: 'Bergen',
+		addressRegion: 'Vestland',
+		addressCountry: 'NO'
+	};
+	if (venueLoc?.postalCode) {
+		address.postalCode = venueLoc.postalCode;
+	}
+
 	const location: Record<string, unknown> = {
 		'@type': 'Place',
 		name: event.venue_name,
-		address: {
-			'@type': 'PostalAddress',
-			streetAddress: event.address,
-			addressLocality: 'Bergen',
-			addressRegion: 'Vestland',
-			addressCountry: 'NO'
-		}
+		address
 	};
 
-	if (event.latitude && event.longitude) {
+	// GeoCoordinates: prefer event-level data, fall back to venue lookup
+	const lat = event.latitude || venueLoc?.lat;
+	const lng = event.longitude || venueLoc?.lng;
+	if (lat && lng) {
 		location.geo = {
 			'@type': 'GeoCoordinates',
-			latitude: event.latitude,
-			longitude: event.longitude
+			latitude: lat,
+			longitude: lng
 		};
 	}
 
