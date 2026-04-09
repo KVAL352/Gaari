@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
-	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems } from '$lib/seo';
+	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
 	import { getCollection, type Collection } from '$lib/collections';
 	import { getOsloNow, getWeekendDates } from '$lib/event-filters';
 	import EventGrid from '$lib/components/EventGrid.svelte';
@@ -33,6 +33,22 @@
 	]));
 
 	let editorial = $derived(data.collection.editorial?.[ssrLang] ?? []);
+
+	// Article JSON-LD for editorial content — AI engines cite Article schema more than CollectionPage
+	let articleJsonLd = $derived(editorial.length > 0 ? safeJsonLd({
+		'@context': 'https://schema.org',
+		'@type': 'Article',
+		headline: title,
+		description: descriptionBase,
+		url: canonicalUrl,
+		dateModified: new Date().toISOString().slice(0, 10),
+		author: { '@type': 'Organization', name: 'Gåri', url: 'https://gaari.no' },
+		publisher: { '@type': 'Organization', name: 'Gåri', url: 'https://gaari.no' },
+		inLanguage: ssrLang === 'no' ? 'nb' : 'en',
+		articleBody: editorial.join(' '),
+		about: { '@type': 'City', name: 'Bergen', sameAs: 'https://www.wikidata.org/wiki/Q26693' }
+	}) : null);
+
 	let faqItems = $derived(data.collection.faq?.[ssrLang] ?? []);
 	let faqJsonLd = $derived(faqItems.length > 0 ? generateFaqJsonLdFromItems(faqItems) : null);
 	let quickAnswerBase = $derived(data.collection.quickAnswer?.[ssrLang] ?? '');
@@ -109,6 +125,7 @@
 	<meta property="og:image" content={`${$page.url.origin}/og/c/${data.collection.slug}.png${ssrLang === 'en' ? '?lang=en' : ''}`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
+	<meta property="article:modified_time" content={new Date().toISOString()} />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={`${title} — Gåri`} />
 	<meta name="twitter:description" content={description} />
@@ -117,6 +134,7 @@
 	{@html '<script type="application/ld+json">' + collectionJsonLd + '</scr' + 'ipt>'}
 	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}
 	{#if faqJsonLd}{@html '<script type="application/ld+json">' + faqJsonLd + '</scr' + 'ipt>'}{/if}
+	{#if articleJsonLd}{@html '<script type="application/ld+json">' + articleJsonLd + '</scr' + 'ipt>'}{/if}
 </svelte:head>
 
 <!-- Hero section -->
