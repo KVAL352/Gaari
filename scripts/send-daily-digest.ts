@@ -247,9 +247,28 @@ async function collectTraffic(): Promise<TrafficData | null> {
 			? Math.round((weekVisitors - prevWeekVisitors) / prevWeekVisitors * 100)
 			: null;
 
-		// Top referrers
+		// Top referrers — consolidate subdomains (e.g. l.facebook.com, m.facebook.com → Facebook)
 		const topReferrers = Array.isArray(referrerData)
-			? referrerData.slice(0, 5).map((r: { x: string; y: number }) => ({ name: r.x || '(direkte)', count: r.y }))
+			? (() => {
+				const groups: Record<string, { label: string; pattern: RegExp }> = {
+					facebook: { label: 'Facebook', pattern: /^(l\.|m\.|lm\.|web\.|www\.)?facebook\.com$/ },
+					google: { label: 'Google', pattern: /^(www\.)?google\.[a-z.]+$/ },
+					instagram: { label: 'Instagram', pattern: /^(l\.|www\.)?instagram\.com$/ },
+				};
+				const merged = new Map<string, number>();
+				for (const r of referrerData as { x: string; y: number }[]) {
+					const name = r.x || '(direkte)';
+					let key = name;
+					for (const [gk, g] of Object.entries(groups)) {
+						if (g.pattern.test(name)) { key = gk; break; }
+					}
+					merged.set(key, (merged.get(key) ?? 0) + r.y);
+				}
+				return [...merged.entries()]
+					.sort((a, b) => b[1] - a[1])
+					.slice(0, 5)
+					.map(([key, count]) => ({ name: groups[key]?.label ?? key, count }));
+			})()
 			: null;
 
 		return { visitors, pageviews, visitorsDelta, pageviewsDelta, weekVisitors, weekChange, topReferrers };
