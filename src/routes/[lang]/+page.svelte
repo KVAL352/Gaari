@@ -8,7 +8,7 @@
 	import { hideEvent, hideVenue, hideCategory, isHidden, unhideAll, hiddenCount, hiddenSummary } from '$lib/hidden-events.svelte';
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString } from '$lib/event-filters';
 	import type { Bydel, GaariEvent } from '$lib/types';
-	import { generateWebSiteJsonLd, computeCanonical } from '$lib/seo';
+	import { generateWebSiteJsonLd, computeCanonical, getCanonicalUrl, safeJsonLd } from '$lib/seo';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import { ArrowRight } from 'lucide-svelte';
 	import HeroSection from '$lib/components/HeroSection.svelte';
@@ -171,6 +171,19 @@
 
 	let websiteJsonLd = $derived(generateWebSiteJsonLd($lang));
 
+	// ItemList JSON-LD: give AI crawlers structured access to top 50 events
+	// (only 12 render visually, but crawlers need more for "hva skjer i Bergen" answers)
+	let homepageItemListJsonLd = $derived(safeJsonLd({
+		'@context': 'https://schema.org',
+		'@type': 'ItemList',
+		numberOfItems: allEvents.length,
+		itemListElement: allEvents.slice(0, 50).map((e, i) => ({
+			'@type': 'ListItem',
+			position: i + 1,
+			url: getCanonicalUrl(`/${$lang}/events/${e.slug}`)
+		}))
+	}));
+
 	// Filter transition animation
 	let filterFingerprint = $derived(`${when}|${time}|${audience}|${category}|${bydel}|${price}`);
 	let transitioning = $state(false);
@@ -289,6 +302,7 @@
 	{/if}
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + websiteJsonLd + '</scr' + 'ipt>'}
+	{@html '<script type="application/ld+json">' + homepageItemListJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <HeroSection />

@@ -251,15 +251,42 @@ export function generateEventJsonLd(
 			: 'https://schema.org/EventScheduled',
 		eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
 		inLanguage,
-		...(isFree ? { isAccessibleForFree: true } : {})
+		...(isFree ? { isAccessibleForFree: true } : {}),
+		// performer for music/theatre — use title as performer name
+		...((event.category === 'music' || event.category === 'theatre') ? {
+			performer: { '@type': 'PerformingGroup', name: title }
+		} : {})
 	};
 
+	// endDate: use actual value, or infer a default based on category
 	if (event.date_end) {
 		jsonLd.endDate = toBergenIso(event.date_end);
+	} else if (event.date_start && !event.date_start.endsWith('T00:00:00Z')) {
+		// Only infer when we have a real start time (not midnight placeholder)
+		const start = new Date(event.date_start);
+		if (!isNaN(start.getTime())) {
+			const durationHours = event.category === 'festival' ? 8
+				: event.category === 'sports' ? 3
+				: 2; // concerts, theatre, etc.
+			const end = new Date(start.getTime() + durationHours * 3600_000);
+			jsonLd.endDate = toBergenIso(end.toISOString());
+		}
 	}
 
 	if (event.image_url) {
 		jsonLd.image = event.image_url;
+	}
+
+	// typicalAgeRange from age_group
+	const ageRangeMap: Record<string, string> = {
+		'family': '0-99',
+		'youth': '13-18',
+		'18+': '18-',
+		'students': '18-30',
+		'all': '0-99'
+	};
+	if (event.age_group && ageRangeMap[event.age_group]) {
+		jsonLd.typicalAgeRange = ageRangeMap[event.age_group];
 	}
 
 	return safeJsonLd(jsonLd);

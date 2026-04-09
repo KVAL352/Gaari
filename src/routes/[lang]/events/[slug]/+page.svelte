@@ -121,10 +121,32 @@
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/events/${event.slug}`));
 	let eventJsonLd = $derived(generateEventJsonLd(event, $lang, canonicalUrl));
-	let breadcrumbJsonLd = $derived(generateBreadcrumbJsonLd([
-		{ name: 'Gåri', url: getCanonicalUrl(`/${$lang}`) },
-		{ name: title }
-	]));
+	const CATEGORY_BREADCRUMB: Record<string, Record<string, string>> = {
+		music: { no: 'Konserter', en: 'Concerts' },
+		culture: { no: 'Utstillinger', en: 'Exhibitions' },
+		theatre: { no: 'Teater', en: 'Theatre' },
+		family: { no: 'Familie', en: 'Family' },
+		food: { no: 'Mat og drikke', en: 'Food & drink' },
+		festival: { no: 'Festivaler', en: 'Festivals' },
+		sports: { no: 'Sport', en: 'Sports' },
+		nightlife: { no: 'Uteliv', en: 'Nightlife' },
+		workshop: { no: 'Kurs', en: 'Workshops' },
+		student: { no: 'Student', en: 'Student' },
+		tours: { no: 'Turer', en: 'Tours' },
+	};
+	let breadcrumbItems = $derived.by(() => {
+		const items: { name: string; url?: string }[] = [
+			{ name: 'Gåri', url: getCanonicalUrl(`/${$lang}`) }
+		];
+		const catLabel = CATEGORY_BREADCRUMB[event.category];
+		const catSlug = collectionLink?.slug[$lang];
+		if (catLabel && catSlug) {
+			items.push({ name: catLabel[$lang], url: getCanonicalUrl(`/${$lang}/${catSlug}`) });
+		}
+		items.push({ name: title });
+		return items;
+	});
+	let breadcrumbJsonLd = $derived(generateBreadcrumbJsonLd(breadcrumbItems));
 
 	let calendarData = $derived({
 		title: title,
