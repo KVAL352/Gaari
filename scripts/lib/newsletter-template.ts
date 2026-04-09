@@ -111,7 +111,7 @@ function truncateWord(str: string, max: number): string {
 	const trimmed = str.slice(0, max);
 	const lastSpace = trimmed.lastIndexOf(' ');
 	const cut = lastSpace > max * 0.4 ? lastSpace : max - 1;
-	return trimmed.slice(0, cut).replace(/[\s,–\-]+$/, '') + '\u2026';
+	return trimmed.slice(0, cut).replace(/[\s,\u2013-]+$/, '') + '\u2026';
 }
 
 function isFreeEvent(price: string | number | null | undefined): boolean {
