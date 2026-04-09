@@ -123,24 +123,9 @@
 						<h2 class="day-name">{day.dayName} {day.dateStr.slice(8, 10)}.{day.dateStr.slice(5, 7)}</h2>
 						<p class="day-label">{day.label}</p>
 					</div>
-					<div class="day-header-actions">
-						{#if day.skipped}
+					{#if day.skipped}
 							<span class="status-pill skip">Skippet</span>
-						{:else}
-							{#if day.dayZipUrl}
-								<a class="zip-btn" href={day.dayZipUrl} download={`gaari-${day.dateStr}-${day.slug}.zip`}>
-									Last ned ZIP
-								</a>
-							{/if}
-							{#if day.caption}
-								<button type="button" class="caption-btn" onclick={() => copyCaption(day.slug, day.caption!)}>
-									{#if copyState[day.slug] === 'copied'}Kopiert
-									{:else if copyState[day.slug] === 'error'}Feilet
-									{:else}Kopier caption{/if}
-								</button>
-							{/if}
 						{/if}
-					</div>
 				</header>
 
 				{#if day.skipped}
@@ -149,6 +134,21 @@
 					<p class="day-meta">
 						{day.frameCount} carousel-bilder · {day.storyCount} stories{#if day.mp4Url} · reel{/if}
 					</p>
+
+					<div class="day-actions">
+						{#if day.dayZipUrl}
+							<a class="zip-btn" href={day.dayZipUrl} download={`gaari-${day.dateStr}-${day.slug}.zip`}>
+								Last ned dagens innhold (ZIP)
+							</a>
+						{/if}
+						{#if day.caption}
+							<button type="button" class="caption-btn" onclick={() => copyCaption(day.slug, day.caption!)}>
+								{#if copyState[day.slug] === 'copied'}Kopiert
+								{:else if copyState[day.slug] === 'error'}Feilet
+								{:else}Kopier caption{/if}
+							</button>
+						{/if}
+					</div>
 
 					<!-- FB group carousel checklist -->
 					{@const eligibleGroups = groupsForSlug(day.slug)}
@@ -352,9 +352,15 @@
 	}
 
 	.day-meta {
-		margin: 0 0 16px;
+		margin: 0 0 8px;
 		font-size: 13px;
 		color: var(--color-text-muted);
+	}
+
+	.day-actions {
+		display: flex;
+		gap: 10px;
+		margin-bottom: 16px;
 	}
 
 	.status-pill {
