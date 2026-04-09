@@ -307,15 +307,18 @@
 	}
 
 	.zip-btn {
-		display: inline-block;
+		display: block;
+		width: 100%;
+		text-align: center;
 		background: var(--color-primary);
 		color: #fff;
 		text-decoration: none;
-		padding: 8px 16px;
-		border-radius: 8px;
+		padding: 14px 24px;
+		border-radius: 10px;
+		font-family: 'Barlow Condensed', sans-serif;
 		font-weight: 700;
-		font-size: 13px;
-		white-space: nowrap;
+		font-size: 18px;
+		letter-spacing: 0.02em;
 	}
 
 	.zip-btn:active {
@@ -323,15 +326,17 @@
 	}
 
 	.caption-btn {
+		display: block;
+		width: 100%;
+		text-align: center;
 		background: #fff;
 		color: var(--color-primary);
 		border: 2px solid var(--color-primary);
-		padding: 6px 14px;
-		border-radius: 8px;
-		font-weight: 600;
-		font-size: 13px;
+		padding: 12px 24px;
+		border-radius: 10px;
+		font-weight: 700;
+		font-size: 15px;
 		cursor: pointer;
-		white-space: nowrap;
 	}
 
 	.caption-btn:active {
@@ -359,8 +364,9 @@
 
 	.day-actions {
 		display: flex;
+		flex-direction: column;
 		gap: 10px;
-		margin-bottom: 16px;
+		margin-bottom: 20px;
 	}
 
 	.status-pill {
