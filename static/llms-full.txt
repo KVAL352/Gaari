@@ -100,7 +100,7 @@ Hva skjer i Bergen i kveld? Finn kveldens konserter, forestillinger og arrangeme
 Bergen har kulturliv på hverdagskvelder, ikke bare i helgene. Konserter, stand-up, teater og utstillinger — alt filtrert slik at du ser det som skjer akkurat i kveld.
 
 **[I dag i Bergen](https://gaari.no/no/i-dag)**
-Hva skjer i Bergen i dag? Dagens arrangementer samlet fra 54 lokale kilder.
+Hva skjer i Bergen i dag? Dagens arrangementer samlet fra 55 lokale kilder.
 
 **[Gratis i Bergen](https://gaari.no/no/gratis)**
 Gratis arrangementer og aktiviteter i Bergen de neste to ukene — utstillinger, konserter, bibliotekaktiviteter og mer.
@@ -139,7 +139,7 @@ Arrangementer for ungdom i Bergen — konserter, workshops, sport og kultur for 
 ### Evergreen collections (English)
 
 **[Today in Bergen](https://gaari.no/en/today-in-bergen)**
-What's happening in Bergen today? Today's events collected from 54 local sources.
+What's happening in Bergen today? Today's events collected from 55 local sources.
 
 **[This Weekend in Bergen](https://gaari.no/en/this-weekend)**
 What to do in Bergen this weekend? Find concerts, exhibitions, food and more — all in one place.
@@ -217,7 +217,7 @@ KODE (Bergen art museums), Bergen Kunsthall, Litteraturhuset Bergen, Media City 
 Bergen Bibliotek, Bymuseet i Bergen, Museum Vest (Fiskerimuseum, Sjøfartsmuseum, Hanseatiske Museum), Akvariet i Bergen, Fløyen
 
 ### Ticket platforms
-Eventbrite, TicketCo (multiple Bergen venues), Billetto, Hoopla
+TicketCo (multiple Bergen venues), Billetto, Hoopla
 
 ### General aggregators
 Bergen Kommune (official events calendar), StudentBergen, Bergen Live
@@ -260,5 +260,7 @@ post@gaari.no
 - Events have bilingual AI-generated descriptions (Norwegian + English, <160 chars each)
 - All descriptions are original AI-generated content, not copied from source pages
 - 55 automated scrapers run daily at 06:00 CET
+- iCal feed (public, 30-day lookahead, 500 events): https://gaari.no/api/events.ics
+- JSON-LD structured data on all pages: Event, CollectionPage, ItemList, FAQPage, BreadcrumbList
 - Sitemap: https://gaari.no/sitemap.xml
 - Standard version: https://gaari.no/llms.txt

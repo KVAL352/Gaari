@@ -524,6 +524,7 @@ export function generateCollectionJsonLd(
 		description: collection.description[lang],
 		url: pageUrl,
 		dateModified: new Date().toISOString().slice(0, 10),
+		publisher: { '@type': 'Organization', name: 'Gåri', url: BASE_URL },
 		numberOfItems: events.length,
 		isPartOf: {
 			'@type': 'WebSite',

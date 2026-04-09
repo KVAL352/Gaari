@@ -22,6 +22,8 @@
 			? 'Hva skjer i Bergen i dag, denne helgen og fremover? Konserter, teater, festivaler, familieaktiviteter og mer.'
 			: 'What\u2019s on in Bergen today, this weekend and beyond? Concerts, theatre, festivals, family activities and more.',
 		url: canonicalUrl,
+		dateModified: new Date().toISOString().slice(0, 10),
+		publisher: { '@type': 'Organization', name: 'Gåri', url: 'https://gaari.no' },
 		isPartOf: { '@type': 'WebSite', name: 'Gåri', url: 'https://gaari.no' },
 		mainEntity: {
 			'@type': 'ItemList',
@@ -298,7 +300,7 @@
 		},
 		{
 			q: 'Hvor ofte oppdateres Gåri?',
-			a: 'Gåri oppdateres daglig klokken 06:00 med data fra 54 uavhengige kilder i Bergen. Arrangementsinformasjon hentes automatisk fra konsertscener, teatre, museer, biblioteker, festivaler og billettplattformer.'
+			a: 'Gåri oppdateres daglig klokken 06:00 med data fra 55 uavhengige kilder i Bergen. Arrangementsinformasjon hentes automatisk fra konsertscener, teatre, museer, biblioteker, festivaler og billettplattformer.'
 		}
 	];
 	const faqEN = [
@@ -336,7 +338,7 @@
 		},
 		{
 			q: 'How often is Gåri updated?',
-			a: 'Gåri updates daily at 06:00 with data from 54 independent sources in Bergen. Event information is automatically collected from concert venues, theatres, museums, libraries, festivals and ticketing platforms.'
+			a: 'Gåri updates daily at 06:00 with data from 55 independent sources in Bergen. Event information is automatically collected from concert venues, theatres, museums, libraries, festivals and ticketing platforms.'
 		},
 		{
 			q: 'What is there to do in Bergen when it rains?',
@@ -400,8 +402,8 @@
 			</h1>
 			<p class="mt-2 leading-relaxed text-[var(--color-text-secondary)]">
 				{$lang === 'no'
-					? 'Gåri samler arrangementer fra 54 uavhengige kilder i Bergen, oppdatert daglig klokken 06:00. Bergen har typisk 150–250 arrangementer hver uke, fordelt på konsertscener, teatre, museer, festivaler og friluftsliv.'
-					: 'Gåri aggregates events from 54 independent sources in Bergen, updated daily at 06:00. Bergen typically has 150–250 events every week, spanning concert venues, theatres, museums, festivals and outdoor activities.'}
+					? 'Gåri samler arrangementer fra 55 uavhengige kilder i Bergen, oppdatert daglig klokken 06:00. Bergen har typisk 150–250 arrangementer hver uke, fordelt på konsertscener, teatre, museer, festivaler og friluftsliv.'
+					: 'Gåri aggregates events from 55 independent sources in Bergen, updated daily at 06:00. Bergen typically has 150–250 events every week, spanning concert venues, theatres, museums, festivals and outdoor activities.'}
 			</p>
 			<div class="mt-4 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
 				<p>
