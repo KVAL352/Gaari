@@ -45,6 +45,23 @@ function isRateLimited(
 	return entry.count > config.max;
 }
 
+// ── AI referral detection (server-side) ──
+// AI platforms often strip document.referrer client-side (noreferrer, redirects).
+// Capture the HTTP Referer header server-side and pass it via a short-lived cookie.
+const AI_REFERRER_DOMAINS = [
+	'chatgpt.com', 'chat.openai.com', 'perplexity.ai', 'claude.ai',
+	'gemini.google.com', 'copilot.microsoft.com', 'deepseek.com',
+	'you.com', 'phind.com', 'meta.ai'
+];
+
+function detectAiReferrer(referer: string | null): string | null {
+	if (!referer) return null;
+	for (const domain of AI_REFERRER_DOMAINS) {
+		if (referer.includes(domain)) return domain;
+	}
+	return null;
+}
+
 // ── Security headers ──
 
 const securityHeaders: Record<string, string> = {
@@ -170,6 +187,16 @@ export const handle: Handle = async ({ event, resolve }) => {
 		response.headers.set(header, value);
 	}
 	response.headers.set('Content-Security-Policy', csp);
+
+	// Set ai_ref cookie when visitor arrives from an AI search platform
+	const referer = event.request.headers.get('referer');
+	const aiSource = detectAiReferrer(referer);
+	if (aiSource) {
+		response.headers.append(
+			'Set-Cookie',
+			`ai_ref=${aiSource}; Path=/; Max-Age=30; SameSite=Lax; Secure`
+		);
+	}
 
 	return response;
 };
