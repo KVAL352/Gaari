@@ -61,8 +61,8 @@ function hasCompound(text: string, suffix: string): boolean {
 function mapCategory(title: string): string {
 	const lower = title.toLowerCase();
 	if (hasWord(lower, 'konsert') || hasWord(lower, 'concert') || lower.includes('live sessions') || lower.includes('fest:') || hasWord(lower, 'tribute') || hasCompound(lower, 'konsert')) return 'music';
-	if (hasWord(lower, 'humor') || hasCompound(lower, 'standup') || hasWord(lower, 'stand-up') || hasWord(lower, 'comedy') || hasWord(lower, 'komiker') || lower.includes('fermentert')) return 'nightlife';
-	if (hasWord(lower, 'forestilling') || hasWord(lower, 'teater') || hasWord(lower, 'musikal') || hasWord(lower, 'revy') || hasWord(lower, 'show')) return 'theatre';
+	if (hasWord(lower, 'humor') || hasCompound(lower, 'humor') || hasCompound(lower, 'standup') || hasWord(lower, 'stand-up') || hasWord(lower, 'comedy') || hasWord(lower, 'komiker') || lower.includes('fermentert')) return 'nightlife';
+	if (hasWord(lower, 'forestilling') || hasWord(lower, 'teater') || hasWord(lower, 'musikal') || hasWord(lower, 'revy') || hasWord(lower, 'show') || hasCompound(lower, 'show')) return 'theatre';
 	if (hasWord(lower, 'barn') || hasWord(lower, 'kids') || hasCompound(lower, 'forestilling')) return 'family';
 	if (hasWord(lower, 'workshop') || hasWord(lower, 'kurs')) return 'workshop';
 	if (hasWord(lower, 'podcast') || hasWord(lower, 'foredrag') || hasWord(lower, 'livepod') || hasWord(lower, 'debatt') || hasWord(lower, 'samtale')) return 'culture';
