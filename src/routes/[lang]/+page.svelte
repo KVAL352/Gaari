@@ -263,8 +263,8 @@
 	let canonicalInfo = $derived(computeCanonical($page.url, $lang, filteredEvents.length));
 
 	let homeDescription = $derived($lang === 'no'
-		? 'Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Gåri samler arrangementer fra 54 lokale kilder, oppdatert daglig.'
-		: 'What\u2019s on in Bergen? Concerts, exhibitions, theatre, food and more. Gåri collects events from 54 local sources, updated daily.');
+		? 'Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Gåri samler arrangementer fra 55 lokale kilder, oppdatert daglig.'
+		: 'What\u2019s on in Bergen? Concerts, exhibitions, theatre, food and more. Gåri collects events from 55 local sources, updated daily.');
 </script>
 
 <svelte:head>

@@ -18,6 +18,7 @@ interface DayManifest {
 	durationSec: number;
 	skipped: boolean;
 	skipReason?: string;
+	dayZipUrl?: string;
 }
 
 interface WeekManifest {

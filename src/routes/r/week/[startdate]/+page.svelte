@@ -48,27 +48,12 @@
 		}
 	}
 
-	async function copyHandle(handle: string) {
-		try {
-			await navigator.clipboard.writeText(`@${handle}`);
-		} catch { /* ignore */ }
-	}
-
 	const successCount = $derived(data.manifest.days.filter((d) => !d.skipped).length);
-
-	const checklistTotal = $derived(
-		data.checklist.reduce((sum, d) => sum + d.stories.length, 0)
-	);
-	const checklistDone = $derived(
-		data.checklist.reduce((sum, d) => {
-			return sum + d.stories.filter((_, i) => posted[`${d.dateStr}-${d.slug}-${i}`]).length;
-		}, 0)
-	);
+	const activeDays = $derived(data.manifest.days.filter(d => !d.skipped));
 
 	// Carousel checklist: one row per day. Each FB group can be restricted to
 	// specific collection slugs (e.g. "Hva skjer i bergen i dag" only accepts
-	// today-content like i-dag/today-in-bergen — kept in sync with FB_GROUPS
-	// in scripts/social/generate-week.ts).
+	// today-content like i-dag/today-in-bergen).
 	type FbGroupConfig = { id: string; name: string; allowSlugs?: string[] };
 	const FB_GROUPS: FbGroupConfig[] = [
 		{ id: 'hva-skjer-bergen', name: 'Hva skjer i Bergen' },
@@ -81,16 +66,24 @@
 		return FB_GROUPS.filter(g => !g.allowSlugs || g.allowSlugs.includes(slug));
 	}
 
-	const carouselDays = $derived(
-		data.manifest.days.filter(d => !d.skipped)
-	);
+	/** Stories checklist data for a given day */
+	function storiesForDay(dateStr: string, slug: string) {
+		return data.checklist.find(c => c.dateStr === dateStr && c.slug === slug);
+	}
 
-	const carouselTotal = $derived(
-		carouselDays.reduce((sum, d) => sum + groupsForSlug(d.slug).length, 0)
+	// Total progress across all days (stories + FB groups)
+	const totalTasks = $derived(
+		activeDays.reduce((sum, d) => {
+			const storyDay = storiesForDay(d.dateStr, d.slug);
+			return sum + (storyDay?.stories.length ?? 0) + groupsForSlug(d.slug).length;
+		}, 0)
 	);
-	const carouselDone = $derived(
-		carouselDays.reduce((sum, d) => {
-			return sum + groupsForSlug(d.slug).filter(g => posted[`${d.dateStr}-${d.slug}-fb-${g.id}`]).length;
+	const doneTasks = $derived(
+		activeDays.reduce((sum, d) => {
+			const storyDay = storiesForDay(d.dateStr, d.slug);
+			const storiesDone = storyDay?.stories.filter((_, i) => posted[`${d.dateStr}-${d.slug}-${i}`]).length ?? 0;
+			const groupsDone = groupsForSlug(d.slug).filter(g => posted[`${d.dateStr}-${d.slug}-fb-${g.id}`]).length;
+			return sum + storiesDone + groupsDone;
 		}, 0)
 	);
 
@@ -112,188 +105,104 @@
 	</header>
 
 	<main class="main">
-		<h1 class="title">Ukens reels</h1>
-		<p class="sub">{successCount} av {data.manifest.days.length} reels klare for Meta Business Suite</p>
+		<h1 class="title">Ukens innhold</h1>
+		<p class="sub">{successCount} av {data.manifest.days.length} dager klare · {doneTasks} av {totalTasks} oppgaver ferdig</p>
 
-		{#if data.manifest.zipUrl}
-			<a class="bulk-download" href={data.manifest.zipUrl} download={`gaari-reels-uke-${data.manifest.startMonday}.zip`}>
-				Last ned alle reels (ZIP)
-			</a>
-			<p class="bulk-hint">
-				MP4-er navngitt som <code>YYYY-MM-DD-ukedag-slug.mp4</code> så de sorterer seg
-				automatisk i mappen din. Last opp i Meta Business Suite og planlegg.
-			</p>
-		{/if}
+		<div class="progress-bar">
+			<div class="progress-fill" style="width: {totalTasks > 0 ? (doneTasks / totalTasks * 100) : 0}%"></div>
+		</div>
 
-		{#if data.manifest.storiesZipUrl}
-			<a class="bulk-download stories" href={data.manifest.storiesZipUrl} download={`gaari-stories-uke-${data.manifest.startMonday}.zip`}>
-				Last ned alle stories (ZIP)
-			</a>
-			<p class="bulk-hint">
-				JPG-er navngitt som <code>YYYY-MM-DD-ukedag-slug-NN.jpg</code> + en
-				<code>handles.txt</code> med @-handle og collection-link per story. Lagre i kamerarullen
-				og post manuelt fra IG-appen med link sticker + @-mention sticker.
-			</p>
-		{/if}
+		<div class="top-actions">
+			<button type="button" class="reset-btn" onclick={resetWeek}>Nullstill alt</button>
+		</div>
 
-		{#if data.manifest.carouselsZipUrl}
-			<a class="bulk-download carousels" href={data.manifest.carouselsZipUrl} download={`gaari-carousels-uke-${data.manifest.startMonday}.zip`}>
-				Last ned alle carousels for FB-grupper (ZIP)
-			</a>
-			<p class="bulk-hint">
-				1080×1080 carousel-slides per dag + en <code>captions.txt</code> med fire caption-varianter
-				per dag — én per FB-gruppe (Hva skjer i Bergen, Hva skjer i bergen i dag, Det Skjer i Bergen,
-				Bergen Expats). Hver caption har sin egen UTM-tag så Umami kan attribuere klikk per gruppe.
-			</p>
-		{/if}
-
-		<section class="instructions">
-			<h2>Hvordan bruke denne siden</h2>
-			<ol>
-				<li>Trykk <strong>Last ned alle reels</strong> for å hente alle 6 i én ZIP, eller last ned per dag under.</li>
-				<li>Åpne <strong>Meta Business Suite</strong> på desktop.</li>
-				<li>For hver dag: dra MP4-en inn, kopier caption fra reel-siden, planlegg til riktig dag.</li>
-				<li>Stories (link sticker + @-mention) må fortsatt postes manuelt fra mobilen den dagen.</li>
-			</ol>
-		</section>
-
-		<div class="days-grid">
-			{#each data.manifest.days as day (day.slug)}
-				<article class="day-card" class:skipped={day.skipped}>
-					<header class="day-header">
-						<div>
-							<h3 class="day-name">{day.dayName} {day.dateStr.slice(8, 10)}.{day.dateStr.slice(5, 7)}</h3>
-							<p class="day-label">{day.label}</p>
-						</div>
+		{#each data.manifest.days as day (day.dateStr + day.slug)}
+			<section class="day-section" class:skipped={day.skipped}>
+				<header class="day-section-header">
+					<div>
+						<h2 class="day-name">{day.dayName} {day.dateStr.slice(8, 10)}.{day.dateStr.slice(5, 7)}</h2>
+						<p class="day-label">{day.label}</p>
+					</div>
+					<div class="day-header-actions">
 						{#if day.skipped}
 							<span class="status-pill skip">Skippet</span>
 						{:else}
-							<span class="status-pill ok">Klar</span>
-						{/if}
-					</header>
-
-					{#if day.skipped}
-						<p class="skip-reason">{day.skipReason || 'Ingen events tilgjengelig'}</p>
-					{:else}
-						<p class="day-meta">
-							{day.frameCount} frames · {day.durationSec} sek · {day.storyCount} stories
-						</p>
-						<div class="day-actions">
-							<a class="primary-btn" href={day.landingUrl}>Åpne reel-side</a>
+							{#if day.dayZipUrl}
+								<a class="zip-btn" href={day.dayZipUrl} download={`gaari-${day.dateStr}-${day.slug}.zip`}>
+									Last ned ZIP
+								</a>
+							{/if}
 							{#if day.caption}
-								<button type="button" class="secondary-btn" onclick={() => copyCaption(day.slug, day.caption!)}>
+								<button type="button" class="caption-btn" onclick={() => copyCaption(day.slug, day.caption!)}>
 									{#if copyState[day.slug] === 'copied'}Kopiert
 									{:else if copyState[day.slug] === 'error'}Feilet
 									{:else}Kopier caption{/if}
 								</button>
 							{/if}
-						</div>
-					{/if}
-				</article>
-			{/each}
-		</div>
-
-		{#if data.checklist.length > 0}
-			<section class="checklist-section">
-				<header class="checklist-header">
-					<div>
-						<h2>Sjekkliste — hva er lagt ut</h2>
-						<p class="checklist-progress">{checklistDone} av {checklistTotal} stories ferdig denne uka</p>
-					</div>
-					<button type="button" class="reset-btn" onclick={resetWeek}>Nullstill</button>
-				</header>
-				<p class="checklist-hint">
-					Trykk på et bilde når du har lagt det ut. Status lagres lokalt i nettleseren din,
-					så du ser det igjen når du åpner siden senere.
-				</p>
-
-				{#each data.checklist as day (day.dateStr + day.slug)}
-					{@const dayDone = day.stories.filter((_, i) => posted[`${day.dateStr}-${day.slug}-${i}`]).length}
-					<div class="checklist-day">
-						<header class="checklist-day-header">
-							<h3>{day.dayName} {day.dateStr.slice(8, 10)}.{day.dateStr.slice(5, 7)} — {day.label}</h3>
-							<span class="checklist-day-count" class:complete={dayDone === day.stories.length}>
-								{dayDone}/{day.stories.length}
-							</span>
-						</header>
-						<div class="checklist-grid">
-							{#each day.stories as story, i (story.url)}
-								{@const key = `${day.dateStr}-${day.slug}-${i}`}
-								{@const isDone = posted[key]}
-								<button
-									type="button"
-									class="checklist-item"
-									class:done={isDone}
-									onclick={() => togglePosted(key)}
-								>
-									<img src={story.url} alt={story.title} loading="lazy" />
-									<div class="checklist-item-overlay">
-										{#if isDone}
-											<span class="check-mark">Lagt ut</span>
-										{/if}
-									</div>
-									<p class="checklist-item-venue">{story.venue}</p>
-									{#if story.igHandle}
-										<p class="checklist-item-handle">@{story.igHandle}</p>
-									{/if}
-								</button>
-							{/each}
-						</div>
-					</div>
-				{/each}
-			</section>
-		{/if}
-
-		{#if carouselDays.length > 0 && data.manifest.carouselsZipUrl}
-			<section class="checklist-section">
-				<header class="checklist-header">
-					<div>
-						<h2>Sjekkliste — carousels i FB-grupper</h2>
-						<p class="checklist-progress">{carouselDone} av {carouselTotal} gruppe-poster ferdig</p>
+						{/if}
 					</div>
 				</header>
-				<p class="checklist-hint">
-					Hver dag har én carousel som skal postes til fire FB-grupper med ulik UTM-tag.
-					Trykk på en gruppe når du har postet i den.
-				</p>
 
-				{#each carouselDays as day (day.dateStr + day.slug)}
+				{#if day.skipped}
+					<p class="skip-reason">{day.skipReason || 'Ingen events tilgjengelig'}</p>
+				{:else}
+					<p class="day-meta">
+						{day.frameCount} carousel-bilder · {day.storyCount} stories{#if day.mp4Url} · reel{/if}
+					</p>
+
+					<!-- FB group carousel checklist -->
 					{@const eligibleGroups = groupsForSlug(day.slug)}
-					{@const dayDone = eligibleGroups.filter(g => posted[`${day.dateStr}-${day.slug}-fb-${g.id}`]).length}
-					<div class="carousel-day">
-						<img
-							class="carousel-thumb"
-							src={carouselThumbUrl(day.dateStr, day.slug)}
-							alt={day.label}
-							loading="lazy"
-						/>
-						<div class="carousel-day-body">
-							<header class="checklist-day-header">
-								<h3>{day.dayName} {day.dateStr.slice(8, 10)}.{day.dateStr.slice(5, 7)} — {day.label}</h3>
-								<span class="checklist-day-count" class:complete={dayDone === eligibleGroups.length}>
-									{dayDone}/{eligibleGroups.length}
-								</span>
-							</header>
+					{#if eligibleGroups.length > 0 && day.frameCount > 0}
+						<div class="subsection">
+							<div class="subsection-header">
+								<h3>Carousel i FB-grupper</h3>
+								<img class="carousel-thumb" src={carouselThumbUrl(day.dateStr, day.slug)} alt={day.label} loading="lazy" />
+							</div>
 							<div class="group-grid">
 								{#each eligibleGroups as group (group.id)}
 									{@const key = `${day.dateStr}-${day.slug}-fb-${group.id}`}
 									{@const isDone = posted[key]}
-									<button
-										type="button"
-										class="group-pill"
-										class:done={isDone}
-										onclick={() => togglePosted(key)}
-									>
+									<button type="button" class="group-pill" class:done={isDone} onclick={() => togglePosted(key)}>
 										{group.name}
 										{#if isDone}<span class="group-done">Lagt ut</span>{/if}
 									</button>
 								{/each}
 							</div>
 						</div>
-					</div>
-				{/each}
+					{/if}
+
+					<!-- Stories checklist -->
+					{@const storyDay = storiesForDay(day.dateStr, day.slug)}
+					{#if storyDay && storyDay.stories.length > 0}
+						{@const storyDone = storyDay.stories.filter((_, i) => posted[`${day.dateStr}-${day.slug}-${i}`]).length}
+						<div class="subsection">
+							<div class="subsection-header">
+								<h3>Stories</h3>
+								<span class="checklist-day-count" class:complete={storyDone === storyDay.stories.length}>
+									{storyDone}/{storyDay.stories.length}
+								</span>
+							</div>
+							<div class="checklist-grid">
+								{#each storyDay.stories as story, i (story.url)}
+									{@const key = `${day.dateStr}-${day.slug}-${i}`}
+									{@const isDone = posted[key]}
+									<button type="button" class="checklist-item" class:done={isDone} onclick={() => togglePosted(key)}>
+										<img src={story.url} alt={story.title} loading="lazy" />
+										<div class="checklist-item-overlay">
+											{#if isDone}<span class="check-mark">Lagt ut</span>{/if}
+										</div>
+										<p class="checklist-item-venue">{story.venue}</p>
+										{#if story.igHandle}
+											<p class="checklist-item-handle">@{story.igHandle}</p>
+										{/if}
+									</button>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				{/if}
 			</section>
-		{/if}
+		{/each}
 
 		<footer class="footer">
 			Generert {new Date(data.manifest.generatedAt).toLocaleString('nb-NO', { timeZone: 'Europe/Oslo' })}
@@ -344,97 +253,45 @@
 	}
 
 	.sub {
-		margin: 0 0 24px;
+		margin: 0 0 12px;
 		font-size: 16px;
 		color: var(--color-text-secondary);
 	}
 
-	.bulk-download {
-		display: block;
-		text-align: center;
-		background: var(--color-primary);
-		color: #fff;
-		text-decoration: none;
-		padding: 16px 24px;
-		border-radius: 12px;
-		font-family: 'Barlow Condensed', sans-serif;
-		font-size: 22px;
-		font-weight: 700;
-		letter-spacing: 0.02em;
-		text-transform: uppercase;
-		margin-bottom: 8px;
+	.progress-bar {
+		height: 6px;
+		background: var(--color-border);
+		border-radius: 3px;
+		margin-bottom: 16px;
+		overflow: hidden;
 	}
 
-	.bulk-download:active {
-		transform: scale(0.99);
+	.progress-fill {
+		height: 100%;
+		background: #1A6B35;
+		border-radius: 3px;
+		transition: width 200ms ease;
 	}
 
-	.bulk-hint {
-		margin: 0 0 24px;
-		font-size: 13px;
-		color: var(--color-text-secondary);
-		text-align: center;
-		line-height: 1.5;
-	}
-
-	.bulk-hint code {
-		background: var(--color-bg-surface);
-		padding: 2px 6px;
-		border-radius: 4px;
-		font-size: 12px;
-	}
-
-	.instructions {
-		background: var(--color-bg-surface);
-		border: 2px solid var(--color-border);
-		border-radius: 12px;
-		padding: 20px;
+	.top-actions {
+		display: flex;
+		justify-content: flex-end;
 		margin-bottom: 24px;
 	}
 
-	.instructions h2 {
-		margin: 0 0 12px;
-		font-size: 18px;
-		font-weight: 700;
-	}
-
-	.instructions ol {
-		margin: 0;
-		padding-left: 22px;
-		font-size: 15px;
-		line-height: 1.6;
-		color: var(--color-text-secondary);
-	}
-
-	.instructions li {
-		margin-bottom: 6px;
-	}
-
-	.days-grid {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: 16px;
-		margin-bottom: 32px;
-	}
-
-	@media (min-width: 640px) {
-		.days-grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
-	}
-
-	.day-card {
+	.day-section {
 		background: #fff;
 		border: 2px solid var(--color-border);
 		border-radius: 12px;
 		padding: 20px;
+		margin-bottom: 20px;
 	}
 
-	.day-card.skipped {
-		opacity: 0.6;
+	.day-section.skipped {
+		opacity: 0.5;
 	}
 
-	.day-header {
+	.day-section-header {
 		display: flex;
 		align-items: flex-start;
 		justify-content: space-between;
@@ -442,10 +299,49 @@
 		margin-bottom: 12px;
 	}
 
+	.day-header-actions {
+		display: flex;
+		gap: 8px;
+		flex-shrink: 0;
+		align-items: center;
+	}
+
+	.zip-btn {
+		display: inline-block;
+		background: var(--color-primary);
+		color: #fff;
+		text-decoration: none;
+		padding: 8px 16px;
+		border-radius: 8px;
+		font-weight: 700;
+		font-size: 13px;
+		white-space: nowrap;
+	}
+
+	.zip-btn:active {
+		transform: scale(0.98);
+	}
+
+	.caption-btn {
+		background: #fff;
+		color: var(--color-primary);
+		border: 2px solid var(--color-primary);
+		padding: 6px 14px;
+		border-radius: 8px;
+		font-weight: 600;
+		font-size: 13px;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+
+	.caption-btn:active {
+		transform: scale(0.98);
+	}
+
 	.day-name {
 		margin: 0;
 		font-family: 'Barlow Condensed', sans-serif;
-		font-size: 22px;
+		font-size: 24px;
 		font-weight: 700;
 	}
 
@@ -456,42 +352,9 @@
 	}
 
 	.day-meta {
-		margin: 0 0 14px;
+		margin: 0 0 16px;
 		font-size: 13px;
 		color: var(--color-text-muted);
-	}
-
-	.day-actions {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-	}
-
-	.primary-btn {
-		display: inline-block;
-		text-align: center;
-		background: var(--color-primary);
-		color: #fff;
-		text-decoration: none;
-		padding: 12px 18px;
-		border-radius: 8px;
-		font-weight: 700;
-		font-size: 15px;
-	}
-
-	.secondary-btn {
-		background: #fff;
-		color: var(--color-primary);
-		border: 2px solid var(--color-primary);
-		padding: 10px 18px;
-		border-radius: 8px;
-		font-weight: 600;
-		font-size: 14px;
-		cursor: pointer;
-	}
-
-	.secondary-btn:active {
-		transform: scale(0.98);
 	}
 
 	.status-pill {
@@ -501,11 +364,6 @@
 		text-transform: uppercase;
 		padding: 4px 10px;
 		border-radius: 999px;
-	}
-
-	.status-pill.ok {
-		background: #1A6B35;
-		color: #fff;
 	}
 
 	.status-pill.skip {
@@ -520,31 +378,33 @@
 		font-style: italic;
 	}
 
-	.checklist-section {
-		background: var(--color-bg-surface);
-		border: 2px solid var(--color-border);
-		border-radius: 12px;
-		padding: 24px;
-		margin-bottom: 32px;
+	.subsection {
+		margin-bottom: 20px;
+		padding-top: 16px;
+		border-top: 1px solid var(--color-border);
 	}
 
-	.checklist-header {
+	.subsection:first-of-type {
+		border-top: none;
+		padding-top: 0;
+	}
+
+	.subsection:last-child {
+		margin-bottom: 0;
+	}
+
+	.subsection-header {
 		display: flex;
 		justify-content: space-between;
-		align-items: flex-start;
-		gap: 16px;
-		margin-bottom: 8px;
+		align-items: center;
+		margin-bottom: 12px;
 	}
 
-	.checklist-header h2 {
+	.subsection-header h3 {
 		margin: 0;
-		font-size: 20px;
+		font-family: 'Barlow Condensed', sans-serif;
+		font-size: 17px;
 		font-weight: 700;
-	}
-
-	.checklist-progress {
-		margin: 4px 0 0;
-		font-size: 14px;
 		color: var(--color-text-secondary);
 	}
 
@@ -561,37 +421,6 @@
 	.reset-btn:hover {
 		border-color: var(--color-primary);
 		color: var(--color-primary);
-	}
-
-	.checklist-hint {
-		margin: 0 0 24px;
-		font-size: 13px;
-		color: var(--color-text-muted);
-		line-height: 1.5;
-	}
-
-	.checklist-day {
-		margin-bottom: 28px;
-	}
-
-	.checklist-day:last-child {
-		margin-bottom: 0;
-	}
-
-	.checklist-day-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 12px;
-		padding-bottom: 8px;
-		border-bottom: 1px solid var(--color-border);
-	}
-
-	.checklist-day-header h3 {
-		margin: 0;
-		font-family: 'Barlow Condensed', sans-serif;
-		font-size: 18px;
-		font-weight: 700;
 	}
 
 	.checklist-day-count {
@@ -683,37 +512,13 @@
 		color: var(--color-primary);
 	}
 
-	.carousel-day {
-		display: flex;
-		gap: 16px;
-		padding: 16px;
-		background: #fff;
-		border: 1px solid var(--color-border);
-		border-radius: 12px;
-		margin-bottom: 16px;
-	}
-
-	.carousel-day:last-child {
-		margin-bottom: 0;
-	}
-
 	.carousel-thumb {
 		flex-shrink: 0;
-		width: 96px;
-		height: 96px;
+		width: 64px;
+		height: 64px;
 		object-fit: cover;
 		border-radius: 8px;
 		background: #1c1c1e;
-	}
-
-	.carousel-day-body {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.carousel-day-body .checklist-day-header {
-		margin-bottom: 12px;
-		padding-bottom: 8px;
 	}
 
 	.group-grid {

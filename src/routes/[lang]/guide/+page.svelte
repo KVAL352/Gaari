@@ -368,8 +368,8 @@
 <svelte:head>
 	<title>{$lang === 'no' ? 'Hva skjer i Bergen? Arrangementer og aktiviteter' : 'Things to Do in Bergen — Events and Activities'} — Gåri</title>
 	<meta name="description" content={$lang === 'no'
-		? 'Hva skjer i Bergen i dag, denne helgen og fremover? Konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 54 lokale kilder.'
-		: 'What\u2019s on in Bergen today, this weekend and beyond? Concerts, theatre, festivals, family activities and more. Updated daily from 54 local sources.'} />
+		? 'Hva skjer i Bergen i dag, denne helgen og fremover? Konserter, teater, festivaler, familieaktiviteter og mer. Oppdatert daglig fra 55 lokale kilder.'
+		: 'What\u2019s on in Bergen today, this weekend and beyond? Concerts, theatre, festivals, family activities and more. Updated daily from 55 local sources.'} />
 	<link rel="canonical" href={canonicalUrl} />
 	<link rel="alternate" hreflang="nb" href={getCanonicalUrl('/no/guide')} />
 	<link rel="alternate" hreflang="en" href={getCanonicalUrl('/en/guide')} />
