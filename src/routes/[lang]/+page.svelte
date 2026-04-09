@@ -8,7 +8,7 @@
 	import { hideEvent, hideVenue, hideCategory, isHidden, unhideAll, hiddenCount, hiddenSummary } from '$lib/hidden-events.svelte';
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString } from '$lib/event-filters';
 	import type { Bydel, GaariEvent } from '$lib/types';
-	import { generateWebSiteJsonLd, computeCanonical, getCanonicalUrl, safeJsonLd } from '$lib/seo';
+	import { generateWebSiteJsonLd, generateFaqJsonLd, computeCanonical, getCanonicalUrl, safeJsonLd } from '$lib/seo';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import { ArrowRight } from 'lucide-svelte';
 	import HeroSection from '$lib/components/HeroSection.svelte';
@@ -171,18 +171,30 @@
 
 	let websiteJsonLd = $derived(generateWebSiteJsonLd($lang));
 
-	// ItemList JSON-LD: give AI crawlers structured access to top 50 events
-	// (only 12 render visually, but crawlers need more for "hva skjer i Bergen" answers)
+	// CollectionPage + ItemList JSON-LD: give AI crawlers structured access to top 50 events
 	let homepageItemListJsonLd = $derived(safeJsonLd({
 		'@context': 'https://schema.org',
-		'@type': 'ItemList',
+		'@type': 'CollectionPage',
+		name: $lang === 'no' ? 'Hva skjer i Bergen' : 'What\u2019s on in Bergen',
+		description: $lang === 'no'
+			? 'Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Oppdatert daglig fra 55 lokale kilder.'
+			: 'What\u2019s on in Bergen? Concerts, exhibitions, theatre, food and more. Updated daily from 55 local sources.',
+		url: getCanonicalUrl(`/${$lang}`),
+		dateModified: new Date().toISOString().slice(0, 10),
+		publisher: { '@type': 'Organization', name: 'Gåri', url: 'https://gaari.no' },
 		numberOfItems: allEvents.length,
-		itemListElement: allEvents.slice(0, 50).map((e, i) => ({
-			'@type': 'ListItem',
-			position: i + 1,
-			url: getCanonicalUrl(`/${$lang}/events/${e.slug}`)
-		}))
+		mainEntity: {
+			'@type': 'ItemList',
+			numberOfItems: Math.min(allEvents.length, 50),
+			itemListElement: allEvents.slice(0, 50).map((e, i) => ({
+				'@type': 'ListItem',
+				position: i + 1,
+				url: getCanonicalUrl(`/${$lang}/events/${e.slug}`)
+			}))
+		}
 	}));
+
+	let homepageFaqJsonLd = $derived(generateFaqJsonLd($lang));
 
 	// Filter transition animation
 	let filterFingerprint = $derived(`${when}|${time}|${audience}|${category}|${bydel}|${price}`);
@@ -290,6 +302,7 @@
 	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
+	<meta property="article:modified_time" content={new Date().toISOString()} />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={`Gåri — ${$t('tagline')}`} />
 	<meta name="twitter:description" content={homeDescription} />
@@ -303,6 +316,7 @@
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + websiteJsonLd + '</scr' + 'ipt>'}
 	{@html '<script type="application/ld+json">' + homepageItemListJsonLd + '</scr' + 'ipt>'}
+	{@html '<script type="application/ld+json">' + homepageFaqJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <HeroSection />
