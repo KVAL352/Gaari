@@ -8,7 +8,7 @@
 	import { hideEvent, hideVenue, hideCategory, isHidden, unhideAll, hiddenCount, hiddenSummary } from '$lib/hidden-events.svelte';
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString } from '$lib/event-filters';
 	import type { Bydel, GaariEvent } from '$lib/types';
-	import { generateWebSiteJsonLd, generateFaqJsonLd, computeCanonical, getCanonicalUrl, safeJsonLd } from '$lib/seo';
+	import { generateWebSiteJsonLd, generateFaqJsonLd, generateOrganizationJsonLd, generateBreadcrumbJsonLd, computeCanonical, getCanonicalUrl, safeJsonLd } from '$lib/seo';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import { ArrowRight } from 'lucide-svelte';
 	import HeroSection from '$lib/components/HeroSection.svelte';
@@ -195,6 +195,10 @@
 	}));
 
 	let homepageFaqJsonLd = $derived(generateFaqJsonLd($lang));
+	let orgJsonLd = generateOrganizationJsonLd();
+	let homeBreadcrumbJsonLd = $derived(generateBreadcrumbJsonLd([
+		{ name: 'Gåri' }
+	]));
 
 	// Filter transition animation
 	let filterFingerprint = $derived(`${when}|${time}|${audience}|${category}|${bydel}|${price}`);
@@ -317,15 +321,24 @@
 	{@html '<script type="application/ld+json">' + websiteJsonLd + '</scr' + 'ipt>'}
 	{@html '<script type="application/ld+json">' + homepageItemListJsonLd + '</scr' + 'ipt>'}
 	{@html '<script type="application/ld+json">' + homepageFaqJsonLd + '</scr' + 'ipt>'}
+	{@html '<script type="application/ld+json">' + orgJsonLd + '</scr' + 'ipt>'}
+	{@html '<script type="application/ld+json">' + homeBreadcrumbJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <HeroSection />
 
-<p class="mx-auto max-w-7xl px-4 pt-3 pb-1 text-sm leading-relaxed text-[var(--color-text-secondary)] md:text-center">
-	{$lang === 'no'
-		? `Bergen har ${data.events.length} arrangementer de neste to ukene — konserter, teater, utstillinger, mat og familieaktiviteter fra ${data.events.length > 0 ? 'Grieghallen, KODE, DNS og 50+ andre steder' : '55 lokale kilder'}. Oppdatert daglig.`
-		: `Bergen has ${data.events.length} events over the next two weeks — concerts, theatre, exhibitions, food and family activities from ${data.events.length > 0 ? 'Grieghallen, KODE, DNS and 50+ other venues' : '55 local sources'}. Updated daily.`}
-</p>
+<div class="mx-auto max-w-7xl px-4 pt-3 pb-1 text-sm leading-relaxed text-[var(--color-text-secondary)] md:text-center">
+	<p>
+		{$lang === 'no'
+			? `Bergen har ${data.events.length} arrangementer de neste to ukene — konserter, teater, utstillinger, mat og familieaktiviteter fra ${data.events.length > 0 ? 'Grieghallen, KODE, DNS og 50+ andre steder' : '55 lokale kilder'}. Oppdatert daglig.`
+			: `Bergen has ${data.events.length} events over the next two weeks — concerts, theatre, exhibitions, food and family activities from ${data.events.length > 0 ? 'Grieghallen, KODE, DNS and 50+ other venues' : '55 local sources'}. Updated daily.`}
+	</p>
+	<p class="mt-1">
+		{$lang === 'no'
+			? 'Gåri er en uavhengig og gratis arrangementskalender for Bergen. Alle beskrivelser er originale, og utsolgte arrangementer fjernes automatisk.'
+			: 'Gåri is an independent, free event calendar for Bergen. All descriptions are original, and sold-out events are removed automatically.'}
+	</p>
+</div>
 
 <EventDiscovery
 	lang={$lang}
