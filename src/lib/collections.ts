@@ -164,7 +164,9 @@ const collections: Collection[] = [
 				{ q: 'Hva kan familier gjøre i Bergen i helgen?', a: 'Gåri har en egen familiehelg-side med barneforestillinger, museumsaktiviteter og familievennlige arrangementer i Bergen.' },
 				{ q: 'Hvor mange arrangementer har Bergen i helgene?', a: 'Bergen har typisk 40–80 arrangementer hver helg — fra konserter på Grieghallen til utstillinger på KODE og familieaktiviteter på Akvariet. Gåri samler dem fra 55 kilder.' },
 				{ q: 'Når oppdateres helgeprogrammet på Gåri?', a: 'Gåri oppdateres daglig klokken 06:00. Helgearrangementer legges til fortløpende utover uken etter hvert som arrangørene publiserer dem.' },
-				{ q: 'Hva er Bergens beste helgeopplevelse?', a: 'Bergen tilbyr noe for enhver smak — klassisk konsert på Grieghallen, besøk på KODE, teater på DNS eller en kveld på Bryggen. Gåri samler alle helgearrangementer fra 55 lokale kilder slik at du enkelt kan planlegge.' }
+				{ q: 'Hva er Bergens beste helgeopplevelse?', a: 'Bergen tilbyr noe for enhver smak — klassisk konsert på Grieghallen, besøk på KODE, teater på DNS eller en kveld på Bryggen. Gåri samler alle helgearrangementer fra 55 lokale kilder slik at du enkelt kan planlegge.' },
+				{ q: 'Hva skjer i Bergen på lørdag kveld?', a: 'Bergen har konserter, uteliv og kulturarrangementer hver lørdag. Ole Bull, Forum Scene og Hulen har jevnlige lørdagsshow. Sjekk Gåri for oppdatert program.' },
+				{ q: 'Hva kan man gjøre i Bergen på søndag?', a: 'Søndager i Bergen byr på brunch, utstillinger, fjellturer og familieaktiviteter. KODE, Akvariet og Fløyen er populære søndagsmål. Mange arrangementer er gratis.' }
 			],
 			en: [
 				{ q: "What's on in Bergen this weekend?", a: 'Gåri shows all weekend events in Bergen — concerts, exhibitions, family activities and more. Updated daily from 55 local sources.' },
@@ -172,7 +174,9 @@ const collections: Collection[] = [
 				{ q: 'What can families do in Bergen this weekend?', a: "Gåri has a dedicated family weekend page with children's shows, museum activities and family-friendly events in Bergen." },
 				{ q: 'How many events does Bergen have on weekends?', a: 'Bergen typically has 40–80 events each weekend — from concerts at Grieghallen to exhibitions at KODE and family activities at Akvariet. Gåri collects them from 55 sources.' },
 				{ q: 'When is the weekend listing updated on Gåri?', a: 'Gåri updates daily — morning and evening. Weekend events are added throughout the week as organisers publish them.' },
-				{ q: "What is Bergen's best weekend experience?", a: "Bergen has something for every taste — a classical concert at Grieghallen, a visit to KODE, theatre at DNS or an evening on Bryggen. Gåri collects all weekend events from 55 local sources so you can plan easily." }
+				{ q: "What is Bergen's best weekend experience?", a: "Bergen has something for every taste — a classical concert at Grieghallen, a visit to KODE, theatre at DNS or an evening on Bryggen. Gåri collects all weekend events from 55 local sources so you can plan easily." },
+				{ q: 'What happens in Bergen on Saturday night?', a: 'Bergen has concerts, nightlife and cultural events every Saturday. Ole Bull, Forum Scene and Hulen have regular Saturday shows. Check Gåri for the updated programme.' },
+				{ q: 'What is there to do in Bergen on Sunday?', a: 'Sundays in Bergen offer brunch, exhibitions, mountain hikes and family activities. KODE, the Aquarium and Fløyen are popular Sunday destinations. Many events are free.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -225,7 +229,9 @@ const collections: Collection[] = [
 				{ q: 'Hva kan man gjøre i Bergen på kvelden?', a: 'Bergen har jevnlig konserter, teaterforestillinger, quiz-kvelder og kulturarrangementer på kveldstid — også på hverdager.' },
 				{ q: 'Når starter de fleste kveldsarrangementer i Bergen?', a: 'De fleste konserter og forestillinger i Bergen starter mellom klokken 19 og 21. Nattarrangementer og uteliv starter typisk fra klokken 22. Bruk tidsfilteret for å finne riktig tidspunkt.' },
 				{ q: 'Er det noe å gjøre i Bergen på en hverdagskveld?', a: 'Bergen har kulturarrangementer hver ukedag. DNS, Bergen Internasjonale Teater (BIT) og Cornerteateret spiller forestillinger mandag til fredag. Kvarteret og studentscenen er aktive fra torsdag.' },
-				{ q: 'Er det noe å gjøre i Bergen sent på kvelden?', a: 'Bergen har uteliv og nattarrangementer fra klokken 22 og utover. Kvarteret, Hulen og Madam Felle har arrangementer til midnatt og senere. Bruk tidsfilteret på Gåri for å finne sene kveldsarrangementer.' }
+				{ q: 'Er det noe å gjøre i Bergen sent på kvelden?', a: 'Bergen har uteliv og nattarrangementer fra klokken 22 og utover. Kvarteret, Hulen og Madam Felle har arrangementer til midnatt og senere. Bruk tidsfilteret på Gåri for å finne sene kveldsarrangementer.' },
+				{ q: 'Hvilke spillesteder har arrangementer i Bergen i kveld?', a: 'Grieghallen, Ole Bull, Forum Scene, Hulen, Kvarteret, USF Verftet, Bergen Kjøtt og Madam Felle har jevnlige kveldsarrangementer. Gåri samler alle på ett sted.' },
+				{ q: 'Er det livemusikk i Bergen i kveld?', a: 'Bergen har livemusikk de fleste kvelder. Hulen, Bergen Kjøtt, Kvarteret og Madam Felle har konserter flere dager i uken. Sjekk Gåri for kveldens program.' }
 			],
 			en: [
 				{ q: "What's on in Bergen tonight?", a: 'Gåri shows all evening events in Bergen tonight — concerts, theatre, nightlife and more. Updated daily.' },
@@ -233,7 +239,9 @@ const collections: Collection[] = [
 				{ q: 'What can I do in Bergen in the evening?', a: 'Bergen has regular concerts, theatre, quiz nights and cultural events in the evenings — including weekdays.' },
 				{ q: 'What time do most evening events start in Bergen?', a: 'Most concerts and performances in Bergen start between 19:00 and 21:00. Late-night events and nightlife typically begin from 22:00. Use the time filter to find the right slot.' },
 				{ q: 'Is there anything to do in Bergen on a weekday evening?', a: 'Bergen has cultural events every weeknight. DNS, Bergen Internasjonale Teater (BIT) and Cornerteateret run performances Monday to Friday. Kvarteret and the student scene are active from Thursday onwards.' },
-				{ q: 'Is there anything to do late at night in Bergen?', a: 'Bergen has nightlife and late events from 22:00 onwards. Kvarteret, Hulen and Madam Felle have events running to midnight and beyond. Use the time filter on Gåri to find late evening events.' }
+				{ q: 'Is there anything to do late at night in Bergen?', a: 'Bergen has nightlife and late events from 22:00 onwards. Kvarteret, Hulen and Madam Felle have events running to midnight and beyond. Use the time filter on Gåri to find late evening events.' },
+				{ q: 'Which venues have events in Bergen tonight?', a: 'Grieghallen, Ole Bull, Forum Scene, Hulen, Kvarteret, USF Verftet, Bergen Kjøtt and Madam Felle have regular evening events. Gåri collects them all in one place.' },
+				{ q: 'Is there live music in Bergen tonight?', a: 'Bergen has live music most evenings. Hulen, Bergen Kjøtt, Kvarteret and Madam Felle have gigs several nights a week. Check Gåri for tonight\'s programme.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -286,7 +294,9 @@ const collections: Collection[] = [
 				{ q: 'Finnes det gratis museer i Bergen?', a: 'Flere museer i Bergen har gratis åpningsdager. Gåri viser gratis museumsdager og kulturtilbud fortløpende.' },
 				{ q: 'Hva betyr «Trolig gratis» på Gåri?', a: '«Trolig gratis» betyr at arrangøren ikke har oppgitt pris. Vi kan ikke garantere at det er kostnadsfritt — sjekk alltid pris direkte hos arrangøren før oppmøte.' },
 				{ q: 'Finnes det gratis konserter i Bergen?', a: 'Bergen Bibliotek, parker og kulturhus arrangerer jevnlig gratis konserter. Fløyen har gratis utendørsarrangementer om sommeren. Sjekk Gåri for oppdatert liste.' },
-				{ q: 'Er det gratis aktiviteter for barn i Bergen?', a: 'Ja, Bergen Bibliotek arrangerer gratis barneaktiviteter og lesestunder. KODE og Bergen Kunsthall har gratis inngangsdager for barn. Sjekk Gåri for gratis familieaktiviteter de neste to ukene.' }
+				{ q: 'Er det gratis aktiviteter for barn i Bergen?', a: 'Ja, Bergen Bibliotek arrangerer gratis barneaktiviteter og lesestunder. KODE og Bergen Kunsthall har gratis inngangsdager for barn. Sjekk Gåri for gratis familieaktiviteter de neste to ukene.' },
+				{ q: 'Er det gratis fjellturer i Bergen?', a: 'DNT Bergen og Fløyen arrangerer gratis guidede turer jevnlig. De syv fjell og Vidden-turen er gratis hele året. Sjekk Gåri for kommende gratisturer.' },
+				{ q: 'Hvilke gratis utstillinger finnes i Bergen?', a: 'Bergen Kunsthall har gratis inngangsdager. Flere KODE-utstillinger er gratis for barn og ungdom. Vernissager er alltid gratis. Sjekk Gåri for oppdatert liste.' }
 			],
 			en: [
 				{ q: 'What free things are there to do in Bergen?', a: 'Gåri shows all free events in Bergen over the next two weeks — exhibitions, concerts, tours and activities with no ticket price.' },
@@ -294,7 +304,9 @@ const collections: Collection[] = [
 				{ q: 'Are there free museums in Bergen?', a: 'Several Bergen museums have free entry days. Gåri lists free museum days and cultural events as they are announced.' },
 				{ q: 'What does "Likely free" mean on Gåri?', a: '"Likely free" means the organiser has not listed a ticket price. We cannot guarantee it is free — always check directly with the organiser before attending.' },
 				{ q: 'Are there free concerts in Bergen?', a: 'Bergen Library, parks and cultural venues regularly host free concerts. Fløyen has free outdoor events in summer. Check Gåri for the updated listing.' },
-				{ q: 'Are there free activities for children in Bergen?', a: "Yes, Bergen Library runs free children's events and story sessions. KODE and Bergen Kunsthall have free entry days for children. Check Gåri for free family activities over the next two weeks." }
+				{ q: 'Are there free activities for children in Bergen?', a: "Yes, Bergen Library runs free children's events and story sessions. KODE and Bergen Kunsthall have free entry days for children. Check Gåri for free family activities over the next two weeks." },
+				{ q: 'Are there free hiking tours in Bergen?', a: 'DNT Bergen and Fløyen organise free guided hikes regularly. The Seven Mountains and Vidden trail are free year-round. Check Gåri for upcoming free tours.' },
+				{ q: 'What free exhibitions are there in Bergen?', a: 'Bergen Kunsthall has free entry days. Several KODE exhibitions are free for children and young people. Vernissages are always free. Check Gåri for the updated list.' }
 			]
 		},
 		filterEvents: (events, now) => {
@@ -727,7 +739,9 @@ const collections: Collection[] = [
 				{ q: 'Hva er åpent i Bergen i dag?', a: 'Museer, gallerier, biblioteker og teatre i Bergen er åpne daglig. Gåri viser alle arrangementer med tidspunkt i dag.' },
 				{ q: 'Hva kan man gjøre i Bergen om morgenen?', a: 'Fløyen, Akvariet og bibliotekene åpner tidlig. KODE og Bymuseet har formiddagsaktiviteter. Bruk tidsfilteret «morgen» på Gåri for arrangementer mellom klokken 6 og 12.' },
 				{ q: 'Hva skjer i Bergen i kveld?', a: 'Sjekk Gåris i-kveld-side for alle kveldsarrangementer i Bergen i dag. Konserter og forestillinger starter typisk mellom klokken 19 og 21.' },
-				{ q: 'Hva er populære ting å gjøre i Bergen på dagtid?', a: 'Populære dagtidsaktiviteter i Bergen inkluderer Fløybanen og turer på Fløyen, besøk på Akvariet eller KODE, omvisning rundt Bryggen og guidede byvandringer. Bruk tidsfilteret «dagtid» på Gåri for alle arrangementer mellom klokken 12 og 17.' }
+				{ q: 'Hva er populære ting å gjøre i Bergen på dagtid?', a: 'Populære dagtidsaktiviteter i Bergen inkluderer Fløybanen og turer på Fløyen, besøk på Akvariet eller KODE, omvisning rundt Bryggen og guidede byvandringer. Bruk tidsfilteret «dagtid» på Gåri for alle arrangementer mellom klokken 12 og 17.' },
+				{ q: 'Hvor mange arrangementer har Bergen daglig?', a: 'Bergen har typisk 20–50 arrangementer daglig — konserter, utstillinger, teater og aktiviteter. Helger har flere enn hverdager. Gåri samler alle fra 55 kilder.' },
+				{ q: 'Er det arrangementer for turister i Bergen i dag?', a: 'Fløyen, Bryggen, Akvariet og KODE er åpne daglig og har arrangementer. Guidede byvandringer starter fra Torget. Sjekk Gåri for dagens program.' }
 			],
 			en: [
 				{ q: "What's happening in Bergen today?", a: 'Gåri shows all events in Bergen today — concerts, exhibitions, theatre, family activities and more. Updated daily from 55 local sources.' },
@@ -735,7 +749,9 @@ const collections: Collection[] = [
 				{ q: 'What is open in Bergen today?', a: 'Museums, galleries, libraries and theatres in Bergen are open daily. Gåri shows all events with start times today.' },
 				{ q: 'What can you do in Bergen in the morning?', a: 'Fløyen, the Aquarium and libraries open early. KODE and Bymuseet have morning activities. Use the "morning" time filter on Gåri for events between 06:00 and 12:00.' },
 				{ q: "What's on in Bergen tonight?", a: "Check Gåri's tonight page for all evening events in Bergen today. Concerts and performances typically start between 19:00 and 21:00." },
-				{ q: 'What are popular daytime things to do in Bergen?', a: 'Popular daytime activities in Bergen include the Fløibanen funicular and walks on Fløyen, visiting the Aquarium or KODE, a stroll around Bryggen and guided city walks. Use the "daytime" time filter on Gåri for events between 12:00 and 17:00.' }
+				{ q: 'What are popular daytime things to do in Bergen?', a: 'Popular daytime activities in Bergen include the Fløibanen funicular and walks on Fløyen, visiting the Aquarium or KODE, a stroll around Bryggen and guided city walks. Use the "daytime" time filter on Gåri for events between 12:00 and 17:00.' },
+				{ q: 'How many events does Bergen have daily?', a: 'Bergen typically has 20–50 events daily — concerts, exhibitions, theatre and activities. Weekends have more than weekdays. Gåri collects them all from 55 sources.' },
+				{ q: 'Are there events for tourists in Bergen today?', a: 'Fløyen, Bryggen, the Aquarium and KODE are open daily with events. Guided city walks depart from Torget. Check Gåri for today\'s programme.' }
 			]
 		},
 		filterEvents: (events, now) => {
