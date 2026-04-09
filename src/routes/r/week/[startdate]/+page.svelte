@@ -213,7 +213,7 @@
 <style>
 	.page {
 		min-height: 100dvh;
-		background: var(--color-bg-base);
+		background: #fafaf7;
 		padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
 	}
 
@@ -230,13 +230,13 @@
 		font-family: 'Barlow Condensed', sans-serif;
 		font-size: 28px;
 		font-weight: 700;
-		color: var(--color-primary);
+		color: #C82D2D;
 		text-decoration: none;
 	}
 
 	.date {
 		font-size: 13px;
-		color: var(--color-text-muted);
+		color: #595959;
 	}
 
 	.main {
@@ -255,12 +255,12 @@
 	.sub {
 		margin: 0 0 12px;
 		font-size: 16px;
-		color: var(--color-text-secondary);
+		color: #4D4D4D;
 	}
 
 	.progress-bar {
 		height: 6px;
-		background: var(--color-border);
+		background: #e6e3da;
 		border-radius: 3px;
 		margin-bottom: 16px;
 		overflow: hidden;
@@ -281,7 +281,7 @@
 
 	.day-section {
 		background: #fff;
-		border: 2px solid var(--color-border);
+		border: 2px solid #e6e3da;
 		border-radius: 12px;
 		padding: 20px;
 		margin-bottom: 20px;
@@ -310,7 +310,7 @@
 		display: block;
 		width: 100%;
 		text-align: center;
-		background: var(--color-primary);
+		background: #C82D2D;
 		color: #fff;
 		text-decoration: none;
 		padding: 14px 24px;
@@ -330,8 +330,8 @@
 		width: 100%;
 		text-align: center;
 		background: #fff;
-		color: var(--color-primary);
-		border: 2px solid var(--color-primary);
+		color: #C82D2D;
+		border: 2px solid #C82D2D;
 		padding: 12px 24px;
 		border-radius: 10px;
 		font-weight: 700;
@@ -353,13 +353,13 @@
 	.day-label {
 		margin: 4px 0 0;
 		font-size: 14px;
-		color: var(--color-text-secondary);
+		color: #4D4D4D;
 	}
 
 	.day-meta {
 		margin: 0 0 8px;
 		font-size: 13px;
-		color: var(--color-text-muted);
+		color: #595959;
 	}
 
 	.day-actions {
@@ -386,14 +386,14 @@
 	.skip-reason {
 		margin: 0;
 		font-size: 13px;
-		color: var(--color-text-muted);
+		color: #595959;
 		font-style: italic;
 	}
 
 	.subsection {
 		margin-bottom: 20px;
 		padding-top: 16px;
-		border-top: 1px solid var(--color-border);
+		border-top: 1px solid #e6e3da;
 	}
 
 	.subsection:first-of-type {
@@ -417,13 +417,13 @@
 		font-family: 'Barlow Condensed', sans-serif;
 		font-size: 17px;
 		font-weight: 700;
-		color: var(--color-text-secondary);
+		color: #4D4D4D;
 	}
 
 	.reset-btn {
 		background: transparent;
-		border: 1px solid var(--color-border);
-		color: var(--color-text-secondary);
+		border: 1px solid #e6e3da;
+		color: #4D4D4D;
 		padding: 8px 14px;
 		border-radius: 8px;
 		font-size: 13px;
@@ -431,18 +431,18 @@
 	}
 
 	.reset-btn:hover {
-		border-color: var(--color-primary);
-		color: var(--color-primary);
+		border-color: #C82D2D;
+		color: #C82D2D;
 	}
 
 	.checklist-day-count {
 		font-size: 13px;
 		font-weight: 700;
-		color: var(--color-text-muted);
+		color: #595959;
 		padding: 2px 10px;
 		border-radius: 999px;
 		background: #fff;
-		border: 1px solid var(--color-border);
+		border: 1px solid #e6e3da;
 	}
 
 	.checklist-day-count.complete {
@@ -464,7 +464,7 @@
 		gap: 4px;
 		padding: 0;
 		background: #fff;
-		border: 2px solid var(--color-border);
+		border: 2px solid #e6e3da;
 		border-radius: 8px;
 		overflow: hidden;
 		cursor: pointer;
@@ -510,7 +510,7 @@
 		margin: 4px 8px 0;
 		font-size: 12px;
 		font-weight: 600;
-		color: var(--color-text-primary);
+		color: #141414;
 		line-height: 1.3;
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
@@ -521,7 +521,7 @@
 	.checklist-item-handle {
 		margin: 0 8px 8px;
 		font-size: 11px;
-		color: var(--color-primary);
+		color: #C82D2D;
 	}
 
 	.carousel-thumb {
@@ -545,8 +545,8 @@
 		justify-content: space-between;
 		gap: 8px;
 		background: #fff;
-		border: 2px solid var(--color-border);
-		color: var(--color-text-primary);
+		border: 2px solid #e6e3da;
+		color: #141414;
 		font-size: 13px;
 		font-weight: 600;
 		padding: 10px 14px;
@@ -557,7 +557,7 @@
 	}
 
 	.group-pill:hover {
-		border-color: var(--color-primary);
+		border-color: #C82D2D;
 	}
 
 	.group-pill.done {
@@ -577,7 +577,7 @@
 	.footer {
 		text-align: center;
 		font-size: 12px;
-		color: var(--color-text-muted);
+		color: #595959;
 		padding: 16px 0 32px;
 	}
 </style>
