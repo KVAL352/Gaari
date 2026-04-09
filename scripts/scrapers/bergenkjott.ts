@@ -1,30 +1,26 @@
-import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenkjott';
 const BASE_URL = 'https://www.bergenkjott.org';
-const LIST_URL = `${BASE_URL}/kalendar`;
+const JSON_URL = `${BASE_URL}/kalendar?format=json`;
 const VENUE = 'Bergen Kjøtt';
 const ADDRESS = 'Skutevikstorget 1, Bergen';
-const DELAY_MS = 1500; // 1.5 seconds between detail page fetches
+const USER_AGENT = 'Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)';
 
-interface JsonLdEvent {
-	'@type': string;
-	name: string;
-	startDate: string;
-	endDate?: string;
+interface SquarespaceItem {
+	title: string;
+	fullUrl: string;
+	startDate: number; // ms epoch
+	endDate?: number;
+	body?: string;
+	assetUrl?: string;
 	location?: {
-		name?: string;
-		address?: {
-			streetAddress?: string;
-			addressLocality?: string;
-		};
+		addressTitle?: string;
+		addressLine1?: string;
+		addressLine2?: string;
 	};
-	image?: string | string[];
-	description?: string;
-	url?: string;
 }
 
 /** Word-boundary check — avoids false positives like "format" matching "mat" */
@@ -50,131 +46,70 @@ function guessCategory(title: string): string {
 	return 'culture';
 }
 
-function decodeEntities(text: string): string {
-	return text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ');
-}
-
 function stripHtml(html: string): string {
-	return decodeEntities(html.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim();
+	return html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-function extractPrice(html: string): string {
-	const text = stripHtml(html);
-	// Match patterns like "200kr", "200 kr", "kr 200", "200,-", "kr. 200"
+function extractPrice(body: string): string {
+	const text = stripHtml(body);
 	const m = text.match(/\b(\d{2,5})\s*kr\b/i) || text.match(/\bkr\.?\s*(\d{2,5})\b/i);
 	if (m) return `${m[1]} kr`;
 	if (/gratis|fri\s+inngang|free\s+entry/i.test(text)) return 'Gratis';
 	return '';
 }
 
-function parseJsonLd(html: string): JsonLdEvent | null {
-	const $ = cheerio.load(html);
-	const scripts = $('script[type="application/ld+json"]');
-
-	for (let i = 0; i < scripts.length; i++) {
-		try {
-			const data = JSON.parse(scripts.eq(i).html() || '');
-			const items = Array.isArray(data) ? data : [data];
-			for (const item of items) {
-				if (item['@type'] === 'Event' || item['@type'] === 'SocialEvent') {
-					return item as JsonLdEvent;
-				}
-			}
-		} catch { /* skip malformed JSON-LD */ }
-	}
-
-	return null;
-}
-
 export async function scrape(): Promise<{ found: number; inserted: number }> {
-	console.log(`\n[${SOURCE}] Fetching Bergen Kjøtt events (HTML + JSON-LD)...`);
+	console.log(`\n[${SOURCE}] Fetching Bergen Kjøtt events (Squarespace JSON API)...`);
 
-	// Step 1: Get listing page and extract event URLs from <noscript> fallback
-	const listHtml = await fetchHTML(LIST_URL);
-	if (!listHtml) return { found: 0, inserted: 0 };
-
-	// The calendar view is JS-rendered; event links are in the <noscript> block
-	const noscriptMatch = listHtml.match(/<noscript>([\s\S]*?)<\/noscript>/);
-	if (!noscriptMatch) {
-		console.error(`[${SOURCE}] No noscript fallback found`);
+	let data: { items?: SquarespaceItem[] };
+	try {
+		const res = await fetch(JSON_URL, {
+			headers: { 'User-Agent': USER_AGENT },
+		});
+		if (!res.ok) {
+			console.error(`[${SOURCE}] JSON API returned ${res.status}`);
+			return { found: 0, inserted: 0 };
+		}
+		data = await res.json();
+	} catch (err) {
+		console.error(`[${SOURCE}] Failed to fetch JSON:`, err);
 		return { found: 0, inserted: 0 };
 	}
 
-	const $ns = cheerio.load(noscriptMatch[1]);
-	const events: Array<{ path: string; title: string; imageUrl?: string }> = [];
+	const items = data.items || [];
+	console.log(`[${SOURCE}] Found ${items.length} events in JSON feed`);
 
-	$ns('li').each((_, el) => {
-		const link = $ns(el).find('a[href^="/kalendar/"]');
-		const path = link.attr('href');
-		const title = link.text().trim();
-		const img = $ns(el).find('img[data-src]');
-		const imageUrl = img.attr('data-src') || undefined;
+	if (items.length === 0) return { found: 0, inserted: 0 };
 
-		if (path && title) {
-			events.push({ path, title, imageUrl });
-		}
-	});
-
-	console.log(`[${SOURCE}] Found ${events.length} events in noscript listing`);
-
-	if (events.length === 0) return { found: 0, inserted: 0 };
-
-	// Step 2: Filter out already-known events
-	const newEvents = [];
-	for (const event of events) {
-		const sourceUrl = `${BASE_URL}${event.path}`;
-		if (!(await eventExists(sourceUrl))) {
-			newEvents.push({ ...event, sourceUrl });
-		}
-	}
-
-	console.log(`[${SOURCE}] ${newEvents.length} new events to fetch`);
-
-	// Step 3: Fetch detail pages for new events to get dates from JSON-LD
 	const now = new Date();
 	let found = 0;
 	let inserted = 0;
 
-	for (let i = 0; i < newEvents.length; i++) {
-		if (i > 0) await delay(DELAY_MS);
+	for (const item of items) {
+		if (!item.title || !item.startDate) continue;
 
-		const { sourceUrl, title: listTitle, imageUrl: listImage } = newEvents[i];
-
-		const html = await fetchHTML(sourceUrl);
-		if (!html) continue;
-
-		const jsonLd = parseJsonLd(html);
-		if (!jsonLd || !jsonLd.startDate) continue;
-
-		// Skip past events
-		const startDate = new Date(jsonLd.startDate);
+		const startDate = new Date(item.startDate);
 		if (startDate < now) continue;
+
+		const sourceUrl = `${BASE_URL}${item.fullUrl}`;
+		if (await eventExists(sourceUrl)) continue;
 
 		found++;
 
-		const title = decodeEntities(jsonLd.name || listTitle);
-		if (!title) continue;
-
+		const title = item.title;
 		const dateStart = startDate.toISOString();
-		const dateEnd = jsonLd.endDate ? new Date(jsonLd.endDate).toISOString() : undefined;
+		const dateEnd = item.endDate ? new Date(item.endDate).toISOString() : undefined;
 		const datePart = dateStart.slice(0, 10);
 		const category = guessCategory(title);
 		const bydel = mapBydel(VENUE);
 
-		// Image — prefer JSON-LD, fall back to noscript listing
-		let imageUrl: string | undefined = listImage;
-		if (typeof jsonLd.image === 'string') {
-			imageUrl = jsonLd.image;
-		} else if (Array.isArray(jsonLd.image) && jsonLd.image.length > 0) {
-			imageUrl = jsonLd.image[0];
-		}
-
-		const venueName = jsonLd.location?.name || VENUE;
-		const address = jsonLd.location?.address?.streetAddress
-			? `${jsonLd.location.address.streetAddress}, ${jsonLd.location.address.addressLocality || 'Bergen'}`
+		const imageUrl = item.assetUrl || undefined;
+		const venueName = item.location?.addressTitle || VENUE;
+		const address = item.location?.addressLine1
+			? `${item.location.addressLine1}, ${item.location?.addressLine2 || 'Bergen'}`
 			: ADDRESS;
 
-		const price = extractPrice(html);
+		const price = item.body ? extractPrice(item.body) : '';
 		const aiDesc = await generateDescription({ title, venue: venueName, category, date: startDate, price });
 
 		const success = await insertEvent({
