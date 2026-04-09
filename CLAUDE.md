@@ -7,370 +7,71 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 ## Architecture
 
 - **Frontend**: SvelteKit 2 with Svelte 5 runes (`$state`, `$derived`, `$effect`). Tailwind CSS 4. Language routing via `/[lang]/` (no, en).
-- **Data loading**: Server-side via `+page.server.ts` — Supabase SDK runs only on the server for all main pages. Data arrives pre-rendered in HTML (no client-side fetch waterfall). Only `/submit` still uses client-side Supabase (for image uploads).
-- **Supabase client**: `$lib/server/supabase.ts` (server-only, enforced by SvelteKit `$lib/server/` convention). `$lib/supabase.ts` exists only for the submit page's client-side usage.
-- **Database**: Supabase with `events`, `opt_out_requests`, `edit_suggestions`, `promoted_placements`, `placement_log`, `organizer_inquiries`, and `scraper_runs` tables. Anon key for reads, service role key for scraper writes.
-- **Form actions**: Correction form (event detail) and opt-out form (datainnsamling) use SvelteKit form actions with `use:enhance` — no client-side Supabase needed.
-- **Scrapers**: Standalone TypeScript in `scripts/`, separate `package.json`. Uses Cheerio for HTML parsing. Runs via GitHub Actions cron (daily at 6 AM UTC).
-- **AI Descriptions**: Gemini 2.5 Flash generates bilingual summaries (<160 chars each) + English event titles (`title_en`) from event metadata. Fallback to template if API unavailable.
-- **Collection pages**: Curated landing pages via `$lib/collections.ts` config + single dynamic `[lang]/[collection]/` route. 52 collections (18 evergreen + 7 bydel + 13 seasonal + 14 festival). Evergreen: `denne-helgen` (weekend), `i-kveld` (tonight), `gratis` (free 2 weeks), `today-in-bergen` (today, EN), `familiehelg` (family weekend), `konserter` (concerts 2 weeks), `studentkveld` (student nights this week), `uteliv` (adult nightlife/music evenings, this week), `this-weekend` (weekend, EN), `i-dag` (today, NO), `free-things-to-do-bergen` (free 2 weeks, EN), `regndagsguide` (indoor/rainy day, 2 weeks), `sentrum` (Bergen sentrum+Bergenhus, 2 weeks), `voksen` (adults incl. sports, 2 weeks), `for-ungdom` (youth 13-18 incl. theatre, 2 weeks), `teater` (theatre, 2 weeks), `utstillinger` (exhibitions/culture, 2 weeks), `mat-og-drikke` (food events, 2 weeks). Bydel (all filter by `bydel` field, 2-week window): `bergenhus`, `laksevag`, `fyllingsdalen`, `asane`, `fana`, `ytrebygda`, `arna`. Seasonal (`seasonal: true`, year appended to title/H1): `17-mai` / `17th-of-may-bergen` (May 14-18), `julemarked` / `christmas-bergen` (Nov 15-Dec 23), `paske` / `easter-bergen` (Palm Sunday–Easter Monday, computed via `getEasterDate()`), `sankthans` / `midsummer-bergen` (Jun 21-24), `nyttarsaften` / `new-years-eve-bergen` (Dec 29-Jan 1, cross-year), `vinterferie` / `winter-break-bergen` (ISO week 9), `hostferie` (ISO week 41, no EN pair). Festival (`seasonal: true`, filter by `source_url` domain): `festspillene` / `bergen-international-festival` (fib.no), `bergenfest` / `bergenfest-bergen` (bergenfest.no, maxPerVenue: 50), `beyond-the-gates` / `beyond-the-gates-bergen` (beyondthegates.no), `nattjazz` / `nattjazz-bergen` (nattjazz.ticketco.no), `bergen-pride` / `bergen-pride-festival` (bergenpride.no + bergenpride.ticketco.events), `biff` / `biff-bergen` (biff.no), `borealis` / `borealis-bergen` (borealisfestival.no). Each has `filterEvents(events, now)`, bilingual title/description/ogSubtitle, editorial, FAQ (5+ questions), quickAnswer, optional `offSeasonHint` (bilingual contextual message shown when seasonal/festival collection is empty — tells users when events typically appear + newsletter CTA). `getCollection(slug)` returns config or undefined (404). `getAllCollectionSlugs()` for sitemap. Static routes resolve before `[collection]` param — no conflicts.
-- **Social post pipeline**: `scripts/social/` generates Instagram carousel images (Satori/Resvg, 1080x1080 PNG) + Stories (1080x1920 PNG, 9:16) + captions for scheduled collections (11 collections: denne-helgen, i-kveld, gratis, today-in-bergen, familiehelg, konserter, studentkveld, this-weekend, teater, utstillinger, mat-og-drikke). GHA split crons: FB at 07:00 UTC, IG carousel at 14:00 UTC. Stories posted manually (auto-posting removed Apr 2026). Admin review at `/admin/social` (tabs: posts + insights). Bluesky posting disabled (Mar 2026). **Slide design (Apr 2026)**: Separated image/text layout — image fills top ~60%, text in dark area below (same structure for both carousel and story slides). Category-colored frame border (each event slide framed in its category color for instant recognition). Carousel = real event slides only — no hook/CTA filler slides; the caption frames the post and the collection label appears as an overlay on the first event slide. Minimum 4 events with images per post (fewer = skip), events with images prioritized, green "Trolig gratis" badge below venue/time on free events, auto venue @tagging in captions (60 verified Bergen venue IG handles in `venues.ts` `VENUE_INSTAGRAM` mapping), max 1 event per venue, "Gåri.no" branding. Stories use IG safe zones (top 200px, bottom 200px clear of UI). `generate-seed-posts.ts` generates 12 seed posts. **Instagram Stories**: Images generated during FB/IG runs, posted manually. Story images generate independently of carousel — even with <4 images. **Reels video**: `generate-reels.ts` creates MP4 from PNG frames via FFmpeg (3s per frame, H.264, 1080x1920). Default collections: denne-helgen, konserter, gratis. Manual publishing required (no Reels API for business accounts). **Social insights**: `fetch-social-insights.ts` fetches engagement metrics for ALL IG/FB posts (automated + manual). IG: reach, likes, comments, saved, shares. FB: reactions, comments, shares. Stored in `social_insights` table (JSONB metrics). Runs after each posting GHA job. Daily digest includes social media section. Admin/social shows metrics inline + insights tab. **Instagram**: `@gaari_bergen` (Business). **Facebook Page**: "Gaari - Hva skjer i Bergen" (ID: 1062018946994640). **Meta Developer App**: "Gaari Social" (ID: 934988926120317), token expires 2026-05-26. Graph API v22.0 — `impressions` metric deprecated for IG, `post_insights` deprecated for FB (use post-level fields instead). IG quota check via `content_publishing_limit` API before posting. `--platform=fb|ig|stories|all` flag for selective posting. **Daily cap**: max 3 FB posts, max 1 IG carousel per day, max 1 story per GHA run (new account rate limit protection); weekly specials prioritized over daily posts (i-kveld, today-in-bergen). `generate-easter.ts` generates seasonal carousel images for manual posting (`--no` for Norwegian).
-- **Newsletter**: Weekly "Hva skjer i Bergen" via MailerLite (EU-based, GDPR compliant). Subscribe form in footer + about page + collection pages + event detail pages. Content from collection data engine. Promoted events (Standard/Partner/à la carte) labeled "Fremhevet". Welcome email sent via Resend on signup. Weekly send via `scripts/send-newsletter.ts` (GHA cron every Thursday 10:00 UTC). Subscribers grouped by preference profile (lang/audience/categories/bydel/price) — each group gets personalized subject, intro, and filtered events. Dry-run: `npx tsx send-newsletter.ts --dry-run` → `.newsletter-preview/`. Template in `scripts/lib/newsletter-template.ts` (3-column event grid, Funkis design, personalized heading + body).
-- **B2B page**: `/[lang]/for-arrangorer/` marketing page for venues. Publicly visible and indexed. High-touch sales flow: contact form → conversation → prospect report (CLI) → Stripe Payment Link sent privately. Voice: "Gåri/vi" (never "jeg/meg"), except "Hvem står bak" section which uses first person (Kjersti's personal story). 7-section structure: (1) Hero with real event image collage background (12 images from DB, dark overlay) + result-focused headline + CTA, (2) Problem: "Hvordan finner folk ditt?" + browser mockup with real event images, (3) How it works: 3-step cards, (4) Pricing: 3 transparent tier cards (Basis 1 000/Standard 3 500/Partner 7 000 kr/mnd) with "Anbefalt" badge on Standard + feature comparison matrix + early bird banner (3 months free before June 1, 2026), (5) Social proof: 16 venue pills + monthly report mockup, (6) FAQ: 7 accordion questions with JSON-LD (`getB2bFaqItems`/`generateB2bFaqJsonLd` in seo.ts), (7) Closing CTA: 3-field contact form (name, org, email) + direct email. Sticky mobile CTA bar. Tier features: curated pages (Basis 2/Standard 4/Partner 8), visibility share (15/25/35%), newsletter (all), social media posts (Partner only), monthly report (Standard+Partner), priority follow-up (Standard+Partner). Contact form inserts into `organizer_inquiries`. Copy uses "synlighet"/"fremhevet plassering" (never "reklame"), "arrangører" (never "kunder"), "utvalgte" (not "kuraterte").
+- **Data loading**: Server-side via `+page.server.ts`. `$lib/server/supabase.ts` (server-only). Only `/submit` uses client-side Supabase.
+- **Database**: Supabase with `events`, `opt_out_requests`, `edit_suggestions`, `promoted_placements`, `placement_log`, `organizer_inquiries`, `scraper_runs` tables.
+- **Scrapers**: Standalone TypeScript in `scripts/`, separate `package.json`. Cheerio + GitHub Actions cron (daily 6 AM UTC).
+- **AI Descriptions**: Gemini 2.5 Flash generates bilingual summaries (<160 chars) + `title_en`. Fallback to template.
+- **Collection pages**: 52 curated landing pages via `$lib/collections.ts`. See `.claude/docs/collections.md`.
+- **Social pipeline**: Instagram/Facebook carousel + stories. See `.claude/docs/social.md`.
+- **Newsletter**: Weekly via MailerLite. Personalized per subscriber preferences.
+- **B2B**: `/[lang]/for-arrangorer/` — venue marketing page with Stripe payment links.
 
 ## Key conventions
 
-- **Norwegian first**: `title_no` and `description_no` are required. English fields are optional.
-- **Categories**: music, culture, theatre, family, food, festival, sports, nightlife, workshop, student, tours (defined in `src/lib/types.ts`)
-- **TimeOfDay**: morning, daytime, evening, night, latenight (defined in `src/lib/types.ts`, used by EventDiscovery time filter)
+- **Norwegian first**: `title_no` and `description_no` required. English optional.
+- **Categories**: music, culture, theatre, family, food, festival, sports, nightlife, workshop, student, tours
 - **Bydeler**: Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna
-- **Slugs**: `slugify(title)-YYYY-MM-DD` format. Both frontend and scraper `slugify` replace Norwegian chars (æ→ae, ø→o, å→a) before NFD normalization, so accented characters (é, ü, ñ) are also reduced to base letters.
-- **Event status**: All scraped events are inserted as `approved`. User-submitted events start as `pending`.
-
-## Scraper pipeline (`scripts/scrape.ts`)
-
-1. `removeExpiredEvents()` — deletes past events
-1a. `refreshStaleMultiDateEvents()` — deletes multi-date events from discrete-date scrapers (olebull, dns, grieghallen, carteblanche, oseana) where `date_start` has passed but `date_end` is still future, so scrapers re-insert with updated next-show date
-1b. `loadOptOuts()` — loads approved opt-out domains, deletes events from opted-out sources
-2. Run scrapers — each checks `eventExists(source_url)` before inserting, generates AI descriptions via Gemini (22-min pipeline deadline skips remaining scrapers). Per-scraper timing, error capture, and skip tracking.
-3. `deduplicate()` — removes cross-source duplicates by normalized title + same date, keeps highest-scored variant
-4. Log to `scraper_runs` — batch-inserts per-scraper results (found, inserted, errored, duration_ms, skipped) + cleans up rows older than 90 days
-5. JSON summary — outputs structured summary (scrapersRun, totalFound, totalInserted, failedScrapers, etc.), writes to `SUMMARY_FILE` env var for GitHub Actions
-6. Health check — exits with code 1 if totalInserted=0 AND failedCount>5 (fails the GHA job)
-
-## Scraper sources (59 total, 55 active, 4 disabled)
-
-### General aggregators
-| Source | File | Method |
-|--------|------|--------|
-| Bergen Kommune | `bergenkommune.ts` | AJAX `GetFilteredEventList` + detail pages. Uses billett detail URLs directly as ticket_url (not resolveTicketUrl). |
-| StudentBergen | `studentbergen.ts` | JSON API `/api/calendar.json` |
-| Bergen Live | `bergenlive.ts` | HTML scrape |
-
-**Disabled scrapers:**
-- ~~BarnasNorge~~ (`barnasnorge.ts`) — disabled Feb 25, 2026. All venues covered by dedicated scrapers. Issues: AI-generated stock images from Webflow CDN, address-based venue names, complex URL resolution.
-- ~~Kulturikveld~~ — removed (unreliable, file deleted).
-- ~~Eventbrite~~ (`eventbrite.ts`) — disabled Apr 6, 2026. Cloudflare blocks GHA datacenter IPs. Search API deprecated (Dec 2019). Low value (~2 events/day, most covered by other scrapers).
-
-### Ticket platforms
-| Source | File | Method |
-|--------|------|--------|
-| TicketCo | `ticketco.ts` | Multi-venue subdomains (Hulen, Kvarteret, Madam Felle, Landmark, Statsraad Lehmkuhl, Swing 'n Sweet, Mandelhuset, Bergen Pride, etc.) |
-| Billetto | `billetto.ts` | Algolia API geo-search (25km Bergen radius) |
-| Hoopla | `hoopla.ts` | Hoopla events platform |
-
-### Performance venues
-| Source | File | Method |
-|--------|------|--------|
-| Den Nationale Scene | `dns.ts` | HTML |
-| Grieghallen | `grieghallen.ts` | HTML/JSON |
-| Ole Bull Huset | `olebull.ts` | HTML |
-| USF Verftet | `usfverftet.ts` | HTML |
-| Forum Scene | `forumscene.ts` | HTML |
-| Cornerteateret | `cornerteateret.ts` | HTML |
-| Det Vestnorske Teateret | `dvrtvest.ts` | HTML |
-| Bergen Internasjonale Teater (BIT) | `bitteater.ts` | HTML |
-| Carte Blanche | `carteblanche.ts` | HTML |
-| Bergen Filharmoniske | `harmonien.ts` | HTML |
-| Fyllingsdalen Teater | `fyllingsdalenteater.ts` | HTML (EasyTicket select dropdown) |
-| Østre | `ostre.ts` | HTML calendar page (ekko.no/ostre) |
-
-### Arts, culture & literature
-| Source | File | Method |
-|--------|------|--------|
-| Bergen Kunsthall | `kunsthall.ts` | HTML |
-| KODE | `kode.ts` | HTML |
-| Litteraturhuset | `litthusbergen.ts` | HTML |
-| Media City Bergen | `mediacity.ts` | HTML |
-| BEK | `bek.ts` | WordPress REST API (`/wp-json/`) |
-| Bergen Filmklubb | `bergenfilmklubb.ts` | HTML |
-
-### Libraries, museums & landmarks
-| Source | File | Method |
-|--------|------|--------|
-| Akvariet i Bergen | `akvariet.ts` | Daily activity calendar (14-day lookahead) + dedicated overnatting article page (`/nyheter/en-natt-paa-akvariet-...`) for sleepover dates parsed from ticket URLs |
-| Bergen Bibliotek | `bergenbibliotek.ts` | HTML |
-| Bymuseet i Bergen | `bymuseet.ts` | WordPress HTML, event sitemap |
-| Museum Vest | `museumvest.ts` | Sitemap discovery + detail page scraping (3 Bergen museums) |
-| Fløyen | `floyen.ts` | HTML |
-
-### Food, nightlife & recreation
-| Source | File | Method |
-|--------|------|--------|
-| Bergen Kjøtt | `bergenkjott.ts` | Squarespace JSON API (`?format=json`) |
-| Colonialen | `colonialen.ts` | HTML |
-| Råbrent | `raabrent.ts` | HTML |
-| Paint'n Sip | `paintnsip.ts` | HTML |
-| Brettspill-cafe | `brettspill.ts` | HTML |
-| Bjørgvin Blues Club | `bjorgvinblues.ts` | HTML |
-| Nordnes Sjøbad | `nordnessjobad.ts` | HTML |
-| O'Connor's Irish Pub | `oconnors.ts` | HTML (event cards with `<time datetime>`) |
-| GG Bergen | `ggbergen.ts` | Google Calendar iCal feeds (3 public calendars, 30-day lookahead) |
-| Stene Matglede | `stenematglede.ts` | Squarespace eventlist (cooking courses, food events) |
-| Swing 'n Sweet Jazzclub | `swingnsweetjazzclub.ts` | HTML (jazz events) |
-| Bodega | `bodega.ts` | Google Calendar JSON API (public calendar, filters non-public events) |
-
-### Sports & outdoor
-| Source | File | Method |
-|--------|------|--------|
-| SK Brann | `brann.ts` | HTML table (match schedule) |
-| DNT Bergen | `dnt.ts` | HTML (guided tours) |
-
-### Festivals
-| Source | File | Method |
-|--------|------|--------|
-| Borealis | `borealis.ts` | WordPress schedule tables, program listing page |
-| Festspillene | `festspillene.ts` | HTML |
-| Bergenfest | `bergenfest.ts` | HTML |
-| Beyond the Gates | `beyondthegates.ts` | Squarespace menu blocks |
-| VVV (climate festival) | `vvv.ts` | Squarespace carousel |
-| Bergen Pride | `bergenpride.ts` | Vev SPA HTML (daily program pages) + TicketCo subdomain |
-| BIFF | `biff.ts` | Filmgrail embedded JSON (Mars platform) |
-| Jungelfest | `jungelfest.ts` | TicketCo umbrella event description (concerts/talks/afterparties parsed from program text) |
-
-### Other
-| Source | File | Method |
-|--------|------|--------|
-| Det Akademiske Kvarter | `kvarteret.ts` | JSON API (`/api/events`), also covered by TicketCo |
-| Kulturhuset i Bergen | `kulturhusetibergen.ts` | Squarespace eventlist, room extraction (Hovedsalen, Lillesalen, etc.) |
-| Bergen Chamber | `bergenchamber.ts` | HTML |
-| Oseana | `oseana.ts` | HTML |
+- **Slugs**: `slugify(title)-YYYY-MM-DD` format. Norwegian chars: æ→ae, ø→o, å→a.
+- **Event status**: Scraped = `approved`. User-submitted = `pending`.
 
 ## Important rules
 
-- **No traffic to aggregators**: ticket_url should point to actual venue/ticket pages, not aggregator event listings. Aggregator domains are blocked in `venues.ts`. Exception: bergenkommune scraper uses billett.bergen.kommune.no detail URLs directly (they ARE the specific event pages).
-- **No copied descriptions (åndsverksloven)**: Event descriptions must ALWAYS be AI-generated originals (<160 chars) or template-generated. NEVER store raw text scraped from source pages — this violates Norwegian Copyright Act (åndsverksloven). All scrapers use `generateDescription()` from `ai-descriptions.ts`.
-- **No non-public events**: Events for barnehager (kindergartens), SFO (after-school care), school visits, etc. are excluded — checked via title keywords AND detail page text. Keywords: `barnehage`, `barnehagebarn`, `sfo`, `skoleklasse`, `skolebesøk`, `klassebesøk`, `kun for`. Bergen Chamber additionally filters members-only events via `MEMBERS_ONLY_PATTERNS` in `bergenchamber.ts` (matches "tilbud til … medlemmer", "kun for medlemmer", "forbeholdt medlemmer", "medlemsarrangement").
-- **Rate limiting**: All scrapers use 1-1.5s delays between requests. Eventbrite uses 3s. AI descriptions use 200ms + backoff.
+- **No traffic to aggregators**: ticket_url must point to actual venue/ticket pages.
+- **No copied descriptions (åndsverksloven)**: Always AI-generated or template. Never raw scraped text.
+- **No non-public events**: Exclude barnehage, SFO, school visits, members-only.
+- **Rate limiting**: 1-1.5s delays between requests. AI descriptions: 200ms + backoff.
 - **Honest User-Agent**: `Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)`
-- **No dark mode**: All colors use CSS custom properties (design tokens). Dark mode can be enabled by overriding tokens in a `prefers-color-scheme: dark` media query.
+- **Price disclaimer**: Always "Trolig gratis" / "Likely free", never assert "Gratis".
+
+## Scraper pipeline (`scripts/scrape.ts`)
+
+1. `removeExpiredEvents()` → 1a. `refreshStaleMultiDateEvents()` → 1b. `loadOptOuts()`
+2. Run scrapers (22-min deadline, `eventExists()` check, `generateDescription()`)
+3. `deduplicate()` — normalized title + same date, keeps highest-scored
+4. Log to `scraper_runs` + JSON summary + health check
 
 ## Shared utilities (`scripts/lib/`)
 
-- `utils.ts` — slugify, makeSlug, parseNorwegianDate, eventExists, insertEvent, findDuplicate, normalizeTitle, removeExpiredEvents, fetchHTML, delay, loadOptOuts, isOptedOut, detectFreeFromText, makeDescription, CATEGORY_LABELS_NO
-- `categories.ts` — mapCategory (source category → Gåri category, 50+ terms), mapBydel (venue name → bydel, 100+ mappings)
-- `dedup.ts` — deduplicate across sources with scoring (source rank + image + ticket URL + description length). Exports `titlesMatch`, `scoreEvent`, `EventRow` for unit testing.
-- `venues.ts` — 190+ venue entries mapping names → websites, aggregator domain detection, resolveTicketUrl
-- `ai-descriptions.ts` — Gemini 2.5 Flash integration, rate limiting, fallback to makeDescription template
-- `supabase.ts` — Supabase client with service role key
-- `scraper-health.ts` — Anomaly detection for scrapers. Queries `scraper_runs` (14-day window), classifies each scraper: broken (6+ consecutive zeros or 3+ errors), warning (drop from average or last error), dormant (seasonal), healthy. Used by daily digest.
+- `utils.ts` — slugify, parseNorwegianDate, eventExists, insertEvent, normalizeTitle, removeExpiredEvents, fetchHTML, detectFreeFromText
+- `categories.ts` — mapCategory (50+ terms), mapBydel (100+ mappings)
+- `dedup.ts` — cross-source dedup with scoring. `SOURCE_RANK` must include ALL scrapers.
+- `venues.ts` — 190+ venue entries, aggregator domain detection, resolveTicketUrl
+- `ai-descriptions.ts` — Gemini integration, rate limiting, fallback
+- `scraper-health.ts` — Anomaly detection (broken/warning/dormant/healthy)
 
-## Data inquiry system (formerly opt-out)
+## Detailed docs (read on-demand)
 
-- Supabase table: `opt_out_requests` (org, domain, email, reason, status, created_at)
-- Form on `/datainnsamling` → SvelteKit form action (`?/optout`) with server-side Supabase insert, honeypot spam protection. No instant email notification — inquiries appear in daily digest and admin panel.
-- Page framing: "Questions about our data collection?" — not a guaranteed opt-out. We collect only factual public event info (titles, dates, venues, prices); descriptions are independently generated.
-- Workflow: venue submits → `status: 'pending'` → reviewed via `/admin/optouts` or `scripts/admin-ops.ts` → `'approved'` (block domain) or `'rejected'` (with feedback email)
-- Scraper pipeline: `loadOptOuts()` caches approved domains, `insertEvent()` checks `isOptedOut(source_url)`, pipeline step 1b deletes existing events from opted-out domains
+- `.claude/docs/scrapers.md` — All 59 scraper sources with files and methods
+- `.claude/docs/routes.md` — All frontend routes, API endpoints, admin pages
+- `.claude/docs/collections.md` — 52 collection pages (evergreen, bydel, seasonal, festival)
+- `.claude/docs/social.md` — Social post pipeline, accounts, rate limits, slide design
+- `.claude/docs/components.md` — Frontend components, CSS theming, EventDiscovery, accessibility
+- `.claude/docs/testing.md` — 846 Vitest tests across 10 test files
+- `.claude/docs/gha.md` — GitHub Actions workflows (CI, scrape, newsletter, digest, social, audit)
 
-## EventDiscovery filter system (Feb 2026)
+## Hosting & domains
 
-The homepage uses a discovery filter (`EventDiscovery.svelte`) instead of traditional dropdowns. Layout differs by viewport:
-
-- **Who?** — Always visible. Single-select pills: Familie, Ungdom (13-18), Voksen, Student, 18+, Turist. On mobile, first 3 shown with "+3 til" expand button.
-- **When? / What? / Where?** — Three toggle buttons that expand/collapse their sections. On mobile, collapsed behind a single "Flere filtre" button (red border, fills red when active, badge shows active filter count).
-- **When?** — Pills: I dag, I morgen, Denne helgen, Denne uken, Velg dato (opens inline MiniCalendar). Time of day sub-section: Morgen (6–12), Dagtid (12–17), Kveld (17–22), Natt (22–6).
-- **What?** — Multi-select category pills (first 4 shown, expandable) + price filter (Trolig gratis / Betalt).
-- **Where?** — Bydel pills.
-- **Result counts on pills** — When, Bydel, and Price pills show match counts (e.g., "I dag 5", "Sentrum 23") for information scent. Category and Audience pills already had counts.
-- **Contextual highlight** — `getContextualHighlight()` in `event-filters.ts` highlights the most relevant When pill: "I dag" after 16:00, "Denne helgen" on Fri–Sun. Disappears when user selects a When filter. Uses `highlighted` prop on FilterPill (red-subtle border+bg).
-- **When section open by default** — `expandWhen = $state(true)`. When pills are directly visible without clicking the "Når?" toggle.
-- **Filter transition** — 200ms opacity fade on event grid when filters change. Respects `prefers-reduced-motion`. Skips initial mount.
-- **Result counter** — Only shown when filters are active (hidden by default to save space).
-- **Mobile optimizations**: Hero section hidden, spacing tightened (panel gap 0.5rem, padding 0.75rem), audience pills collapsed to 3, filter toggles behind single button.
-- **FilterBar is hidden** from the homepage when EventDiscovery is active. EventDiscovery is the sole filter UI on the homepage.
-- **URL is the single source of truth** — all filters read/write URL search params (`when`, `time`, `audience`, `category`, `bydel`, `price`). Shareable, back-button works.
-- **Key components**: `FilterPill.svelte` (reusable pill button), `MiniCalendar.svelte` (inline date picker), `EventDiscovery.svelte` (main component)
-- **18+ audience filter** excludes family events (not just explicitly tagged 18+ events)
-- **Category filter** supports comma-separated multi-select (`?category=music,culture`)
-- **Time-of-day filter uses Oslo timezone**: `matchesTimeOfDay()` in `$lib/event-filters.ts` converts UTC timestamps to Oslo local hours via `toLocaleString('sv-SE', { timeZone: 'Europe/Oslo' })` before comparing against time ranges. Handles CET/CEST automatically.
-- **Event filter helpers**: Date/time filter functions (`getOsloNow`, `toOsloDateStr`, `isSameDay`, `getWeekendDates`, `matchesTimeOfDay`) are extracted to `src/lib/event-filters.ts` for testability.
-- **Dismiss/hide events**: Users can hide single events, all from a venue, or an entire category via X button on EventCard (visible on hover). State in `$lib/hidden-events.svelte.ts`, persisted to `localStorage` (`gaari-hidden` key). Venues/categories expire after 7 days; single events persist until they pass. Applied after hydration (`$effect` flag) to prevent SSR mismatch. "Skjuler: X, Y" banner + reset button shown when active. Homepage only (not collection pages).
-
-## Price disclaimer policy
-
-- Scraped prices may be inaccurate. All price displays use **soft language**: "Trolig gratis" / "Likely free" instead of asserting "Gratis" / "Free"
-- **Disclaimer text** ("Sjekk alltid pris hos arrangør" / "Always verify price with organizer") appears on:
-  - Every event card that has a known price (free or paid)
-  - Event detail pages (price section)
-  - The "Flere filtre" dropdown in EventDiscovery
-- Events with unknown prices show "Se pris" / "See price" (no disclaimer needed — already implies checking)
-- `isFreeEvent()` in `utils.ts` matches `0`, `'0'`, `'Free'`, `'Gratis'` (case-insensitive, trimmed) plus Norwegian zero-price formats (`0 kr`, `0,-`, `0,00`, `0 NOK`)
-- `detectFreeFromText()` in `scripts/lib/utils.ts` infers free price from title/description keywords (`gratis`, `fri inngang`, `free entry`, `free admission`, etc.) — called automatically by `insertEvent()` when price is empty
-
-## Frontend routes
-
-- `/[lang]/` — Main event listing with EventDiscovery filter. **Server-side loaded** (`+page.server.ts`), ISR cached (`s-maxage=300, stale-while-revalidate=600`).
-- `/[lang]/about/` — About page. **Prerendered** at build time (both `/no/about` and `/en/about`).
-- `/[lang]/guide/` — Events hub page with links to all evergreen, seasonal and festival collections. FAQ optimised for "hva skjer i Bergen" / "things to do in Bergen" queries. **Prerendered**.
-- `/[lang]/datainnsamling/` — Data transparency page (48 sources listed, opt-out form). Form action `?/optout` in `+page.server.ts`.
-- `/[lang]/personvern/` — Privacy policy (GDPR). Bilingual inline, no server load, in sitemap.
-- `/[lang]/tilgjengelighet/` — Accessibility statement (EAA/WCAG 2.2 AA). Bilingual inline, no server load, in sitemap.
-- `/[lang]/nyhetsbrev/preferanser/` — Newsletter preference page. Requires HMAC-signed token in URL (`?email=...&token=...`). Token verified via `$lib/server/newsletter-auth.ts` (timing-safe). Without valid token, shows "invalid link" message. Loads subscriber preferences from MailerLite, allows updating lang/audience/categories/bydel/price. **Server-side loaded**.
-- `/[lang]/submit/` — Event submission form (blocked from search engines). Only page that ships Supabase SDK to client (for image uploads).
-- `/[lang]/events/[slug]/` — Event detail page with related events, contextual collection link (category-based: music→konserter, family→familiehelg, etc.), and OG image. **Server-side loaded**, correction form action `?/correction` in `+page.server.ts`. Meta description uses description-first format (value before date/venue suffix).
-- `/[lang]/[collection]/` — 52 collection landing pages (18 evergreen + 7 bydel + 13 seasonal + 14 festival). **Server-side loaded** with collection-specific filtering, ISR cached. Dynamic `[collection]` route — config in `$lib/collections.ts`, unknown slugs return 404. Cross-language slug redirect: visiting wrong-language slug (e.g. `/en/sankthans`) 301-redirects to canonical (`/en/midsummer-bergen`). Off-season pages show related collections + styled hint card instead of bare "no results". No EventDiscovery filter UI — clean hero + EventGrid + editorial copy + FAQ answer capsules (H2+p). JSON-LD `CollectionPage` + `ItemList` + `BreadcrumbList` + `FAQPage` schema, custom OG images. All 52 in sitemap (priority 0.8, daily). Seasonal/festival collections append current year to title/H1 for SEO. Festival collections filter by `source_url` domain (not date window) and support `maxPerVenue` override. Promoted placement logic runs after filtering — bubbles paying venue's events to the top and returns `promotedEventIds` to the page.
-- `/[lang]/lenker/` — Link-in-bio page for Instagram/Facebook profile bio (5 primary + 3 secondary destinations + social icons). Funkis card stack, prerendered. UTM-tagged links carry `utm_source=instagram&utm_medium=bio&utm_campaign=lenker` so bio traffic is attributable in Umami. Custom event `bio-link-click` per item.
-- `/r/[date]/[slug]/` — Per-day reel + stories landing page for manual publishing. Reads `social-media` storage bucket via Supabase. Embeds the reel via same-origin proxy `/r/[date]/[slug]/video.mp4` (required for iOS Safari long-press save) and `/r/[date]/[slug]/story/[n].png`. Renders stories with venue handles + collection link + click-to-copy. Linked from the daily Resend email. Not in sitemap.
-- `/r/week/[startdate]/` — Weekly aggregate page (Mon-Sat) for batch posting. Per-day sections with three colored download buttons: Carousel ZIP (red, 1080×1080 JPGs + NO/EN captions.txt), Stories ZIP (blue, JPGs + handles.txt), Reel MP4 (black, direct download). Three copy buttons per day: story link, NO caption, EN caption. Two checklist sections per day (stories thumbnails + FB-group pills) with localStorage persistence. Progress bar at top. Manifest at `week/{startdate}/manifest.json` in storage. Built by `scripts/social/assemble-week.ts` which reads existing daily content from storage (no FFmpeg needed). CSS uses hardcoded colors (not custom properties — `/r/` pages don't load app.css).
-- `/admin/corrections` — Correction review page (internal tool, noindex). Expandable cards with side-by-side current vs. suggested value. Approve applies correction to event, reject with feedback emails submitter.
-- `/admin/optouts` — Data inquiry review page (internal tool, noindex). Table with color-coded impact badges. Approve blocks domain at next scraper run, reject with feedback emails sender.
-- `/admin/social` — Social post review page (internal tool, noindex). Shows generated carousel slides + captions. Copy button for captions.
-- `/admin/promotions` — Promoted placement management (internal tool, noindex). Table of all paying venues with monthly impression totals, active toggle, and add-placement form. Tiers: Basis 1 000/mo (15% slot), Standard 3 500/mo (25%), Partner 7 000/mo (35%).
-- `/admin/login` — Password login page. Sets HMAC-signed HttpOnly cookie (`gaari_admin`). `secure: true` in production, `false` in dev.
-- `/admin/logout` — Clears cookie, redirects to login.
-- **All `/admin/*` routes are protected** by `src/routes/admin/+layout.server.ts` which validates the HMAC cookie. Login page is exempt. Auth helpers in `src/lib/server/admin-auth.ts`.
-- `/api/health` — Health check endpoint (Supabase connection, event count, scrape freshness). Returns healthy/degraded/unhealthy, 5min cache, 503 on unhealthy.
-- `/api/newsletter` — POST endpoint for newsletter subscriptions. Accepts `email` + optional preference fields via FormData, calls MailerLite REST API. Stores HMAC `preference_token` in MailerLite fields for signed preference URLs. Sends bilingual welcome email via Resend (fire-and-forget) with signed preference link. Returns `{success: true}` on success, handles duplicates (MailerLite upsert). Requires `MAILERLITE_API_KEY` + `RESEND_API_KEY` + `NEWSLETTER_SIGNING_SECRET` env vars.
-- `/api/calendar.ics` — GET endpoint for iCal project calendar. Requires `?token=` matching `CALENDAR_FEED_TOKEN` env var (returns 401 otherwise). Reads from `project_calendar` Supabase table. 1h private cache.
-- `/api/events.ics` — Public iCal feed of upcoming events (30-day lookahead, 500 events). Optional `?filter=` param: category name or `free`. No auth required. `webcal://gaari.no/api/events.ics` linked from footer. 1h public cache, CORS open.
-- `/api/stripe-webhook` — POST endpoint for Stripe webhook events. Verifies HMAC signature (`stripe.webhooks.constructEvent`). Handles `checkout.session.completed` (inserts `promoted_placements` row from metadata: `venue_name`, `tier`, `collection_slugs`, `contact_email`) and `customer.subscription.deleted` (sets `active=false` by `stripe_subscription_id`). Requires `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` env vars (`$env/dynamic/private`).
-- `/qr` — Dynamic QR redirect endpoint for physical sticker/poster campaigns. Redirects based on Oslo day/time: Fri–Sun → `denne-helgen`, weekdays before 16:00 → `i-dag`, weekdays 16:00+ → `i-kveld`. All with `?utm_source=sticker&utm_medium=qr`.
-- `/api/csp-report` — POST endpoint for Content-Security-Policy violation reports. Receives browser CSP reports, logs structured JSON (type, blocked URI, violated directive, source file) for Vercel log system. Returns 204.
-- `/og/[slug].png` — Per-event OG image generation (Satori + ResvgJS)
-- `/og/c/[collection].png` — Collection-branded OG images (Funkis design: red accent bar, 72px title, subtitle, Gåri branding). 24h cache.
-- `/sitemap.xml` — Dynamic sitemap with hreflang (static pages + collection pages + all approved events, 1h cache)
-
-## Frontend components (`src/lib/components/`)
-
-- `Header.svelte` — Sticky header with language switch
-- `Footer.svelte` — Footer with dynamic collection links (via `getFooterCollections()`), static links (about, datainnsamling, personvern, tilgjengelighet, submit, contact) + inline NewsletterCTA + Instagram/Facebook icon links (lucide-svelte). For-arrangorer link can be re-added now that the page is live.
-- `NewsletterCTA.svelte` — Newsletter subscribe form (card + inline variants). Props: `id` (unique suffix), `variant`, optional `heading`/`subtext` overrides, optional `contextCategory` (pre-selects category pill from event/collection context). Preference pills for categories below email field. Client-side fetch to `/api/newsletter`, success/error states. Placed in footer (inline), about page, collection pages (contextual headings), event detail pages (card).
-- `NewsletterInline.svelte` — Lightweight inline newsletter CTA (email field + submit button, no pills). Used inside EventGrid (after 3rd date group) and EmptyState (when no filter results). Tracks `newsletter-signup` with location `inline-grid`.
-- `HeroSection.svelte` — Compact hero with tagline. Mobile: single-line subtitle. Desktop: full display tagline + subtitle.
-- `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price + disclaimer. Accepts `promoted` prop — renders "Fremhevet"/"Featured" badge (markedsføringsloven § 3). Dismiss menu (X button, top-right on hover): hide single event, all from venue, or entire category.
-- `EventGrid.svelte` — Date-grouped event grid layout (keyed `{#each}` by `event.id` for efficient DOM updates). Accepts `promotedEventIds` prop, passes `promoted` flag to each EventCard. Passes dismiss callbacks (`onHideEvent`/`onHideVenue`/`onHideCategory`) to EventCard.
-- `EventDiscovery.svelte` — Filter panel (Who always visible, When/What/Where behind toggles). Mobile: audience pills collapsed to 3, filter toggles behind "Flere filtre" button, result counter hidden until filters active
-- `FilterPill.svelte` — Reusable pill/chip button (aria-pressed, 44px touch targets, Funkis styling)
-- `MiniCalendar.svelte` — Inline month-grid date picker (single date + range selection, bilingual). Proper ARIA grid structure: `role="grid"` > `role="row"` > `role="gridcell"` with chunked weeks.
-- `FilterBar.svelte` — Dropdown filter row (hidden on homepage when EventDiscovery is active, has `hideFields` prop)
-- `CalendarDropdown.svelte` — "Add to Calendar" dropdown (event detail pages, NOT a date picker). Full WAI-ARIA menu keyboard nav (ArrowUp/Down, Home/End, Escape, Tab), focus management on open/close.
-- `StatusBadge.svelte` — Display badges: Today, Trolig gratis, Sold Out, Last Tickets, Cancelled
-- `LoadMore.svelte` — "Load more events" button
-- `EmptyState.svelte` — "No events found" message
-- `BackToTop.svelte` — Sticky button to scroll to top
-- `LanguageSwitch.svelte` — NO/EN toggle
-- `ImagePlaceholder.svelte` — Fallback image with category color
-
-## CSS theming (`src/app.css`)
-
-Funkis design system inspired by Sundt building (Bergen, 1938). Custom properties for colors: `--color-primary` (accent red #C82D2D), `--color-text-primary` (#141414, 7.88:1 contrast), `--color-text-secondary` (#4D4D4D, 6.96:1), `--color-text-muted` (#595959, 7.01:1), `--color-bg-surface`, `--color-border`. All pass WCAG AA at all text sizes. Status badge tokens: `--color-cancelled` (#4A4843, 6.35:1), `--color-lasttickets-bg` (#FAECD0) + `--color-lasttickets-text` (#7A4F00, 5.2:1 on bg). Category-specific placeholder colors. Typography: Barlow Condensed (display), Inter (body). **Fonts are self-hosted** as woff2 in `static/fonts/` with `@font-face` declarations in `app.css` (`font-display: swap`). Only weights actually used: Inter 400/500/600, Barlow Condensed 500/700. TTF files (`Inter-Regular.ttf`, `BarlowCondensed-Bold.ttf`) kept for Satori OG image generation.
-
-## Accessibility (WCAG 2.2 Level AA)
-
-EAA (European Accessibility Act) applies to Norway via EEA. The site meets WCAG 2.2 Level AA.
-
-**Already built in:**
-- Skip link (`.skip-link` → `#events`), `:focus-visible` 2px outline on all interactive elements
-- Dynamic `lang` attribute on `<html>`, `prefers-reduced-motion` media query
-- `.sr-only` class, `aria-pressed` on FilterPill, `datetime` on `<time>` elements
-- Semantic `<header>`/`<nav>`/`<main>` landmarks
-
-**Contrast:** All text tokens pass 4.5:1 minimum — `--color-text-muted` #595959 (7.01:1), `--color-text-secondary` #4D4D4D (6.96:1). Status badges: cancelled #4A4843 (6.35:1 on white), lasttickets #7A4F00 on #FAECD0 (5.2:1).
-
-**Keyboard navigation:** CalendarDropdown implements full WAI-ARIA menu pattern (ArrowUp/Down, Home/End, Escape returns focus to trigger, Tab closes menu). FilterPill groups support ArrowLeft/Right.
-
-**ARIA structure:** MiniCalendar uses `role="group"` wrapper with `role="grid"` > `role="row"` > `role="gridcell"`. Month label has `aria-live="polite"`. Error page uses `<main>` landmark. Homepage results wrapper has `aria-live="polite" aria-atomic="true"`.
-
-**Forms:** All required fields have `aria-required="true"` (8 on submit, 3 on opt-out). Disabled buttons use `opacity-70` (not 0.5). Error messages use `role="alert"`.
-
-**Links:** Footer and inline text links always show `underline` (not just on hover) per WCAG 1.4.1.
-
-**Touch targets:** FilterPill and nav buttons `min-height: 44px`. Filter selects `min-height: 44px` (WCAG 2.5.8).
-
-## Performance (Core Web Vitals)
-
-**Server-side data loading** (Feb 2026): All main pages use `+page.server.ts` — data arrives pre-rendered in HTML, eliminating the client-side waterfall (Load JS → Init Supabase → Fetch → Render). The Supabase JS SDK (`@supabase/supabase-js`) is NOT included in client bundles except for the `/submit` page.
-
-- **Server-only Supabase**: `$lib/server/supabase.ts` — used by all `+page.server.ts` files, `+server.ts` endpoints (health, og, sitemap). SvelteKit enforces server-only import boundary.
-- **Form actions**: Correction form and opt-out form use native `<form method="POST">` with `use:enhance` — no client-side SDK needed.
-- **ISR caching**: Homepage sets `s-maxage=300, stale-while-revalidate=600` (5min fresh, 10min stale-while-revalidate). Vercel serves cached responses at CDN edge.
-- **Prerendered pages**: `/[lang]/about/` built as static HTML at deploy time (zero server compute).
-- **Keyed each blocks**: `EventGrid.svelte` uses `{#each ... (event.id)}` for efficient DOM reuse on filter changes.
-- **Self-hosted fonts**: 5 woff2 files in `static/fonts/` (Inter 400/500/600, Barlow Condensed 500/700), `@font-face` in `app.css` with `font-display: swap`. Inter 400 and Barlow Condensed 700 preloaded in `app.html`. No external Google Fonts requests — CSP `font-src` and `style-src` only allow `'self'`.
-- **Event limit**: Homepage query loads 500 events, caps Akvariet to 5 events (prevents holiday flooding). Displays 12 per page with Load More.
-- **Images**: Vercel Image Optimization disabled (free-tier 5k transforms/month exhausted Mar 2026). `$lib/image.ts` passes through original URLs. Re-enable via Vercel Pro or Cloudinary when traffic grows. Image `aspect-[16/9]` + explicit dimensions (CLS prevention), eager/lazy loading split.
-- **Already optimized**: `data-sveltekit-preload-data="hover"`, Tailwind CSS 4 auto-purge, lucide-svelte tree-shaking.
-- **Lighthouse mobile** (Feb 23, 2026): Performance **95**, FCP **1.7s** (good), LCP **2.6s** (needs-improvement by 0.1s), TBT 10ms (good), CLS 0.003 (good), Speed Index 3.3s (good).
-
-## SEO & web health
-
-- **Favicon**: Red "G" (#C82D2D) in Barlow Condensed Bold. SVG primary (`favicon.svg`), 32x32 PNG fallback (`favicon.png`). PNG generated via `scripts/generate-favicon.ts` (Satori + resvg-js).
-- Open Graph tags on all pages, per-event og:image generation. Default OG image uses left-aligned layout with 140px "Gåri" title and 48px tagline for chat thumbnail legibility.
-- hreflang nb/en/x-default on all pages
-- Meta descriptions on all pages (<160 chars)
-- robots.txt blocks /submit pages
-- Dynamic sitemap with hreflang and priority weighting
-
-## Hosting & Domains
-
-- **Hosting:** Vercel (SvelteKit adapter)
-- **Domains (Domeneshop → Vercel):**
-  - `gaari.no` + `www.gaari.no` — A record → `76.76.21.21`, CNAME www → `cname.vercel-dns.com`
-  - `gåri.no` (`xn--gri-ula.no` punycode) + `www.gåri.no` — same DNS config
-  - SSL provisioned automatically by Vercel (Let's Encrypt)
+- **Vercel** (SvelteKit adapter). ISR caching on homepage + collections.
+- `gaari.no` + `gåri.no` (IDN redirect via `hooks.server.ts`)
+- Umami Cloud analytics (proxied via `/u/`). Favicon: red "G" SVG.
 
 ## Observability
 
-- **Error logging**: `hooks.server.ts` exports `handleError` — structured JSON (type, timestamp, status, message, stack, url, method, userAgent) parsed by Vercel's log system. `hooks.client.ts` mirrors the format for browser DevTools. Rate limiting in `handle` hook uses try/catch around `getClientAddress()` to support prerendering.
-- **CSP violation reporting**: `report-uri /api/csp-report` directive in CSP header. Browsers send violation reports to `/api/csp-report` which logs structured JSON (blocked URI, violated directive, source file, line number) for Vercel log monitoring.
-- **Health endpoint**: `GET /api/health` — six checks: `supabase_connection`, `events_exist` (count > 0), `recent_scrape` (events created in last 24h), `event_visibility` (compares approved upcoming vs homepage query, flags >20% gap), `pipeline_freshness` (last `scraper_runs` entry within 14h), `data_quality` (expired events not cleaned up, events >2 years out). Returns healthy/degraded/unhealthy, 5min cache, 503 on unhealthy.
-- **Scraper health monitoring**: `scraper_runs` table logs per-scraper results each pipeline run. `scripts/lib/scraper-health.ts` classifies scrapers as broken/warning/dormant/healthy based on 14-day rolling data. Daily digest includes scraper health, stale sources, and pipeline completeness sections.
-- **Scraper summary**: Pipeline outputs JSON summary to `SUMMARY_FILE` env var. GitHub Actions job summary step reads it with `jq` and writes a markdown table to `$GITHUB_STEP_SUMMARY`.
-- **Umami Cloud analytics**: Privacy-friendly analytics via proxied script (`/u/script.js` → `cloud.umami.is/script.js`, `/u/api/send` → `api-gateway.umami.dev/api/send`). Proxy via `vercel.json` rewrites to bypass adblockers. `data-host-url="/u"` on script tag. API: `api.umami.is/v1` with `x-umami-api-key` header. Website ID: `5f889214-285b-4412-8066-015a18f8ce65`. Owner excluded via `localStorage.setItem('umami.disabled', '1')`.
-- **Umami custom events** (12 total): `ai-referral` (source — fires on `window.load` from AI platforms), `promoted-click` (venue, slug), `ticket-click` (venue, slug), `newsletter-click` (slug, venue — UTM-triggered), `newsletter-signup` (location, categories), `filter-used` (type, value), `inquiry-submit` (source), `event-share` (slug), `collection-scroll` (slug, depth — IntersectionObserver), `for-arrangorer-hero-cta`, `for-arrangorer-mid-cta`, `for-arrangorer-sticky-cta`.
+- `hooks.server.ts` structured error logging → Vercel logs
+- `/api/health` — 6 checks (supabase, events, scrape freshness, visibility, pipeline, data quality)
+- `scraper_runs` table + `scraper-health.ts` classification → daily digest
+- UptimeRobot polls `/api/health` every 5 min
 
 ## Business model
 
-Revenue from promoted placement subscriptions (Basis 1,000 / Standard 3,500 / Partner 7,000 NOK/month) and à la carte single-event promotions (500 NOK/event). Cross-subsidized: Grasrot tier always free. All promoted content labeled "Fremhevet" (markedsføringsloven § 3). See `strategic-roadmap.md` for full business plan.
-
-**Prospect report CLI** (`scripts/generate-prospect-report.ts`): Generates professional HTML sales reports for venue outreach. Pulls event count, categories, pageviews (Plausible), newsletter reach (MailerLite). Usage: `cd scripts && npx tsx generate-prospect-report.ts "Venue Name" [--email addr] [--lang en]` or `--overview` for platform-wide stats. Output to `.prospect-reports/` (gitignored). Email delivery via Resend.
-
-## Database indexes
-
-Key indexes on `events` table (managed via `supabase/migrations/`):
-- `idx_events_slug` (UNIQUE), `idx_events_source_url` (UNIQUE)
-- `idx_events_date_start`, `idx_events_status_date` (composite: status + date_start)
-- `idx_events_approved_upcoming` (partial: date_start WHERE status = 'approved')
-- `idx_events_category`, `idx_events_bydel`, `idx_events_created_at`
-
-**Promoted placements** (`supabase/migrations/20260226180000_promoted_placements.sql`):
-- `promoted_placements` — one row per paying venue+collection combo. Fields: `venue_name`, `collection_slugs TEXT[]`, `tier` (basis/standard/partner), `slot_share` (15/25/35), `active`, `start_date`, `end_date` (null = open-ended).
-- `placement_log` — daily impression aggregates. UNIQUE on `(placement_id, collection_slug, log_date)`.
-- `log_placement_impression()` SQL function — atomic upsert with `ON CONFLICT DO UPDATE impression_count + 1`.
-- Server helpers in `src/lib/server/promotions.ts`: `getActivePromotions(slug)`, `pickDailyVenue(placements, slug, now)` (deterministic, same venue all day), `logImpression(id, slug, venue)` (fire-and-forget via RPC).
-- Admin writes use `src/lib/server/supabase-admin.ts` (service role key) — anon key only has SELECT on `promoted_placements`.
-- Collection page behaviour: 1 promoted event per page (rotates daily via `dayNumber % venueEvents.length`), venue's remaining events stay in normal chronological order.
-- Per-venue cap: `MAX_PER_VENUE = 3` applied after promotion logic — prevents any venue flooding a collection.
-- Owner IP filtering: `SKIP_LOG_IPS` env var (comma-separated) skips impression logging for owner's IP. Add to `.env` and Vercel env vars.
-- Monthly report CLI: `npx tsx scripts/generate-placement-report.ts [YYYY-MM]`.
-
-## Testing
-
-**Vitest** unit test suite (846 tests, runs in <500ms). `npm test` to run, `npm run test:watch` for watch mode. CI runs tests after type check.
-
-**Test files:**
-- `src/lib/__tests__/event-filters.test.ts` — 57 tests: `matchesTimeOfDay` (all 4 ranges + latenight, DST/CET/CEST, invalid date), `getWeekendDates` (Mon returns Fri–Sun, Fri/Sat/Sun behaviour), `isSameDay`, `toOsloDateStr` (date boundary), `getEasterDate` (11 known dates 2024-2038), `getISOWeekDates` (cross-year week 1, week 9/41, week 52/53 boundaries), `getContextualHighlight` (weekday/weekend/evening logic, 9 cases)
-- `src/lib/__tests__/utils.test.ts` — 41 tests: `isFreeEvent` (all truthy/falsy cases, case-insensitive, Norwegian zero-price formats, whitespace trimming), `formatPrice` (both locales, numeric, string, null, zero-price format propagation), `slugify` (Norwegian chars, accented chars like café/über/niño, special chars, edge cases), `formatEventTime` (UTC 00:00 placeholder hidden, UTC 12:00 shown, CET/CEST Oslo conversion, bergenkommune regression case)
-- `src/lib/__tests__/seo.test.ts` — 55 tests: `safeJsonLd` (XSS `<script>` escaping), `generateEventJsonLd` (free/paid price, Norwegian price strings "250 kr"/"300-500 kr"/"fra 200,-", cancelled status, language fallback), `toBergenIso` (UTC→CEST/CET, DST boundaries, passthrough, invalid), `generateBreadcrumbJsonLd` (last item no URL, 1-indexed positions), `generateCollectionJsonLd` (ItemList, positions, lang prefix, 50-item cap), `computeCanonical` (all 7 rules, EN/NO variants, noindex threshold, noise params)
-- `src/lib/__tests__/seo-audit.test.ts` — 482 tests: SEO validation rules (meta tags, JSON-LD structure, canonical URLs, sitemap entries, performance budgets, source count consistency incl. datainnsamling page)
-- `src/lib/__tests__/collections.test.ts` — 104 tests: `getCollection` (valid/invalid slug, all 51 slugs, bilingual metadata, newsletterHeading validation), weekend filter, tonight filter, free filter (2-week window), today filter, youth filter (incl. theatre), concerts filter (2-week window), student filter (venue-based — Kvarteret, Hulen, Madam Felle, Kronbar etc), sentrum filter (Sentrum+Bergenhus), exhibitions filter (venue + title regex, excludes café/film/lecture noise), `getFooterCollections`, seasonal collection filters (`17-mai`, `julemarked`, `paske` with multi-year Easter dates, `sankthans`, `nyttarsaften` cross-year, `vinterferie` ISO week 9, `hostferie` ISO week 41), festival filters (`festspillene` fib.no, `bergenfest` bergenfest.no + maxPerVenue, `beyond-the-gates` beyondthegates.no, `nattjazz` nattjazz.ticketco.no, `bergen-pride` bergenpride.no + bergenpride.ticketco.events, `biff` biff.no), EN counterpart verification, seasonal metadata validation
-- `scripts/lib/__tests__/utils.test.ts` — 50 tests: `parseNorwegianDate` (all 6 formats + null), `bergenOffset` (CET/CEST + DST transitions + regression: Oslo local→UTC date building for CET/CEST, midnight placeholder), `normalizeTitle`, `slugify` (NFD, 80 char limit), `stripHtml`, `makeDescription`/`makeDescriptionEn`, `detectFreeFromText` (Norwegian/English keywords, case-insensitive, partial-word rejection), `isOptedOut`
-- `scripts/lib/__tests__/dedup.test.ts` — 17 tests: `titlesMatch` (exact, containment with 0.6 ratio guard, 90% prefix with 1.3 ratio, short titles, real-world normalized), `scoreEvent` (source rank, image/ticket/description bonuses, aggregator URL exclusion)
-- `scripts/lib/__tests__/scraper-health.test.ts` — 16 tests: `classifyScrapers` (healthy, broken via consecutive zeros, broken via consecutive errors, warning via drop from average, dormant seasonal scrapers, mixed statuses, empty data)
-- `scripts/lib/__tests__/ticket-validation.test.ts` — 18 tests: `validateTicketUrl` (Hoopla noindex/date_mismatch/valid/error, TicketCo 404/410/200, Eventbrite, Billetto, unknown platforms, UA headers)
-- `src/lib/__tests__/query-timezone.test.ts` — 6 tests: Regression tests verifying homepage and collection page queries use UTC (not Oslo local time) for `date_start` filtering. Demonstrates CET/CEST offset bugs.
-
-**Config:** Vitest reads from `vite.config.ts` (`test.include: ['src/**/*.test.ts', 'scripts/**/*.test.ts']`). Scraper tests mock `supabase.js` and `venues.js` via `vi.mock()`.
-
-## GitHub Actions
-
-- **CI** (`ci.yml`): lint, type-check, test, build on push/PR to master. Supabase env vars passed to type check step for `$env/static/public` resolution.
-- **Scrape** (`scrape.yml`): cron daily 6 AM UTC, 25min job timeout, npm cache, 2min install timeout, `SUMMARY_FILE` env var, job summary step with health status (healthy/partial/critical). Secrets: SUPABASE keys + GEMINI_API_KEY.
-- **Newsletter** (`newsletter.yml`): cron every Thursday 10:00 UTC (11:00 CET / 12:00 CEST), 5min timeout. Runs `scripts/send-newsletter.ts` — fetches subscribers from MailerLite, groups by preferences, generates personalized HTML, sends via MailerLite campaigns. Backfills `preference_token` for subscribers missing it. Supports `--dry-run` via manual workflow dispatch. Job summary with subscriber/group/sent/error counts. Secrets: SUPABASE keys + MAILERLITE_API_KEY + NEWSLETTER_SIGNING_SECRET.
-- **SEO Report** (`seo-report.yml`): cron 1st of every month 09:00 UTC (10:00 CET / 11:00 CEST), 5min timeout. Runs `scripts/seo-weekly-report.ts` — Plausible traffic, Google Search Console queries, Bing Webmaster, sitemap validation, content insights. Sends HTML report via Resend. Supports `--dry-run`. Secrets: PLAUSIBLE_API_KEY, GSC_SERVICE_ACCOUNT (base64), BING_WEBMASTER_KEY, RESEND_API_KEY, SUPABASE keys.
-- **Daily Digest** (`daily-digest.yml`): cron weekdays 08:00 UTC (09:00 CET / 10:00 CEST), 3min timeout. Runs `scripts/send-daily-digest.ts` — pending task counts, scraper activity, scraper health (broken/warning/dormant classification), stale sources, pipeline completeness (missing/skipped/slow scrapers), Plausible traffic (optional), MailerLite subscribers (optional), expiring placements, festival reminders (14 days before each festival with scraper test checklists), general reminders (`scripts/reminders.json`). **Friday newsletter report**: fetches MailerLite campaign stats (opens, clicks, bounces, unsubscribes) for Thursday's send, shows per-segment breakdown. Sends HTML digest via Resend. Supports `--dry-run`. Secrets: SUPABASE keys + RESEND_API_KEY + PLAUSIBLE_API_KEY (optional) + MAILERLITE_API_KEY (optional).
-- **Weekly Reel Batch** (`weekly-reels.yml`): two crons — Sunday 18:00 UTC (full `generate-week.ts` with FFmpeg + `assemble-week.ts` fallback), Thursday 15:00 UTC (re-assemble only from existing storage). `assemble-week.ts` always runs as final step — builds per-day ZIPs (carousel, stories, reel) + manifest from whatever the daily `social-posts.yml` has uploaded. Manual dispatch supports `assemble_only` flag and explicit start date. Secrets: SUPABASE keys + RESEND_API_KEY (for email on Sunday run).
-- **Social Posts** (`social-posts.yml`): two daily crons — FB at 07:00 UTC (08:00 CET), IG at 14:00 UTC (16:00 CEST). 5min timeout. Runs `scripts/social/generate-posts.ts` (carousel images + captions for 11 collections), then `scripts/social/post-to-socials.ts --platform=fb|ig|all` (publishes to Instagram carousels via Graph API + Facebook photo albums via Graph API). IG quota check via `content_publishing_limit` API before posting. Manual dispatch supports platform selection. Secrets: SUPABASE keys + META_ACCESS_TOKEN + IG_USER_ID + FB_PAGE_ID.
-- **Quality Audit** (`quality-audit.yml`): cron 1st of every month 09:00 UTC (10:00 CET / 11:00 CEST), 5min timeout. Runs `scripts/send-quality-audit.ts` — 10 automated checks: llms.txt coverage (collection slugs + static pages), FAQ completeness (≥5 items, NO/EN parity), meta descriptions (9 routes), source count consistency, scraper health, content freshness (Supabase), collection integrity, accessibility spot checks (touch targets, image dimensions, skip link). Sends HTML report via Resend. Supports `--dry-run`. Secrets: SUPABASE keys + RESEND_API_KEY.
-- **Admin CLI** (`scripts/admin-ops.ts`): Not a GHA workflow — run locally via `cd scripts && npx tsx admin-ops.ts`. Subcommands: `list`, `approve`, `reject`, `status`. Handles corrections, submissions, opt-outs, and inquiries directly from Claude Code. Sends response emails via Resend.
+Promoted placement subscriptions: Basis 1,000 / Standard 3,500 / Partner 7,000 NOK/month. À la carte: 500 NOK/event. All labeled "Fremhevet" (markedsføringsloven § 3). Prospect reports via `scripts/generate-prospect-report.ts`.
