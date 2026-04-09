@@ -212,12 +212,14 @@ function heroEventCard(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: strin
 		? `<span style="display:inline-block;background:${FUNKIS.green};color:${FUNKIS.white};font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-left:8px;">${escapeHtml(freeLabel)}</span>`
 		: '';
 
+	const altText = escapeHtml(event.title);
+
 	// Hero: full-width image with gradient overlay text
 	if (event.image_url) {
 		return `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">
 			<tr>
 				<td style="padding:0 24px 0;">
-					<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;border-radius:8px;overflow:hidden;border-top:4px solid ${color};">
+					<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;border-radius:8px;overflow:hidden;border-top:4px solid ${color};" role="presentation" aria-label="${altText}">
 						<!-- Image with overlay -->
 						<tr>
 							<td background="${event.image_url}" bgcolor="${FUNKIS.iron}" width="552" height="280" style="background-image:url('${event.image_url}');background-size:cover;background-position:center;background-color:${FUNKIS.iron};border-radius:8px 8px 0 0;" valign="bottom">
@@ -299,8 +301,10 @@ function gridEventCard(event: NewsletterEvent, lang: 'no' | 'en', baseUrl: strin
 	const placeholderTextColor = lightCategories.has(event.category) ? FUNKIS.textPrimary : FUNKIS.white;
 	const placeholderShadow = lightCategories.has(event.category) ? 'none' : '0 1px 4px rgba(0,0,0,0.15)';
 
+	const altText = escapeHtml(event.title);
+
 	const imageBlock = event.image_url
-		? `<a href="${eventUrl}" style="text-decoration:none;display:block;line-height:0;"><img src="${event.image_url}" alt="" width="260" height="150" style="width:100%;height:150px;object-fit:cover;display:block;" /></a>`
+		? `<a href="${eventUrl}" style="text-decoration:none;display:block;line-height:0;"><img src="${event.image_url}" alt="${altText}" width="260" height="150" style="width:100%;height:150px;object-fit:cover;display:block;" /></a>`
 		: `<a href="${eventUrl}" style="text-decoration:none;display:block;">
 			<div style="width:100%;height:150px;background:${color};text-align:center;line-height:150px;">
 				<span style="font-family:'Arial Narrow',Arial,sans-serif;font-size:14px;font-weight:700;color:${placeholderTextColor};text-transform:uppercase;letter-spacing:0.06em;text-shadow:${placeholderShadow};">${escapeHtml(catLabel)}</span>
@@ -372,7 +376,7 @@ function buildEventGrid(events: NewsletterEvent[], lang: 'no' | 'en', baseUrl: s
 function brandHeader(baseUrl: string, lang: 'no' | 'en', weekLabel: string, utmBase: string): string {
 	return `<!-- Header -->
 		<tr>
-			<td style="background:${FUNKIS.white};padding:28px 32px 20px;">
+			<td style="background:${FUNKIS.white};padding:28px 32px 8px;">
 				<table cellpadding="0" cellspacing="0" border="0" width="100%">
 					<tr>
 						<td>
@@ -387,7 +391,16 @@ function brandHeader(baseUrl: string, lang: 'no' | 'en', weekLabel: string, utmB
 		</tr>`;
 }
 
-function brandFooter(lang: 'no' | 'en', baseUrl: string, utmBase: string, prefsUrl: string): string {
+interface FooterExtra {
+	shareText: string;
+	shareCta: string;
+	shareUrl: string;
+	forwardedText: string;
+	forwardedCta: string;
+	subscribeUrl: string;
+}
+
+function brandFooter(lang: 'no' | 'en', baseUrl: string, utmBase: string, prefsUrl: string, extra?: FooterExtra): string {
 	const footerText = lang === 'no'
 		? 'Du mottar dette fordi du abonnerer p&aring; G&aring;ri sitt nyhetsbrev.'
 		: 'You receive this because you subscribed to the G&aring;ri newsletter.';
@@ -395,9 +408,19 @@ function brandFooter(lang: 'no' | 'en', baseUrl: string, utmBase: string, prefsU
 	const managePrefsLabel = lang === 'no' ? 'Endre preferanser' : 'Manage preferences';
 	const privacyLabel = lang === 'no' ? 'Personvern' : 'Privacy';
 
-	return `<!-- Legal footer -->
+	const shareBlock = extra ? `
+				<p style="margin:0 0 12px;color:${FUNKIS.textSecondary};font-size:13px;">${extra.shareText}
+					<a href="${extra.shareUrl}" style="color:${FUNKIS.red};font-weight:600;text-decoration:underline;margin-left:4px;">${extra.shareCta}</a>
+				</p>
+				<p style="margin:0 0 16px;color:${FUNKIS.textMuted};font-size:12px;">${extra.forwardedText} <a href="${extra.subscribeUrl}" style="color:${FUNKIS.red};text-decoration:underline;font-weight:600;">${extra.forwardedCta}</a></p>` : '';
+
+	return `<!-- Footer -->
 		<tr>
-			<td style="padding:16px 32px;background:${FUNKIS.plaster};text-align:center;">
+			<td style="padding:20px 32px;border-top:1px solid ${FUNKIS.borderSubtle};background:${FUNKIS.plaster};text-align:center;">${shareBlock}
+				<p style="margin:0 0 12px;">
+					<a href="${baseUrl}/${lang}?${utmBase}" style="text-decoration:none;color:${FUNKIS.red};font-size:20px;font-weight:700;font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:-0.02em;">G&aring;ri</a>
+					<span style="display:block;color:${FUNKIS.textMuted};font-size:11px;margin-top:2px;">gaari.no</span>
+				</p>
 				<p style="margin:0;color:${FUNKIS.textMuted};font-size:11px;line-height:1.7;">
 					${footerText}<br />
 					<a href="{$unsubscribe}" style="color:${FUNKIS.textMuted};text-decoration:underline;">${escapeHtml(unsubLabel)}</a> &middot;
@@ -502,7 +525,7 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 
 		<!-- Intro -->
 		<tr>
-			<td class="section-pad" style="padding:28px 32px 8px;">
+			<td class="section-pad" style="padding:20px 32px 8px;">
 				<p style="margin:0;color:${FUNKIS.textPrimary};font-size:24px;font-weight:700;line-height:1.2;font-family:'Arial Narrow',Arial,sans-serif;">${escapeHtml(intro.heading)}</p>
 			</td>
 		</tr>
@@ -539,20 +562,11 @@ export function generateNewsletterHtml(data: NewsletterData): string {
 			</td>
 		</tr>
 
-		<!-- Footer (share + forwarded + links combined) -->
-		<tr>
-			<td style="padding:20px 32px;border-top:1px solid ${FUNKIS.borderSubtle};background:${FUNKIS.plaster};text-align:center;">
-				<p style="margin:0 0 12px;color:${FUNKIS.textSecondary};font-size:13px;">${shareText}
-					<a href="mailto:?subject=${encodeURIComponent(data.subject)}&body=${encodeURIComponent((lang === 'no' ? 'Sjekk ut dette nyhetsbrevet fra Gåri: ' : 'Check out this newsletter from Gåri: ') + subscribeUrl)}" style="color:${FUNKIS.red};font-weight:600;text-decoration:underline;margin-left:4px;">${shareCta}</a>
-				</p>
-				<p style="margin:0 0 16px;color:${FUNKIS.textMuted};font-size:12px;">${forwardedText} <a href="${subscribeUrl}" style="color:${FUNKIS.red};text-decoration:underline;font-weight:600;">${forwardedCta}</a></p>
-				<p style="margin:0 0 12px;">
-					<a href="${baseUrl}/${lang}?${utmBase}" style="text-decoration:none;color:${FUNKIS.red};font-size:20px;font-weight:700;font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:-0.02em;">G&aring;ri</a>
-					<span style="display:block;color:${FUNKIS.textMuted};font-size:11px;margin-top:2px;">gaari.no</span>
-				</p>
-			</td>
-		</tr>
-		${brandFooter(lang, baseUrl, utmBase, prefsUrl)}`;
+		<!-- Footer -->
+		${brandFooter(lang, baseUrl, utmBase, prefsUrl, {
+			shareText, shareCta, shareUrl: `mailto:?subject=${encodeURIComponent(data.subject)}&body=${encodeURIComponent((lang === 'no' ? 'Sjekk ut dette nyhetsbrevet fra Gåri: ' : 'Check out this newsletter from Gåri: ') + subscribeUrl)}`,
+			forwardedText, forwardedCta, subscribeUrl
+		})}`;
 
 	return emailShell(lang, data.subject, data.preheader, innerRows);
 }
