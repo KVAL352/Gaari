@@ -14,9 +14,15 @@
 import { getVenueInstagram } from '../lib/venues.js';
 
 interface MinimalEvent {
+	id?: string;
 	venue_name: string;
 	date_start: string;
 	image_url?: string | null;
+}
+
+interface PickerOptions {
+	/** Event IDs to deprioritise (posted recently in other collections) */
+	recentlyPosted?: Set<string>;
 }
 
 type Bucket = 'morning' | 'midday' | 'afternoon' | 'evening';
@@ -36,7 +42,31 @@ function timeBucket(dateStart: string): Bucket {
 
 const BUCKET_ORDER: readonly Bucket[] = ['morning', 'midday', 'afternoon', 'evening'];
 
-export function pickDiverseEvents<T extends MinimalEvent>(events: T[], target: number): T[] {
+export function pickDiverseEvents<T extends MinimalEvent>(events: T[], target: number, options?: PickerOptions): T[] {
+	const recentlyPosted = options?.recentlyPosted;
+
+	// Two-pass strategy: first pick from fresh events, then fill from recently posted
+	if (recentlyPosted && recentlyPosted.size > 0) {
+		const fresh = events.filter(e => !e.id || !recentlyPosted.has(e.id));
+		const stale = events.filter(e => e.id && recentlyPosted.has(e.id));
+		const picked = pickFromPool(fresh, target);
+		if (picked.length < target && stale.length > 0) {
+			const remaining = target - picked.length;
+			const handleSeen = new Set(picked.map(e => getVenueInstagram(e.venue_name) || `__noip:${e.venue_name}`));
+			const venueSeen = new Set(picked.map(e => e.venue_name));
+			const backfill = pickFromPool(stale, remaining, handleSeen, venueSeen);
+			picked.push(...backfill);
+		}
+		return picked;
+	}
+
+	return pickFromPool(events, target);
+}
+
+function pickFromPool<T extends MinimalEvent>(
+	events: T[], target: number,
+	existingHandles?: Set<string>, existingVenues?: Set<string>
+): T[] {
 	type Cell = { day: string; bucket: Bucket; events: T[]; idx: number };
 	const cellMap = new Map<string, Cell>();
 	for (const e of events) {
@@ -56,8 +86,8 @@ export function pickDiverseEvents<T extends MinimalEvent>(events: T[], target: n
 		return BUCKET_ORDER.indexOf(a.bucket) - BUCKET_ORDER.indexOf(b.bucket);
 	});
 
-	const handleSeen = new Set<string>();
-	const venueSeen = new Set<string>();
+	const handleSeen = new Set<string>(existingHandles);
+	const venueSeen = new Set<string>(existingVenues);
 	const picked: T[] = [];
 	let progress = true;
 	while (picked.length < target && progress) {

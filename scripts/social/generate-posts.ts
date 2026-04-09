@@ -127,6 +127,16 @@ function getCategoryHashtags(events: Array<{ category: string }>): string[] {
 
 const MAX_CAROUSEL_EVENTS = 8;
 const MIN_IMAGES_FOR_POST = 4;
+/** How many days back to check for recently posted events */
+const DEDUP_LOOKBACK_DAYS = 5;
+
+/** Slugs that share the same event pool and shouldn't dedup against each other */
+const DEDUP_PAIRS: Record<string, string> = {
+	'denne-helgen': 'this-weekend',
+	'this-weekend': 'denne-helgen',
+	'i-kveld': 'today-in-bergen',
+	'today-in-bergen': 'i-kveld'
+};
 
 function shouldGenerateToday(schedule: CollectionSchedule, dayOfWeek: number): boolean {
 	return schedule.days.length === 0 || schedule.days.includes(dayOfWeek);
@@ -180,12 +190,43 @@ async function upsertSocialPost(row: {
 	post_time: string;
 	story_image_urls?: string[];
 	story_count?: number;
+	event_ids?: string[];
 }) {
 	const { error } = await supabase
 		.from('social_posts')
 		.upsert(row, { onConflict: 'collection_slug,generated_date' });
 
 	if (error) throw new Error(`Upsert social_posts failed: ${error.message}`);
+}
+
+/**
+ * Load event IDs posted in the last N days across all collections,
+ * excluding the current slug's paired collection (e.g. denne-helgen ↔ this-weekend).
+ */
+async function getRecentlyPostedIds(currentSlug: string): Promise<Set<string>> {
+	const cutoff = new Date();
+	cutoff.setDate(cutoff.getDate() - DEDUP_LOOKBACK_DAYS);
+	const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+	const pairedSlug = DEDUP_PAIRS[currentSlug];
+	const excludeSlugs = [currentSlug, ...(pairedSlug ? [pairedSlug] : [])];
+
+	const { data } = await supabase
+		.from('social_posts')
+		.select('collection_slug, event_ids')
+		.gte('generated_date', cutoffStr)
+		.not('event_ids', 'is', null);
+
+	if (!data) return new Set();
+
+	const ids = new Set<string>();
+	for (const post of data) {
+		if (excludeSlugs.includes(post.collection_slug)) continue;
+		if (Array.isArray(post.event_ids)) {
+			for (const id of post.event_ids) ids.add(id);
+		}
+	}
+	return ids;
 }
 
 async function main() {
@@ -234,11 +275,17 @@ async function main() {
 			continue;
 		}
 
+		// Load recently posted event IDs for cross-day dedup
+		const recentlyPosted = await getRecentlyPostedIds(schedule.slug);
+		if (recentlyPosted.size > 0) {
+			console.log(`  ${recentlyPosted.size} events posted recently (deprioritised)`);
+		}
+
 		// Pick top events for carousel using the diverse picker shared with
 		// generate-reels.ts: IG-handle cap (so bibliotek branches and Akvariet
-		// activities don't dominate), time-bucket spread, and day-bucket spread
-		// for multi-day collections.
-		const topEvents = pickDiverseEvents(filtered, MAX_CAROUSEL_EVENTS);
+		// activities don't dominate), time-bucket spread, day-bucket spread,
+		// and cross-day dedup (recently posted events deprioritised).
+		const topEvents = pickDiverseEvents(filtered, MAX_CAROUSEL_EVENTS, { recentlyPosted });
 
 		const eventsWithImages = topEvents.filter(e => e.image_url).length;
 		console.log(`  ${filtered.length} events matched, ${topEvents.length} selected, ${eventsWithImages} with images`);
@@ -270,7 +317,8 @@ async function main() {
 							collection_slug: schedule.slug, generated_date: dateStr,
 							event_count: filtered.length, slide_count: 0, image_urls: [],
 							caption: '', post_time: schedule.postTime,
-							story_image_urls: storyUrls, story_count: storyUrls.length
+							story_image_urls: storyUrls, story_count: storyUrls.length,
+							event_ids: topEvents.filter(e => e.id).map(e => e.id!)
 						});
 						console.log(`  Upserted social_posts row (stories only)\n`);
 					}
@@ -368,7 +416,8 @@ async function main() {
 				caption,
 				post_time: schedule.postTime,
 				story_image_urls: storyImageUrls.length > 0 ? storyImageUrls : undefined,
-				story_count: storyImageUrls.length
+				story_count: storyImageUrls.length,
+				event_ids: topEvents.filter(e => e.id).map(e => e.id!)
 			});
 			console.log(`  Upserted social_posts row\n`);
 
