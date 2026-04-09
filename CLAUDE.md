@@ -30,6 +30,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 ## Scraper pipeline (`scripts/scrape.ts`)
 
 1. `removeExpiredEvents()` — deletes past events
+1a. `refreshStaleMultiDateEvents()` — deletes multi-date events from discrete-date scrapers (olebull, dns, grieghallen, carteblanche, oseana) where `date_start` has passed but `date_end` is still future, so scrapers re-insert with updated next-show date
 1b. `loadOptOuts()` — loads approved opt-out domains, deletes events from opted-out sources
 2. Run scrapers — each checks `eventExists(source_url)` before inserting, generates AI descriptions via Gemini (22-min pipeline deadline skips remaining scrapers). Per-scraper timing, error capture, and skip tracking.
 3. `deduplicate()` — removes cross-source duplicates by normalized title + same date, keeps highest-scored variant

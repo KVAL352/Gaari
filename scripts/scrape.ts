@@ -62,7 +62,7 @@ import { scrape as scrapeBodega } from './scrapers/bodega.js';
 import { scrape as scrapeJungelfest } from './scrapers/jungelfest.js';
 import { writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
-import { removeExpiredEvents, loadOptOuts, getOptOutDomains, loadExistingUrls } from './lib/utils.js';
+import { removeExpiredEvents, refreshStaleMultiDateEvents, loadOptOuts, getOptOutDomains, loadExistingUrls } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 import { supabase } from './lib/supabase.js';
 
@@ -218,12 +218,17 @@ async function main() {
 	console.log('=== Gåri Event Scraper ===');
 	console.log(`${new Date().toISOString()}\n`);
 
-	// Step 1: Remove expired events
+	// Step 1: Remove expired events + refresh stale multi-date events
 	let expired = 0;
+	let staleRefreshed = 0;
 	try {
 		console.log('--- Cleaning expired events ---');
 		expired = await removeExpiredEvents();
-		console.log(`Removed ${expired} expired events\n`);
+		console.log(`Removed ${expired} expired events`);
+
+		staleRefreshed = await refreshStaleMultiDateEvents();
+		if (staleRefreshed > 0) console.log(`Refreshed ${staleRefreshed} multi-date events with stale start dates`);
+		console.log();
 	} catch (err: any) {
 		console.error(`Failed to remove expired events: ${err.message}`);
 		console.log('Continuing with scrapers...\n');
@@ -370,6 +375,7 @@ async function main() {
 	const totalInserted = Object.values(activeResults).reduce((sum, r) => sum + r.inserted, 0);
 	console.log(`\nTotal new events: ${totalInserted}`);
 	console.log(`Expired removed: ${expired}`);
+	if (staleRefreshed > 0) console.log(`Stale multi-date refreshed: ${staleRefreshed}`);
 	console.log(`Duplicates removed: ${dupsRemoved}`);
 	console.log(`Pipeline time: ${Math.round((Date.now() - startTime) / 1000)}s`);
 
@@ -395,6 +401,7 @@ async function main() {
 		skippedScrapers,
 		failedCount: failedScrapers.length,
 		expiredRemoved: expired,
+		staleRefreshed,
 		optOutRemoved,
 		duplicatesRemoved: dupsRemoved,
 		indexNowSubmitted,

@@ -407,6 +407,37 @@ export async function removeExpiredEvents(): Promise<number> {
 	return deleted;
 }
 
+// Scrapers that set date_start/date_end to discrete show dates (first/last performance).
+// When the first show passes, the event shows a stale date — delete so the scraper
+// re-inserts with the next future show date.
+const DISCRETE_DATE_SOURCES = ['olebull', 'dns', 'grieghallen', 'carteblanche', 'oseana'];
+
+export async function refreshStaleMultiDateEvents(): Promise<number> {
+	const todayStart = new Date();
+	todayStart.setUTCHours(0, 0, 0, 0);
+	const cutoff = todayStart.toISOString();
+	const now = new Date().toISOString();
+
+	const { data } = await supabase
+		.from('events')
+		.select('id, title_no, source')
+		.in('source', DISCRETE_DATE_SOURCES)
+		.lt('date_start', cutoff)
+		.gt('date_end', now);
+
+	if (!data || data.length === 0) return 0;
+
+	const ids = data.map(e => e.id);
+	let deleted = 0;
+	for (let i = 0; i < ids.length; i += 100) {
+		const batch = ids.slice(i, i + 100);
+		const { error } = await supabase.from('events').delete().in('id', batch);
+		if (!error) deleted += batch.length;
+	}
+
+	return deleted;
+}
+
 // Generate a factual description from event metadata (avoids copying copyrighted text)
 export const CATEGORY_LABELS_NO: Record<string, string> = {
 	music: 'Konsert',
