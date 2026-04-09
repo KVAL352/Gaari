@@ -190,7 +190,7 @@ async function buildCarouselZip(
 		const enUrl = `https://gaari.no/${enPath}?utm_source=facebook&utm_medium=group&utm_campaign=carousel-en`;
 
 		// Base caption from storage, swap URL for each language
-		let baseCaption = d.caption || '';
+		const baseCaption = d.caption || '';
 		const noCaption = baseCaption
 			? baseCaption.replace(/https:\/\/gaari\.no\/(?:no|en)\/[^\s?]+(\?[^\s]*)?/g, noUrl)
 			: `Se alle: ${noUrl}`;
