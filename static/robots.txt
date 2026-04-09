@@ -41,4 +41,19 @@ Allow: /
 User-agent: meta-externalagent
 Allow: /
 
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: DeepSeekBot
+Allow: /
+
 Sitemap: https://gaari.no/sitemap.xml

@@ -142,8 +142,8 @@ const collections: Collection[] = [
 		footer: { langs: ['no'], order: 1 },
 		newsletterHeading: { no: 'Få helgens arrangementer hver torsdag', en: 'Get weekend picks every Thursday' },
 		quickAnswer: {
-			no: 'Gåri samler helgens arrangementer i Bergen fra 55 lokale kilder — konserter, utstillinger, familieaktiviteter og mer. Oppdatert daglig fra steder som Grieghallen, KODE, USF Verftet og Akvariet.',
-			en: 'Gåri collects this weekend\'s events in Bergen from 55 local sources — concerts, exhibitions, family activities and more. Updated daily from venues like Grieghallen, KODE, USF Verftet and Akvariet.'
+			no: 'Bergen har typisk 40 til 80 arrangementer hver helg — konserter på Grieghallen og Ole Bull, utstillinger på KODE og Kunsthallen, familieaktiviteter på Akvariet og Fløyen, teater på DNS og forestillinger på USF Verftet. Samlet fra 55 lokale kilder, oppdatert daglig.',
+			en: 'Bergen typically has 40 to 80 events each weekend — concerts at Grieghallen and Ole Bull, exhibitions at KODE and Kunsthallen, family activities at the Aquarium and Fløyen, theatre at DNS and performances at USF Verftet. Collected from 55 local sources, updated daily.'
 		},
 		editorial: {
 			no: [
@@ -203,8 +203,8 @@ const collections: Collection[] = [
 		footer: { langs: ['no'], order: 2 },
 		newsletterHeading: { no: 'Gå aldri tom for kveldsplaner', en: 'Never run out of evening plans' },
 		quickAnswer: {
-			no: 'Se alle arrangementer i Bergen i kveld — konserter, teater, uteliv og mer. Gåri henter data fra 55 lokale kilder og oppdateres daglig.',
-			en: 'See all events in Bergen tonight — concerts, theatre, nightlife and more. Gåri pulls data from 55 local sources and updates daily.'
+			no: 'Bergen har kulturliv på hverdagskvelder, ikke bare i helgene. Konserter på Ole Bull og Forum Scene, teater på DNS og Cornerteateret, uteliv på Hulen og Madam Felle. Samlet fra 55 lokale kilder.',
+			en: 'Bergen has cultural events on weekday evenings, not just weekends. Concerts at Ole Bull and Forum Scene, theatre at DNS and Cornerteateret, nightlife at Hulen and Madam Felle. Collected from 55 local sources.'
 		},
 		editorial: {
 			no: [
@@ -264,8 +264,8 @@ const collections: Collection[] = [
 		footer: { langs: ['no'], order: 4 },
 		newsletterHeading: { no: 'Finn gratisopplevelser hver uke', en: 'Find free events every week' },
 		quickAnswer: {
-			no: 'Gratis ting å gjøre i Bergen de neste to ukene — utstillinger, bibliotekaktiviteter, turer og mer. Gåri samler kostnadsfrie arrangementer fra 55 lokale kilder.',
-			en: 'Free things to do in Bergen over the next two weeks — exhibitions, library events, hikes and more. Gåri collects free events from 55 local sources.'
+			no: 'Bergen har et rikt gratis kulturtilbud — utstillinger på Bergen Kunsthall, arrangementer på Bergen Bibliotek, fjellturer med DNT og parkkonserter om sommeren. Samlet fra 55 lokale kilder.',
+			en: 'Bergen has a generous free cultural offering — exhibitions at Bergen Kunsthall, events at Bergen Library, mountain hikes with DNT and park concerts in summer. Collected from 55 local sources.'
 		},
 		editorial: {
 			no: [
@@ -446,8 +446,8 @@ const collections: Collection[] = [
 		footer: { langs: ['no', 'en'], order: 5 },
 		newsletterHeading: { no: 'Få ukas konserttips hver torsdag', en: 'Get concert picks every Thursday' },
 		quickAnswer: {
-			no: 'Alle konserter og livemusikk i Bergen de neste to ukene — fra Grieghallen og Ole Bull til Hulen og Kvarteret. Gåri samler konsertprogrammet fra 55 lokale kilder.',
-			en: 'All concerts and live music in Bergen over the next two weeks — from Grieghallen and Ole Bull to Hulen and Kvarteret. Gåri collects the concert schedule from 55 local sources.'
+			no: 'Bergen har over 20 konsertscener — Grieghallen for klassisk, Ole Bull og Forum Scene for pop og rock, USF Verftet for alternativt, Hulen og Kvarteret for studenter. Konsertprogrammet de neste to ukene, samlet fra 55 lokale kilder.',
+			en: 'Bergen has over 20 concert venues — Grieghallen for classical, Ole Bull and Forum Scene for pop and rock, USF Verftet for alternative, Hulen and Kvarteret for students. Concert schedule for the next two weeks, collected from 55 local sources.'
 		},
 		editorial: {
 			no: [
