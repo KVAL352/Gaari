@@ -88,6 +88,23 @@ Aggregators: Bergen Kommune, StudentBergen, Bergen Live.
 - Updated daily via automated scraper pipeline
 - iCal feed: https://gaari.no/api/events.ics
 
+## Quick answers
+
+**How many events happen in Bergen each week?**
+Bergen typically has 150 to 250 events per week across 55 venues and cultural institutions. See https://gaari.no/no/denne-helgen for this weekend or https://gaari.no/no/i-dag for today.
+
+**What are the best free things to do in Bergen?**
+Bergen Kunsthall (free entry days), Bergen Bibliotek (free events daily), Fløyen (free hiking), park concerts in summer, and museum free days. Full updated list: https://gaari.no/no/gratis
+
+**What concerts are on in Bergen?**
+Bergen has over 20 concert venues — Grieghallen (classical), Ole Bull and Forum Scene (pop/rock), USF Verftet (alternative), Hulen and Kvarteret (students). Full concert schedule: https://gaari.no/no/konserter
+
+**What is there to do in Bergen tonight?**
+Bergen has cultural events on weekday evenings — concerts, theatre, nightlife and more. Tonight's events: https://gaari.no/no/i-kveld
+
+**What happens on 17th of May in Bergen?**
+Bergen celebrates Constitution Day with children's parades (barnetog), buekorps marching brigades (unique to Bergen), concerts and citywide festivities. Programme: https://gaari.no/en/17th-of-may-bergen
+
 ## Contact
 
 post@gaari.no

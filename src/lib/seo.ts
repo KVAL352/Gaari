@@ -177,7 +177,9 @@ export function generateEventJsonLd(
 		? 'Always verify price with organizer'
 		: 'Sjekk alltid pris hos arrangør';
 
-	if (isFreeEvent(event.price)) {
+	const isFree = isFreeEvent(event.price);
+
+	if (isFree) {
 		offers.price = '0';
 		offers.priceCurrency = 'NOK';
 		offers.description = lang === 'en'
@@ -248,7 +250,8 @@ export function generateEventJsonLd(
 			? 'https://schema.org/EventCancelled'
 			: 'https://schema.org/EventScheduled',
 		eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-		inLanguage
+		inLanguage,
+		...(isFree ? { isAccessibleForFree: true } : {})
 	};
 
 	if (event.date_end) {
@@ -320,7 +323,11 @@ export function generateOrganizationJsonLd(): string {
 			contactType: 'customer service',
 			availableLanguage: ['Norwegian', 'English']
 		},
-		sameAs: ['https://github.com/KKAL352/Gaari', 'https://bsky.app/profile/gaari.no']
+		sameAs: [
+			'https://www.instagram.com/gaari_bergen/',
+			'https://www.facebook.com/profile.php?id=1062018946994640',
+			'https://github.com/KKAL352/Gaari'
+		]
 	};
 
 	return safeJsonLd(jsonLd);

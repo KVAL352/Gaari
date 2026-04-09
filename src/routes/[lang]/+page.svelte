@@ -293,6 +293,12 @@
 
 <HeroSection />
 
+<p class="mx-auto max-w-7xl px-4 pt-3 pb-1 text-sm leading-relaxed text-[var(--color-text-secondary)] md:text-center">
+	{$lang === 'no'
+		? `Bergen har ${data.events.length} arrangementer de neste to ukene — konserter, teater, utstillinger, mat og familieaktiviteter fra ${data.events.length > 0 ? 'Grieghallen, KODE, DNS og 50+ andre steder' : '55 lokale kilder'}. Oppdatert daglig.`
+		: `Bergen has ${data.events.length} events over the next two weeks — concerts, theatre, exhibitions, food and family activities from ${data.events.length > 0 ? 'Grieghallen, KODE, DNS and 50+ other venues' : '55 local sources'}. Updated daily.`}
+</p>
+
 <EventDiscovery
 	lang={$lang}
 	eventCount={filteredEvents.length}

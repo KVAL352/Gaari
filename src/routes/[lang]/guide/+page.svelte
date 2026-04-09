@@ -351,7 +351,9 @@
 	];
 
 	let faq = $derived($lang === 'no' ? faqNO : faqEN);
-	let faqJsonLd = $derived(generateFaqJsonLdFromItems(faq));
+	// Strip HTML tags from FAQ answers for clean JSON-LD (Tailwind classes confuse AI parsers)
+	let faqClean = $derived(faq.map(item => ({ q: item.q, a: item.a.replace(/<[^>]*>/g, '') })));
+	let faqJsonLd = $derived(generateFaqJsonLdFromItems(faqClean));
 
 	// -- Contextual CTA: tonight after 16:00, weekend on Fri PM/Sat/Sun, else this weekend --
 	let ctaConfig = $derived.by(() => {
