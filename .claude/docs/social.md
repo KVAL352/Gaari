@@ -38,5 +38,12 @@
 ## Social insights
 `fetch-social-insights.ts` fetches engagement metrics for ALL IG/FB posts. Stored in `social_insights` table (JSONB). Runs after each posting GHA job.
 
+## Cross-day dedup (Apr 2026)
+- `social_posts.event_ids UUID[]` stores which events were included in each post
+- Before picking events, `getRecentlyPostedIds()` loads IDs posted in the last 5 days
+- Recently posted events are deprioritised (fresh events picked first, stale backfilled if needed)
+- Paired collections don't dedup against each other: `denne-helgen` ↔ `this-weekend`, `i-kveld` ↔ `today-in-bergen`
+- `pickDiverseEvents()` in `event-picker.ts` accepts `recentlyPosted` option set
+
 ## Weekly batch
 `weekly-reels.yml`: Sunday 18:00 UTC (full generate + assemble), Thursday 15:00 UTC (re-assemble). `assemble-week.ts` builds per-day ZIPs + manifest.
