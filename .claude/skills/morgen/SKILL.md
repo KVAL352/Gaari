@@ -23,14 +23,14 @@ Run all morning checks in parallel, then present a single unified briefing.
 ### Last digest
 !`gh run list --workflow=daily-digest.yml --limit 1 --json conclusion,startedAt 2>/dev/null || echo "gh unavailable"`
 
-### Umami traffic (last 24h)
-!`set -a && source .env && set +a && node -e "async function r(){const h={'x-umami-api-key':process.env.UMAMI_API_KEY};const w='5f889214-285b-4412-8066-015a18f8ce65';const n=Date.now();const s=await(await fetch('https://api.umami.is/v1/websites/'+w+'/stats?startAt='+(n-86400000)+'&endAt='+n,{headers:h})).json();const a=await(await fetch('https://api.umami.is/v1/websites/'+w+'/active',{headers:h})).json();console.log(JSON.stringify({active:a.visitors,pageviews:s.pageviews,visitors:s.visitors}));}r().catch(()=>console.log('Umami unavailable'));" 2>/dev/null || echo "Umami unavailable"`
-
-### Newsletter (MailerLite)
-!`set -a && source .env && set +a && node -e "async function r(){const h={'Authorization':'Bearer '+process.env.MAILERLITE_API_KEY,'Content-Type':'application/json'};const[subs,camps]=await Promise.all([fetch('https://connect.mailerlite.com/api/subscribers?limit=0',{headers:h}).then(r=>r.json()),fetch('https://connect.mailerlite.com/api/campaigns?filter[status]=sent',{headers:h}).then(r=>r.json())]);const latest=camps.data?.[0];console.log(JSON.stringify({subscribers:subs.total,lastCampaign:latest?{name:latest.name,date:latest.scheduled_for||latest.created_at,open_rate:latest.stats?.open_rate?.string,click_rate:latest.stats?.click_rate?.string}:null,totalSent:camps.data?.length||0}));}r().catch(()=>console.log('MailerLite unavailable'));" 2>/dev/null || echo "MailerLite unavailable"`
+### Social posts (last FB/IG runs)
+!`gh run list --workflow=social-posts.yml --limit=2 --json conclusion,startedAt,name 2>/dev/null || echo "gh unavailable"`
 
 ### Last newsletter workflow
 !`gh run list --workflow=newsletter.yml --limit=3 --json conclusion,startedAt 2>/dev/null || echo "gh unavailable"`
+
+### Umami + MailerLite stats (single script)
+!`cd /c/Users/kjers/Projects/Gaari && npx tsx scripts/morning-stats.ts 2>/dev/null || echo "Stats unavailable"`
 
 ## Then do these in parallel
 
@@ -42,10 +42,10 @@ Run all morning checks in parallel, then present a single unified briefing.
 Present everything as one compact briefing:
 
 ```
-## God morgen! 🌅
+## God morgen!
 
 ### Siden
-- gaari.no: ✅ oppe / ❌ nede (X events, sist scrapet Y timer siden)
+- gaari.no: [oppe/nede] (X events, sist scrapet Y timer siden)
 
 ### Epost
 - X ulest i innboks
@@ -56,20 +56,22 @@ Present everything as one compact briefing:
 - Y denne uken
 
 ### Trafikk (siste 24t)
-- X besøkende, Y sidevisninger, Z aktive nå
-- Snitt sider/besøk: Y/X
+- X besokende, Y sidevisninger, Z aktive na
+- Snitt sider/besok: Y/X
 
 ### Nyhetsbrev
-- X abonnenter (milepæl: 50)
-- Siste utsending: kampanjenavn (dato) — åpningsrate X%, klikkrate X%
-- Siste 3 GHA-kjøringer: ✅/❌
+- X abonnenter
+- Siste utsending: kampanjenavn (dato) — apningsrate X%, klikkrate X%
+
+### Sosiale medier
+- Siste FB/IG-posting: status + tidspunkt
 
 ### Kode
 - Branch: <current>
 - Ucommittede endringer: X filer / rent
 
 ### Neste steg
-- Prioritert liste basert på forfalt + innkommende henvendelser
+- Prioritert liste basert pa forfalt + innkommende henvendelser
 ```
 
 ## Important
@@ -77,3 +79,4 @@ Present everything as one compact briefing:
 - This skill is read-only — never make changes
 - Keep the briefing to one screen — details on request
 - If site is down or degraded, flag it prominently at the top
+- No emojis in output

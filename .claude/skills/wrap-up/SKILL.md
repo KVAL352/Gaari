@@ -26,46 +26,47 @@ Run these in order. Report each as PASS / ACTION NEEDED / SKIPPED.
 ### 1. Uncommitted changes
 
 Review the pre-loaded git status above. Check for:
-- **Staged but uncommitted changes** → ask user if they want to commit
-- **Unstaged modifications** → list files, ask if they should be staged and committed
-- **Untracked files** → list them, ask if any are intentional (vs. temp/debug files that should be gitignored)
+- **Staged but uncommitted changes** — ask user if they want to commit
+- **Unstaged modifications** — list files, ask if they should be staged and committed
+- **Untracked files** — list them, ask if any are intentional (vs. temp/debug files that should be gitignored)
 
 If everything is clean, report PASS.
 
-### 2. CLAUDE.md accuracy
+### 2. Documentation accuracy
 
-Check if today's work introduced changes that should be reflected in CLAUDE.md. Scan for:
-- **New scrapers** added → update scraper table + total count (3 places: intro sentence, `## Scraper sources` heading, datainnsamling page count)
-- **New collections** added → update collection list in `## Architecture` → Collection pages
-- **New routes** added → update `## Frontend routes`
-- **New components** added → update `## Frontend components`
-- **New test files or test count changes** → run `npm test` and compare actual count to documented count in `## Testing`
-- **New env vars or secrets** → update relevant sections
-- **New skills** added → mention in `new-skill` reference table if relevant
+Check if today's work introduced changes that should be reflected in docs. Scan for:
+- **New scrapers** — update CLAUDE.md scraper count + `.claude/docs/scrapers.md`
+- **New collections** — update CLAUDE.md architecture section + `.claude/docs/collections.md`
+- **New routes** — update `.claude/docs/routes.md`
+- **New components** — update `.claude/docs/components.md`
+- **New test files or count changes** — run `npm test`, compare to `.claude/docs/testing.md`
+- **New GHA workflows** — update `.claude/docs/gha.md`
+- **New env vars or secrets** — update relevant memory files
+- **New skills** — verify they appear in skill listing
 
 If nothing changed, report PASS. If updates are needed, make them directly.
 
-### 3. Verify skill test count
+### 3. Memory review
 
-Run `npm test` and check if the total test count matches what's documented in `.claude/skills/verify/SKILL.md` (line mentioning "All X tests must pass"). Update if different.
-
-### 4. Memory review
-
-Check if the session produced insights worth saving to `~/.claude/projects/c--Users-kjers-Projects-Gaari/memory/MEMORY.md`:
-- **New patterns or pitfalls** discovered (e.g., API quirks, framework gotchas)
+Check if the session produced insights worth saving:
+- **New patterns or pitfalls** discovered (API quirks, framework gotchas)
 - **New operational workflows** established
 - **Key decisions** made that affect future work
-- **Completed features** that were previously tracked as in-progress
+- **Feedback from user** about working style or preferences
 
 Read current MEMORY.md first — avoid duplicates. Only add genuinely useful, stable knowledge.
 
 If nothing to add, report PASS.
 
-### 5. Quick verification
+### 4. Quick verification
 
-If code was changed during the session, run type check and tests automatically (`svelte-check --threshold error` + `npm test`).
+If code was changed during the session, run type check and tests:
+- `npx svelte-check --threshold error`
+- `npm test`
 
-### 6. Session summary
+Report results. If failures, flag them as ACTION NEEDED.
+
+### 5. Session summary
 
 Write a brief summary:
 
@@ -76,17 +77,17 @@ Write a brief summary:
 - Bullet points of completed work
 
 **Files changed:**
-- List of modified/created/deleted files (from git diff --stat against the starting state)
+- List of modified/created/deleted files
 
 **Open items:**
 - Anything left unfinished or discovered but not addressed
-- Follow-up tasks for next session
 
 **Status:** Ready to deploy / Needs verification / Work in progress
 ```
 
 ## Important
 
-- **Auto-execute all steps** — commit session changes, update CLAUDE.md, save memory patterns, and push without asking. Only pause if something is unclear or risky (e.g., unrecognized untracked files).
-- **Keep memory updates minimal** — only save patterns confirmed across the session, not speculative notes
-- **Be honest about open items** — flag anything that was started but not finished
+- **Auto-execute all steps** — commit, update docs, save memory, push without asking. Only pause if something is unclear or risky.
+- **Keep memory updates minimal** — only save patterns confirmed across the session
+- **Be honest about open items** — flag anything started but not finished
+- Docs are now split: CLAUDE.md (core) + `.claude/docs/` (details). Update the right file.

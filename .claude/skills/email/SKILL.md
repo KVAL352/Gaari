@@ -9,15 +9,12 @@ argument-hint: "[folder: inbox | all]"
 
 Check, sort, and review Protonmail emails for the Gåri project.
 
-## Step 1: Check all folders
+## Pre-loaded folder checks
 
-List emails in **all** of these folders in parallel:
+Run all folder reads in parallel using MCP protonmail tools:
 
-**Unsorted:**
-- `INBOX` (anything here is unsorted — Sieve should catch most things)
-
-**Gåri project (Unresolved):**
-- `Folders/Gaari/Inquiries/Unresolved`
+1. `mcp__protonmail__list_emails` with folder `INBOX`
+2. `mcp__protonmail__list_emails` with folder `Folders/Gaari/Inquiries/Unresolved`
 
 ## Step 2: Summarize
 
@@ -38,12 +35,15 @@ Ask the user how to proceed on anything non-obvious.
 ## Step 4: Actions
 
 - Draft replies using `post@gaari.no` as sender
-- For outreach/personal replies: use `Kjersti.Therkildsen@gaari.no` with the HTML signature from MEMORY.md
+- For outreach/personal replies: use `Kjersti.Therkildsen@gaari.no` with the HTML signature (read from memory file `email-workflow.md`)
 - **Always show draft before sending. Never send without explicit "send" or "ja, send".**
-- Delete emails after they are handled
+- Move handled Gaari emails to Resolved folders, delete spam
+- Move press/media emails to `Folders/Gaari/Presse` (never delete)
+- Move receipts to `Folders/Receipts` (never delete)
 
 ## Rules
 
-- Use MCP protonmail tool for all email operations
+- Use MCP protonmail tools for all email operations
 - IMAP folder paths use `Folders/` prefix (e.g. `Folders/Gaari/Inquiries/Unresolved`)
 - Sieve auto-sorts `[Inquiry]`, `[Correction]`, `[Opt-out]`, `[Submission]` subjects
+- IMAP deletion via Bridge is unreliable — flag for manual deletion if needed
