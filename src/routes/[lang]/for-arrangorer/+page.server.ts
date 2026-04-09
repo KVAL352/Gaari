@@ -13,24 +13,30 @@ export const load: PageServerLoad = async ({ params }) => {
 		.select('image_url, title_no, venue_name, category')
 		.eq('status', 'approved')
 		.not('image_url', 'is', null)
+		.neq('image_url', '')
 		.gte('date_start', new Date().toISOString())
 		.order('date_start', { ascending: true })
 		.limit(100);
 
-	// Pick 12 diverse images (spread across categories)
+	// Pick 20 diverse images (spread across categories, HTTPS only, skip known broken hosts)
+	const brokenHosts = ['ik.imagekit.io'];
+	const validEvents = (events ?? []).filter(e =>
+		e.image_url?.startsWith('https://') &&
+		!brokenHosts.some(h => e.image_url!.includes(h))
+	);
 	const seen = new Set<string>();
 	const heroImages: Array<{ url: string; title: string; venue: string }> = [];
-	for (const e of events ?? []) {
-		if (heroImages.length >= 12) break;
-		if (!e.image_url || seen.has(e.category)) continue;
+	for (const e of validEvents) {
+		if (heroImages.length >= 20) break;
+		if (seen.has(e.category)) continue;
 		seen.add(e.category);
-		heroImages.push({ url: e.image_url, title: e.title_no, venue: e.venue_name ?? '' });
+		heroImages.push({ url: e.image_url!, title: e.title_no, venue: e.venue_name ?? '' });
 	}
-	// Fill remaining slots if fewer than 12 categories
-	for (const e of events ?? []) {
-		if (heroImages.length >= 12) break;
-		if (!e.image_url || heroImages.some(h => h.url === e.image_url)) continue;
-		heroImages.push({ url: e.image_url, title: e.title_no, venue: e.venue_name ?? '' });
+	// Fill remaining slots if fewer than 20 categories
+	for (const e of validEvents) {
+		if (heroImages.length >= 20) break;
+		if (heroImages.some(h => h.url === e.image_url)) continue;
+		heroImages.push({ url: e.image_url!, title: e.title_no, venue: e.venue_name ?? '' });
 	}
 
 	return { heroImages };

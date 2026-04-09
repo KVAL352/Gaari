@@ -35,7 +35,9 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 ## Scraper pipeline (`scripts/scrape.ts`)
 
-1. `removeExpiredEvents()` → 1a. `refreshStaleMultiDateEvents()` → 1b. `loadOptOuts()`
+1. `removeExpiredEvents()` — deletes past events
+1a. `refreshStaleMultiDateEvents()` — refreshes discrete-date scrapers (olebull, dns, grieghallen, carteblanche, oseana, harmonien) where `date_start` passed but `date_end` future
+1b. `loadOptOuts()` — removes events from opted-out domains
 2. Run scrapers (22-min deadline, `eventExists()` check, `generateDescription()`)
 3. `deduplicate()` — normalized title + same date, keeps highest-scored
 4. Log to `scraper_runs` + JSON summary + health check
@@ -74,4 +76,4 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 ## Business model
 
-Promoted placement subscriptions: Basis 1,000 / Standard 3,500 / Partner 7,000 NOK/month. À la carte: 500 NOK/event. All labeled "Fremhevet" (markedsføringsloven § 3). Prospect reports via `scripts/generate-prospect-report.ts`.
+Promoted placement subscriptions: Basis 1,500 / Standard 3,500 / Partner 9,000 NOK/month. À la carte: 750 NOK/event. All labeled "Fremhevet" (markedsføringsloven § 3). Prospect reports via `scripts/generate-prospect-report.ts`.

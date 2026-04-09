@@ -73,6 +73,15 @@
 	--funkis-amber:        #B8860B;
 	--funkis-amber-subtle: #FDF6E8;
 
+	/* Bergen-inspired extended palette */
+	--funkis-fjord:        #2B6B8A;
+	--funkis-fjord-hover:  #225A74;
+	--funkis-fjord-subtle: #EDF4F7;
+	--funkis-rain:         #7B9EAE;
+	--funkis-rain-subtle:  #F0F4F6;
+	--funkis-sol:          #E8A838;
+	--funkis-sol-subtle:   #FDF5E6;
+
 	/* ── Semantic tokens ── */
 
 	/* Backgrounds — bright white box, like the Sundt interior */
@@ -151,6 +160,9 @@
 		--funkis-red-subtle:   #2A1616;
 		--funkis-green-subtle: #162A1A;
 		--funkis-amber-subtle: #2A2316;
+		--funkis-fjord-subtle: #142A35;
+		--funkis-rain-subtle:  #1A2830;
+		--funkis-sol-subtle:   #2A2316;
 
 		/* Funkis primitives that need dark overrides */
 		--funkis-plaster:      #1A1A1A;

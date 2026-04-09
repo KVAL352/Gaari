@@ -513,7 +513,11 @@ const B2B_FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
 		},
 		{
 			q: 'Passer dette for små arrangører?',
-			a: 'Absolutt. Basis-pakken koster omtrent 33 kr dagen, som er billigere enn de fleste andre markedsføringskanaler. Arrangementene dine er allerede på Gåri gratis. Fremhevet plassering gir dem ekstra synlighet.'
+			a: 'Absolutt. Basis-pakken koster omtrent 50 kr dagen, som er billigere enn de fleste andre markedsføringskanaler. Arrangementene dine er allerede på Gåri gratis. Fremhevet plassering gir dem ekstra synlighet.'
+		},
+		{
+			q: 'Kan jeg fremheve bare ett arrangement?',
+			a: 'Ja. For 750 kr kan du fremheve et enkelt arrangement på én utvalgt side og i nyhetsbrevet i opptil 2 uker. Perfekt om du har noen få store arrangementer i året.'
 		}
 	],
 	en: [
@@ -543,7 +547,11 @@ const B2B_FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
 		},
 		{
 			q: 'Is this suitable for small organizers?',
-			a: 'Absolutely. The Basis plan costs about 33 NOK per day, which is cheaper than most other marketing channels. Your events are already on Gåri for free. Promoted placement gives them extra visibility.'
+			a: 'Absolutely. The Basis plan costs about 50 NOK per day, which is cheaper than most other marketing channels. Your events are already on Gåri for free. Promoted placement gives them extra visibility.'
+		},
+		{
+			q: 'Can I promote just one event?',
+			a: 'Yes. For 750 NOK you can promote a single event on one curated page and in the newsletter for up to 2 weeks. Perfect if you have a few big events per year.'
 		}
 	]
 };
