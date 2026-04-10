@@ -117,8 +117,16 @@
 		} else if (audience === 'tourist') {
 			events = events.filter(e => e.language === 'en' || e.language === 'both');
 		} else if (audience === 'voksen') {
-			const adultCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop']);
-			events = events.filter(e => adultCategories.has(e.category));
+			const voksenCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop', 'festival']);
+			const clubRe = /\bklubb|\bdj\b|\bhouse\b|\btechno|\bafterparty|\bnattklubb|\brave\b/i;
+			const indieVenues = new Set(['hulen', 'garage', 'kvarteret', 'det akademiske kvarter', 'landmark', 'bergen kjøtt', 'fincken', 'røkeriet']);
+			events = events.filter(e => {
+				if (e.age_group === 'family' || e.category === 'family') return false;
+				if (!voksenCategories.has(e.category)) return false;
+				if (clubRe.test(e.title_no) || clubRe.test(e.description_no || '')) return false;
+				if (indieVenues.has(e.venue_name?.toLowerCase())) return false;
+				return true;
+			});
 		} else if (audience === 'adult') {
 			events = events.filter(e => e.age_group !== 'family' && e.category !== 'family');
 		} else if (audience === 'free') {

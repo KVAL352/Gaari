@@ -1435,17 +1435,17 @@ const collections: Collection[] = [
 		filterEvents: (events, now) => {
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
-			const adultCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop', 'sports']);
+			const voksenCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop', 'sports', 'festival']);
+			const clubRe = /\bklubb|\bdj\b|\bhouse\b|\btechno|\bafterparty|\bnattklubb|\brave\b/i;
+			const indieVenues = new Set(['hulen', 'garage', 'kvarteret', 'det akademiske kvarter', 'landmark', 'bergen kjøtt', 'fincken', 'røkeriet']);
 			return events.filter(e => {
 				const d = e.date_start.slice(0, 10);
-				return (
-					d >= todayStr &&
-					d <= endStr &&
-					adultCategories.has(e.category) &&
-					e.category !== 'student' &&
-					e.category !== 'nightlife' &&
-					e.category !== 'family'
-				);
+				if (d < todayStr || d > endStr) return false;
+				if (e.age_group === 'family' || e.category === 'family') return false;
+				if (!voksenCategories.has(e.category)) return false;
+				if (clubRe.test(e.title_no) || clubRe.test(e.description_no || '')) return false;
+				if (indieVenues.has(e.venue_name?.toLowerCase())) return false;
+				return true;
 			});
 		}
 	},
