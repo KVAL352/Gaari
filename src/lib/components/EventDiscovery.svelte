@@ -210,12 +210,14 @@
 	}
 
 	// ── Step 3: Who? ──
+	// Order reflects actual usage (Umami filter-used events, 30d): family (1579),
+	// voksen (786), ungdom (285), adult (148), student (114), tourist (68).
 	const audienceOptions = [
 		{ value: 'family', labelKey: 'familyShort', icon: Users },
-		{ value: 'ungdom', labelKey: 'youth', icon: Sparkle },
 		{ value: 'voksen', labelKey: 'grownups', icon: Drama },
-		{ value: 'student', labelKey: 'students', icon: GraduationCap },
+		{ value: 'ungdom', labelKey: 'youth', icon: Sparkle },
 		{ value: 'adult', labelKey: 'adults', icon: Moon },
+		{ value: 'student', labelKey: 'students', icon: GraduationCap },
 		{ value: 'tourist', labelKey: 'tourists', icon: MapPin }
 	] as const;
 

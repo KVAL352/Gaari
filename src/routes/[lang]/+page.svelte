@@ -335,19 +335,6 @@
 
 <HeroSection />
 
-<div class="mx-auto max-w-7xl px-4 pt-3 pb-1 text-sm leading-relaxed text-[var(--color-text-secondary)] md:text-center">
-	<p>
-		{$lang === 'no'
-			? `Bergen har ${data.events.length} arrangementer de neste to ukene — konserter, teater, utstillinger, mat og familieaktiviteter fra ${data.events.length > 0 ? 'Grieghallen, KODE, DNS og 50+ andre steder' : '55 lokale kilder'}. Oppdatert daglig.`
-			: `Bergen has ${data.events.length} events over the next two weeks — concerts, theatre, exhibitions, food and family activities from ${data.events.length > 0 ? 'Grieghallen, KODE, DNS and 50+ other venues' : '55 local sources'}. Updated daily.`}
-	</p>
-	<p class="mt-1">
-		{$lang === 'no'
-			? 'Gåri er en uavhengig og gratis arrangementskalender for Bergen. Alle beskrivelser er originale, og utsolgte arrangementer fjernes automatisk.'
-			: 'Gåri is an independent, free event calendar for Bergen. All descriptions are original, and sold-out events are removed automatically.'}
-	</p>
-</div>
-
 <EventDiscovery
 	lang={$lang}
 	eventCount={filteredEvents.length}
@@ -366,7 +353,7 @@
 		/>
 	{:else}
 		<div class="event-results" class:fading={transitioning}>
-			<EventGrid events={displayedEvents} showNewsletterCta onHideEvent={handleHideEvent} onHideVenue={handleHideVenue} onHideCategory={handleHideCategory} />
+			<EventGrid events={displayedEvents} showNewsletterCta showSignupCard={!hasActiveFilters && pageNum === 1} onHideEvent={handleHideEvent} onHideVenue={handleHideVenue} onHideCategory={handleHideCategory} />
 			{#if numHidden > 0}
 				<div class="mb-6 flex items-center justify-center gap-3 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-4 py-2.5">
 					<span class="text-sm text-[var(--color-text-muted)]">
@@ -409,6 +396,23 @@
 		</div>
 	</nav>
 {/if}
+
+<!-- About Gåri (SEO context) -->
+<section class="mx-auto max-w-7xl px-4 py-8 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+	<h2 class="mb-3 text-lg font-semibold text-[var(--color-text-primary)]">
+		{$lang === 'no' ? 'Om Gåri' : 'About Gåri'}
+	</h2>
+	<p>
+		{$lang === 'no'
+			? `Bergen har ${data.events.length} arrangementer de neste to ukene — konserter, teater, utstillinger, mat og familieaktiviteter fra ${data.events.length > 0 ? 'Grieghallen, KODE, DNS og 50+ andre steder' : '55 lokale kilder'}. Oppdatert daglig.`
+			: `Bergen has ${data.events.length} events over the next two weeks — concerts, theatre, exhibitions, food and family activities from ${data.events.length > 0 ? 'Grieghallen, KODE, DNS and 50+ other venues' : '55 local sources'}. Updated daily.`}
+	</p>
+	<p class="mt-2">
+		{$lang === 'no'
+			? 'Gåri er en uavhengig og gratis arrangementskalender for Bergen. Alle beskrivelser er originale, og utsolgte arrangementer fjernes automatisk.'
+			: 'Gåri is an independent, free event calendar for Bergen. All descriptions are original, and sold-out events are removed automatically.'}
+	</p>
+</section>
 
 <style>
 	.event-results {

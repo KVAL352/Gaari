@@ -4,18 +4,38 @@
 	import { groupEventsByDate, formatDateSectionHeader } from '$lib/utils';
 	import EventCard from './EventCard.svelte';
 	import NewsletterInline from './NewsletterInline.svelte';
+	import NewsletterSignupCard from './NewsletterSignupCard.svelte';
 
 	interface Props {
 		events: GaariEvent[];
 		promotedEventIds?: string[];
 		/** Show inline newsletter CTA between date groups (default: false) */
 		showNewsletterCta?: boolean;
+		/** Insert newsletter signup card as a grid item in the first day group (default: false) */
+		showSignupCard?: boolean;
 		onHideEvent?: (id: string) => void;
 		onHideVenue?: (venue: string) => void;
 		onHideCategory?: (category: string) => void;
 	}
 
-	let { events, promotedEventIds = [], showNewsletterCta = false, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+	let { events, promotedEventIds = [], showNewsletterCta = false, showSignupCard = false, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+
+	// Global position (0-indexed) at which to inject the signup card.
+	// 7 = appears as the 8th card — after users have scrolled past a few events
+	// (usually into the second date group), but before the LoadMore button.
+	const SIGNUP_CARD_POSITION = 7;
+
+	// Cumulative event counts at the start of each date group, for computing
+	// global card index during iteration.
+	let cumulativeCounts = $derived.by(() => {
+		const counts: number[] = [0];
+		let sum = 0;
+		for (const [, dayEvents] of grouped) {
+			sum += dayEvents.length;
+			counts.push(sum);
+		}
+		return counts;
+	});
 
 	let grouped = $derived.by(() => {
 		const groups = groupEventsByDate(events);
@@ -40,6 +60,9 @@
 		</div>
 		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 			{#each dayEvents as event, i (event.id)}
+				{#if showSignupCard && cumulativeCounts[groupIdx] + i === SIGNUP_CARD_POSITION}
+					<NewsletterSignupCard sampleEvents={events.filter(e => !!e.image_url).slice(0, 5)} />
+				{/if}
 				<EventCard
 					{event}
 					eager={groupIdx === 0 && i < 4}
@@ -49,6 +72,9 @@
 					onHideCategory={canHide ? onHideCategory : undefined}
 				/>
 			{/each}
+			{#if showSignupCard && groupIdx === grouped.length - 1 && cumulativeCounts[grouped.length] <= SIGNUP_CARD_POSITION && cumulativeCounts[grouped.length] > 0}
+				<NewsletterSignupCard sampleEvents={events.filter(e => !!e.image_url).slice(0, 5)} />
+			{/if}
 		</ul>
 	</section>
 {/each}
