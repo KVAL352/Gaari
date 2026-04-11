@@ -68,6 +68,11 @@ Present everything as one compact briefing:
 ### Nyhetsbrev
 - X abonnenter
 - Siste utsending: kampanjenavn (dato) — apningsrate X%, klikkrate X%
+- **Helsesjekk** (fra `mailerlite.newsletterHealth`):
+  - Hvis `status: ok` — en linje: "N kampanjer siste 48t — apningsrate X%, klikkrate Y%, ingen feil"
+  - Hvis `status: warning` eller `critical` — **flagg tydelig** med hver `issue` pa egen linje, markert "ADVARSEL" eller "KRITISK"
+  - Hvis `status: no_data` pa en fredag eller helg — flagg som kritisk ("Ingen kampanjer funnet — workflow kan ha feilet")
+  - Pa fredager: vis full sjekk uansett status (detaljert sendt/delivered/opens/bounces-telling) siden dette er dagen etter torsdagens utsending
 
 ### Sosiale medier
 - Siste FB/IG-posting: status + tidspunkt
