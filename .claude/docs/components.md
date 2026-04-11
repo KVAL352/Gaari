@@ -5,6 +5,7 @@
 - `Footer.svelte` — Dynamic collection links, static links, inline NewsletterCTA, social icons
 - `NewsletterCTA.svelte` — Subscribe form (card + inline variants), contextCategory prop, preference pills
 - `NewsletterInline.svelte` — Lightweight inline CTA (inside EventGrid after 3rd group, EmptyState)
+- `NewsletterSignupCard.svelte` — Scrapbook-style signup card injected at position 7 in homepage grid. Shows 3 front + 2 background polaroids of real upcoming events with washi tape + "UKE X" sticker. Audience pills (family/voksen/ungdom) ordered by real Umami usage.
 - `HeroSection.svelte` — Compact hero with tagline
 - `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price. `promoted` prop. Dismiss menu.
 - `EventGrid.svelte` — Date-grouped layout, keyed `{#each}` by `event.id`, promotedEventIds, dismiss callbacks
