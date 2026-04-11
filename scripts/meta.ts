@@ -36,25 +36,42 @@ import {
 	findActiveCampaign,
 	findCampaign,
 	generateCampaignReport,
+	getBestDaysAnalysis,
 	getCampaignAdInsights,
 	getCampaignDailyInsights,
+	getCampaignHistory,
 	getCampaignInsights,
+	getFbPageSnapshot,
+	getFbPageInsights,
+	getFollowerHistory,
+	getIgProfileSnapshot,
+	getIgUserInsights,
+	getRecentPosts,
 	int,
 	listAdAccounts,
 	listCampaigns,
 	nok,
 	parseActions,
 	pct,
+	rankByEngagement,
 	saveDailyInsights,
 	type Campaign,
 	type Insight,
+	type SocialInsightRow,
 } from './lib/meta-api.js';
 
 const args = process.argv.slice(2);
 const asJson = args.includes('--json');
 const asSave = args.includes('--save');
 const campaignFlag = args.find(a => a.startsWith('--campaign='))?.split('=')[1];
+const daysFlag = args.find(a => a.startsWith('--days='))?.split('=')[1];
 const positional = args.filter(a => !a.startsWith('--'));
+
+function daysArg(defaultDays: number): number {
+	if (!daysFlag) return defaultDays;
+	const n = Number(daysFlag);
+	return Number.isFinite(n) && n > 0 ? n : defaultDays;
+}
 
 function out(data: unknown): void {
 	if (asJson) {
@@ -82,11 +99,22 @@ Subcommands:
   ads check [name|id]        Flag deviations from success criteria
   ads report [name|id]       Generate markdown post-mortem report
 
+  fb page                    Current FB page snapshot (followers, insights last 7d)
+  fb posts [--days=N]        Recent FB posts ranked by engagement (from social_insights)
+
+  ig profile                 Current IG profile snapshot (followers, insights last 7d)
+  ig posts [--days=N]        Recent IG posts ranked by engagement (from social_insights)
+
+  history followers [--days=N]  Follower trend + subscriber growth
+  history campaigns          All campaigns summarized from ad_insights
+  history best-days [--days=N]  Which weekday performs best on average
+
 Examples:
   npx tsx scripts/meta.ts ads status
-  npx tsx scripts/meta.ts ads check boost-2026-04-08
-  npx tsx scripts/meta.ts ads report boost-2026-04-08
-  npx tsx scripts/meta.ts ads daily boost`,
+  npx tsx scripts/meta.ts fb posts --days=14
+  npx tsx scripts/meta.ts ig profile
+  npx tsx scripts/meta.ts history followers
+  npx tsx scripts/meta.ts history best-days`,
 	);
 }
 
@@ -447,6 +475,223 @@ async function handleAdsStatus(): Promise<void> {
 	}
 }
 
+// ── FB / IG / history handlers ──
+
+function firstLine(s: string | null | undefined, max = 60): string {
+	if (!s) return '(no caption)';
+	const trimmed = s.split('\n')[0].trim();
+	return trimmed.length <= max ? trimmed : trimmed.slice(0, max - 1) + '…';
+}
+
+function formatPostRow(r: SocialInsightRow): string {
+	const m = r.metrics || {};
+	const date = r.posted_at.slice(0, 10);
+	if (r.platform === 'ig') {
+		const reach = m.reach ? ` reach:${m.reach}` : '';
+		return `  ${date}  likes:${m.likes || 0}  comments:${m.comments || 0}  saved:${m.saved || 0}${reach}  ${firstLine(r.caption, 50)}`;
+	}
+	return `  ${date}  reactions:${m.reactions || 0}  comments:${m.comments || 0}  shares:${m.shares || 0}  ${firstLine(r.caption, 50)}`;
+}
+
+function groupPageInsightsByDate(rows: Awaited<ReturnType<typeof getFbPageInsights>>) {
+	const byDate = new Map<string, Record<string, number>>();
+	for (const r of rows) {
+		const date = r.endTime.slice(0, 10);
+		const entry = byDate.get(date) || {};
+		entry[r.metric] = r.value;
+		byDate.set(date, entry);
+	}
+	return [...byDate.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+}
+
+async function handleFbPage(): Promise<void> {
+	const snap = await getFbPageSnapshot();
+	// FB page-level insights are mostly deprecated in v22 and unavailable for
+	// small pages. Show a summary of recent posts from social_insights instead.
+	const recentPosts = await getRecentPosts('fb', daysArg(14));
+	if (asJson) {
+		out({ snapshot: snap, recentPosts });
+		return;
+	}
+	console.log('');
+	if (snap) {
+		console.log(`FB: ${snap.name || '(unknown)'}`);
+		console.log(`  Followers: ${snap.followers}`);
+	} else {
+		console.log('FB: (could not fetch page snapshot)');
+	}
+	if (recentPosts.length === 0) {
+		console.log('\n  Ingen FB-poster i social_insights ennå.\n');
+		return;
+	}
+	const totals = recentPosts.reduce(
+		(acc, r) => {
+			const m = r.metrics || {};
+			acc.reactions += m.reactions || 0;
+			acc.comments += m.comments || 0;
+			acc.shares += m.shares || 0;
+			return acc;
+		},
+		{ reactions: 0, comments: 0, shares: 0 },
+	);
+	console.log(`\nSiste ${daysArg(14)} dager — ${recentPosts.length} poster:`);
+	console.log(`  Totalt: ${totals.reactions} reaksjoner · ${totals.comments} kommentarer · ${totals.shares} delinger`);
+	console.log(`  Snitt per post: ${(totals.reactions / recentPosts.length).toFixed(1)} reaksjoner, ${(totals.comments / recentPosts.length).toFixed(1)} kommentarer`);
+	console.log('\n  Tip: `meta.ts fb posts --days=14` for full rangering.\n');
+}
+
+async function handleFbPosts(): Promise<void> {
+	const days = daysArg(14);
+	const rows = await getRecentPosts('fb', days);
+	const ranked = rankByEngagement(rows);
+	if (asJson) {
+		out(ranked);
+		return;
+	}
+	if (ranked.length === 0) {
+		console.log(`\nIngen FB-poster i social_insights siste ${days} dager.\n`);
+		return;
+	}
+	console.log(`\nFB-poster siste ${days} dager (${ranked.length} totalt, rangert etter engasjement):\n`);
+	for (const r of ranked.slice(0, 20)) console.log(formatPostRow(r));
+	console.log('');
+}
+
+async function handleIgProfile(): Promise<void> {
+	const snap = await getIgProfileSnapshot();
+	const insights = await getIgUserInsights(
+		['reach', 'views', 'profile_views', 'website_clicks', 'accounts_engaged', 'total_interactions'],
+		daysArg(7),
+	);
+	if (asJson) {
+		out({ snapshot: snap, insights });
+		return;
+	}
+	console.log('');
+	if (snap) {
+		console.log(`IG: @${snap.username || '(unknown)'}`);
+		console.log(`  Followers: ${snap.followers}`);
+		console.log(`  Follows:   ${snap.follows ?? '—'}`);
+		console.log(`  Posts:     ${snap.mediaCount ?? '—'}`);
+	}
+	if (insights.length === 0) {
+		console.log('\n  (ingen user insights — IG kan begrense metrics for kontoer under 100 followers)\n');
+		return;
+	}
+	// Separate daily-series metrics (reach, follower_count) from total-value aggregates
+	const byMetric = new Map<string, number>();
+	const dailyReach: { date: string; value: number }[] = [];
+	for (const r of insights) {
+		if (r.metric === 'reach') {
+			dailyReach.push({ date: r.endTime.slice(0, 10), value: r.value });
+		} else {
+			byMetric.set(r.metric, (byMetric.get(r.metric) || 0) + r.value);
+		}
+	}
+	console.log(`\nSiste ${daysArg(7)} dager (totals):`);
+	for (const [name, val] of byMetric) {
+		console.log(`  ${name.padEnd(22)} ${String(val).padStart(8)}`);
+	}
+	if (dailyReach.length > 0) {
+		console.log('\n  Daglig reach:');
+		for (const d of dailyReach.sort((a, b) => a.date.localeCompare(b.date))) {
+			console.log(`    ${d.date}  ${d.value}`);
+		}
+	}
+	console.log('');
+}
+
+async function handleIgPosts(): Promise<void> {
+	const days = daysArg(14);
+	const rows = await getRecentPosts('ig', days);
+	const ranked = rankByEngagement(rows);
+	if (asJson) {
+		out(ranked);
+		return;
+	}
+	if (ranked.length === 0) {
+		console.log(`\nIngen IG-poster i social_insights siste ${days} dager.\n`);
+		return;
+	}
+	console.log(`\nIG-poster siste ${days} dager (${ranked.length} totalt, rangert etter engasjement):\n`);
+	for (const r of ranked.slice(0, 20)) console.log(formatPostRow(r));
+	console.log('');
+}
+
+async function handleHistoryFollowers(): Promise<void> {
+	const days = daysArg(30);
+	const rows = await getFollowerHistory(days);
+	if (asJson) {
+		out(rows);
+		return;
+	}
+	if (rows.length === 0) {
+		console.log('\nIngen follower-data tilgjengelig i daily_metrics.\n');
+		return;
+	}
+	console.log(`\nFollower-historikk siste ${days} dager:\n`);
+	console.log('  Dato        Subs  IG  FB');
+	console.log('  ──────────────────────');
+	for (const r of rows) {
+		console.log(
+			`  ${r.date}  ${String(r.subscribers ?? '—').padStart(4)}  ${String(r.ig_followers ?? '—').padStart(3)}  ${String(r.fb_followers ?? '—').padStart(2)}`,
+		);
+	}
+	// Trend summary
+	const withIg = rows.filter(r => r.ig_followers != null);
+	const withFb = rows.filter(r => r.fb_followers != null);
+	const withSubs = rows.filter(r => r.subscribers != null);
+	const trend = (arr: typeof rows, key: 'ig_followers' | 'fb_followers' | 'subscribers'): string => {
+		if (arr.length < 2) return '—';
+		const first = arr[0][key] as number;
+		const last = arr[arr.length - 1][key] as number;
+		const delta = last - first;
+		return delta >= 0 ? `+${delta}` : `${delta}`;
+	};
+	console.log(`\n  Endring: subs ${trend(withSubs, 'subscribers')}, IG ${trend(withIg, 'ig_followers')}, FB ${trend(withFb, 'fb_followers')}\n`);
+}
+
+async function handleHistoryCampaigns(): Promise<void> {
+	const rows = await getCampaignHistory();
+	if (asJson) {
+		out(rows);
+		return;
+	}
+	if (rows.length === 0) {
+		console.log('\nIngen kampanje-historikk i ad_insights ennå.\n');
+		return;
+	}
+	console.log(`\n${rows.length} kampanje(r) i ad_insights:\n`);
+	console.log('  Kort navn              Periode            Dager  Spend    Klikk  LPV  Snitt CTR  Snitt CPC');
+	console.log('  ───────────────────────────────────────────────────────────────────────────────────────');
+	for (const r of rows) {
+		const name = (r.short_name || r.campaign_id).padEnd(22).slice(0, 22);
+		const period = `${r.first_date}→${r.last_date.slice(5)}`.padEnd(18);
+		console.log(
+			`  ${name}  ${period}  ${String(r.days).padStart(5)}  ${r.total_spend_nok.toFixed(2).padStart(7)}  ${String(r.total_link_clicks).padStart(5)}  ${String(r.total_landing_page_views).padStart(3)}  ${r.avg_ctr_total.toFixed(2).padStart(8)}%  ${r.avg_cpc_link.toFixed(2).padStart(8)} kr`,
+		);
+	}
+	console.log('');
+}
+
+async function handleHistoryBestDays(): Promise<void> {
+	const days = daysArg(60);
+	const buckets = await getBestDaysAnalysis(days);
+	if (asJson) {
+		out(buckets);
+		return;
+	}
+	const sorted = [...buckets].sort((a, b) => b.avgEngagement - a.avgEngagement);
+	console.log(`\nBeste ukedager for posting (siste ${days} dager, snitt-engasjement):\n`);
+	console.log('  Dag        Posts  Snitt engasjement');
+	console.log('  ────────────────────────────────');
+	for (const b of sorted) {
+		const bar = '█'.repeat(Math.round(b.avgEngagement / 2));
+		console.log(`  ${b.day.padEnd(9)}  ${String(b.postCount).padStart(5)}  ${String(b.avgEngagement).padStart(5)}  ${bar}`);
+	}
+	console.log('');
+}
+
 // ── Router ──
 
 async function main(): Promise<void> {
@@ -474,6 +719,31 @@ async function main(): Promise<void> {
 			if (sub === 'check') return void (await handleAdsCheck(rest[0]));
 			if (sub === 'report') return void (await handleAdsReport(rest[0]));
 			console.error(`Unknown ads subcommand: ${sub}`);
+			usage();
+			process.exit(1);
+		}
+
+		if (cmd === 'fb') {
+			if (sub === 'page') return void (await handleFbPage());
+			if (sub === 'posts') return void (await handleFbPosts());
+			console.error(`Unknown fb subcommand: ${sub}`);
+			usage();
+			process.exit(1);
+		}
+
+		if (cmd === 'ig') {
+			if (sub === 'profile') return void (await handleIgProfile());
+			if (sub === 'posts') return void (await handleIgPosts());
+			console.error(`Unknown ig subcommand: ${sub}`);
+			usage();
+			process.exit(1);
+		}
+
+		if (cmd === 'history') {
+			if (sub === 'followers') return void (await handleHistoryFollowers());
+			if (sub === 'campaigns') return void (await handleHistoryCampaigns());
+			if (sub === 'best-days') return void (await handleHistoryBestDays());
+			console.error(`Unknown history subcommand: ${sub}`);
 			usage();
 			process.exit(1);
 		}

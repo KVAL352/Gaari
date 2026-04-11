@@ -446,6 +446,323 @@ export function int(value: string | number | undefined): string {
 	return n.toLocaleString('nb-NO');
 }
 
+// ── Live page/profile insights (Graph API) ──
+
+export interface FbPageSnapshot {
+	pageId: string;
+	name?: string;
+	followers: number;
+	fanCount?: number;
+	postsLast28d?: number;
+}
+
+/** Fetch current FB page basics (followers, fan count). */
+export async function getFbPageSnapshot(): Promise<FbPageSnapshot | null> {
+	if (!FB_PAGE_ID) return null;
+	try {
+		const data = await graphGet<any>(
+			`/${FB_PAGE_ID}?fields=name,followers_count,fan_count`,
+		);
+		return {
+			pageId: FB_PAGE_ID,
+			name: data.name,
+			followers: data.followers_count ?? data.fan_count ?? 0,
+			fanCount: data.fan_count,
+		};
+	} catch {
+		return null;
+	}
+}
+
+export interface IgProfileSnapshot {
+	userId: string;
+	username?: string;
+	followers: number;
+	follows?: number;
+	mediaCount?: number;
+}
+
+/** Fetch current IG profile basics. */
+export async function getIgProfileSnapshot(): Promise<IgProfileSnapshot | null> {
+	if (!IG_USER_ID) return null;
+	try {
+		const data = await graphGet<any>(
+			`/${IG_USER_ID}?fields=username,followers_count,follows_count,media_count`,
+		);
+		return {
+			userId: IG_USER_ID,
+			username: data.username,
+			followers: data.followers_count ?? 0,
+			follows: data.follows_count,
+			mediaCount: data.media_count,
+		};
+	} catch {
+		return null;
+	}
+}
+
+// ── Page-level insights (daily aggregates for trending) ──
+
+export interface PageInsightRow {
+	metric: string;
+	value: number;
+	period: string;
+	endTime: string;
+}
+
+/**
+ * Fetch FB page-level insights. NOTE: Most legacy page_* metrics are
+ * deprecated in v22, and small pages (<~30 followers) don't surface insights
+ * at all. We attempt a best-effort fetch but expect many failures — calling
+ * code must treat an empty array as "unavailable", not "no activity".
+ *
+ * Pass an empty metric array to skip entirely.
+ */
+export async function getFbPageInsights(
+	metrics: string[],
+	days = 7,
+): Promise<PageInsightRow[]> {
+	if (!FB_PAGE_ID || metrics.length === 0) return [];
+	const since = Math.floor((Date.now() - days * 86400000) / 1000);
+	const until = Math.floor(Date.now() / 1000);
+	try {
+		const data = await graphGet<any>(
+			`/${FB_PAGE_ID}/insights?metric=${metrics.join(',')}&since=${since}&until=${until}&period=day`,
+		);
+		const rows: PageInsightRow[] = [];
+		for (const item of data.data || []) {
+			for (const v of item.values || []) {
+				rows.push({
+					metric: item.name,
+					value: Number(v.value ?? 0),
+					period: item.period,
+					endTime: v.end_time,
+				});
+			}
+		}
+		return rows;
+	} catch {
+		return [];
+	}
+}
+
+/**
+ * Fetch IG user-level insights. v22 breaking change: most metrics require
+ * `metric_type=total_value`, but `reach` and `follower_count` do NOT. We
+ * split the call into two groups automatically.
+ *
+ * Valid default metrics: reach, follower_count
+ * Valid total_value metrics: views, profile_views, website_clicks,
+ *   accounts_engaged, total_interactions, likes, comments, shares, saves,
+ *   replies, profile_links_taps
+ */
+const IG_DEFAULT_METRICS = new Set(['reach', 'follower_count']);
+
+export async function getIgUserInsights(
+	metrics: string[],
+	days = 7,
+): Promise<PageInsightRow[]> {
+	if (!IG_USER_ID || metrics.length === 0) return [];
+	const since = Math.floor((Date.now() - days * 86400000) / 1000);
+	const until = Math.floor(Date.now() / 1000);
+	const defaultSet = metrics.filter(m => IG_DEFAULT_METRICS.has(m));
+	const totalSet = metrics.filter(m => !IG_DEFAULT_METRICS.has(m));
+	const rows: PageInsightRow[] = [];
+
+	if (defaultSet.length > 0) {
+		try {
+			const data = await graphGet<any>(
+				`/${IG_USER_ID}/insights?metric=${defaultSet.join(',')}&since=${since}&until=${until}&period=day`,
+			);
+			for (const item of data.data || []) {
+				for (const v of item.values || []) {
+					rows.push({
+						metric: item.name,
+						value: Number(v.value ?? 0),
+						period: item.period,
+						endTime: v.end_time,
+					});
+				}
+			}
+		} catch {
+			/* degrade silently */
+		}
+	}
+
+	if (totalSet.length > 0) {
+		try {
+			const data = await graphGet<any>(
+				`/${IG_USER_ID}/insights?metric=${totalSet.join(',')}&metric_type=total_value&since=${since}&until=${until}&period=day`,
+			);
+			for (const item of data.data || []) {
+				// total_value responses have a different shape — single total_value field
+				const tv = item.total_value?.value;
+				if (tv != null) {
+					rows.push({
+						metric: item.name,
+						value: Number(tv),
+						period: item.period || 'day',
+						endTime: new Date().toISOString(),
+					});
+					continue;
+				}
+				for (const v of item.values || []) {
+					rows.push({
+						metric: item.name,
+						value: Number(v.value ?? 0),
+						period: item.period,
+						endTime: v.end_time,
+					});
+				}
+			}
+		} catch {
+			/* degrade silently */
+		}
+	}
+
+	return rows;
+}
+
+// ── DB query helpers (for historical analysis) ──
+
+export interface SocialInsightRow {
+	platform: 'ig' | 'fb';
+	platform_id: string;
+	posted_at: string;
+	caption: string | null;
+	permalink: string | null;
+	metrics: Record<string, number>;
+}
+
+/** Query social_insights for a platform within the last N days. */
+export async function getRecentPosts(
+	platform: 'ig' | 'fb',
+	days = 14,
+): Promise<SocialInsightRow[]> {
+	const { supabase } = await import('./supabase.js');
+	const since = new Date(Date.now() - days * 86400000).toISOString();
+	const { data, error } = await supabase
+		.from('social_insights')
+		.select('platform,platform_id,posted_at,caption,permalink,metrics')
+		.eq('platform', platform)
+		.gte('posted_at', since)
+		.order('posted_at', { ascending: false });
+	if (error) throw new Error(`social_insights query failed: ${error.message}`);
+	return (data || []) as SocialInsightRow[];
+}
+
+/** Rank a batch of social_insights rows by a computed engagement score. */
+export function rankByEngagement(rows: SocialInsightRow[]): SocialInsightRow[] {
+	const score = (r: SocialInsightRow): number => {
+		const m = r.metrics || {};
+		if (r.platform === 'ig') {
+			return (m.likes || 0) + (m.comments || 0) * 3 + (m.shares || 0) * 5 + (m.saved || 0) * 4;
+		}
+		return (m.reactions || 0) + (m.comments || 0) * 3 + (m.shares || 0) * 5;
+	};
+	return [...rows].sort((a, b) => score(b) - score(a));
+}
+
+export interface FollowerHistoryRow {
+	date: string;
+	ig_followers: number | null;
+	fb_followers: number | null;
+	subscribers: number | null;
+}
+
+/** Get follower + subscriber counts from daily_metrics for the last N days. */
+export async function getFollowerHistory(days = 30): Promise<FollowerHistoryRow[]> {
+	const { supabase } = await import('./supabase.js');
+	const since = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+	const { data, error } = await supabase
+		.from('daily_metrics')
+		.select('date,ig_followers,fb_followers,subscribers')
+		.gte('date', since)
+		.order('date', { ascending: true });
+	if (error) throw new Error(`daily_metrics query failed: ${error.message}`);
+	return (data || []) as FollowerHistoryRow[];
+}
+
+export interface CampaignHistoryRow {
+	campaign_id: string;
+	short_name: string | null;
+	first_date: string;
+	last_date: string;
+	days: number;
+	total_spend_nok: number;
+	total_link_clicks: number;
+	total_landing_page_views: number;
+	avg_ctr_total: number;
+	avg_cpc_link: number;
+}
+
+/** Summarize all campaigns from ad_insights into one row each. */
+export async function getCampaignHistory(): Promise<CampaignHistoryRow[]> {
+	const { supabase } = await import('./supabase.js');
+	const { data, error } = await supabase
+		.from('ad_insights')
+		.select('campaign_id,short_name,date,spend_nok,link_clicks,landing_page_views,ctr_total,cpc_link')
+		.order('date', { ascending: true });
+	if (error) throw new Error(`ad_insights query failed: ${error.message}`);
+	if (!data || data.length === 0) return [];
+
+	const grouped = new Map<string, typeof data>();
+	for (const row of data) {
+		const list = grouped.get(row.campaign_id) || [];
+		list.push(row);
+		grouped.set(row.campaign_id, list);
+	}
+
+	const rows: CampaignHistoryRow[] = [];
+	for (const [id, list] of grouped) {
+		list.sort((a, b) => a.date.localeCompare(b.date));
+		const totalSpend = list.reduce((s, r) => s + Number(r.spend_nok || 0), 0);
+		const totalClicks = list.reduce((s, r) => s + (r.link_clicks || 0), 0);
+		const totalLpv = list.reduce((s, r) => s + (r.landing_page_views || 0), 0);
+		const avgCtr = list.reduce((s, r) => s + Number(r.ctr_total || 0), 0) / list.length;
+		rows.push({
+			campaign_id: id,
+			short_name: list[0].short_name,
+			first_date: list[0].date,
+			last_date: list[list.length - 1].date,
+			days: list.length,
+			total_spend_nok: Number(totalSpend.toFixed(2)),
+			total_link_clicks: totalClicks,
+			total_landing_page_views: totalLpv,
+			avg_ctr_total: Number(avgCtr.toFixed(2)),
+			avg_cpc_link: totalClicks > 0 ? Number((totalSpend / totalClicks).toFixed(2)) : 0,
+		});
+	}
+	return rows.sort((a, b) => b.last_date.localeCompare(a.last_date));
+}
+
+/** Analyze which weekday produces the best engagement on average. */
+export async function getBestDaysAnalysis(days = 60): Promise<
+	{ day: string; dayIndex: number; postCount: number; avgEngagement: number }[]
+> {
+	const fb = await getRecentPosts('fb', days);
+	const ig = await getRecentPosts('ig', days);
+	const all = [...fb, ...ig];
+	const dayNames = ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'];
+	const buckets: Record<number, { count: number; total: number }> = {};
+	for (let i = 0; i < 7; i++) buckets[i] = { count: 0, total: 0 };
+	for (const r of all) {
+		const day = new Date(r.posted_at).getDay();
+		const m = r.metrics || {};
+		const engagement = r.platform === 'ig'
+			? (m.likes || 0) + (m.comments || 0) + (m.saved || 0) + (m.shares || 0)
+			: (m.reactions || 0) + (m.comments || 0) + (m.shares || 0);
+		buckets[day].count++;
+		buckets[day].total += engagement;
+	}
+	return Object.entries(buckets).map(([idx, b]) => ({
+		dayIndex: Number(idx),
+		day: dayNames[Number(idx)],
+		postCount: b.count,
+		avgEngagement: b.count > 0 ? Number((b.total / b.count).toFixed(1)) : 0,
+	}));
+}
+
 // ── Historical snapshot (Supabase) ──
 
 /**
@@ -510,6 +827,117 @@ export async function saveDailyInsights(
 
 	if (error) throw new Error(`ad_insights upsert failed: ${error.message}`);
 	return rows.length;
+}
+
+// ── Daily Meta snapshot (for meta_daily_snapshot table) ──
+
+export interface MetaDailySnapshot {
+	date: string;
+	fb_followers: number | null;
+	fb_fan_count: number | null;
+	ig_followers: number | null;
+	ig_follows: number | null;
+	ig_media_count: number | null;
+	ig_reach: number | null;
+	ig_views: number | null;
+	ig_profile_views: number | null;
+	ig_website_clicks: number | null;
+	ig_accounts_engaged: number | null;
+	ig_total_interactions: number | null;
+	raw: Record<string, unknown>;
+}
+
+/**
+ * Fetch today's follower counts + IG daily insights and upsert to
+ * `meta_daily_snapshot`. Called by the daily meta-snapshot GHA workflow
+ * (runs every day, including weekends).
+ *
+ * Also mirrors follower counts into `daily_metrics.ig_followers` /
+ * `fb_followers` to keep the digest's week-over-week comparison working.
+ */
+export async function fetchAndSaveDailySnapshot(): Promise<MetaDailySnapshot> {
+	const today = new Date().toISOString().slice(0, 10);
+
+	const [fb, ig, igInsights] = await Promise.all([
+		getFbPageSnapshot(),
+		getIgProfileSnapshot(),
+		getIgUserInsights(
+			['reach', 'views', 'profile_views', 'website_clicks', 'accounts_engaged', 'total_interactions'],
+			1, // just today
+		),
+	]);
+
+	// Sum IG insight values across any returned rows (daily + total_value both
+	// end up as single numbers for a 1-day window)
+	const igSum = (metric: string): number | null => {
+		const rows = igInsights.filter(r => r.metric === metric);
+		if (rows.length === 0) return null;
+		return rows.reduce((s, r) => s + r.value, 0);
+	};
+
+	const snapshot: MetaDailySnapshot = {
+		date: today,
+		fb_followers: fb?.followers ?? null,
+		fb_fan_count: fb?.fanCount ?? null,
+		ig_followers: ig?.followers ?? null,
+		ig_follows: ig?.follows ?? null,
+		ig_media_count: ig?.mediaCount ?? null,
+		ig_reach: igSum('reach'),
+		ig_views: igSum('views'),
+		ig_profile_views: igSum('profile_views'),
+		ig_website_clicks: igSum('website_clicks'),
+		ig_accounts_engaged: igSum('accounts_engaged'),
+		ig_total_interactions: igSum('total_interactions'),
+		raw: { fb, ig, igInsights },
+	};
+
+	const { supabase } = await import('./supabase.js');
+
+	// Upsert into meta_daily_snapshot (primary record)
+	const { error: snapErr } = await supabase
+		.from('meta_daily_snapshot')
+		.upsert(
+			{
+				...snapshot,
+				fetched_at: new Date().toISOString(),
+			},
+			{ onConflict: 'date' },
+		);
+	if (snapErr) throw new Error(`meta_daily_snapshot upsert failed: ${snapErr.message}`);
+
+	// Mirror followers to daily_metrics for backwards compatibility with digest.
+	// Uses onConflict: date to not overwrite subscriber/visitor columns.
+	if (snapshot.fb_followers != null || snapshot.ig_followers != null) {
+		const { error: dmErr } = await supabase
+			.from('daily_metrics')
+			.upsert(
+				{
+					date: today,
+					ig_followers: snapshot.ig_followers,
+					fb_followers: snapshot.fb_followers,
+				},
+				{ onConflict: 'date', ignoreDuplicates: false },
+			);
+		if (dmErr) {
+			// Non-fatal — the main snapshot succeeded
+			console.warn(`daily_metrics mirror failed (non-fatal): ${dmErr.message}`);
+		}
+	}
+
+	return snapshot;
+}
+
+/** Read recent snapshots from meta_daily_snapshot for trending. */
+export async function getMetaDailyHistory(days = 30): Promise<MetaDailySnapshot[]> {
+	const { supabase } = await import('./supabase.js');
+	const since = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+	const { data, error } = await supabase
+		.from('meta_daily_snapshot')
+		.select('*')
+		.gte('date', since)
+		.order('date', { ascending: true });
+	if (error) throw new Error(`meta_daily_snapshot query failed: ${error.message}`);
+	return (data || []) as MetaDailySnapshot[];
 }
 
 // ── Token self-check ──

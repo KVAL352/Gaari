@@ -1,0 +1,52 @@
+name: Meta Daily Snapshot
+
+# Runs every day at 07:30 UTC (08:30/09:30 Oslo). Captures follower counts
+# and IG daily insights into meta_daily_snapshot. Covers weekends too — the
+# daily digest only runs Mon-Fri, so this fills the gap for trend analysis.
+
+on:
+  schedule:
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (log only, do not upsert)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  meta-daily-snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install scraper dependencies
+        working-directory: scripts
+        run: npm ci
+        timeout-minutes: 2
+
+      - name: Run Meta daily snapshot
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          META_APP_ID: ${{ secrets.META_APP_ID }}
+          META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            npx tsx fetch-meta-daily.ts --dry-run
+          else
+            npx tsx fetch-meta-daily.ts
+          fi
