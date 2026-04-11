@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. 59 scrapers (55 active) collect events from local sources, with AI-generated bilingual descriptions.
+A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 frontend, Supabase PostgreSQL backend, Vercel hosting. Scrapers collect events from local sources (see `scripts/scrape.ts` for current list), with AI-generated bilingual descriptions.
 
 ## Architecture
 
@@ -53,12 +53,12 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 ## Detailed docs (read on-demand)
 
-- `.claude/docs/scrapers.md` — All 59 scraper sources with files and methods
+- `.claude/docs/scrapers.md` — Scraper sources with files and methods
 - `.claude/docs/routes.md` — All frontend routes, API endpoints, admin pages
 - `.claude/docs/collections.md` — 52 collection pages (evergreen, bydel, seasonal, festival)
 - `.claude/docs/social.md` — Social post pipeline, accounts, rate limits, slide design
 - `.claude/docs/components.md` — Frontend components, CSS theming, EventDiscovery, accessibility
-- `.claude/docs/testing.md` — 846 Vitest tests across 10 test files
+- `.claude/docs/testing.md` — Vitest test suite (run `npx vitest run` for current count)
 - `.claude/docs/gha.md` — GitHub Actions workflows (CI, scrape, newsletter, digest, social, audit)
 
 ## Hosting & domains

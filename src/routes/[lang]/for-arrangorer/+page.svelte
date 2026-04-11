@@ -41,4 +41,4 @@
 	{@html faqJsonLd}
 </svelte:head>
 
-<ForArrangorerPage heroImages={data.heroImages} />
+<ForArrangorerPage heroImages={data.heroImages} venueEventsMap={data.venueEventsMap} />

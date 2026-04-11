@@ -5,9 +5,10 @@
 
 	interface Props {
 		heroImages: Array<{ url: string; title: string; venue: string }>;
+		venueEventsMap?: Record<string, Array<{ url: string; title: string; venue: string }>>;
 	}
 
-	let { heroImages = [] }: Props = $props();
+	let { heroImages = [], venueEventsMap = {} }: Props = $props();
 
 	let contactStatus: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
 	let heroEl: HTMLElement | undefined = $state(undefined);
@@ -26,6 +27,14 @@
 	let venueSearch = $state('');
 	let venueSearchActive = $state(false);
 	let venueQuery = $derived(venueSearch.trim().toLowerCase());
+	// Find events matching the venue search from the server-provided map
+	let searchedVenueEvents = $derived.by(() => {
+		if (!venueQuery) return [];
+		for (const [key, events] of Object.entries(venueEventsMap)) {
+			if (key.includes(venueQuery)) return events;
+		}
+		return [];
+	});
 
 	const faqItems = $derived(getB2bFaqItems($lang));
 
@@ -47,7 +56,7 @@
 		{
 			name: 'Partner' as const,
 			price: '9 000',
-			roi: $lang === 'no' ? 'Alt inkludert + betalt kampanjebudsjett' : 'Everything included + paid campaign budget',
+			roi: $lang === 'no' ? 'Full synlighet + 2 000 kr kampanjebudsjett inkl.' : 'Full visibility + 2,000 NOK campaign budget incl.',
 			recommended: false,
 			features: [true, true, true, true, true, true, true, true, true]
 		}
@@ -93,6 +102,8 @@
 	// Animated counter for report
 	let reportCount = $state(0);
 	let reportPercent = $state(0);
+	const REPORT_TARGET = 320; // Based on ~127 ticket clicks in 12 days = ~320/month
+	const REPORT_PERCENT_TARGET = 18;
 
 	function trackEvent(name: string) {
 		if (typeof window !== 'undefined' && window.umami) {
@@ -153,11 +164,11 @@
 					reportVisible = true;
 					const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 					if (prefersReduced) {
-						reportCount = 483;
-						reportPercent = 22;
+						reportCount = REPORT_TARGET;
+						reportPercent = REPORT_PERCENT_TARGET;
 					} else {
-						animateCount(483, 1200, (v) => reportCount = v);
-						animateCount(22, 800, (v) => reportPercent = v);
+						animateCount(REPORT_TARGET, 1200, (v) => reportCount = v);
+						animateCount(REPORT_PERCENT_TARGET, 800, (v) => reportPercent = v);
 					}
 					observer.disconnect();
 				}
@@ -173,19 +184,31 @@
 
 <!-- === 1. HERO === -->
 <section bind:this={heroEl} class="relative overflow-hidden bg-[var(--funkis-iron)]">
-	<div class="relative px-4 py-16 md:py-20">
-		<div class="mx-auto grid max-w-5xl items-center gap-10 md:grid-cols-[1fr_auto]">
+	<div class="relative px-4 py-14 md:py-20">
+		<div class="mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-[1fr_340px]">
 			<!-- Text -->
 			<div class="text-center md:text-left">
+				<p class="mb-3 text-sm font-medium text-white/50">
+					<span class="hidden sm:inline">
+						{$lang === 'no'
+							? 'Bergens arrangementskalender · 1 800+ arrangementer · 55 kilder · Fra 1 500 kr/mnd'
+							: 'Bergen\'s event calendar · 1,800+ events · 55 sources · From 1,500 NOK/mo'}
+					</span>
+					<span class="sm:hidden">
+						{$lang === 'no'
+							? '1 800+ arrangementer · 55 kilder · Fra 1 500 kr/mnd'
+							: '1,800+ events · 55 sources · From 1,500 NOK/mo'}
+					</span>
+				</p>
 				<h1 class="mb-4 text-3xl font-bold tracking-tight text-white font-[family-name:var(--font-display)] md:text-[44px] md:leading-tight">
-					{$lang === 'no' ? 'Gjør arrangementet ditt' : 'Make your event'}
+					{$lang === 'no' ? 'Arrangementet ditt fortjener' : 'Your event deserves'}
 					<br />
-					<span class="text-[var(--funkis-red)]">{$lang === 'no' ? 'synlig i Bergen' : 'visible in Bergen'}</span>
+					<span class="text-[var(--funkis-red)]">{$lang === 'no' ? 'å bli sett først' : 'to be seen first'}</span>
 				</h1>
-				<p class="mb-6 text-white/70" style="max-width: 360px;">
+				<p class="mb-6 text-white/70 md:text-lg" style="max-width: 420px;">
 					{$lang === 'no'
-						? 'Nå tusenvis av bergensere som aktivt leter etter noe å gjøre.'
-						: 'Reach thousands of people in Bergen actively looking for things to do.'}
+						? 'Hver uke planlegger tusenvis av bergensere helgen på Gåri. Ditt arrangement er allerede her — vi løfter det til toppen.'
+						: 'Every week, thousands of people in Bergen plan their weekend on Gåri. Your event is already here — we bring it to the top.'}
 				</p>
 				<a
 					href="#how-it-works"
@@ -194,21 +217,22 @@
 					class="inline-block rounded-xl bg-[var(--funkis-red)] px-8 py-3 text-base font-semibold text-white hover:opacity-90"
 					style="min-height: 44px; line-height: 24px;"
 				>
-					{$lang === 'no' ? 'Slik fungerer det' : 'How it works'}
+					{$lang === 'no' ? 'Se hvordan det fungerer' : 'See how it works'}
 				</a>
 			</div>
 
 			<!-- Interactive toggle: with/without promoted placement -->
 			{#if validHeroImages.length > 1}
-				<div class="hidden md:block" style="width: 280px;">
+				<div class="mx-auto w-full" style="max-width: 340px;">
 					<!-- Event card — the whole card is clickable as toggle -->
 					<button
 						onclick={() => { heroPromoted = !heroPromoted; trackEvent('hero-toggle-promoted'); }}
 						aria-pressed={heroPromoted}
+						aria-label={$lang === 'no' ? 'Slå fremhevet plassering av og på' : 'Toggle promoted placement on and off'}
 						class="hero-card-toggle w-full cursor-pointer text-left transition-all duration-500"
 						style="{heroPromoted
 							? 'transform: translateY(0);'
-							: 'transform: translateY(20px);'}"
+							: 'transform: translateY(16px);'}"
 					>
 						<div
 							class="overflow-hidden rounded-xl bg-[var(--color-bg-surface)] transition-all duration-500"
@@ -217,10 +241,17 @@
 								: 'box-shadow: 0 8px 20px rgba(0,0,0,0.3);'}"
 						>
 							<div class="relative overflow-hidden" style="aspect-ratio: 16/9;">
-								<img src={validHeroImages[0].url} alt="" class="h-full w-full object-cover" />
+								<img
+									src={validHeroImages[0].url}
+									alt=""
+									width="340"
+									height="191"
+									loading="eager"
+									class="h-full w-full object-cover"
+								/>
 								<!-- Badge -->
 								<span
-									class="absolute right-2 top-2 rounded-full border border-[var(--funkis-red)] bg-[var(--color-bg-surface)] px-2 py-0.5 text-xs font-semibold text-[var(--color-text-primary)] transition-all duration-500"
+									class="absolute right-2 top-2 rounded-full border border-[var(--funkis-red)] bg-[var(--color-bg-surface)] px-2.5 py-1 text-xs font-semibold text-[var(--color-text-primary)] transition-all duration-500"
 									style="{heroPromoted
 										? 'transform: scale(1); opacity: 1;'
 										: 'transform: scale(0); opacity: 0;'}"
@@ -229,7 +260,7 @@
 								</span>
 							</div>
 							<div class="p-3">
-								<p class="font-semibold leading-tight" style="font-size: 13px;">{validHeroImages[0].title}</p>
+								<p class="font-semibold leading-tight">{validHeroImages[0].title}</p>
 								<p class="mt-1 text-sm text-[var(--color-text-secondary)]">{validHeroImages[0].venue}</p>
 							</div>
 						</div>
@@ -247,7 +278,7 @@
 								</span>
 								<span class="block text-[10px] transition-all duration-300" style="opacity: 0.7;">
 									{heroPromoted
-										? ($lang === 'no' ? 'Posisjon #1 av 200+' : 'Position #1 of 200+')
+										? ($lang === 'no' ? 'Blant de første av 200+' : 'Among the first of 200+')
 										: ($lang === 'no' ? 'Posisjon #47 av 200+' : 'Position #47 of 200+')}
 								</span>
 							</div>
@@ -267,69 +298,122 @@
 							</span>
 						</div>
 					</button>
+
 				</div>
 			{/if}
 		</div>
 	</div>
 </section>
 
-<!-- === 2. SJEKK OM DU ER HER === -->
+
+<!-- === 2. BRIDGE + SJEKK OM DU ER HER === -->
 <section id="how-it-works" class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-20">
-	<div class="mx-auto max-w-md text-center">
-		<h2 class="mb-2 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
-			{$lang === 'no' ? 'Er du allerede på Gåri?' : 'Are you already on Gåri?'}
-		</h2>
-		<p class="mb-6 text-sm text-[var(--color-text-muted)]">
-			{$lang === 'no' ? 'Vi henter automatisk fra 54 kilder i Bergen.' : 'We automatically collect from 54 sources in Bergen.'}
-		</p>
-		<input
-			type="text"
-			bind:value={venueSearch}
-			oninput={() => venueSearchActive = venueSearch.trim().length > 0}
-			placeholder={$lang === 'no' ? 'Skriv navnet på organisasjonen din...' : 'Type the name of your organization...'}
-			class="w-full rounded-xl border-2 bg-[var(--color-bg-surface)] px-5 py-4 text-center text-base transition-all duration-300"
-			style="min-height: 52px; border-color: {venueSearchActive ? 'var(--funkis-red)' : 'var(--color-border)'}; box-shadow: {venueSearchActive ? '0 0 0 4px rgba(200,45,45,0.1)' : 'var(--shadow-sm)'};"
-		/>
-		{#if !venueSearchActive}
-			<p class="mt-2 text-xs text-[var(--color-text-muted)]">
-				{$lang === 'no' ? 'F.eks. Grieghallen, USF Verftet, Cornerteateret...' : 'E.g. Grieghallen, USF Verftet, Cornerteateret...'}
+	<div class="mx-auto grid max-w-4xl items-start gap-10 md:grid-cols-[1fr_1fr]">
+		<!-- Left: bridge text -->
+		<div>
+			<h2 class="mb-4 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
+				{$lang === 'no' ? 'Er du allerede på Gåri?' : 'Are you already on Gåri?'}
+			</h2>
+			<p class="text-[var(--color-text-secondary)]">
+				{$lang === 'no'
+					? 'Hver dag legger vi til over 100 nye arrangementer fra Grieghallen, DNS, USF Verftet og resten av Bergen. Nesten tre av fire besøkende klikker seg inn på minst ett arrangement.'
+					: 'Every day we add over 100 new events from Grieghallen, DNS, USF Verftet and the rest of Bergen. Nearly three in four visitors click into at least one event.'}
 			</p>
-		{/if}
-		{#if venueSearchActive}
-			{@const hasMatch = allVenues.some(v => v.toLowerCase().includes(venueQuery))}
-			<div class="mt-4">
-				{#if hasMatch}
-					<div class="inline-flex items-center gap-2 rounded-full bg-[var(--funkis-green-subtle)] px-5 py-2.5">
-						<span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--funkis-green)] text-xs text-white">&#10003;</span>
-						<span class="text-sm font-semibold text-[var(--funkis-green)]">
-							{$lang === 'no' ? 'Du er allerede på Gåri!' : "You're already on Gåri!"}
-						</span>
-					</div>
-				{:else}
-					<a href="#contact" class="inline-flex items-center gap-2 rounded-full bg-[var(--funkis-red-subtle)] px-5 py-2.5 text-sm font-semibold text-[var(--funkis-red)] hover:underline">
-						{$lang === 'no' ? 'Ikke funnet? Ta kontakt.' : "Not found? Get in touch."}
-					</a>
-				{/if}
-			</div>
-		{/if}
+		</div>
+		<!-- Right: search -->
+		<div>
+			<input
+				type="text"
+				bind:value={venueSearch}
+				oninput={() => venueSearchActive = venueSearch.trim().length > 0}
+				placeholder={$lang === 'no' ? 'Skriv navnet på organisasjonen din...' : 'Type the name of your organization...'}
+				class="w-full rounded-xl border-2 bg-[var(--color-bg-surface)] px-5 py-4 text-base transition-all duration-300"
+				style="min-height: 52px; border-color: {venueSearchActive ? 'var(--funkis-red)' : 'var(--color-border)'}; box-shadow: {venueSearchActive ? '0 0 0 4px rgba(200,45,45,0.1)' : 'var(--shadow-sm)'};"
+			/>
+			{#if !venueSearchActive}
+				<p class="mt-2 text-xs text-[var(--color-text-muted)]">
+					{$lang === 'no' ? 'F.eks. Grieghallen, USF Verftet, Cornerteateret...' : 'E.g. Grieghallen, USF Verftet, Cornerteateret...'}
+				</p>
+			{/if}
+			{#if venueSearchActive}
+				{@const hasMatch = allVenues.some(v => v.toLowerCase().includes(venueQuery))}
+				<div class="mt-4 space-y-2">
+					{#if hasMatch}
+						<div class="inline-flex items-center gap-2 rounded-full bg-[var(--funkis-green-subtle)] px-5 py-2.5">
+							<span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--funkis-green)] text-xs text-white">&#10003;</span>
+							<span class="text-sm font-semibold text-[var(--funkis-green)]">
+								{$lang === 'no' ? 'Du er allerede på Gåri!' : "You're already on Gåri!"}
+							</span>
+						</div>
+						{@const displayEvents = searchedVenueEvents.length > 0 ? searchedVenueEvents.slice(0, 3) : validHeroImages.slice(0, 3)}
+						<div class="mt-3 flex gap-2">
+							{#each displayEvents as evt, i (evt.url)}
+								<div class="overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-left {i >= 2 ? 'hidden sm:block' : ''}" style="width: 140px; box-shadow: var(--shadow-sm);">
+									<div class="overflow-hidden" style="aspect-ratio: 16/9;">
+										<img src={evt.url} alt="" class="h-full w-full object-cover" />
+									</div>
+									<div class="p-1.5">
+										<p class="font-semibold leading-tight truncate" style="font-size: 9px;">{evt.title}</p>
+										<p class="text-[var(--color-text-muted)] truncate" style="font-size: 8px;">{evt.venue}</p>
+									</div>
+								</div>
+							{/each}
+						</div>
+						{#if searchedVenueEvents.length === 0}
+							<p class="mt-1 text-xs text-[var(--color-text-muted)]">
+								{$lang === 'no' ? 'Eksempler fra arrangementer på Gåri' : 'Examples of events on Gåri'}
+							</p>
+						{/if}
+					{:else}
+						<a href="#contact" class="inline-flex items-center gap-2 rounded-full bg-[var(--funkis-red-subtle)] px-5 py-2.5 text-sm font-semibold text-[var(--funkis-red)] hover:underline">
+							{$lang === 'no' ? 'Ikke funnet? Ta kontakt.' : "Not found? Get in touch."}
+						</a>
+					{/if}
+				</div>
+			{/if}
+		</div>
 	</div>
 </section>
 
 <!-- === 3. HVA DU FÅR — interactive product tabs === -->
+
+<!-- === 3. BLI SETT FØRST — product showcase === -->
 <section class="bg-[var(--funkis-plaster)] px-4 py-16 md:py-20">
 	<div class="mx-auto max-w-4xl">
-		<h2 class="mb-3 text-center text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
-			{$lang === 'no' ? 'Hva du får' : 'What you get'}
+		<h2 class="mb-3 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
+			{$lang === 'no' ? 'Bli sett først' : 'Be seen first'}
 		</h2>
-		<p class="mb-8 text-center text-sm text-[var(--color-text-muted)]">
-			{$lang === 'no' ? 'Vi håndterer alt. Du trenger ikke gjøre noe.' : 'We handle everything. You don\'t need to do anything.'}
+		<p class="mb-8 text-[var(--color-text-secondary)]">
+			{$lang === 'no'
+				? 'Folk som bruker Gåri blar gjennom nesten 4 sider — de leter etter noe å gjøre. Med fremhevet plassering er du blant de første de ser.'
+				: 'People using Gåri browse nearly 4 pages — they\'re looking for something to do. With promoted placement, you\'re among the first they see.'}
 		</p>
 
+		<!-- Key numbers strip — always visible -->
+		<div class="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-4 text-center" style="box-shadow: var(--shadow-sm);">
+				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-3xl">21%</p>
+				<p class="mt-1 text-xs text-[var(--color-text-muted)]">{$lang === 'no' ? 'klikker til billett' : 'click to tickets'}</p>
+			</div>
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-4 text-center" style="box-shadow: var(--shadow-sm);">
+				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-3xl">52x</p>
+				<p class="mt-1 text-xs text-[var(--color-text-muted)]">{$lang === 'no' ? 'nyhetsbrev i året' : 'newsletters per year'}</p>
+			</div>
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-4 text-center" style="box-shadow: var(--shadow-sm);">
+				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-3xl">50k+</p>
+				<p class="mt-1 text-xs text-[var(--color-text-muted)]">{$lang === 'no' ? 'i Facebook-grupper' : 'in Facebook groups'}</p>
+			</div>
+			<div class="rounded-xl bg-[var(--color-bg-surface)] p-4 text-center" style="box-shadow: var(--shadow-sm);">
+				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-3xl">2 000</p>
+				<p class="mt-1 text-xs text-[var(--color-text-muted)]">{$lang === 'no' ? 'kr/mnd kampanjebudsjett' : 'NOK/mo campaign budget'}</p>
+			</div>
+		</div>
+
 		<!-- Tab buttons -->
-		<div class="mb-8 flex flex-wrap justify-center gap-2" role="tablist">
+		<div class="mb-6 flex flex-wrap gap-2" role="tablist">
 			{#each ($lang === 'no'
-				? ['Utvalgte sider', 'Nyhetsbrev', 'Sosiale medier', 'Betalte kampanjer', 'Rapport']
-				: ['Curated pages', 'Newsletter', 'Social media', 'Paid campaigns', 'Report']
+				? ['Utvalgte sider', 'Nyhetsbrev', 'Sosiale medier', 'Betalte kampanjer']
+				: ['Curated pages', 'Newsletter', 'Social media', 'Paid campaigns']
 			) as label, i (label)}
 				<button
 					role="tab"
@@ -345,294 +429,232 @@
 			{/each}
 		</div>
 
-		<!-- Tab content -->
-		<div class="mx-auto max-w-3xl">
+		<!-- Tab content — mockup full width -->
+		<div>
 			{#if activeProductTab === 0}
-				<!-- Utvalgte sider — matches real EventCard grid -->
-				<div class="grid items-center gap-8 md:grid-cols-[1fr_1fr]">
-					<div>
-						<h3 class="mb-3 text-lg font-bold font-[family-name:var(--font-display)]">
-							{$lang === 'no' ? 'Øverst i utvalgte sider' : 'Top of curated pages'}
-						</h3>
-						<p class="text-sm text-[var(--color-text-secondary)]">
-							{$lang === 'no'
-								? 'Arrangementene dine vises øverst på sider som «Denne helgen i Bergen» og «Konserter denne uken». Tydelig merket som «Fremhevet».'
-								: 'Your events appear at the top of pages like "This Weekend in Bergen" and "Concerts This Week". Clearly labeled as "Featured".'}
-						</p>
-						<p class="mt-2 text-xs font-semibold uppercase tracking-wider text-[var(--funkis-red)]">
-							Basis · Standard · Partner
-						</p>
-					</div>
-					{#if validHeroImages.length > 8}
-						<div class="flex justify-center">
-							<!-- Browser frame matching real site — 3x3 grid -->
-							<div class="w-full overflow-hidden rounded-xl" style="max-width: 380px; box-shadow: var(--shadow-lg);">
-								<div class="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--funkis-plaster)] px-3 py-1.5">
-									<div class="flex gap-1">
-										<div class="h-2 w-2 rounded-full" style="background: #FF5F57;"></div>
-										<div class="h-2 w-2 rounded-full" style="background: #FFBD2E;"></div>
-										<div class="h-2 w-2 rounded-full" style="background: #28CA41;"></div>
-									</div>
-									<div class="flex-1 rounded bg-white px-2 py-0.5 text-[var(--color-text-muted)]" style="font-size: 9px; font-family: ui-monospace, monospace;">
-										gaari.no/no/denne-helgen
-									</div>
-								</div>
-								<div class="bg-[var(--color-bg)] p-3">
-									<p class="mb-2 font-bold font-[family-name:var(--font-display)]" style="font-size: 11px;">
-										{$lang === 'no' ? 'Denne helgen i Bergen' : 'This weekend in Bergen'}
-									</p>
-									<!-- 3x3 grid -->
-									<div class="grid grid-cols-3 gap-2">
-										<!-- Promoted EventCard -->
-										<div class="overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)]" style="box-shadow: var(--shadow-sm);">
-											<div class="relative overflow-hidden" style="aspect-ratio: 16/9;">
-												<img src={validHeroImages[0].url} alt="" class="h-full w-full object-cover" onerror={handleImageError} />
-												<span class="absolute right-0.5 top-0.5 rounded-full border border-[var(--funkis-red)] bg-[var(--color-bg-surface)] px-1 py-0.5 text-[var(--color-text-primary)]" style="font-size: 5px; font-weight: 600;">
-													{$lang === 'no' ? 'Fremhevet' : 'Featured'}
-												</span>
-											</div>
-											<div class="p-1">
-												<p class="font-semibold leading-tight truncate" style="font-size: 7px;">{validHeroImages[0].title}</p>
-												<p class="text-[var(--color-text-muted)] truncate" style="font-size: 6px;">{validHeroImages[0].venue}</p>
-											</div>
-										</div>
-										<!-- 8 regular EventCards -->
-										{#each validHeroImages.slice(1, 9) as img (img.url)}
-											<div class="overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)]" style="box-shadow: var(--shadow-sm);">
-												<div class="overflow-hidden" style="aspect-ratio: 16/9;">
-													<img src={img.url} alt="" class="h-full w-full object-cover" onerror={handleImageError} />
-												</div>
-												<div class="p-1">
-													<p class="font-semibold leading-tight truncate" style="font-size: 7px;">{img.title}</p>
-													<p class="text-[var(--color-text-muted)] truncate" style="font-size: 6px;">{img.venue}</p>
-												</div>
-											</div>
-										{/each}
-									</div>
-								</div>
+				{#if validHeroImages.length > 5}
+					<div class="overflow-hidden rounded-xl" style="box-shadow: var(--shadow-lg);">
+						<div class="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--funkis-plaster)] px-3 py-2">
+							<div class="flex gap-1.5">
+								<div class="h-2.5 w-2.5 rounded-full" style="background: #FF5F57;"></div>
+								<div class="h-2.5 w-2.5 rounded-full" style="background: #FFBD2E;"></div>
+								<div class="h-2.5 w-2.5 rounded-full" style="background: #28CA41;"></div>
+							</div>
+							<div class="flex-1 rounded-md bg-white px-2 py-0.5 text-[var(--color-text-muted)]" style="font-size: 10px; font-family: ui-monospace, monospace;">
+								gaari.no/no/denne-helgen
 							</div>
 						</div>
-					{/if}
-				</div>
+						<div class="bg-[var(--color-bg)] p-4">
+							<p class="mb-3 font-bold font-[family-name:var(--font-display)]" style="font-size: 14px;">
+								{$lang === 'no' ? 'Denne helgen i Bergen' : 'This weekend in Bergen'}
+							</p>
+							<div class="grid grid-cols-3 gap-2">
+								<!-- Promoted -->
+								<div class="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]" style="box-shadow: var(--shadow-sm);">
+									<div class="relative overflow-hidden" style="aspect-ratio: 16/9;">
+										<img src={validHeroImages[0].url} alt="" class="h-full w-full object-cover" onerror={handleImageError} />
+										<span class="absolute right-1.5 top-1.5 rounded-full border border-[var(--funkis-red)] bg-[var(--color-bg-surface)] px-1.5 py-0.5 text-[var(--color-text-primary)]" style="font-size: 8px; font-weight: 600;">
+											{$lang === 'no' ? 'Fremhevet' : 'Featured'}
+										</span>
+									</div>
+									<div class="p-2">
+										<p class="font-semibold leading-tight truncate" style="font-size: 10px;">{validHeroImages[0].title}</p>
+										<p class="text-[var(--color-text-muted)] truncate" style="font-size: 8px;">{validHeroImages[0].venue}</p>
+									</div>
+								</div>
+								{#each validHeroImages.slice(1, 6) as img (img.url)}
+									<div class="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]" style="box-shadow: var(--shadow-sm);">
+										<div class="overflow-hidden" style="aspect-ratio: 16/9;">
+											<img src={img.url} alt="" class="h-full w-full object-cover" onerror={handleImageError} />
+										</div>
+										<div class="p-2">
+											<p class="font-semibold leading-tight truncate" style="font-size: 10px;">{img.title}</p>
+											<p class="text-[var(--color-text-muted)] truncate" style="font-size: 8px;">{img.venue}</p>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					</div>
+				{/if}
 
 			{:else if activeProductTab === 1}
-				<!-- Nyhetsbrev — matches real newsletter layout: hero card + 2-col grid -->
-				<div class="grid items-center gap-8 md:grid-cols-[1fr_1fr]">
-					<div>
-						<h3 class="mb-3 text-lg font-bold font-[family-name:var(--font-display)]">
-							{$lang === 'no' ? 'Synlig i ukentlig nyhetsbrev' : 'Visible in weekly newsletter'}
-						</h3>
-						<p class="text-sm text-[var(--color-text-secondary)]">
-							{$lang === 'no'
-								? 'Skreddersydd for mottakeren. Abonnentene velger egne interesser — ditt arrangement treffer folk som faktisk vil høre om det.'
-								: 'Personalized for each subscriber. They choose their interests — your event reaches people who actually want to hear about it.'}
-						</p>
-						<p class="mt-2 text-xs font-semibold uppercase tracking-wider text-[var(--funkis-red)]">
-							Basis · Standard · Partner
-						</p>
-					</div>
-					{#if validHeroImages.length > 3}
-						<div class="flex justify-center">
-							<div class="w-full overflow-hidden rounded-xl bg-[var(--color-bg-surface)]" style="max-width: 300px; box-shadow: var(--shadow-lg);">
-								<!-- Email header -->
-								<div class="border-b border-[var(--color-border)] px-4 py-2.5">
-									<div class="flex items-center gap-2">
-										<div class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[8px] font-bold text-white">G</div>
-										<p class="font-semibold" style="font-size: 10px;">{$lang === 'no' ? 'Denne uken i Bergen' : 'This week in Bergen'}</p>
-									</div>
-								</div>
-								<div class="p-3">
-									<!-- Hero event card — full width with gradient overlay like real newsletter -->
-									<div class="mb-2 overflow-hidden rounded-lg" style="border-top: 3px solid #AECDE8;">
-										<div class="relative overflow-hidden" style="height: 100px;">
-											<img src={validHeroImages[0].url} alt="" class="h-full w-full object-cover" />
-											<div class="absolute inset-x-0 bottom-0 p-2" style="background: linear-gradient(transparent, rgba(0,0,0,0.7));">
-												<span class="inline-block rounded px-1 py-0.5 text-white" style="font-size: 6px; background: var(--funkis-red);">{$lang === 'no' ? 'Fremhevet' : 'Featured'}</span>
-												<p class="mt-0.5 font-bold text-white leading-tight" style="font-size: 10px;">{validHeroImages[0].title}</p>
-												<p style="font-size: 7px; color: rgba(255,255,255,0.7);">{validHeroImages[0].venue}</p>
-											</div>
-										</div>
-										<div class="px-2 py-1.5">
-											<span class="text-[var(--funkis-red)] font-semibold" style="font-size: 8px;">{$lang === 'no' ? 'Les mer →' : 'Read more →'}</span>
-										</div>
-									</div>
-									<!-- 2-col grid below like real newsletter -->
-									<div class="grid grid-cols-2 gap-1.5">
-										{#each validHeroImages.slice(1, 3) as img (img.url)}
-											<div class="overflow-hidden rounded-lg border border-[var(--color-border)]">
-												<div class="overflow-hidden" style="height: 50px;">
-													<img src={img.url} alt="" class="h-full w-full object-cover" />
-												</div>
-												<div class="p-1.5">
-													<p class="font-semibold truncate" style="font-size: 7px;">{img.title}</p>
-													<p class="text-[var(--funkis-red)]" style="font-size: 6px;">{$lang === 'no' ? 'Les mer →' : 'Read more →'}</p>
-												</div>
-											</div>
-										{/each}
-									</div>
+				{#if validHeroImages.length > 3}
+					<div class="mx-auto overflow-hidden rounded-xl bg-[var(--color-bg-surface)]" style="max-width: 500px; box-shadow: var(--shadow-lg);">
+						<div class="border-b border-[var(--color-border)] px-4 py-3">
+							<div class="flex items-center gap-2">
+								<div class="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[9px] font-bold text-white">G</div>
+								<div>
+									<p class="font-semibold" style="font-size: 11px;">Gåri Bergen</p>
+									<p class="text-[var(--color-text-muted)]" style="font-size: 9px;">{$lang === 'no' ? 'Denne uken i Bergen' : 'This week in Bergen'}</p>
 								</div>
 							</div>
 						</div>
-					{/if}
-				</div>
+						<div class="p-4">
+							<div class="mb-3 overflow-hidden rounded-lg" style="border-top: 3px solid #AECDE8;">
+								<div class="relative overflow-hidden" style="height: 160px;">
+									<img src={validHeroImages[0].url} alt="" class="h-full w-full object-cover" />
+									<div class="absolute inset-x-0 bottom-0 p-3" style="background: linear-gradient(transparent, rgba(0,0,0,0.7));">
+										<span class="inline-block rounded px-1.5 py-0.5 text-white" style="font-size: 8px; background: var(--funkis-red);">{$lang === 'no' ? 'Fremhevet' : 'Featured'}</span>
+										<p class="mt-1 font-bold text-white leading-tight" style="font-size: 13px;">{validHeroImages[0].title}</p>
+										<p style="font-size: 10px; color: rgba(255,255,255,0.7);">{validHeroImages[0].venue}</p>
+									</div>
+								</div>
+								<div class="px-3 py-2">
+									<span class="text-[var(--funkis-red)] font-semibold" style="font-size: 11px;">{$lang === 'no' ? 'Les mer →' : 'Read more →'}</span>
+								</div>
+							</div>
+							<div class="grid grid-cols-2 gap-2">
+								{#each validHeroImages.slice(1, 3) as img (img.url)}
+									<div class="overflow-hidden rounded-lg border border-[var(--color-border)]">
+										<div class="overflow-hidden" style="height: 80px;">
+											<img src={img.url} alt="" class="h-full w-full object-cover" />
+										</div>
+										<div class="p-2">
+											<p class="font-semibold truncate" style="font-size: 10px;">{img.title}</p>
+											<p class="text-[var(--funkis-red)] font-semibold" style="font-size: 9px;">{$lang === 'no' ? 'Les mer →' : 'Read more →'}</p>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					</div>
+				{/if}
 
 			{:else if activeProductTab === 2}
-				<!-- Sosiale medier — Instagram carousel + Facebook -->
-				<div class="grid items-center gap-8 md:grid-cols-[1fr_1fr]">
-					<div>
-						<h3 class="mb-3 text-lg font-bold font-[family-name:var(--font-display)]">
-							{$lang === 'no' ? 'Garantert plass i sosiale medier' : 'Guaranteed spot in social media'}
-						</h3>
-						<p class="text-sm text-[var(--color-text-secondary)]">
-							{$lang === 'no'
-								? 'Karuseller på Instagram og Facebook, stories og poster i Bergens største grupper.'
-								: 'Carousels on Instagram and Facebook, stories and posts in Bergen\'s largest groups.'}
-						</p>
-						<p class="mt-2 text-xs font-semibold uppercase tracking-wider text-[var(--funkis-red)]">
-							Standard · Partner
-						</p>
-					</div>
-					{#if validHeroImages.length > 2}
-						<div class="flex justify-center">
-							<!-- Instagram carousel mockup (square format) -->
-							<div class="overflow-hidden rounded-2xl bg-[var(--funkis-iron)]" style="width: 220px; box-shadow: var(--shadow-lg); padding: 5px;">
-								<div class="overflow-hidden rounded-xl bg-white">
-									<div class="mx-auto mt-1.5 h-2.5 w-14 rounded-full bg-[var(--funkis-iron)]"></div>
-									<div class="p-2.5 pt-2.5">
-										<div class="mb-2 flex items-center gap-1.5">
-											<div class="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[6px] font-bold text-white">G</div>
-											<span class="font-semibold" style="font-size: 8px;">gaari_bergen</span>
-										</div>
-										<!-- Square carousel slide -->
-										<div class="relative overflow-hidden rounded-md" style="aspect-ratio: 1/1;">
-											<img src={validHeroImages[0].url} alt="" class="h-full w-full object-cover" />
-											<div class="absolute inset-x-0 bottom-0 p-2.5" style="background: linear-gradient(transparent, rgba(0,0,0,0.8));">
-												<p class="font-bold text-white leading-tight" style="font-size: 9px;">{validHeroImages[0].title}</p>
-												<p style="font-size: 7px; color: rgba(255,255,255,0.7);">{validHeroImages[0].venue}</p>
-											</div>
-											<!-- Carousel dots -->
-											<div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1">
-												<div class="h-1.5 w-1.5 rounded-full bg-white"></div>
-												<div class="h-1.5 w-1.5 rounded-full bg-white/40"></div>
-												<div class="h-1.5 w-1.5 rounded-full bg-white/40"></div>
-												<div class="h-1.5 w-1.5 rounded-full bg-white/40"></div>
-											</div>
-										</div>
-										<!-- Engagement -->
-										<div class="mt-1.5 flex gap-3 text-[var(--color-text-muted)]" style="font-size: 7px;">
-											<span>&#9825; 47</span>
-											<span>&#128172; 12</span>
-											<span>&#8618; 8</span>
-										</div>
+				{#if validHeroImages.length > 2}
+					<div class="mx-auto overflow-hidden rounded-[2rem] bg-[var(--funkis-iron)]" style="width: 340px; max-width: 100%; box-shadow: var(--shadow-lg); padding: 6px;">
+						<div class="overflow-hidden rounded-[1.5rem] bg-white">
+							<div class="mx-auto mt-2 h-3 w-16 rounded-full bg-[var(--funkis-iron)]"></div>
+							<div class="p-3 pt-3">
+								<div class="mb-2 flex items-center gap-2">
+									<div class="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[8px] font-bold text-white">G</div>
+									<span class="font-semibold" style="font-size: 11px;">gaari_bergen</span>
+								</div>
+								<div class="relative overflow-hidden rounded-lg" style="aspect-ratio: 1/1;">
+									<img src={validHeroImages[0].url} alt="" class="h-full w-full object-cover" />
+									<div class="absolute inset-x-0 bottom-0 p-3" style="background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+										<p class="font-bold text-white leading-tight" style="font-size: 12px;">{validHeroImages[0].title}</p>
+										<p style="font-size: 10px; color: rgba(255,255,255,0.7);">{validHeroImages[0].venue}</p>
 									</div>
+									<div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+										<div class="h-1.5 w-1.5 rounded-full bg-white"></div>
+										<div class="h-1.5 w-1.5 rounded-full bg-white/40"></div>
+										<div class="h-1.5 w-1.5 rounded-full bg-white/40"></div>
+										<div class="h-1.5 w-1.5 rounded-full bg-white/40"></div>
+									</div>
+								</div>
+								<div class="mt-2 flex gap-4 text-[var(--color-text-muted)]" style="font-size: 10px;">
+									<span>&#9825; 47</span>
+									<span>&#128172; 12</span>
+									<span>&#8618; 8</span>
 								</div>
 							</div>
 						</div>
-					{/if}
-				</div>
+					</div>
+				{/if}
 
 			{:else if activeProductTab === 3}
-				<!-- Betalte kampanjer — clear Meta ad format -->
-				<div class="grid items-center gap-8 md:grid-cols-[1fr_1fr]">
-					<div>
-						<h3 class="mb-3 text-lg font-bold font-[family-name:var(--font-display)]">
-							{$lang === 'no' ? 'Garantert i betalte kampanjer' : 'Guaranteed in paid campaigns'}
-						</h3>
-						<p class="text-sm text-[var(--color-text-secondary)]">
-							{$lang === 'no'
-								? 'Gåri kjører betalte kampanjer på Meta. Som Partner er arrangementene dine garantert blant de første i karusellene.'
-								: 'Gåri runs paid campaigns on Meta. As a Partner, your events are guaranteed among the first in the carousels.'}
+				{#if validHeroImages.length > 0}
+					<div class="mx-auto overflow-hidden rounded-xl bg-[var(--color-bg-surface)]" style="max-width: 500px; box-shadow: var(--shadow-lg);">
+						<div class="flex items-center gap-2 px-3 py-2.5">
+							<div class="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[10px] font-bold text-white">G</div>
+							<div>
+								<p class="font-semibold" style="font-size: 11px;">Gåri Bergen</p>
+								<p class="text-[var(--color-text-muted)]" style="font-size: 9px;">{$lang === 'no' ? 'Sponset' : 'Sponsored'}</p>
+							</div>
+						</div>
+						<p class="px-3 pb-2" style="font-size: 11px;">
+							{$lang === 'no' ? 'Hva skjer i Bergen denne helgen?' : "What's on in Bergen this weekend?"}
 						</p>
-						<p class="mt-2 text-xs font-semibold uppercase tracking-wider text-[var(--funkis-red)]">
-							{$lang === 'no' ? 'Kun Partner' : 'Partner only'}
-						</p>
-					</div>
-					{#if validHeroImages.length > 0}
-						<div class="flex justify-center">
-							<div class="w-full overflow-hidden rounded-xl bg-[var(--color-bg-surface)]" style="max-width: 300px; box-shadow: var(--shadow-lg);">
-								<!-- Meta ad header -->
-								<div class="flex items-center gap-2 px-3 py-2">
-									<div class="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[9px] font-bold text-white">G</div>
-									<div>
-										<p class="font-semibold" style="font-size: 10px;">Gåri Bergen</p>
-										<p class="text-[var(--color-text-muted)]" style="font-size: 8px;">{$lang === 'no' ? 'Sponset' : 'Sponsored'}</p>
-									</div>
-								</div>
-								<p class="px-3 pb-2" style="font-size: 9px;">
-									{$lang === 'no' ? 'Hva skjer i Bergen denne helgen?' : "What's on in Bergen this weekend?"}
+						<div class="relative">
+							<img src={validHeroImages[0].url} alt="" class="w-full object-cover" style="aspect-ratio: 1.91/1;" />
+						</div>
+						<div class="flex items-center justify-between border-t border-[var(--color-border)] px-3 py-2.5">
+							<div>
+								<p class="font-semibold" style="font-size: 10px;">gaari.no</p>
+								<p class="text-[var(--color-text-muted)]" style="font-size: 9px;">
+									{$lang === 'no' ? 'Se arrangementer i Bergen' : 'See events in Bergen'}
 								</p>
-								<!-- Single large image ad -->
-								<div class="relative">
-									<img src={validHeroImages[0].url} alt="" class="w-full object-cover" style="aspect-ratio: 1.91/1;" />
-								</div>
-								<!-- Ad CTA bar -->
-								<div class="flex items-center justify-between border-t border-[var(--color-border)] px-3 py-2">
-									<div>
-										<p class="font-semibold" style="font-size: 9px;">gaari.no</p>
-										<p class="text-[var(--color-text-muted)]" style="font-size: 8px;">
-											{$lang === 'no' ? 'Se arrangementer i Bergen' : 'See events in Bergen'}
-										</p>
-									</div>
-									<span class="rounded-md bg-[var(--color-border)] px-2.5 py-1 font-semibold" style="font-size: 9px;">
-										{$lang === 'no' ? 'Se mer' : 'Learn more'}
-									</span>
-								</div>
 							</div>
-						</div>
-					{/if}
-				</div>
-
-			{:else if activeProductTab === 4}
-				<!-- Rapport -->
-				<div class="grid items-center gap-8 md:grid-cols-[1fr_1fr]">
-					<div>
-						<h3 class="mb-3 text-lg font-bold font-[family-name:var(--font-display)]">
-							{$lang === 'no' ? 'Månedlig rapport' : 'Monthly report'}
-						</h3>
-						<p class="text-sm text-[var(--color-text-secondary)]">
-							{$lang === 'no'
-								? 'Du får data på klikk fra Gåri til nettsiden din, hvilke arrangementer som traff best, og synlighet i utvalgte sider.'
-								: 'You get data on clicks from Gåri to your website, which events performed best, and visibility on curated pages.'}
-						</p>
-						<p class="mt-2 text-xs font-semibold uppercase tracking-wider text-[var(--funkis-red)]">
-							Standard · Partner
-						</p>
-					</div>
-					<div class="flex justify-center">
-						<div bind:this={reportEl} class="w-full rounded-xl bg-[var(--color-bg-surface)] p-5" style="max-width: 300px; box-shadow: var(--shadow-lg);">
-							<p class="mb-3 text-sm font-bold">Grieghallen — {$lang === 'no' ? 'mars' : 'March'} 2026</p>
-							<div class="mb-3 border-t border-[var(--color-border)]"></div>
-							<div class="mb-1 flex items-baseline justify-between">
-								<span class="text-sm text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Klikk fra Gåri' : 'Clicks from Gåri'}</span>
-								<div class="flex items-baseline gap-2">
-									<span class="text-3xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)]" style="font-variant-numeric: tabular-nums;">{reportCount}</span>
-									<span class="text-sm font-semibold text-[var(--funkis-green)]">+{reportPercent}%</span>
-								</div>
-							</div>
-							<div class="my-3 border-t border-[var(--color-border)]"></div>
-							<div class="space-y-1.5 text-sm" style="font-variant-numeric: tabular-nums;">
-								<div class="flex justify-between">
-									<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Fra utvalgte sider' : 'From curated pages'}</span>
-									<span class="font-medium">198</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Fra nyhetsbrev' : 'From newsletter'}</span>
-									<span class="font-medium">87</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Fra hovedsiden' : 'From homepage'}</span>
-									<span class="font-medium">198</span>
-								</div>
-							</div>
-							<div class="mt-3 border-t border-[var(--color-border)] pt-3">
-								<p class="text-xs text-[var(--color-text-muted)]">{$lang === 'no' ? 'Topp arrangement:' : 'Top event:'}</p>
-								<p class="text-sm font-bold">Bergen Filharmoniske</p>
-								<p class="text-xs text-[var(--color-text-muted)]">142 {$lang === 'no' ? 'klikk' : 'clicks'}</p>
-							</div>
+							<span class="rounded-md px-3 py-1.5 font-semibold" style="font-size: 10px; background: var(--color-border);">
+								{$lang === 'no' ? 'Se mer' : 'Learn more'}
+							</span>
 						</div>
 					</div>
-				</div>
+				{/if}
 			{/if}
+		</div>
+
+		<!-- CTA after tabs -->
+		<div class="mt-8 text-center">
+			<a
+				href="#pricing"
+				class="inline-flex items-center gap-1 text-sm font-semibold text-[var(--funkis-red)] hover:underline"
+				style="min-height: 44px;"
+			>
+				{$lang === 'no' ? 'Se priser' : 'See pricing'} →
+			</a>
+		</div>
+	</div>
+</section>
+
+<!-- === 4. BEVIS — rapport som klimaks === -->
+<section class="px-4 py-16 md:py-20" style="background: var(--funkis-iron);">
+	<div class="mx-auto grid max-w-4xl items-center gap-10 md:grid-cols-[1fr_1fr]">
+		<div>
+			<h2 class="mb-3 text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl" style="color: white;">
+				{$lang === 'no' ? 'Tall du kan vise sjefen' : 'Numbers you can show your boss'}
+			</h2>
+			<p style="color: rgba(255,255,255,0.7);">
+				{$lang === 'no'
+					? 'Hver måned får du en rapport med klikk fra Gåri til nettsiden din, hvilke arrangementer som traff best, og hvor synligheten kom fra.'
+					: 'Every month you get a report with clicks from Gåri to your website, which events performed best, and where the visibility came from.'}
+			</p>
+			<p class="mt-3 text-sm" style="color: rgba(255,255,255,0.4);">
+				{$lang === 'no' ? 'Standard og Partner' : 'Standard and Partner'}
+			</p>
+		</div>
+		<div class="flex justify-center">
+			<div bind:this={reportEl} class="w-full rounded-xl bg-[var(--color-bg-surface)] p-5" style="max-width: 360px; box-shadow: var(--shadow-lg);">
+				<p class="mb-3 text-sm font-bold">Grieghallen — {$lang === 'no' ? 'mars' : 'March'} 2026</p>
+				<div class="mb-3 border-t border-[var(--color-border)]"></div>
+				<div class="mb-1 flex items-baseline justify-between">
+					<span class="text-sm text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Klikk fra Gåri' : 'Clicks from Gåri'}</span>
+					<div class="flex items-baseline gap-2">
+						<span class="text-[36px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)]" style="font-variant-numeric: tabular-nums;">{reportCount}</span>
+						<span class="text-sm font-semibold text-[var(--funkis-green)]">+{reportPercent}%</span>
+					</div>
+				</div>
+				<div class="my-3 border-t border-[var(--color-border)]"></div>
+				<div class="space-y-1.5 text-sm" style="font-variant-numeric: tabular-nums;">
+					<div class="flex justify-between">
+						<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Fra utvalgte sider' : 'From curated pages'}</span>
+						<span class="font-medium">134</span>
+					</div>
+					<div class="flex justify-between">
+						<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Fra nyhetsbrev' : 'From newsletter'}</span>
+						<span class="font-medium">68</span>
+					</div>
+					<div class="flex justify-between">
+						<span class="text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Fra hovedsiden' : 'From homepage'}</span>
+						<span class="font-medium">134</span>
+					</div>
+				</div>
+				<div class="mt-3 border-t border-[var(--color-border)] pt-3">
+					<p class="text-xs italic text-[var(--color-text-muted)]">{$lang === 'no' ? 'Estimat basert på 127 billettklikk over 12 dager' : 'Estimate based on 127 ticket clicks over 12 days'}</p>
+				</div>
+			</div>
+		</div>
+		<!-- CTA after report -->
+		<div class="mt-8 text-center md:text-left">
+			<a
+				href="#pricing"
+				class="inline-flex items-center gap-1 text-sm font-semibold text-[var(--funkis-red)] hover:underline"
+				style="min-height: 44px;"
+			>
+				{$lang === 'no' ? 'Klar? Se hva som passer deg' : 'Ready? See what fits you'} →
+			</a>
 		</div>
 	</div>
 </section>
@@ -681,16 +703,19 @@
 		{#each tiers as tier (tier.name)}
 			{#if activeTier === tier.name}
 				<div id="pricing-details" role="tabpanel" class="mt-8">
-					<div class="mx-auto max-w-md rounded-xl bg-[var(--color-bg-surface)] p-8 text-center" style="box-shadow: var(--shadow-lg);">
-						<h3 class="mb-2 text-2xl font-bold font-[family-name:var(--font-display)]">{tier.name}</h3>
-						<p class="mb-1">
-							<span class="text-[48px] font-bold leading-none font-[family-name:var(--font-display)]">{tier.price}</span>
-							<span class="text-sm text-[var(--color-text-secondary)]"> kr/{$lang === 'no' ? 'mnd' : 'mo'}</span>
-						</p>
-						<p class="mb-2 text-xs text-[var(--color-text-muted)]">{$lang === 'no' ? 'ekskl. mva' : 'excl. VAT'}</p>
-						<p class="mb-6 text-sm text-[var(--color-text-secondary)]">{tier.roi}</p>
-
-						<div class="mb-6 space-y-2 text-left">
+					<div class="grid items-start gap-8 rounded-xl bg-[var(--color-bg-surface)] p-8 md:grid-cols-[1fr_1fr]" style="box-shadow: var(--shadow-lg);">
+						<!-- Left: price + CTA -->
+						<div class="text-center md:text-left">
+							<h3 class="mb-2 text-2xl font-bold font-[family-name:var(--font-display)]">{tier.name}</h3>
+							<p class="mb-1">
+								<span class="text-[48px] font-bold leading-none font-[family-name:var(--font-display)]">{tier.price}</span>
+								<span class="text-sm text-[var(--color-text-secondary)]"> kr/{$lang === 'no' ? 'mnd' : 'mo'}</span>
+							</p>
+							<p class="mb-2 text-xs text-[var(--color-text-muted)]">{$lang === 'no' ? 'ekskl. mva' : 'excl. VAT'}</p>
+							<p class="mb-6 text-sm text-[var(--color-text-secondary)]">{tier.roi}</p>
+						</div>
+						<!-- Right: features -->
+						<div class="space-y-2">
 							{#each featureLabels as label, i (label)}
 								<div class="flex items-center gap-3 text-sm">
 									{#if i === 0}
@@ -709,16 +734,18 @@
 								</div>
 							{/each}
 						</div>
-
-						<a
-							href="#contact"
-							data-umami-event="for-arrangorer-pricing-{tier.name.toLowerCase()}"
-							onclick={() => trackEvent(`for-arrangorer-pricing-${tier.name.toLowerCase()}`)}
-							class="block rounded-xl bg-[var(--funkis-red)] px-6 py-3 text-center text-base font-semibold text-white hover:opacity-90"
-							style="min-height: 44px; line-height: 24px;"
-						>
-							{$lang === 'no' ? 'Ta kontakt' : 'Get in touch'}
-						</a>
+						<!-- CTA spans both columns -->
+						<div class="md:col-span-2">
+							<a
+								href="#contact"
+								data-umami-event="for-arrangorer-pricing-{tier.name.toLowerCase()}"
+								onclick={() => trackEvent(`for-arrangorer-pricing-${tier.name.toLowerCase()}`)}
+								class="block rounded-xl bg-[var(--funkis-red)] px-6 py-3 text-center text-base font-semibold text-white hover:opacity-90"
+								style="min-height: 44px; line-height: 24px;"
+							>
+								{$lang === 'no' ? 'Ta kontakt' : 'Get in touch'}
+							</a>
+						</div>
 					</div>
 				</div>
 			{/if}
@@ -748,6 +775,11 @@
 							? 'Fremhevet plassering på én utvalgt side og i nyhetsbrevet i opptil 2 uker.'
 							: 'Promoted placement on one curated page and in the newsletter for up to 2 weeks.'}
 					</p>
+					<p class="mt-2 text-sm text-[var(--color-text-muted)]">
+						{$lang === 'no'
+							? 'Festival eller større produksjon? Ta kontakt for en tilpasset pakke.'
+							: 'Festival or larger production? Get in touch for a custom package.'}
+					</p>
 				</div>
 				<div class="shrink-0 text-center">
 					<p>
@@ -772,7 +804,7 @@
 
 <!-- === 8. FAQ === -->
 <section class="bg-[var(--color-bg-surface)] px-4 py-16 md:py-20">
-	<div class="mx-auto max-w-2xl">
+	<div class="mx-auto max-w-4xl">
 		<h2 class="mb-8 text-center text-2xl font-bold font-[family-name:var(--font-display)] md:text-3xl">
 			{$lang === 'no' ? 'Ofte stilte spørsmål' : 'Frequently asked questions'}
 		</h2>
@@ -798,12 +830,12 @@
 	<div class="mx-auto max-w-md text-center">
 		<div class="mx-auto mb-4 h-1 w-16 rounded bg-[var(--funkis-red)]"></div>
 		<h2 class="mb-4 text-2xl font-bold text-[var(--funkis-iron)] font-[family-name:var(--font-display)] md:text-[32px]">
-			{$lang === 'no' ? 'La oss ta en prat' : 'Let\'s have a chat'}
+			{$lang === 'no' ? 'Klar for å prøve?' : 'Ready to try?'}
 		</h2>
 		<p class="mb-8 text-[var(--funkis-steel)]">
 			{$lang === 'no'
-				? 'Prøv gratis i 3 måneder. Ingen bindingstid. Vi svarer innen en arbeidsdag.'
-				: 'Try free for 3 months. No commitment. We respond within one working day.'}
+				? 'Fyll ut skjemaet, så sender vi deg et forslag innen én arbeidsdag. 3 måneder gratis, ingen bindingstid.'
+				: 'Fill out the form and we\'ll send you a proposal within one working day. 3 months free, no commitment.'}
 		</p>
 
 		{#if contactStatus === 'success'}
@@ -898,11 +930,11 @@
 						style="min-height: 44px;"
 					>
 						<option value="">{$lang === 'no' ? 'Velg...' : 'Choose...'}</option>
+						<option value="unsure">{$lang === 'no' ? 'Usikker, vil gjerne vite mer' : 'Not sure, want to learn more'}</option>
 						<option value="basis">Basis — 1 500 kr/{$lang === 'no' ? 'mnd' : 'mo'}</option>
 						<option value="standard">Standard — 3 500 kr/{$lang === 'no' ? 'mnd' : 'mo'}</option>
 						<option value="partner">Partner — 9 000 kr/{$lang === 'no' ? 'mnd' : 'mo'}</option>
 						<option value="alacarte">{$lang === 'no' ? 'Enkeltarrangement — 750 kr' : 'Single event — 750 NOK'}</option>
-						<option value="unsure">{$lang === 'no' ? 'Usikker, vil gjerne vite mer' : 'Not sure, want to learn more'}</option>
 					</select>
 				</div>
 
@@ -921,7 +953,7 @@
 					{#if contactStatus === 'submitting'}
 						{$lang === 'no' ? 'Sender...' : 'Sending...'}
 					{:else}
-						{$lang === 'no' ? 'Start samtalen' : 'Start the conversation'}
+						{$lang === 'no' ? 'Send henvendelse' : 'Send inquiry'}
 					{/if}
 				</button>
 			</form>
@@ -931,6 +963,9 @@
 				<a href="mailto:post@gaari.no" class="font-medium text-[var(--funkis-red)] underline">post@gaari.no</a>
 			</p>
 		{/if}
+		<p class="mt-6 text-xs text-[var(--funkis-granite)]">
+			{$lang === 'no' ? 'Bygget i Bergen' : 'Built in Bergen'}
+		</p>
 	</div>
 </section>
 
@@ -959,5 +994,10 @@
 	details summary {
 		list-style: none;
 	}
-
+	/* Focus indicator for hero toggle on dark background */
+	.hero-card-toggle:focus-visible {
+		outline: 2px solid white;
+		outline-offset: 4px;
+		border-radius: 0.75rem;
+	}
 </style>

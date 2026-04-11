@@ -518,6 +518,10 @@ const B2B_FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
 		{
 			q: 'Kan jeg fremheve bare ett arrangement?',
 			a: 'Ja. For 750 kr kan du fremheve et enkelt arrangement på én utvalgt side og i nyhetsbrevet i opptil 2 uker. Perfekt om du har noen få store arrangementer i året.'
+		},
+		{
+			q: 'Hvorfor Gåri og ikke bare Facebook-annonsering?',
+			a: 'Folk på Facebook scroller passivt. Folk på Gåri leter aktivt etter noe å gjøre — 73% klikker seg inn på minst ett arrangement, og 21% klikker videre til billettsiden. Det er et publikum med høy intensjon som du ikke når med vanlige annonser.'
 		}
 	],
 	en: [
@@ -552,6 +556,10 @@ const B2B_FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
 		{
 			q: 'Can I promote just one event?',
 			a: 'Yes. For 750 NOK you can promote a single event on one curated page and in the newsletter for up to 2 weeks. Perfect if you have a few big events per year.'
+		},
+		{
+			q: 'Why Gåri and not just Facebook ads?',
+			a: 'People on Facebook scroll passively. People on Gåri are actively looking for something to do — 73% click into at least one event, and 21% click through to the ticket page. That\'s a high-intent audience you can\'t reach with regular ads.'
 		}
 	]
 };
