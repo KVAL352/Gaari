@@ -41,6 +41,29 @@ Ask the user how to proceed on anything non-obvious.
 - Move press/media emails to `Folders/Gaari/Presse` (never delete)
 - Move receipts to `Folders/Receipts` (never delete)
 
+## Step 5: Ingest — update knowledge system
+
+After triaging, check if any emails change the status of tracked contacts or projects. If so, update the relevant memory files:
+
+- **Outreach reply (positive/negative/info)**: Update the contact's row in `outreach-active.md`. If they agreed to something, move to `outreach-agreements.md`. If they declined, move to `outreach-declined.md` with reason.
+- **New partnership or backlink live**: Add to `outreach-agreements.md`.
+- **Venue technical info** (API access, scraping permission, etc.): Note in `outreach-active.md` or `patterns.md` as appropriate.
+- **Press/media reply**: Update `project_ba_article.md` or create new project memory if it's a new outlet.
+- **Reminder-worthy follow-up**: Add entry to `scripts/reminders.json` with appropriate date.
+
+After updating, set `last_verified` in the frontmatter of any memory file you touched:
+
+```yaml
+---
+name: ...
+description: ...
+type: project
+last_verified: 2026-04-10
+---
+```
+
+**Only update files where something actually changed.** Don't touch files just because you read them.
+
 ## Rules
 
 - Use MCP protonmail tools for all email operations

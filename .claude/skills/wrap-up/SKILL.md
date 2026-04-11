@@ -35,11 +35,11 @@ If everything is clean, report PASS.
 ### 2. Documentation accuracy
 
 Check if today's work introduced changes that should be reflected in docs. Scan for:
-- **New scrapers** — update CLAUDE.md scraper count + `.claude/docs/scrapers.md`
-- **New collections** — update CLAUDE.md architecture section + `.claude/docs/collections.md`
+- **New scrapers** — update `.claude/docs/scrapers.md` table and `SOURCE_RANK` in `dedup.ts`
+- **New collections** — update `.claude/docs/collections.md`
 - **New routes** — update `.claude/docs/routes.md`
 - **New components** — update `.claude/docs/components.md`
-- **New test files or count changes** — run `npm test`, compare to `.claude/docs/testing.md`
+- **New test files** — update `.claude/docs/testing.md` file list
 - **New GHA workflows** — update `.claude/docs/gha.md`
 - **New env vars or secrets** — update relevant memory files
 - **New skills** — verify they appear in skill listing
@@ -55,6 +55,11 @@ Check if the session produced insights worth saving:
 - **Feedback from user** about working style or preferences
 
 Read current MEMORY.md first — avoid duplicates. Only add genuinely useful, stable knowledge.
+
+After adding or updating any memory file, set `last_verified` in frontmatter to today's date:
+```yaml
+last_verified: YYYY-MM-DD
+```
 
 If nothing to add, report PASS.
 

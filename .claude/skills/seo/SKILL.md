@@ -156,7 +156,7 @@ For general site analysis, focus on patterns across pages rather than individual
 
 ## Gåri-specific SEO context
 
-- 48 collection pages are the main SEO play (long-tail queries like "hva skjer i Bergen denne helgen")
+- Collection pages are the main SEO play (long-tail queries like "hva skjer i Bergen denne helgen") — see `src/lib/collections.ts` for current count
 - Seasonal collections append year to title for freshness signals (e.g., "17. mai i Bergen 2026")
 - Bergen tourists search in English, locals in Norwegian — both languages equally important
 - hreflang pairs must match — every NO page needs EN counterpart (except `hostferie`)

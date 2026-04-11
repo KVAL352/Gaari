@@ -4,7 +4,7 @@
 - `/[lang]/` — Main event listing with EventDiscovery filter. **Server-side loaded**, ISR cached (`s-maxage=300, stale-while-revalidate=600`).
 - `/[lang]/about/` — About page. **Prerendered**.
 - `/[lang]/guide/` — Events hub page with links to all collections. FAQ for "hva skjer i Bergen" queries. **Prerendered**.
-- `/[lang]/datainnsamling/` — Data transparency page (48 sources, opt-out form). Form action `?/optout`.
+- `/[lang]/datainnsamling/` — Data transparency page (opt-out form). Form action `?/optout`.
 - `/[lang]/personvern/` — Privacy policy (GDPR). Bilingual inline, in sitemap.
 - `/[lang]/tilgjengelighet/` — Accessibility statement (EAA/WCAG 2.2 AA). Bilingual inline, in sitemap.
 - `/[lang]/nyhetsbrev/preferanser/` — Newsletter preferences. HMAC-signed token required. **Server-side loaded**.

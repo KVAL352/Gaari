@@ -78,7 +78,7 @@ interface ScraperResult {
 // Pipeline deadline — stop starting new scrapers after 22 minutes (3 min buffer for dedup + summary)
 const PIPELINE_DEADLINE_MS = 22 * 60 * 1000;
 
-const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
+export const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
 	// --- Fast scrapers first (single page, no detail fetches) ---
 	bergenlive: scrapeBergenLive,
 	// barnasnorge: scrapeBarnasNorge, // Disabled — see import comment above
@@ -428,4 +428,7 @@ async function main() {
 	}
 }
 
-main().catch(console.error);
+import { fileURLToPath } from 'node:url';
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+	main().catch(console.error);
+}

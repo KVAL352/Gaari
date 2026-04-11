@@ -18,6 +18,7 @@ import 'dotenv/config';
 import * as fs from 'fs';
 import * as path from 'path';
 import { supabase } from './lib/supabase.js';
+import { scrapers } from './scrape.js';
 import { analyzeScraperHealth, type ScraperHealthStatus } from './lib/scraper-health.js';
 
 const REPORT_EMAIL = 'post@gaari.no';
@@ -591,20 +592,7 @@ function collectReminders(): Reminder[] {
 	} catch { return []; }
 }
 
-// All 52 active scrapers registered in scrape.ts (keep in sync)
-const EXPECTED_SCRAPERS = [
-	'bergenlive', 'bergenkommune', 'studentbergen', 'dnt', 'eventbrite',
-	'borealis', 'ticketco', 'hoopla', 'nordnessjobad', 'raabrent', 'bergenchamber',
-	'colonialen', 'bergenkjott', 'paintnsip', 'bergenfilmklubb',
-	'cornerteateret', 'dvrtvest', 'kunsthall', 'brettspill', 'mediacity',
-	'forumscene', 'usfverftet', 'dns', 'olebull', 'grieghallen', 'kode',
-	'litthusbergen', 'bergenbibliotek', 'floyen', 'bitteater', 'harmonien',
-	'oseana', 'carteblanche', 'festspillene', 'bergenfest', 'bjorgvinblues',
-	'bek', 'beyondthegates', 'brann', 'kulturhusetibergen', 'vvv',
-	'bymuseet', 'museumvest', 'akvariet', 'kvarteret', 'fyllingsdalenteater',
-	'ggbergen', 'oconnors', 'billetto', 'stenematglede',
-	'biff', 'bergenpride', 'ostre'
-];
+const EXPECTED_SCRAPERS = Object.keys(scrapers);
 
 const SLOW_SCRAPER_THRESHOLD_MS = 60_000; // 60s is suspiciously slow
 

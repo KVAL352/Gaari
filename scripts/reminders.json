@@ -15,9 +15,9 @@
     "description": "Epost sendt 27. februar — forespørsel om scraping-tillatelse. Kun Intercom auto-svar mottatt. Venter på svar — send eventuell oppfølging nå (3 uker etter 7. april). Scraper klar (scripts/scrapers/tikkio.ts)."
   },
   {
-    "date": "2026-04-06",
+    "date": "2026-04-14",
     "title": "Scrapers med manglende bilder: brann, bergenpride, beyondthegates",
-    "description": "Disse scrapers har image_url: undefined. Vurder: 1) brann.ts — stabil logo-URL. 2) bergenpride.ts — sjekk juni-programmet. 3) beyondthegates.ts — lineup-sider med bilder?"
+    "description": "Overdue fra 6. april. Disse scrapers har image_url: undefined. Vurder: 1) brann.ts — stabil logo-URL. 2) bergenpride.ts — sjekk juni-programmet. 3) beyondthegates.ts — lineup-sider med bilder?"
   },
   {
     "date": "2026-06-01",

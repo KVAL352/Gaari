@@ -23,7 +23,7 @@ export function generateCaption(
 	// Line 1 — opening (collection title doubles as the hook)
 	lines.push(collectionTitle);
 
-	// Line 2 — link ALWAYS comes second (feedback_fb_caption_style)
+	// Line 2 — link ALWAYS comes second (see feedback_social_content.md)
 	const linkLabel = lang === 'en' ? 'Full overview' : 'Full oversikt';
 	lines.push(`${linkLabel}: ${collectionUrl}`);
 
@@ -31,7 +31,7 @@ export function generateCaption(
 	lines.push('');
 	lines.push(lang === 'en' ? 'Some handpicked highlights:' : 'Her er noen utvalgte godbiter:');
 
-	// Event list with auto venue-tagging (no emojis — feedback_no_emojis)
+	// Event list with auto venue-tagging (no emojis — see feedback_communication.md)
 	const listed = events.slice(0, MAX_LISTED_EVENTS);
 	for (const event of listed) {
 		const time = formatEventTime(event.date_start, lang);

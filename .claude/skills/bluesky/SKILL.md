@@ -1,11 +1,13 @@
 ---
 name: bluesky
-description: Manage Gåri's Bluesky presence — post, check feed, follow people, search. Use this skill whenever Bluesky or social media is mentioned — "post på bluesky", "bluesky", "post noe", "sjekk bluesky", "sosiale medier", "social media", "følg", "lag en post".
+description: Gåri's Bluesky account (posting paused since March 2026). Feed, follow, and search still work. Use this skill whenever Bluesky is mentioned — "bluesky", "sjekk bluesky", "følg på bluesky".
 user-invocable: true
 argument-hint: "[post | feed | follow | search <query>]"
 ---
 
 # Bluesky Management for @gaari.no
+
+> **STATUS (mars 2026): Posting deaktivert.** Konto `@gaari.no` eksisterer men er pa pause. GHA workflow-steget er kommentert ut. Ikke foreslå Bluesky-posting med mindre brukeren eksplisitt reaktiverer. Feed/follow/search fungerer fortsatt.
 
 Manage the Gåri Bluesky account using MCP tools.
 

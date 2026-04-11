@@ -1,4 +1,4 @@
-# Scraper Sources (59 total, 55 active, 4 disabled)
+# Scraper Sources
 
 ## General aggregators
 | Source | File | Method |
