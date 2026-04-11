@@ -20,6 +20,16 @@ import * as path from 'path';
 import { supabase } from './lib/supabase.js';
 import { scrapers } from './scrape.js';
 import { analyzeScraperHealth, type ScraperHealthStatus } from './lib/scraper-health.js';
+import {
+	CAMPAIGN_TARGETS,
+	checkCampaign,
+	getCampaignDailyInsights,
+	listCampaigns,
+	parseActions,
+	type Campaign,
+	type CampaignCheck,
+	type CheckStatus,
+} from './lib/meta-api.js';
 
 const REPORT_EMAIL = 'post@gaari.no';
 const FROM_EMAIL = 'Gåri <noreply@gaari.no>';
@@ -122,6 +132,32 @@ interface Reminder {
 	description: string;
 }
 
+interface CampaignBrief {
+	id: string;
+	name: string;
+	shortName: string;      // stripped-down display name
+	status: CheckStatus;    // ok | warning | critical
+	checks: CampaignCheck[];
+	daysElapsed: number;
+	spendNok: number;
+	dailyBudgetNok: number | null;
+	totalBudgetNok: number | null;
+	impressions: number;
+	linkClicks: number;
+	landingPageViews: number;
+	ctrTotal: number;
+	cpcLink: number;
+	cpm: number;
+	yesterday: {
+		date: string;
+		impressions: number;
+		clicks: number;
+		lpv: number;
+		spendNok: number;
+		ctr: number;
+	} | null;
+}
+
 interface DigestData {
 	date: string;
 	pending: PendingCounts;
@@ -137,6 +173,7 @@ interface DigestData {
 	reminders: Reminder[];
 	newsletterReport: NewsletterReport | null;
 	socialStatus: SocialStatus | null;
+	activeCampaigns: CampaignBrief[];
 }
 
 // ─── Data collectors ────────────────────────────────────────────────
@@ -641,6 +678,80 @@ async function collectLastPipeline(): Promise<PipelineRun | null> {
 	}
 }
 
+/**
+ * Collect brief for each ACTIVE Meta Ads campaign.
+ * Any failure (missing token, API error, no active campaigns) degrades to an
+ * empty array — the digest must never fail because of Meta.
+ */
+async function collectActiveCampaigns(): Promise<CampaignBrief[]> {
+	if (!process.env.META_ACCESS_TOKEN || !process.env.META_AD_ACCOUNT_ID) {
+		return [];
+	}
+	console.log('Checking active Meta campaigns...');
+
+	try {
+		const campaigns = await listCampaigns();
+		const active = campaigns.filter(c => c.status === 'ACTIVE');
+		if (active.length === 0) return [];
+
+		const briefs: CampaignBrief[] = [];
+		for (const c of active) {
+			try {
+				const check = await checkCampaign(c);
+				if (!check) continue;
+				const daily = await getCampaignDailyInsights(c.id);
+				const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+				const yesterdayRow = daily.find(d => d.date_start === yesterdayStr);
+
+				briefs.push({
+					id: c.id,
+					name: c.name,
+					shortName: shortenCampaignName(c.name),
+					status: check.overall,
+					checks: check.checks,
+					daysElapsed: daily.length,
+					spendNok: check.summary.spendNok,
+					dailyBudgetNok: c.daily_budget ? Number(c.daily_budget) / 100 : null,
+					totalBudgetNok: c.lifetime_budget ? Number(c.lifetime_budget) / 100 : null,
+					impressions: check.summary.impressions,
+					linkClicks: check.summary.linkClicks,
+					landingPageViews: check.summary.landingPageViews,
+					ctrTotal: check.summary.ctrTotal,
+					cpcLink: check.summary.cpcLink,
+					cpm: check.summary.cpm,
+					yesterday: yesterdayRow
+						? {
+								date: yesterdayRow.date_start,
+								impressions: Number(yesterdayRow.impressions || 0),
+								clicks: Number(yesterdayRow.clicks || 0),
+								lpv: parseActions(yesterdayRow.actions).landingPageViews,
+								spendNok: Number(yesterdayRow.spend || 0),
+								ctr: Number(yesterdayRow.ctr || 0),
+							}
+						: null,
+				});
+			} catch (err: any) {
+				console.warn(`  Skipping campaign ${c.name}: ${err.message}`);
+			}
+		}
+		return briefs;
+	} catch (err: any) {
+		console.warn(`  Meta campaigns check failed (non-fatal): ${err.message}`);
+		return [];
+	}
+}
+
+/** Strip FB's auto-generated "[DD/MM/YYYY] Promoting <url>" prefix for display. */
+function shortenCampaignName(name: string): string {
+	// "[08/04/2026] Promoting https://gaari.no?...utm_campaign=boost-2026-04-08..."
+	// → "boost-2026-04-08"
+	const utmMatch = name.match(/utm_campaign=([^&\s]+)/);
+	if (utmMatch) return utmMatch[1];
+	const promotingMatch = name.match(/^\[[\d/]+\]\s+Promoting\s+(.+)/i);
+	if (promotingMatch) return promotingMatch[1].slice(0, 60);
+	return name.length > 60 ? name.slice(0, 59) + '…' : name;
+}
+
 async function collectSocialStatus(): Promise<SocialStatus | null> {
 	console.log('Checking social status...');
 	const META_TOKEN = process.env.META_ACCESS_TOKEN || process.env.IG_ACCESS_TOKEN || '';
@@ -1018,6 +1129,78 @@ function renderHtml(data: DigestData): string {
 		`;
 	})() : '';
 
+	const campaignsHtml = data.activeCampaigns.length > 0 ? (() => {
+		const statusColor = (s: CheckStatus): string => {
+			if (s === 'critical') return '#dc2626';
+			if (s === 'warning') return '#d97706';
+			return '#16a34a';
+		};
+		const statusLabel = (s: CheckStatus): string => {
+			if (s === 'critical') return 'Krever oppmerksomhet';
+			if (s === 'warning') return 'På vei — sjekk avvik';
+			return 'På mål';
+		};
+		const checkBadge = (c: CampaignCheck): string => {
+			const icon = c.status === 'ok' ? '✓' : c.status === 'warning' ? '!' : '✗';
+			return `<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;background:${c.status === 'ok' ? '#D1FAE5' : c.status === 'warning' ? '#FEF3C7' : '#FEE2E2'};color:${c.status === 'ok' ? '#065F46' : c.status === 'warning' ? '#92400E' : '#991B1B'};margin-right:4px">${icon} ${c.metric}</span>`;
+		};
+		const cards = data.activeCampaigns.map(c => {
+			const budgetLabel = c.dailyBudgetNok
+				? `${c.dailyBudgetNok.toFixed(0)} kr/dag`
+				: c.totalBudgetNok
+				? `${c.totalBudgetNok.toFixed(0)} kr total`
+				: '—';
+			const yesterdayBlock = c.yesterday
+				? `
+					<div style="margin-top:10px;padding:10px 12px;background:#f9fafb;border-radius:4px;font-size:13px">
+						<strong style="color:#374151">I går (${c.yesterday.date}):</strong>
+						${c.yesterday.impressions.toLocaleString('nb-NO')} visninger · ${c.yesterday.clicks} klikk · ${c.yesterday.lpv} LPV · ${c.yesterday.spendNok.toFixed(2)} kr · CTR ${c.yesterday.ctr.toFixed(2)}%
+					</div>
+				`
+				: `<div style="margin-top:10px;padding:10px 12px;background:#f9fafb;border-radius:4px;font-size:13px;color:#6b7280">Ingen data for i går ennå</div>`;
+
+			return `
+				<div style="border:1px solid #e5e7eb;border-left:4px solid ${statusColor(c.status)};border-radius:6px;padding:14px 16px;margin-bottom:12px">
+					<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+						<div>
+							<div style="font-weight:600;font-size:15px;color:#141414">${c.shortName}</div>
+							<div style="font-size:12px;color:#6b7280;margin-top:2px">Dag ${c.daysElapsed} · ${budgetLabel} · ${statusLabel(c.status)}</div>
+						</div>
+					</div>
+					<table style="width:100%;margin-top:10px;border-collapse:collapse;font-size:13px">
+						<tr>
+							<td style="padding:4px 0;color:#6b7280">Spend totalt</td>
+							<td style="padding:4px 0;text-align:right;font-weight:600">${c.spendNok.toFixed(2)} kr</td>
+							<td style="padding:4px 0;color:#6b7280;padding-left:16px">Link clicks</td>
+							<td style="padding:4px 0;text-align:right;font-weight:600">${c.linkClicks}</td>
+						</tr>
+						<tr>
+							<td style="padding:4px 0;color:#6b7280">CTR (alle)</td>
+							<td style="padding:4px 0;text-align:right;font-weight:600">${c.ctrTotal.toFixed(2)}%</td>
+							<td style="padding:4px 0;color:#6b7280;padding-left:16px">Landing views</td>
+							<td style="padding:4px 0;text-align:right;font-weight:600">${c.landingPageViews}</td>
+						</tr>
+						<tr>
+							<td style="padding:4px 0;color:#6b7280">CPC (lenke)</td>
+							<td style="padding:4px 0;text-align:right;font-weight:600">${c.cpcLink.toFixed(2)} kr</td>
+							<td style="padding:4px 0;color:#6b7280;padding-left:16px">CPM</td>
+							<td style="padding:4px 0;text-align:right;font-weight:600">${c.cpm.toFixed(2)} kr</td>
+						</tr>
+					</table>
+					<div style="margin-top:10px">
+						${c.checks.map(checkBadge).join('')}
+					</div>
+					${yesterdayBlock}
+				</div>
+			`;
+		}).join('');
+
+		return `
+			<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Aktive Meta-kampanjer</h2>
+			${cards}
+		`;
+	})() : '';
+
 	const socialHtml = data.socialStatus ? (() => {
 		const ss = data.socialStatus!;
 		const fmtDelta = (n: number | null) => {
@@ -1130,6 +1313,7 @@ function renderHtml(data: DigestData): string {
 	${trafficHtml}
 	${subscriberHtml}
 	${newsletterHtml}
+	${campaignsHtml}
 	${socialHtml}
 	${festivalHtml}
 	${remindersHtml}
@@ -1213,7 +1397,7 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel
-	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, newsletterReport, socialStatus] = await Promise.all([
+	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, newsletterReport, socialStatus, activeCampaigns] = await Promise.all([
 		collectPendingCounts(),
 		collectScraperActivity(),
 		collectScraperHealth(),
@@ -1223,7 +1407,8 @@ async function main() {
 		collectSubscribers(),
 		collectExpiringPlacements(),
 		collectNewsletterReport(),
-		collectSocialStatus()
+		collectSocialStatus(),
+		collectActiveCampaigns()
 	]);
 
 	const festivalReminders = collectFestivalReminders();
@@ -1243,7 +1428,8 @@ async function main() {
 		festivalReminders,
 		reminders,
 		newsletterReport,
-		socialStatus
+		socialStatus,
+		activeCampaigns
 	};
 
 	const total = pending.corrections + pending.submissions + pending.optouts + pending.inquiries;
@@ -1275,6 +1461,12 @@ async function main() {
 	}
 	if (newsletterReport) {
 		console.log(`   Newsletter: ${newsletterReport.totalRecipients} sent, ${newsletterReport.totalOpens} opens (${newsletterReport.avgOpenRate}%), ${newsletterReport.totalClicks} clicks (${newsletterReport.avgClickRate}%)`);
+	}
+	if (activeCampaigns.length > 0) {
+		for (const c of activeCampaigns) {
+			const icon = c.status === 'ok' ? '✓' : c.status === 'warning' ? '!' : '✗';
+			console.log(`   Meta campaign ${icon} ${c.shortName}: ${c.linkClicks} clicks, ${c.spendNok.toFixed(2)} kr, CPC ${c.cpcLink.toFixed(2)} kr, CTR ${c.ctrTotal.toFixed(2)}%`);
+		}
 	}
 	if (lastPipeline) {
 		console.log(`   Last pipeline: ${lastPipeline.scrapersRun} ran, ${lastPipeline.scrapersSkipped.length} skipped, ${lastPipeline.scrapersMissing.length} missing`);
