@@ -25,6 +25,7 @@
  *   npx tsx scripts/meta.ts ads slides boost
  *   npx tsx scripts/meta.ts token
  */
+import { execSync, spawnSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import {
@@ -44,12 +45,14 @@ import {
 	nok,
 	parseActions,
 	pct,
+	saveDailyInsights,
 	type Campaign,
 	type Insight,
 } from './lib/meta-api.js';
 
 const args = process.argv.slice(2);
 const asJson = args.includes('--json');
+const asSave = args.includes('--save');
 const campaignFlag = args.find(a => a.startsWith('--campaign='))?.split('=')[1];
 const positional = args.filter(a => !a.startsWith('--'));
 
@@ -73,7 +76,7 @@ Subcommands:
   accounts                   List ad accounts accessible to token
   ads campaigns              List all campaigns on configured ad account
   ads insights [name|id]     Campaign-level insights (defaults to active)
-  ads daily [name|id]        Day-by-day breakdown
+  ads daily [name|id]        Day-by-day breakdown (add --save to upsert to ad_insights)
   ads slides [name|id]       Per-ad (carousel card) breakdown
   ads status                 Dashboard: active campaigns + key metrics
   ads check [name|id]        Flag deviations from success criteria
@@ -113,6 +116,40 @@ async function resolveCampaign(selector: string | undefined): Promise<Campaign> 
 
 function shortName(name: string, max = 60): string {
 	return name.length <= max ? name : name.slice(0, max - 1) + '…';
+}
+
+/**
+ * Best-effort: push the new token to GitHub Actions secrets so that CI
+ * workflows (daily digest) pick up the new value without manual intervention.
+ * Returns { ok: true, repo } on success, { ok: false, reason } otherwise.
+ */
+function syncTokenToGha(newToken: string): { ok: boolean; repo?: string; reason?: string } {
+	// Check that `gh` is on PATH and the user is authed
+	const ghCheck = spawnSync('gh', ['auth', 'status'], { encoding: 'utf-8' });
+	if (ghCheck.error || ghCheck.status !== 0) {
+		return { ok: false, reason: 'gh CLI not installed or not authed' };
+	}
+
+	// Resolve the repo from git remote
+	let repo: string;
+	try {
+		repo = execSync('gh repo view --json nameWithOwner -q .nameWithOwner', {
+			encoding: 'utf-8',
+		}).trim();
+	} catch {
+		return { ok: false, reason: 'could not resolve repo from git remote' };
+	}
+	if (!repo) return { ok: false, reason: 'empty repo name' };
+
+	// Set the secret
+	const setResult = spawnSync('gh', ['secret', 'set', 'META_ACCESS_TOKEN', '-R', repo], {
+		input: newToken,
+		encoding: 'utf-8',
+	});
+	if (setResult.status !== 0) {
+		return { ok: false, reason: setResult.stderr || 'gh secret set failed' };
+	}
+	return { ok: true, repo };
 }
 
 function formatCampaignRow(c: Campaign): string {
@@ -212,7 +249,17 @@ async function handleToken(action?: string): Promise<void> {
 		}
 		writeFileSync(envPath, updated);
 		console.log('\nToken extended and written to .env.');
-		console.log(`New token length: ${newToken.length} chars`);
+
+		// Best-effort sync to GHA secrets so the daily digest in CI uses the
+		// same token. Silently skipped if `gh` CLI is missing or unauthed.
+		const ghResult = syncTokenToGha(newToken);
+		if (ghResult.ok) {
+			console.log(`Synced META_ACCESS_TOKEN to GitHub Actions (${ghResult.repo}).`);
+		} else if (ghResult.reason) {
+			console.log(`GHA sync skipped: ${ghResult.reason}`);
+		}
+
+		console.log(`\nNew token length: ${newToken.length} chars`);
 		console.log('Run `npx tsx scripts/meta.ts token` to verify new expiry.\n');
 		return;
 	}
@@ -292,12 +339,25 @@ async function handleAdsDaily(selector: string | undefined): Promise<void> {
 		console.log(`\nNo daily data for ${campaign.name} yet.\n`);
 		return;
 	}
+
+	let savedCount: number | null = null;
+	if (asSave) {
+		try {
+			savedCount = await saveDailyInsights(campaign, daily);
+		} catch (e: any) {
+			console.error(`\n[save] ${e.message}`);
+		}
+	}
+
 	if (asJson) {
-		out({ campaign, daily });
+		out({ campaign, daily, saved: savedCount });
 		return;
 	}
 	console.log(`\n${campaign.name}\nDag-for-dag:\n`);
 	console.log(formatDailyTable(daily));
+	if (savedCount !== null) {
+		console.log(`\n  Lagret ${savedCount} rad(er) i ad_insights.`);
+	}
 	console.log('');
 }
 

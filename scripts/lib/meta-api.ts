@@ -446,6 +446,72 @@ export function int(value: string | number | undefined): string {
 	return n.toLocaleString('nb-NO');
 }
 
+// ── Historical snapshot (Supabase) ──
+
+/**
+ * Extract the short campaign name (e.g. "boost-2026-04-08") from the auto-generated
+ * FB name "[DD/MM/YYYY] Promoting https://...utm_campaign=...".
+ */
+export function extractShortCampaignName(name: string): string {
+	const utmMatch = name.match(/utm_campaign=([^&\s]+)/);
+	if (utmMatch) return utmMatch[1];
+	const promotingMatch = name.match(/^\[[\d/]+\]\s+Promoting\s+(.+)/i);
+	if (promotingMatch) return promotingMatch[1].slice(0, 60);
+	return name.length > 60 ? name.slice(0, 59) + '…' : name;
+}
+
+/**
+ * Upsert daily insight rows into the `ad_insights` Supabase table.
+ * One row per (campaign_id, date). Repeat calls update the latest numbers
+ * for each day — Meta can still emit new actions for "yesterday" hours after
+ * UTC midnight, so re-fetching is expected.
+ *
+ * Returns the number of rows upserted. Errors are thrown so callers can decide
+ * whether to treat them as fatal.
+ */
+export async function saveDailyInsights(
+	campaign: Campaign,
+	daily: Insight[],
+): Promise<number> {
+	if (daily.length === 0) return 0;
+	// Lazy import so the helper doesn't force a supabase client on all consumers
+	const { supabase } = await import('./supabase.js');
+	const shortName = extractShortCampaignName(campaign.name);
+	const rows = daily.map(i => {
+		const parsed = parseActions(i.actions);
+		const linkClicks = Number(i.inline_link_clicks || 0);
+		const spendNok = Number(i.spend || 0);
+		return {
+			platform: 'meta',
+			campaign_id: campaign.id,
+			campaign_name: campaign.name,
+			short_name: shortName,
+			date: i.date_start,
+			impressions: Number(i.impressions || 0),
+			reach: Number(i.reach || 0),
+			clicks: Number(i.clicks || 0),
+			link_clicks: linkClicks,
+			landing_page_views: parsed.landingPageViews,
+			spend_nok: spendNok,
+			ctr_total: Number(i.ctr || 0),
+			ctr_link: Number(i.inline_link_click_ctr || 0),
+			cpc_all: Number(i.cpc || 0),
+			cpc_link: linkClicks > 0 ? Number((spendNok / linkClicks).toFixed(2)) : 0,
+			cpm: Number(i.cpm || 0),
+			frequency: Number(i.frequency || 0),
+			raw: i,
+			fetched_at: new Date().toISOString(),
+		};
+	});
+
+	const { error } = await supabase
+		.from('ad_insights')
+		.upsert(rows, { onConflict: 'platform,campaign_id,date' });
+
+	if (error) throw new Error(`ad_insights upsert failed: ${error.message}`);
+	return rows.length;
+}
+
 // ── Token self-check ──
 
 export interface TokenInfo {

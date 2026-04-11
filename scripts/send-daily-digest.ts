@@ -26,6 +26,7 @@ import {
 	getCampaignDailyInsights,
 	listCampaigns,
 	parseActions,
+	saveDailyInsights,
 	type Campaign,
 	type CampaignCheck,
 	type CheckStatus,
@@ -702,6 +703,14 @@ async function collectActiveCampaigns(): Promise<CampaignBrief[]> {
 				const daily = await getCampaignDailyInsights(c.id);
 				const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 				const yesterdayRow = daily.find(d => d.date_start === yesterdayStr);
+
+				// Snapshot to ad_insights for long-term history — non-fatal.
+				try {
+					const rows = await saveDailyInsights(c, daily);
+					if (rows > 0) console.log(`  Snapshotted ${rows} ad_insights row(s) for ${c.id}`);
+				} catch (saveErr: any) {
+					console.warn(`  ad_insights save failed (non-fatal): ${saveErr.message}`);
+				}
 
 				briefs.push({
 					id: c.id,
