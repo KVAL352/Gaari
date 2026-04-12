@@ -290,6 +290,7 @@ export async function generateOneCollection(opts: {
 
 	const outputPath = resolve(tmpDir, `${slug}-${dateStr}.mp4`);
 
+	let publicUrl: string | null = null;
 	try {
 		const cmd = [
 			`"${FFMPEG}"`,
@@ -308,32 +309,32 @@ export async function generateOneCollection(opts: {
 		console.log(`  Encoding ${frames.length} frames → MP4...`);
 		execSync(cmd, { stdio: 'pipe', timeout: 60000 });
 		console.log(`  Encoded: ${outputPath}`);
+
+		const videoBuffer = readFileSync(outputPath);
+		const storagePath = `${dateStr}/${slug}/reel.mp4`;
+		const { error: uploadError } = await supabase.storage
+			.from(STORAGE_BUCKET)
+			.upload(storagePath, videoBuffer, {
+				contentType: 'video/mp4',
+				upsert: true
+			});
+
+		if (uploadError) {
+			console.error(`  Upload failed: ${uploadError.message}`);
+			console.log(`  Local MP4 kept at: ${outputPath}`);
+		} else {
+			const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storagePath);
+			publicUrl = urlData.publicUrl;
+			console.log(`  Uploaded: ${publicUrl}`);
+		}
 	} catch (err: any) {
-		console.error(`  FFmpeg failed: ${err.message}`);
-		return null;
+		console.warn(`  FFmpeg failed (continuing with stories/frames): ${err.message}`);
 	}
 
-	const videoBuffer = readFileSync(outputPath);
-	const storagePath = `${dateStr}/${slug}/reel.mp4`;
-	const { error: uploadError } = await supabase.storage
-		.from(STORAGE_BUCKET)
-		.upload(storagePath, videoBuffer, {
-			contentType: 'video/mp4',
-			upsert: true
-		});
-
-	let publicUrl: string | null = null;
-	if (uploadError) {
-		console.error(`  Upload failed: ${uploadError.message}`);
-		console.log(`  Local MP4 kept at: ${outputPath}`);
-	} else {
-		const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storagePath);
-		publicUrl = urlData.publicUrl;
-		console.log(`  Uploaded: ${publicUrl}`);
-	}
-
+	// Generate stories + captions even when MP4 encoding fails,
+	// so frames and stories are available for manual reel creation.
 	let delivery: ReelDelivery | null = null;
-	if (publicUrl) {
+	{
 		const collectionUrl = `https://gaari.no/${lang}/${slug}?utm_source=instagram&utm_medium=reels&utm_campaign=${slug}`;
 		const captionEvents: CaptionEvent[] = selected.map(e => ({
 			title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
@@ -417,13 +418,24 @@ export async function generateOneCollection(opts: {
 		};
 	}
 
+	// Upload reel frames as individual PNGs (for manual reel creation in Meta)
+	if (!publicUrl) {
+		console.log(`  Uploading ${frames.length} reel frames as PNGs...`);
+		for (let i = 0; i < frames.length; i++) {
+			const framePath = `${dateStr}/${slug}/frame-${String(i + 1).padStart(2, '0')}.png`;
+			await supabase.storage
+				.from(STORAGE_BUCKET)
+				.upload(framePath, frames[i], { contentType: 'image/png', upsert: true })
+				.catch(() => { /* non-critical */ });
+		}
+		console.log(`  ${frames.length} frame PNGs uploaded (use for manual reel creation)`);
+	}
+
 	for (let i = 0; i < frames.length; i++) {
 		try { unlinkSync(resolve(tmpDir, `frame-${String(i).padStart(3, '0')}.png`)); } catch {}
 	}
 	try { unlinkSync(resolve(tmpDir, 'concat.txt')); } catch {}
-	if (!uploadError) {
-		try { unlinkSync(outputPath); } catch {}
-	}
+	try { unlinkSync(outputPath); } catch {}
 
 	console.log('');
 	return delivery;
