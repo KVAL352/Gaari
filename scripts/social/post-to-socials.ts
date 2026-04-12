@@ -25,7 +25,8 @@ const PLATFORM_ARG = process.argv.find(a => a.startsWith('--platform='))?.split(
 const POST_IG = PLATFORM_ARG === 'all' || PLATFORM_ARG === 'ig';
 const POST_FB = PLATFORM_ARG === 'all' || PLATFORM_ARG === 'fb';
 
-const POST_STORIES = PLATFORM_ARG === 'all' || PLATFORM_ARG === 'ig' || PLATFORM_ARG === 'stories';
+// Stories are posted manually via Meta Business Suite — disabled here.
+const POST_STORIES = false;
 
 const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
