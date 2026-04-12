@@ -118,29 +118,6 @@
 			<div class="progress-fill" style="width: {totalTasks > 0 ? (doneTasks / totalTasks * 100) : 0}%"></div>
 		</div>
 
-		{#if data.manifest.carouselsZipUrl || data.manifest.storiesZipUrl || data.manifest.zipUrl}
-			<div class="download-all">
-				<h2 class="download-all-title">Last ned</h2>
-				<div class="download-all-row">
-					{#if data.manifest.carouselsZipUrl}
-						<a class="dl-btn carousel" href={data.manifest.carouselsZipUrl} download={`gaari-uke-${data.manifest.startMonday}-carousels.zip`}>
-							Karuseller
-						</a>
-					{/if}
-					{#if data.manifest.storiesZipUrl}
-						<a class="dl-btn stories" href={data.manifest.storiesZipUrl} download={`gaari-uke-${data.manifest.startMonday}-stories.zip`}>
-							Stories
-						</a>
-					{/if}
-					{#if data.manifest.zipUrl}
-						<a class="dl-btn reel" href={data.manifest.zipUrl} download={`gaari-uke-${data.manifest.startMonday}-reels.zip`}>
-							Reels
-						</a>
-					{/if}
-				</div>
-			</div>
-		{/if}
-
 		<div class="top-actions">
 			<button type="button" class="reset-btn" onclick={resetWeek}>Nullstill alt</button>
 		</div>
@@ -160,18 +137,14 @@
 				{#if day.skipped}
 					<p class="skip-reason">{day.skipReason || 'Ingen events tilgjengelig'}</p>
 				{:else}
-					<!-- Download buttons -->
-					<div class="download-row">
-						{#if day.mp4Url}
-							<a class="dl-btn reel" href={day.mp4Url} download={`gaari-${day.dateStr}-reel.mp4`}>
-								Reel
+					<!-- Download button -->
+					{#if day.dayZipUrl}
+						<div class="download-row">
+							<a class="dl-btn day-zip" href={day.dayZipUrl} download={`gaari-${day.dateStr}-${day.slug}.zip`}>
+								Last ned alt ({day.frameCount} reel-bilder, {day.storyCount} stories{day.carouselCount ? `, ${day.carouselCount} carousel` : ''})
 							</a>
-						{:else if day.frameCount > 0}
-							<a class="dl-btn reel-frames" href={reelFrameUrl(day.dateStr, day.slug, 1)} target="_blank">
-								Reel-bilder ({day.frameCount})
-							</a>
-						{/if}
-					</div>
+						</div>
+					{/if}
 
 					<!-- Copy buttons -->
 					<div class="copy-row">
@@ -379,10 +352,7 @@
 		color: #fff;
 	}
 
-	.dl-btn.carousel { background: #C82D2D; }
-	.dl-btn.stories { background: #2D6BC8; }
-	.dl-btn.reel { background: #141414; }
-	.dl-btn.reel-frames { background: #595959; }
+	.dl-btn.day-zip { background: #C82D2D; }
 
 	.dl-btn:active {
 		transform: scale(0.98);
@@ -628,26 +598,6 @@
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		opacity: 0.85;
-	}
-
-	.download-all {
-		background: #fff;
-		border: 2px solid #e6e3da;
-		border-radius: 12px;
-		padding: 20px;
-		margin-bottom: 16px;
-	}
-
-	.download-all-title {
-		margin: 0 0 12px;
-		font-family: 'Barlow Condensed', sans-serif;
-		font-size: 20px;
-		font-weight: 700;
-	}
-
-	.download-all-row {
-		display: flex;
-		gap: 8px;
 	}
 
 	.frames-grid {

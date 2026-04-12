@@ -102,6 +102,8 @@ interface DayManifest {
 	durationSec: number;
 	skipped: boolean;
 	skipReason?: string;
+	dayZipUrl?: string;
+	carouselCount?: number;
 }
 
 interface WeekManifest {
@@ -432,6 +434,7 @@ async function buildAndUploadCarouselsZip(
 			totalSlidesAdded++;
 		}
 		fetchedByDay.set(day.dateStr, dayBuffers);
+		day.carouselCount = slides.length;
 
 		// Build captions per FB group
 		const captionEvents: CaptionEvent[] = selected.map(e => ({
@@ -517,6 +520,130 @@ async function buildAndUploadCarouselsZip(
 
 	const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(zipStoragePath);
 	console.log(`  Carousels ZIP uploaded (${totalSlidesAdded} slides): ${data.publicUrl}`);
+	return data.publicUrl;
+}
+
+/**
+ * Build a single ZIP per day containing all assets: reel frames, stories,
+ * carousel slides, and captions. Uploaded as {dateStr}/{slug}/dag.zip.
+ */
+async function buildAndUploadDayZip(day: DayManifest): Promise<string | null> {
+	if (day.skipped) return null;
+
+	const tmpDir = resolve(import.meta.dirname, '.reels-tmp');
+	if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
+
+	const dayNameSafe = safeFilename(day.dayName);
+	const slugSafe = safeFilename(day.slug);
+	const zipPath = resolve(tmpDir, `${day.dateStr}-${dayNameSafe}-${slugSafe}.zip`);
+	const baseUrl = `https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/${STORAGE_BUCKET}`;
+	const sharp = (await import('sharp')).default;
+
+	let totalFiles = 0;
+
+	const archive = archiver('zip', { zlib: { level: 6 } });
+	const output = createWriteStream(zipPath);
+
+	const done = new Promise<void>((res, rej) => {
+		output.on('close', () => res());
+		output.on('error', rej);
+		archive.on('error', rej);
+	});
+	archive.pipe(output);
+
+	// 1. Reel frames
+	for (let i = 1; i <= day.frameCount; i++) {
+		const idx = String(i).padStart(2, '0');
+		const url = `${baseUrl}/${day.dateStr}/${day.slug}/frame-${idx}.png`;
+		try {
+			const res = await fetch(url);
+			if (!res.ok) continue;
+			const buf = Buffer.from(await res.arrayBuffer());
+			archive.append(buf, { name: `reel-frames/${day.dateStr}-${dayNameSafe}-${slugSafe}-frame-${idx}.png` });
+			totalFiles++;
+		} catch { /* skip */ }
+	}
+
+	// 2. Reel MP4 (if exists)
+	if (day.mp4Url) {
+		try {
+			const res = await fetch(day.mp4Url);
+			if (res.ok) {
+				const buf = Buffer.from(await res.arrayBuffer());
+				archive.append(buf, { name: `${day.dateStr}-${dayNameSafe}-${slugSafe}-reel.mp4` });
+				totalFiles++;
+			}
+		} catch { /* skip */ }
+	}
+
+	// 3. Stories
+	const storiesManifestUrl = `${baseUrl}/${day.dateStr}/${day.slug}/stories.json`;
+	try {
+		const smRes = await fetch(storiesManifestUrl);
+		if (smRes.ok) {
+			const stories: { url: string; venue: string; igHandle: string | null; title: string }[] = await smRes.json();
+			for (let i = 0; i < stories.length; i++) {
+				const idx = String(i + 1).padStart(2, '0');
+				try {
+					const res = await fetch(stories[i].url);
+					if (!res.ok) continue;
+					const pngBuf = Buffer.from(await res.arrayBuffer());
+					const jpgBuf = await sharp(pngBuf).jpeg({ quality: 88 }).toBuffer();
+					archive.append(jpgBuf, { name: `stories/${day.dateStr}-${dayNameSafe}-${slugSafe}-story-${idx}.jpg` });
+					totalFiles++;
+				} catch { /* skip */ }
+			}
+		}
+	} catch { /* skip */ }
+
+	// 4. Carousel slides
+	for (let i = 1; i <= (day.carouselCount || 0); i++) {
+		const idx = String(i).padStart(2, '0');
+		const url = `${baseUrl}/${day.dateStr}/${day.slug}/carousel-${idx}.jpg`;
+		try {
+			const res = await fetch(url);
+			if (!res.ok) continue;
+			const buf = Buffer.from(await res.arrayBuffer());
+			archive.append(buf, { name: `carousel/${day.dateStr}-${dayNameSafe}-${slugSafe}-carousel-${idx}.jpg` });
+			totalFiles++;
+		} catch { /* skip */ }
+	}
+
+	// 5. Caption
+	const captionUrl = `${baseUrl}/${day.dateStr}/${day.slug}/caption.txt`;
+	try {
+		const res = await fetch(captionUrl);
+		if (res.ok) {
+			const text = await res.text();
+			archive.append(text, { name: `caption.txt` });
+			totalFiles++;
+		}
+	} catch { /* skip */ }
+
+	if (totalFiles === 0) {
+		archive.abort();
+		try { unlinkSync(zipPath); } catch { /* ignore */ }
+		return null;
+	}
+
+	await archive.finalize();
+	await done;
+
+	const zipBuffer = readFileSync(zipPath);
+	const storagePath = `${day.dateStr}/${day.slug}/dag.zip`;
+	const { error } = await supabase.storage
+		.from(STORAGE_BUCKET)
+		.upload(storagePath, zipBuffer, { contentType: 'application/zip', upsert: true });
+
+	try { unlinkSync(zipPath); } catch { /* ignore */ }
+
+	if (error) {
+		console.warn(`  Day ZIP upload failed for ${day.dateStr}: ${error.message}`);
+		return null;
+	}
+
+	const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storagePath);
+	console.log(`  Day ZIP: ${day.dayName} ${day.dateStr} (${totalFiles} files): ${data.publicUrl}`);
 	return data.publicUrl;
 }
 
@@ -737,6 +864,13 @@ async function main() {
 	const zipUrl = await buildAndUploadZip(startDate, days);
 	const storiesZipUrl = await buildAndUploadStoriesZip(startDate, days);
 	const carouselsZipUrl = await buildAndUploadCarouselsZip(startDate, days, activeEvents);
+
+	// Build per-day ZIPs (all assets for one day in a single download)
+	console.log('\nBuilding per-day ZIPs...');
+	for (const day of days) {
+		const dayZipUrl = await buildAndUploadDayZip(day);
+		if (dayZipUrl) day.dayZipUrl = dayZipUrl;
+	}
 
 	const manifest: WeekManifest = {
 		startMonday: startDate,

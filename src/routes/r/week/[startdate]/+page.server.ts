@@ -23,6 +23,8 @@ interface DayManifest {
 	storyLink?: string;
 	captionNo?: string;
 	captionEn?: string;
+	dayZipUrl?: string;
+	carouselCount?: number;
 }
 
 interface WeekManifest {
