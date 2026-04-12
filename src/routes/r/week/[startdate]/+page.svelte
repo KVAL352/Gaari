@@ -75,15 +75,16 @@
 	const totalTasks = $derived(
 		activeDays.reduce((sum, d) => {
 			const storyDay = storiesForDay(d.dateStr, d.slug);
-			return sum + (storyDay?.stories.length ?? 0) + groupsForSlug(d.slug).length;
+			return sum + 1 + (storyDay?.stories.length ?? 0) + groupsForSlug(d.slug).length; // +1 for reel
 		}, 0)
 	);
 	const doneTasks = $derived(
 		activeDays.reduce((sum, d) => {
 			const storyDay = storiesForDay(d.dateStr, d.slug);
+			const reelDone = posted[`${d.dateStr}-${d.slug}-reel`] ? 1 : 0;
 			const storiesDone = storyDay?.stories.filter((_, i) => posted[`${d.dateStr}-${d.slug}-${i}`]).length ?? 0;
 			const groupsDone = groupsForSlug(d.slug).filter(g => posted[`${d.dateStr}-${d.slug}-fb-${g.id}`]).length;
-			return sum + storiesDone + groupsDone;
+			return sum + reelDone + storiesDone + groupsDone;
 		}, 0)
 	);
 
@@ -137,14 +138,17 @@
 				{#if day.skipped}
 					<p class="skip-reason">{day.skipReason || 'Ingen events tilgjengelig'}</p>
 				{:else}
-					<!-- Download button -->
-					{#if day.dayZipUrl}
-						<div class="download-row">
+					<!-- Download + reel checklist -->
+					<div class="download-row">
+						{#if day.dayZipUrl}
 							<a class="dl-btn day-zip" href={day.dayZipUrl} download={`gaari-${day.dateStr}-${day.slug}.zip`}>
-								Last ned alt ({day.frameCount} reel-bilder, {day.storyCount} stories{day.carouselCount ? `, ${day.carouselCount} carousel` : ''})
+								Last ned alt
 							</a>
-						</div>
-					{/if}
+						{/if}
+						<button type="button" class="reel-check" class:done={posted[`${day.dateStr}-${day.slug}-reel`]} onclick={() => togglePosted(`${day.dateStr}-${day.slug}-reel`)}>
+							{#if posted[`${day.dateStr}-${day.slug}-reel`]}Reel lagt ut{:else}Reel{/if}
+						</button>
+					</div>
 
 					<!-- Copy buttons -->
 					<div class="copy-row">
@@ -352,7 +356,28 @@
 		color: #fff;
 	}
 
-	.dl-btn.day-zip { background: #C82D2D; }
+	.dl-btn.day-zip { background: #C82D2D; flex: 1; }
+
+	.reel-check {
+		background: #fff;
+		color: #141414;
+		border: 2px solid #e6e3da;
+		padding: 12px 20px;
+		border-radius: 10px;
+		font-family: 'Barlow Condensed', sans-serif;
+		font-weight: 700;
+		font-size: 16px;
+		cursor: pointer;
+		transition: border-color 120ms ease, background 120ms ease;
+	}
+
+	.reel-check:hover { border-color: #141414; }
+
+	.reel-check.done {
+		background: #1A6B35;
+		border-color: #1A6B35;
+		color: #fff;
+	}
 
 	.dl-btn:active {
 		transform: scale(0.98);
