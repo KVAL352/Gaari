@@ -36,6 +36,8 @@ const SUBDOMAINS = [
 	'bitteater',
 	'columbiegg',
 	'perfectsounds',
+	'villvillvest',
+	'bmof',
 ];
 
 interface TCEvent {
