@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import { isFamilyTitle } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -7,7 +8,7 @@ const BASE_URL = 'https://harmonien.no/program/';
 
 function guessCategory(title: string): string {
 	const lower = title.toLowerCase();
-	if (lower.includes('barn') || lower.includes('familie') || lower.includes('kids')) return 'family';
+	if (isFamilyTitle(lower) || lower.includes('kids')) return 'family';
 	if (lower.includes('opera') || lower.includes('traviata') || lower.includes('carmen')) return 'theatre';
 	if (lower.includes('jazz') || lower.includes('pop') || lower.includes('rock')) return 'music';
 	return 'music'; // Harmonien is primarily classical music

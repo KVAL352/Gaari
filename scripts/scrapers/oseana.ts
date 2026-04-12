@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import { isFamilyTitle } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay, deleteEventByUrl, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -137,7 +138,7 @@ async function fetchDetailInfo(url: string): Promise<{ price: string; ticketUrl?
 function guessCategory(title: string, classes: string): string {
 	const text = `${title} ${classes}`.toLowerCase();
 	if (text.includes('konsert') || text.includes('musikk') || text.includes('jazz')) return 'music';
-	if (text.includes('barn') || text.includes('familie') || text.includes('familieverkstad')) return 'family';
+	if (isFamilyTitle(text) || text.includes('familieverkstad')) return 'family';
 	if (text.includes('teater') || text.includes('framsyning') || text.includes('revy')) return 'theatre';
 	if (text.includes('standup') || text.includes('humor') || text.includes('komikk')) return 'culture';
 	if (text.includes('foredrag') || text.includes('debatt')) return 'culture';

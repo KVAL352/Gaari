@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { mapBydel } from '../lib/categories.js';
+import { mapBydel, isFamilyTitle } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -43,7 +43,7 @@ function parseEnglishDate(str: string): string | null {
 function guessCategory(title: string, tags: string[]): string {
 	const text = `${title} ${tags.join(' ')}`.toLowerCase();
 	if (text.includes('konsert') || text.includes('musikk') || text.includes('concert')) return 'music';
-	if (text.includes('barn') || text.includes('unge') || text.includes('kids')) return 'family';
+	if (isFamilyTitle(text) || text.includes('kids')) return 'family';
 	if (text.includes('lesesirkel') || text.includes('bokgruppe')) return 'culture';
 	if (text.includes('kurs') || text.includes('workshop') || text.includes('skriv')) return 'workshop';
 	if (text.includes('debatt') || text.includes('samtale') || text.includes('foredrag')) return 'culture';

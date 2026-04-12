@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import { isFamilyTitle } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -69,7 +70,7 @@ function mapCategory(cat: string): string {
 	if (lower.includes('konsert') || lower.includes('musikk')) return 'music';
 	if (lower.includes('workshop')) return 'workshop';
 	if (lower.includes('festival')) return 'festival';
-	if (lower.includes('barn') || lower.includes('familie')) return 'family';
+	if (isFamilyTitle(lower)) return 'family';
 	if (lower.includes('sosial')) return 'culture';
 	return 'culture';
 }
@@ -142,7 +143,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: imageUrl,
-			age_group: category.toLowerCase().includes('barn') ? 'family' : 'all',
+			age_group: isFamilyTitle(category) ? 'family' : 'all',
 			language: 'no',
 			status: 'approved',
 		});

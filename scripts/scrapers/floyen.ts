@@ -31,7 +31,7 @@ function guessCategory(title: string, description: string): string {
 	if (text.includes('run') || text.includes('løp') || text.includes('fløibanen opp')) return 'sports';
 	if (text.includes('sjømat') || text.includes('tea') || text.includes('kveldsmat') || text.includes('restaurant')) return 'food';
 	if (text.includes('festival')) return 'festival';
-	if (text.includes('barn') || text.includes('camp') || text.includes('naturskole') || text.includes('påskesprell')) return 'family';
+	if (/\bfor\s+barn\b|\bbarnelørdag\b|\bbarneforestilling\b/.test(text) || text.includes('camp') || text.includes('naturskole') || text.includes('påskesprell')) return 'family';
 	if (text.includes('kurs') || text.includes('workshop')) return 'workshop';
 	if (text.includes('bad')) return 'sports';
 	if (new RegExp('\\btur\\b').test(text) || text.includes('ekspedisjon') || text.includes('vandring')) return 'tours';

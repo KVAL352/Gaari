@@ -38,7 +38,8 @@ function parseDateFromText(text: string): { date: string; time: string } | null 
 function guessCategory(title: string, tag: string): string {
 	const text = `${title} ${tag}`.toLowerCase();
 	if (text.includes('konsert') || text.includes('musikk') || text.includes('jazz')) return 'music';
-	if (text.includes('barn') || text.includes('familielørdag') || text.includes('barnekino') || text.includes('familie')) return 'family';
+	const familyRe = /\bfor\s+barn\b|\bbarnelørdag\b|\bbarnekino\b|\bbarneforestilling\b|\bfamilielørdag\b|\bfamilie\b|\beventyrstund\b/;
+	if (familyRe.test(text) || tag.toLowerCase() === 'barn') return 'family';
 	if (text.includes('teater') || text.includes('forestilling') || text.includes('dukketeater')) return 'theatre';
 	if (text.includes('film') || text.includes('kino')) return 'culture';
 	if (text.includes('kurs') || text.includes('workshop') || text.includes('verksted')) return 'workshop';

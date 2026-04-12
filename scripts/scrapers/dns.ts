@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { mapBydel } from '../lib/categories.js';
+import { mapBydel, isFamilyTitle } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, deleteEventByUrl, fetchHTML, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -27,7 +27,7 @@ interface DNSResponse {
 function mapCategory(title: string): string {
 	const lower = title.toLowerCase();
 	if (lower.includes('konsert') || lower.includes('musikal')) return 'music';
-	if (lower.includes('barn') || lower.includes('brødrene')) return 'family';
+	if (isFamilyTitle(lower) || lower.includes('brødrene')) return 'family';
 	return 'theatre';
 }
 
@@ -175,7 +175,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			source: SOURCE,
 			source_url: eventUrl,
 			image_url: imageUrl,
-			age_group: first.title.toLowerCase().includes('barn') || first.title.toLowerCase().includes('brødrene') ? 'family' : 'all',
+			age_group: isFamilyTitle(first.title) || first.title.toLowerCase().includes('brødrene') ? 'family' : 'all',
 			language: 'no',
 			status: 'approved',
 		});

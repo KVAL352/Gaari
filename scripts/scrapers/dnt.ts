@@ -1,4 +1,4 @@
-import { mapBydel } from '../lib/categories.js';
+import { mapBydel, isFamilyTitle } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, delay, deleteEventByUrl } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -48,7 +48,7 @@ function mapCategory(mainType: string): string {
 
 function mapAgeGroup(targetGroups: string): string {
 	const lower = targetGroups.toLowerCase();
-	if (lower.includes('barn')) return 'family';
+	if (isFamilyTitle(lower)) return 'family';
 	if (lower.includes('ungdom') && !lower.includes('voksne') && !lower.includes('senior')) return 'students';
 	return 'all';
 }

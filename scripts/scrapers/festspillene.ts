@@ -1,3 +1,4 @@
+import { isFamilyTitle } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -38,7 +39,7 @@ function guessCategory(name: string, scene: string): string {
 		text.includes('mahler') || text.includes('grieg')) return 'music';
 	if (text.includes('teater') || text.includes('opera') || text.includes('dans') ||
 		text.includes('hamlet') || text.includes('forestilling') || text.includes('sirkus')) return 'theatre';
-	if (text.includes('barn') || text.includes('familie') || text.includes('kids')) return 'family';
+	if (isFamilyTitle(text) || text.includes('kids')) return 'family';
 	if (text.includes('workshop') || text.includes('kurs') || text.includes('klasse')) return 'workshop';
 	if (text.includes('vandring') || text.includes('byvandring') || text.includes('guidet tur')) return 'tours';
 	if (text.includes('utstilling') || text.includes('kunst')) return 'culture';

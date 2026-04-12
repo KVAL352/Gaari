@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { mapBydel } from '../lib/categories.js';
+import { mapBydel, isFamilyTitle } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay, parseNorwegianDate, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -70,7 +70,7 @@ function guessCategory(title: string): string {
 	const t = title.toLowerCase();
 	if (t.includes('svømm') || t.includes('stup') || t.includes('vannsklie') || t.includes('bading')) return 'sports';
 	if (t.includes('seminar') || t.includes('kurs') || t.includes('førstehjelp')) return 'workshop';
-	if (t.includes('barn') || t.includes('familie')) return 'family';
+	if (isFamilyTitle(t)) return 'family';
 	if (new RegExp('\\bfest\\b').test(t) || t.includes('konsert')) return 'music';
 	return 'sports';
 }

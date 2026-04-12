@@ -112,6 +112,16 @@ export function mapCategory(sourceCategory: string): string {
 	return 'culture';
 }
 
+/**
+ * Check if a title/text indicates a family/kids event.
+ * Uses specific patterns to avoid false positives (e.g. "barn" in political contexts).
+ */
+const FAMILY_RE = /\bfor\s+barn\b|\bbarnas\s|\bbarnelørdag\b|\bbarnekino\b|\bbarneforestilling\b|\bbarneverksted\b|\bbarneaktivitet|\bfamilielørdag\b|\bfamilie\b|\beventyrstund\b|\bnaturskole\b|\bpåskesprell\b|\bjuniorklubb\b|\bdukketeater\b/i;
+
+export function isFamilyTitle(text: string): boolean {
+	return FAMILY_RE.test(text);
+}
+
 // Map known venues → bydel
 const VENUE_BYDEL_MAP: Record<string, string> = {
 	'grieghallen': 'Sentrum',

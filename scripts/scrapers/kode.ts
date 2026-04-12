@@ -1,4 +1,4 @@
-import { mapBydel } from '../lib/categories.js';
+import { mapBydel, isFamilyTitle } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -35,7 +35,7 @@ function mapCategory(title: string, startDate: string, endDate: string): string 
 	if (lower.includes('omvisning') || lower.includes('guided')) return 'tours';
 	if (lower.includes('verksted') || lower.includes('workshop') || lower.includes('kurs')) return 'workshop';
 	if (lower.includes('foredrag') || lower.includes('samtale') || lower.includes('talk')) return 'culture';
-	if (lower.includes('barn') || lower.includes('familie') || lower.includes('folkeverksted')) return 'family';
+	if (isFamilyTitle(lower) || lower.includes('folkeverksted')) return 'family';
 	if (lower.includes('festival')) return 'festival';
 
 	// Long-running events (> 14 days) are likely exhibitions
@@ -120,7 +120,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: event.imageUrl || undefined,
-			age_group: event.title.toLowerCase().includes('barn') || event.title.toLowerCase().includes('familie') ? 'family' : 'all',
+			age_group: isFamilyTitle(event.title) ? 'family' : 'all',
 			language: event.title.match(/[a-zA-Z]{5,}/) ? 'both' : 'no',
 			status: 'approved',
 		});

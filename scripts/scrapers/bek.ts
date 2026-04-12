@@ -1,4 +1,4 @@
-import { mapBydel } from '../lib/categories.js';
+import { mapBydel, isFamilyTitle } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -85,7 +85,7 @@ function guessCategory(title: string, content: string): string {
 	if (text.includes('workshop') || text.includes('kurs')) return 'workshop';
 	if (text.includes('konsert') || text.includes('musikk') || text.includes('lyd')) return 'music';
 	if (text.includes('film')) return 'culture';
-	if (text.includes('familie') || text.includes('barn')) return 'family';
+	if (isFamilyTitle(text)) return 'family';
 	if (text.includes('performance') || text.includes('installasjon')) return 'culture';
 	return 'culture';
 }
