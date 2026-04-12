@@ -87,8 +87,14 @@
 		}, 0)
 	);
 
+	const STORAGE_BASE = 'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/social-media';
+
 	function carouselThumbUrl(dateStr: string, slug: string): string {
-		return `https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/social-media/${dateStr}/${slug}/carousel-01.jpg`;
+		return `${STORAGE_BASE}/${dateStr}/${slug}/carousel-01.jpg`;
+	}
+
+	function reelFrameUrl(dateStr: string, slug: string, idx: number): string {
+		return `${STORAGE_BASE}/${dateStr}/${slug}/frame-${String(idx).padStart(2, '0')}.png`;
 	}
 </script>
 
@@ -112,6 +118,29 @@
 			<div class="progress-fill" style="width: {totalTasks > 0 ? (doneTasks / totalTasks * 100) : 0}%"></div>
 		</div>
 
+		{#if data.manifest.carouselsZipUrl || data.manifest.storiesZipUrl || data.manifest.zipUrl}
+			<div class="download-all">
+				<h2 class="download-all-title">Last ned</h2>
+				<div class="download-all-row">
+					{#if data.manifest.carouselsZipUrl}
+						<a class="dl-btn carousel" href={data.manifest.carouselsZipUrl} download={`gaari-uke-${data.manifest.startMonday}-carousels.zip`}>
+							Karuseller
+						</a>
+					{/if}
+					{#if data.manifest.storiesZipUrl}
+						<a class="dl-btn stories" href={data.manifest.storiesZipUrl} download={`gaari-uke-${data.manifest.startMonday}-stories.zip`}>
+							Stories
+						</a>
+					{/if}
+					{#if data.manifest.zipUrl}
+						<a class="dl-btn reel" href={data.manifest.zipUrl} download={`gaari-uke-${data.manifest.startMonday}-reels.zip`}>
+							Reels
+						</a>
+					{/if}
+				</div>
+			</div>
+		{/if}
+
 		<div class="top-actions">
 			<button type="button" class="reset-btn" onclick={resetWeek}>Nullstill alt</button>
 		</div>
@@ -133,19 +162,13 @@
 				{:else}
 					<!-- Download buttons -->
 					<div class="download-row">
-						{#if day.carouselZipUrl}
-							<a class="dl-btn carousel" href={day.carouselZipUrl} download={`gaari-${day.dateStr}-carousel.zip`}>
-								Carousel ({day.frameCount})
-							</a>
-						{/if}
-						{#if day.storiesZipUrl}
-							<a class="dl-btn stories" href={day.storiesZipUrl} download={`gaari-${day.dateStr}-stories.zip`}>
-								Stories ({day.storyCount})
-							</a>
-						{/if}
 						{#if day.mp4Url}
 							<a class="dl-btn reel" href={day.mp4Url} download={`gaari-${day.dateStr}-reel.mp4`}>
 								Reel
+							</a>
+						{:else if day.frameCount > 0}
+							<a class="dl-btn reel-frames" href={reelFrameUrl(day.dateStr, day.slug, 1)} target="_blank">
+								Reel-bilder ({day.frameCount})
 							</a>
 						{/if}
 					</div>
@@ -171,6 +194,23 @@
 							</button>
 						{/if}
 					</div>
+
+					<!-- Reel frames gallery (when no MP4 available) -->
+					{#if !day.mp4Url && day.frameCount > 0}
+						<div class="subsection">
+							<div class="subsection-header">
+								<h3>Reel-bilder (for Meta)</h3>
+								<span class="frame-count">{day.frameCount} frames</span>
+							</div>
+							<div class="frames-grid">
+								{#each Array.from({ length: day.frameCount }, (_, i) => i + 1) as idx}
+									<a href={reelFrameUrl(day.dateStr, day.slug, idx)} download={`gaari-${day.dateStr}-${day.slug}-frame-${String(idx).padStart(2, '0')}.png`} class="frame-item">
+										<img src={reelFrameUrl(day.dateStr, day.slug, idx)} alt={`Frame ${idx}`} loading="lazy" />
+									</a>
+								{/each}
+							</div>
+						</div>
+					{/if}
 
 					<!-- FB group carousel checklist -->
 					{@const eligibleGroups = groupsForSlug(day.slug)}
@@ -342,6 +382,7 @@
 	.dl-btn.carousel { background: #C82D2D; }
 	.dl-btn.stories { background: #2D6BC8; }
 	.dl-btn.reel { background: #141414; }
+	.dl-btn.reel-frames { background: #595959; }
 
 	.dl-btn:active {
 		transform: scale(0.98);
@@ -587,6 +628,62 @@
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		opacity: 0.85;
+	}
+
+	.download-all {
+		background: #fff;
+		border: 2px solid #e6e3da;
+		border-radius: 12px;
+		padding: 20px;
+		margin-bottom: 16px;
+	}
+
+	.download-all-title {
+		margin: 0 0 12px;
+		font-family: 'Barlow Condensed', sans-serif;
+		font-size: 20px;
+		font-weight: 700;
+	}
+
+	.download-all-row {
+		display: flex;
+		gap: 8px;
+	}
+
+	.frames-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+		gap: 8px;
+	}
+
+	.frame-item {
+		display: block;
+		border: 2px solid #e6e3da;
+		border-radius: 8px;
+		overflow: hidden;
+		transition: border-color 120ms ease;
+	}
+
+	.frame-item:hover {
+		border-color: #C82D2D;
+	}
+
+	.frame-item img {
+		display: block;
+		width: 100%;
+		aspect-ratio: 9 / 16;
+		object-fit: cover;
+		background: #1c1c1e;
+	}
+
+	.frame-count {
+		font-size: 13px;
+		font-weight: 700;
+		color: #595959;
+		padding: 2px 10px;
+		border-radius: 999px;
+		background: #fff;
+		border: 1px solid #e6e3da;
 	}
 
 	.footer {
