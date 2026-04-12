@@ -290,25 +290,40 @@ export async function generateOneCollection(opts: {
 
 	const outputPath = resolve(tmpDir, `${slug}-${dateStr}.mp4`);
 
+	// Encoder preference: libx264 (GHA Linux), h264_qsv (Intel Windows), mpeg4 (universal fallback)
+	const ENCODERS = [
+		{ name: 'libx264', args: '-c:v libx264 -preset medium -crf 23' },
+		{ name: 'h264_qsv', args: '-c:v h264_qsv -global_quality 23' },
+		{ name: 'mpeg4', args: '-c:v mpeg4 -q:v 4' }
+	];
+
 	let publicUrl: string | null = null;
 	try {
-		const cmd = [
-			`"${FFMPEG}"`,
-			'-y',
-			'-f concat',
-			'-safe 0',
-			`-i "${resolve(tmpDir, 'concat.txt')}"`,
-			'-vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,format=yuv420p"',
-			'-c:v libx264',
-			'-preset medium',
-			'-crf 23',
-			'-r 30',
-			'-movflags +faststart',
-			`"${outputPath}"`
-		].join(' ');
 		console.log(`  Encoding ${frames.length} frames → MP4...`);
-		execSync(cmd, { stdio: 'pipe', timeout: 60000 });
-		console.log(`  Encoded: ${outputPath}`);
+		let encoded = false;
+		for (const enc of ENCODERS) {
+			const cmd = [
+				`"${FFMPEG}"`,
+				'-y',
+				'-f concat',
+				'-safe 0',
+				`-i "${resolve(tmpDir, 'concat.txt')}"`,
+				'-vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,format=yuv420p"',
+				enc.args,
+				'-r 30',
+				'-movflags +faststart',
+				`"${outputPath}"`
+			].join(' ');
+			try {
+				execSync(cmd, { stdio: 'pipe', timeout: 60000 });
+				console.log(`  Encoded with ${enc.name}: ${outputPath}`);
+				encoded = true;
+				break;
+			} catch {
+				console.log(`  ${enc.name} not available, trying next...`);
+			}
+		}
+		if (!encoded) throw new Error('No working video encoder found');
 
 		const videoBuffer = readFileSync(outputPath);
 		const storagePath = `${dateStr}/${slug}/reel.mp4`;
