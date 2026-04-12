@@ -609,13 +609,63 @@ async function buildAndUploadDayZip(day: DayManifest): Promise<string | null> {
 		} catch { /* skip */ }
 	}
 
-	// 5. Caption
+	// 5. Captions — one unified file with collection link + per-FB-group captions
 	const captionUrl = `${baseUrl}/${day.dateStr}/${day.slug}/caption.txt`;
 	try {
 		const res = await fetch(captionUrl);
 		if (res.ok) {
-			const text = await res.text();
-			archive.append(text, { name: `caption.txt` });
+			const reelCaption = await res.text();
+
+			const isEnglish = ['today-in-bergen', 'this-weekend', 'free-things-to-do-bergen'].includes(day.slug);
+			const noUrl = `https://gaari.no/no/${day.slug}`;
+			const enSlug = EN_COUNTERPART[day.slug] || day.slug;
+			const enUrl = EN_COUNTERPART[day.slug] ? `https://gaari.no/en/${enSlug}` : noUrl;
+
+			const lines: string[] = [
+				`${day.dayName.toUpperCase()} ${day.dateStr} — ${day.label}`,
+				'',
+				`LENKE (NO): ${noUrl}`,
+				`LENKE (EN): ${enUrl}`,
+				'',
+				'Bruk samme lenke for stories, reels og carousel.',
+				'',
+				'═══════════════════════════════════════',
+				'REEL / STORIES CAPTION',
+				'═══════════════════════════════════════',
+				'',
+				reelCaption.replace(/utm_source=\w+&utm_medium=\w+&utm_campaign=\w+/g,
+					`utm_source=social&utm_medium=organic&utm_campaign=${day.slug}`),
+				''
+			];
+
+			// Per-FB-group captions for carousel posting
+			const eligibleGroups = FB_GROUPS.filter(g => isGroupEligible(g, day.slug));
+			if (eligibleGroups.length > 0) {
+				lines.push('═══════════════════════════════════════');
+				lines.push('CAROUSEL — CAPTION PER FB-GRUPPE');
+				lines.push('═══════════════════════════════════════');
+				lines.push('');
+
+				for (const group of eligibleGroups) {
+					const groupUrl = group.lang === 'en' ? enUrl : noUrl;
+					const link = `${groupUrl}?utm_source=facebook&utm_medium=group&utm_campaign=${group.id}`;
+					lines.push(`--- ${group.name} (${group.lang.toUpperCase()}) ---`);
+					// Re-use the reel caption but swap lang/link
+					if (group.lang === 'en' && !isEnglish) {
+						lines.push(`See what's free in Bergen this week:`);
+						lines.push(link);
+					} else {
+						const firstLine = reelCaption.split('\n')[0] || day.label;
+						lines.push(firstLine);
+						lines.push(link);
+					}
+					const hashtags = group.lang === 'en' ? HASHTAGS_EN : HASHTAGS_NO;
+					lines.push(hashtags.join(' '));
+					lines.push('');
+				}
+			}
+
+			archive.append(lines.join('\n'), { name: 'captions.txt' });
 			totalFiles++;
 		}
 	} catch { /* skip */ }
