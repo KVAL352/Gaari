@@ -138,17 +138,14 @@
 				{#if day.skipped}
 					<p class="skip-reason">{day.skipReason || 'Ingen events tilgjengelig'}</p>
 				{:else}
-					<!-- Download + reel checklist -->
-					<div class="download-row">
-						{#if day.dayZipUrl}
+					<!-- Download -->
+					{#if day.dayZipUrl}
+						<div class="download-row">
 							<a class="dl-btn day-zip" href={day.dayZipUrl} download={`gaari-${day.dateStr}-${day.slug}.zip`}>
 								Last ned alt
 							</a>
-						{/if}
-						<button type="button" class="reel-check" class:done={posted[`${day.dateStr}-${day.slug}-reel`]} onclick={() => togglePosted(`${day.dateStr}-${day.slug}-reel`)}>
-							{#if posted[`${day.dateStr}-${day.slug}-reel`]}Reel lagt ut{:else}Reel{/if}
-						</button>
-					</div>
+						</div>
+					{/if}
 
 					<!-- Copy buttons -->
 					<div class="copy-row">
@@ -172,20 +169,17 @@
 						{/if}
 					</div>
 
-					<!-- Reel frames gallery (when no MP4 available) -->
-					{#if !day.mp4Url && day.frameCount > 0}
+					<!-- Reel checklist -->
+					{#if day.frameCount > 0}
 						<div class="subsection">
 							<div class="subsection-header">
-								<h3>Reel-bilder (for Meta)</h3>
-								<span class="frame-count">{day.frameCount} frames</span>
+								<h3>Reel</h3>
+								<img class="reel-thumb" src={reelFrameUrl(day.dateStr, day.slug, 1)} alt={day.label} loading="lazy" />
 							</div>
-							<div class="frames-grid">
-								{#each Array.from({ length: day.frameCount }, (_, i) => i + 1) as idx}
-									<a href={reelFrameUrl(day.dateStr, day.slug, idx)} download={`gaari-${day.dateStr}-${day.slug}-frame-${String(idx).padStart(2, '0')}.png`} class="frame-item">
-										<img src={reelFrameUrl(day.dateStr, day.slug, idx)} alt={`Frame ${idx}`} loading="lazy" />
-									</a>
-								{/each}
-							</div>
+							<button type="button" class="reel-pill" class:done={posted[`${day.dateStr}-${day.slug}-reel`]} onclick={() => togglePosted(`${day.dateStr}-${day.slug}-reel`)}>
+								Lagt ut pa Instagram
+								{#if posted[`${day.dateStr}-${day.slug}-reel`]}<span class="group-done">Ferdig</span>{/if}
+							</button>
 						</div>
 					{/if}
 
@@ -358,26 +352,6 @@
 
 	.dl-btn.day-zip { background: #C82D2D; flex: 1; }
 
-	.reel-check {
-		background: #fff;
-		color: #141414;
-		border: 2px solid #e6e3da;
-		padding: 12px 20px;
-		border-radius: 10px;
-		font-family: 'Barlow Condensed', sans-serif;
-		font-weight: 700;
-		font-size: 16px;
-		cursor: pointer;
-		transition: border-color 120ms ease, background 120ms ease;
-	}
-
-	.reel-check:hover { border-color: #141414; }
-
-	.reel-check.done {
-		background: #1A6B35;
-		border-color: #1A6B35;
-		color: #fff;
-	}
 
 	.dl-btn:active {
 		transform: scale(0.98);
@@ -625,40 +599,39 @@
 		opacity: 0.85;
 	}
 
-	.frames-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-		gap: 8px;
-	}
-
-	.frame-item {
-		display: block;
-		border: 2px solid #e6e3da;
-		border-radius: 8px;
-		overflow: hidden;
-		transition: border-color 120ms ease;
-	}
-
-	.frame-item:hover {
-		border-color: #C82D2D;
-	}
-
-	.frame-item img {
-		display: block;
-		width: 100%;
-		aspect-ratio: 9 / 16;
+	.reel-thumb {
+		flex-shrink: 0;
+		width: 48px;
+		height: 85px;
 		object-fit: cover;
+		border-radius: 8px;
 		background: #1c1c1e;
 	}
 
-	.frame-count {
-		font-size: 13px;
-		font-weight: 700;
-		color: #595959;
-		padding: 2px 10px;
-		border-radius: 999px;
+	.reel-pill {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		width: 100%;
 		background: #fff;
-		border: 1px solid #e6e3da;
+		border: 2px solid #e6e3da;
+		color: #141414;
+		font-size: 13px;
+		font-weight: 600;
+		padding: 10px 14px;
+		border-radius: 999px;
+		cursor: pointer;
+		text-align: left;
+		transition: border-color 120ms ease, background 120ms ease;
+	}
+
+	.reel-pill:hover { border-color: #C82D2D; }
+
+	.reel-pill.done {
+		background: #1A6B35;
+		border-color: #1A6B35;
+		color: #fff;
 	}
 
 	.footer {
