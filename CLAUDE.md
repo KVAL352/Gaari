@@ -45,7 +45,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 ## Shared utilities (`scripts/lib/`)
 
 - `utils.ts` — slugify, parseNorwegianDate, eventExists, insertEvent, normalizeTitle, removeExpiredEvents, fetchHTML, detectFreeFromText
-- `categories.ts` — mapCategory (50+ terms), mapBydel (100+ mappings)
+- `categories.ts` — mapCategory (50+ terms), mapBydel (100+ mappings), isFamilyTitle (safe family detection)
 - `dedup.ts` — cross-source dedup with scoring. `SOURCE_RANK` must include ALL scrapers.
 - `venues.ts` — 190+ venue entries, aggregator domain detection, resolveTicketUrl
 - `ai-descriptions.ts` — Gemini integration, rate limiting, fallback
