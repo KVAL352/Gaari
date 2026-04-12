@@ -11,6 +11,7 @@
  */
 import { supabase } from '../lib/supabase.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
+import { getPageToken } from '../lib/meta-api.js';
 
 // ── Config ──
 
@@ -232,13 +233,16 @@ async function postToFacebookAlbum(imageUrls: string[], message: string): Promis
 		return null;
 	}
 
+	// Get page access token (required for unpublished photo uploads)
+	const pageToken = await getPageToken();
+
 	// Upload photos as unpublished, then attach to a feed post
 	const photoIds: string[] = [];
 	for (const url of imageUrls) {
 		const params = new URLSearchParams({
 			url,
 			published: 'false',
-			access_token: META_TOKEN
+			access_token: pageToken
 		});
 		const res = await fetch(`${GRAPH_API}/${FB_PAGE_ID}/photos`, { method: 'POST', body: params });
 		const data = await res.json() as any;
@@ -248,7 +252,7 @@ async function postToFacebookAlbum(imageUrls: string[], message: string): Promis
 	}
 
 	// Create feed post with attached photos (multi-photo post)
-	const params = new URLSearchParams({ message, access_token: META_TOKEN });
+	const params = new URLSearchParams({ message, access_token: pageToken });
 	for (let i = 0; i < photoIds.length; i++) {
 		params.append(`attached_media[${i}]`, JSON.stringify({ media_fbid: photoIds[i] }));
 	}

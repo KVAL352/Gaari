@@ -961,6 +961,19 @@ export async function debugToken(): Promise<TokenInfo | null> {
 	return data.data || null;
 }
 
+/** Fetch a Page Access Token from the user token. Required for unpublished photo uploads. */
+let _cachedPageToken: string | null = null;
+export async function getPageToken(): Promise<string> {
+	if (_cachedPageToken) return _cachedPageToken;
+	const url = `${GRAPH_API}/${FB_PAGE_ID}?fields=access_token&access_token=${encodeURIComponent(META_TOKEN)}`;
+	const res = await fetch(url);
+	const data = await res.json() as any;
+	if (data.error) throw new MetaApiError(`/${FB_PAGE_ID}?fields=access_token`, data.error);
+	if (!data.access_token) throw new Error('No page access token returned');
+	_cachedPageToken = data.access_token;
+	return _cachedPageToken;
+}
+
 /** Exchange the current short-lived token for a long-lived (~60 day) one. */
 export async function extendToken(): Promise<string | null> {
 	if (!META_APP_ID || !META_APP_SECRET) {

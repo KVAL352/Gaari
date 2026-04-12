@@ -10,6 +10,7 @@
  */
 import 'dotenv/config';
 import { supabase } from '../lib/supabase.js';
+import { getPageToken } from '../lib/meta-api.js';
 
 const META_TOKEN = process.env.META_ACCESS_TOKEN || process.env.IG_ACCESS_TOKEN || '';
 const IG_USER_ID = process.env.IG_USER_ID || '';
@@ -114,6 +115,15 @@ interface FbPost {
 	comments?: { summary: { total_count: number } };
 }
 
+async function graphGetWithToken(path: string, token: string): Promise<any> {
+	const sep = path.includes('?') ? '&' : '?';
+	const url = `${GRAPH_API}${path}${sep}access_token=${encodeURIComponent(token)}`;
+	const res = await fetch(url);
+	const data = await res.json();
+	if (data.error) throw new Error(`Graph API ${path}: ${data.error.message}`);
+	return data;
+}
+
 async function fetchFbPosts(): Promise<FbPost[]> {
 	if (!META_TOKEN || !FB_PAGE_ID) {
 		console.log('  [skip] Facebook: no credentials');
@@ -121,12 +131,13 @@ async function fetchFbPosts(): Promise<FbPost[]> {
 	}
 
 	console.log('Fetching Facebook posts...');
+	const pageToken = await getPageToken();
 	const since = Math.floor(Date.now() / 1000) - LOOKBACK_DAYS * 86400;
 	const posts: FbPost[] = [];
 	let url = `/${FB_PAGE_ID}/posts?fields=${FB_POST_FIELDS}&limit=50&since=${since}`;
 
 	while (url && posts.length < 200) {
-		const data = await graphGet(url);
+		const data = await graphGetWithToken(url, pageToken);
 		if (!data.data?.length) break;
 		posts.push(...data.data);
 		url = data.paging?.next ? data.paging.next.replace(GRAPH_API, '') : '';
