@@ -40,7 +40,7 @@
 		<p class="mb-3 text-sm text-[var(--color-text-secondary)]">
 			{$lang === 'no' ? 'Få beskjed når det dukker opp noe:' : 'Get notified when something comes up:'}
 		</p>
-		<NewsletterInline />
+		<NewsletterInline location="empty-state" />
 	</div>
 
 	{#if popularEvents.length > 0}

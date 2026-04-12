@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { replaceState, beforeNavigate, afterNavigate } from '$app/navigation';
 	import { tick } from 'svelte';
 	import { browser } from '$app/environment';
@@ -25,14 +25,14 @@
 	const PAGE_SIZE = 12;
 
 	// Read filters from URL
-	let category = $derived($page.url.searchParams.get('category') || '');
-	let bydel = $derived(($page.url.searchParams.get('bydel') || '') as Bydel | '');
-	let price = $derived($page.url.searchParams.get('price') || '');
-	let audience = $derived($page.url.searchParams.get('audience') || '');
-	let when = $derived($page.url.searchParams.get('when') || '');
-	let time = $derived($page.url.searchParams.get('time') || '');
-	let q = $derived($page.url.searchParams.get('q') || '');
-	let pageNum = $derived(Number($page.url.searchParams.get('page') || '1'));
+	let category = $derived(page.url.searchParams.get('category') || '');
+	let bydel = $derived((page.url.searchParams.get('bydel') || '') as Bydel | '');
+	let price = $derived(page.url.searchParams.get('price') || '');
+	let audience = $derived(page.url.searchParams.get('audience') || '');
+	let when = $derived(page.url.searchParams.get('when') || '');
+	let time = $derived(page.url.searchParams.get('time') || '');
+	let q = $derived(page.url.searchParams.get('q') || '');
+	let pageNum = $derived(Number(page.url.searchParams.get('page') || '1'));
 
 	// Filter events
 	let filteredEvents = $derived.by(() => {
@@ -160,7 +160,7 @@
 
 	// URL update helper — use replaceState (shallow routing) to avoid re-running server load
 	function updateParam(key: string, value: string) {
-		const qs = buildQueryString($page.url.search, key, value);
+		const qs = buildQueryString(page.url.search, key, value);
 		replaceState(`?${qs}`, {});
 	}
 
@@ -172,7 +172,7 @@
 		replaceState(`/${$lang}`, {});
 	}
 
-	let nextPageHref = $derived(`?${buildQueryString($page.url.search, 'page', String(pageNum + 1))}`);
+	let nextPageHref = $derived(`?${buildQueryString(page.url.search, 'page', String(pageNum + 1))}`);
 
 	// Popular events for empty state
 	let popularEvents = $derived(allEvents.filter(e => e.status === 'approved').slice(0, 3));
@@ -297,7 +297,7 @@
 	}
 
 	// Compute canonical/noindex client-side to avoid server load re-runs on filter changes
-	let canonicalInfo = $derived(computeCanonical($page.url, $lang, filteredEvents.length));
+	let canonicalInfo = $derived(computeCanonical(page.url, $lang, filteredEvents.length));
 
 	let homeDescription = $derived($lang === 'no'
 		? 'Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Gåri samler arrangementer fra 55 lokale kilder, oppdatert daglig.'
@@ -311,14 +311,14 @@
 	{#if canonicalInfo.noindex}<meta name="robots" content="noindex, follow" />{/if}
 	<meta property="og:title" content={`Gåri — ${$t('tagline')}`} />
 	<meta property="og:description" content={homeDescription} />
-	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
+	<meta property="og:image" content={`${page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta property="article:modified_time" content={new Date().toISOString()} />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={`Gåri — ${$t('tagline')}`} />
 	<meta name="twitter:description" content={homeDescription} />
-	<meta name="twitter:image" content={`${$page.url.origin}/og/default.png`} />
+	<meta name="twitter:image" content={`${page.url.origin}/og/default.png`} />
 	{#if displayedEvents[0]?.image_url}
 		<link rel="preload" as="image"
 			href={optimizedSrc(displayedEvents[0].image_url, 400)}
@@ -370,7 +370,7 @@
 			<LoadMore shown={displayedEvents.length} total={filteredEvents.length} href={nextPageHref} />
 			{#if pageNum > 1}
 				<div class="mt-4">
-					<NewsletterInline />
+					<NewsletterInline location="homepage-below-loadmore" />
 				</div>
 			{/if}
 		</div>

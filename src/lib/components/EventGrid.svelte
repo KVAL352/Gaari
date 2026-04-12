@@ -47,7 +47,7 @@
 
 {#each grouped as [dateKey, dayEvents], groupIdx (dateKey)}
 	{#if showNewsletterCta && groupIdx === 3}
-		<NewsletterInline />
+		<NewsletterInline location="eventgrid-between-days" />
 	{/if}
 	<section class="mb-8">
 		<div class="mb-2 flex items-center gap-3 border-l-4 border-[var(--color-text-primary)] pl-3.5 md:mb-5">

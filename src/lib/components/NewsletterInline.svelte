@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { lang, t } from '$lib/i18n';
 
+	interface Props {
+		/** Unique location id for analytics tracking */
+		location?: string;
+	}
+
+	let { location = 'inline-grid' }: Props = $props();
+
 	let status: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
 
 	async function handleSubmit(e: SubmitEvent) {
@@ -13,7 +20,7 @@
 			const data = await res.json();
 			status = data.success ? 'success' : 'error';
 			if (data.success && typeof window !== 'undefined' && window.umami) {
-				umami.track('newsletter-signup', { location: 'inline-grid' });
+				umami.track('newsletter-signup', { location });
 			}
 		} catch {
 			status = 'error';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { t } from '$lib/i18n';
 	import { CATEGORIES, BYDELER } from '$lib/types';
 	import type { Lang, TimeOfDay, GaariEvent } from '$lib/types';
@@ -30,12 +30,12 @@
 	}
 
 	// Read current filter state from URL
-	let when = $derived($page.url.searchParams.get('when') || '');
-	let time = $derived($page.url.searchParams.get('time') || '');
-	let audience = $derived($page.url.searchParams.get('audience') || '');
-	let category = $derived($page.url.searchParams.get('category') || '');
-	let bydel = $derived($page.url.searchParams.get('bydel') || '');
-	let price = $derived($page.url.searchParams.get('price') || '');
+	let when = $derived(page.url.searchParams.get('when') || '');
+	let time = $derived(page.url.searchParams.get('time') || '');
+	let audience = $derived(page.url.searchParams.get('audience') || '');
+	let category = $derived(page.url.searchParams.get('category') || '');
+	let bydel = $derived(page.url.searchParams.get('bydel') || '');
+	let price = $derived(page.url.searchParams.get('price') || '');
 
 	// Local UI state
 	let showCalendar = $state(false);
