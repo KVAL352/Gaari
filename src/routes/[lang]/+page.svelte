@@ -103,11 +103,12 @@
 			events = events.filter(e => e.age_group === 'family' || e.category === 'family' || familyTitleRe.test(e.title_no));
 		} else if (audience === 'ungdom') {
 			const youthCategories = new Set(['sports', 'workshop', 'student']);
-			const youthRe = /\bungdom|\btenåring|\bteenåring|\bfor\s+unge?\b|\bunge\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
+			const youthRe = /\bungdom|\btenåring|\bteenåring|\bfor\s+unge?\b|\bunge?\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
 			events = events.filter(e => {
 				if (e.age_group === '18+') return false;
 				if (e.category === 'nightlife' || e.category === 'food') return false;
 				if (e.age_group === 'family' || e.category === 'family') return true;
+				if (e.age_group === 'students') return true;
 				if (youthRe.test(e.title_no) || youthRe.test(e.description_no)) return true;
 				if (e.category === 'theatre') return false;
 				return youthCategories.has(e.category);
@@ -119,11 +120,14 @@
 		} else if (audience === 'voksen') {
 			const voksenCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop', 'festival']);
 			const clubRe = /\bklubb|\bdj\b|\bhouse\b|\btechno|\bafterparty|\bnattklubb|\brave\b/i;
+			const childRe = /\bjunior\b|\bfor\s+barn\b|\bbarnas\s|\bbarnelørdag|\bbarneforestilling|\beventyrstund|\beventyromvisning|\bprompepulver/i;
 			const indieVenues = new Set(['hulen', 'garage', 'kvarteret', 'det akademiske kvarter', 'landmark', 'bergen kjøtt', 'fincken', 'røkeriet']);
 			events = events.filter(e => {
 				if (e.age_group === 'family' || e.category === 'family') return false;
+				if (e.age_group === 'students') return false;
 				if (!voksenCategories.has(e.category)) return false;
 				if (clubRe.test(e.title_no) || clubRe.test(e.description_no || '')) return false;
+				if (childRe.test(e.title_no)) return false;
 				if (indieVenues.has(e.venue_name?.toLowerCase())) return false;
 				return true;
 			});
