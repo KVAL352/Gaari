@@ -80,15 +80,33 @@
 		counts.voksen = activeEvents.filter(e => {
 			const voksenCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop', 'festival']);
 			const clubRe = /\bklubb|\bdj\b|\bhouse\b|\btechno|\bafterparty|\bnattklubb|\brave\b/i;
+			const childRe = /\bjunior\b|\bfor\s+barn\b|\bbarnas\s|\bbarnelørdag|\bbarneforestilling|\beventyrstund|\beventyromvisning|\bprompepulver/i;
 			const indieVenues = new Set(['hulen', 'garage', 'kvarteret', 'det akademiske kvarter', 'landmark', 'bergen kjøtt', 'fincken', 'røkeriet']);
 			if (e.age_group === 'family' || e.category === 'family') return false;
+			if (e.age_group === 'students') return false;
 			if (!voksenCategories.has(e.category)) return false;
 			if (clubRe.test(e.title_no) || clubRe.test(e.description_no || '')) return false;
+			if (childRe.test(e.title_no)) return false;
 			if (indieVenues.has(e.venue_name?.toLowerCase())) return false;
 			return true;
 		}).length;
 		counts.student = activeEvents.filter(e => e.age_group === 'students' || e.category === 'student').length;
-		counts.adult = activeEvents.filter(e => e.age_group !== 'family' && e.category !== 'family').length;
+		const adultVenueNames = [
+			'hulen', 'garage', 'kvarteret', 'akademiske kvarter', 'landmark',
+			'bergen kjøtt', 'fincken', 'røkeriet', 'østre', 'bodega',
+			"o'connor", 'gåsa pub', 'biblioteket bar', 'bryggen nightclub', 'cinemateket',
+			'victoria', 'kronbar', 'statsraaden',
+			'7 fjell bryggeri', '7fjell bryggeri', 'kennel', 'steppeulven',
+			'bakrommet', 'spissen', 'sardinen', "heidi's", 'shipyard'
+		];
+		const adultRe = /\bsingel\s*treff|\bspeed\s*dat|\bpub\s*quiz|\bquiz\b|\blive\s+på\s+pub|\bnattklubb|\bklubb(?:kveld|natt)|\bafterparty|\bbar\s+og\b|\bstand.?up\b|\bklubbkveld\b|\bklubb\b/i;
+		counts.adult = activeEvents.filter(e => {
+			if (e.age_group === '18+' || e.category === 'nightlife') return true;
+			const venueLower = e.venue_name?.toLowerCase() || '';
+			if (adultVenueNames.some(v => venueLower.includes(v))) return true;
+			if (adultRe.test(e.title_no) || adultRe.test(e.description_no || '')) return true;
+			return false;
+		}).length;
 		counts.tourist = activeEvents.filter(e => e.language === 'en' || e.language === 'both').length;
 		return counts;
 	});

@@ -132,7 +132,26 @@
 				return true;
 			});
 		} else if (audience === 'adult') {
-			events = events.filter(e => e.age_group !== 'family' && e.category !== 'family');
+			const adultVenueNames = [
+				'hulen', 'garage', 'kvarteret', 'akademiske kvarter', 'landmark',
+				'bergen kjøtt', 'fincken', 'røkeriet', 'østre', 'bodega',
+				"o'connor", 'gåsa pub', 'biblioteket bar', 'bryggen nightclub', 'cinemateket',
+				'victoria', 'kronbar', 'statsraaden',
+				'7 fjell bryggeri', '7fjell bryggeri', 'kennel', 'steppeulven',
+				'bakrommet', 'spissen', 'sardinen', "heidi's", 'shipyard'
+			];
+			const adultRe = /\bsingel\s*treff|\bspeed\s*dat|\bpub\s*quiz|\bquiz\b|\blive\s+på\s+pub|\bnattklubb|\bklubb(?:kveld|natt)|\bafterparty|\bbar\s+og\b|\bstand.?up\b|\bklubbkveld\b|\bklubb\b/i;
+			const childRe18 = /\bjunior\b|\bfor\s+barn\b|\bbarnas\s|\bbarnelørdag|\bbarneforestilling|\beventyrstund|\beventyromvisning|\bprompepulver/i;
+			events = events.filter(e => {
+				if (e.age_group === 'family' || e.category === 'family') return false;
+				if (childRe18.test(e.title_no)) return false;
+				if (e.age_group === '18+') return true;
+				if (e.category === 'nightlife') return true;
+				const venueLower = e.venue_name?.toLowerCase() || '';
+				if (adultVenueNames.some(v => venueLower.includes(v))) return true;
+				if (adultRe.test(e.title_no) || adultRe.test(e.description_no || '')) return true;
+				return false;
+			});
 		} else if (audience === 'free') {
 			events = events.filter(e => isFreeEvent(e.price));
 		}
