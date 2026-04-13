@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js';
+import { getSourceFallbackImage } from './venues.js';
 
 export function slugify(text: string): string {
 	return text
@@ -302,6 +303,12 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 	// Infer free price from title/description when price is empty
 	if (!event.price && detectFreeFromText(event.title_no, event.description_no)) {
 		event.price = 'Gratis';
+	}
+
+	// Apply venue fallback image when scraper didn't provide one
+	if (!event.image_url && event.source) {
+		const fallback = getSourceFallbackImage(event.source);
+		if (fallback) event.image_url = fallback;
 	}
 
 	const { error } = await supabase.from('events').insert(event);

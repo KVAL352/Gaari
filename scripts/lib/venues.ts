@@ -440,6 +440,22 @@ const VENUE_LOCATIONS: Record<string, VenueLocation> = {
 	'gg bergen': { street: 'Lagunen storsenter', postalCode: '5239', lat: 60.3118, lng: 5.3375 },
 };
 
+// Source fallback images — used when a scraper can't provide per-event images.
+// Keyed by scraper SOURCE name (same as the `source` field in events table).
+const SOURCE_FALLBACK_IMAGES: Record<string, string> = {
+	// Add entries here as venues provide default images:
+	// 'bodega': 'https://xyz.supabase.co/storage/v1/object/public/venue-images/bodega.jpg',
+	// 'loddefjord': 'https://xyz.supabase.co/storage/v1/object/public/venue-images/loddefjord.jpg',
+};
+
+/**
+ * Get fallback image URL for a scraper source.
+ * Returns null if no fallback is configured.
+ */
+export function getSourceFallbackImage(source: string): string | null {
+	return SOURCE_FALLBACK_IMAGES[source] || null;
+}
+
 /**
  * Look up a venue's physical location (address + coordinates) by name.
  * Returns null if not found.
