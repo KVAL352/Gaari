@@ -433,7 +433,7 @@ describe('this-weekend filter (English)', () => {
 	const collection = getCollection('this-weekend')!;
 
 	it('is the English weekend collection', () => {
-		expect(collection.title.en).toBe('This Weekend in Bergen');
+		expect(collection.title.en).toBe('Things to Do in Bergen This Weekend');
 	});
 
 	it('includes weekend events same as denne-helgen', () => {

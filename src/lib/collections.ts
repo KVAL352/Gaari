@@ -121,11 +121,11 @@ const collections: Collection[] = [
 		slug: 'denne-helgen',
 		title: {
 			no: 'Hva skjer i Bergen denne helgen',
-			en: 'What\u2019s On in Bergen This Weekend'
+			en: 'What to Do in Bergen This Weekend'
 		},
 		description: {
-			no: 'Hva skjer i Bergen denne helgen? Finn konserter, utstillinger, mat og ting å gjøre — alt på ett sted.',
-			en: 'What to do in Bergen this weekend? Find concerts, exhibitions, food and more — all in one place.'
+			no: 'Konserter, utstillinger, mat og aktiviteter i Bergen denne helgen — samlet fra 55 lokale kilder, oppdatert daglig.',
+			en: 'Concerts, exhibitions, food and activities in Bergen this weekend — collected from 55 local sources, updated daily.'
 		},
 		ogSubtitle: {
 			no: 'Alt som skjer denne helgen',
@@ -315,11 +315,11 @@ const collections: Collection[] = [
 		slug: 'today-in-bergen',
 		title: {
 			no: 'I dag i Bergen',
-			en: 'Today in Bergen'
+			en: 'What\u2019s On in Bergen Today'
 		},
 		description: {
-			no: 'Hva skjer i Bergen i dag? Finn alle arrangementer — konserter, utstillinger, mat og mer.',
-			en: "What's on in Bergen today? Find concerts, exhibitions, food and things to do — all in one place."
+			no: 'Hva skjer i Bergen i dag? Alle arrangementer samlet — konserter, utstillinger, mat og mer.',
+			en: "What's happening in Bergen today? All events in one place — concerts, exhibitions, food and more. Updated every morning."
 		},
 		ogSubtitle: {
 			no: 'Dagens arrangementer',
@@ -433,12 +433,12 @@ const collections: Collection[] = [
 		id: 'concerts',
 		slug: 'konserter',
 		title: {
-			no: 'Konserter i Bergen',
-			en: 'Concerts in Bergen'
+			no: 'Konserter i Bergen denne uken',
+			en: 'Concerts in Bergen This Week'
 		},
 		description: {
-			no: 'Konserter og livemusikk i Bergen de neste to ukene — Grieghallen, Ole Bull, Hulen, USF Verftet og flere. Oppdatert daglig.',
-			en: 'Concerts and live music in Bergen over the next two weeks — Grieghallen, Ole Bull, Hulen, USF Verftet and more. Updated daily.'
+			no: 'Livemusikk i Bergen — Grieghallen, Ole Bull, Hulen, USF Verftet og flere scener. Oppdatert daglig fra 55 kilder.',
+			en: 'Live music in Bergen — Grieghallen, Ole Bull, Hulen, USF Verftet and more venues. Updated daily from 55 sources.'
 		},
 		ogSubtitle: {
 			no: 'Livemusikk de neste to ukene',
@@ -629,11 +629,11 @@ const collections: Collection[] = [
 		slug: 'this-weekend',
 		title: {
 			no: 'Denne helgen i Bergen',
-			en: 'This Weekend in Bergen'
+			en: 'Things to Do in Bergen This Weekend'
 		},
 		description: {
-			no: 'Hva skjer i Bergen denne helgen? Finn konserter, utstillinger, mat og ting å gjøre — alt på ett sted.',
-			en: 'Things to do in Bergen this weekend — concerts, exhibitions, food and more. Updated daily.'
+			no: 'Hva skjer i Bergen denne helgen? Konserter, utstillinger, mat og aktiviteter — samlet fra 55 lokale kilder.',
+			en: 'Things to do in Bergen this weekend — concerts, exhibitions, food and activities. Collected from 55 local sources, updated daily.'
 		},
 		ogSubtitle: {
 			no: 'Helgens arrangementer',
@@ -751,11 +751,11 @@ const collections: Collection[] = [
 		slug: 'free-things-to-do-bergen',
 		title: {
 			no: 'Gratis i Bergen',
-			en: 'Free Things to Do in Bergen'
+			en: 'Free Things to Do in Bergen This Week'
 		},
 		description: {
-			no: 'Gratis arrangementer og aktiviteter i Bergen de neste to ukene — utstillinger, konserter, turer og mer.',
-			en: 'Free things to do in Bergen — exhibitions, concerts, hikes and activities. No ticket required.'
+			no: 'Gratis arrangementer i Bergen — utstillinger, konserter, turer og aktiviteter. Ingen billett nødvendig.',
+			en: 'Free events and activities in Bergen — exhibitions, concerts, hikes and more. No ticket needed. Updated daily.'
 		},
 		ogSubtitle: {
 			no: 'Gratis aktiviteter i Bergen',
@@ -2589,8 +2589,8 @@ const collections: Collection[] = [
 		seasonal: true,
 		maxPerVenue: 50,
 		title: {
-			no: 'Bergenfest',
-			en: 'Bergenfest'
+			no: 'Bergenfest 2026 — Program og billetter',
+			en: 'Bergenfest 2026 — Lineup and Tickets'
 		},
 		description: {
 			no: 'Bergenfest-programmet — artister, billetter og praktisk info. Bergenhus Festning, Bergen.',
@@ -2830,8 +2830,8 @@ const collections: Collection[] = [
 		slug: 'nattjazz',
 		seasonal: true,
 		title: {
-			no: 'Nattjazz Bergen',
-			en: 'Nattjazz Bergen'
+			no: 'Nattjazz 2026 — Program og billetter',
+			en: 'Nattjazz Bergen 2026 — Programme and Tickets'
 		},
 		description: {
 			no: 'Nattjazz-programmet — jazz, improvisasjon og verdensmusikk i Bergen. Artister, billetter og info.',
@@ -2951,12 +2951,12 @@ const collections: Collection[] = [
 		slug: 'bergen-pride',
 		seasonal: true,
 		title: {
-			no: 'Bergen Pride',
-			en: 'Bergen Pride'
+			no: 'Bergen Pride 2026 — Regnbuedagene',
+			en: 'Bergen Pride 2026 — Programme and Events'
 		},
 		description: {
-			no: 'Komplett program for Bergen Pride — parader, konserter, fester og kulturarrangementer under Regnbuedagene.',
-			en: 'Complete Bergen Pride programme — parades, concerts, parties and cultural events during Bergen Rainbow Days.'
+			no: 'Bergen Pride-programmet — parader, konserter, fester og kulturarrangementer under Regnbuedagene i Bergen.',
+			en: 'Bergen Pride programme — parades, concerts, parties and cultural events during Bergen Rainbow Days.'
 		},
 		ogSubtitle: {
 			no: 'Regnbuedagene i Bergen',
@@ -3072,12 +3072,12 @@ const collections: Collection[] = [
 		slug: 'biff',
 		seasonal: true,
 		title: {
-			no: 'BIFF — Bergen Internasjonale Filmfestival',
-			en: 'BIFF — Bergen International Film Festival'
+			no: 'BIFF 2026 — Bergen Internasjonale Filmfestival',
+			en: 'BIFF 2026 — Bergen International Film Festival'
 		},
 		description: {
-			no: 'Komplett BIFF-program — filmer, visninger, samtaler og festivalfester under Bergen Internasjonale Filmfestival.',
-			en: 'Complete BIFF programme — films, screenings, talks and festival events at the Bergen International Film Festival.'
+			no: 'BIFF-programmet — filmer, visninger, samtaler og festivalfester. Bergen Internasjonale Filmfestival.',
+			en: 'BIFF programme — films, screenings, talks and festival events. Bergen International Film Festival.'
 		},
 		ogSubtitle: {
 			no: 'Nordens ledende filmfestival',

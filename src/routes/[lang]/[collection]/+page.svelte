@@ -21,7 +21,17 @@
 	let year = new Date().getFullYear();
 	let title = $derived(data.collection.seasonal ? `${baseTitle} ${year}` : baseTitle);
 	let descriptionBase = $derived(data.collection.description[ssrLang]);
-	let description = $derived(data.collection.seasonal ? `${descriptionBase.replace(/\.$/, '')} ${year}.` : descriptionBase);
+	// Dynamic meta description with event count for freshness signal
+	let description = $derived.by(() => {
+		const count = data.events.length;
+		const base = data.collection.seasonal ? `${descriptionBase.replace(/\.$/, '')} ${year}.` : descriptionBase;
+		if (count > 0) {
+			const countStr = ssrLang === 'no' ? `${count} arrangementer akkurat nå.` : `${count} events right now.`;
+			// Append count if it fits within 160 chars
+			return (base + ' ' + countStr).length <= 165 ? base + ' ' + countStr : base;
+		}
+		return base;
+	});
 	let canonicalUrl = $derived(getCanonicalUrl(`/${ssrLang}/${data.collection.slug}`));
 	let collectionJsonLd = $derived(
 		generateCollectionJsonLd(data.collection, ssrLang, canonicalUrl, data.events)
