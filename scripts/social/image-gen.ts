@@ -43,7 +43,7 @@ const CAROUSEL_IMAGE_H = 1056;
 /** Matches the dark inner backgroundColor used by both slide layouts. */
 const SLIDE_INNER_BG = { r: 28, g: 28, b: 30, alpha: 1 };
 
-type ImageMode = 'story' | 'carousel';
+type ImageMode = 'story' | 'carousel' | 'reel';
 
 async function fetchImageAsBase64(url: string, mode: ImageMode = 'story'): Promise<string | null> {
 	try {
@@ -66,8 +66,8 @@ async function fetchImageAsBase64(url: string, mode: ImageMode = 'story'): Promi
 		// center-cropped — acceptable trade-off for a uniform full-bleed look.
 		try {
 			const sharp = (await import('sharp')).default;
-			const w = mode === 'carousel' ? CAROUSEL_IMAGE_W : STORY_IMAGE_W;
-			const h = mode === 'carousel' ? CAROUSEL_IMAGE_H : STORY_IMAGE_H;
+			const w = mode === 'carousel' ? CAROUSEL_IMAGE_W : mode === 'reel' ? STORY_WIDTH : STORY_IMAGE_W;
+			const h = mode === 'carousel' ? CAROUSEL_IMAGE_H : mode === 'reel' ? STORY_HEIGHT : STORY_IMAGE_H;
 			const normalized = await sharp(buf)
 				.resize(w, h, {
 					fit: 'cover',
@@ -500,7 +500,8 @@ function storyEventSlideMarkup(
 	imageBase64: string,
 	collectionTitle: string,
 	isFree?: boolean,
-	dateLabel?: string
+	dateLabel?: string,
+	frame: number = STORY_FRAME
 ) {
 	const catColor = CATEGORY_COLORS[category] || '#D4D1CA';
 	const catLabel = CATEGORY_LABELS[category] || category;
@@ -509,12 +510,13 @@ function storyEventSlideMarkup(
 	const venueTime = time ? `${venue}  \u00b7  kl. ${time}` : venue;
 	const isUrgentDate = /^(I DAG|I MORGEN|TODAY|TOMORROW)$/i.test(dateLabel || '');
 
-	// Coordinates relative to the inner (post-frame) area of 1032×1872.
-	// Convert canvas safe-zones to inner-relative offsets:
-	//   IG top safe ~220px → inner top: 220 - 24 = 196px
-	//   TikTok bottom safe ~480px → inner bottom: 480 - 24 = 456px
+	// Coordinates relative to the inner (post-frame) area.
+	// With frame=24: inner is 1032×1872, offsets subtract frame from canvas safe-zones.
+	// With frame=0 (reels): inner IS the full 1080×1920 canvas, offsets = canvas values.
+	//   IG top safe ~250px → inner top: 250 - frame
+	//   IG bottom safe ~450px → inner bottom: 450 - frame
 	const INNER_PAD_X = 48;
-	const PILLS_TOP = 196;
+	const PILLS_TOP = 250 - frame;
 	// Lowered from 470 → 250 so title/venue sits closer to the bottom of the
 	// slide (user said original 470 was too high, 320 was right ballpark).
 	const TEXT_BOTTOM = 250;
@@ -527,8 +529,8 @@ function storyEventSlideMarkup(
 				display: 'flex',
 				width: '100%',
 				height: '100%',
-				backgroundColor: catColor,
-				padding: `${STORY_FRAME}px`
+				backgroundColor: frame > 0 ? catColor : '#1C1C1E',
+				padding: `${frame}px`
 			},
 			children: [
 				{
@@ -540,7 +542,7 @@ function storyEventSlideMarkup(
 							width: '100%',
 							height: '100%',
 							backgroundColor: '#1C1C1E',
-							borderRadius: '12px',
+							borderRadius: frame > 0 ? '12px' : '0',
 							overflow: 'hidden',
 							backgroundImage: `url(${imageBase64})`,
 							backgroundSize: '100% 100%',
@@ -799,7 +801,7 @@ export async function generateReelsFrames(
 	const toFetch = withImages.slice(0, MAX_FRAMES);
 	console.log(`  Fetching ${toFetch.length} reels frame images...`);
 	const imageResults = await Promise.all(
-		toFetch.map(e => fetchImageAsBase64(e.imageUrl!, 'story'))
+		toFetch.map(e => fetchImageAsBase64(e.imageUrl!, 'reel'))
 	);
 
 	for (let i = 0; i < toFetch.length; i++) {
@@ -819,7 +821,8 @@ export async function generateReelsFrames(
 				image,
 				collectionTitle,
 				event.isFree,
-				event.dateLabel
+				event.dateLabel,
+				0 // no frame for reels — platform UI covers outer pixels
 			);
 			frames.push(await renderStorySlide(markup));
 		} catch (err: any) {
