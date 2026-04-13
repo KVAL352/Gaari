@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@atproto/api": "^0.19.3",
-    "@google/genai": "^1.46.0",
+    "@google/genai": "^1.50.0",
     "@resvg/resvg-js": "^2.6.2",
     "@supabase/supabase-js": "^2.100.0",
     "@types/archiver": "^7.0.0",
