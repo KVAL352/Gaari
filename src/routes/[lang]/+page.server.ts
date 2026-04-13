@@ -45,13 +45,13 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 				price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
 			}));
 
-			// Sort: treat past date_start as today so recurring events don't dominate the top
-			const todayMidnight = nowUtc.slice(0, 11) + '00:00:00.000Z';
-			mapped.sort((a, b) => {
-				const aSort = a.date_start < todayMidnight ? todayMidnight : a.date_start;
-				const bSort = b.date_start < todayMidnight ? todayMidnight : b.date_start;
-				return aSort < bSort ? -1 : aSort > bSort ? 1 : 0;
-			});
+			// Sort: upcoming events first by date_start, then ongoing (past start) by date_end
+			const upcoming = mapped.filter(e => e.date_start >= nowUtc);
+			const ongoing = mapped.filter(e => e.date_start < nowUtc);
+			upcoming.sort((a, b) => a.date_start < b.date_start ? -1 : a.date_start > b.date_start ? 1 : 0);
+			ongoing.sort((a, b) => a.date_end < b.date_end ? -1 : a.date_end > b.date_end ? 1 : 0);
+			mapped.length = 0;
+			mapped.push(...upcoming, ...ongoing);
 
 			// Cap Akvariet events to avoid flooding the homepage during holidays
 			const AKVARIET_MAX = 5;
