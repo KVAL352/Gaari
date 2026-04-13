@@ -75,13 +75,13 @@
 	const totalTasks = $derived(
 		activeDays.reduce((sum, d) => {
 			const storyDay = storiesForDay(d.dateStr, d.slug);
-			return sum + 1 + (storyDay?.stories.length ?? 0) + groupsForSlug(d.slug).length; // +1 for reel
+			return sum + 2 + (storyDay?.stories.length ?? 0) + groupsForSlug(d.slug).length; // +2 for reel IG + FB
 		}, 0)
 	);
 	const doneTasks = $derived(
 		activeDays.reduce((sum, d) => {
 			const storyDay = storiesForDay(d.dateStr, d.slug);
-			const reelDone = posted[`${d.dateStr}-${d.slug}-reel`] ? 1 : 0;
+			const reelDone = (posted[`${d.dateStr}-${d.slug}-reel-ig`] ? 1 : 0) + (posted[`${d.dateStr}-${d.slug}-reel-fb`] ? 1 : 0);
 			const storiesDone = storyDay?.stories.filter((_, i) => posted[`${d.dateStr}-${d.slug}-${i}`]).length ?? 0;
 			const groupsDone = groupsForSlug(d.slug).filter(g => posted[`${d.dateStr}-${d.slug}-fb-${g.id}`]).length;
 			return sum + reelDone + storiesDone + groupsDone;
@@ -176,10 +176,16 @@
 								<h3>Reel</h3>
 								<img class="reel-thumb" src={reelFrameUrl(day.dateStr, day.slug, 1)} alt={day.label} loading="lazy" />
 							</div>
-							<button type="button" class="reel-pill" class:done={posted[`${day.dateStr}-${day.slug}-reel`]} onclick={() => togglePosted(`${day.dateStr}-${day.slug}-reel`)}>
-								Lagt ut pa Instagram
-								{#if posted[`${day.dateStr}-${day.slug}-reel`]}<span class="group-done">Ferdig</span>{/if}
-							</button>
+							<div class="reel-checks">
+								<button type="button" class="reel-pill" class:done={posted[`${day.dateStr}-${day.slug}-reel-ig`]} onclick={() => togglePosted(`${day.dateStr}-${day.slug}-reel-ig`)}>
+									Instagram
+									{#if posted[`${day.dateStr}-${day.slug}-reel-ig`]}<span class="group-done">Lagt ut</span>{/if}
+								</button>
+								<button type="button" class="reel-pill" class:done={posted[`${day.dateStr}-${day.slug}-reel-fb`]} onclick={() => togglePosted(`${day.dateStr}-${day.slug}-reel-fb`)}>
+									Facebook
+									{#if posted[`${day.dateStr}-${day.slug}-reel-fb`]}<span class="group-done">Lagt ut</span>{/if}
+								</button>
+							</div>
 						</div>
 					{/if}
 
@@ -624,6 +630,12 @@
 		cursor: pointer;
 		text-align: left;
 		transition: border-color 120ms ease, background 120ms ease;
+	}
+
+	.reel-checks {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
 	}
 
 	.reel-pill:hover { border-color: #C82D2D; }
