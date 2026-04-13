@@ -5,35 +5,36 @@
 	let { data }: { data: PageData } = $props();
 	let copyState = $state<Record<string, 'idle' | 'copied' | 'error'>>({});
 
-	// localStorage-backed posted state, keyed per week so multiple weeks don't bleed.
-	const storageKey = `gaari-posted-${data.manifest.startMonday}`;
+	// Posting state backed by Supabase (via /api/posting-status)
+	const weekId = data.manifest.startMonday;
 	let posted = $state<Record<string, boolean>>({});
+	let loaded = $state(false);
 
-	onMount(() => {
+	onMount(async () => {
 		try {
-			const raw = localStorage.getItem(storageKey);
-			if (raw) {
-				const parsed = JSON.parse(raw);
-				if (parsed && typeof parsed === 'object') {
-					for (const k of Object.keys(parsed)) posted[k] = parsed[k];
-				}
+			const res = await fetch(`/api/posting-status?week=${weekId}`);
+			if (res.ok) {
+				const state = await res.json();
+				for (const k of Object.keys(state)) posted[k] = state[k];
 			}
-		} catch { /* ignore */ }
+		} catch { /* fall back to empty */ }
+		loaded = true;
 	});
-
-	function persist() {
-		try { localStorage.setItem(storageKey, JSON.stringify(posted)); } catch { /* ignore */ }
-	}
 
 	function togglePosted(key: string) {
 		posted[key] = !posted[key];
-		persist();
+		// Fire-and-forget sync to Supabase
+		fetch('/api/posting-status', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ week: weekId, key, done: posted[key] })
+		}).catch(() => {});
 	}
 
 	function resetWeek() {
 		if (confirm('Nullstille hele uka?')) {
 			for (const k of Object.keys(posted)) delete posted[k];
-			try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
+			fetch(`/api/posting-status?week=${weekId}`, { method: 'DELETE' }).catch(() => {});
 		}
 	}
 

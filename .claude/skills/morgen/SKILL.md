@@ -26,6 +26,9 @@ Run all morning checks in parallel, then present a single unified briefing.
 ### Social posts (last FB/IG runs)
 !`gh run list --workflow=social-posts.yml --limit=2 --json conclusion,startedAt,name 2>/dev/null || echo "gh unavailable"`
 
+### SoMe posting checklist (this week)
+!`curl -s "https://gaari.no/api/posting-status?week=$(date -d 'last monday' +%Y-%m-%d 2>/dev/null || date -v-monday +%Y-%m-%d 2>/dev/null)" 2>/dev/null | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const o=JSON.parse(d);const n=Object.keys(o).length;console.log(n>0?n+' av ukens SoMe-oppgaver tikket av':'Ukens SoMe: ikke startet — apne /r/week/')}catch{console.log('SoMe-sjekk utilgjengelig')}})" 2>/dev/null || echo "SoMe check unavailable"`
+
 ### Last newsletter workflow
 !`gh run list --workflow=newsletter.yml --limit=3 --json conclusion,startedAt 2>/dev/null || echo "gh unavailable"`
 
