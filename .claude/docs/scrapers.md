@@ -7,6 +7,11 @@
 | StudentBergen | `studentbergen.ts` | JSON API `/api/calendar.json` |
 | Bergen Live | `bergenlive.ts` | HTML scrape |
 
+## Community calendars
+| Source | File | Method |
+|--------|------|--------|
+| Hva skjer i Loddefjord | `loddefjord.ts` | Embedded JSON in `#calendar-data` script tag. 156+ events, Laksevåg bydel. |
+
 **Disabled scrapers:**
 - ~~BarnasNorge~~ (`barnasnorge.ts`) — disabled Feb 25, 2026. All venues covered by dedicated scrapers. Issues: AI-generated stock images from Webflow CDN, address-based venue names, complex URL resolution.
 - ~~Kulturikveld~~ — removed (unreliable, file deleted).
