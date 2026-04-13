@@ -8,20 +8,20 @@ const STATIC_PAGES = ['', '/about', '/guide', '/datainnsamling', '/personvern', 
 export async function GET() {
 	const { data: events } = await supabase
 		.from('events')
-		.select('slug, date_start, created_at')
+		.select('slug, date_start, created_at, description_no, image_url')
 		.in('status', ['approved'])
 		.order('date_start', { ascending: false })
 		.limit(5000);
 
 	const today = new Date().toISOString().slice(0, 10);
 
-	let urls = '';
+	// ── Priority sitemap: static + collections (high-value pages) ──
+	let priorityUrls = '';
 
-	// Static pages in both languages
 	for (const page of STATIC_PAGES) {
 		for (const lang of ['no', 'en']) {
 			const altLang = lang === 'no' ? 'en' : 'no';
-			urls += `  <url>
+			priorityUrls += `  <url>
     <loc>${BASE}/${lang}${page}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${page === '' ? 'daily' : 'monthly'}</changefreq>
@@ -34,7 +34,7 @@ export async function GET() {
 	}
 
 	// For arrangører / For organizers
-	urls += `  <url>
+	priorityUrls += `  <url>
     <loc>${BASE}/no/for-arrangorer</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
@@ -53,27 +53,25 @@ export async function GET() {
     <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/for-arrangorer" />
   </url>\n`;
 
-	// Collection pages — only emit URL for language(s) the slug belongs to
+	// Collection pages
 	for (const slug of getAllCollectionSlugs()) {
 		const hreflang = getHreflangSlugs(slug);
-		// Determine which language(s) this slug is canonical for
 		const languages: ('no' | 'en')[] = [];
 		if (hreflang.no === slug) languages.push('no');
 		if (hreflang.en === slug) languages.push('en');
-		if (languages.length === 0) languages.push('no', 'en'); // fallback
+		if (languages.length === 0) languages.push('no', 'en');
 
 		const hasPair = hreflang.no !== hreflang.en;
 
 		for (const lang of languages) {
 			const altLang = lang === 'no' ? 'en' : 'no';
-			// Only emit cross-language hreflang if the collection has a real NO/EN pair
 			const hreflangLinks = hasPair
 				? `    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${hreflang[lang]}" />
     <xhtml:link rel="alternate" hreflang="${altLang === 'no' ? 'nb' : 'en'}" href="${BASE}/${altLang}/${hreflang[altLang]}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/${hreflang.no}" />`
 				: `    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${slug}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/${lang}/${slug}" />`;
-			urls += `  <url>
+			priorityUrls += `  <url>
     <loc>${BASE}/${lang}/${slug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
@@ -83,12 +81,18 @@ ${hreflangLinks}
 		}
 	}
 
-	// Event pages in both languages — use created_at for accurate freshness signals
-	for (const event of events || []) {
+	// ── Event sitemap: only events with meaningful content ──
+	// Filter to events that have description (>80 chars) OR image — skip thin pages
+	const qualityEvents = (events || []).filter(e =>
+		(e.description_no && e.description_no.length > 80) || e.image_url
+	);
+
+	let eventUrls = '';
+	for (const event of qualityEvents) {
 		const lastmod = event.created_at ? event.created_at.slice(0, 10) : today;
 		for (const lang of ['no', 'en']) {
 			const altLang = lang === 'no' ? 'en' : 'no';
-			urls += `  <url>
+			eventUrls += `  <url>
     <loc>${BASE}/${lang}/events/${event.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
@@ -100,10 +104,23 @@ ${hreflangLinks}
 		}
 	}
 
+	// Sitemap index wrapping both
+	const prioritySitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${priorityUrls}</urlset>`;
+
+	const eventSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${eventUrls}</urlset>`;
+
+	// For now, serve as single combined sitemap (sitemap index requires separate URLs)
+	// but with quality-filtered events — reduces from ~5000 to ~1000-2000 event URLs
 	const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${urls}</urlset>`;
+${priorityUrls}${eventUrls}</urlset>`;
 
 	return new Response(xml, {
 		headers: {

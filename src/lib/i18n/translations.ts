@@ -204,8 +204,8 @@ export const translations = {
 		readLess: 'Vis mindre',
 
 		// Newsletter CTA
-		nlHeading: 'Ukens høydepunkter i Bergen',
-		nlSubtext: 'Håndplukket hver torsdag. Alltid gratis.',
+		nlHeading: '5 tips for helgen — hver torsdag',
+		nlSubtext: 'Håndplukket fra 55 kilder. Alltid gratis.',
 		nlMicrocopy: 'Gratis — ingen spam. Kun det beste fra Bergen.',
 		nlPlaceholder: 'Din e-post',
 		nlSubscribe: 'Meld meg på',
@@ -421,8 +421,8 @@ export const translations = {
 		readLess: 'Show less',
 
 		// Newsletter CTA
-		nlHeading: "This week's highlights in Bergen",
-		nlSubtext: 'Hand-picked every Thursday. Always free.',
+		nlHeading: '5 weekend picks — every Thursday',
+		nlSubtext: 'Hand-picked from 55 sources. Always free.',
 		nlMicrocopy: 'Free — no spam. Only the best from Bergen.',
 		nlPlaceholder: 'Your email',
 		nlSubscribe: 'Sign me up',

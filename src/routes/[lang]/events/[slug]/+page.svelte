@@ -98,14 +98,17 @@
 			umami.track('event-share', { slug: event.slug });
 		}
 		const url = canonicalUrl;
+		const shareText = $lang === 'no'
+			? `${title} — ${event.venue_name}, Bergen\n${url}`
+			: `${title} — ${event.venue_name}, Bergen\n${url}`;
 		if (typeof navigator !== 'undefined' && navigator.share) {
 			try {
-				await navigator.share({ title, url });
+				await navigator.share({ title, text: shareText, url });
 			} catch {
 				// User cancelled or share failed — ignore
 			}
 		} else {
-			await navigator.clipboard.writeText(url);
+			await navigator.clipboard.writeText(shareText);
 			linkCopied = true;
 			setTimeout(() => linkCopied = false, 2000);
 		}
