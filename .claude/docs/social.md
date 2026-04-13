@@ -38,12 +38,14 @@
 ## Social insights
 `fetch-social-insights.ts` fetches engagement metrics for ALL IG/FB posts. Stored in `social_insights` table (JSONB). Runs after each posting GHA job.
 
-## Cross-day dedup (Apr 2026)
+## Event selection fairness (Apr 2026)
 - `social_posts.event_ids UUID[]` stores which events were included in each post
-- Before picking events, `getRecentlyPostedIds()` loads IDs posted in the last 5 days
-- Recently posted events are deprioritised (fresh events picked first, stale backfilled if needed)
+- **Cross-day event dedup**: `getRecentlyPostedIds()` loads IDs posted in the last 5 days, deprioritises them
+- **Weekly venue fairness**: `getWeeklyPostedVenues()` tracks which venues already appeared this week (Mon–Sun). Venues with 0 posts are prioritised over venues that already have posts. This is deprioritisation, not blocking — a venue with multiple events can still appear, but only after fresh venues get their turn.
+- **Hard-capped venues**: `CAPPED_VENUES` (Akvariet) are blocked after 1 post/week until they become paying Partner
+- **Partner guaranteed slot**: `pickGuaranteedVenue()` uses weighted rotation (same as website `pickDailyVenue`) to reserve a slot for Partner-tier venues based on their `slot_share` (35%)
 - Paired collections don't dedup against each other: `denne-helgen` ↔ `this-weekend`, `i-kveld` ↔ `today-in-bergen`
-- `pickDiverseEvents()` in `event-picker.ts` accepts `recentlyPosted` option set
+- `pickDiverseEvents()` in `event-picker.ts` uses 4 priority tiers: (1) fresh venue + fresh event, (2) fresh venue + stale event, (3) deprioritised venue + fresh event, (4) deprioritised venue + stale event
 
 ## Weekly batch
 `weekly-reels.yml`: Sunday 18:00 UTC (full generate + assemble), Thursday 15:00 UTC (re-assemble). `assemble-week.ts` builds per-day ZIPs + manifest.
