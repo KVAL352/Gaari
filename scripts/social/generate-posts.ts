@@ -130,6 +130,15 @@ const MIN_IMAGES_FOR_POST = 4;
 /** How many days back to check for recently posted events */
 const DEDUP_LOOKBACK_DAYS = 5;
 
+/**
+ * B2B prospects that get hard-capped to 1 post per week UNLESS they become
+ * paying Partner customers. High exposure potential we don't give away for free.
+ */
+const CAPPED_VENUES = new Set([
+	'Akvariet i Bergen'
+]);
+
+
 /** Slugs that share the same event pool and shouldn't dedup against each other */
 const DEDUP_PAIRS: Record<string, string> = {
 	'denne-helgen': 'this-weekend',
@@ -229,6 +238,124 @@ async function getRecentlyPostedIds(currentSlug: string): Promise<Set<string>> {
 	return ids;
 }
 
+/**
+ * Only Partner tier (9 000 kr/mnd) includes social media placement.
+ * Partner gets guaranteed spot in 35% of posts (matching their visibility_share),
+ * plus a dedicated 2 000 kr/mnd paid campaign budget (handled outside this script).
+ * Basis and Standard are website/newsletter only — no SoMe benefit.
+ */
+
+interface PartnerVenue {
+	venue_name: string;
+	slot_share: number;  // from promoted_placements, used for weighted rotation
+}
+
+/**
+ * Get active Partner-tier venues with SoMe placement rights.
+ */
+async function getPartnerVenues(): Promise<PartnerVenue[]> {
+	const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' }).slice(0, 10);
+
+	const { data } = await supabase
+		.from('promoted_placements')
+		.select('venue_name, tier, slot_share')
+		.eq('active', true)
+		.eq('tier', 'partner')
+		.lte('start_date', today)
+		.or(`end_date.is.null,end_date.gte.${today}`);
+
+	return (data ?? []).map(d => ({
+		venue_name: d.venue_name,
+		slot_share: d.slot_share
+	}));
+}
+
+/**
+ * Deterministically pick which Partner venue (if any) gets a guaranteed slot
+ * in this specific post. Uses the same weighted rotation as the website's
+ * pickDailyVenue — slot_share repetitions, index = (dayNumber + slugHash) % total.
+ * Returns null when no partner is active or the rotation lands on a gap day.
+ */
+function pickGuaranteedVenue(
+	partners: PartnerVenue[],
+	collectionSlug: string,
+	dateStr: string
+): string | null {
+	if (partners.length === 0) return null;
+
+	// Build weighted array (same approach as src/lib/server/promotions.ts)
+	const weighted: PartnerVenue[] = [];
+	for (const p of partners) {
+		for (let i = 0; i < p.slot_share; i++) {
+			weighted.push(p);
+		}
+	}
+	if (weighted.length === 0) return null;
+
+	// Day number: days since Unix epoch
+	const dayNumber = Math.floor(new Date(dateStr).getTime() / 86400000);
+
+	// Simple string hash of collectionSlug for rotation offset between collections
+	let slugHash = 0;
+	for (let i = 0; i < collectionSlug.length; i++) {
+		slugHash = (slugHash * 31 + collectionSlug.charCodeAt(i)) >>> 0;
+	}
+
+	const index = (dayNumber + slugHash) % weighted.length;
+	return weighted[index].venue_name;
+}
+
+/**
+ * Get venue post counts for this week (Mon–Sun).
+ * Looks up event IDs from social_posts, then resolves venue names from events table.
+ * Excludes paired collections (denne-helgen ↔ this-weekend share the same slot).
+ * Returns a map of venue_name → number of posts this week.
+ */
+async function getWeeklyPostedVenues(currentSlug: string): Promise<Map<string, number>> {
+	// Calculate Monday of current week (Oslo time)
+	const now = new Date();
+	const osloDate = new Date(now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' }));
+	const dayOfWeek = osloDate.getDay(); // 0=Sun
+	const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+	const monday = new Date(osloDate);
+	monday.setDate(monday.getDate() - mondayOffset);
+	const mondayStr = monday.toISOString().slice(0, 10);
+
+	const pairedSlug = DEDUP_PAIRS[currentSlug];
+	const excludeSlugs = [currentSlug, ...(pairedSlug ? [pairedSlug] : [])];
+
+	const { data: posts } = await supabase
+		.from('social_posts')
+		.select('collection_slug, event_ids')
+		.gte('generated_date', mondayStr)
+		.not('event_ids', 'is', null);
+
+	if (!posts) return new Map();
+
+	// Collect all event IDs from non-excluded collections
+	const eventIds: string[] = [];
+	for (const post of posts) {
+		if (excludeSlugs.includes(post.collection_slug)) continue;
+		if (Array.isArray(post.event_ids)) {
+			eventIds.push(...post.event_ids);
+		}
+	}
+
+	if (eventIds.length === 0) return new Map();
+
+	// Resolve venue names for these event IDs and count per venue
+	const { data: events } = await supabase
+		.from('events')
+		.select('venue_name')
+		.in('id', eventIds);
+
+	const counts = new Map<string, number>();
+	for (const e of (events ?? [])) {
+		counts.set(e.venue_name, (counts.get(e.venue_name) ?? 0) + 1);
+	}
+	return counts;
+}
+
 async function main() {
 	const startTime = Date.now();
 	const now = getOsloNow();
@@ -258,6 +385,15 @@ async function main() {
 
 	const results: Record<string, { eventCount: number; slideCount: number; success: boolean; error?: string }> = {};
 
+	// Load Partner venues once (only tier with SoMe placement)
+	const partnerVenues = await getPartnerVenues();
+	if (partnerVenues.length > 0) {
+		const summary = partnerVenues
+			.map(p => `${p.venue_name} (share: ${p.slot_share})`)
+			.join(', ');
+		console.log(`Partner venues (SoMe): ${summary}`);
+	}
+
 	for (const schedule of scheduled) {
 		console.log(`--- ${schedule.slug} ---`);
 		const collection = getCollection(schedule.slug);
@@ -281,11 +417,43 @@ async function main() {
 			console.log(`  ${recentlyPosted.size} events posted recently (deprioritised)`);
 		}
 
-		// Pick top events for carousel using the diverse picker shared with
-		// generate-reels.ts: IG-handle cap (so bibliotek branches and Akvariet
-		// activities don't dominate), time-bucket spread, day-bucket spread,
-		// and cross-day dedup (recently posted events deprioritised).
-		const topEvents = pickDiverseEvents(filtered, MAX_CAROUSEL_EVENTS, { recentlyPosted });
+		// Venue fairness: venues already posted this week are deprioritised
+		// so venues with 0 posts get their turn first. Different events from
+		// the same venue can still appear — it's priority, not a hard block.
+		// Exception: CAPPED_VENUES are hard-blocked until they become Partner.
+		const partnerNames = new Set(partnerVenues.map(p => p.venue_name));
+		const weeklyVenueCounts = await getWeeklyPostedVenues(schedule.slug);
+		const weeklyBlockedVenues = new Set<string>();
+		const deprioritizedVenues = new Set<string>();
+		for (const [venue] of Array.from(weeklyVenueCounts.entries())) {
+			if (CAPPED_VENUES.has(venue) && !partnerNames.has(venue)) {
+				// B2B prospect: hard cap at 1/week until they pay
+				weeklyBlockedVenues.add(venue);
+			} else if (!partnerNames.has(venue)) {
+				// Non-paying: deprioritise (not block) after first post
+				deprioritizedVenues.add(venue);
+			}
+		}
+		if (weeklyBlockedVenues.size > 0) {
+			console.log(`  ${weeklyBlockedVenues.size} venues hard-blocked (capped prospect)`);
+		}
+		if (deprioritizedVenues.size > 0) {
+			console.log(`  ${deprioritizedVenues.size} venues deprioritised (already posted this week)`);
+		}
+
+		// Guaranteed Partner slot: deterministic rotation picks which Partner
+		// venue (if any) gets a reserved slot in this specific post.
+		// Uses slot_share weighting — same approach as website promotions.
+		const guaranteedVenue = pickGuaranteedVenue(partnerVenues, schedule.slug, dateStr);
+		if (guaranteedVenue) {
+			console.log(`  Guaranteed slot: ${guaranteedVenue}`);
+		}
+
+		// Pick top events: guaranteed Partner slot first, then diverse fill.
+		// IG-handle cap, time/day-bucket spread, cross-day dedup, venue fairness.
+		const topEvents = pickDiverseEvents(filtered, MAX_CAROUSEL_EVENTS, {
+			recentlyPosted, weeklyBlockedVenues, deprioritizedVenues, guaranteedVenue
+		});
 
 		const eventsWithImages = topEvents.filter(e => e.image_url).length;
 		console.log(`  ${filtered.length} events matched, ${topEvents.length} selected, ${eventsWithImages} with images`);

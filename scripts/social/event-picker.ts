@@ -23,6 +23,12 @@ interface MinimalEvent {
 interface PickerOptions {
 	/** Event IDs to deprioritise (posted recently in other collections) */
 	recentlyPosted?: Set<string>;
+	/** Venue names to exclude entirely (hard-capped B2B prospects) */
+	weeklyBlockedVenues?: Set<string>;
+	/** Venue names to deprioritise (already posted this week, not blocked) */
+	deprioritizedVenues?: Set<string>;
+	/** Venue name that gets a guaranteed slot (Partner tier) — picked first */
+	guaranteedVenue?: string;
 }
 
 type Bucket = 'morning' | 'midday' | 'afternoon' | 'evening';
@@ -44,23 +50,66 @@ const BUCKET_ORDER: readonly Bucket[] = ['morning', 'midday', 'afternoon', 'even
 
 export function pickDiverseEvents<T extends MinimalEvent>(events: T[], target: number, options?: PickerOptions): T[] {
 	const recentlyPosted = options?.recentlyPosted;
+	const weeklyBlocked = options?.weeklyBlockedVenues;
+	const deprioritizedVenues = options?.deprioritizedVenues;
+	const guaranteedVenue = options?.guaranteedVenue;
 
-	// Two-pass strategy: first pick from fresh events, then fill from recently posted
-	if (recentlyPosted && recentlyPosted.size > 0) {
-		const fresh = events.filter(e => !e.id || !recentlyPosted.has(e.id));
-		const stale = events.filter(e => e.id && recentlyPosted.has(e.id));
-		const picked = pickFromPool(fresh, target);
-		if (picked.length < target && stale.length > 0) {
-			const remaining = target - picked.length;
-			const handleSeen = new Set(picked.map(e => getVenueInstagram(e.venue_name) || `__noip:${e.venue_name}`));
-			const venueSeen = new Set(picked.map(e => e.venue_name));
-			const backfill = pickFromPool(stale, remaining, handleSeen, venueSeen);
-			picked.push(...backfill);
+	// Hard-block: remove capped B2B prospects entirely
+	const eligible = weeklyBlocked && weeklyBlocked.size > 0
+		? events.filter(e => !weeklyBlocked.has(e.venue_name))
+		: events;
+
+	// Pass 1: Reserve a slot for the guaranteed venue (Partner tier)
+	const guaranteed: T[] = [];
+	let remainingTarget = target;
+	if (guaranteedVenue) {
+		const candidate = eligible.find(e => e.venue_name === guaranteedVenue && e.image_url);
+		if (candidate) {
+			guaranteed.push(candidate);
+			remainingTarget--;
 		}
-		return picked;
 	}
 
-	return pickFromPool(events, target);
+	// Exclude guaranteed event from the normal pool
+	const pool = guaranteed.length > 0
+		? eligible.filter(e => e !== guaranteed[0])
+		: eligible;
+
+	// Split pool: events from venues not yet posted this week vs already posted.
+	// Recently posted event IDs are a separate axis (cross-day event dedup).
+	const isVenueDeprioritized = (e: T) =>
+		deprioritizedVenues && deprioritizedVenues.size > 0 && deprioritizedVenues.has(e.venue_name);
+	const isEventStale = (e: T) =>
+		recentlyPosted && recentlyPosted.size > 0 && e.id && recentlyPosted.has(e.id);
+
+	// Priority tiers (picked in order, each fills remaining slots):
+	//   1. Fresh venues + fresh events (never posted this week, event not recently seen)
+	//   2. Fresh venues + stale events (venue is new this week, but event was in another collection)
+	//   3. Deprioritized venues + fresh events (venue already posted, but different event)
+	//   4. Deprioritized venues + stale events (last resort)
+	const tiers = [
+		pool.filter(e => !isVenueDeprioritized(e) && !isEventStale(e)),
+		pool.filter(e => !isVenueDeprioritized(e) && isEventStale(e)),
+		pool.filter(e => isVenueDeprioritized(e) && !isEventStale(e)),
+		pool.filter(e => isVenueDeprioritized(e) && isEventStale(e))
+	];
+
+	const handleSeen = new Set(guaranteed.map(e => getVenueInstagram(e.venue_name) || `__noip:${e.venue_name}`));
+	const venueSeen = new Set(guaranteed.map(e => e.venue_name));
+	const picked: T[] = [];
+
+	for (const tierEvents of tiers) {
+		if (picked.length >= remainingTarget) break;
+		if (tierEvents.length === 0) continue;
+		const batch = pickFromPool(tierEvents, remainingTarget - picked.length, handleSeen, venueSeen);
+		for (const e of batch) {
+			handleSeen.add(getVenueInstagram(e.venue_name) || `__noip:${e.venue_name}`);
+			venueSeen.add(e.venue_name);
+		}
+		picked.push(...batch);
+	}
+
+	return [...guaranteed, ...picked];
 }
 
 function pickFromPool<T extends MinimalEvent>(
