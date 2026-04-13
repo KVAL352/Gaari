@@ -103,19 +103,14 @@ Check what day of the week it is and suggest day-appropriate activities in "Nest
 
 | Dag | Fokus |
 |-----|-------|
-| Mandag | Sjekk trafikktall (Umami). Sjekk ukens SoMe-sjekkliste pa `/r/week/`. Velg 1-2 outreach fra outreach-strategy.md. |
+| Mandag | Sjekk trafikktall (Umami). Ukens SoMe-okt: apne `/r/week/` og legg ut alt for uka. Velg 1-2 outreach fra outreach-strategy.md. |
 | Tirsdag-onsdag | Feature-arbeid, SEO-justeringer |
-| Torsdag | Nyhetsbrev gar ut automatisk. Sjekk `/r/week/` for dagens oppgaver. |
-| Fredag | Sjekk `/r/week/` for helge-posting. |
+| Torsdag | Nyhetsbrev gar ut automatisk. |
+| Fredag | Ingenting ekstra. |
 | Lordag | Valgfritt: stikk innom venues med klistremerker |
 
-### SoMe-sjekkliste
-All organisk SoMe-posting (reels, stories, FB-grupper, captions) styres fra `/r/week/[startdate]`. Denne siden har:
-- Last ned-knapp for bilder/video per dag
-- Kopier caption (NO/EN)
-- Avkrysning per plattform: IG reel, FB reel, stories, FB-grupper
-- Progress bar for hele uka
-Lenke til gjeldende uke: `gaari.no/r/week/YYYY-MM-DD` (mandagens dato)
+### SoMe-sjekkliste (mandag)
+All organisk SoMe-posting gjores i en okt pa mandager via `gaari.no/r/week/YYYY-MM-DD` (mandagens dato). Siden har nedlasting, caption-kopiering og avkrysning for hele uka. Sjekk at progress bar er 100% for at ukas SoMe er ferdig.
 
 ## Deadline warnings
 
