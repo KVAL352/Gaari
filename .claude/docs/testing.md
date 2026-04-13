@@ -3,7 +3,7 @@
 **Vitest** unit test suite (`npm test` / `npm run test:watch`, <500ms). CI runs after type check. Run `npx vitest run` for current count.
 
 ## Test files
-- `src/lib/__tests__/event-filters.test.ts` — matchesTimeOfDay, getWeekendDates, isSameDay, toOsloDateStr, getEasterDate, getISOWeekDates, getContextualHighlight
+- `src/lib/__tests__/event-filters.test.ts` — matchesTimeOfDay, getWeekendDates, isSameDay, toOsloDateStr, getEasterDate, getISOWeekDates, getContextualHighlight, eventOverlapsRange, eventOnDay
 - `src/lib/__tests__/utils.test.ts` — isFreeEvent, formatPrice, slugify, formatEventTime
 - `src/lib/__tests__/seo.test.ts` — safeJsonLd, generateEventJsonLd, toBergenIso, generateBreadcrumbJsonLd, generateCollectionJsonLd, computeCanonical
 - `src/lib/__tests__/seo-audit.test.ts` — SEO validation rules (meta tags, JSON-LD, canonical URLs, sitemap, performance budgets, source counts)
