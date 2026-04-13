@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		.select('image_url, title_no, venue_name, category')
 		.eq('status', 'approved')
 		.not('image_url', 'is', null)
-		.or(`date_start.gte.${new Date().toISOString()},date_end.gte.${new Date().toISOString()}`)
+		.or(`date_end.gte.${new Date().toISOString()},and(date_end.is.null,date_start.gte.${new Date().toISOString()})`)
 		.order('date_start', { ascending: true })
 		.limit(100);
 
