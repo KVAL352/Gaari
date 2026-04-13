@@ -103,11 +103,19 @@ Check what day of the week it is and suggest day-appropriate activities in "Nest
 
 | Dag | Fokus |
 |-----|-------|
-| Mandag | Sjekk trafikktall (Umami). Del `gaari.no/no/denne-uken/YYYY-WW` i 4 FB-grupper. Velg 1-2 outreach fra outreach-strategy.md. |
+| Mandag | Sjekk trafikktall (Umami). Sjekk ukens SoMe-sjekkliste pa `/r/week/`. Velg 1-2 outreach fra outreach-strategy.md. |
 | Tirsdag-onsdag | Feature-arbeid, SEO-justeringer |
-| Torsdag | Nyhetsbrev gar ut automatisk. Del `gaari.no/no/denne-helgen` i FB-grupper. |
-| Fredag | Helgeguide i FB-grupper (bruk /fb-post) |
+| Torsdag | Nyhetsbrev gar ut automatisk. Sjekk `/r/week/` for dagens oppgaver. |
+| Fredag | Sjekk `/r/week/` for helge-posting. |
 | Lordag | Valgfritt: stikk innom venues med klistremerker |
+
+### SoMe-sjekkliste
+All organisk SoMe-posting (reels, stories, FB-grupper, captions) styres fra `/r/week/[startdate]`. Denne siden har:
+- Last ned-knapp for bilder/video per dag
+- Kopier caption (NO/EN)
+- Avkrysning per plattform: IG reel, FB reel, stories, FB-grupper
+- Progress bar for hele uka
+Lenke til gjeldende uke: `gaari.no/r/week/YYYY-MM-DD` (mandagens dato)
 
 ## Deadline warnings
 
