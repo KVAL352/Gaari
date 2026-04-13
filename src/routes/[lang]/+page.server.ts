@@ -49,7 +49,7 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 			const upcoming = mapped.filter(e => e.date_start >= nowUtc);
 			const ongoing = mapped.filter(e => e.date_start < nowUtc);
 			upcoming.sort((a, b) => a.date_start < b.date_start ? -1 : a.date_start > b.date_start ? 1 : 0);
-			ongoing.sort((a, b) => a.date_end < b.date_end ? -1 : a.date_end > b.date_end ? 1 : 0);
+			ongoing.sort((a, b) => (a.date_end ?? '') < (b.date_end ?? '') ? -1 : (a.date_end ?? '') > (b.date_end ?? '') ? 1 : 0);
 			mapped.length = 0;
 			mapped.push(...upcoming, ...ongoing);
 

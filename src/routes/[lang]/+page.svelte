@@ -165,7 +165,7 @@
 		const upcoming = events.filter(e => e.date_start >= nowIso);
 		const ongoing = events.filter(e => e.date_start < nowIso);
 		upcoming.sort((a, b) => a.date_start < b.date_start ? -1 : a.date_start > b.date_start ? 1 : 0);
-		ongoing.sort((a, b) => a.date_end < b.date_end ? -1 : a.date_end > b.date_end ? 1 : 0);
+		ongoing.sort((a, b) => (a.date_end ?? '') < (b.date_end ?? '') ? -1 : (a.date_end ?? '') > (b.date_end ?? '') ? 1 : 0);
 		events = [...upcoming, ...ongoing];
 
 		// Remove user-hidden events — only after hydration to prevent SSR mismatch
