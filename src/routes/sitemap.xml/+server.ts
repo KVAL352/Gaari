@@ -1,5 +1,6 @@
 import { supabase } from '$lib/server/supabase';
 import { getAllCollectionSlugs, getHreflangSlugs } from '$lib/collections';
+import { getAllVenueSlugs } from '$lib/venues';
 
 const BASE = 'https://gaari.no';
 
@@ -77,6 +78,22 @@ export async function GET() {
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
 ${hreflangLinks}
+  </url>\n`;
+		}
+	}
+
+	// ── Venue pages ──
+	for (const venueSlug of getAllVenueSlugs()) {
+		for (const lang of ['no', 'en']) {
+			const altLang = lang === 'no' ? 'en' : 'no';
+			priorityUrls += `  <url>
+    <loc>${BASE}/${lang}/venue/${venueSlug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/venue/${venueSlug}" />
+    <xhtml:link rel="alternate" hreflang="${altLang === 'no' ? 'nb' : 'en'}" href="${BASE}/${altLang}/venue/${venueSlug}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/venue/${venueSlug}" />
   </url>\n`;
 		}
 	}
