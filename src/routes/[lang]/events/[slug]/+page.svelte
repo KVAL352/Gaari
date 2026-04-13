@@ -11,7 +11,7 @@
 	import EventCard from '$lib/components/EventCard.svelte';
 	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
 	import CalendarDropdown from '$lib/components/CalendarDropdown.svelte';
-	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquareDiff, Share2, Check, Navigation } from 'lucide-svelte';
+	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquareDiff, Share2, Check, Navigation, Bell } from 'lucide-svelte';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 	import { slide } from 'svelte/transition';
@@ -80,6 +80,37 @@
 		if (!event.bydel) return null;
 		return $lang === 'no' ? `Flere arrangementer i ${event.bydel}` : `More events in ${event.bydel}`;
 	});
+
+	// Reminder state
+	let showReminderForm = $state(false);
+	let reminderEmail = $state('');
+	let reminderSubmitted = $state(false);
+	let reminderSubmitting = $state(false);
+
+	async function handleReminder() {
+		if (!reminderEmail || reminderSubmitting) return;
+		reminderSubmitting = true;
+		try {
+			const res = await fetch('/api/remind', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					email: reminderEmail,
+					eventSlug: event.slug,
+					eventTitle: title,
+					eventDate: event.date_start.slice(0, 10),
+					venueName: event.venue_name
+				})
+			});
+			if (res.ok) {
+				reminderSubmitted = true;
+				if (typeof window !== 'undefined' && window.umami) {
+					umami.track('reminder-signup', { slug: event.slug });
+				}
+			}
+		} catch { /* ignore */ }
+		reminderSubmitting = false;
+	}
 
 	let showCorrectionForm = $state(false);
 	let correctionSubmitted = $state(false);
@@ -318,7 +349,51 @@
 				{$t('share')}
 			{/if}
 		</button>
+		{#if !isCancelled}
+			<button
+				onclick={() => showReminderForm = !showReminderForm}
+				class="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-6 py-3 text-sm font-semibold transition-colors hover:bg-[var(--color-surface)]"
+			>
+				<Bell size={16} />
+				{$lang === 'no' ? 'Påminn meg' : 'Remind me'}
+			</button>
+		{/if}
 	</div>
+
+	<!-- Reminder form -->
+	{#if showReminderForm && !reminderSubmitted}
+		<div class="mb-8 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4" transition:slide={{ duration: 200 }}>
+			<p class="mb-2 text-sm font-medium">
+				{$lang === 'no' ? 'Få en påminnelse kvelden før' : 'Get a reminder the evening before'}
+			</p>
+			<form onsubmit={(e) => { e.preventDefault(); handleReminder(); }} class="flex gap-2">
+				<input
+					type="email"
+					bind:value={reminderEmail}
+					placeholder={$lang === 'no' ? 'Din e-post' : 'Your email'}
+					required
+					class="flex-1 rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none"
+				/>
+				<button
+					type="submit"
+					disabled={reminderSubmitting}
+					class="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-50"
+				>
+					{reminderSubmitting
+						? ($lang === 'no' ? 'Lagrer...' : 'Saving...')
+						: ($lang === 'no' ? 'Send påminnelse' : 'Set reminder')}
+				</button>
+			</form>
+		</div>
+	{/if}
+	{#if reminderSubmitted}
+		<div class="mb-8 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+			<Check size={16} class="mr-1 inline" />
+			{$lang === 'no'
+				? `Vi sender deg en påminnelse kvelden før til ${reminderEmail}`
+				: `We'll send you a reminder the evening before to ${reminderEmail}`}
+		</div>
+	{/if}
 
 	<!-- Sticky ticket button on mobile -->
 	{#if (event.ticket_url || event.source_url) && !isCancelled}
