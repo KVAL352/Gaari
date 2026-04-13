@@ -10,7 +10,9 @@
 - `/[lang]/nyhetsbrev/preferanser/` — Newsletter preferences. HMAC-signed token required. **Server-side loaded**.
 - `/[lang]/submit/` — Event submission form (noindex). Only page with client-side Supabase (image uploads).
 - `/[lang]/events/[slug]/` — Event detail page with related events, contextual collection link, OG image. **Server-side loaded**. Correction form action `?/correction`.
-- `/[lang]/[collection]/` — 52 collection landing pages. **Server-side loaded**, ISR cached. Config in `$lib/collections.ts`. Cross-language slug redirect. Off-season pages show related collections + hint card.
+- `/[lang]/[collection]/` — 53 collection landing pages. **Server-side loaded**, ISR cached. Config in `$lib/collections.ts`. Cross-language slug redirect. Off-season pages show related collections + hint card.
+- `/[lang]/venue/[venue]/` — Top 15 venue pages with LocalBusiness JSON-LD, upcoming events, map link. Config in `$lib/venues.ts`.
+- `/[lang]/denne-uken/[uke]/` — Weekly blog post (year-week format, e.g. `2026-16`). Article JSON-LD, auto-generated from event data.
 - `/[lang]/lenker/` — Link-in-bio page for Instagram/Facebook. Prerendered. UTM-tagged links.
 - `/[lang]/for-arrangorer/` — B2B marketing page for venues. 7-section structure with pricing tiers.
 
@@ -32,6 +34,10 @@
 - `/api/events.ics` — Public iCal feed (30-day, optional `?filter=`)
 - `/api/stripe-webhook` — Stripe webhook (checkout.session.completed, subscription.deleted)
 - `/api/csp-report` — CSP violation reports
+- `/api/track-click` — POST venue click tracking (→ venue_clicks table)
+- `/api/remind` — POST event reminder signup (→ event_reminders table)
+- `/api/posting-status` — GET/POST/DELETE SoMe posting checklist state (→ social_posting_status table)
+- `/u/api/send` — Umami beacon proxy with correct IP forwarding
 - `/qr` — Dynamic QR redirect for sticker campaigns
 
 ## Generated

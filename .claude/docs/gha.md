@@ -8,5 +8,6 @@
 - **Meta Daily Snapshot** (`meta-daily-snapshot.yml`): every day 07:30 UTC. `scripts/fetch-meta-daily.ts`. Captures FB/IG followers + IG daily insights into `meta_daily_snapshot` table. Mirrors followers to `daily_metrics` for digest week-over-week comparison.
 - **Weekly Reel Batch** (`weekly-reels.yml`): Sunday 18:00 UTC (full), Thursday 15:00 UTC (re-assemble).
 - **Social Posts** (`social-posts.yml`): FB 07:00 UTC, IG 14:00 UTC. `generate-posts.ts` + `post-to-socials.ts`.
+- **Send Reminders** (`send-reminders.yml`): daily 16:00 UTC. `scripts/send-reminders.ts`. Sends event reminder emails for tomorrow via Resend.
 - **Quality Audit** (`quality-audit.yml`): 1st of month 09:00 UTC. 10 automated checks.
 - **Admin CLI** (`scripts/admin-ops.ts`): Local only. `cd scripts && npx tsx admin-ops.ts <list|approve|reject|status>`.
