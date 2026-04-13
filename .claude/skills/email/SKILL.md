@@ -11,10 +11,13 @@ Check, sort, and review Protonmail emails for the Gåri project.
 
 ## Pre-loaded folder checks
 
-Run all folder reads in parallel using MCP protonmail tools:
+Run ALL of these in parallel using MCP protonmail tools:
 
 1. `mcp__protonmail__list_emails` with folder `INBOX`
 2. `mcp__protonmail__list_emails` with folder `Folders/Gaari/Inquiries/Unresolved`
+3. `mcp__protonmail__list_emails` with folder `Folders/Gaari/Submissions/Unresolved`
+4. `mcp__protonmail__list_emails` with folder `Folders/Gaari/Corrections/Unresolved`
+5. `mcp__protonmail__list_emails` with folder `Folders/Gaari/Opt-outs/Unresolved`
 
 ## Step 2: Summarize
 
@@ -63,6 +66,17 @@ last_verified: 2026-04-10
 ```
 
 **Only update files where something actually changed.** Don't touch files just because you read them.
+
+## Step 6: Cleanup
+
+Before finishing, ensure ALL Unresolved folders are empty:
+- Move handled items to their corresponding `Resolved` folder
+- Move test submissions and spam to `Trash`
+- Move press/media to `Folders/Gaari/Presse`
+- Move receipts to `Folders/Receipts`
+- For user submissions: check if event exists in DB. If approved, move to Resolved. If pending, flag for review.
+
+**Do not finish email triage with items still in Unresolved folders.**
 
 ## Rules
 

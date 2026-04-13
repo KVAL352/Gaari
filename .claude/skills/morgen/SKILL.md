@@ -37,7 +37,7 @@ Run all morning checks in parallel, then present a single unified briefing.
 
 ## Then do these in parallel
 
-1. **Check email** — use the `email` skill to check all Protonmail folders
+1. **Check email** — use the `email` skill to check all Protonmail folders (INBOX + all Unresolved folders: Inquiries, Submissions, Corrections, Opt-outs). Triage and clean up so all Unresolved folders are empty before moving on.
 2. **Check tasks** — use the `tasks` skill to list pending/overdue items
 3. **Quick memory lint** — run a lightweight check (no full lint, just critical issues):
    - Check that all files in MEMORY.md exist on disk
