@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 			.from('events')
 			.select(fields)
 			.in('status', ['approved', 'cancelled'])
-			.gte('date_end', nowUtc)
+			.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
 			.order('date_start', { ascending: true })
 			.range(0, PAGE - 1);
 
@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 				.from('events')
 				.select(fields)
 				.in('status', ['approved', 'cancelled'])
-				.gte('date_end', nowUtc)
+				.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
 				.order('date_start', { ascending: true })
 				.range(PAGE, PAGE * 2 - 1);
 			if (page2) allData = allData.concat(page2);

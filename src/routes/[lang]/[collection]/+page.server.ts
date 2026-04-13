@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			.from('events')
 			.select(collFields)
 			.in('status', ['approved', 'cancelled'])
-			.gte('date_end', nowUtc)
+			.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
 			.order('date_start', { ascending: true })
 			.range(0, PAGE - 1);
 
@@ -50,7 +50,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 				.from('events')
 				.select(collFields)
 				.in('status', ['approved', 'cancelled'])
-				.gte('date_end', nowUtc)
+				.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
 				.order('date_start', { ascending: true })
 				.range(PAGE, PAGE * 2 - 1);
 			if (p2) allData = allData.concat(p2);
