@@ -11,7 +11,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - **Database**: Supabase with `events`, `opt_out_requests`, `edit_suggestions`, `promoted_placements`, `placement_log`, `organizer_inquiries`, `scraper_runs` tables.
 - **Scrapers**: Standalone TypeScript in `scripts/`, separate `package.json`. Cheerio + GitHub Actions cron (daily 6 AM UTC).
 - **AI Descriptions**: Gemini 2.5 Flash generates bilingual summaries (<160 chars) + `title_en`. Fallback to template.
-- **Collection pages**: 52 curated landing pages via `$lib/collections.ts`. See `.claude/docs/collections.md`.
+- **Collection pages**: 53 curated landing pages via `$lib/collections.ts`. See `.claude/docs/collections.md`.
 - **Social pipeline**: Instagram/Facebook carousel + stories. See `.claude/docs/social.md`.
 - **Newsletter**: Weekly via MailerLite. Personalized per subscriber preferences.
 - **B2B**: `/[lang]/for-arrangorer/` — venue marketing page with Stripe payment links.

@@ -1,6 +1,6 @@
 # Collection Pages
 
-52 collections total: 18 evergreen + 7 bydel + 13 seasonal + 14 festival.
+53 collections total: 18 evergreen + 7 bydel + 14 seasonal + 14 festival.
 Config in `$lib/collections.ts`, single dynamic `[lang]/[collection]/` route.
 
 ## Evergreen (18)
@@ -38,6 +38,7 @@ All filter by `bydel` field, 2-week window: `bergenhus`, `laksevag`, `fyllingsda
 | `nyttarsaften` / `new-years-eve-bergen` | Dec 29-Jan 1 |
 | `vinterferie` / `winter-break-bergen` | ISO week 9 |
 | `hostferie` | ISO week 41 (no EN pair) |
+| `fadderuke-bergen` | ISO weeks 33-34 (student freshers) |
 
 ## Festival (14, `seasonal: true`, filter by `source_url` domain)
 | Slug (NO/EN) | Domain |
