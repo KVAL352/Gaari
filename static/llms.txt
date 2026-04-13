@@ -1,10 +1,10 @@
 # Gåri — What's happening in Bergen?
 
-> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. 54 independent sources — venues, theatres, museums, libraries, festivals and ticket platforms — updated daily at 06:00 UTC.
+> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. 55 independent sources — venues, theatres, museums, libraries, festivals and ticket platforms — updated daily at 06:00 UTC.
 
 ## What Gåri does
 
-Gåri collects events from 54 local sources in Bergen and presents them in a single, filterable listing. All event descriptions are independently generated (never copied from source). The site covers concerts, theatre, exhibitions, food events, family activities, nightlife, sports and more. Events are categorised by type, audience, time of day and neighbourhood (bydel).
+Gåri collects events from 55 local sources in Bergen and presents them in a single, filterable listing. All event descriptions are independently generated (never copied from source). The site covers concerts, theatre, exhibitions, food events, family activities, nightlife, sports and more. Events are categorised by type, audience, time of day and neighbourhood (bydel).
 
 ## Key pages
 
@@ -69,13 +69,15 @@ Gåri collects events from 54 local sources in Bergen and presents them in a sin
 - https://gaari.no/no/about — Om Gåri
 - https://gaari.no/en/about — About Gåri
 
-## Data sources (54 active)
+## Data sources (55 active)
 
 Venues: Grieghallen, DNS, Ole Bull, USF Verftet, Forum Scene, Harmonien, Carte Blanche, BIT, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater, KODE, Bergen Kunsthall, Litteraturhuset, Media City Bergen, BEK, Bergen Filmklubb, Bergen Bibliotek, Bymuseet, Museum Vest, Akvariet, Fløyen, Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad, O'Connor's, GG Bergen, Stene Matglede, Swing 'n Sweet, Bodega, SK Brann, DNT Bergen, Kvarteret.
 
 Festivals: Festspillene, Bergenfest, Beyond the Gates, Nattjazz, Bergen Pride, BIFF, Borealis, VVV, Jungelfest.
 
 Platforms: TicketCo, Billetto, Hoopla.
+
+Community: Hva skjer i Loddefjord.
 
 Aggregators: Bergen Kommune, StudentBergen, Bergen Live.
 
@@ -91,7 +93,7 @@ Aggregators: Bergen Kommune, StudentBergen, Bergen Live.
 ## Quick answers
 
 **How many events happen in Bergen each week?**
-Bergen typically has 150 to 250 events per week across 54 venues and cultural institutions. See https://gaari.no/no/denne-helgen for this weekend or https://gaari.no/no/i-dag for today.
+Bergen typically has 150 to 250 events per week across 55 venues and cultural institutions. See https://gaari.no/no/denne-helgen for this weekend or https://gaari.no/no/i-dag for today.
 
 **What are the best free things to do in Bergen?**
 Bergen Kunsthall (free entry days), Bergen Bibliotek (free events daily), Fløyen (free hiking), park concerts in summer, and museum free days. Full updated list: https://gaari.no/no/gratis

@@ -63,6 +63,7 @@ import { scrape as scrapeOstre } from './scrapers/ostre.js';
 import { scrape as scrapeSwingNSweet } from './scrapers/swingnsweetjazzclub.js';
 import { scrape as scrapeBodega } from './scrapers/bodega.js';
 import { scrape as scrapeJungelfest } from './scrapers/jungelfest.js';
+import { scrape as scrapeLoddefjord } from './scrapers/loddefjord.js';
 import { writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
 import { removeExpiredEvents, refreshStaleMultiDateEvents, loadOptOuts, getOptOutDomains, loadExistingUrls } from './lib/utils.js';
@@ -125,6 +126,7 @@ export const scrapers: Record<string, () => Promise<{ found: number; inserted: n
 	bergenpride: scrapeBergenPride,
 	bodega: scrapeBodega,
 	jungelfest: scrapeJungelfest,
+	loddefjord: scrapeLoddefjord,
 	// --- Medium scrapers (detail-page fetches or pagination) ---
 	ostre: scrapeOstre,
 	bergenkjott: scrapeBergenKjott,

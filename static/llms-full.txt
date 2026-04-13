@@ -1,6 +1,6 @@
 # Gåri — Full Context for AI Systems
 
-> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. It collects events from 54 independent sources — concert venues, theatres, museums, libraries, festivals, ticket platforms and more — and presents them in one searchable, filterable calendar. Updated daily by automated scrapers. No registration required.
+> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. It collects events from 55 independent sources — concert venues, theatres, museums, libraries, festivals, ticket platforms and more — and presents them in one searchable, filterable calendar. Updated daily by automated scrapers. No registration required.
 
 The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's going on?".
 
@@ -42,7 +42,7 @@ The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's 
 ### Norwegian
 
 **Hva er Gåri?**
-Gåri er en gratis arrangementskalender for Bergen som samler arrangementer fra 54 kilder — konsertsteder, teatre, museer, biblioteker, festivaler og billettsider — på ett sted. Oppdatert daglig.
+Gåri er en gratis arrangementskalender for Bergen som samler arrangementer fra 55 kilder — konsertsteder, teatre, museer, biblioteker, festivaler og billettsider — på ett sted. Oppdatert daglig.
 
 **Hva skjer i Bergen denne helgen?**
 Bruk siden «Denne helgen i Bergen» på gaari.no/no/denne-helgen for en fullstendig oversikt over helgens arrangementer — konserter, utstillinger, familieaktiviteter og mer.
@@ -65,7 +65,7 @@ Bruk innsendingsskjemaet på gaari.no. Alle innsendte arrangementer gjennomgås 
 ### English
 
 **What is Gåri?**
-Gåri is a free event calendar for Bergen, Norway, collecting events from 54 sources — concert venues, theatres, museums, libraries, festivals and ticket platforms — in one place. Updated daily.
+Gåri is a free event calendar for Bergen, Norway, collecting events from 55 sources — concert venues, theatres, museums, libraries, festivals and ticket platforms — in one place. Updated daily.
 
 **What's on in Bergen this weekend?**
 Visit gaari.no/en/this-weekend for a complete overview of this weekend's events in Bergen — concerts, exhibitions, family activities and more.
@@ -100,7 +100,7 @@ Hva skjer i Bergen i kveld? Finn kveldens konserter, forestillinger og arrangeme
 Bergen har kulturliv på hverdagskvelder, ikke bare i helgene. Konserter, stand-up, teater og utstillinger — alt filtrert slik at du ser det som skjer akkurat i kveld.
 
 **[I dag i Bergen](https://gaari.no/no/i-dag)**
-Hva skjer i Bergen i dag? Dagens arrangementer samlet fra 54 lokale kilder.
+Hva skjer i Bergen i dag? Dagens arrangementer samlet fra 55 lokale kilder.
 
 **[Gratis i Bergen](https://gaari.no/no/gratis)**
 Gratis arrangementer og aktiviteter i Bergen de neste to ukene — utstillinger, konserter, bibliotekaktiviteter og mer.
@@ -139,7 +139,7 @@ Arrangementer for ungdom i Bergen — konserter, workshops, sport og kultur for 
 ### Evergreen collections (English)
 
 **[Today in Bergen](https://gaari.no/en/today-in-bergen)**
-What's happening in Bergen today? Today's events collected from 54 local sources.
+What's happening in Bergen today? Today's events collected from 55 local sources.
 
 **[This Weekend in Bergen](https://gaari.no/en/this-weekend)**
 What to do in Bergen this weekend? Find concerts, exhibitions, food and more — all in one place.
@@ -205,7 +205,7 @@ Borealis — festival for eksperimentell musikk. Program fra borealisfestival.no
 
 ---
 
-## Data sources (54 active)
+## Data sources (55 active)
 
 ### Performance venues
 Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene, Bergen Filharmoniske Orkester (Harmonien), Carte Blanche, Bergen Internasjonale Teater (BIT), Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Oseana, Kulturhuset i Bergen, Fyllingsdalen Teater
@@ -218,6 +218,9 @@ Bergen Bibliotek, Bymuseet i Bergen, Museum Vest (Fiskerimuseum, Sjøfartsmuseum
 
 ### Ticket platforms
 TicketCo (multiple Bergen venues), Billetto, Hoopla
+
+### Community calendars
+Hva skjer i Loddefjord (Loddefjord/Laksevåg community events)
 
 ### General aggregators
 Bergen Kommune (official events calendar), StudentBergen, Bergen Live
@@ -259,7 +262,7 @@ post@gaari.no
 - Built with SvelteKit 2, Svelte 5, Supabase PostgreSQL, hosted on Vercel
 - Events have bilingual AI-generated descriptions (Norwegian + English, <160 chars each)
 - All descriptions are original AI-generated content, not copied from source pages
-- 54 automated scrapers run daily at 06:00 CET
+- 55 automated scrapers run daily at 06:00 CET
 - iCal feed (public, 30-day lookahead, 500 events): https://gaari.no/api/events.ics
 - JSON-LD structured data on all pages: Event, CollectionPage, ItemList, FAQPage, BreadcrumbList
 - Sitemap: https://gaari.no/sitemap.xml

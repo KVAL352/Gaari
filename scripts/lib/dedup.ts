@@ -63,6 +63,7 @@ const SOURCE_RANK: Record<string, number> = {
 	brettspill: 4,
 
 	// Tier 3 — city / community aggregators
+	loddefjord: 3,
 	studentbergen: 3,
 	bergenlive: 3,
 	bergenkommune: 3,
