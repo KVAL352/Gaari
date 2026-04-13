@@ -1,8 +1,8 @@
 [
   {
-    "date": "2026-04-13",
+    "date": "2026-04-20",
     "title": "Ukentlig: post i FB-grupper (Hva skjer i Bergen)",
-    "description": "FB-grupper er Gåris #1 trafikkilde (~30% av all trafikk pr. april 2026). Post denne ukens høydepunkter i 'Hva skjer i Bergen' og lignende lokale grupper. Pek til relevant collection (denne-helgen / i-kveld / familiehelg). Etter posting: oppdater denne reminderen til neste mandag."
+    "description": "FB-grupper er Gåris #1 trafikkilde (~30% av all trafikk pr. april 2026). Post denne ukens høydepunkter i 'Hva skjer i Bergen' og lignende lokale grupper. Pek til relevant collection (denne-helgen / i-kveld / familiehelg). Etter posting: oppdater denne reminderen til neste søndag."
   },
   {
     "date": "2026-04-21",
@@ -60,9 +60,9 @@
     "description": "Ingvild (Akvariet) sa prisene justeres igjen tidlig januar 2027. Sjekk akvariet.no/kjop-billett og oppdater ADMISSION_PRICE i akvariet.ts."
   },
   {
-    "date": "2026-04-13",
-    "title": "Følg opp Troll Museum Bergen",
-    "description": "Epost sendt 6. april til bergen@trollmuseum.no. Forklarte at aktivitetssiden ikke kan scrapes (FooEvents + Elementor, JS-rendret). Foreslo tre løsninger: 1) Aktivere event-metadata i FooEvents API, 2) JSON-LD schema, 3) Statisk HTML-liste. Sjekk innboks for svar, send eventuelt vennlig oppfølging."
+    "date": "2026-04-27",
+    "title": "Følg opp Troll Museum Bergen (siste forsøk)",
+    "description": "Oppfølging #2 sendt 13. april. Hvis fortsatt stille: parkér."
   },
   {
     "date": "2026-04-14",
@@ -73,11 +73,6 @@
     "date": "2026-04-21",
     "title": "Følg opp Art Lab Bergen (Konstantin)",
     "description": "Konstantin svarte 7. april: positiv, har sendt info om 3 kurs (botanisk akvarell + hyttekos publisert, barnekurs venter på datoer). Sa han skulle teste Wix Events. Sjekk: 1) Har vi fått oppstartsdatoer for barnekurset? 2) Har Wix Events-lenken kommet? 3) Har de lagt Gåri-link i footeren på artlabstudio.no? 13 barnekurs-bilder ligger i C:/Users/kjers/Pictures/artlab-barnekurs-bilder/ klar til bruk."
-  },
-  {
-    "date": "2026-04-12",
-    "title": "FB boost midtveis-sjekk (boost-2026-04-08)",
-    "description": "Boost-kampanje (350 NOK / 50 NOK per dag, 7 dager, trafikk-mål) startet 9. april 15:00. Halvveis: sjekk Meta Ads Manager for visninger / klikk / CPM, og Umami for utm_campaign=boost-2026-04-08. Hvis CTR < 1%: vurder å pause og endre målgruppe. Hvis trafikken kommer inn: la den gå."
   },
   {
     "date": "2026-04-16",
