@@ -2,6 +2,7 @@
 	import { lang, t } from '$lib/i18n';
 	import type { GaariEvent } from '$lib/types';
 	import { optimizedSrc } from '$lib/image';
+	import { SOURCE_COUNT } from '$lib/constants';
 
 	interface Props {
 		/** Sample events to show as a preview collage in the hero area */
@@ -65,8 +66,8 @@
 	let heading = $derived($lang === 'no' ? 'Ukas arrangementer i Bergen' : 'This week\u2019s events in Bergen');
 	let subtext = $derived(
 		$lang === 'no'
-			? 'Vi samler fra 55 lokale kilder. Konserter, mat, kultur — hver torsdag.'
-			: 'We collect from 55 local sources. Concerts, food, culture — every Thursday.'
+			? `Vi samler fra ${SOURCE_COUNT} lokale kilder. Konserter, mat, kultur — hver torsdag.`
+			: `We collect from ${SOURCE_COUNT} local sources. Concerts, food, culture — every Thursday.`
 	);
 	let successMsg = $derived($lang === 'no' ? 'Takk! Du er påmeldt.' : 'Thanks! You\u2019re subscribed.');
 	let successDetail = $derived(

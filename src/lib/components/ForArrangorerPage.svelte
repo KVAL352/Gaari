@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { lang } from '$lib/i18n';
 	import { getB2bFaqItems } from '$lib/seo';
+	import { SOURCE_COUNT } from '$lib/constants';
 
 	interface Props {
 		heroImages: Array<{ url: string; title: string; venue: string }>;
@@ -191,13 +192,13 @@
 				<p class="mb-3 text-sm font-medium text-white/50">
 					<span class="hidden sm:inline">
 						{$lang === 'no'
-							? 'Bergens arrangementskalender · 1 800+ arrangementer · 55 kilder · Fra 1 500 kr/mnd'
-							: 'Bergen\'s event calendar · 1,800+ events · 55 sources · From 1,500 NOK/mo'}
+							? `Bergens arrangementskalender · 1 800+ arrangementer · ${SOURCE_COUNT} kilder · Fra 1 500 kr/mnd`
+							: `Bergen's event calendar · 1,800+ events · ${SOURCE_COUNT} sources · From 1,500 NOK/mo`}
 					</span>
 					<span class="sm:hidden">
 						{$lang === 'no'
-							? '1 800+ arrangementer · 55 kilder · Fra 1 500 kr/mnd'
-							: '1,800+ events · 55 sources · From 1,500 NOK/mo'}
+							? `1 800+ arrangementer · ${SOURCE_COUNT} kilder · Fra 1 500 kr/mnd`
+							: `1,800+ events · ${SOURCE_COUNT} sources · From 1,500 NOK/mo`}
 					</span>
 				</p>
 				<h1 class="mb-4 text-3xl font-bold tracking-tight text-white font-[family-name:var(--font-display)] md:text-[44px] md:leading-tight">

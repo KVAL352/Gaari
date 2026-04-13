@@ -2,6 +2,7 @@ import { supabase } from '$lib/server/supabase';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { Category } from '$lib/types';
 import { CATEGORIES } from '$lib/types';
+import { SOURCE_COUNT } from '$lib/constants';
 
 const BASE_URL = 'https://gaari.no';
 
@@ -75,8 +76,8 @@ export const GET: RequestHandler = async ({ url }) => {
 	const feedTitle = FEED_TITLES[filter]?.[lang] ?? FEED_TITLES.all[lang];
 	const feedUrl = `${BASE_URL}/feed${filter !== 'all' ? `?filter=${filter}` : ''}`;
 	const feedDescription = lang === 'en'
-		? `Events and activities in Bergen, Norway — updated daily from 55 sources.`
-		: `Arrangementer og aktiviteter i Bergen — oppdatert daglig fra 55 kilder.`;
+		? `Events and activities in Bergen, Norway — updated daily from ${SOURCE_COUNT} sources.`
+		: `Arrangementer og aktiviteter i Bergen — oppdatert daglig fra ${SOURCE_COUNT} kilder.`;
 
 	const items = (events ?? []).map((event) => {
 		const title = (lang === 'en' && event.title_en) ? event.title_en : event.title_no;

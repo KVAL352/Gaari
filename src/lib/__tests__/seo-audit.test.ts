@@ -11,6 +11,7 @@
 import { describe, it, expect } from 'vitest';
 import { getCollection, getAllCollectionSlugs } from '../collections';
 import { generateCollectionJsonLd, generateEventJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, getFaqItems } from '../seo';
+import { SOURCE_COUNT } from '../constants';
 import * as fs from 'fs';
 import * as path from 'path';
 import type { GaariEvent } from '../types';
@@ -83,48 +84,22 @@ describe('source count consistency', () => {
 		expect(activeCount).toBeGreaterThan(0);
 	});
 
-	it('seo.ts references match actual scraper count', () => {
-		const counts = findSourceCounts(path.join(projectRoot, 'src/lib/seo.ts'));
-		for (const count of counts) {
-			expect(count, `seo.ts says ${count} but actual active scrapers: ${activeCount}`).toBe(activeCount);
-		}
+	it('SOURCE_COUNT constant matches actual scraper count', () => {
+		expect(SOURCE_COUNT, `SOURCE_COUNT is ${SOURCE_COUNT} but actual active scrapers: ${activeCount}`).toBe(activeCount);
 	});
 
-	it('collections.ts references match actual scraper count', () => {
-		const counts = findSourceCounts(path.join(projectRoot, 'src/lib/collections.ts'));
-		for (const count of counts) {
-			expect(count, `collections.ts says ${count} but actual active scrapers: ${activeCount}`).toBe(activeCount);
-		}
-	});
-
-	it('llms.txt references match actual scraper count', () => {
+	it('static/llms.txt references match actual scraper count', () => {
 		const counts = findSourceCounts(path.join(projectRoot, 'static/llms.txt'));
 		for (const count of counts) {
 			expect(count, `llms.txt says ${count} but actual active scrapers: ${activeCount}`).toBe(activeCount);
 		}
 	});
 
-	it('datainnsamling page references match actual scraper count', () => {
-		const counts = findSourceCounts(path.join(projectRoot, 'src/routes/[lang]/datainnsamling/+page.svelte'));
+	it('static/llms-full.txt references match actual scraper count', () => {
+		const counts = findSourceCounts(path.join(projectRoot, 'static/llms-full.txt'));
 		for (const count of counts) {
-			expect(count, `datainnsamling page says ${count} but actual active scrapers: ${activeCount}`).toBe(activeCount);
+			expect(count, `llms-full.txt says ${count} but actual active scrapers: ${activeCount}`).toBe(activeCount);
 		}
-	});
-
-	it('all source count references are consistent', () => {
-		const files = [
-			'src/lib/seo.ts',
-			'src/lib/collections.ts',
-			'static/llms.txt',
-			'src/routes/[lang]/datainnsamling/+page.svelte'
-		];
-		const allCounts = new Set<number>();
-		for (const file of files) {
-			const counts = findSourceCounts(path.join(projectRoot, file));
-			counts.forEach(c => allCounts.add(c));
-		}
-		// All references should use the same number
-		expect(allCounts.size, `Found inconsistent source counts: ${[...allCounts].join(', ')}`).toBeLessThanOrEqual(1);
 	});
 });
 

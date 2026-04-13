@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
 	import { generateOrganizationJsonLd, generateFaqJsonLd, getFaqItems, getCanonicalUrl } from '$lib/seo';
+	import { SOURCE_COUNT } from '$lib/constants';
 	import { Mail } from 'lucide-svelte';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 
@@ -14,13 +15,13 @@
 <svelte:head>
 	<title>{$t('aboutTitle')} — Gåri</title>
 	<meta name="description" content={$lang === 'no'
-		? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, teater, festivaler og mer. Gratis og oppdatert daglig fra 55 kilder.'
-		: 'Gåri gathers all events in Bergen in one place — concerts, theatre, festivals and more. Free and updated daily from 55 sources.'} />
+		? `Gåri samler alle arrangementer i Bergen på ett sted — konserter, teater, festivaler og mer. Gratis og oppdatert daglig fra ${SOURCE_COUNT} kilder.`
+		: `Gåri gathers all events in Bergen in one place — concerts, theatre, festivals and more. Free and updated daily from ${SOURCE_COUNT} sources.`} />
 	<link rel="canonical" href={canonicalUrl} />
 	<meta property="og:title" content={`${$t('aboutTitle')} — Gåri`} />
 	<meta property="og:description" content={$lang === 'no'
-		? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, teater, festivaler og mer. Gratis og oppdatert daglig fra 55 kilder.'
-		: 'Gåri gathers all events in Bergen in one place — concerts, theatre, festivals and more. Free and updated daily from 55 sources.'} />
+		? `Gåri samler alle arrangementer i Bergen på ett sted — konserter, teater, festivaler og mer. Gratis og oppdatert daglig fra ${SOURCE_COUNT} kilder.`
+		: `Gåri gathers all events in Bergen in one place — concerts, theatre, festivals and more. Free and updated daily from ${SOURCE_COUNT} sources.`} />
 	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />

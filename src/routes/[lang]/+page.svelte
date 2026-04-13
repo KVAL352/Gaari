@@ -9,6 +9,7 @@
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString } from '$lib/event-filters';
 	import type { Bydel, GaariEvent } from '$lib/types';
 	import { generateWebSiteJsonLd, generateFaqJsonLd, generateOrganizationJsonLd, generateBreadcrumbJsonLd, computeCanonical, getCanonicalUrl, safeJsonLd } from '$lib/seo';
+	import { SOURCE_COUNT } from '$lib/constants';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import { ArrowRight } from 'lucide-svelte';
 	import HeroSection from '$lib/components/HeroSection.svelte';
@@ -209,8 +210,8 @@
 		'@type': 'CollectionPage',
 		name: $lang === 'no' ? 'Hva skjer i Bergen' : 'What\u2019s on in Bergen',
 		description: $lang === 'no'
-			? 'Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Oppdatert daglig fra 55 lokale kilder.'
-			: 'What\u2019s on in Bergen? Concerts, exhibitions, theatre, food and more. Updated daily from 55 local sources.',
+			? `Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Oppdatert daglig fra ${SOURCE_COUNT} lokale kilder.`
+			: `What\u2019s on in Bergen? Concerts, exhibitions, theatre, food and more. Updated daily from ${SOURCE_COUNT} local sources.`,
 		url: getCanonicalUrl(`/${$lang}`),
 		dateModified: new Date().toISOString().slice(0, 10),
 		publisher: { '@type': 'Organization', name: 'Gåri', url: 'https://gaari.no' },
@@ -324,8 +325,8 @@
 	let canonicalInfo = $derived(computeCanonical(page.url, $lang, filteredEvents.length));
 
 	let homeDescription = $derived($lang === 'no'
-		? 'Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Gåri samler arrangementer fra 55 lokale kilder, oppdatert daglig.'
-		: 'What\u2019s on in Bergen? Concerts, exhibitions, theatre, food and more. Gåri collects events from 55 local sources, updated daily.');
+		? `Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Gåri samler arrangementer fra ${SOURCE_COUNT} lokale kilder, oppdatert daglig.`
+		: `What\u2019s on in Bergen? Concerts, exhibitions, theatre, food and more. Gåri collects events from ${SOURCE_COUNT} local sources, updated daily.`);
 </script>
 
 <svelte:head>
@@ -428,8 +429,8 @@
 	</h2>
 	<p>
 		{$lang === 'no'
-			? `Bergen har ${data.events.length} arrangementer de neste to ukene — konserter, teater, utstillinger, mat og familieaktiviteter fra ${data.events.length > 0 ? 'Grieghallen, KODE, DNS og 50+ andre steder' : '55 lokale kilder'}. Oppdatert daglig.`
-			: `Bergen has ${data.events.length} events over the next two weeks — concerts, theatre, exhibitions, food and family activities from ${data.events.length > 0 ? 'Grieghallen, KODE, DNS and 50+ other venues' : '55 local sources'}. Updated daily.`}
+			? `Bergen har ${data.events.length} arrangementer de neste to ukene — konserter, teater, utstillinger, mat og familieaktiviteter fra ${data.events.length > 0 ? 'Grieghallen, KODE, DNS og 50+ andre steder' : `${SOURCE_COUNT} lokale kilder`}. Oppdatert daglig.`
+			: `Bergen has ${data.events.length} events over the next two weeks — concerts, theatre, exhibitions, food and family activities from ${data.events.length > 0 ? 'Grieghallen, KODE, DNS and 50+ other venues' : `${SOURCE_COUNT} local sources`}. Updated daily.`}
 	</p>
 	<p class="mt-2">
 		{$lang === 'no'

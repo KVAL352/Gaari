@@ -635,7 +635,7 @@ async function main() {
 	const utmLink = `https://gaari.no?utm_source=facebook&utm_medium=cpc&utm_campaign=boost-${startDate}&utm_content=hero`;
 	const caption = `Hva skjer i Bergen denne uka?
 
-Konserter på Hulen, utstilling på KODE, helgens festival eller en stille kveld med teater. Gåri samler over 1500 arrangementer i Bergen på ett sted, oppdatert daglig fra 55 lokale kilder. Helt gratis.
+Konserter på Hulen, utstilling på KODE, helgens festival eller en stille kveld med teater. Gåri samler over 1500 arrangementer i Bergen på ett sted, oppdatert daglig fra 54 lokale kilder. Helt gratis.
 
 Se hele programmet: ${utmLink}
 

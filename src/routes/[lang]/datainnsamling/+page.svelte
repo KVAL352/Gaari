@@ -3,6 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { lang, t } from '$lib/i18n';
 	import { getCanonicalUrl } from '$lib/seo';
+	import { SOURCE_COUNT } from '$lib/constants';
 	import { Mail } from 'lucide-svelte';
 
 	let optOutStatus: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
@@ -10,8 +11,8 @@
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/datainnsamling`));
 
 	let metaDesc = $derived($lang === 'no'
-		? 'Hvordan Gåri samler inn eventdata fra 55 kilder i Bergen. Juridisk grunnlag, prinsipper og kontaktskjema for arrangører.'
-		: 'How Gåri collects event data from 55 sources in Bergen. Legal basis, principles, and contact form for organizers.');
+		? `Hvordan Gåri samler inn eventdata fra ${SOURCE_COUNT} kilder i Bergen. Juridisk grunnlag, prinsipper og kontaktskjema for arrangører.`
+		: `How Gåri collects event data from ${SOURCE_COUNT} sources in Bergen. Legal basis, principles, and contact form for organizers.`);
 </script>
 
 <svelte:head>
@@ -38,11 +39,11 @@
 		<p class="text-lg leading-relaxed">
 			{#if $lang === 'no'}
 				Vi tror på åpenhet om hvordan vi samler inn eventdata. Gåri aggregerer offentlig tilgjengelig
-				informasjon om arrangementer i Bergen fra 55 kilder, slik at du kan finne alt som skjer på
+				informasjon om arrangementer i Bergen fra {SOURCE_COUNT} kilder, slik at du kan finne alt som skjer på
 				ett sted.
 			{:else}
 				We believe in transparency about how we collect event data. Gåri aggregates publicly
-				available event information from 55 sources across Bergen, so you can find everything
+				available event information from {SOURCE_COUNT} sources across Bergen, so you can find everything
 				happening in one place.
 			{/if}
 		</p>
@@ -193,7 +194,7 @@
 	<section class="mb-10 border-t border-[var(--color-border)] pt-8">
 		<details class="rounded-lg border border-[var(--color-border)] p-5">
 			<summary class="cursor-pointer text-xl font-semibold">
-				{$lang === 'no' ? 'Datakilder (55 kilder)' : 'Data sources (55 sources)'}
+				{$lang === 'no' ? `Datakilder (${SOURCE_COUNT} kilder)` : `Data sources (${SOURCE_COUNT} sources)`}
 			</summary>
 			<div class="mt-4 space-y-5 text-[var(--color-text-secondary)]">
 				<div>
