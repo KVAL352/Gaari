@@ -6,11 +6,12 @@
 	import { lang, t } from '$lib/i18n';
 	import { isFreeEvent } from '$lib/utils';
 	import { hideEvent, hideVenue, hideCategory, isHidden, unhideAll, hiddenCount, hiddenSummary } from '$lib/hidden-events.svelte';
-	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString } from '$lib/event-filters';
+	import { getOsloNow, toOsloDateStr, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString, eventOnDay, eventOverlapsRange } from '$lib/event-filters';
 	import type { Bydel, GaariEvent } from '$lib/types';
 	import { generateWebSiteJsonLd, generateFaqJsonLd, generateOrganizationJsonLd, generateBreadcrumbJsonLd, computeCanonical, getCanonicalUrl, safeJsonLd } from '$lib/seo';
 	import { SOURCE_COUNT } from '$lib/constants';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
+	import { getGroupedCollections } from '$lib/collections';
 	import { ArrowRight } from 'lucide-svelte';
 	import HeroSection from '$lib/components/HeroSection.svelte';
 	import EventDiscovery from '$lib/components/EventDiscovery.svelte';
@@ -45,32 +46,23 @@
 			const todayStr = toOsloDateStr(now);
 
 			if (when === 'today') {
-				events = events.filter(e => isSameDay(e.date_start, todayStr));
+				events = events.filter(e => eventOnDay(e, todayStr));
 			} else if (when === 'tomorrow') {
 				const tmrwStr = toOsloDateStr(addDays(now, 1));
-				events = events.filter(e => isSameDay(e.date_start, tmrwStr));
+				events = events.filter(e => eventOnDay(e, tmrwStr));
 			} else if (when === 'weekend') {
 				const { start, end } = getWeekendDates(now);
-				events = events.filter(e => {
-					const d = e.date_start.slice(0, 10);
-					return d >= start && d <= end;
-				});
+				events = events.filter(e => eventOverlapsRange(e, start, end));
 			} else if (when === 'week') {
 				const endStr = getEndOfWeekDateStr(now);
-				events = events.filter(e => {
-					const d = e.date_start.slice(0, 10);
-					return d >= todayStr && d <= endStr;
-				});
+				events = events.filter(e => eventOverlapsRange(e, todayStr, endStr));
 			} else if (when.includes(':')) {
 				// Range: YYYY-MM-DD:YYYY-MM-DD
 				const [from, to] = when.split(':');
-				events = events.filter(e => {
-					const d = e.date_start.slice(0, 10);
-					return d >= from && d <= to;
-				});
+				events = events.filter(e => eventOverlapsRange(e, from, to));
 			} else {
 				// Single date: YYYY-MM-DD
-				events = events.filter(e => e.date_start.startsWith(when));
+				events = events.filter(e => eventOnDay(e, when));
 			}
 		}
 
@@ -438,6 +430,32 @@
 			: 'Gåri is an independent, free event calendar for Bergen. All descriptions are original, and sold-out events are removed automatically.'}
 	</p>
 </section>
+
+<!-- Utforsk Bergen — full collection navigation for SEO internal linking -->
+<nav class="mx-auto max-w-7xl px-4 pb-10" aria-label={$lang === 'no' ? 'Utforsk arrangementer i Bergen' : 'Explore events in Bergen'}>
+	<h2 class="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">
+		{$lang === 'no' ? 'Utforsk Bergen' : 'Explore Bergen'}
+	</h2>
+	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+		{#each getGroupedCollections($lang) as group}
+			<div>
+				<h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+					{group.label[$lang]}
+				</h3>
+				<div class="flex flex-wrap gap-1.5">
+					{#each group.items as item}
+						<a
+							href="/{$lang}/{item.slug}"
+							class="inline-block rounded-md border border-[var(--color-border)] px-2.5 py-1 text-sm text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
+						>
+							{item.label[$lang]}
+						</a>
+					{/each}
+				</div>
+			</div>
+		{/each}
+	</div>
+</nav>
 
 <style>
 	.event-results {

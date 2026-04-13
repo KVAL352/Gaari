@@ -1,6 +1,6 @@
 import type { GaariEvent, Lang } from './types';
 import { isFreeEvent } from './utils';
-import { isSameDay, getWeekendDates, matchesTimeOfDay, toOsloDateStr, getEndOfWeekDateStr, addDays, getEasterDate, getISOWeekDates } from './event-filters';
+import { getWeekendDates, matchesTimeOfDay, toOsloDateStr, getEndOfWeekDateStr, addDays, getEasterDate, getISOWeekDates, eventOverlapsRange, eventOnDay } from './event-filters';
 import { SOURCE_COUNT } from './constants';
 
 // Shared filter functions for seasonal collections (NO + EN pairs share the same logic)
@@ -9,8 +9,7 @@ const filter17Mai = (events: GaariEvent[], now: Date) => {
 	const startStr = `${year}-05-14`;
 	const endStr = `${year}-05-18`;
 	return events.filter(e => {
-		const d = e.date_start.slice(0, 10);
-		return d >= startStr && d <= endStr;
+		return eventOverlapsRange(e, startStr, endStr);
 	});
 };
 
@@ -19,8 +18,7 @@ const filterJulemarked = (events: GaariEvent[], now: Date) => {
 	const startStr = `${year}-11-15`;
 	const endStr = `${year}-12-23`;
 	return events.filter(e => {
-		const d = e.date_start.slice(0, 10);
-		return d >= startStr && d <= endStr;
+		return eventOverlapsRange(e, startStr, endStr);
 	});
 };
 
@@ -32,8 +30,7 @@ const filterPaske = (events: GaariEvent[], now: Date) => {
 	const startStr = toOsloDateStr(palmSunday);
 	const endStr = toOsloDateStr(easterMonday);
 	return events.filter(e => {
-		const d = e.date_start.slice(0, 10);
-		return d >= startStr && d <= endStr;
+		return eventOverlapsRange(e, startStr, endStr);
 	});
 };
 
@@ -42,8 +39,7 @@ const filterSankthans = (events: GaariEvent[], now: Date) => {
 	const startStr = `${year}-06-21`;
 	const endStr = `${year}-06-24`;
 	return events.filter(e => {
-		const d = e.date_start.slice(0, 10);
-		return d >= startStr && d <= endStr;
+		return eventOverlapsRange(e, startStr, endStr);
 	});
 };
 
@@ -54,8 +50,7 @@ const filterNyttarsaften = (events: GaariEvent[], now: Date) => {
 	const startStr = `${baseYear}-12-29`;
 	const endStr = `${baseYear + 1}-01-01`;
 	return events.filter(e => {
-		const d = e.date_start.slice(0, 10);
-		return d >= startStr && d <= endStr;
+		return eventOverlapsRange(e, startStr, endStr);
 	});
 };
 
@@ -63,8 +58,7 @@ const filterVinterferie = (events: GaariEvent[], now: Date) => {
 	const year = now.getFullYear();
 	const { start, end } = getISOWeekDates(year, 9);
 	return events.filter(e => {
-		const d = e.date_start.slice(0, 10);
-		return d >= start && d <= end;
+		return eventOverlapsRange(e, start, end);
 	});
 };
 
@@ -72,8 +66,7 @@ const filterHostferie = (events: GaariEvent[], now: Date) => {
 	const year = now.getFullYear();
 	const { start, end } = getISOWeekDates(year, 41);
 	return events.filter(e => {
-		const d = e.date_start.slice(0, 10);
-		return d >= start && d <= end;
+		return eventOverlapsRange(e, start, end);
 	});
 };
 
@@ -183,8 +176,7 @@ const collections: Collection[] = [
 		filterEvents: (events, now) => {
 			const { start, end } = getWeekendDates(now);
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= start && d <= end;
+				return eventOverlapsRange(e, start, end);
 			});
 		}
 	},
@@ -248,7 +240,7 @@ const collections: Collection[] = [
 		filterEvents: (events, now) => {
 			const todayStr = toOsloDateStr(now);
 			return events.filter(e =>
-				isSameDay(e.date_start, todayStr) &&
+				eventOnDay(e, todayStr) &&
 				matchesTimeOfDay(e.date_start, ['evening', 'night'])
 			);
 		}
@@ -314,8 +306,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && isFreeEvent(e.price);
+				return eventOverlapsRange(e, todayStr, endStr) && isFreeEvent(e.price);
 			});
 		}
 	},
@@ -374,7 +365,7 @@ const collections: Collection[] = [
 		},
 		filterEvents: (events, now) => {
 			const todayStr = toOsloDateStr(now);
-			return events.filter(e => isSameDay(e.date_start, todayStr));
+			return events.filter(e => eventOnDay(e, todayStr));
 		}
 	},
 	{
@@ -433,8 +424,7 @@ const collections: Collection[] = [
 		filterEvents: (events, now) => {
 			const { start, end } = getWeekendDates(now);
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				if (d < start || d > end) return false;
+				if (!eventOverlapsRange(e, start, end)) return false;
 				return e.age_group === 'family' || e.category === 'family' || FAMILY_TITLE_RE.test(e.title_no);
 			});
 		}
@@ -500,8 +490,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && e.category === 'music';
+				return eventOverlapsRange(e, todayStr, endStr) && e.category === 'music';
 			});
 		}
 	},
@@ -564,8 +553,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = getEndOfWeekDateStr(now);
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				if (d < todayStr || d > endStr) return false;
+				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				if (!matchesTimeOfDay(e.date_start, ['evening', 'night'])) return false;
 				// Must be either explicitly tagged for students OR happen at a recognised
 				// student venue. Plain 'nightlife' at non-student venues belongs in 'uteliv'.
@@ -630,8 +618,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = getEndOfWeekDateStr(now);
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr &&
+				return eventOverlapsRange(e, todayStr, endStr) &&
 					matchesTimeOfDay(e.date_start, ['evening', 'night']) &&
 					(e.category === 'nightlife' || e.category === 'music');
 			});
@@ -693,8 +680,7 @@ const collections: Collection[] = [
 		filterEvents: (events, now) => {
 			const { start, end } = getWeekendDates(now);
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= start && d <= end;
+				return eventOverlapsRange(e, start, end);
 			});
 		}
 	},
@@ -757,7 +743,7 @@ const collections: Collection[] = [
 		},
 		filterEvents: (events, now) => {
 			const todayStr = toOsloDateStr(now);
-			return events.filter(e => isSameDay(e.date_start, todayStr));
+			return events.filter(e => eventOnDay(e, todayStr));
 		}
 	},
 	{
@@ -817,8 +803,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && isFreeEvent(e.price);
+				return eventOverlapsRange(e, todayStr, endStr) && isFreeEvent(e.price);
 			});
 		}
 	},
@@ -879,8 +864,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && INDOOR_CATEGORIES.has(e.category);
+				return eventOverlapsRange(e, todayStr, endStr) && INDOOR_CATEGORIES.has(e.category);
 			});
 		}
 	},
@@ -941,8 +925,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && (e.bydel === 'Sentrum' || e.bydel === 'Bergenhus');
+				return eventOverlapsRange(e, todayStr, endStr) && (e.bydel === 'Sentrum' || e.bydel === 'Bergenhus');
 			});
 		}
 	},
@@ -1003,8 +986,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && e.bydel === 'Bergenhus';
+				return eventOverlapsRange(e, todayStr, endStr) && e.bydel === 'Bergenhus';
 			});
 		}
 	},
@@ -1065,8 +1047,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && e.bydel === 'Laksevåg';
+				return eventOverlapsRange(e, todayStr, endStr) && e.bydel === 'Laksevåg';
 			});
 		}
 	},
@@ -1127,8 +1108,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && e.bydel === 'Fyllingsdalen';
+				return eventOverlapsRange(e, todayStr, endStr) && e.bydel === 'Fyllingsdalen';
 			});
 		}
 	},
@@ -1189,8 +1169,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && e.bydel === 'Åsane';
+				return eventOverlapsRange(e, todayStr, endStr) && e.bydel === 'Åsane';
 			});
 		}
 	},
@@ -1251,8 +1230,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && e.bydel === 'Fana';
+				return eventOverlapsRange(e, todayStr, endStr) && e.bydel === 'Fana';
 			});
 		}
 	},
@@ -1313,8 +1291,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && e.bydel === 'Ytrebygda';
+				return eventOverlapsRange(e, todayStr, endStr) && e.bydel === 'Ytrebygda';
 			});
 		}
 	},
@@ -1375,8 +1352,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && e.bydel === 'Arna';
+				return eventOverlapsRange(e, todayStr, endStr) && e.bydel === 'Arna';
 			});
 		}
 	},
@@ -1440,8 +1416,7 @@ const collections: Collection[] = [
 			const clubRe = /\bklubb|\bdj\b|\bhouse\b|\btechno|\bafterparty|\bnattklubb|\brave\b/i;
 			const indieVenues = new Set(['hulen', 'garage', 'kvarteret', 'det akademiske kvarter', 'landmark', 'bergen kjøtt', 'fincken', 'røkeriet']);
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				if (d < todayStr || d > endStr) return false;
+				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				if (e.age_group === 'family' || e.category === 'family') return false;
 				if (!voksenCategories.has(e.category)) return false;
 				if (clubRe.test(e.title_no) || clubRe.test(e.description_no || '')) return false;
@@ -1507,8 +1482,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				if (d < todayStr || d > endStr) return false;
+				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				if (e.age_group === '18+') return false;
 				if (e.category === 'nightlife' || e.category === 'food') return false;
 				if (e.age_group === 'family' || e.category === 'family') return true;
@@ -1582,8 +1556,7 @@ const collections: Collection[] = [
 			// upstream (e.g. DVT's Skifte Bar pub nights, Billetto performing_arts dance parties).
 			const NON_THEATRE_TITLE_RE = /\b(pub|quiz|line\s*dance|country\s*dance|after[\s-]?party|klubb|nightclub|disco|karaoke|festkveld|festklubb|countrykveld|salsa(kveld| night)?)\b/i;
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				if (d < todayStr || d > endStr) return false;
+				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				if (e.category !== 'theatre') return false;
 				if (NON_THEATRE_TITLE_RE.test(e.title_no)) return false;
 				return true;
@@ -1649,8 +1622,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				if (d < todayStr || d > endStr) return false;
+				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				if (e.category !== 'culture') return false;
 				// Defensive title filter — exclude clearly non-exhibition activities that
 				// occasionally get tagged as 'culture' (cafés, paddling, wine tasting, film nights, etc.)
@@ -1722,8 +1694,7 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				const d = e.date_start.slice(0, 10);
-				return d >= todayStr && d <= endStr && e.category === 'food';
+				return eventOverlapsRange(e, todayStr, endStr) && e.category === 'food';
 			});
 		}
 	},
@@ -3359,6 +3330,28 @@ export function getFooterCollections(lang: Lang): Collection[] {
 		.sort((a, b) => a.footer!.order - b.footer!.order);
 }
 
+/** Returns seasonal collections that are currently "in season" (for footer display). */
+export function getSeasonalFooterCollections(lang: Lang): Array<{ slug: string; label: Record<Lang, string> }> {
+	const now = new Date();
+	const year = now.getFullYear();
+	const todayStr = now.toISOString().slice(0, 10);
+	const windows: Array<{ slugNo: string; slugEn: string; labelNo: string; labelEn: string; start: string; end: string }> = [
+		{ slugNo: '17-mai', slugEn: '17th-of-may-bergen', labelNo: '17. mai', labelEn: '17th of May', start: `${year}-04-15`, end: `${year}-05-18` },
+		{ slugNo: 'sankthans', slugEn: 'midsummer-bergen', labelNo: 'Sankthans', labelEn: 'Midsummer', start: `${year}-05-25`, end: `${year}-06-25` },
+		{ slugNo: 'hostferie', slugEn: 'hostferie', labelNo: 'Høstferie', labelEn: 'Autumn break', start: `${year}-09-20`, end: `${year}-10-20` },
+		{ slugNo: 'julemarked', slugEn: 'christmas-bergen', labelNo: 'Julemarked', labelEn: 'Christmas', start: `${year}-10-15`, end: `${year}-12-24` },
+		{ slugNo: 'nyttarsaften', slugEn: 'new-years-eve-bergen', labelNo: 'Nyttårsaften', labelEn: "New Year's Eve", start: `${year}-12-15`, end: `${year + 1}-01-02` },
+		{ slugNo: 'vinterferie', slugEn: 'winter-break-bergen', labelNo: 'Vinterferie', labelEn: 'Winter break', start: `${year}-02-01`, end: `${year}-03-10` },
+		{ slugNo: 'paske', slugEn: 'easter-bergen', labelNo: 'Påske', labelEn: 'Easter', start: `${year}-03-15`, end: `${year}-04-25` },
+	];
+	return windows
+		.filter(w => todayStr >= w.start && todayStr <= w.end)
+		.map(w => ({
+			slug: lang === 'no' ? w.slugNo : w.slugEn,
+			label: { no: w.labelNo, en: w.labelEn }
+		}));
+}
+
 /** Paired collection slugs: NO slug ↔ EN slug for hreflang */
 const HREFLANG_PAIRS: Record<string, Record<'no' | 'en', string>> = {
 	'denne-helgen': { no: 'denne-helgen', en: 'this-weekend' },
@@ -3402,4 +3395,64 @@ const HREFLANG_PAIRS: Record<string, Record<'no' | 'en', string>> = {
 /** Returns hreflang slugs for a collection. Unpaired collections use the same slug for both. */
 export function getHreflangSlugs(slug: string): Record<'no' | 'en', string> {
 	return HREFLANG_PAIRS[slug] ?? { no: slug, en: slug };
+}
+
+/** Group collections by type for the "Utforsk Bergen" section on the homepage. */
+export interface CollectionGroup {
+	label: Record<Lang, string>;
+	items: Array<{ slug: string; label: Record<Lang, string> }>;
+}
+
+export function getGroupedCollections(lang: Lang): CollectionGroup[] {
+	const bySlug = (slugs: string[]) =>
+		slugs.map(s => collectionMap.get(s)).filter((c): c is Collection => !!c)
+			.map(c => ({ slug: c.slug, label: c.footerLabel ?? c.title }));
+
+	const timeSlugs = lang === 'no'
+		? ['denne-helgen', 'i-kveld', 'i-dag']
+		: ['this-weekend', 'today-in-bergen'];
+
+	const categorySlugs = ['konserter', 'teater', 'utstillinger', 'mat-og-drikke', 'uteliv'];
+
+	const audienceSlugs = lang === 'no'
+		? ['gratis', 'familiehelg', 'studentkveld', 'for-ungdom', 'voksen', 'regndagsguide']
+		: ['free-things-to-do-bergen', 'familiehelg', 'studentkveld', 'for-ungdom', 'voksen', 'regndagsguide'];
+
+	const bydelSlugs = ['sentrum', 'bergenhus', 'laksevag', 'fyllingsdalen', 'asane', 'fana', 'ytrebygda', 'arna'];
+
+	// Seasonal — only show if currently "in season" (±4 weeks from target date)
+	const now = new Date();
+	const year = now.getFullYear();
+	const seasonWindows: Array<{ slugNo: string; slugEn: string; start: string; end: string }> = [
+		{ slugNo: '17-mai', slugEn: '17th-of-may-bergen', start: `${year}-04-15`, end: `${year}-05-18` },
+		{ slugNo: 'sankthans', slugEn: 'midsummer-bergen', start: `${year}-05-25`, end: `${year}-06-25` },
+		{ slugNo: 'hostferie', slugEn: 'hostferie', start: `${year}-09-20`, end: `${year}-10-20` },
+		{ slugNo: 'julemarked', slugEn: 'christmas-bergen', start: `${year}-10-15`, end: `${year}-12-24` },
+		{ slugNo: 'nyttarsaften', slugEn: 'new-years-eve-bergen', start: `${year}-12-15`, end: `${year + 1}-01-02` },
+		{ slugNo: 'vinterferie', slugEn: 'winter-break-bergen', start: `${year}-02-01`, end: `${year}-03-10` },
+		{ slugNo: 'paske', slugEn: 'easter-bergen', start: `${year}-03-15`, end: `${year}-04-25` },
+	];
+	const todayStr = now.toISOString().slice(0, 10);
+	const activeSeasonal = seasonWindows
+		.filter(w => todayStr >= w.start && todayStr <= w.end)
+		.map(w => lang === 'no' ? w.slugNo : w.slugEn);
+
+	const festivalSlugs = lang === 'no'
+		? ['festspillene', 'bergenfest', 'nattjazz', 'beyond-the-gates', 'bergen-pride', 'biff', 'borealis']
+		: ['bergen-international-festival', 'bergenfest-bergen', 'nattjazz-bergen', 'beyond-the-gates-bergen', 'bergen-pride-festival', 'biff-bergen', 'borealis-bergen'];
+
+	const groups: CollectionGroup[] = [
+		{ label: { no: 'Når', en: 'When' }, items: bySlug(timeSlugs) },
+		{ label: { no: 'Kategori', en: 'Category' }, items: bySlug(categorySlugs) },
+		{ label: { no: 'For deg', en: 'For you' }, items: bySlug(audienceSlugs) },
+		{ label: { no: 'Bydel', en: 'Neighbourhood' }, items: bySlug(bydelSlugs) },
+	];
+
+	if (activeSeasonal.length > 0) {
+		groups.push({ label: { no: 'Sesong', en: 'Season' }, items: bySlug(activeSeasonal) });
+	}
+
+	groups.push({ label: { no: 'Festivaler', en: 'Festivals' }, items: bySlug(festivalSlugs) });
+
+	return groups.filter(g => g.items.length > 0);
 }

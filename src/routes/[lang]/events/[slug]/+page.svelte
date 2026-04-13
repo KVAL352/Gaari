@@ -69,6 +69,18 @@
 	};
 	let collectionLink = $derived(CATEGORY_COLLECTIONS[event.category]);
 
+	// Bydel → collection slug mapping
+	const BYDEL_SLUGS: Record<string, string> = {
+		'Sentrum': 'sentrum', 'Bergenhus': 'bergenhus', 'Laksevåg': 'laksevag',
+		'Fyllingsdalen': 'fyllingsdalen', 'Åsane': 'asane', 'Fana': 'fana',
+		'Ytrebygda': 'ytrebygda', 'Arna': 'arna'
+	};
+	let bydelSlug = $derived(BYDEL_SLUGS[event.bydel]);
+	let bydelLabel = $derived.by(() => {
+		if (!event.bydel) return null;
+		return $lang === 'no' ? `Flere arrangementer i ${event.bydel}` : `More events in ${event.bydel}`;
+	});
+
 	let showCorrectionForm = $state(false);
 	let correctionSubmitted = $state(false);
 	let correctionSubmitting = $state(false);
@@ -230,7 +242,7 @@
 			<div>
 				<p class="text-sm font-semibold">{$t('when')}</p>
 				<time datetime={event.date_start} class="tabular-nums text-sm text-[var(--color-text-secondary)]">
-					{formatEventDate(event.date_start, $lang)}{formatEventTime(event.date_start, $lang) ? `, ${formatEventTime(event.date_start, $lang)}` : ''}{#if event.date_end && formatEventTime(event.date_end, $lang)} — {formatEventTime(event.date_end, $lang)}{/if}
+					{formatEventDate(event.date_start, $lang, event.date_end)}{formatEventTime(event.date_start, $lang) ? `, ${formatEventTime(event.date_start, $lang)}` : ''}{#if event.date_end && formatEventTime(event.date_end, $lang)} — {formatEventTime(event.date_end, $lang)}{/if}
 				</time>
 			</div>
 		</div>
@@ -332,18 +344,36 @@
 		</div>
 	</section>
 
-	<!-- Collection link -->
-	{#if collectionLink}
-	<div class="mb-6">
-		<a
-			href="/{$lang}/{collectionLink.slug[$lang]}"
-			class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
-		>
-			{collectionLink.label[$lang]}
-			<ArrowRight size={16} />
-		</a>
+	<!-- Collection links: category + bydel + weekend -->
+	<div class="mb-6 flex flex-wrap gap-2">
+		{#if collectionLink}
+			<a
+				href="/{$lang}/{collectionLink.slug[$lang]}"
+				class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
+			>
+				{collectionLink.label[$lang]}
+				<ArrowRight size={16} />
+			</a>
+		{/if}
+		{#if bydelSlug}
+			<a
+				href="/{$lang}/{bydelSlug}"
+				class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
+			>
+				{bydelLabel}
+				<ArrowRight size={16} />
+			</a>
+		{/if}
+		{#if !collectionLink || (collectionLink.slug[$lang] !== 'denne-helgen' && collectionLink.slug[$lang] !== 'this-weekend')}
+			<a
+				href="/{$lang}/{$lang === 'no' ? 'denne-helgen' : 'this-weekend'}"
+				class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
+			>
+				{$lang === 'no' ? 'Denne helgen i Bergen' : 'This weekend in Bergen'}
+				<ArrowRight size={16} />
+			</a>
+		{/if}
 	</div>
-	{/if}
 
 	<!-- Related events -->
 	{#if related.length > 0}

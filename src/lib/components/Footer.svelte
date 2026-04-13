@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang, t } from '$lib/i18n';
 	import { CATEGORIES } from '$lib/types';
-	import { getFooterCollections } from '$lib/collections';
+	import { getFooterCollections, getSeasonalFooterCollections } from '$lib/collections';
 	import NewsletterCTA from './NewsletterCTA.svelte';
 	import { Instagram, Facebook } from 'lucide-svelte';
 </script>
@@ -63,6 +63,16 @@
 								class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]"
 							>
 								{(col.footerLabel ?? col.title)[$lang]}
+							</a>
+						</li>
+					{/each}
+					{#each getSeasonalFooterCollections($lang) as seasonal (seasonal.slug)}
+						<li>
+							<a
+								href="/{$lang}/{seasonal.slug}"
+								class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]"
+							>
+								{seasonal.label[$lang]}
 							</a>
 						</li>
 					{/each}
