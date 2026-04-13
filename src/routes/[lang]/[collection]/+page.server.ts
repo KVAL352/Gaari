@@ -31,18 +31,33 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 	try {
 		// Use UTC — date_start is stored as UTC (timestamptz) in Supabase
 		const nowUtc = new Date().toISOString();
+		const collFields = 'id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,source_url,image_url,age_group,language,status,is_sold_out';
+		const PAGE = 1000;
+
 		const { data, error: dbError } = await supabase
 			.from('events')
-			.select('id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,source_url,image_url,age_group,language,status,is_sold_out')
+			.select(collFields)
 			.in('status', ['approved', 'cancelled'])
-			.or(`date_start.gte.${nowUtc},date_end.gte.${nowUtc}`)
+			.gte('date_end', nowUtc)
 			.order('date_start', { ascending: true })
-			.limit(500);
+			.range(0, PAGE - 1);
 
 		if (dbError) throw dbError;
 
-		if (data && data.length > 0) {
-			events = data.map(e => ({
+		let allData = data ?? [];
+		if (allData.length === PAGE) {
+			const { data: p2 } = await supabase
+				.from('events')
+				.select(collFields)
+				.in('status', ['approved', 'cancelled'])
+				.gte('date_end', nowUtc)
+				.order('date_start', { ascending: true })
+				.range(PAGE, PAGE * 2 - 1);
+			if (p2) allData = allData.concat(p2);
+		}
+
+		if (allData.length > 0) {
+			events = allData.map(e => ({
 				...e,
 				price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
 			}));

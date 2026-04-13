@@ -72,10 +72,10 @@ export const GET: RequestHandler = async ({ url }) => {
 		.from('events')
 		.select('id, slug, title_no, title_en, description_no, venue_name, address, date_start, date_end, category, price, ticket_url, image_url')
 		.eq('status', 'approved')
-		.or(`date_start.gte.${now},date_end.gte.${now}`)
+		.gte('date_end', now)
 		.lte('date_start', lookahead.toISOString())
 		.order('date_start', { ascending: true })
-		.limit(500);
+		.limit(1000);
 
 	if (filter === 'free') {
 		query = query.or('price.eq.0,price.ilike.%gratis%,price.ilike.%free%,price.ilike.0 kr,price.ilike.0,-');

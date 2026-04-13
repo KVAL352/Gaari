@@ -160,8 +160,13 @@
 			);
 		}
 
-		// Sort by date (ISO strings are lexicographically sortable — no Date allocation needed)
-		events.sort((a, b) => a.date_start < b.date_start ? -1 : a.date_start > b.date_start ? 1 : 0);
+		// Sort by date — clamp past date_start to today so recurring events don't dominate the top
+		const todayStr = toOsloDateStr(getOsloNow());
+		events.sort((a, b) => {
+			const aSort = a.date_start < todayStr ? todayStr : a.date_start;
+			const bSort = b.date_start < todayStr ? todayStr : b.date_start;
+			return aSort < bSort ? -1 : aSort > bSort ? 1 : 0;
+		});
 
 		// Remove user-hidden events — only after hydration to prevent SSR mismatch
 		if (hydrated) {
