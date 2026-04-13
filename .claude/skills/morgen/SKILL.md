@@ -32,6 +32,9 @@ Run all morning checks in parallel, then present a single unified briefing.
 ### Umami + MailerLite stats (single script)
 !`cd /c/Users/kjers/Projects/Gaari && npx tsx scripts/morning-stats.ts 2>/dev/null || echo "Stats unavailable"`
 
+### Event reminders (pending sends)
+!`cd /c/Users/kjers/Projects/Gaari && npx tsx -e "const{createClient}=require('@supabase/supabase-js');const s=createClient(process.env.PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY);const t=new Date();t.setDate(t.getDate()+1);const d=t.toISOString().slice(0,10);s.from('event_reminders').select('email,event_title').eq('event_date',d).is('sent_at',null).then(r=>{if(r.data?.length)console.log(r.data.length+' reminders pending for '+d);else console.log('No reminders pending')})" 2>/dev/null || echo "Reminder check unavailable"`
+
 ### Today's reminders
 !`cd /c/Users/kjers/Projects/Gaari && node -e "const r=require('./scripts/reminders.json');const t=new Date().toISOString().slice(0,10);const w=new Date(Date.now()+7*864e5).toISOString().slice(0,10);const hits=r.filter(x=>x.date<=w).sort((a,b)=>a.date.localeCompare(b.date));hits.forEach(x=>console.log(x.date<t?'OVERDUE':'',x.date,x.title))" 2>/dev/null || echo "Reminders unavailable"`
 
@@ -100,10 +103,10 @@ Check what day of the week it is and suggest day-appropriate activities in "Nest
 
 | Dag | Fokus |
 |-----|-------|
-| Mandag | Sjekk trafikktall (Umami), oppfolging outreach, GSC |
+| Mandag | Sjekk trafikktall (Umami). Del `gaari.no/no/denne-uken/YYYY-WW` i 4 FB-grupper. Velg 1-2 outreach fra outreach-strategy.md. |
 | Tirsdag-onsdag | Feature-arbeid, SEO-justeringer |
-| Torsdag | Nyhetsbrev gar ut automatisk. LinkedIn-post? |
-| Fredag | "Denne helgen"-post i FB-grupper (bruk /fb-post) |
+| Torsdag | Nyhetsbrev gar ut automatisk. Del `gaari.no/no/denne-helgen` i FB-grupper. |
+| Fredag | Helgeguide i FB-grupper (bruk /fb-post) |
 | Lordag | Valgfritt: stikk innom venues med klistremerker |
 
 ## Deadline warnings
