@@ -161,10 +161,10 @@
 		}
 
 		// Sort by date — clamp past date_start to today so recurring events don't dominate the top
-		const todayStr = toOsloDateStr(getOsloNow());
+		const todayMidnight = toOsloDateStr(getOsloNow()) + 'T00:00:00.000Z';
 		events.sort((a, b) => {
-			const aSort = a.date_start < todayStr ? todayStr : a.date_start;
-			const bSort = b.date_start < todayStr ? todayStr : b.date_start;
+			const aSort = a.date_start < todayMidnight ? todayMidnight : a.date_start;
+			const bSort = b.date_start < todayMidnight ? todayMidnight : b.date_start;
 			return aSort < bSort ? -1 : aSort > bSort ? 1 : 0;
 		});
 

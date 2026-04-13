@@ -46,10 +46,10 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 			}));
 
 			// Sort: treat past date_start as today so recurring events don't dominate the top
-			const todayStr = nowUtc.slice(0, 10);
+			const todayMidnight = nowUtc.slice(0, 11) + '00:00:00.000Z';
 			mapped.sort((a, b) => {
-				const aSort = a.date_start < todayStr ? todayStr : a.date_start;
-				const bSort = b.date_start < todayStr ? todayStr : b.date_start;
+				const aSort = a.date_start < todayMidnight ? todayMidnight : a.date_start;
+				const bSort = b.date_start < todayMidnight ? todayMidnight : b.date_start;
 				return aSort < bSort ? -1 : aSort > bSort ? 1 : 0;
 			});
 
