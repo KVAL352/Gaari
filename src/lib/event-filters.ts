@@ -99,6 +99,18 @@ export function getContextualHighlight(now: Date): string {
 	return '';
 }
 
+/** Check if an event (with optional date_end) overlaps a date range [from, to] (YYYY-MM-DD strings) */
+export function eventOverlapsRange(e: { date_start: string; date_end?: string }, from: string, to: string): boolean {
+	const start = e.date_start.slice(0, 10);
+	const end = e.date_end ? e.date_end.slice(0, 10) : start;
+	return start <= to && end >= from;
+}
+
+/** Check if an event spans a specific day (YYYY-MM-DD string) */
+export function eventOnDay(e: { date_start: string; date_end?: string }, day: string): boolean {
+	return eventOverlapsRange(e, day, day);
+}
+
 export function matchesTimeOfDay(dateStart: string, times: string[]): boolean {
 	// Convert UTC timestamp to Oslo local hour
 	const date = new Date(dateStart);

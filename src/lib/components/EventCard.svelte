@@ -21,7 +21,7 @@
 
 	let title = $derived(($lang === 'en' && event.title_en) ? event.title_en : event.title_no);
 	let description = $derived(($lang === 'en' && event.description_en) ? event.description_en : event.description_no);
-	let dateText = $derived(formatEventDate(event.date_start, $lang));
+	let dateText = $derived(formatEventDate(event.date_start, $lang, event.date_end));
 	let timeText = $derived(formatEventTime(event.date_start, $lang));
 	let priceText = $derived(formatPrice(event.price, $lang));
 	let eventUrl = $derived(`/${$lang}/events/${event.slug}`);

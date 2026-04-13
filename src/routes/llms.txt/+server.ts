@@ -168,7 +168,7 @@ export async function GET() {
 			.from('events')
 			.select('*', { count: 'exact', head: true })
 			.eq('status', 'approved')
-			.gte('date_start', nowUtc);
+			.or(`date_start.gte.${nowUtc},date_end.gte.${nowUtc}`);
 		eventCount = count ?? 0;
 
 		// Grab 5 upcoming events as sample
@@ -176,7 +176,7 @@ export async function GET() {
 			.from('events')
 			.select('title_no,title_en,venue_name,date_start,category')
 			.eq('status', 'approved')
-			.gte('date_start', nowUtc)
+			.or(`date_start.gte.${nowUtc},date_end.gte.${nowUtc}`)
 			.order('date_start', { ascending: true })
 			.limit(5);
 

@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			.from('events')
 			.select('id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,source_url,image_url,age_group,language,status,is_sold_out')
 			.in('status', ['approved', 'cancelled'])
-			.gte('date_start', nowUtc)
+			.or(`date_start.gte.${nowUtc},date_end.gte.${nowUtc}`)
 			.order('date_start', { ascending: true })
 			.limit(500);
 

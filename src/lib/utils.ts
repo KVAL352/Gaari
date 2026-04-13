@@ -1,23 +1,40 @@
 // ── Date formatting ──
 
-export function formatEventDate(dateStr: string, locale: 'no' | 'en' = 'no'): string {
+export function formatEventDate(dateStr: string, locale: 'no' | 'en' = 'no', dateEnd?: string): string {
 	const date = new Date(dateStr);
 	// Use Oslo timezone so SSR (UTC) and client (CET/CEST) produce identical output
 	const osloDate = date.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
 	const nowOslo = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
 	const diffDays = Math.round((new Date(osloDate).getTime() - new Date(nowOslo).getTime()) / 86400000);
 
-	if (diffDays === 0) return locale === 'no' ? 'I dag' : 'Today';
-	if (diffDays === 1) return locale === 'no' ? 'I morgen' : 'Tomorrow';
-	if (diffDays >= 2 && diffDays <= 6) {
-		return date.toLocaleDateString(locale === 'no' ? 'nb-NO' : 'en-GB', { weekday: 'long', timeZone: 'Europe/Oslo' });
+	let startLabel: string;
+	if (diffDays === 0) startLabel = locale === 'no' ? 'I dag' : 'Today';
+	else if (diffDays === 1) startLabel = locale === 'no' ? 'I morgen' : 'Tomorrow';
+	else if (diffDays >= 2 && diffDays <= 6) {
+		startLabel = date.toLocaleDateString(locale === 'no' ? 'nb-NO' : 'en-GB', { weekday: 'long', timeZone: 'Europe/Oslo' });
+	} else {
+		startLabel = date.toLocaleDateString(locale === 'no' ? 'nb-NO' : 'en-GB', {
+			weekday: 'short',
+			day: 'numeric',
+			month: 'short',
+			timeZone: 'Europe/Oslo'
+		});
 	}
-	return date.toLocaleDateString(locale === 'no' ? 'nb-NO' : 'en-GB', {
-		weekday: 'short',
-		day: 'numeric',
-		month: 'short',
-		timeZone: 'Europe/Oslo'
-	});
+
+	// Show date range for multi-day events (different calendar dates)
+	if (dateEnd) {
+		const endDate = new Date(dateEnd);
+		const osloEnd = endDate.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+		if (osloEnd !== osloDate) {
+			const loc = locale === 'no' ? 'nb-NO' : 'en-GB';
+			const endLabel = endDate.toLocaleDateString(loc, { weekday: 'short', timeZone: 'Europe/Oslo' });
+			const startShort = date.toLocaleDateString(loc, { weekday: 'short', timeZone: 'Europe/Oslo' });
+			// Use short weekday range: "fre–lør" / "Fri–Sat"
+			return `${startShort}–${endLabel}`;
+		}
+	}
+
+	return startLabel;
 }
 
 /** Compact absolute date for meta titles — always "28. mar 2026" / "28 Mar 2026", never relative */

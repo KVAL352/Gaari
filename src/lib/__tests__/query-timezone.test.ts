@@ -33,15 +33,15 @@ describe('Supabase query timezone safety', () => {
 			expect(content).not.toMatch(/nowOslo/);
 		});
 
-		it(`${relPath} passes UTC value to .gte('date_start')`, () => {
+		it(`${relPath} passes UTC value to date filter`, () => {
 			const content = fs.readFileSync(fullPath, 'utf-8');
 
-			// The .gte('date_start', ...) call should reference the UTC variable
-			const gteMatch = content.match(/\.gte\(\s*['"]date_start['"]\s*,\s*(\w+)\s*\)/);
-			expect(gteMatch).toBeTruthy();
+			// The query should use .or() with date_start/date_end and a UTC variable
+			const orMatch = content.match(/\.or\(\s*`date_start\.gte\.\$\{(\w+)\},date_end\.gte\.\$\{\1\}`\s*\)/);
+			expect(orMatch).toBeTruthy();
 
-			const varName = gteMatch![1];
-			// The variable used in .gte should be assigned from toISOString()
+			const varName = orMatch![1];
+			// The variable used should be assigned from toISOString()
 			const assignRegex = new RegExp(`const\\s+${varName}\\s*=\\s*new\\s+Date\\(\\)\\.toISOString\\(\\)`);
 			expect(content).toMatch(assignRegex);
 		});
