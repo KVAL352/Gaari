@@ -257,6 +257,41 @@
 		}
 	});
 
+	// Highlights: 4 diverse upcoming events with images for above-the-fold display
+	let highlights = $derived.by(() => {
+		if (hasActiveFilters) return [];
+		const now = getOsloNow();
+		const todayStr = toOsloDateStr(now);
+		const threeDaysStr = toOsloDateStr(addDays(now, 3));
+
+		// Events in next 3 days with image
+		const upcoming = allEvents.filter(e => {
+			const d = e.date_start.slice(0, 10);
+			return d >= todayStr && d <= threeDaysStr && e.image_url;
+		});
+
+		// Pick diverse: one per category, prefer free
+		const seen = new Set<string>();
+		const picks: GaariEvent[] = [];
+		// First pass: free events with unique categories
+		for (const e of upcoming) {
+			if (picks.length >= 4) break;
+			if (seen.has(e.category)) continue;
+			if (isFreeEvent(e.price)) {
+				seen.add(e.category);
+				picks.push(e);
+			}
+		}
+		// Second pass: fill remaining with paid events
+		for (const e of upcoming) {
+			if (picks.length >= 4) break;
+			if (seen.has(e.category)) continue;
+			seen.add(e.category);
+			picks.push(e);
+		}
+		return picks;
+	});
+
 	// Contextual collection suggestions based on day/time
 	let collectionSuggestions = $derived.by(() => {
 		const now = getOsloNow();
@@ -351,6 +386,39 @@
 </svelte:head>
 
 <HeroSection />
+
+<!-- Highlights: diverse upcoming events for first-time visitors -->
+{#if highlights.length >= 3}
+	<section class="mx-auto max-w-7xl px-4 pt-4 pb-2">
+		<h2 class="mb-3 text-base font-semibold text-[var(--color-text-primary)]">
+			{$lang === 'no' ? 'Høydepunkter denne uken' : 'Highlights this week'}
+		</h2>
+		<div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+			{#each highlights as event}
+				<a href="/{$lang}/events/{event.slug}" class="group overflow-hidden rounded-lg border border-[var(--color-border)] transition-colors hover:border-[var(--color-accent)]">
+					{#if event.image_url}
+						<img
+							src={optimizedSrc(event.image_url, 300)}
+							srcset={optimizedSrcset(event.image_url, [200, 300])}
+							sizes="(max-width: 639px) calc(50vw - 1.5rem), 200px"
+							alt={($lang === 'no' ? event.title_no : event.title_en) || event.title_no}
+							class="aspect-[4/3] w-full object-cover"
+							loading="eager"
+						/>
+					{/if}
+					<div class="p-2">
+						<p class="line-clamp-2 text-sm font-medium leading-tight text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)]">
+							{($lang === 'no' ? event.title_no : event.title_en) || event.title_no}
+						</p>
+						<p class="mt-0.5 text-xs text-[var(--color-text-muted)]">
+							{event.venue_name}
+						</p>
+					</div>
+				</a>
+			{/each}
+		</div>
+	</section>
+{/if}
 
 <EventDiscovery
 	lang={$lang}

@@ -89,6 +89,12 @@
 		if (typeof window !== 'undefined' && window.umami) {
 			umami.track('ticket-click', { venue: event.venue_name, slug: event.slug });
 		}
+		// Server-side venue click tracking for B2B reporting
+		fetch('/api/track-click', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ venue: event.venue_name, slug: event.slug })
+		}).catch(() => {}); // fire-and-forget
 	}
 	let correctionError = $state(false);
 	let linkCopied = $state(false);
