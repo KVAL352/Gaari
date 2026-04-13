@@ -1,4 +1,7 @@
-import { scrape as scrapeBergenLive } from './scrapers/bergenlive.js';
+// Bergen Live disabled — they are a competing event aggregator, not a primary source.
+// Most venues covered by dedicated scrapers; remaining gap (Koengen concerts, Statsraaden)
+// to be filled by Ticketmaster Discovery API scraper.
+// import { scrape as scrapeBergenLive } from './scrapers/bergenlive.js';
 import { scrape as scrapeBergenKommune } from './scrapers/bergenkommune.js';
 // BarnasNorge disabled — all its venues are covered by dedicated scrapers with better data quality.
 // Issues: AI-generated stock images, address-based venue names, complex URL resolution.
@@ -80,7 +83,7 @@ const PIPELINE_DEADLINE_MS = 22 * 60 * 1000;
 
 export const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
 	// --- Fast scrapers first (single page, no detail fetches) ---
-	bergenlive: scrapeBergenLive,
+	// bergenlive: scrapeBergenLive, // Disabled — competing aggregator, see import comment above
 	// barnasnorge: scrapeBarnasNorge, // Disabled — see import comment above
 	borealis: scrapeBorealis,
 	hoopla: scrapeHoopla,
