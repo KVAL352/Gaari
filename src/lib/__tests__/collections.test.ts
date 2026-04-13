@@ -32,9 +32,9 @@ describe('getCollection', () => {
 		expect(getCollection('gibberish')).toBeUndefined();
 	});
 
-	it('returns all 52 collections', () => {
+	it('returns all 53 collections', () => {
 		const slugs = getAllCollectionSlugs();
-		expect(slugs).toHaveLength(52);
+		expect(slugs).toHaveLength(53);
 		// 18 evergreen
 		expect(slugs).toContain('denne-helgen');
 		expect(slugs).toContain('i-kveld');

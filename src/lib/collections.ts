@@ -3306,6 +3306,72 @@ const collections: Collection[] = [
 			en: 'Borealis usually takes place in March. The programme is released a few weeks before.'
 		},
 		filterEvents: (events) => filterBorealis(events)
+	},
+	{
+		id: 'fadderuke',
+		slug: 'fadderuke-bergen',
+		seasonal: true,
+		title: {
+			no: 'Fadderuke i Bergen 2026',
+			en: 'Freshers\u2019 Week Bergen 2026'
+		},
+		description: {
+			no: 'Fadderuken i Bergen: alle arrangementer for nye studenter ved UiB, HVL, NHH og BI. Konserter, fester, omvisninger og sosiale arrangementer.',
+			en: 'Freshers\u2019 week in Bergen: all events for new students at UiB, HVL, NHH and BI. Concerts, parties, tours and social events.'
+		},
+		ogSubtitle: {
+			no: 'Arrangementer for nye studenter',
+			en: 'Events for new students'
+		},
+		relatedSlugs: ['studentkveld', 'gratis', 'konserter', 'uteliv'],
+		newsletterHeading: { no: 'Få fadderuketips rett i innboksen', en: 'Get freshers\u2019 week tips in your inbox' },
+		quickAnswer: {
+			no: 'Fadderuken i Bergen er vanligvis i uke 33\u201334 (midten av august). UiB, HVL, NHH og BI arrangerer hundrevis av arrangementer for nye studenter \u2014 fra campusomvisninger og sosiale samlinger til konserter og fester. Kvarteret, Hulen og Garage er populære studentvenues.',
+			en: 'Freshers\u2019 week in Bergen is usually in weeks 33\u201334 (mid-August). UiB, HVL, NHH and BI organise hundreds of events for new students \u2014 from campus tours and social gatherings to concerts and parties. Kvarteret, Hulen and Garage are popular student venues.'
+		},
+		editorial: {
+			no: [
+				'Bergen tar hvert år imot over 15 000 nye studenter til UiB, HVL, NHH, BI og andre studiesteder. Fadderuken i midten av august er byens største sosiale begivenhet, med arrangementer spredt over hele byen \u2014 fra Nygårdshøyden og Kronstad til Sandviken.',
+				'De fleste fadderarrangementene er gratis og åpne for alle nye studenter. Kvarteret (Norges største studentdrevne kulturhus) er et naturlig samlingspunkt, med Hulen, Garage og det nye Studentsenteret like i nærheten. Mange arrangementer er alkoholfrie.',
+				'Gåri samler fadderukeprogram fra alle studiesteder i Bergen. Denne siden oppdateres daglig fra midten av august. Se også studentkveld-siden for arrangementer gjennom hele semesteret.'
+			],
+			en: [
+				'Bergen welcomes over 15,000 new students each year to UiB, HVL, NHH, BI and other institutions. Freshers\u2019 week in mid-August is the city\u2019s biggest social event, with events spread across the city \u2014 from Nygårdshøyden and Kronstad to Sandviken.',
+				'Most freshers\u2019 events are free and open to all new students. Kvarteret (Norway\u2019s largest student-run cultural venue) is a natural meeting point, with Hulen, Garage and the new Student Centre nearby. Many events are alcohol-free.',
+				'Gåri collects freshers\u2019 week programmes from all institutions in Bergen. This page is updated daily from mid-August. Check the student events page for events throughout the semester.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når er fadderuken i Bergen?', a: 'Fadderuken er vanligvis i uke 33\u201334 (midten av august). Noen studiesteder starter tidligere. Gåri oppdaterer denne siden automatisk.' },
+				{ q: 'Hva skjer under fadderuken?', a: 'Alt fra campusomvisninger og grilling til konserter på Kvarteret og Hulen, pubquizer, fjelltur til Fløyen, og fester. De fleste arrangementene er gratis.' },
+				{ q: 'Må man være fadder for å delta?', a: 'De fleste offentlige arrangementene er åpne for alle studenter. Noen arrangementer er kun for spesifikke faddgrupper.' },
+				{ q: 'Hvilke venues er populære blant studenter i Bergen?', a: 'Kvarteret, Hulen, Garage, Landmark og Det Akademiske Kvarter er de mest populære. Kvarteret har Norges største studentdrevne kulturprogram.' },
+				{ q: 'Er det alkoholfrie arrangementer?', a: 'Ja, mange fadderarrangementer er alkoholfrie \u2014 spesielt dagaktiviteter, omvisninger og idrettsarrangementer.' },
+				{ q: 'Hvor finner jeg oversikt over fadderuken?', a: 'Gåri samler arrangementer fra alle studiestedene i Bergen på denne siden. Du kan også sjekke studentorganisasjonenes egne sider.' }
+			],
+			en: [
+				{ q: 'When is freshers\u2019 week in Bergen?', a: 'Freshers\u2019 week is usually in weeks 33\u201334 (mid-August). Some institutions start earlier. Gåri updates this page automatically.' },
+				{ q: 'What happens during freshers\u2019 week?', a: 'Everything from campus tours and barbecues to concerts at Kvarteret and Hulen, pub quizzes, hikes to Fløyen, and parties. Most events are free.' },
+				{ q: 'Do I need to be a buddy to attend?', a: 'Most public events are open to all students. Some events are reserved for specific buddy groups.' },
+				{ q: 'Which venues are popular with students in Bergen?', a: 'Kvarteret, Hulen, Garage, Landmark and Det Akademiske Kvarter are the most popular. Kvarteret has Norway\u2019s largest student-run cultural programme.' },
+				{ q: 'Are there alcohol-free events?', a: 'Yes, many freshers\u2019 events are alcohol-free \u2014 especially daytime activities, tours and sports events.' },
+				{ q: 'Where can I find a freshers\u2019 week overview?', a: 'Gåri collects events from all Bergen institutions on this page. You can also check the student organisations\u2019 own websites.' }
+			]
+		},
+		offSeasonHint: {
+			no: 'Fadderuken er i august. Arrangementer legges ut etter hvert som studiestedene publiserer programmene.',
+			en: 'Freshers\u2019 week is in August. Events are added as institutions publish their programmes.'
+		},
+		filterEvents: (events: GaariEvent[], now: Date) => {
+			const year = now.getFullYear();
+			const { start, end } = getISOWeekDates(year, 34);
+			const weekBefore = getISOWeekDates(year, 33).start;
+			return events.filter(e => {
+				const d = e.date_start.slice(0, 10);
+				return d >= weekBefore && d <= end;
+			});
+		}
 	}
 ];
 
