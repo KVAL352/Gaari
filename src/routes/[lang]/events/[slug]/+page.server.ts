@@ -1,4 +1,4 @@
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
 import { notifyCorrection } from '$lib/server/email';
 import { seedEvents } from '$lib/data/seed-events';
@@ -50,7 +50,11 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 		// Fallback to seed data
 		const event = seedEvents.find(e => e.slug === params.slug);
 		if (!event) {
-			error(404, 'Event not found');
+			// Expired/deleted events: 302 redirect to relevant collection instead of 404
+			// This preserves Google traffic from indexed event pages
+			const lang = params.lang === 'en' ? 'en' : 'no';
+			const fallback = lang === 'no' ? 'denne-helgen' : 'this-weekend';
+			redirect(302, `/${lang}/${fallback}`);
 		}
 
 		const related = seedEvents

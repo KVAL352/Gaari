@@ -12,6 +12,7 @@
 	import { SOURCE_COUNT } from '$lib/constants';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
 	import { getGroupedCollections } from '$lib/collections';
+	import { TOP_VENUES } from '$lib/venues';
 	import { ArrowRight } from 'lucide-svelte';
 	import HeroSection from '$lib/components/HeroSection.svelte';
 	import EventDiscovery from '$lib/components/EventDiscovery.svelte';
@@ -522,6 +523,22 @@
 				</div>
 			</div>
 		{/each}
+		<!-- Top venues -->
+		<div>
+			<h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+				{$lang === 'no' ? 'Venues' : 'Venues'}
+			</h3>
+			<div class="flex flex-wrap gap-1.5">
+				{#each TOP_VENUES.slice(0, 8) as venue}
+					<a
+						href="/{$lang}/venue/{venue.slug}"
+						class="inline-block rounded-md border border-[var(--color-border)] px-2.5 py-1 text-sm text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
+					>
+						{venue.name}
+					</a>
+				{/each}
+			</div>
+		</div>
 	</div>
 </nav>
 
