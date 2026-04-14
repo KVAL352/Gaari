@@ -48,6 +48,7 @@ export const translations = {
 		soldOut: 'Utsolgt',
 		lastTickets: 'Siste billetter',
 		cancelled: 'Avlyst',
+		studentPrice: 'Studentpris',
 
 		// Actions
 		save: 'Lagre',
@@ -275,6 +276,7 @@ export const translations = {
 		soldOut: 'Sold Out',
 		lastTickets: 'Last Tickets',
 		cancelled: 'Cancelled',
+		studentPrice: 'Student price',
 
 		save: 'Save',
 		showMore: 'Show More',

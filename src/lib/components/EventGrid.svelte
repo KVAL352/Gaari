@@ -13,12 +13,14 @@
 		showNewsletterCta?: boolean;
 		/** Insert newsletter signup card as a grid item in the first day group (default: false) */
 		showSignupCard?: boolean;
+		/** Show student price badges on venues with known student pricing */
+		studentContext?: boolean;
 		onHideEvent?: (id: string) => void;
 		onHideVenue?: (venue: string) => void;
 		onHideCategory?: (category: string) => void;
 	}
 
-	let { events, promotedEventIds = [], showNewsletterCta = false, showSignupCard = false, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+	let { events, promotedEventIds = [], showNewsletterCta = false, showSignupCard = false, studentContext = false, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
 
 	// Global position (0-indexed) at which to inject the signup card.
 	// 7 = appears as the 8th card — after users have scrolled past a few events
@@ -67,6 +69,7 @@
 					{event}
 					eager={groupIdx === 0 && i < 4}
 					promoted={promotedEventIds.includes(event.id)}
+					{studentContext}
 					onHideEvent={canHide ? onHideEvent : undefined}
 					onHideVenue={canHide ? onHideVenue : undefined}
 					onHideCategory={canHide ? onHideCategory : undefined}

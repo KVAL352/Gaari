@@ -221,7 +221,7 @@
 			{/if}
 		</div>
 	{:else}
-		<EventGrid events={displayedEvents} promotedEventIds={data.promotedEventIds} showNewsletterCta />
+		<EventGrid events={displayedEvents} promotedEventIds={data.promotedEventIds} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} />
 		<LoadMore shown={displayedEvents.length} total={data.events.length} href={nextPageHref} />
 
 		{#if relatedCollections.length > 0}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { GaariEvent, BadgeType } from '$lib/types';
 	import { lang, t } from '$lib/i18n';
-	import { formatEventDate, formatEventTime, formatPrice, isFreeEvent } from '$lib/utils';
+	import { formatEventDate, formatEventTime, formatPrice, isFreeEvent, hasStudentPrice } from '$lib/utils';
 	import StatusBadge from './StatusBadge.svelte';
 	import ImagePlaceholder from './ImagePlaceholder.svelte';
 	import CalendarDropdown from './CalendarDropdown.svelte';
@@ -12,12 +12,15 @@
 		event: GaariEvent;
 		eager?: boolean;
 		promoted?: boolean;
+		studentContext?: boolean;
 		onHideEvent?: (id: string) => void;
 		onHideVenue?: (venue: string) => void;
 		onHideCategory?: (category: string) => void;
 	}
 
-	let { event, eager = false, promoted = false, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+	let { event, eager = false, promoted = false, studentContext = false, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+
+	let showStudentPriceBadge = $derived(studentContext && hasStudentPrice(event.venue_name));
 
 	let title = $derived(($lang === 'en' && event.title_en) ? event.title_en : event.title_no);
 	let description = $derived(($lang === 'en' && event.description_en) ? event.description_en : event.description_no);
@@ -202,6 +205,9 @@
 		<div class="relative z-20 pointer-events-none border-t border-[var(--color-border)] px-4 py-3">
 			<div class="flex items-center justify-between">
 			<span class="tabular-nums text-sm font-semibold">{priceText}</span>
+				{#if showStudentPriceBadge}
+					<span class="ml-2 inline-flex items-center rounded-md bg-[var(--color-primary)] px-1.5 py-0.5 text-[0.625rem] font-medium text-white">{$t('studentPrice')}</span>
+				{/if}
 			<div class="pointer-events-auto flex items-center gap-1">
 				<CalendarDropdown event={calendarData} compact />
 				<button

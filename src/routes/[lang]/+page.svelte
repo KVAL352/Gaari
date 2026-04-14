@@ -383,7 +383,7 @@
 		/>
 	{:else}
 		<div class="event-results" class:fading={transitioning}>
-			<EventGrid events={displayedEvents} showNewsletterCta showSignupCard={!hasActiveFilters && pageNum === 1} onHideEvent={handleHideEvent} onHideVenue={handleHideVenue} onHideCategory={handleHideCategory} />
+			<EventGrid events={displayedEvents} showNewsletterCta showSignupCard={!hasActiveFilters && pageNum === 1} studentContext={audience === 'student'} onHideEvent={handleHideEvent} onHideVenue={handleHideVenue} onHideCategory={handleHideCategory} />
 			{#if numHidden > 0}
 				<div class="mb-6 flex items-center justify-center gap-3 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-4 py-2.5">
 					<span class="text-sm text-[var(--color-text-muted)]">

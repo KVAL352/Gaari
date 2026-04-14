@@ -159,6 +159,21 @@ const AGE_RANGE_RE = /\((\d{1,2})\s*[-–]\s*(\d{1,2})\s*år\)/i;
  * - Events explicitly targeting older demographics (age range lower bound > 25)
  * - Expensive events (lowest price > 350 kr)
  */
+// Venues known to offer student pricing (studentrabatt / studentpris)
+const STUDENT_PRICE_VENUES: ReadonlySet<string> = new Set([
+	'ole bull scene',          // Student-torsdag: 50% på stand-up + rimelige barpriser
+	'den nationale scene',     // 50% for studenter og unge 16-25, Teatertjommi 18-30
+	'dns',                     // Alias for Den Nationale Scene
+]);
+
+/**
+ * Returns true if the event's venue is known to offer student pricing.
+ */
+export function hasStudentPrice(venueName: string): boolean {
+	const v = venueName.toLowerCase();
+	return [...STUDENT_PRICE_VENUES].some(sv => v.includes(sv));
+}
+
 export function isStudentRelevant(e: { title_no: string; price: string | number; age_group: string; category: string }): boolean {
 	// Exclude family
 	if (e.age_group === 'family' || e.category === 'family') return false;
