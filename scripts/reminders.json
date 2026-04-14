@@ -15,11 +15,6 @@
     "description": "Epost sendt 27. februar — forespørsel om scraping-tillatelse. Kun Intercom auto-svar mottatt. Venter på svar — send eventuell oppfølging nå (3 uker etter 7. april). Scraper klar (scripts/scrapers/tikkio.ts)."
   },
   {
-    "date": "2026-04-14",
-    "title": "Scrapers med manglende bilder: brann, bergenpride, beyondthegates",
-    "description": "Overdue fra 6. april. Disse scrapers har image_url: undefined. Vurder: 1) brann.ts — stabil logo-URL. 2) bergenpride.ts — sjekk juni-programmet. 3) beyondthegates.ts — lineup-sider med bilder?"
-  },
-  {
     "date": "2026-06-01",
     "title": "Kvartalsvis sikkerhetssjekk Q2 2026",
     "description": "1) Roter ADMIN_PASSWORD og ADMIN_SESSION_SECRET. 2) Roter CALENDAR_FEED_TOKEN. 3) Merg Dependabot-PRer. 4) npm audit i root og scripts/. 5) Sjekk Vercel CSP-logs. 6) Vurder å rotere GEMINI_API_KEY og RESEND_API_KEY."
@@ -65,9 +60,9 @@
     "description": "Oppfølging #2 sendt 13. april. Hvis fortsatt stille: parkér."
   },
   {
-    "date": "2026-04-14",
+    "date": "2026-04-20",
     "title": "Følg opp Bodega (Martin Sande)",
-    "description": "Martin svarte 7. april: tar møte i dag, vil filtrere ut noen events før publisering, sender bilder i løpet av uken. Adresserte ikke API-nøkkel-rotering. Sjekk innboks: 1) Har de sendt liste over hvilke events som skal filtreres? 2) Har bilder kommet? 3) Bekreftet de at de har slettet/rotert Google Calendar API-nøkkelen? Send vennlig oppfølging hvis stille."
+    "description": "Oppfølging #2 sendt 13. april (bildeforespørsel påminnelse). Martin svarte 7. april: tar møte, vil filtrere events, sender bilder. Sjekk innboks: 1) Har bilder kommet? 2) Eventfiltrering? 3) API-nøkkel-rotering? Hvis stille: siste forsøk."
   },
   {
     "date": "2026-04-21",
