@@ -116,15 +116,20 @@
 		} else if (audience === 'voksen') {
 			const voksenCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop', 'festival']);
 			const clubRe = /\bklubb|\bdj\b|\bhouse\b|\btechno|\bafterparty|\bnattklubb|\brave\b/i;
-			const childRe = /\bjunior\b|\bfor\s+barn\b|\bbarnas\s|\bbarnelørdag|\bbarneforestilling|\beventyrstund|\beventyromvisning|\bprompepulver/i;
-			const indieVenues = new Set(['hulen', 'garage', 'kvarteret', 'det akademiske kvarter', 'landmark', 'bergen kjøtt', 'fincken', 'røkeriet']);
+			const childRe = /junior|for\s+barn|\bbarnas\s|barnelørdag|barneforestilling|eventyrstund|eventyromvisning|prompepulver|babysang|babymassasje|babysvømming|knøttekor|knottekor|lillelørdag|lørdagsverksted|ronja\s+røverdatter|fabelrommet/i;
+			const youthRe = /\bungdom|\bfor\s+unge?\b|\bunge?\b|\btenåring|\bteen/i;
+			const indieVenues = ['hulen', 'garage', 'kvarteret', 'det akademiske kvarter', 'landmark', 'bergen kjøtt', 'fincken', 'røkeriet', 'østre'];
 			events = events.filter(e => {
 				if (e.age_group === 'family' || e.category === 'family') return false;
-				if (e.age_group === 'students') return false;
+				if (e.age_group === 'students' || e.age_group === 'youth') return false;
 				if (!voksenCategories.has(e.category)) return false;
 				if (clubRe.test(e.title_no) || clubRe.test(e.description_no || '')) return false;
-				if (childRe.test(e.title_no)) return false;
-				if (indieVenues.has(e.venue_name?.toLowerCase())) return false;
+				const text = e.title_no + ' ' + (e.venue_name || '');
+				if (childRe.test(text)) return false;
+				if (youthRe.test(e.title_no)) return false;
+				const venueLower = e.venue_name?.toLowerCase() || '';
+				if (indieVenues.some(v => venueLower.includes(v))) return false;
+				if (/\bhulen\b/i.test(e.title_no)) return false;
 				return true;
 			});
 		} else if (audience === 'adult') {
