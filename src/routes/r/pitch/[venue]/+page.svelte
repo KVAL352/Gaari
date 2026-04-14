@@ -4,10 +4,20 @@
 	let { data }: { data: PageData } = $props();
 
 	const CAT_COLORS: Record<string, string> = {
-		Musikk: '#AECDE8', Kultur: '#C5B8D9', Teater: '#E8B8C2', Familie: '#F5D49A',
-		'Mat og drikke': '#E8C4A0', Festival: '#F5E0A0', Sport: '#A8D4B8', Uteliv: '#9BAED4',
-		Kurs: '#D4B89A', Student: '#B8D4A8', Turer: '#7FB8B8'
+		music: '#AECDE8', culture: '#C5B8D9', theatre: '#E8B8C2', family: '#F5D49A',
+		food: '#E8C4A0', festival: '#F5E0A0', sports: '#A8D4B8', nightlife: '#9BAED4',
+		workshop: '#D4B89A', student: '#B8D4A8', tours: '#7FB8B8'
 	};
+
+	const CAT_LABELS: Record<string, string> = {
+		music: 'Musikk', culture: 'Kultur', theatre: 'Teater', family: 'Familie',
+		food: 'Mat og drikke', festival: 'Festival', sports: 'Sport', nightlife: 'Uteliv',
+		workshop: 'Kurs', student: 'Student', tours: 'Turer'
+	};
+
+	function catLabel(cat: string): string {
+		return CAT_LABELS[cat] ?? cat;
+	}
 
 	function formatDate(dateStr: string): string {
 		return new Date(dateStr).toLocaleDateString('nb-NO', { day: 'numeric', month: 'short' });
@@ -69,7 +79,7 @@
 						<td style="padding:10px 12px;border-bottom:1px solid #E8E8E4;font-size:14px;white-space:nowrap;color:#4D4D4D;">{formatDate(event.date_start)}</td>
 						<td style="padding:10px 12px;border-bottom:1px solid #E8E8E4;font-size:14px;color:#141414;">{event.title_no}</td>
 						<td style="padding:10px 12px;border-bottom:1px solid #E8E8E4;font-size:14px;">
-							<span style="display:inline-block;padding:2px 10px;border-radius:20px;background:{catColor(event.category)};color:#141414;font-size:12px;font-weight:600;">{event.category}</span>
+							<span style="display:inline-block;padding:2px 10px;border-radius:20px;background:{catColor(event.category)};color:#141414;font-size:12px;font-weight:600;">{catLabel(event.category)}</span>
 						</td>
 					</tr>
 				{/each}
@@ -169,7 +179,7 @@
 									<div style="background:linear-gradient(to bottom, rgba(28,28,30,0) 30%, rgba(28,28,30,0.85) 100%);height:100%;display:flex;flex-direction:column;justify-content:flex-end;">
 										<div style="padding:0 20px 16px;">
 											<div style="margin-bottom:6px;">
-												<span style="display:inline-block;background:{catColor(data.events[0].category)};color:#141414;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:3px 10px;border-radius:20px;font-family:'Arial Narrow',Arial,sans-serif;">{data.events[0].category}</span>
+												<span style="display:inline-block;background:{catColor(data.events[0].category)};color:#141414;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:3px 10px;border-radius:20px;font-family:'Arial Narrow',Arial,sans-serif;">{catLabel(data.events[0].category)}</span>
 												<span style="display:inline-block;background:#C82D2D;color:#FFFFFF;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;margin-left:4px;">Fremhevet</span>
 											</div>
 											<div style="color:#FFFFFF;font-size:20px;font-weight:700;line-height:1.15;font-family:'Arial Narrow',Arial,sans-serif;">{data.events[0].title_no}</div>
