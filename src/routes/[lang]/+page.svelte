@@ -24,6 +24,10 @@
 
 	let { data } = $props();
 	let allEvents: GaariEvent[] = $derived(data.events);
+	let twoWeekCount = $derived(() => {
+		const cutoff = addDays(getOsloNow(), 14).toISOString();
+		return allEvents.filter(e => e.date_start <= cutoff).length;
+	});
 
 	const PAGE_SIZE = 12;
 
@@ -427,13 +431,13 @@
 	</h2>
 	<p>
 		{$lang === 'no'
-			? `Bergen har ${data.events.length} arrangementer de neste to ukene — konserter, teater, utstillinger, mat og familieaktiviteter fra ${data.events.length > 0 ? 'Grieghallen, KODE, DNS og 50+ andre steder' : `${SOURCE_COUNT} lokale kilder`}. Oppdatert daglig.`
-			: `Bergen has ${data.events.length} events over the next two weeks — concerts, theatre, exhibitions, food and family activities from ${data.events.length > 0 ? 'Grieghallen, KODE, DNS and 50+ other venues' : `${SOURCE_COUNT} local sources`}. Updated daily.`}
+			? `Bergen har ${twoWeekCount()} arrangementer de neste to ukene — konserter, teater, utstillinger, mat og familieaktiviteter fra ${twoWeekCount() > 0 ? 'Grieghallen, KODE, DNS og 50+ andre steder' : `${SOURCE_COUNT} lokale kilder`}. Oppdatert daglig.`
+			: `Bergen has ${twoWeekCount()} events over the next two weeks — concerts, theatre, exhibitions, food and family activities from ${twoWeekCount() > 0 ? 'Grieghallen, KODE, DNS and 50+ other venues' : `${SOURCE_COUNT} local sources`}. Updated daily.`}
 	</p>
 	<p class="mt-2">
 		{$lang === 'no'
-			? 'Gåri er en uavhengig og gratis arrangementskalender for Bergen. Alle beskrivelser er originale, og utsolgte arrangementer fjernes automatisk.'
-			: 'Gåri is an independent, free event calendar for Bergen. All descriptions are original, and sold-out events are removed automatically.'}
+			? 'Gåri er en uavhengig og gratis arrangementskalender for Bergen. Utsolgte arrangementer fjernes automatisk.'
+			: 'Gåri is an independent, free event calendar for Bergen. Sold-out events are removed automatically.'}
 	</p>
 </section>
 
