@@ -95,6 +95,15 @@ const NON_EXHIBITION_TITLE_RE = /\b(kafé|kafe|café|cafe|spillkveld|padling|pad
 // Student-night filter — known student venues across Bergen
 const STUDENT_VENUE_RE = /\b(Det\s+Akademiske\s+Kvarter|Kvarteret\b|Hulen\b|Madam\s+Felle|Café\s+Opera|Cafe\s+Opera|Kronbar|Studentersamfunnet|Bergens?\s+Studentersamfunn|Stud[\s-]?vik|StudentBergen|UiB\b|HVL\b|NHH\b|Studentkroa)\b/i;
 
+// Title-based age range detection — e.g. "Smingel Bergen Musikkquiz (25-40 år)"
+// Student-relevant if the lower bound is ≤ 25
+const AGE_RANGE_RE = /\((\d{1,2})\s*[-–]\s*(\d{1,2})\s*år\)/i;
+function titleAgeRangeIncludesStudents(title: string): boolean | null {
+	const m = title.match(AGE_RANGE_RE);
+	if (!m) return null; // no age range in title
+	return parseInt(m[1], 10) <= 25;
+}
+
 export interface Collection {
 	id: string;
 	slug: string;
@@ -554,6 +563,10 @@ const collections: Collection[] = [
 			return events.filter(e => {
 				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				if (!matchesTimeOfDay(e.date_start, ['evening', 'night'])) return false;
+				// Explicit age range in title — e.g. "(35-50 år)" — is authoritative
+				const ageCheck = titleAgeRangeIncludesStudents(e.title_no || '');
+				if (ageCheck === false) return false; // explicitly targets older demographic
+				if (ageCheck === true) return true;   // explicitly includes students
 				// Must be either explicitly tagged for students OR happen at a recognised
 				// student venue. Plain 'nightlife' at non-student venues belongs in 'uteliv'.
 				if (e.age_group === 'students' || e.category === 'student') return true;
