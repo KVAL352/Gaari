@@ -139,6 +139,41 @@ export function isTouristFriendly(e: { title_no?: string; category?: string; ven
 	return TOURIST_VENUES.some(v => venue.includes(v));
 }
 
+/**
+ * Extract the lowest numeric price from a price string.
+ * Returns null if no price can be parsed (e.g. "Se pris", empty).
+ */
+export function parseLowestPrice(price: string | number | null): number | null {
+	if (price === null || price === undefined || price === '') return null;
+	if (typeof price === 'number') return price;
+	const numbers = price.match(/\d+/g);
+	if (!numbers || numbers.length === 0) return null;
+	return Math.min(...numbers.map(Number));
+}
+
+const AGE_RANGE_RE = /\((\d{1,2})\s*[-–]\s*(\d{1,2})\s*år\)/i;
+
+/**
+ * Student-relevant = everything EXCEPT:
+ * - Family events
+ * - Events explicitly targeting older demographics (age range lower bound > 25)
+ * - Expensive events (lowest price > 350 kr)
+ */
+export function isStudentRelevant(e: { title_no: string; price: string | number; age_group: string; category: string }): boolean {
+	// Exclude family
+	if (e.age_group === 'family' || e.category === 'family') return false;
+
+	// Explicit age range in title — authoritative
+	const ageMatch = e.title_no.match(AGE_RANGE_RE);
+	if (ageMatch && parseInt(ageMatch[1], 10) > 25) return false;
+
+	// Exclude expensive events (over 350 kr)
+	const lowest = parseLowestPrice(e.price);
+	if (lowest !== null && lowest > 350) return false;
+
+	return true;
+}
+
 export function isFreeEvent(price: string | number | null): boolean {
 	if (price === 0) return true;
 	if (typeof price !== 'string' || price === '') return false;

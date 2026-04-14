@@ -4,7 +4,7 @@
 	import { tick } from 'svelte';
 	import { browser } from '$app/environment';
 	import { lang, t } from '$lib/i18n';
-	import { isFreeEvent, isTouristFriendly } from '$lib/utils';
+	import { isFreeEvent, isTouristFriendly, isStudentRelevant } from '$lib/utils';
 	import { hideEvent, hideVenue, hideCategory, isHidden, unhideAll, hiddenCount, hiddenSummary } from '$lib/hidden-events.svelte';
 	import { getOsloNow, toOsloDateStr, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString, eventOnDay, eventOverlapsRange } from '$lib/event-filters';
 	import type { Bydel, GaariEvent } from '$lib/types';
@@ -110,15 +110,7 @@
 				return false;
 			});
 		} else if (audience === 'student') {
-			const studentVenueRe = /\b(Det\s+Akademiske\s+Kvarter|Kvarteret\b|Hulen\b|Madam\s+Felle|Café\s+Opera|Cafe\s+Opera|Kronbar|Studentersamfunnet|Bergens?\s+Studentersamfunn|Stud[\s-]?vik|StudentBergen|UiB\b|HVL\b|NHH\b|Studentkroa)\b/i;
-			const ageRangeRe = /\((\d{1,2})\s*[-–]\s*(\d{1,2})\s*år\)/i;
-			events = events.filter(e => {
-				const ageMatch = (e.title_no || '').match(ageRangeRe);
-				if (ageMatch && parseInt(ageMatch[1], 10) > 25) return false;
-				if (ageMatch) return true;
-				if (e.age_group === 'students' || e.category === 'student') return true;
-				return studentVenueRe.test(e.venue_name || '');
-			});
+			events = events.filter(e => isStudentRelevant(e));
 		} else if (audience === 'tourist') {
 			events = events.filter(e => isTouristFriendly(e));
 		} else if (audience === 'voksen') {

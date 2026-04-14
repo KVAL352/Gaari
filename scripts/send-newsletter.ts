@@ -208,7 +208,16 @@ function filterEventsForProfile(events: GaariEvent[], profile: PreferenceProfile
 	if (profile.audience === 'family') {
 		filtered = filtered.filter(e => e.age_group === 'family');
 	} else if (profile.audience === 'student') {
-		filtered = filtered.filter(e => e.age_group === 'students' || e.category === 'student');
+		const ageRangeRe = /\((\d{1,2})\s*[-–]\s*(\d{1,2})\s*år\)/i;
+		filtered = filtered.filter(e => {
+			if (e.age_group === 'family' || e.category === 'family') return false;
+			const ageMatch = (e.title_no || '').match(ageRangeRe);
+			if (ageMatch && parseInt(ageMatch[1], 10) > 25) return false;
+			const price = e.price;
+			const num = typeof price === 'number' ? price : parseInt(String(price).match(/\d+/)?.[0] ?? '', 10);
+			if (!isNaN(num) && num > 350) return false;
+			return true;
+		});
 	} else if (profile.audience === 'adult') {
 		filtered = filtered.filter(e => e.age_group !== 'family' && e.category !== 'family');
 	} else if (profile.audience === 'voksen') {
@@ -278,23 +287,57 @@ function groupSubscribers(subscribers: MailerLiteSubscriber[]): Map<string, Grou
 	return groups;
 }
 
-// ── Promoted venues ──
+// ── Promoted venues (impression-based weekly rotation) ──
 
-async function fetchPromotedVenueNames(): Promise<Set<string>> {
+interface PromotedPlacementRow {
+	venue_name: string;
+	slot_share: number;
+}
+
+async function fetchPromotedPlacements(): Promise<PromotedPlacementRow[]> {
 	const today = toOsloDateStr(getOsloNow());
 	const { data, error } = await supabase
 		.from('promoted_placements')
-		.select('venue_name')
+		.select('venue_name, slot_share')
 		.eq('active', true)
 		.lte('start_date', today)
 		.or(`end_date.is.null,end_date.gte.${today}`);
 
 	if (error) {
 		console.error('Failed to fetch promoted placements:', error.message);
-		return new Set();
+		return [];
 	}
 
-	return new Set((data || []).map(r => r.venue_name));
+	return (data || []) as PromotedPlacementRow[];
+}
+
+/**
+ * Deterministic weekly rotation: each venue is "on" for slot_share% of weeks.
+ * Uses hash(weekSeed + venueName) % 100 — if result < slot_share, venue is featured.
+ * The venue hash offset ensures different venues don't synchronize.
+ */
+function pickNewsletterVenues(placements: PromotedPlacementRow[], now: Date): Set<string> {
+	if (placements.length === 0) return new Set();
+
+	const weekNumber = getISOWeek(now);
+	const year = now.getFullYear();
+	const weekSeed = year * 53 + weekNumber;
+
+	const featured = new Set<string>();
+
+	for (const p of placements) {
+		let venueHash = 0;
+		for (let i = 0; i < p.venue_name.length; i++) {
+			venueHash = (venueHash * 31 + p.venue_name.charCodeAt(i)) >>> 0;
+		}
+
+		const position = (weekSeed + venueHash) % 100;
+		if (position < p.slot_share) {
+			featured.add(p.venue_name);
+		}
+	}
+
+	return featured;
 }
 
 // ── Helpers ──
@@ -372,10 +415,11 @@ async function main() {
 		return;
 	}
 
-	// 2b. Fetch promoted venues
+	// 2b. Fetch promoted venues (weekly rotation based on slot_share %)
 	console.log('Fetching promoted placements...');
-	const promotedVenues = await fetchPromotedVenueNames();
-	console.log(`  ${promotedVenues.size} promoted venues`);
+	const promotedPlacements = await fetchPromotedPlacements();
+	const promotedVenues = pickNewsletterVenues(promotedPlacements, now);
+	console.log(`  ${promotedPlacements.length} active placements, ${promotedVenues.size} featured this week`);
 
 	// 3. Group subscribers by preference profile
 	const groups = groupSubscribers(subscribers);

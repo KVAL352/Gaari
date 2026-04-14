@@ -367,27 +367,27 @@ describe('concerts filter (konserter)', () => {
 describe('student night filter (studentkveld)', () => {
 	const collection = getCollection('studentkveld')!;
 
-	it('includes student-tagged or student-venue evening events this week', () => {
+	it('includes most evening events this week, excludes family and expensive', () => {
 		// Feb 24, 2026 (Tuesday, CET = UTC+1)
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-02-24T18:00:00Z', age_group: 'students' }),                                  // Today evening, students ✓
-			makeEvent({ id: '2', date_start: '2026-02-24T21:00:00Z', category: 'nightlife', venue_name: 'Bergen Kjøtt' }),       // Generic nightlife, non-student venue ✗
-			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'student' }),                                    // Tomorrow evening, student cat ✓
-			makeEvent({ id: '4', date_start: '2026-02-24T08:00:00Z', age_group: 'students' }),                                  // Today morning — excluded (time)
-			makeEvent({ id: '5', date_start: '2026-02-26T18:00:00Z', category: 'nightlife', venue_name: 'Det Akademiske Kvarter' }), // Nightlife at student venue ✓
-			makeEvent({ id: '6', date_start: '2026-03-03T18:00:00Z', category: 'student' }),                                    // Next week — excluded
-			makeEvent({ id: '7', date_start: '2026-02-25T20:00:00Z', category: 'music', venue_name: 'Hulen' }),                  // Concert at Hulen ✓
-			makeEvent({ id: '8', date_start: '2026-02-25T20:00:00Z', category: 'theatre', venue_name: 'Forum Scene' })           // Theatre at non-student venue ✗
+			makeEvent({ id: '1', date_start: '2026-02-24T18:00:00Z', category: 'music' }),                                      // Evening music ✓
+			makeEvent({ id: '2', date_start: '2026-02-24T21:00:00Z', category: 'nightlife', venue_name: 'Bergen Kjøtt' }),       // Nightlife ✓
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'student' }),                                    // Student cat ✓
+			makeEvent({ id: '4', date_start: '2026-02-24T08:00:00Z', age_group: 'students' }),                                  // Morning — excluded (time)
+			makeEvent({ id: '5', date_start: '2026-02-26T18:00:00Z', age_group: 'family', category: 'family' }),                // Family — excluded
+			makeEvent({ id: '6', date_start: '2026-03-03T18:00:00Z', category: 'culture' }),                                    // Next week — excluded
+			makeEvent({ id: '7', date_start: '2026-02-25T20:00:00Z', category: 'music', price: '500' }),                         // Expensive — excluded
+			makeEvent({ id: '8', date_start: '2026-02-25T20:00:00Z', category: 'theatre', title_no: 'Quiz (35-50 år)' })         // Older age range — excluded
 		];
 		const result = collection.filterEvents(events, now);
-		expect(result.map(e => e.id)).toEqual(['1', '3', '5', '7']);
+		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
 	});
 
-	it('returns empty when no matching events', () => {
+	it('returns empty when only family events', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-02-24T18:00:00Z', category: 'culture', age_group: 'all', venue_name: 'KODE' })
+			makeEvent({ id: '1', date_start: '2026-02-24T18:00:00Z', category: 'family', age_group: 'family' })
 		];
 		expect(collection.filterEvents(events, now)).toHaveLength(0);
 	});
