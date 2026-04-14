@@ -4,7 +4,7 @@
 	import { CATEGORIES, BYDELER } from '$lib/types';
 	import type { Lang, TimeOfDay, GaariEvent } from '$lib/types';
 	import { CATEGORY_HEX_COLORS } from '$lib/utils';
-	import { isFreeEvent } from '$lib/utils';
+	import { isFreeEvent, isTouristFriendly } from '$lib/utils';
 	import FilterPill from './FilterPill.svelte';
 	import MiniCalendar from './MiniCalendar.svelte';
 	import { Users, Drama, GraduationCap, Moon, MapPin, Mail, Sparkle } from 'lucide-svelte';
@@ -111,7 +111,7 @@
 			if (adultRe.test(e.title_no) || adultRe.test(e.description_no || '')) return true;
 			return false;
 		}).length;
-		counts.tourist = activeEvents.filter(e => e.language === 'en' || e.language === 'both').length;
+		counts.tourist = activeEvents.filter(e => isTouristFriendly(e)).length;
 		return counts;
 	});
 

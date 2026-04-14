@@ -4,7 +4,7 @@
 	import { tick } from 'svelte';
 	import { browser } from '$app/environment';
 	import { lang, t } from '$lib/i18n';
-	import { isFreeEvent } from '$lib/utils';
+	import { isFreeEvent, isTouristFriendly } from '$lib/utils';
 	import { hideEvent, hideVenue, hideCategory, isHidden, unhideAll, hiddenCount, hiddenSummary } from '$lib/hidden-events.svelte';
 	import { getOsloNow, toOsloDateStr, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString, eventOnDay, eventOverlapsRange } from '$lib/event-filters';
 	import type { Bydel, GaariEvent } from '$lib/types';
@@ -112,7 +112,7 @@
 		} else if (audience === 'student') {
 			events = events.filter(e => e.age_group === 'students' || e.category === 'student');
 		} else if (audience === 'tourist') {
-			events = events.filter(e => e.language === 'en' || e.language === 'both');
+			events = events.filter(e => isTouristFriendly(e));
 		} else if (audience === 'voksen') {
 			const voksenCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop', 'festival']);
 			const clubRe = /\bklubb|\bdj\b|\bhouse\b|\btechno|\bafterparty|\bnattklubb|\brave\b/i;

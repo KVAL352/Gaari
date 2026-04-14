@@ -98,6 +98,16 @@ export function formatPrice(price: string | number | null, locale: 'no' | 'en' =
 	return locale === 'no' ? `fra kr ${amount}` : `from kr ${amount}`;
 }
 
+// ── Tourist filter ──
+
+// Events requiring Norwegian comprehension — not suitable for tourists
+const REQUIRES_NORWEGIAN_RE = /\bquiz\b|konferanse|\bseminar\b|\bforfatt|\bforedrag\b|\bdebatt\b|\bstand.?up|\bstandup|\bkomiker\b|\bhumorshow\b|\bklubbkveld\b|\bsmingel\b|\bprevansjon\b|\bakvarell\b|\bhyttekos\b|på lerret|\bkoth\b|\bvoksenpoeng\b|\bkurs\b/i;
+
+export function isTouristFriendly(e: { title_no?: string; category?: string }): boolean {
+	if (REQUIRES_NORWEGIAN_RE.test(e.title_no || '')) return false;
+	return true;
+}
+
 export function isFreeEvent(price: string | number | null): boolean {
 	if (price === 0) return true;
 	if (typeof price !== 'string' || price === '') return false;
