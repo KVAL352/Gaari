@@ -37,6 +37,7 @@ interface EventRow {
 	id: string;
 	source_url: string | null;
 	ticket_url: string | null;
+	image_url: string | null;
 	link_check_failures: number;
 	venue_name: string;
 	title_no: string;
@@ -171,7 +172,7 @@ async function main() {
 	// 1. Fetch events to check (never-checked first, then oldest)
 	const { data: events, error } = await supabase
 		.from('events')
-		.select('id, source_url, ticket_url, link_check_failures, venue_name, title_no')
+		.select('id, source_url, ticket_url, image_url, link_check_failures, venue_name, title_no')
 		.eq('status', 'approved')
 		.order('link_checked_at', { ascending: true, nullsFirst: true })
 		.limit(MAX_EVENTS_PER_RUN);
@@ -219,6 +220,7 @@ async function main() {
 	let deleted = 0;
 	let ticketsCleared = 0;
 	let skipped = 0;
+	let imagesBroken = 0;
 
 	// Track last request time per domain for rate limiting
 	const lastRequestTime = new Map<string, number>();
@@ -293,6 +295,32 @@ async function main() {
 
 			try {
 				lastRequestTime.set(new URL(ticketUrl).hostname, Date.now());
+			} catch { /* ignore */ }
+		}
+
+		// Check image_url (HEAD only, null out immediately if broken — no strikes needed)
+		if (event.image_url && !isSkippedDomain(event.image_url)) {
+			try {
+				const imgDomain = new URL(event.image_url).hostname;
+				const lastTime = lastRequestTime.get(imgDomain) || 0;
+				const elapsed = Date.now() - lastTime;
+				if (elapsed < DELAY_BETWEEN_REQUESTS_MS) {
+					await delay(DELAY_BETWEEN_REQUESTS_MS - elapsed);
+				}
+			} catch { /* ignore */ }
+
+			const imgCheck = await checkUrl(event.image_url, 'HEAD');
+			if (isBrokenStatus(imgCheck.status)) {
+				await supabase
+					.from('events')
+					.update({ image_url: null })
+					.eq('id', event.id);
+				console.log(`  🖼 Cleared broken image: ${event.title_no} — ${event.image_url}`);
+				imagesBroken++;
+			}
+
+			try {
+				lastRequestTime.set(new URL(event.image_url).hostname, Date.now());
 			} catch { /* ignore */ }
 		}
 
@@ -401,6 +429,7 @@ async function main() {
 	console.log(`  New strikes:     ${strikes}`);
 	console.log(`  Deleted:         ${deleted}`);
 	console.log(`  Tickets cleared: ${ticketsCleared}`);
+	console.log(`  Images cleared:  ${imagesBroken}`);
 	console.log(`  Duration:        ${durationSeconds}s`);
 
 	const summary = {
@@ -410,6 +439,7 @@ async function main() {
 		strikes,
 		deleted,
 		ticketsCleared,
+		imagesBroken,
 		durationSeconds,
 	};
 
