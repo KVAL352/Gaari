@@ -3,7 +3,7 @@ import { supabase } from '$lib/server/supabase';
 import { getCollection, getHreflangSlugs } from '$lib/collections';
 import { getOsloNow } from '$lib/event-filters';
 import { seedEvents } from '$lib/data/seed-events';
-import { getActivePromotions, pickDailyVenue, logImpression } from '$lib/server/promotions';
+import { getActivePromotions, pickPromotedVenues, logImpression, logCollectionImpression } from '$lib/server/promotions';
 import { SKIP_LOG_IPS } from '$env/static/private';
 import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad } from './$types';
@@ -74,29 +74,52 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 	const now = getOsloNow();
 	let filtered = collection.filterEvents(active, now);
 
-	// Promoted placement: bubble featured venue's events to the top
+	// Log collection page view (denominator for impression-share calculations)
+	let clientIp = '';
+	try { clientIp = getClientAddress(); } catch { /* prerender */ }
+	if (!skipIps.has(clientIp)) {
+		logCollectionImpression(collection.slug).catch(err =>
+			console.error('logCollectionImpression failed:', err)
+		);
+	}
+
+	// Promoted placement: bubble featured venues' events into top positions
 	let promotedEventIds: string[] = [];
 	try {
 		const promotions = await getActivePromotions(collection.slug);
 		if (promotions.length > 0) {
-			const featured = pickDailyVenue(promotions, collection.slug, now);
-			if (featured) {
-				const venueEvents = filtered.filter(e => e.venue_name === featured.venue_name);
-				const rest = filtered.filter(e => e.venue_name !== featured.venue_name);
-				// Pick one event from the venue, rotating daily
+			const featured = await pickPromotedVenues(promotions, collection.slug);
+			if (featured.length > 0) {
+				// For each promoted venue, pick one event (rotating daily)
 				const osloDateStr = now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' }).slice(0, 10);
 				const dayNumber = Math.floor(new Date(osloDateStr).getTime() / 86400000);
-				const pickedEvent = venueEvents[dayNumber % venueEvents.length];
-				const remainingVenueEvents = venueEvents.filter(e => e.id !== pickedEvent.id);
-				filtered = [pickedEvent, ...rest, ...remainingVenueEvents];
-				promotedEventIds = [pickedEvent.id];
-				// Fire-and-forget: skip owner IP to avoid polluting stats
-				let clientIp = '';
-				try { clientIp = getClientAddress(); } catch { /* prerender */ }
-				if (!skipIps.has(clientIp)) {
-					logImpression(featured.id, collection.slug, featured.venue_name).catch(err =>
-						console.error('logImpression failed:', err)
-					);
+
+				const promotedPicks: GaariEvent[] = [];
+				const promotedVenueNames = new Set(featured.map(p => p.venue_name));
+
+				for (const placement of featured) {
+					const venueEvents = filtered.filter(e => e.venue_name === placement.venue_name);
+					if (venueEvents.length === 0) continue;
+					const pickedEvent = venueEvents[dayNumber % venueEvents.length];
+					promotedPicks.push(pickedEvent);
+				}
+
+				if (promotedPicks.length > 0) {
+					promotedEventIds = promotedPicks.map(e => e.id);
+					const promotedIdSet = new Set(promotedEventIds);
+					const rest = filtered.filter(e => !promotedIdSet.has(e.id));
+					filtered = [...promotedPicks, ...rest];
+
+					// Fire-and-forget: log impressions for shown placements
+					if (!skipIps.has(clientIp)) {
+						for (const placement of featured) {
+							if (promotedVenueNames.has(placement.venue_name)) {
+								logImpression(placement.id, collection.slug, placement.venue_name).catch(err =>
+									console.error('logImpression failed:', err)
+								);
+							}
+						}
+					}
 				}
 			}
 		}

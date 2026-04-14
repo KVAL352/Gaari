@@ -1,6 +1,8 @@
 import { supabase } from '$lib/server/supabase';
 import { supabaseAdmin } from '$lib/server/supabase-admin';
 import { fail } from '@sveltejs/kit';
+import { TIER_SLOT } from '$lib/promotion-config';
+import { getCollectionOptions } from '$lib/collections';
 import type { PageServerLoad, Actions } from './$types';
 
 export interface PlacementRow {
@@ -16,53 +18,73 @@ export interface PlacementRow {
 	notes: string | null;
 	created_at: string;
 	impressions_this_month: number;
+	share_pct: number;
 }
-
-const TIER_SLOT: Record<string, number> = {
-	basis: 15,
-	standard: 25,
-	partner: 35
-};
 
 export const load: PageServerLoad = async () => {
 	// First day of current month
 	const now = new Date();
 	const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
 
-	// Load all placements
-	const { data: placements, error: placementsError } = await supabase
-		.from('promoted_placements')
-		.select('*')
-		.order('created_at', { ascending: false });
+	// Load all placements, placement logs, and collection impressions in parallel
+	const [placementsResult, logsResult, collectionImpsResult] = await Promise.all([
+		supabase
+			.from('promoted_placements')
+			.select('*')
+			.order('created_at', { ascending: false }),
+		supabase
+			.from('placement_log')
+			.select('placement_id, collection_slug, impression_count')
+			.gte('log_date', monthStart),
+		supabase
+			.from('collection_impressions')
+			.select('collection_slug, impression_count')
+			.gte('log_date', monthStart)
+	]);
 
-	if (placementsError) {
-		console.error('Failed to load placements:', placementsError);
-		return { placements: [] as PlacementRow[] };
+	if (placementsResult.error) {
+		console.error('Failed to load placements:', placementsResult.error);
+		return { placements: [] as PlacementRow[], allCollections: getCollectionOptions() };
 	}
 
-	// Load impression totals for this month, grouped by placement_id
-	const { data: logs, error: logsError } = await supabase
-		.from('placement_log')
-		.select('placement_id, impression_count')
-		.gte('log_date', monthStart);
+	if (logsResult.error) {
+		console.error('Failed to load placement logs:', logsResult.error);
+	}
 
-	if (logsError) {
-		console.error('Failed to load placement logs:', logsError);
+	if (collectionImpsResult.error) {
+		console.error('Failed to load collection impressions:', collectionImpsResult.error);
 	}
 
 	// Aggregate impressions per placement
 	const impressionsByPlacement = new Map<string, number>();
-	for (const row of logs ?? []) {
+	for (const row of logsResult.data ?? []) {
 		const current = impressionsByPlacement.get(row.placement_id) ?? 0;
 		impressionsByPlacement.set(row.placement_id, current + row.impression_count);
 	}
 
-	const rows: PlacementRow[] = (placements ?? []).map(p => ({
-		...p,
-		impressions_this_month: impressionsByPlacement.get(p.id) ?? 0
-	}));
+	// Aggregate total collection impressions per slug
+	const totalByCollection = new Map<string, number>();
+	for (const row of collectionImpsResult.data ?? []) {
+		const current = totalByCollection.get(row.collection_slug) ?? 0;
+		totalByCollection.set(row.collection_slug, current + row.impression_count);
+	}
 
-	return { placements: rows };
+	// Calculate actual share % for each placement (average across its collections)
+	const rows: PlacementRow[] = (placementsResult.data ?? []).map(p => {
+		const placementImpressions = impressionsByPlacement.get(p.id) ?? 0;
+		const totalCollectionImpressions = (p.collection_slugs as string[])
+			.reduce((sum: number, slug: string) => sum + (totalByCollection.get(slug) ?? 0), 0);
+		const sharePct = totalCollectionImpressions > 0
+			? (placementImpressions / totalCollectionImpressions) * 100
+			: 0;
+		return {
+			...p,
+			impressions_this_month: placementImpressions,
+			share_pct: Math.round(sharePct * 10) / 10
+		};
+	});
+
+	return { placements: rows, allCollections: getCollectionOptions() };
 };
 
 export const actions: Actions = {

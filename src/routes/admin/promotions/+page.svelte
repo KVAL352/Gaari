@@ -6,27 +6,18 @@
 
 	let { data }: { data: PageData } = $props();
 	let placements: PlacementRow[] = $derived(data.placements);
-
-	const ALL_COLLECTIONS = [
-		{ slug: 'denne-helgen', label: 'Denne helgen (NO)' },
-		{ slug: 'this-weekend', label: 'This Weekend (EN)' },
-		{ slug: 'i-kveld', label: 'I kveld (NO)' },
-		{ slug: 'i-dag', label: 'I dag (NO)' },
-		{ slug: 'today-in-bergen', label: 'Today in Bergen (EN)' },
-		{ slug: 'gratis', label: 'Gratis (NO)' },
-		{ slug: 'free-things-to-do-bergen', label: 'Free Things (EN)' },
-		{ slug: 'familiehelg', label: 'Familiehelg (NO)' },
-		{ slug: 'konserter', label: 'Konserter (NO)' },
-		{ slug: 'studentkveld', label: 'Studentkveld (NO)' },
-		{ slug: 'regndagsguide', label: 'Regndagsguide (NO)' },
-		{ slug: 'sentrum', label: 'Sentrum (NO)' },
-		{ slug: 'voksen', label: 'Voksen (NO)' }
-	];
+	let ALL_COLLECTIONS = $derived(data.allCollections);
 
 	const TIER_LABELS: Record<string, string> = {
 		basis: 'Basis (15%)',
 		standard: 'Standard (25%)',
 		partner: 'Partner (35%)'
+	};
+
+	const TIER_TARGET: Record<string, number> = {
+		basis: 15,
+		standard: 25,
+		partner: 35
 	};
 
 	function formatDate(d: string | null): string {
@@ -99,9 +90,9 @@
 						bind:value={selectedTier}
 						style="width: 100%; padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px; min-height: 40px; box-sizing: border-box; background: #fff;"
 					>
-						<option value="basis">Basis — 1 500 kr/mnd (15% slot)</option>
-						<option value="standard">Standard — 3 500 kr/mnd (25% slot)</option>
-						<option value="partner">Partner — 7 000 kr/mnd (35% slot)</option>
+						<option value="basis">Basis — 1 500 kr/mnd (15% synlighet)</option>
+						<option value="standard">Standard — 3 500 kr/mnd (25% synlighet)</option>
+						<option value="partner">Partner — 9 000 kr/mnd (35% synlighet)</option>
 					</select>
 				</div>
 			</div>
@@ -203,6 +194,7 @@
 					<th style="padding: 10px 12px; font-weight: 600; color: #141414; white-space: nowrap;">Start</th>
 					<th style="padding: 10px 12px; font-weight: 600; color: #141414; white-space: nowrap;">Slutt</th>
 					<th style="padding: 10px 12px; font-weight: 600; color: #141414; text-align: right; white-space: nowrap;">Imp. denne mnd</th>
+					<th style="padding: 10px 12px; font-weight: 600; color: #141414; text-align: right; white-space: nowrap;">Andel</th>
 					<th style="padding: 10px 12px; font-weight: 600; color: #141414; text-align: center; white-space: nowrap;">Aktiv</th>
 				</tr>
 			</thead>
@@ -222,6 +214,9 @@
 					<td style="padding: 12px; white-space: nowrap; color: #4d4d4d;">{formatDate(p.end_date)}</td>
 					<td style="padding: 12px; text-align: right; font-variant-numeric: tabular-nums; color: #141414;">
 						{p.impressions_this_month.toLocaleString('nb-NO')}
+					</td>
+					<td style="padding: 12px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; color: {p.share_pct > TIER_TARGET[p.tier] ? '#16a34a' : p.share_pct > 0 ? '#C82D2D' : '#737373'};">
+						{p.share_pct}% <span style="color: #737373; font-size: 11px;">/ {TIER_TARGET[p.tier]}%</span>
 					</td>
 					<td style="padding: 12px; text-align: center;">
 						<form method="POST" action="?/toggle" use:enhance style="display: inline;">

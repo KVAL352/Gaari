@@ -2,13 +2,8 @@ import { error, json } from '@sveltejs/kit';
 import Stripe from 'stripe';
 import { env } from '$env/dynamic/private';
 import { supabaseAdmin } from '$lib/server/supabase-admin';
+import { TIER_SLOT } from '$lib/promotion-config';
 import type { RequestHandler } from './$types';
-
-const TIER_SLOT_SHARE: Record<string, number> = {
-	basis: 15,
-	standard: 25,
-	partner: 35,
-};
 
 export const POST: RequestHandler = async ({ request }) => {
 	const stripeKey = env.STRIPE_SECRET_KEY;
@@ -68,7 +63,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session): Promise
 		return;
 	}
 
-	const slotShare = TIER_SLOT_SHARE[tier];
+	const slotShare = TIER_SLOT[tier];
 	if (!slotShare) {
 		console.error('Stripe webhook: unknown tier', tier);
 		return;

@@ -1,4 +1,5 @@
 import { supabase } from '$lib/server/supabase';
+import { MAX_PROMOTED_SLOTS } from '$lib/promotion-config';
 
 export interface PromotedPlacement {
 	id: string;
@@ -14,12 +15,20 @@ export interface PromotedPlacement {
 	created_at: string;
 }
 
+function getOsloToday(): string {
+	return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' }).slice(0, 10);
+}
+
+function getMonthStart(today: string): string {
+	return today.slice(0, 8) + '01';
+}
+
 /**
  * Returns all active promoted placements for a given collection slug,
  * filtered to those whose date range covers today.
  */
 export async function getActivePromotions(collectionSlug: string): Promise<PromotedPlacement[]> {
-	const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' }).slice(0, 10);
+	const today = getOsloToday();
 
 	const { data, error } = await supabase
 		.from('promoted_placements')
@@ -38,39 +47,119 @@ export async function getActivePromotions(collectionSlug: string): Promise<Promo
 }
 
 /**
- * Deterministically picks a venue to feature for the given day.
- * Builds a weighted array (slot_share repetitions per placement),
- * then selects index = (dayNumber + collectionHash) % weighted.length.
- * Returns the same venue for the full calendar day, no randomness.
+ * Pure function: given impression data, pick which placements should be promoted.
+ * Exported separately for testing without DB dependencies.
+ *
+ * Each placement's target is based on impressions since its own start_date,
+ * not from the beginning of the month. This ensures venues that join mid-month
+ * only compete for their fair share from the day they started.
+ *
+ * @param impressionsSinceStart - per placement ID, total collection impressions
+ *   counted from that placement's start_date (not from month start).
+ *   Falls back to totalImpressions when not provided (backward compat).
  */
-export function pickDailyVenue(
+export function selectPromotedByDeficit(
 	placements: PromotedPlacement[],
-	collectionSlug: string,
-	now: Date
-): PromotedPlacement | null {
-	if (placements.length === 0) return null;
+	totalImpressions: number,
+	impressionsByPlacement: Map<string, number>,
+	impressionsSinceStart?: Map<string, number>
+): PromotedPlacement[] {
+	if (placements.length === 0) return [];
 
-	// Build weighted array
-	const weighted: PromotedPlacement[] = [];
+	const withDeficit = placements.map(p => {
+		const actual = impressionsByPlacement.get(p.id) ?? 0;
+		const relevantImpressions = impressionsSinceStart?.get(p.id) ?? totalImpressions;
+		const target = relevantImpressions * (p.slot_share / 100);
+		return { placement: p, deficit: target - actual };
+	});
+
+	const underServed = withDeficit
+		.filter(d => d.deficit > 0)
+		.sort((a, b) => b.deficit - a.deficit);
+
+	return underServed.slice(0, MAX_PROMOTED_SLOTS).map(d => d.placement);
+}
+
+/**
+ * Impression-based promoted venue selection.
+ *
+ * Picks up to MAX_PROMOTED_SLOTS (3) venues whose actual impression share
+ * is below their entitled share (slot_share %). Self-balancing: venues that
+ * are over-served pause until others catch up.
+ *
+ * Returns placements sorted by deficit (most under-served first).
+ */
+export async function pickPromotedVenues(
+	placements: PromotedPlacement[],
+	collectionSlug: string
+): Promise<PromotedPlacement[]> {
+	if (placements.length === 0) return [];
+
+	const today = getOsloToday();
+	const monthStart = getMonthStart(today);
+
+	// Find the earliest start_date among placements (for the broadest query range)
+	const earliestStart = placements.reduce((earliest, p) => {
+		const effectiveStart = p.start_date > monthStart ? p.start_date : monthStart;
+		return effectiveStart < earliest ? effectiveStart : earliest;
+	}, today);
+
+	// Fetch this month's data in parallel
+	const [collectionResult, placementResult] = await Promise.all([
+		// Collection impressions with daily granularity (needed for per-placement start_date filtering)
+		supabase
+			.from('collection_impressions')
+			.select('log_date, impression_count')
+			.eq('collection_slug', collectionSlug)
+			.gte('log_date', earliestStart)
+			.lte('log_date', today),
+		// Per-placement impression counts this month
+		supabase
+			.from('placement_log')
+			.select('placement_id, impression_count')
+			.eq('collection_slug', collectionSlug)
+			.gte('log_date', monthStart)
+			.lte('log_date', today)
+	]);
+
+	if (collectionResult.error) {
+		console.error('Failed to load collection impressions:', collectionResult.error);
+		return [];
+	}
+	if (placementResult.error) {
+		console.error('Failed to load placement impressions:', placementResult.error);
+		return [];
+	}
+
+	// Build daily impression lookup
+	const dailyImpressions = new Map<string, number>();
+	for (const row of collectionResult.data ?? []) {
+		dailyImpressions.set(row.log_date, (dailyImpressions.get(row.log_date) ?? 0) + row.impression_count);
+	}
+
+	// Total impressions from month start (for backward compat)
+	let totalImpressions = 0;
+	for (const count of dailyImpressions.values()) totalImpressions += count;
+
+	// Per-placement: sum collection impressions only from that placement's effective start
+	const impressionsSinceStart = new Map<string, number>();
 	for (const p of placements) {
-		for (let i = 0; i < p.slot_share; i++) {
-			weighted.push(p);
+		const effectiveStart = p.start_date > monthStart ? p.start_date : monthStart;
+		let sum = 0;
+		for (const [date, count] of dailyImpressions) {
+			if (date >= effectiveStart) sum += count;
 		}
-	}
-	if (weighted.length === 0) return null;
-
-	// Day number: days since Unix epoch (based on Oslo date string)
-	const osloDateStr = now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' }).slice(0, 10);
-	const dayNumber = Math.floor(new Date(osloDateStr).getTime() / 86400000);
-
-	// Simple string hash of collectionSlug for rotation offset between collections
-	let collectionHash = 0;
-	for (let i = 0; i < collectionSlug.length; i++) {
-		collectionHash = (collectionHash * 31 + collectionSlug.charCodeAt(i)) >>> 0;
+		impressionsSinceStart.set(p.id, sum);
 	}
 
-	const index = (dayNumber + collectionHash) % weighted.length;
-	return weighted[index];
+	// Sum per-placement promoted impressions this month
+	const impressionsByPlacement = new Map<string, number>();
+	for (const row of placementResult.data ?? []) {
+		const current = impressionsByPlacement.get(row.placement_id) ?? 0;
+		impressionsByPlacement.set(row.placement_id, current + row.impression_count);
+	}
+
+	return selectPromotedByDeficit(placements, totalImpressions, impressionsByPlacement, impressionsSinceStart);
 }
 
 /**
@@ -82,7 +171,7 @@ export async function logImpression(
 	collectionSlug: string,
 	venueName: string
 ): Promise<void> {
-	const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' }).slice(0, 10);
+	const today = getOsloToday();
 
 	const { error } = await supabase.rpc('log_placement_impression', {
 		p_placement_id: placementId,
@@ -93,5 +182,22 @@ export async function logImpression(
 
 	if (error) {
 		console.error('Failed to log placement impression:', error);
+	}
+}
+
+/**
+ * Logs a total page view for a collection page.
+ * Called on every collection page load — the denominator for impression-share calculations.
+ */
+export async function logCollectionImpression(collectionSlug: string): Promise<void> {
+	const today = getOsloToday();
+
+	const { error } = await supabase.rpc('log_collection_impression', {
+		p_collection_slug: collectionSlug,
+		p_log_date: today
+	});
+
+	if (error) {
+		console.error('Failed to log collection impression:', error);
 	}
 }
