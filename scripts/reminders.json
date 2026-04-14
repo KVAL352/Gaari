@@ -15,6 +15,11 @@
     "description": "Epost sendt 27. februar — forespørsel om scraping-tillatelse. Kun Intercom auto-svar mottatt. Venter på svar — send eventuell oppfølging nå (3 uker etter 7. april). Scraper klar (scripts/scrapers/tikkio.ts)."
   },
   {
+    "date": "2026-05-15",
+    "title": "Sjekk Bergen Street Food eventside",
+    "description": "Fabio (fabio@bergenstreetfood.no) sa eventsiden blir klar ~midten av mai, whitelabeled på bergenstreetfood.no. Sjekk om den er live. Hvis ja: lag scraper. Hvis nei: vent en uke til."
+  },
+  {
     "date": "2026-06-01",
     "title": "Kvartalsvis sikkerhetssjekk Q2 2026",
     "description": "1) Roter ADMIN_PASSWORD og ADMIN_SESSION_SECRET. 2) Roter CALENDAR_FEED_TOKEN. 3) Merg Dependabot-PRer. 4) npm audit i root og scripts/. 5) Sjekk Vercel CSP-logs. 6) Vurder å rotere GEMINI_API_KEY og RESEND_API_KEY."
