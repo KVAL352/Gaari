@@ -101,16 +101,13 @@
 			events = events.filter(e => e.age_group === 'family' || e.category === 'family' || familyTitleRe.test(e.title_no));
 		} else if (audience === 'ungdom') {
 			const youthRe = /\bungdom|\btenåring|\bteenåring|\bfor\s+unge?\b|\bunge?\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
-			const notYouthRe = /senior|pensjonist|baby(?:sang|svømming|massasje)|knøttekor|knottekor|bedrift|konferanse|næringsliv|\bstrategi\b|operasjonaliser|rekruttering|kompetanseutvikling|fremtidens\s+arbeidsplass|arbeidsplass\s+for\s+fremtiden/i;
-			const broadYouthCategories = new Set(['music', 'festival', 'student']);
 			events = events.filter(e => {
 				if (e.age_group === '18+') return false;
 				if (e.category === 'nightlife' || e.category === 'food') return false;
-				if (notYouthRe.test(e.title_no) || notYouthRe.test(e.description_no || '')) return false;
 				if (e.age_group === 'family' || e.category === 'family') return true;
-				if (e.age_group === 'students') return true;
+				if (e.age_group === 'students' || e.age_group === 'youth') return true;
 				if (youthRe.test(e.title_no) || youthRe.test(e.description_no)) return true;
-				return broadYouthCategories.has(e.category);
+				return false;
 			});
 		} else if (audience === 'student') {
 			events = events.filter(e => e.age_group === 'students' || e.category === 'student');

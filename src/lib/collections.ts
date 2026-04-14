@@ -85,8 +85,6 @@ const filterBorealis = (events: GaariEvent[]) => filterBySourceDomain(events, 'b
 
 const FAMILY_TITLE_RE = /familie|barnelørdag|barnas\s|for\s+barn|barneforestilling|barneteater|eventyrfortelling|barneaktivitet|dukketeater|klovn|sjørøver|trollkonsert/i;
 const YOUTH_TEXT_RE = /\bungdom|\btenåring|\bteenåring|\bfor\s+unge?\b|\bunge\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år|\bungdomshus|\bungdomsklubb|\b13\+|\b14\+|\b15\+/i;
-const YOUTH_BROAD_CATEGORIES = new Set(['music', 'festival', 'student']);
-const NOT_YOUTH_RE = /senior|pensjonist|baby(?:sang|svømming|massasje)|knøttekor|knottekor|bedrift|konferanse|næringsliv|\bstrategi\b|operasjonaliser|rekruttering|kompetanseutvikling|fremtidens\s+arbeidsplass|arbeidsplass\s+for\s+fremtiden/i;
 const INDOOR_CATEGORIES = new Set(['music', 'culture', 'theatre', 'family', 'food', 'workshop', 'nightlife', 'student']);
 
 // Exhibition / gallery filter — only true exhibition venues or exhibition-keyword titles
@@ -1486,11 +1484,10 @@ const collections: Collection[] = [
 				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				if (e.age_group === '18+') return false;
 				if (e.category === 'nightlife' || e.category === 'food') return false;
-				if (NOT_YOUTH_RE.test(e.title_no) || NOT_YOUTH_RE.test(e.description_no || '')) return false;
 				if (e.age_group === 'family' || e.category === 'family') return true;
-				if (e.age_group === 'youth') return true;
+				if (e.age_group === 'youth' || e.age_group === 'students') return true;
 				if (YOUTH_TEXT_RE.test(e.title_no) || YOUTH_TEXT_RE.test(e.description_no)) return true;
-				return YOUTH_BROAD_CATEGORIES.has(e.category);
+				return false;
 			});
 		}
 	},
