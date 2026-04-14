@@ -123,6 +123,15 @@ export function titlesMatch(a: string, b: string): boolean {
 		}
 	}
 
+	// Shared prefix match — catches same event with different venue suffixes
+	// e.g. "Litterær lunsj på biblioteket" vs "Litterær lunsj med KODE"
+	const minLen = Math.min(a.length, b.length);
+	if (minLen >= 14) {
+		let shared = 0;
+		while (shared < minLen && a[shared] === b[shared]) shared++;
+		if (shared >= 14 && shared >= minLen * 0.6) return true;
+	}
+
 	return false;
 }
 

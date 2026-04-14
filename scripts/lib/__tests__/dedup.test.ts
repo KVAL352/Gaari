@@ -60,6 +60,21 @@ describe('titlesMatch', () => {
 		expect(titlesMatch(short, long)).toBe(false);
 	});
 
+	it('matches same event with different venue suffixes via shared prefix', () => {
+		// "Litterær lunsj på Bergen offentlige bibliotek" vs "Litterær lunsj med KODE"
+		const a = normalizeTitle('Litterær lunsj på Bergen offentlige bibliotek');
+		const b = normalizeTitle('Litterær lunsj med KODE');
+		expect(titlesMatch(a, b)).toBe(true);
+	});
+
+	it('rejects different events that share a short prefix', () => {
+		// "Lørdag på museet: Dinosaurer" vs "Lørdag på museet: Sjøpirater"
+		// Different activities — should NOT match
+		const a = normalizeTitle('Lørdag på museet: Dinosaurer');
+		const b = normalizeTitle('Lørdag på museet: Sjøpirater');
+		expect(titlesMatch(a, b)).toBe(false);
+	});
+
 	it('does not match completely different titles', () => {
 		expect(titlesMatch('konsert grieghallen', 'fotball brann stadion')).toBe(false);
 	});
