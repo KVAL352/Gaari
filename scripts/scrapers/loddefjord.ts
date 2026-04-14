@@ -43,7 +43,7 @@ function guessCategory(event: LoddefjordEvent): string {
 function guessAgeGroup(event: LoddefjordEvent): string {
 	const targets = (event.targetNames || []).map((t: string) => t.toLowerCase());
 	if (targets.includes('barn') || targets.includes('familie')) return 'family';
-	if (targets.includes('ungdom')) return 'students';
+	if (targets.includes('ungdom')) return 'all';
 	return 'all';
 }
 
