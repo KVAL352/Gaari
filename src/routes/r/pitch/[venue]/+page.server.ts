@@ -61,9 +61,18 @@ export const load: PageServerLoad = async ({ params }) => {
 	if (dbError) throw error(500, 'Database error');
 
 	// Find events matching this venue (case-insensitive slug match)
+	// Supports both æøå URLs and ascii-normalized URLs (ø→o, æ→ae, å→a)
+	function slugify(s: string): string {
+		return s.toLowerCase().replace(/[^a-zæøå0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+	}
+	function slugifyAscii(s: string): string {
+		return s.toLowerCase().replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/å/g, 'a').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+	}
+
 	const allEvents = (data ?? []) as (VenueEvent & { venue_name: string })[];
 	const venueEvents = allEvents.filter(e =>
-		e.venue_name.toLowerCase().replace(/[^a-zæøå0-9]/g, '-').replace(/-+/g, '-') === slug
+		slugify(e.venue_name) === slug
+		|| slugifyAscii(e.venue_name) === slug
 		|| e.venue_name.toLowerCase() === slug
 	);
 
