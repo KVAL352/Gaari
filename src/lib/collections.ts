@@ -1485,7 +1485,7 @@ const collections: Collection[] = [
 				if (e.age_group === '18+') return false;
 				if (e.category === 'nightlife' || e.category === 'food') return false;
 				if (e.age_group === 'family' || e.category === 'family') return true;
-				if (e.age_group === 'youth' || e.age_group === 'students') return true;
+				if (e.age_group === 'youth') return true;
 				if (YOUTH_TEXT_RE.test(e.title_no) || YOUTH_TEXT_RE.test(e.description_no)) return true;
 				return false;
 			});

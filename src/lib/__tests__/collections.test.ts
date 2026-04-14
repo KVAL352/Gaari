@@ -559,13 +559,13 @@ describe('youth filter (for-ungdom)', () => {
 		expect(collection.filterEvents(events, now)).toHaveLength(0);
 	});
 
-	it('includes students age_group', () => {
+	it('excludes students age_group (students != ungdom 13-18)', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
 			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'music', age_group: 'students' }),
 			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', category: 'workshop', age_group: 'students' })
 		];
-		expect(collection.filterEvents(events, now)).toHaveLength(2);
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
 	});
 
 	it('excludes 18+, nightlife, food', () => {

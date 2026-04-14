@@ -71,7 +71,7 @@
 			if (e.age_group === '18+') return false;
 			if (e.category === 'nightlife' || e.category === 'food') return false;
 			if (e.age_group === 'family' || e.category === 'family') return true;
-			if (e.age_group === 'students' || e.age_group === 'youth') return true;
+			if (e.age_group === 'youth') return true;
 			const youthRe = /\bungdom|\btenåring|\bteenåring|\bfor\s+unge?\b|\bunge\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
 			if (youthRe.test(e.title_no) || youthRe.test(e.description_no)) return true;
 			return false;
