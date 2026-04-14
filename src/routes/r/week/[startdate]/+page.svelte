@@ -31,11 +31,20 @@
 		}).catch(() => {});
 	}
 
+	let resetConfirmPending = $state(false);
+	let resetTimeout: ReturnType<typeof setTimeout> | null = null;
+
 	function resetWeek() {
-		if (confirm('Nullstille hele uka?')) {
-			for (const k of Object.keys(posted)) delete posted[k];
-			fetch(`/api/posting-status?week=${weekId}`, { method: 'DELETE' }).catch(() => {});
+		if (!resetConfirmPending) {
+			resetConfirmPending = true;
+			resetTimeout = setTimeout(() => { resetConfirmPending = false; }, 3000);
+			return;
 		}
+		// Second click within 3s — actually reset
+		if (resetTimeout) clearTimeout(resetTimeout);
+		resetConfirmPending = false;
+		for (const k of Object.keys(posted)) delete posted[k];
+		fetch(`/api/posting-status?week=${weekId}`, { method: 'DELETE' }).catch(() => {});
 	}
 
 	async function copyCaption(slug: string, caption: string) {
@@ -72,6 +81,12 @@
 		return data.checklist.find(c => c.dateStr === dateStr && c.slug === slug);
 	}
 
+	/** Stable key for a story — uses filename from URL instead of array index */
+	function storyTaskKey(dateStr: string, slug: string, storyUrl: string): string {
+		const filename = storyUrl.split('/').pop()?.replace(/\.[^.]+$/, '') ?? '';
+		return `${dateStr}-${slug}-s-${filename}`;
+	}
+
 	// Total progress across all days (stories + FB groups)
 	const totalTasks = $derived(
 		activeDays.reduce((sum, d) => {
@@ -83,7 +98,7 @@
 		activeDays.reduce((sum, d) => {
 			const storyDay = storiesForDay(d.dateStr, d.slug);
 			const reelDone = (posted[`${d.dateStr}-${d.slug}-reel-ig`] ? 1 : 0) + (posted[`${d.dateStr}-${d.slug}-reel-fb`] ? 1 : 0);
-			const storiesDone = storyDay?.stories.filter((_, i) => posted[`${d.dateStr}-${d.slug}-${i}`]).length ?? 0;
+			const storiesDone = storyDay?.stories.filter((s) => posted[storyTaskKey(d.dateStr, d.slug, s.url)]).length ?? 0;
 			const groupsDone = groupsForSlug(d.slug).filter(g => posted[`${d.dateStr}-${d.slug}-fb-${g.id}`]).length;
 			return sum + reelDone + storiesDone + groupsDone;
 		}, 0)
@@ -121,7 +136,9 @@
 		</div>
 
 		<div class="top-actions">
-			<button type="button" class="reset-btn" onclick={resetWeek}>Nullstill alt</button>
+			<button type="button" class="reset-btn" class:confirm-pending={resetConfirmPending} onclick={resetWeek}>
+				{resetConfirmPending ? 'Trykk igjen for å bekrefte' : 'Nullstill alt'}
+			</button>
 		</div>
 
 		{#each data.manifest.days as day (day.dateStr + day.slug)}
@@ -214,7 +231,7 @@
 					<!-- Stories checklist -->
 					{@const storyDay = storiesForDay(day.dateStr, day.slug)}
 					{#if storyDay && storyDay.stories.length > 0}
-						{@const storyDone = storyDay.stories.filter((_, i) => posted[`${day.dateStr}-${day.slug}-${i}`]).length}
+						{@const storyDone = storyDay.stories.filter((s) => posted[storyTaskKey(day.dateStr, day.slug, s.url)]).length}
 						<div class="subsection">
 							<div class="subsection-header">
 								<h3>Stories</h3>
@@ -223,8 +240,8 @@
 								</span>
 							</div>
 							<div class="checklist-grid">
-								{#each storyDay.stories as story, i (story.url)}
-									{@const key = `${day.dateStr}-${day.slug}-${i}`}
+								{#each storyDay.stories as story (story.url)}
+									{@const key = storyTaskKey(day.dateStr, day.slug, story.url)}
 									{@const isDone = posted[key]}
 									<button type="button" class="checklist-item" class:done={isDone} onclick={() => togglePosted(key)}>
 										<img src={story.url} alt={story.title} loading="lazy" />
@@ -465,6 +482,12 @@
 	.reset-btn:hover {
 		border-color: #C82D2D;
 		color: #C82D2D;
+	}
+
+	.reset-btn.confirm-pending {
+		border-color: #C82D2D;
+		background: #C82D2D;
+		color: #fff;
 	}
 
 	.checklist-day-count {
