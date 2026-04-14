@@ -92,6 +92,7 @@
 | Bergen Pride | `bergenpride.ts` | Vev SPA HTML (daily program pages) + TicketCo subdomain |
 | BIFF | `biff.ts` | Filmgrail embedded JSON (Mars platform) |
 | Jungelfest | `jungelfest.ts` | TicketCo umbrella event description |
+| Generasjonsfestivalen | `generasjonsfestivalen.ts` | HTML program page, category-based classification |
 
 ## Other
 | Source | File | Method |
