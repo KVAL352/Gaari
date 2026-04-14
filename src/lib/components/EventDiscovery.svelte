@@ -70,12 +70,14 @@
 		counts.ungdom = activeEvents.filter(e => {
 			if (e.age_group === '18+') return false;
 			if (e.category === 'nightlife' || e.category === 'food') return false;
+			const notYouthRe = /senior|pensjonist|baby(?:sang|svømming|massasje)|knøttekor|knottekor|bedrift|konferanse|næringsliv|\bstrategi\b|operasjonaliser|rekruttering|kompetanseutvikling|fremtidens\s+arbeidsplass|arbeidsplass\s+for\s+fremtiden/i;
+			if (notYouthRe.test(e.title_no) || notYouthRe.test(e.description_no || '')) return false;
 			if (e.age_group === 'family' || e.category === 'family') return true;
-			const youthCategories = new Set(['sports', 'workshop', 'student']);
+			if (e.age_group === 'students') return true;
 			const youthRe = /\bungdom|\btenåring|\bteenåring|\bfor\s+unge?\b|\bunge\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
 			if (youthRe.test(e.title_no) || youthRe.test(e.description_no)) return true;
-			if (e.category === 'theatre') return false;
-			return youthCategories.has(e.category);
+			const broadYouthCategories = new Set(['music', 'festival', 'student']);
+			return broadYouthCategories.has(e.category);
 		}).length;
 		counts.voksen = activeEvents.filter(e => {
 			const voksenCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop', 'festival']);

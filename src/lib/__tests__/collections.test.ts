@@ -546,26 +546,36 @@ describe('youth filter (for-ungdom)', () => {
 		expect(collection.title.en).toContain('Teens');
 	});
 
-	it('includes youth-relevant categories within 2 weeks', () => {
+	it('includes broad youth categories (music, festival, student) within 2 weeks', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'sports', age_group: 'all' }),
-			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', category: 'workshop', age_group: 'all' }),
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'music', age_group: 'all' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', category: 'festival', age_group: 'all' }),
 			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'student', age_group: 'all' })
 		];
 		expect(collection.filterEvents(events, now)).toHaveLength(3);
 	});
 
-	it('excludes music, culture, festival without youth keywords but includes theatre', () => {
+	it('excludes sports, workshop, culture, theatre without youth keywords', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'music', age_group: 'all' }),
-			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', category: 'culture', age_group: 'all' }),
-			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'festival', age_group: 'all' }),
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', category: 'sports', age_group: 'all' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', category: 'workshop', age_group: 'all' }),
+			makeEvent({ id: '3', date_start: '2026-02-25T18:00:00Z', category: 'culture', age_group: 'all' }),
 			makeEvent({ id: '4', date_start: '2026-02-25T18:00:00Z', category: 'theatre', age_group: 'all' })
 		];
-		const result = collection.filterEvents(events, now);
-		expect(result.map(e => e.id)).toEqual(['4']);
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
+	});
+
+	it('excludes senior, business, and baby events even with included categories', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T18:00:00Z', title_no: 'Trening for seniorer', category: 'music' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T18:00:00Z', title_no: 'Bergen sikkerhetskonferanse', category: 'festival' }),
+			makeEvent({ id: '3', date_start: '2026-02-25T14:00:00Z', title_no: 'Babysang på biblioteket', category: 'family' }),
+			makeEvent({ id: '4', date_start: '2026-02-25T18:00:00Z', title_no: 'Næringsliv i Bergen', category: 'student' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
 	});
 
 	it('excludes 18+, nightlife, food', () => {
