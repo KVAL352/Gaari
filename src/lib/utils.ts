@@ -100,12 +100,43 @@ export function formatPrice(price: string | number | null, locale: 'no' | 'en' =
 
 // ── Tourist filter ──
 
-// Events requiring Norwegian comprehension — not suitable for tourists
-const REQUIRES_NORWEGIAN_RE = /\bquiz\b|konferanse|\bseminar\b|\bforfatt|\bforedrag\b|\bdebatt\b|\bstand.?up|\bstandup|\bkomiker\b|\bhumorshow\b|\bklubbkveld\b|\bsmingel\b|\bprevansjon\b|\bakvarell\b|\bhyttekos\b|på lerret|\bkoth\b|\bvoksenpoeng\b|\bkurs\b/i;
+// Norwegian-language-dependent entertainment — exclude even at tourist venues
+const REQUIRES_NORWEGIAN_RE = /\bquiz\b|konferanse|\bseminar\b|\bforfatt|\bforedrag\b|\bdebatt\b|\bstand.?up|\bstandup|\bkomiker\b|\bhumorshow\b|\bklubbkveld\b|\bsmingel\b|\bprevansjon\b|\bhyttekos\b|på lerret|\bkoth\b|\bvoksenpoeng\b|\bkurs\b|\blesesirkel|\blitterær|\bhøytlesning|\bhandarbeid|\bhåndarbeid|\bstrikk|\bdatahjelp|\blinedans|\bline.?dance|\bseniordans|\bboksalg|\btensing\b|\bseniortur|\bturvenner|\bfottur|\bklovertur|\bkløvertur|\bgåtur|\bgatur\b|\bsenior\b|\bfilmklubb\b|\bknottekor|\bungdomskveld|\blanseringsfest/i;
 
-export function isTouristFriendly(e: { title_no?: string; category?: string }): boolean {
-	if (REQUIRES_NORWEGIAN_RE.test(e.title_no || '')) return false;
-	return true;
+// Categories that don't require Norwegian comprehension
+const UNIVERSAL_CATEGORIES = new Set(['music', 'festival', 'nightlife', 'sports']);
+
+// Venues tourists would visit (partial match against venue_name)
+const TOURIST_VENUES = [
+	// Museums & galleries
+	'kode', 'permanenten', 'stenersen', 'lysverket', 'rasmus meyer', 'troldhaugen',
+	'bergen kunsthall', 'akvariet', 'vilvite', 'bryggens museum', 'bymuseet',
+	'hanseatiske', 'sjøfartsmuseet', 'fiskerimuseet', 'gamle bergen',
+	'lepramuseet', 'schøtstuene', 'damsgård', 'rosenkrantztårnet',
+	'håkonshallen', 'bergenhus festning', 'tekstilindustrimuseet', 'hordamuseet',
+	'lydgalleriet',
+	// Performance venues
+	'grieghallen', 'ole bull', 'dns', 'den nationale scene', 'forum scene',
+	'usf', 'sardinen', 'kulturhuset i bergen', 'det vestnorske teateret',
+	'cornerteateret', 'bit teatergarasjen', 'carte blanche',
+	'bergen kjøtt', 'oseana', 'konsertpaleet', 'studio bergen',
+	// Nightlife & bars
+	'hulen', 'madam felle', 'victoria', 'statsraaden', 'bodega',
+	'østre', 'kvarteret', 'landmark', 'fincken',
+	// Attractions & outdoor
+	'fløibanen', 'fløyen', 'ulriken', 'koengen', 'nordnes sjøbad',
+	// Cinema
+	'bergen kino', 'cinemateket',
+	// Food
+	'stene matglede', 'colonialen',
+];
+
+export function isTouristFriendly(e: { title_no?: string; category?: string; venue_name?: string }): boolean {
+	const title = e.title_no || '';
+	if (REQUIRES_NORWEGIAN_RE.test(title)) return false;
+	if (UNIVERSAL_CATEGORIES.has(e.category || '')) return true;
+	const venue = (e.venue_name || '').toLowerCase();
+	return TOURIST_VENUES.some(v => venue.includes(v));
 }
 
 export function isFreeEvent(price: string | number | null): boolean {
