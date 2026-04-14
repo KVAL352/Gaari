@@ -110,7 +110,15 @@
 				return false;
 			});
 		} else if (audience === 'student') {
-			events = events.filter(e => e.age_group === 'students' || e.category === 'student');
+			const studentVenueRe = /\b(Det\s+Akademiske\s+Kvarter|Kvarteret\b|Hulen\b|Madam\s+Felle|Café\s+Opera|Cafe\s+Opera|Kronbar|Studentersamfunnet|Bergens?\s+Studentersamfunn|Stud[\s-]?vik|StudentBergen|UiB\b|HVL\b|NHH\b|Studentkroa)\b/i;
+			const ageRangeRe = /\((\d{1,2})\s*[-–]\s*(\d{1,2})\s*år\)/i;
+			events = events.filter(e => {
+				const ageMatch = (e.title_no || '').match(ageRangeRe);
+				if (ageMatch && parseInt(ageMatch[1], 10) > 25) return false;
+				if (ageMatch) return true;
+				if (e.age_group === 'students' || e.category === 'student') return true;
+				return studentVenueRe.test(e.venue_name || '');
+			});
 		} else if (audience === 'tourist') {
 			events = events.filter(e => isTouristFriendly(e));
 		} else if (audience === 'voksen') {
