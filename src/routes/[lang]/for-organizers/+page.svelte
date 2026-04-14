@@ -38,7 +38,7 @@
 	<meta name="twitter:description" content={ogDesc} />
 	<meta name="twitter:image" content={ogImage} />
 	<!-- eslint-disable svelte/no-at-html-tags -- server-generated JSON-LD, no user input -->
-	{@html faqJsonLd}
+	{@html '<script type="application/ld+json">' + faqJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <ForArrangorerPage heroImages={data.heroImages} />
