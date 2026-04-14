@@ -19,6 +19,7 @@
 ## Content pages (social)
 - `/r/[date]/[slug]/` — Per-day reel + stories landing page. Not in sitemap.
 - `/r/week/[startdate]/` — Weekly aggregate page for batch posting.
+- `/r/pitch/[venue]/` — B2B pitch report per venue. Dynamic, noindex. Shows events, mockups of promoted placement on collection pages and newsletter, Standard package details. Venue slug supports both æøå and ascii-normalized URLs.
 
 ## Admin (all protected by HMAC cookie)
 - `/admin/corrections` — Correction review
