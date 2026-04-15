@@ -40,42 +40,14 @@
 	});
 
 	let grouped = $derived.by(() => {
-		// Exclude promoted events from date groups (they're shown above)
-		const regularEvents = promotedIdSet.size > 0
-			? events.filter(e => !promotedIdSet.has(e.id))
-			: events;
-		const groups = groupEventsByDate(regularEvents);
+		const groups = groupEventsByDate(events);
 		return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
 	});
 
 	let canHide = $derived(!!onHideEvent);
 
-	// Separate promoted events from regular flow
-	let promotedEvents = $derived(
-		promotedEventIds.length > 0
-			? events.filter(e => promotedEventIds.includes(e.id))
-			: []
-	);
 	let promotedIdSet = $derived(new Set(promotedEventIds));
 </script>
-
-{#if promotedEvents.length > 0}
-	<section class="mb-8">
-		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each promotedEvents as event (event.id)}
-				<EventCard
-					{event}
-					eager={true}
-					promoted={true}
-					{studentContext}
-					onHideEvent={canHide ? onHideEvent : undefined}
-					onHideVenue={canHide ? onHideVenue : undefined}
-					onHideCategory={canHide ? onHideCategory : undefined}
-				/>
-			{/each}
-		</ul>
-	</section>
-{/if}
 
 {#each grouped as [dateKey, dayEvents], groupIdx (dateKey)}
 	{#if showNewsletterCta && groupIdx === 3}
@@ -98,7 +70,7 @@
 				<EventCard
 					{event}
 					eager={groupIdx === 0 && i < 4}
-					promoted={promotedEventIds.includes(event.id)}
+					promoted={promotedIdSet.has(event.id)}
 					{studentContext}
 					onHideEvent={canHide ? onHideEvent : undefined}
 					onHideVenue={canHide ? onHideVenue : undefined}
