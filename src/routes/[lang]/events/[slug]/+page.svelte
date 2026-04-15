@@ -214,6 +214,7 @@
 	<title>{metaTitle}</title>
 	<meta name="description" content={metaDescription} />
 	<link rel="canonical" href={canonicalUrl} />
+	<meta name="googlebot" content="unavailable_after: {new Date(new Date(event.date_end || event.date_start).getTime() + 14 * 86400000).toUTCString()}" />
 	<meta property="og:title" content={metaTitle} />
 	<meta property="og:description" content={metaDescription} />
 	<meta property="og:type" content="event" />

@@ -61,7 +61,8 @@
 	}) : null);
 
 	let faqItems = $derived(data.collection.faq?.[ssrLang] ?? []);
-	let faqJsonLd = $derived(faqItems.length > 0 ? generateFaqJsonLdFromItems(faqItems) : null);
+	// FAQPage schema removed — Google restricted FAQ rich results to govt/health sites (Aug 2023).
+	// FAQ content is still rendered on-page for users and AI crawlers.
 	let quickAnswerBase = $derived(data.collection.quickAnswer?.[ssrLang] ?? '');
 	let quickAnswer = $derived(
 		quickAnswerBase && data.events.length > 0
@@ -147,6 +148,9 @@
 	<title>{title} — Gåri</title>
 	<meta name="description" content={description} />
 	<link rel="canonical" href={canonicalUrl} />
+	{#if data.events.length === 0 && !data.collection.seasonal && !data.collection.offSeasonHint}
+	<meta name="robots" content="noindex, follow" />
+	{/if}
 	<meta property="og:title" content={`${title} — Gåri`} />
 	<meta property="og:description" content={description} />
 	<meta property="og:image" content={`${$page.url.origin}/og/c/${data.collection.slug}.png${ssrLang === 'en' ? '?lang=en' : ''}`} />
@@ -160,7 +164,6 @@
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + collectionJsonLd + '</scr' + 'ipt>'}
 	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}
-	{#if faqJsonLd}{@html '<script type="application/ld+json">' + faqJsonLd + '</scr' + 'ipt>'}{/if}
 	{#if articleJsonLd}{@html '<script type="application/ld+json">' + articleJsonLd + '</scr' + 'ipt>'}{/if}
 </svelte:head>
 

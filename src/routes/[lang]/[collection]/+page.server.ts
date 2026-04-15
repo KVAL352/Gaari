@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 		throw redirect(301, `/${params.lang}/${canonicalSlug}`);
 	}
 
-	setHeaders({ 'cache-control': 's-maxage=300, stale-while-revalidate=600' });
+	setHeaders({ 'cache-control': 's-maxage=3600, stale-while-revalidate=7200' });
 
 	let events: GaariEvent[];
 

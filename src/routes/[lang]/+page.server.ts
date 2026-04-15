@@ -4,7 +4,7 @@ import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ setHeaders, params }) => {
-	setHeaders({ 'cache-control': 's-maxage=300, stale-while-revalidate=600' });
+	setHeaders({ 'cache-control': 's-maxage=3600, stale-while-revalidate=7200' });
 
 	const lang = params.lang === 'en' ? 'en' : 'no';
 

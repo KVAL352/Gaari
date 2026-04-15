@@ -1,14 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { lang } from '$lib/i18n';
-	import { getCanonicalUrl, generateB2bFaqJsonLd } from '$lib/seo';
+	import { getCanonicalUrl } from '$lib/seo';
 	import ForArrangorerPage from '$lib/components/ForArrangorerPage.svelte';
 
 	let { data } = $props();
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/for-arrangorer`));
-	let faqJsonLd = $derived(generateB2bFaqJsonLd($lang));
-
 	let title = $derived($lang === 'no' ? 'For arrangører — Gåri' : 'For organizers — Gåri');
 	let metaDesc = $derived($lang === 'no'
 		? 'Fremhevet plassering i Bergens mest komplette eventkalender. Fra 1 000 kr/mnd. Prøv gratis i 3 måneder. Ingen bindingstid.'
@@ -37,8 +35,6 @@
 	<meta name="twitter:title" content={title} />
 	<meta name="twitter:description" content={ogDesc} />
 	<meta name="twitter:image" content={ogImage} />
-	<!-- eslint-disable svelte/no-at-html-tags -- server-generated JSON-LD, no user input -->
-	{@html '<script type="application/ld+json">' + faqJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <ForArrangorerPage heroImages={data.heroImages} venueEventsMap={data.venueEventsMap} />

@@ -388,7 +388,6 @@
 	<meta property="og:image:height" content="630" />
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}
-	{@html '<script type="application/ld+json">' + faqJsonLd + '</scr' + 'ipt>'}
 	{@html '<script type="application/ld+json">' + guideCollectionJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 

@@ -2,7 +2,6 @@ import { redirect } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = () => {
-	// Detect language on server — default to Norwegian
-	// Client-side detection happens in the [lang] layout
-	redirect(307, '/no');
+	// Root → /no default; Accept-Language redirect handled in hooks.server.ts
+	redirect(302, '/no');
 };

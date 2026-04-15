@@ -42,7 +42,7 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 		const related: GaariEvent[] = (relatedData || []).map(mapPrice);
 
 		setHeaders({
-			'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200'
+			'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200'
 		});
 
 		return { event: mapped, related };

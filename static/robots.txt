@@ -3,6 +3,9 @@ Allow: /
 Disallow: /no/submit
 Disallow: /en/submit
 Disallow: /admin/
+Disallow: /api/
+Disallow: /no/submit/
+Disallow: /en/submit/
 
 # Cloudflare Content Signals — allow AI search citation, disallow training
 Content-Signal: search=yes, ai-input=yes, ai-train=no

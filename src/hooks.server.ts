@@ -145,6 +145,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 		redirect(302, `https://gaari.no/no/${collection}?utm_source=sticker&utm_medium=qr`);
 	}
 
+	// Root URL: 302 redirect based on Accept-Language (not 301 — destination varies per user)
+	if (event.url.pathname === '/' && (host === 'gaari.no' || host === 'localhost')) {
+		const acceptLang = event.request.headers.get('accept-language') ?? '';
+		const prefersEnglish = /^en\b/i.test(acceptLang) && !/^(no|nb|nn)\b/i.test(acceptLang);
+		redirect(302, prefersEnglish ? '/en' : '/no');
+	}
+
 	// 301-redirect non-canonical domains (gåri.no, www) to gaari.no
 	if (host && host !== 'gaari.no' && host !== 'localhost') {
 		const url = new URL(event.request.url);

@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
-	import { generateOrganizationJsonLd, generateFaqJsonLd, getFaqItems, getCanonicalUrl } from '$lib/seo';
+	import { generateOrganizationJsonLd, getFaqItems, getCanonicalUrl } from '$lib/seo';
 	import { SOURCE_COUNT } from '$lib/constants';
 	import { Mail } from 'lucide-svelte';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/about`));
 	let orgJsonLd = generateOrganizationJsonLd();
-	let faqJsonLd = $derived(generateFaqJsonLd($lang));
+	// FAQPage schema removed — Google restricted FAQ rich results (Aug 2023)
 	let faqItems = $derived(getFaqItems($lang));
 </script>
 
@@ -33,7 +33,6 @@
 	<meta name="twitter:image" content={`${$page.url.origin}/og/default.png`} />
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + orgJsonLd + '</scr' + 'ipt>'}
-	{@html '<script type="application/ld+json">' + faqJsonLd + '</scr' + 'ipt>'}
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">
