@@ -206,7 +206,7 @@
 			<div class="flex items-center justify-between">
 			<span class="tabular-nums text-sm font-semibold">{priceText}</span>
 				{#if showStudentPriceBadge}
-					<span class="ml-2 inline-flex items-center rounded-md bg-[var(--color-primary)] px-1.5 py-0.5 text-[0.625rem] font-medium text-white">{$t('studentPrice')}</span>
+					<span class="ml-2 inline-flex items-center rounded-md bg-[var(--color-accent)] px-1.5 py-0.5 text-[0.625rem] font-medium text-white">{$t('studentPrice')}</span>
 				{/if}
 			<div class="pointer-events-auto flex items-center gap-1">
 				<CalendarDropdown event={calendarData} compact />
