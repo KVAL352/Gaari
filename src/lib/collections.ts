@@ -3620,7 +3620,7 @@ const collections: Collection[] = [
 			]
 		},
 		filterEvents: (events, now) => {
-			const tomorrowStr = addDays(toOsloDateStr(now), 1);
+			const tomorrowStr = toOsloDateStr(addDays(now, 1));
 			return events.filter(e => eventOnDay(e, tomorrowStr));
 		}
 	}
