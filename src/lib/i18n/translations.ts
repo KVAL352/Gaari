@@ -4,6 +4,7 @@ export const translations = {
 		siteName: 'Gåri',
 		tagline: 'Ke\u2019 det går i, Bergen?',
 		heroSubtitle: 'Hva skjer i Bergen? Alle arrangementer på ett sted',
+		homeSeoTitle: 'Hva skjer i Bergen? Arrangementer i dag og denne uken — Gåri',
 
 		// Navigation
 		explore: 'Utforsk',
@@ -237,6 +238,7 @@ export const translations = {
 		siteName: 'Gåri',
 		tagline: 'What\'s happening in Bergen?',
 		heroSubtitle: 'What\u2019s on in Bergen? All events in one place',
+		homeSeoTitle: 'What\u2019s On in Bergen? Events Today and This Week — Gåri',
 
 		explore: 'Explore',
 		categories: 'Categories',

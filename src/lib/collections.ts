@@ -369,12 +369,12 @@ const collections: Collection[] = [
 		id: 'family-weekend',
 		slug: 'familiehelg',
 		title: {
-			no: 'Familiehelg i Bergen',
-			en: 'Family Weekend in Bergen'
+			no: 'Ting å gjøre med barn i Bergen',
+			en: 'Things to Do With Kids in Bergen'
 		},
 		description: {
-			no: 'Hva gjøre med barn i Bergen denne helgen? Barneforestillinger, museumsaktiviteter og familieopplevelser.',
-			en: 'Things to do with kids in Bergen this weekend — children\'s shows, museum activities and family experiences.'
+			no: 'Familieaktiviteter i Bergen denne helgen — barneforestillinger, museumsaktiviteter og familieopplevelser.',
+			en: 'Family activities in Bergen this weekend — children\'s shows, museum activities and family experiences.'
 		},
 		ogSubtitle: {
 			no: 'For hele familien',
@@ -430,12 +430,12 @@ const collections: Collection[] = [
 		id: 'concerts',
 		slug: 'konserter',
 		title: {
-			no: 'Konserter i Bergen denne uken',
-			en: 'Concerts in Bergen This Week'
+			no: 'Konserter i Bergen',
+			en: 'Concerts in Bergen'
 		},
 		description: {
-			no: 'Livemusikk i Bergen — Grieghallen, Ole Bull, Hulen, USF Verftet og flere scener. Oppdatert daglig fra 55 kilder.',
-			en: 'Live music in Bergen — Grieghallen, Ole Bull, Hulen, USF Verftet and more venues. Updated daily from 55 sources.'
+			no: 'Konserter og livemusikk i Bergen — Grieghallen, Ole Bull, Hulen, USF Verftet og flere scener. Oppdatert daglig fra 55 kilder.',
+			en: 'Concerts and live music in Bergen — Grieghallen, Ole Bull, Hulen, USF Verftet and more venues. Updated daily from 55 sources.'
 		},
 		ogSubtitle: {
 			no: 'Livemusikk de neste to ukene',
@@ -744,7 +744,7 @@ const collections: Collection[] = [
 		slug: 'free-things-to-do-bergen',
 		title: {
 			no: 'Gratis i Bergen',
-			en: 'Free Things to Do in Bergen This Week'
+			en: 'Free Things to Do in Bergen'
 		},
 		description: {
 			no: 'Gratis arrangementer i Bergen — utstillinger, konserter, turer og aktiviteter. Ingen billett nødvendig.',

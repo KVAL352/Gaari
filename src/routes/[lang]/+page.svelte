@@ -335,18 +335,18 @@
 </script>
 
 <svelte:head>
-	<title>Gåri — {$t('tagline')}</title>
+	<title>{$t('homeSeoTitle')}</title>
 	<meta name="description" content={homeDescription} />
 	<link rel="canonical" href={canonicalInfo.canonical} />
 	{#if canonicalInfo.noindex}<meta name="robots" content="noindex, follow" />{/if}
-	<meta property="og:title" content={`Gåri — ${$t('tagline')}`} />
+	<meta property="og:title" content={$t('homeSeoTitle')} />
 	<meta property="og:description" content={homeDescription} />
 	<meta property="og:image" content={`${page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta property="article:modified_time" content={new Date().toISOString()} />
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content={`Gåri — ${$t('tagline')}`} />
+	<meta name="twitter:title" content={$t('homeSeoTitle')} />
 	<meta name="twitter:description" content={homeDescription} />
 	<meta name="twitter:image" content={`${page.url.origin}/og/default.png`} />
 	{#if displayedEvents[0]?.image_url}
