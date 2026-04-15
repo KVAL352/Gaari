@@ -93,6 +93,8 @@
 		return '';
 	});
 
+	let venueCount = $derived(new Set(data.events.map(e => e.venue_name).filter(Boolean)).size);
+
 	let relatedCollections: Collection[] = $derived(
 		(data.collection.relatedSlugs ?? [])
 			.map((slug: string) => getCollection(slug))
@@ -168,40 +170,25 @@
 </svelte:head>
 
 <!-- Hero section -->
-<section class="mx-auto max-w-7xl px-4 pb-2 pt-8 sm:pt-12">
-	<h1 class="text-3xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-4xl" style="font-family: var(--font-display)">
-		{title}
-	</h1>
-	{#if dateHint}
-		<p class="mt-1 text-lg font-medium text-[var(--color-text-secondary)]">{dateHint}</p>
-	{/if}
-	<p class="mt-2 text-[var(--color-text-secondary)]">
+<section class="mx-auto max-w-7xl px-4 pb-4 pt-8 sm:pt-12">
+	<div class="border-l-4 border-[var(--color-accent)] pl-3">
+		<h1 class="text-3xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-4xl" style="font-family: var(--font-display)">
+			{title}
+		</h1>
+		{#if dateHint}
+			<p class="mt-1 text-lg font-medium text-[var(--color-text-secondary)]">{dateHint}</p>
+		{/if}
+	</div>
+	<p class="mt-3 max-w-2xl text-[var(--color-text-secondary)]">
 		{description}
 	</p>
-	<p class="mt-1 text-sm text-[var(--color-text-muted)]">
-		{data.events.length} {$t('events')} · {$lang === 'no' ? 'Oppdatert' : 'Updated'} {new Date().toLocaleDateString($lang === 'no' ? 'nb-NO' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-	</p>
 	{#if quickAnswer}
-	<p class="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">{quickAnswer}</p>
+	<p class="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">{quickAnswer}</p>
 	{/if}
-	{#if data.events.length > 0}
-	<p class="mt-2 text-sm text-[var(--color-text-muted)]">
-		{ssrLang === 'no' ? 'Oppdateres ukentlig i nyhetsbrevet.' : 'Updated weekly in the newsletter.'}
-		<a href="#newsletter-cta" class="font-medium text-[var(--color-accent)] underline underline-offset-2">
-			{ssrLang === 'no' ? 'Meld deg p\u00e5' : 'Sign up'}
-		</a>
+	<p class="mt-2 flex flex-wrap gap-x-2 text-xs text-[var(--color-text-muted)]">
+		<span>{data.events.length} {$t('events')}{venueCount > 1 ? ` ${$lang === 'no' ? 'fra' : 'from'} ${venueCount} ${$lang === 'no' ? 'scener' : 'venues'}` : ''}</span>
+		<span>· {$lang === 'no' ? 'Sist sjekket' : 'Last checked'} {new Date().toLocaleDateString($lang === 'no' ? 'nb-NO' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
 	</p>
-	{/if}
-	{#if editorial.length > 0}
-	<details class="mt-2 max-w-2xl">
-		<summary class="cursor-pointer text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">
-			{$lang === 'no' ? 'Les mer' : 'Read more'}
-		</summary>
-		<div class="mt-2 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-			<p>{editorial[0]}</p>
-		</div>
-	</details>
-	{/if}
 </section>
 
 {#if hubGrouped.length > 0}
@@ -264,7 +251,7 @@
 {:else}
 <div class="mx-auto max-w-7xl px-4 py-6" aria-live="polite" aria-atomic="true">
 	{#if data.events.length === 0}
-		<div class="px-4 py-10">
+		<div class="py-10">
 			<div class="mb-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-6 max-w-lg">
 				{#if data.collection.offSeasonHint?.[ssrLang]}
 					<p class="mb-4 text-[var(--color-text-secondary)]">{data.collection.offSeasonHint[ssrLang]}</p>
@@ -302,40 +289,12 @@
 		<EventGrid events={displayedEvents} promotedEventIds={data.promotedEventIds} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} />
 		<LoadMore shown={displayedEvents.length} total={data.events.length} href={nextPageHref} />
 
-		{#if relatedCollections.length > 0}
-		<nav class="mt-10" aria-label={ssrLang === 'no' ? 'Utforsk flere samlinger' : 'Explore more collections'}>
-			<h2 class="mb-3 text-base font-semibold text-[var(--color-text-primary)]">
-				{ssrLang === 'no' ? 'Utforsk mer' : 'Explore more'}
-			</h2>
-			<ul class="flex flex-wrap gap-2">
-				{#each relatedCollections as related (related.slug)}
-				<li>
-					<a
-						href="/{ssrLang}/{related.slug}"
-						class="inline-block rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
-					>
-						{related.title[ssrLang]}
-					</a>
-				</li>
-				{/each}
-			</ul>
-		</nav>
-		{/if}
-
-		<div class="mt-6 text-center">
-			<a
-				href="/{$lang}"
-				class="text-sm font-medium text-[var(--color-text-secondary)] underline transition-colors hover:text-[var(--color-text-primary)]"
-			>
-				{$t('seeAllEvents')}
-			</a>
-		</div>
 	{/if}
 </div>
 {/if}
 
 <!-- Newsletter CTA -->
-<div id="newsletter-cta" class="mx-auto max-w-7xl px-4 pt-4">
+<div id="newsletter-cta" class="mx-auto max-w-7xl px-4 pt-8">
 	<NewsletterCTA
 		id="collection"
 		variant="card"
@@ -344,22 +303,28 @@
 </div>
 
 <div bind:this={scrollSentinel}></div>
-{#if editorial.length > 1 || faqItems.length > 0 || relatedCollections.length > 0}
+{#if editorial.length > 0 || faqItems.length > 0 || relatedCollections.length > 0}
 <section class="mx-auto max-w-7xl px-4 pb-16 pt-8 border-t border-[var(--color-border)]">
 	<div class="max-w-2xl">
-		{#if editorial.length > 1}
+		{#if editorial.length > 0}
+		<h2 class="mb-4 text-lg font-semibold text-[var(--color-text-primary)]" style="font-family: var(--font-display)">
+			{$lang === 'no' ? `Om ${baseTitle.toLowerCase()}` : `About ${baseTitle.toLowerCase()}`}
+		</h2>
 		<div class="mb-10 space-y-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-			{#each editorial.slice(1) as para, i (i)}
+			{#each editorial as para, i (i)}
 			<p>{para}</p>
 			{/each}
 		</div>
 		{/if}
 
 		{#if faqItems.length > 0}
+		{#if editorial.length > 0}
+		<hr class="mb-8 border-[var(--color-border-subtle)]" />
+		{/if}
 		<div class="space-y-6">
 			{#each faqItems as item (item.q)}
 			<div>
-				<h2 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">{item.q}</h2>
+				<h3 class="mb-1 text-base font-semibold text-[var(--color-text-primary)]">{item.q}</h3>
 				<p class="text-sm leading-relaxed text-[var(--color-text-secondary)]">{item.a}</p>
 			</div>
 			{/each}
@@ -369,7 +334,7 @@
 		{#if relatedCollections.length > 0}
 		<nav class="mt-10" aria-label={ssrLang === 'no' ? 'Relaterte samlinger' : 'Related collections'}>
 			<h2 class="mb-3 text-base font-semibold text-[var(--color-text-primary)]">
-				{ssrLang === 'no' ? 'Utforsk også' : 'Also explore'}
+				{ssrLang === 'no' ? 'Mer i Bergen' : 'More in Bergen'}
 			</h2>
 			<ul class="flex flex-wrap gap-2">
 				{#each relatedCollections as related (related.slug)}
