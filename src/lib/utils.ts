@@ -372,10 +372,13 @@ export function getDateKey(dateStr: string): string {
 	return dateStr.slice(0, 10);
 }
 
-export function groupEventsByDate<T extends { date_start: string }>(events: T[]): Map<string, T[]> {
+export function groupEventsByDate<T extends { date_start: string; date_end?: string }>(events: T[], clampToToday = false): Map<string, T[]> {
+	const today = clampToToday ? new Date().toISOString().slice(0, 10) : '';
 	const groups = new Map<string, T[]>();
 	for (const event of events) {
-		const key = getDateKey(event.date_start);
+		let key = getDateKey(event.date_start);
+		// Ongoing multi-day events (date_start passed, date_end future): group under today
+		if (clampToToday && key < today && event.date_end) key = today;
 		if (!groups.has(key)) groups.set(key, []);
 		groups.get(key)!.push(event);
 	}

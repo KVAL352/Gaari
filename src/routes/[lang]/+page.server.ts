@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 
 		// Floor for date_start: reject events that started more than 60 days ago.
 		// Long-running series with stale date_start pollute results and sort order.
-		const startFloor = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+		const startFloor = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
 
 		const { data: page1, error } = await supabase
 			.from('events')

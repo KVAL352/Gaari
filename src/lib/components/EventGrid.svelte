@@ -51,7 +51,7 @@
 		const regularEvents = promotedIdSet.size > 0
 			? events.filter(e => !promotedIdSet.has(e.id))
 			: events;
-		const groups = groupEventsByDate(regularEvents);
+		const groups = groupEventsByDate(regularEvents, true);
 		return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
 	});
 

@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 		const nowUtc = new Date().toISOString();
 		// Floor for date_start: reject events that started more than 60 days ago.
 		// Long-running series (e.g. weekly clubs) with stale date_start pollute results.
-		const startFloor = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+		const startFloor = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
 		const collFields = 'id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,source_url,image_url,age_group,language,status,is_sold_out';
 		const PAGE = 1000;
 
@@ -62,18 +62,10 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 		}
 
 		if (allData.length > 0) {
-			// For multi-day events where date_start has passed, use today as
-			// effective sort date so they appear alongside current events.
-			const todayKey = nowUtc.slice(0, 10);
-			events = allData.map(e => {
-				const startKey = e.date_start.slice(0, 10);
-				const effectiveStart = (e.date_end && startKey < todayKey) ? todayKey + e.date_start.slice(10) : e.date_start;
-				return {
-					...e,
-					date_start: effectiveStart,
-					price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
-				};
-			});
+			events = allData.map(e => ({
+				...e,
+				price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
+			}));
 		} else {
 			events = seedEvents;
 		}
@@ -86,6 +78,15 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 	const active = events.filter(e => e.status !== 'cancelled' && e.status !== 'expired');
 	const now = getOsloNow();
 	let filtered = collection.filterEvents(active, now);
+
+	// Sort: for multi-day events where date_start has passed, treat them as
+	// starting today so they sort alongside current events instead of at the top.
+	const todayKey = now.toISOString().slice(0, 10);
+	filtered.sort((a, b) => {
+		const aKey = (a.date_end && a.date_start.slice(0, 10) < todayKey) ? todayKey : a.date_start.slice(0, 10);
+		const bKey = (b.date_end && b.date_start.slice(0, 10) < todayKey) ? todayKey : b.date_start.slice(0, 10);
+		return aKey < bKey ? -1 : aKey > bKey ? 1 : a.date_start.localeCompare(b.date_start);
+	});
 
 	// Log collection page view (denominator for impression-share calculations)
 	let clientIp = '';

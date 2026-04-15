@@ -99,10 +99,19 @@ export function getContextualHighlight(now: Date): string {
 	return '';
 }
 
-/** Check if an event (with optional date_end) overlaps a date range [from, to] (YYYY-MM-DD strings) */
+/** Check if an event (with optional date_end) overlaps a date range [from, to] (YYYY-MM-DD strings).
+ *  Long-running series (>14 days) only match if date_start falls in the range —
+ *  they are recurring series (weekly clubs), not genuine multi-day events. */
 export function eventOverlapsRange(e: { date_start: string; date_end?: string }, from: string, to: string): boolean {
 	const start = e.date_start.slice(0, 10);
 	const end = e.date_end ? e.date_end.slice(0, 10) : start;
+	// Long-running series: only match on date_start
+	if (e.date_end) {
+		const durationDays = (new Date(end).getTime() - new Date(start).getTime()) / 86400000;
+		if (durationDays > 14) {
+			return start >= from && start <= to;
+		}
+	}
 	return start <= to && end >= from;
 }
 
