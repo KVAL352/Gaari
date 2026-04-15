@@ -1,7 +1,7 @@
 # Frontend Routes
 
 ## Public pages
-- `/[lang]/` — Main event listing with EventDiscovery filter. **Server-side loaded**, ISR cached (`s-maxage=300, stale-while-revalidate=600`).
+- `/[lang]/` — Main event listing with EventDiscovery filter. **Server-side loaded**, ISR cached (`s-maxage=3600, stale-while-revalidate=7200`).
 - `/[lang]/about/` — About page. **Prerendered**.
 - `/[lang]/guide/` — Events hub page with links to all collections. FAQ for "hva skjer i Bergen" queries. **Prerendered**.
 - `/[lang]/datainnsamling/` — Data transparency page (opt-out form). Form action `?/optout`.
@@ -10,7 +10,7 @@
 - `/[lang]/nyhetsbrev/preferanser/` — Newsletter preferences. HMAC-signed token required. **Server-side loaded**.
 - `/[lang]/submit/` — Event submission form (noindex). Only page with client-side Supabase (image uploads).
 - `/[lang]/events/[slug]/` — Event detail page with related events, contextual collection link, OG image. **Server-side loaded**. Correction form action `?/correction`.
-- `/[lang]/[collection]/` — 53 collection landing pages. **Server-side loaded**, ISR cached. Config in `$lib/collections.ts`. Cross-language slug redirect. Off-season pages show related collections + hint card.
+- `/[lang]/[collection]/` — 59 collection landing pages (incl. quiz, stand-up, festivaler hub, foredrag, i-morgen, ting-a-gjore). **Server-side loaded**, ISR cached (`s-maxage=3600`). Config in `$lib/collections.ts`. Cross-language slug redirect. Hub layout for festivaler. EN aliases via SLUG_ALIASES. Noindex on empty non-seasonal pages.
 - `/[lang]/venue/[venue]/` — Top 15 venue pages with LocalBusiness JSON-LD, upcoming events, map link. Config in `$lib/venues.ts`.
 - `/[lang]/denne-uken/[uke]/` — Weekly blog post (year-week format, e.g. `2026-16`). Article JSON-LD, auto-generated from event data.
 - `/[lang]/lenker/` — Link-in-bio page for Instagram/Facebook. Prerendered. UTM-tagged links.
