@@ -5,15 +5,57 @@
 	import { getCollection, type Collection } from '$lib/collections';
 	import { getOsloNow, getWeekendDates } from '$lib/event-filters';
 	import EventGrid from '$lib/components/EventGrid.svelte';
+	import FilterBar from '$lib/components/FilterBar.svelte';
 	import LoadMore from '$lib/components/LoadMore.svelte';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
+	import type { Category, Bydel } from '$lib/types';
 
 	let { data } = $props();
 
+	// ── Client-side filters ──
+	const CATEGORY_COLLECTIONS = new Set(['music', 'culture', 'theatre', 'family', 'food', 'festival', 'sports', 'nightlife', 'workshop', 'student', 'tours']);
+	const BYDEL_COLLECTIONS = new Set(['sentrum', 'bergenhus', 'fana', 'ytrebygda', 'laksevag', 'fyllingsdalen', 'asane', 'arna']);
+
+	let filterCategory = $state<Category | ''>('');
+	let filterBydel = $state<Bydel | ''>('');
+	let filterPrice = $state('');
+
+	// Determine which filters to hide based on collection type
+	let hideFields = $derived.by(() => {
+		const id = data.collection.id;
+		const hide: string[] = ['audience'];
+		if (CATEGORY_COLLECTIONS.has(id)) hide.push('category');
+		if (BYDEL_COLLECTIONS.has(id)) hide.push('bydel');
+		return hide;
+	});
+
+	let showFilters = $derived(!data.hubItems?.length && data.events.length > 3);
+
+	let filteredEvents = $derived.by(() => {
+		let events = data.events;
+		if (filterCategory) events = events.filter(e => e.category === filterCategory);
+		if (filterBydel) events = events.filter(e => e.bydel === filterBydel);
+		if (filterPrice === 'free') events = events.filter(e => !e.price || e.price === '0' || String(e.price).toLowerCase().includes('gratis') || String(e.price).toLowerCase().includes('free'));
+		if (filterPrice === 'paid') events = events.filter(e => e.price && e.price !== '0' && !String(e.price).toLowerCase().includes('gratis') && !String(e.price).toLowerCase().includes('free'));
+		return events;
+	});
+
+	function handleFilterChange(key: string, value: string) {
+		if (key === 'category') filterCategory = value as Category | '';
+		if (key === 'bydel') filterBydel = value as Bydel | '';
+		if (key === 'price') filterPrice = value;
+	}
+
+	function handleClearAll() {
+		filterCategory = '';
+		filterBydel = '';
+		filterPrice = '';
+	}
+
 	const PAGE_SIZE = 12;
 	let pageNum = $derived(Number($page.url.searchParams.get('page') || '1'));
-	let displayedEvents = $derived(data.events.slice(0, pageNum * PAGE_SIZE));
+	let displayedEvents = $derived(filteredEvents.slice(0, pageNum * PAGE_SIZE));
 
 	// Use server-provided lang for SSR-critical values (JSON-LD, meta tags).
 	// $lang store only syncs via $effect (client-only), so it defaults to 'no' during SSR.
@@ -93,7 +135,7 @@
 		return '';
 	});
 
-	let venueCount = $derived(new Set(data.events.map(e => e.venue_name).filter(Boolean)).size);
+	let venueCount = $derived(new Set(filteredEvents.map(e => e.venue_name).filter(Boolean)).size);
 
 	let relatedCollections: Collection[] = $derived(
 		(data.collection.relatedSlugs ?? [])
@@ -186,10 +228,21 @@
 	<p class="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">{quickAnswer}</p>
 	{/if}
 	<p class="mt-2 flex flex-wrap gap-x-2 text-xs text-[var(--color-text-muted)]">
-		<span>{data.events.length} {$t('events')}{venueCount > 1 ? ` ${$lang === 'no' ? 'fra' : 'from'} ${venueCount} ${$lang === 'no' ? 'scener' : 'venues'}` : ''}</span>
+		<span>{filteredEvents.length} {$t('events')}{venueCount > 1 ? ` ${$lang === 'no' ? 'fra' : 'from'} ${venueCount} ${$lang === 'no' ? 'scener' : 'venues'}` : ''}</span>
 		<span>· {$lang === 'no' ? 'Sist sjekket' : 'Last checked'} {new Date().toLocaleDateString($lang === 'no' ? 'nb-NO' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
 	</p>
 </section>
+
+{#if showFilters}
+<FilterBar
+	category={filterCategory}
+	bydel={filterBydel}
+	price={filterPrice}
+	hideFields={hideFields}
+	onFilterChange={handleFilterChange}
+	onClearAll={handleClearAll}
+/>
+{/if}
 
 {#if hubGrouped.length > 0}
 <!-- Hub layout: festival directory grouped by month -->
@@ -287,7 +340,7 @@
 		</div>
 	{:else}
 		<EventGrid events={displayedEvents} promotedEventIds={data.promotedEventIds} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} />
-		<LoadMore shown={displayedEvents.length} total={data.events.length} href={nextPageHref} />
+		<LoadMore shown={displayedEvents.length} total={filteredEvents.length} href={nextPageHref} />
 
 	{/if}
 </div>
