@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { BadgeType } from '$lib/types';
 	import { t } from '$lib/i18n';
-	import { Check, X, AlertTriangle, Ban, CalendarDays } from 'lucide-svelte';
+	import { Check, X, AlertTriangle, Ban, CalendarDays, GraduationCap } from 'lucide-svelte';
 
 	interface Props {
 		type: BadgeType;
@@ -14,7 +14,8 @@
 		free: 'bg-[var(--color-free)] text-white',
 		soldout: 'bg-[var(--color-soldout)] text-white',
 		lasttickets: 'bg-[var(--color-lasttickets-bg)] text-[var(--color-lasttickets-text)]',
-		cancelled: 'bg-[var(--color-cancelled)] text-white'
+		cancelled: 'bg-[var(--color-cancelled)] text-white',
+		studentprice: 'bg-[var(--color-studentprice-bg)] text-[var(--color-studentprice-text)]'
 	};
 
 	const labelKeys: Record<BadgeType, string> = {
@@ -22,7 +23,8 @@
 		free: 'freeBadge',
 		soldout: 'soldOut',
 		lasttickets: 'lastTickets',
-		cancelled: 'cancelled'
+		cancelled: 'cancelled',
+		studentprice: 'studentPrice'
 	};
 
 	const iconComponents: Partial<Record<BadgeType, typeof Check>> = {
@@ -30,7 +32,8 @@
 		free: Check,
 		soldout: X,
 		lasttickets: AlertTriangle,
-		cancelled: Ban
+		cancelled: Ban,
+		studentprice: GraduationCap
 	};
 </script>
 

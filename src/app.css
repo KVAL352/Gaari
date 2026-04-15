@@ -111,6 +111,8 @@
 	--color-soldout:       #8B1A1A;
 	--color-lasttickets:   var(--funkis-amber);
 	--color-cancelled:     #4A4843;  /* 6.35:1 on white — WCAG AA */
+	--color-studentprice-bg:   #FFF3D0;  /* warm yellow bg */
+	--color-studentprice-text: #6B4D00;  /* dark amber text — 6.8:1 contrast on #FFF3D0 */
 	--color-lasttickets-bg:   #FAECD0;
 	--color-lasttickets-text: #7A4F00;  /* 5.2:1 on #FAECD0 — WCAG AA */
 

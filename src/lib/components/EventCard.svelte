@@ -50,6 +50,9 @@
 		if (isFreeEvent(event.price)) {
 			b.push('free');
 		}
+		if (showStudentPriceBadge) {
+			b.push('studentprice');
+		}
 		return b;
 	});
 
@@ -205,9 +208,6 @@
 		<div class="relative z-20 pointer-events-none border-t border-[var(--color-border)] px-4 py-3">
 			<div class="flex items-center justify-between">
 			<span class="tabular-nums text-sm font-semibold">{priceText}</span>
-				{#if showStudentPriceBadge}
-					<span class="ml-2 inline-flex items-center rounded-md bg-[var(--color-accent)] px-1.5 py-0.5 text-[0.625rem] font-medium text-white">{$t('studentPrice')}</span>
-				{/if}
 			<div class="pointer-events-auto flex items-center gap-1">
 				<CalendarDropdown event={calendarData} compact />
 				<button

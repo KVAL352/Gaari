@@ -55,7 +55,7 @@ export interface FilterState {
 	page?: number;
 }
 
-export type BadgeType = 'today' | 'free' | 'soldout' | 'lasttickets' | 'cancelled';
+export type BadgeType = 'today' | 'free' | 'soldout' | 'lasttickets' | 'cancelled' | 'studentprice';
 
 export interface Badge {
 	type: BadgeType;
