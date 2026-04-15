@@ -3416,7 +3416,7 @@ const collections: Collection[] = [
 		},
 		filterEvents: (events, now) => {
 			const todayStr = toOsloDateStr(now);
-			const endStr = getEndOfWeekDateStr(todayStr, 14);
+			const endStr = toOsloDateStr(addDays(now, 14));
 			return events.filter(e => {
 				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				const title = (e.title_no || '').toLowerCase();
@@ -3473,7 +3473,7 @@ const collections: Collection[] = [
 		},
 		filterEvents: (events, now) => {
 			const todayStr = toOsloDateStr(now);
-			const endStr = getEndOfWeekDateStr(todayStr, 14);
+			const endStr = toOsloDateStr(addDays(now, 14));
 			return events.filter(e => {
 				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				const title = (e.title_no || '').toLowerCase();
@@ -3530,7 +3530,7 @@ const collections: Collection[] = [
 		},
 		filterEvents: (events, now) => {
 			const todayStr = toOsloDateStr(now);
-			const endStr = getEndOfWeekDateStr(todayStr, 90);
+			const endStr = toOsloDateStr(addDays(now, 90));
 			return events.filter(e => {
 				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				if (e.category === 'festival') return true;
@@ -3576,7 +3576,7 @@ const collections: Collection[] = [
 		},
 		filterEvents: (events, now) => {
 			const todayStr = toOsloDateStr(now);
-			const endStr = getEndOfWeekDateStr(todayStr, 14);
+			const endStr = toOsloDateStr(addDays(now, 14));
 			return events.filter(e => {
 				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				const title = (e.title_no || '').toLowerCase();
