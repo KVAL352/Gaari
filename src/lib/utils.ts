@@ -156,19 +156,14 @@ export function parseLowestPrice(price: string | number | null): number | null {
 
 const AGE_RANGE_RE = /\((\d{1,2})\s*[-–]\s*(\d{1,2})\s*år\)/i;
 
-// Venues known to offer student pricing (studentrabatt / studentpris)
-const STUDENT_PRICE_VENUES: ReadonlySet<string> = new Set([
-	'ole bull scene',          // Student-torsdag: 50% på stand-up + rimelige barpriser
-	'den nationale scene',     // 50% for studenter og unge 16-25, Teatertjommi 18-30
-	'dns',                     // Alias for Den Nationale Scene
-]);
+// Re-export from venues.ts — single source of truth for student discounts
+import { getStudentDiscount } from './venues';
 
 /**
  * Returns true if the event's venue is known to offer student pricing.
  */
 export function hasStudentPrice(venueName: string): boolean {
-	const v = venueName.toLowerCase();
-	return [...STUDENT_PRICE_VENUES].some(sv => v.includes(sv));
+	return getStudentDiscount(venueName) !== undefined;
 }
 
 // ── Student filter patterns ──
@@ -184,6 +179,69 @@ const SENIOR_ACTIVITY_RE = /\benkel\s+fottur|\benkel\s+tur(?:\s|$)|\bturvenner(?
 const LITERARY_RE = /\bforfattertreff|\bbokbad|\bforfatterm[øo]te|\bboklubb(?:\s|$)|litter[æa]r\s+lunsj/i;
 const BUSINESS_VENUES = ['bergen næringsråd', 'næringsforening', 'handelsforening'];
 
+// Venues where students typically go — student-run, indie, or known student-discount venues
+const STUDENT_VENUES = [
+	'kvarteret', 'det akademiske kvarter',  // Norway's largest student cultural venue
+	'hulen',                                 // Student-run rock club since 1968
+	'garage',                                // Indie/rock, student crowd
+	'landmark',                              // Alternative/indie
+	'bergen kjøtt',                          // Cultural venue, young crowd
+	'østre',                                 // Bar/venue, student area
+	'fincken',                               // Bar, Nygårdshøyden
+	'røkeriet',                              // Cultural venue
+	'madam felle',                           // Popular student bar
+	'café opera',                            // Student meeting spot
+	'det lille teater',                       // Small theatre
+	'studentsenteret',                       // UiB student centre
+	'kulturhuset i bergen',                  // Alternative cultural venue
+];
+
+const STUDENT_SCORE_THRESHOLD = 3;
+
+export function studentRelevanceScore(e: {
+	title_no: string;
+	description_no?: string;
+	price: string | number;
+	age_group: string;
+	category: string;
+	venue_name?: string;
+}): number {
+	const title = e.title_no;
+	const desc = e.description_no || '';
+	const venue = (e.venue_name || '').toLowerCase();
+	const text = `${title} ${desc}`;
+	const lowest = parseLowestPrice(e.price);
+
+	let score = 0;
+
+	// ── Strong signals (+4) ──
+	if (e.age_group === 'students' || e.category === 'student') score += 4;
+	if (STUDENT_VENUES.some(sv => venue.includes(sv))) score += 4;
+	if (/\bstudent/i.test(text)) score += 4;
+
+	// ── Known student discount (+3) ──
+	if (e.venue_name && getStudentDiscount(e.venue_name)) score += 3;
+
+	// ── Price signals ──
+	const isFree = lowest === 0 || (lowest === null && /gratis|\bfree\b/i.test(String(e.price)));
+	if (isFree) score += 3;                           // free → strong signal
+	else if (lowest !== null && lowest <= 150) score += 2;  // cheap → medium signal
+	else if (lowest !== null && lowest <= 250) score += 1;  // moderate → weak signal
+
+	// ── Category signals ──
+	if (e.category === 'nightlife') score += 2;        // nightlife is core student activity
+	if (e.category === 'festival') score += 2;         // festivals appeal to students
+	if (e.category === 'music') score += 1;            // music needs price support
+	if (e.category === 'sports') score += 2;           // Brann matches etc.
+	if (e.category === 'theatre') score += 1;          // theatre needs price support
+
+	// ── Weak positive signals (+1 each) ──
+	if (e.age_group === '18+') score += 1;
+	if (/quiz|\bpub\b|\bklubb/i.test(title)) score += 1;
+
+	return score;
+}
+
 export function isStudentRelevant(e: {
 	title_no: string;
 	description_no?: string;
@@ -192,13 +250,11 @@ export function isStudentRelevant(e: {
 	category: string;
 	venue_name?: string;
 }): boolean {
-	// Always include explicit student events
+	// ── Always include: explicit student events ──
 	if (e.age_group === 'students' || e.category === 'student') return true;
 
-	// Exclude family/children
+	// ── Hard exclusions (never student-relevant, regardless of score) ──
 	if (e.age_group === 'family' || e.category === 'family') return false;
-
-	// Exclude youth (teens, not college-age)
 	if (e.age_group === 'youth') return false;
 
 	const title = e.title_no;
@@ -206,35 +262,23 @@ export function isStudentRelevant(e: {
 	const venue = (e.venue_name || '').toLowerCase();
 	const text = `${title} ${desc}`;
 
-	// Exclude senior/pensjonist events
 	if (SENIOR_RE.test(text) || SENIOR_RE.test(venue)) return false;
-
-	// Exclude children/junior events
 	if (CHILDREN_RE.test(title)) return false;
-
-	// Exclude youth/teen events
 	if (YOUTH_TITLE_RE.test(title)) return false;
 	if (UNG_STANDALONE_RE.test(title)) return false;
-
-	// Exclude business/professional events
 	if (BUSINESS_RE.test(text)) return false;
 	if (BUSINESS_VENUES.some(v => venue.includes(v))) return false;
-
-	// Exclude gentle/senior-coded activities
 	if (SENIOR_ACTIVITY_RE.test(title)) return false;
-
-	// Exclude literary events (forfattertreff, bokbad, lesesirkel — skews older)
 	if (LITERARY_RE.test(title)) return false;
 
-	// Explicit age range in title — authoritative
 	const ageMatch = title.match(AGE_RANGE_RE);
 	if (ageMatch && parseInt(ageMatch[1], 10) > 25) return false;
 
-	// Exclude expensive events (over 350 kr)
 	const lowest = parseLowestPrice(e.price);
 	if (lowest !== null && lowest > 350) return false;
 
-	return true;
+	// ── Score-based inclusion ──
+	return studentRelevanceScore(e) >= STUDENT_SCORE_THRESHOLD;
 }
 
 export function isFreeEvent(price: string | number | null): boolean {

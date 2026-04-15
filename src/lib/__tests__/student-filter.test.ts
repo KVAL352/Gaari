@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isStudentRelevant, parseLowestPrice } from '../utils';
+import { isStudentRelevant, studentRelevanceScore, parseLowestPrice } from '../utils';
 
 // Helper to build a minimal event object
 function evt(overrides: Partial<{
@@ -251,24 +251,24 @@ describe('isStudentRelevant', () => {
 		});
 	});
 
-	describe('includes legitimate student-relevant events', () => {
-		it('includes free concerts', () => {
+	describe('scoring system — includes based on combined signals', () => {
+		it('includes free concerts (music+free = 4)', () => {
 			expect(isStudentRelevant(evt({
-				title_no: 'Gratiskonsert på Kvarteret',
+				title_no: 'Gratiskonsert',
 				category: 'music',
 				price: '0'
 			}))).toBe(true);
 		});
 
-		it('includes affordable nightlife', () => {
+		it('includes cheap nightlife (nightlife+cheap = 4)', () => {
 			expect(isStudentRelevant(evt({
-				title_no: 'Klubbkveld på Hulen',
+				title_no: 'Klubbkveld',
 				category: 'nightlife',
 				price: '100 kr'
 			}))).toBe(true);
 		});
 
-		it('includes free workshops', () => {
+		it('includes free workshops (free = 3)', () => {
 			expect(isStudentRelevant(evt({
 				title_no: 'Kodeklubb for voksne',
 				category: 'workshop',
@@ -276,12 +276,144 @@ describe('isStudentRelevant', () => {
 			}))).toBe(true);
 		});
 
-		it('includes affordable theatre', () => {
+		it('includes events at student venues (venue = 4)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Pub Quiz',
+				category: 'culture',
+				venue_name: 'Kvarteret',
+				price: '100 kr'
+			}))).toBe(true);
+		});
+
+		it('includes events at Hulen (venue = 4)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Doom metal kveld',
+				category: 'culture',
+				venue_name: 'Hulen',
+				price: '200 kr'
+			}))).toBe(true);
+		});
+
+		it('includes Brann matches (sports+moderate = 3)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Brann – Lillestrøm',
+				category: 'sports',
+				price: '200 kr'
+			}))).toBe(true);
+		});
+
+		it('includes free festivals (festival+free = 5)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Kjøtt Festival',
+				category: 'festival',
+				price: '0'
+			}))).toBe(true);
+		});
+
+		it('includes cheap music (music+cheap = 3)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Indiekonsert',
+				category: 'music',
+				price: '100 kr'
+			}))).toBe(true);
+		});
+
+		it('includes free culture events (free = 3)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Gratis utstilling',
+				category: 'culture',
+				price: '0'
+			}))).toBe(true);
+		});
+
+		it('includes "Gratis" culture events (free = 3)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Fredagsfølelsen',
+				category: 'culture',
+				price: 'Gratis'
+			}))).toBe(true);
+		});
+	});
+
+	describe('scoring system — excludes low-scoring events', () => {
+		it('excludes paid culture events (cheap = 2)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Hansabyer – handel og makt',
+				category: 'culture',
+				price: '100 kr'
+			}))).toBe(false);
+		});
+
+		it('excludes expensive music (music+no price bonus = 1)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Sigvart Dagsland i Johanneskirken',
+				category: 'music',
+				price: '300 kr'
+			}))).toBe(false);
+		});
+
+		it('excludes expensive theatre (theatre+no price bonus = 1)', () => {
 			expect(isStudentRelevant(evt({
 				title_no: 'Hamlet',
 				category: 'theatre',
+				price: '300 kr'
+			}))).toBe(false);
+		});
+
+		it('excludes paid tours (no signals)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Bryggen Guiding',
+				category: 'tours',
+				price: '150 kr'
+			}))).toBe(false);
+		});
+
+		it('excludes paid food events (no signals)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Åpen Smaking 7 Fjell',
+				category: 'food',
 				price: '200 kr'
-			}))).toBe(true);
+			}))).toBe(false);
+		});
+
+		it('excludes moderately priced workshops (cheap = 2)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Malekurs',
+				category: 'workshop',
+				price: '100 kr'
+			}))).toBe(false);
+		});
+	});
+
+	describe('scoring function returns expected values', () => {
+		it('student venue + free = high score', () => {
+			expect(studentRelevanceScore(evt({
+				venue_name: 'Kvarteret',
+				price: '0',
+				category: 'culture'
+			}))).toBe(7); // venue(4) + free(3)
+		});
+
+		it('music + 300kr = low score', () => {
+			expect(studentRelevanceScore(evt({
+				category: 'music',
+				price: '300 kr'
+			}))).toBe(1); // music(1) only, 300kr > 250 so no price bonus
+		});
+
+		it('nightlife + 18+ + cheap = good score', () => {
+			expect(studentRelevanceScore(evt({
+				category: 'nightlife',
+				age_group: '18+',
+				price: '100 kr'
+			}))).toBe(5); // nightlife(2) + 18+(1) + cheap(2)
+		});
+
+		it('paid culture = zero score', () => {
+			expect(studentRelevanceScore(evt({
+				category: 'culture',
+				price: '200 kr'
+			}))).toBe(1); // moderate price(1) only
 		});
 	});
 });

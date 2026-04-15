@@ -192,3 +192,103 @@ export function getVenueBySlug(slug: string): VenueInfo | undefined {
 export function getAllVenueSlugs(): string[] {
 	return TOP_VENUES.map(v => v.slug);
 }
+
+// ── Student discount data ──
+// Hybrid: manually maintained + enrichable by scrapers.
+// venue key = lowercase venue name substring (matched with .includes()).
+// source: 'manual' (verified by us) | 'scraped' (auto-detected, needs verification).
+export interface StudentDiscount {
+	discount: string;          // e.g. "50% på billetter", "100 kr rabatt"
+	source: 'manual' | 'scraped';
+	url?: string;              // link to pricing page for verification
+	verified?: string;         // ISO date when last verified
+}
+
+export const STUDENT_DISCOUNTS: Record<string, StudentDiscount> = {
+	// ── Theatre & performing arts ──
+	'den nationale scene': {
+		discount: '50% for studenter og unge 16–25 år. Teatertjommi 18–30.',
+		source: 'manual',
+		url: 'https://www.dns.no/billetter',
+		verified: '2026-04-15',
+	},
+	'dns': {
+		discount: '50% for studenter og unge 16–25 år.',
+		source: 'manual',
+		verified: '2026-04-15',
+	},
+	'det vestnorske teateret': {
+		discount: 'Studentkategori, ca kr 250 på utvalgte forestillinger.',
+		source: 'manual',
+		url: 'https://www.detvestnorsketeateret.no/billettinformasjon',
+		verified: '2026-04-15',
+	},
+	'logen teater': {
+		discount: 'Studentkategori via Det Vestnorske Teateret, ca kr 250.',
+		source: 'manual',
+		url: 'https://www.detvestnorsketeateret.no/billettinformasjon',
+		verified: '2026-04-15',
+	},
+	'carte blanche': {
+		discount: 'Studentrabatt bekreftet. Kontakt billett@ncb.no for priser.',
+		source: 'manual',
+		url: 'https://carteblanche.no/en/about-us/',
+		verified: '2026-04-15',
+	},
+	'bit teatergarasjen': {
+		discount: 'Betal-hva-du-kan: kr 150 / 275 / 350.',
+		source: 'manual',
+		url: 'https://bitteater.no/en/your-visit/tickets/',
+		verified: '2026-04-15',
+	},
+	'bergen nasjonale opera': {
+		discount: 'Student/u30: kr 150–375 (sone 2–4). Ordinær kr 300–900.',
+		source: 'manual',
+		url: 'https://bno.no/billettinformasjon/under-30-ar',
+		verified: '2026-04-15',
+	},
+
+	// ── Music & entertainment ──
+	'ole bull scene': {
+		discount: 'Student-torsdag: 50% på stand-up. Rimelige barpriser.',
+		source: 'manual',
+		url: 'https://olebull.no',
+		verified: '2026-04-15',
+	},
+	'bergen filharmoniske orkester': {
+		discount: 'Studentbilletter fra kr 150. Tidvis gratis studentkonserter.',
+		source: 'manual',
+		url: 'https://harmonien.no',
+		verified: '2026-04-15',
+	},
+	'harmonien': {
+		discount: 'Studentbilletter fra kr 150.',
+		source: 'manual',
+		verified: '2026-04-15',
+	},
+
+	// ── Cinema ──
+	'bergen kino': {
+		discount: 'Studentkino: kr 90–100 (onsdag 20:30, LUX). Egen billettkategori.',
+		source: 'manual',
+		url: 'https://www.bergenkino.no/list/studentkino',
+		verified: '2026-04-15',
+	},
+
+	// ── Museums ──
+	'kode': {
+		discount: 'Student kr 100. Gratis for KMD/KIB/BAS/UiB kunsthistorie.',
+		source: 'manual',
+		url: 'https://www.kodebergen.no/en/billetter',
+		verified: '2026-04-15',
+	},
+};
+
+/** Check if a venue has a known student discount. */
+export function getStudentDiscount(venueName: string): StudentDiscount | undefined {
+	const v = venueName.toLowerCase();
+	for (const [key, discount] of Object.entries(STUDENT_DISCOUNTS)) {
+		if (v.includes(key)) return discount;
+	}
+	return undefined;
+}
