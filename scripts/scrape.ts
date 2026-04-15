@@ -167,7 +167,7 @@ const COLLECTION_SLUGS_EN = [
 	'bergen-pride-festival', 'biff-bergen', 'borealis-bergen'
 ];
 
-async function pingIndexNow(since: number): Promise<number> {
+async function pingIndexNow(since: number, expiredSlugs: string[] = []): Promise<number> {
 	const key = process.env.INDEXNOW_KEY;
 	if (!key) return 0;
 
@@ -179,13 +179,19 @@ async function pingIndexNow(since: number): Promise<number> {
 			.gte('created_at', sinceIso)
 			.eq('status', 'approved');
 
-		// Event detail URLs
+		// New event detail URLs
 		const eventUrls = (data && !error)
 			? data.flatMap((e: { slug: string }) => [
 				`https://gaari.no/no/events/${e.slug}`,
 				`https://gaari.no/en/events/${e.slug}`
 			])
 			: [];
+
+		// Expired event URLs (tell Bing these are gone → reduces crawl errors)
+		const expiredUrls = expiredSlugs.flatMap(slug => [
+			`https://gaari.no/no/events/${slug}`,
+			`https://gaari.no/en/events/${slug}`
+		]);
 
 		// Homepage + collection pages (content changes every run)
 		const pageUrls = [
@@ -195,7 +201,7 @@ async function pingIndexNow(since: number): Promise<number> {
 			...COLLECTION_SLUGS_EN.map(s => `https://gaari.no/en/${s}`)
 		];
 
-		const urlList = [...eventUrls, ...pageUrls];
+		const urlList = [...eventUrls, ...expiredUrls, ...pageUrls];
 		if (urlList.length === 0) return 0;
 
 		const res = await fetch('https://api.indexnow.org/indexnow', {
@@ -209,7 +215,7 @@ async function pingIndexNow(since: number): Promise<number> {
 			})
 		});
 
-		console.log(`IndexNow: submitted ${urlList.length} URLs (${eventUrls.length / 2} events + ${pageUrls.length} pages) → HTTP ${res.status}`);
+		console.log(`IndexNow: submitted ${urlList.length} URLs (${eventUrls.length / 2} new + ${expiredUrls.length / 2} expired + ${pageUrls.length} pages) → HTTP ${res.status}`);
 		return urlList.length;
 	} catch (err: any) {
 		console.warn(`IndexNow ping failed: ${err.message}`);
@@ -227,10 +233,13 @@ async function main() {
 
 	// Step 1: Remove expired events + refresh stale multi-date events
 	let expired = 0;
+	let expiredSlugs: string[] = [];
 	let staleRefreshed = 0;
 	try {
 		console.log('--- Cleaning expired events ---');
-		expired = await removeExpiredEvents();
+		const result = await removeExpiredEvents();
+		expired = result.deleted;
+		expiredSlugs = result.slugs;
 		console.log(`Removed ${expired} expired events`);
 
 		staleRefreshed = await refreshStaleMultiDateEvents();
@@ -363,7 +372,7 @@ async function main() {
 	const insertedCount = Object.values(activeResults).reduce((sum, r) => sum + r.inserted, 0);
 	{
 		console.log('--- Pinging IndexNow ---');
-		indexNowSubmitted = await pingIndexNow(startTime);
+		indexNowSubmitted = await pingIndexNow(startTime, expiredSlugs);
 	}
 
 	// Summary

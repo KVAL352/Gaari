@@ -50,8 +50,13 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 		// Fallback to seed data
 		const event = seedEvents.find(e => e.slug === params.slug);
 		if (!event) {
-			// Expired/deleted events: 302 redirect to relevant collection instead of 404
-			// This preserves Google traffic from indexed event pages
+			// Check if this looks like an expired event slug (ends with -YYYY-MM-DD)
+			const isEventSlug = /\d{4}-\d{2}-\d{2}$/.test(params.slug);
+			if (isEventSlug) {
+				// Expired event: 410 Gone tells search engines to drop it from the index
+				throw error(410, 'This event has ended');
+			}
+			// Unknown slug: 302 redirect to relevant collection
 			const lang = params.lang === 'en' ? 'en' : 'no';
 			const fallback = lang === 'no' ? 'denne-helgen' : 'this-weekend';
 			redirect(302, `/${lang}/${fallback}`);

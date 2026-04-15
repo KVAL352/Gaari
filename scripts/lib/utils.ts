@@ -373,7 +373,7 @@ export async function findDuplicate(title: string, dateStart: string): Promise<b
 }
 
 // Remove expired events (date_end or date_start is in the past)
-export async function removeExpiredEvents(): Promise<number> {
+export async function removeExpiredEvents(): Promise<{ deleted: number; slugs: string[] }> {
 	// Use start-of-today as cutoff — don't delete today's events even if their time has passed
 	const todayStart = new Date();
 	todayStart.setUTCHours(0, 0, 0, 0);
@@ -382,23 +382,26 @@ export async function removeExpiredEvents(): Promise<number> {
 	// Delete events where date_end is past (multi-day events that have ended)
 	const { data: endedEvents } = await supabase
 		.from('events')
-		.select('id')
+		.select('id, slug')
 		.not('date_end', 'is', null)
 		.lt('date_end', cutoff);
 
 	// Delete events where date_start is before today and no date_end
 	const { data: pastEvents } = await supabase
 		.from('events')
-		.select('id')
+		.select('id, slug')
 		.is('date_end', null)
 		.lt('date_start', cutoff);
 
-	const allIds = [
-		...(endedEvents || []).map(e => e.id),
-		...(pastEvents || []).map(e => e.id),
+	const allEntries = [
+		...(endedEvents || []),
+		...(pastEvents || []),
 	];
 
-	if (allIds.length === 0) return 0;
+	if (allEntries.length === 0) return { deleted: 0, slugs: [] };
+
+	const allIds = allEntries.map(e => e.id);
+	const allSlugs = allEntries.map(e => e.slug).filter(Boolean);
 
 	// Delete in batches
 	let deleted = 0;
@@ -411,7 +414,7 @@ export async function removeExpiredEvents(): Promise<number> {
 		if (!error) deleted += batch.length;
 	}
 
-	return deleted;
+	return { deleted, slugs: allSlugs };
 }
 
 // Scrapers that set date_start/date_end to discrete show dates (first/last performance).
