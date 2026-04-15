@@ -90,6 +90,26 @@ describe('isStudentRelevant', () => {
 		it('excludes "for barn" in title', () => {
 			expect(isStudentRelevant(evt({ title_no: 'Teater for barn' }))).toBe(false);
 		});
+
+		it('excludes "juniorklubb"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Juniorklubb', category: 'workshop' }))).toBe(false);
+		});
+
+		it('excludes "Rolland juniorklubb"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Rolland juniorklubb' }))).toBe(false);
+		});
+
+		it('excludes "Laksevåg JUNIOR"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Laksevåg JUNIOR' }))).toBe(false);
+		});
+
+		it('excludes "Språkleik for dei minste"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Språkleik for dei minste' }))).toBe(false);
+		});
+
+		it('excludes "Hjelp til skolearbeidet"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Hjelp til skolearbeidet - med Røde Kors' }))).toBe(false);
+		});
 	});
 
 	describe('excludes senior/pensjonist events', () => {
@@ -137,6 +157,28 @@ describe('isStudentRelevant', () => {
 				title_no: 'Nasjonal transportplan 2029-2040'
 			}))).toBe(false);
 		});
+
+		it('excludes "Bærekraftstrappen" business events', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Bærekraftstrappen: Fra strategi til konkurransekraft'
+			}))).toBe(false);
+		});
+
+		it('excludes "Årskonferansen"', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Stedet å være i 2026: Årskonferansen og Årsmiddagen'
+			}))).toBe(false);
+		});
+
+		it('excludes "Sjømaktseminaret"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Sjømaktseminaret 2026' }))).toBe(false);
+		});
+
+		it('excludes "Servicebyen Bergen"', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Servicebyen Bergen: Fra god til enestående'
+			}))).toBe(false);
+		});
 	});
 
 	describe('excludes senior-coded activities', () => {
@@ -150,6 +192,34 @@ describe('isStudentRelevant', () => {
 
 		it('excludes "nabolagskafé"', () => {
 			expect(isStudentRelevant(evt({ title_no: 'Kafe Hjemom - din nabolagskafé' }))).toBe(false);
+		});
+
+		it('excludes "Nabolagskafé Olsvik"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Nabolagskafé Olsvik' }))).toBe(false);
+		});
+
+		it('excludes "Strikkekafé"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Strikkekafé i Olsvik Grendahus' }))).toBe(false);
+		});
+
+		it('excludes "Datahjelp"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Gratis datahjelp!' }))).toBe(false);
+		});
+
+		it('excludes "Lesesirkel"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Lesesirkel på Åsane Bibliotek' }))).toBe(false);
+		});
+
+		it('excludes "Høytlesning og håndarbeid"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Høytlesning og håndarbeid' }))).toBe(false);
+		});
+
+		it('excludes "Håndarbeid for alle"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Håndarbeid for alle' }))).toBe(false);
+		});
+
+		it('excludes "Litterær lunsj"', () => {
+			expect(isStudentRelevant(evt({ title_no: 'Litterær lunsj: bokprat' }))).toBe(false);
 		});
 	});
 
