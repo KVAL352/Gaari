@@ -32,7 +32,7 @@ You are now an SEO specialist auditing Gåri — a bilingual event aggregator fo
 3. **hreflang** — nb/en/x-default all present and pointing to correct alternates?
 4. **JSON-LD** — valid schema markup? Check:
    - Event pages: Event type (MusicEvent, TheaterEvent, etc.), `startDate`/`endDate` with Bergen timezone offset (+01:00 CET / +02:00 CEST), `location` with full PostalAddress (streetAddress, addressLocality: Bergen, addressRegion: Vestland), `GeoCoordinates` if available, `offers` with price/currency, `organizer`, `eventStatus`, `eventAttendanceMode`, `inLanguage`
-   - Collection pages: `CollectionPage` + `ItemList` (mainEntity) + `BreadcrumbList` + `FAQPage`
+   - Collection pages: `CollectionPage` + `ItemList` (mainEntity) + `BreadcrumbList` (FAQPage removed Apr 2026 — Google restricted to govt/health)
    - Event detail pages: `Event` + `BreadcrumbList`
 5. **Open Graph** — og:title, og:description, og:image all present and correct?
 6. **Heading hierarchy** — single H1, logical H2/H3 structure?
@@ -107,7 +107,7 @@ AI search engines (ChatGPT, Perplexity, Gemini) need well-structured, quotable c
 
 1. **Core Web Vitals** — LCP <2.5s, CLS <0.1, INP <200ms? Known: LCP 2.6s (borderline)
 2. **Server-side rendering** — content in HTML source, not client-rendered?
-3. **Caching** — ISR headers correct? (s-maxage=300, stale-while-revalidate=600 for dynamic pages)
+3. **Caching** — ISR headers correct? (s-maxage=3600, stale-while-revalidate=7200 for dynamic pages)
 4. **Self-hosted fonts** — no external Google Fonts requests?
 5. **Image optimization** — currently disabled (Vercel free tier exhausted). Note as known limitation.
 
