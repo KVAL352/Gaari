@@ -14,10 +14,15 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 		const fields = 'id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status,is_sold_out';
 		const PAGE = 1000;
 
+		// Floor for date_start: reject events that started more than 60 days ago.
+		// Long-running series with stale date_start pollute results and sort order.
+		const startFloor = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+
 		const { data: page1, error } = await supabase
 			.from('events')
 			.select(fields)
 			.in('status', ['approved', 'cancelled'])
+			.gte('date_start', startFloor)
 			.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
 			.order('date_start', { ascending: true })
 			.range(0, PAGE - 1);
@@ -32,6 +37,7 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 				.from('events')
 				.select(fields)
 				.in('status', ['approved', 'cancelled'])
+				.gte('date_start', startFloor)
 				.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
 				.order('date_start', { ascending: true })
 				.range(PAGE, PAGE * 2 - 1);

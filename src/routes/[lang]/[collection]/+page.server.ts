@@ -31,6 +31,9 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 	try {
 		// Use UTC — date_start is stored as UTC (timestamptz) in Supabase
 		const nowUtc = new Date().toISOString();
+		// Floor for date_start: reject events that started more than 60 days ago.
+		// Long-running series (e.g. weekly clubs) with stale date_start pollute results.
+		const startFloor = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
 		const collFields = 'id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,source_url,image_url,age_group,language,status,is_sold_out';
 		const PAGE = 1000;
 
@@ -38,6 +41,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			.from('events')
 			.select(collFields)
 			.in('status', ['approved', 'cancelled'])
+			.gte('date_start', startFloor)
 			.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
 			.order('date_start', { ascending: true })
 			.range(0, PAGE - 1);
@@ -50,6 +54,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 				.from('events')
 				.select(collFields)
 				.in('status', ['approved', 'cancelled'])
+				.gte('date_start', startFloor)
 				.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
 				.order('date_start', { ascending: true })
 				.range(PAGE, PAGE * 2 - 1);
@@ -57,10 +62,18 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 		}
 
 		if (allData.length > 0) {
-			events = allData.map(e => ({
-				...e,
-				price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
-			}));
+			// For multi-day events where date_start has passed, use today as
+			// effective sort date so they appear alongside current events.
+			const todayKey = nowUtc.slice(0, 10);
+			events = allData.map(e => {
+				const startKey = e.date_start.slice(0, 10);
+				const effectiveStart = (e.date_end && startKey < todayKey) ? todayKey + e.date_start.slice(10) : e.date_start;
+				return {
+					...e,
+					date_start: effectiveStart,
+					price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
+				};
+			});
 		} else {
 			events = seedEvents;
 		}
