@@ -109,6 +109,8 @@ export interface Collection {
 	seasonal?: boolean;
 	offSeasonHint?: Record<Lang, string>;
 	maxPerVenue?: number;
+	/** Hub layout: shows linked sub-collections grouped by month */
+	hubCollections?: Array<{ slug: string; month: number; dateHint: Record<Lang, string>; fallbackImage?: string }>;
 	filterEvents: (events: GaariEvent[], now: Date) => GaariEvent[];
 }
 
@@ -3498,6 +3500,15 @@ const collections: Collection[] = [
 		},
 		relatedSlugs: ['festspillene', 'bergenfest', 'nattjazz', 'beyond-the-gates', 'bergen-pride', 'biff'],
 		newsletterHeading: { no: 'Festivaltips i Bergen', en: 'Festival picks in Bergen' },
+		hubCollections: [
+			{ slug: 'borealis', month: 3, dateHint: { no: 'Mars', en: 'March' }, fallbackImage: 'https://www.borealisfestival.no/v2/wp-content/uploads/2026/04/Borealis_2026_Post_Classical.Next_01-1024x576.png' },
+			{ slug: 'festspillene', month: 5, dateHint: { no: '27. mai – 10. juni', en: '27 May – 10 June' }, fallbackImage: 'https://res.cloudinary.com/fib/image/upload/v1713277662/Web-Assets/Logo/Festspillene_i_Bergen_logo_ybbfwg.svg' },
+			{ slug: 'nattjazz', month: 5, dateHint: { no: '29. mai – 6. juni', en: '29 May – 6 June' }, fallbackImage: 'https://en.visitbergen.com/imageresizer/?image=%2Fdmsimgs%2Fkristoffer_oen-Miss_Tati-screen-6312_344986397.jpg&action=ProductDetailExtraLargeNew' },
+			{ slug: 'bergenfest', month: 6, dateHint: { no: '10.–13. juni', en: '10–13 June' }, fallbackImage: 'https://st-02pttrybyh.nf.cdn.netflexapp.com/media/l/200x200/1762311028/date-purple-with-green.png' },
+			{ slug: 'bergen-pride', month: 6, dateHint: { no: 'Juni', en: 'June' }, fallbackImage: 'https://cdn.vev.design/private/mC0LTzRlF5YCXni49Kl530JDBeE3/image/ohTUjkB0xN_2j7ucg.svg' },
+			{ slug: 'beyond-the-gates', month: 7, dateHint: { no: '29. juli – 1. august', en: '29 July – 1 August' }, fallbackImage: 'https://images.squarespace-cdn.com/content/v1/5e3c236dede67650c883ea81/0ccf99ad-1d47-4be1-8d3a-07d1d85ae70d/BTG-logo-white-1800px-2023---2.png' },
+			{ slug: 'biff', month: 10, dateHint: { no: 'Oktober', en: 'October' }, fallbackImage: 'https://en.visitbergen.com/dmsimgs/BIFF_1497244431.jpg' },
+		],
 		footerLabel: { no: 'Festivaler', en: 'Festivals' },
 		footer: { langs: ['no', 'en'], order: 17 },
 		quickAnswer: {

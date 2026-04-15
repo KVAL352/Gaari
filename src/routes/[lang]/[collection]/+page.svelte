@@ -7,6 +7,7 @@
 	import EventGrid from '$lib/components/EventGrid.svelte';
 	import LoadMore from '$lib/components/LoadMore.svelte';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
+	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
 
 	let { data } = $props();
 
@@ -99,6 +100,22 @@
 
 	let nextPageHref = $derived(`?page=${pageNum + 1}`);
 
+	// Hub layout: group sub-collections by month
+	const monthNamesNo = ['', 'Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
+	const monthNamesEn = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+	let hubGrouped = $derived.by(() => {
+		if (!data.hubItems?.length) return [];
+		const names = ssrLang === 'no' ? monthNamesNo : monthNamesEn;
+		const groups = new Map<string, typeof data.hubItems>();
+		for (const item of data.hubItems) {
+			const label = item.month > 0 && item.month <= 12 ? names[item.month] : (ssrLang === 'no' ? 'Kommende' : 'Upcoming');
+			const existing = groups.get(label) ?? [];
+			existing.push(item);
+			groups.set(label, existing);
+		}
+		return [...groups.entries()];
+	});
+
 	// Track social media click-through
 	$effect(() => {
 		if (typeof window === 'undefined' || !window.umami) return;
@@ -184,6 +201,64 @@
 	{/if}
 </section>
 
+{#if hubGrouped.length > 0}
+<!-- Hub layout: festival directory grouped by month -->
+<div class="mx-auto max-w-7xl px-4 py-6">
+	{#each hubGrouped as [month, items] (month)}
+	<section class="mb-8">
+		<div class="mb-2 flex items-center gap-3 border-l-4 border-[var(--color-text-primary)] pl-3.5 md:mb-5">
+			<h2 class="text-lg font-semibold text-[var(--color-text-primary)]" style="font-family: var(--font-display)">
+				{month}
+			</h2>
+		</div>
+		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			{#each items as item (item.slug)}
+			<li class="group list-none h-full">
+				<a
+					href="/{ssrLang}/{item.slug}"
+					class="hub-card relative flex h-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-sm no-underline"
+				>
+					<div class="relative aspect-[16/9] overflow-hidden bg-[var(--color-surface)]">
+						{#if item.imageUrl}
+						<img
+							src={item.imageUrl}
+							alt={item.title[ssrLang]}
+							loading="lazy"
+							class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+						/>
+						{:else}
+						<ImagePlaceholder category="festival" size={64} />
+						{/if}
+						{#if item.eventCount > 0}
+						<span class="absolute left-2 top-2 rounded-full bg-[var(--color-accent)] px-2.5 py-0.5 text-xs font-semibold text-white">
+							{item.eventCount} {ssrLang === 'no' ? 'arr.' : 'events'}
+						</span>
+						{/if}
+					</div>
+					<div class="flex flex-1 flex-col p-4">
+						<h3 class="mb-1 line-clamp-2 text-lg font-semibold leading-tight text-[var(--color-text-primary)]">
+							{item.title[ssrLang]}
+						</h3>
+						<p class="mb-1 text-sm text-[var(--color-text-secondary)]">
+							{item.dateHint[ssrLang]}
+						</p>
+						<p class="mb-2 line-clamp-2 text-xs text-[var(--color-text-muted)]">
+							{item.description[ssrLang]}
+						</p>
+						<span class="mt-auto text-sm font-medium text-[var(--color-accent)]">
+							{item.eventCount > 0
+								? (ssrLang === 'no' ? 'Se program →' : 'See programme →')
+								: (ssrLang === 'no' ? 'Programmet kommer →' : 'Programme coming soon →')}
+						</span>
+					</div>
+				</a>
+			</li>
+			{/each}
+		</ul>
+	</section>
+	{/each}
+</div>
+{:else}
 <div class="mx-auto max-w-7xl px-4 py-6" aria-live="polite" aria-atomic="true">
 	{#if data.events.length === 0}
 		<div class="px-4 py-10">
@@ -254,6 +329,7 @@
 		</div>
 	{/if}
 </div>
+{/if}
 
 <!-- Newsletter CTA -->
 <div id="newsletter-cta" class="mx-auto max-w-7xl px-4 pt-4">

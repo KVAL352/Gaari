@@ -137,6 +137,28 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 		return true;
 	});
 
+	// Hub layout: resolve sub-collections with event counts
+	let hubItems: Array<{ slug: string; title: Record<string, string>; description: Record<string, string>; eventCount: number; month: number; dateHint: Record<string, string>; imageUrl?: string }> | undefined;
+	if (collection.hubCollections) {
+		const now2 = getOsloNow();
+		hubItems = collection.hubCollections.map(entry => {
+			const sub = getCollection(entry.slug);
+			if (!sub) return null;
+			const subFiltered = sub.filterEvents(active, now2);
+			// Pick the first event image, fall back to festival logo
+			const firstWithImage = subFiltered.find(e => e.image_url);
+			return {
+				slug: sub.slug,
+				title: sub.title,
+				description: sub.description,
+				eventCount: subFiltered.length,
+				month: entry.month,
+				dateHint: entry.dateHint,
+				imageUrl: firstWithImage?.image_url ?? entry.fallbackImage ?? undefined
+			};
+		}).filter((x): x is NonNullable<typeof x> => x !== null);
+	}
+
 	return {
 		collection: {
 			id: collection.id,
@@ -150,9 +172,11 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			quickAnswer: collection.quickAnswer,
 			newsletterHeading: collection.newsletterHeading,
 			seasonal: collection.seasonal,
-			offSeasonHint: collection.offSeasonHint
+			offSeasonHint: collection.offSeasonHint,
+			hubCollections: collection.hubCollections
 		},
 		events: filtered,
+		hubItems,
 		promotedEventIds,
 		lang: params.lang as 'no' | 'en',
 		hreflangPaths: (() => {
