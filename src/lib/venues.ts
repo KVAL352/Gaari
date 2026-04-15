@@ -223,6 +223,18 @@ export const STUDENT_DISCOUNTS: Record<string, StudentDiscount> = {
 		url: 'https://www.detvestnorsketeateret.no/billettinformasjon',
 		verified: '2026-04-15',
 	},
+	'hovudscenen': {
+		discount: 'Studentkategori, ca kr 250 på utvalgte forestillinger (Det Vestnorske Teateret).',
+		source: 'manual',
+		url: 'https://www.detvestnorsketeateret.no/billettinformasjon',
+		verified: '2026-04-15',
+	},
+	'skifte': {
+		discount: 'Studentkategori, ca kr 250 på utvalgte forestillinger (Det Vestnorske Teateret).',
+		source: 'manual',
+		url: 'https://www.detvestnorsketeateret.no/billettinformasjon',
+		verified: '2026-04-15',
+	},
 	'logen teater': {
 		discount: 'Studentkategori via Det Vestnorske Teateret, ca kr 250.',
 		source: 'manual',
@@ -249,7 +261,7 @@ export const STUDENT_DISCOUNTS: Record<string, StudentDiscount> = {
 	},
 
 	// ── Music & entertainment ──
-	'ole bull scene': {
+	'ole bull': {
 		discount: 'Student-torsdag: 50% på stand-up. Rimelige barpriser.',
 		source: 'manual',
 		url: 'https://olebull.no',
@@ -266,6 +278,40 @@ export const STUDENT_DISCOUNTS: Record<string, StudentDiscount> = {
 		source: 'manual',
 		verified: '2026-04-15',
 	},
+	'grieghallen': {
+		discount: 'Studentbilletter fra kr 150 (via Harmonien/BFO).',
+		source: 'manual',
+		url: 'https://harmonien.no',
+		verified: '2026-04-15',
+	},
+	'griegsalen': {
+		discount: 'Studentbilletter fra kr 150 (via Harmonien/BFO).',
+		source: 'manual',
+		url: 'https://harmonien.no',
+		verified: '2026-04-15',
+	},
+	'peer gynt': {
+		discount: 'Studentbilletter fra kr 150 (via Harmonien/BFO).',
+		source: 'manual',
+		url: 'https://harmonien.no',
+		verified: '2026-04-15',
+	},
+
+	// ── Theatre (smaller) ──
+	'cornerteateret': {
+		discount: 'Studentrabatt tilgjengelig.',
+		source: 'manual',
+		url: 'https://www.cornerteateret.no',
+		verified: '2026-04-15',
+	},
+
+	// ── Oseana ──
+	'oseana': {
+		discount: 'Studentrabatt tilgjengelig.',
+		source: 'manual',
+		url: 'https://www.oseana.no',
+		verified: '2026-04-15',
+	},
 
 	// ── Cinema ──
 	'bergen kino': {
@@ -278,6 +324,24 @@ export const STUDENT_DISCOUNTS: Record<string, StudentDiscount> = {
 	// ── Museums ──
 	'kode': {
 		discount: 'Student kr 100. Gratis for KMD/KIB/BAS/UiB kunsthistorie.',
+		source: 'manual',
+		url: 'https://www.kodebergen.no/en/billetter',
+		verified: '2026-04-15',
+	},
+	'permanenten': {
+		discount: 'Student kr 100 (KODE). Gratis for KMD/KIB/BAS/UiB kunsthistorie.',
+		source: 'manual',
+		url: 'https://www.kodebergen.no/en/billetter',
+		verified: '2026-04-15',
+	},
+	'stenersen': {
+		discount: 'Student kr 100 (KODE). Gratis for KMD/KIB/BAS/UiB kunsthistorie.',
+		source: 'manual',
+		url: 'https://www.kodebergen.no/en/billetter',
+		verified: '2026-04-15',
+	},
+	'rasmus meyer': {
+		discount: 'Student kr 100 (KODE). Gratis for KMD/KIB/BAS/UiB kunsthistorie.',
 		source: 'manual',
 		url: 'https://www.kodebergen.no/en/billetter',
 		verified: '2026-04-15',
