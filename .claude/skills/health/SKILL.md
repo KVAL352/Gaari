@@ -35,25 +35,16 @@ Run a health audit on the Gåri production site and local project: **$ARGUMENTS*
 !`npm audit --json 2>/dev/null | node -e "const d=require('fs').readFileSync(0,'utf8');try{const j=JSON.parse(d);const v=j.metadata?.vulnerabilities||{};console.log(JSON.stringify({critical:v.critical||0,high:v.high||0,moderate:v.moderate||0,total:v.total||0}))}catch{console.log('parse failed')}" || echo "audit failed"`
 
 ### Key pages (status codes)
-!`for url in "https://gaari.no/no/" "https://gaari.no/en/" "https://gaari.no/no/denne-helgen/" "https://gaari.no/no/konserter-i-bergen/" "https://gaari.no/sitemap.xml" "https://gaari.no/robots.txt"; do code=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null); echo "$code $url"; done`
+!`node .claude/skills/health/scripts/check-pages.mjs`
 
 ### IDN redirect (gåri.no → gaari.no)
-!`curl -s -o /dev/null -w "%{http_code} redirect:%{redirect_url}" "https://xn--gri-ula.no" 2>/dev/null || echo "IDN check failed"`
+!`node .claude/skills/health/scripts/check-idn.mjs`
 
-### Sitemap validity
-!`curl -s https://gaari.no/sitemap.xml 2>/dev/null | head -5 | grep -c "urlset" || echo "0"`
-
-### Umami analytics proxy
-!`curl -s -o /dev/null -w "%{http_code}" "https://gaari.no/u/script.js" 2>/dev/null || echo "Umami check failed"`
+### Integrations (Umami, Stripe, MailerLite, Sitemap)
+!`node .claude/skills/health/scripts/check-integrations.mjs`
 
 ### Vercel deployment (last 3)
-!`npx vercel ls --limit 3 --json 2>/dev/null | node -e "const d=require('fs').readFileSync(0,'utf8');try{const lines=d.trim().split('\n');const deps=lines.filter(l=>l.startsWith('{')).map(l=>{try{const o=JSON.parse(l);return o.state?{state:o.state,created:o.createdAt}:null}catch{return null}}).filter(Boolean).slice(0,3);console.log(JSON.stringify(deps))}catch{console.log('parse failed')}" 2>/dev/null || echo "vercel cli unavailable"`
-
-### MailerLite API
-!`curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $(grep MAILERLITE_API_KEY .env 2>/dev/null | cut -d= -f2-)" "https://connect.mailerlite.com/api/subscribers?limit=1" 2>/dev/null || echo "MailerLite check failed"`
-
-### Stripe webhook endpoint
-!`curl -s -o /dev/null -w "%{http_code}" -X POST "https://gaari.no/api/stripe-webhook" 2>/dev/null || echo "Stripe check failed"`
+!`gh api repos/KVAL352/Gaari/deployments --jq '.[0:3] | .[] | .id' 2>/dev/null | while read id; do gh api "repos/KVAL352/Gaari/deployments/$id/statuses" --jq '.[0] | {state, created_at}' 2>/dev/null; done || echo 'gh unavailable'`
 
 ## Report format (quick)
 
