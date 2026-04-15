@@ -12,6 +12,7 @@
 - `scripts/lib/__tests__/dedup.test.ts` — titlesMatch, scoreEvent
 - `scripts/lib/__tests__/scraper-health.test.ts` — classifyScrapers
 - `scripts/lib/__tests__/ticket-validation.test.ts` — validateTicketUrl
+- `src/lib/__tests__/student-filter.test.ts` — isStudentRelevant exclusion patterns (children, senior, business, literary, age ranges)
 - `src/lib/__tests__/query-timezone.test.ts` — UTC vs Oslo time regressions
 - `src/lib/__tests__/promotions.test.ts` — selectPromotedByDeficit convergence, multi-venue balancing, tier shares, newsletter rotation
 - `src/lib/__tests__/promotions-roles.test.ts` — 5-role QA (business analyst, venue owner, end user, devops, legal) + mid-month join scenarios
