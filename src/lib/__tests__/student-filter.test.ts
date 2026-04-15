@@ -9,6 +9,7 @@ function evt(overrides: Partial<{
 	age_group: string;
 	category: string;
 	venue_name: string;
+	bydel: string;
 }> = {}) {
 	return {
 		title_no: overrides.title_no ?? 'Test Event',
@@ -16,6 +17,7 @@ function evt(overrides: Partial<{
 		price: overrides.price ?? '',
 		age_group: overrides.age_group ?? '',
 		category: overrides.category ?? 'culture',
+		bydel: overrides.bydel ?? 'Sentrum',
 		venue_name: overrides.venue_name ?? 'Test Venue',
 	};
 }
@@ -414,6 +416,85 @@ describe('isStudentRelevant', () => {
 				category: 'culture',
 				price: '200 kr'
 			}))).toBe(1); // moderate price(1) only
+		});
+	});
+
+	describe('location penalty — outside student areas', () => {
+		it('free music in Laksevåg gets penalty (music+free−bydel = 2)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Gratiskonsert',
+				category: 'music',
+				price: '0',
+				bydel: 'Laksevåg'
+			}))).toBe(false); // 1+3−2 = 2, below threshold
+		});
+
+		it('free music in Sentrum passes (music+free = 4)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Gratiskonsert',
+				category: 'music',
+				price: '0',
+				bydel: 'Sentrum'
+			}))).toBe(true);
+		});
+
+		it('free music in Bergenhus passes (music+free = 4)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Gratiskonsert',
+				category: 'music',
+				price: '0',
+				bydel: 'Bergenhus'
+			}))).toBe(true);
+		});
+
+		it('student venue in Fana still passes (venue outweighs penalty)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Konsert',
+				category: 'music',
+				venue_name: 'Garage',
+				price: '100 kr',
+				bydel: 'Fana'
+			}))).toBe(true); // 4+1+2−2 = 5
+		});
+
+		it('cheap nightlife in Åsane excluded (nightlife+cheap−bydel = 2)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Afterwork',
+				category: 'nightlife',
+				price: '100 kr',
+				bydel: 'Åsane'
+			}))).toBe(false); // 2+2−2 = 2
+		});
+
+		it('nightlife in Sentrum passes (nightlife+cheap = 4)', () => {
+			expect(isStudentRelevant(evt({
+				title_no: 'Klubbkveld',
+				category: 'nightlife',
+				price: '100 kr',
+				bydel: 'Sentrum'
+			}))).toBe(true);
+		});
+
+		it('explicit student event in Fana still passes (strong signal)', () => {
+			expect(isStudentRelevant(evt({
+				age_group: 'students',
+				bydel: 'Fana'
+			}))).toBe(true); // bypasses scoring entirely
+		});
+
+		it('no bydel = no penalty', () => {
+			expect(studentRelevanceScore(evt({
+				category: 'music',
+				price: '0'
+			}))).toBe(4); // music(1)+free(3), no penalty
+		});
+
+		it('Arna gets penalty', () => {
+			expect(studentRelevanceScore(evt({
+				category: 'music',
+				price: '0',
+				bydel: 'Arna'
+			}))).toBe(2); // music(1)+free(3)−bydel(2)
 		});
 	});
 });

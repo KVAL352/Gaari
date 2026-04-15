@@ -3634,6 +3634,69 @@ const collections: Collection[] = [
 			const tomorrowStr = toOsloDateStr(addDays(now, 1));
 			return events.filter(e => eventOnDay(e, tomorrowStr));
 		}
+	},
+	{
+		id: 'things-to-do',
+		slug: 'ting-a-gjore',
+		title: {
+			no: 'Ting å gjøre i Bergen',
+			en: 'Things to Do in Bergen'
+		},
+		description: {
+			no: 'Alt du kan gjøre i Bergen — konserter, teater, utstillinger, familieaktiviteter, uteliv, festivaler og mer. Oppdatert daglig.',
+			en: 'Everything you can do in Bergen — concerts, theatre, exhibitions, family activities, nightlife, festivals and more. Updated daily.'
+		},
+		ogSubtitle: {
+			no: 'Arrangementer og aktiviteter',
+			en: 'Events and activities'
+		},
+		relatedSlugs: ['denne-helgen', 'i-dag', 'konserter', 'gratis', 'familiehelg', 'uteliv', 'teater', 'utstillinger', 'festivaler'],
+		footerLabel: { no: 'Ting å gjøre', en: 'Things to do' },
+		footer: { langs: ['en'], order: 18 },
+		newsletterHeading: { no: 'Få tips til ting å gjøre i Bergen', en: 'Get Bergen activity tips weekly' },
+		quickAnswer: {
+			no: `Bergen har typisk 150–250 arrangementer hver uke — konserter, teater, utstillinger, familieaktiviteter, festivaler, kurs og uteliv. Gåri samler alt fra ${SOURCE_COUNT} lokale kilder og oppdaterer daglig.`,
+			en: `Bergen typically has 150–250 events every week — concerts, theatre, exhibitions, family activities, festivals, workshops and nightlife. Gåri collects everything from ${SOURCE_COUNT} local sources and updates daily.`
+		},
+		editorial: {
+			no: [
+				'Bergen er en av Norges mest kulturrike byer, med et tilbud som spenner langt utover de kjente attraksjonene. Grieghallen og Bergen Filharmoniske tilbyr klassisk musikk i verdensklasse, Forum Scene og Ole Bull huser pop og rock, og USF Verftet og Kulturhuset i Bergen presenterer et bredere alternativt program.',
+				'Bergen har arrangementer for alle: gratis bibliotekaktiviteter, familiedager på Akvariet og Fløyen, studentkvelder på Kvarteret og Hulen, quizkvelder på puber, stand-up på Lille Ole Bull, og en festivalkalender som fyller mai til oktober.',
+				`Gåri samler alle arrangementer fra ${SOURCE_COUNT} uavhengige kilder i Bergen — spillesteder, teatre, museer, festivaler og billettplattformer. Listen oppdateres daglig klokken 06:00.`
+			],
+			en: [
+				'Bergen is one of Norway\'s most culturally rich cities, with offerings that extend far beyond its famous attractions. Grieghallen and the Bergen Philharmonic offer world-class classical music, Forum Scene and Ole Bull host pop and rock, and USF Verftet and Kulturhuset present a broader, more alternative programme.',
+				'Bergen has events for everyone: free library activities, family days at the Aquarium and Fløyen, student nights at Kvarteret and Hulen, pub quiz nights, stand-up at Lille Ole Bull, and a festival calendar that fills May through October.',
+				`Gåri collects all events from ${SOURCE_COUNT} independent sources in Bergen — venues, theatres, museums, festivals and ticketing platforms. The listing updates daily at 06:00.`
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hva kan man gjøre i Bergen?', a: `Bergen har konserter, teater, utstillinger, familieaktiviteter, festivaler, kurs og uteliv. Gåri samler alt fra ${SOURCE_COUNT} lokale kilder.` },
+				{ q: 'Hva kan man gjøre i Bergen i dag?', a: 'Sjekk Gåris i-dag-side for alle arrangementer i Bergen i dag — konserter, utstillinger, teater og mer.' },
+				{ q: 'Hva kan man gjøre i Bergen med barn?', a: 'Akvariet, Fløyen, KODE, VilVite og Bergen Bibliotek er populære valg. Gåri har en egen familiehelg-side.' },
+				{ q: 'Hva kan man gjøre i Bergen gratis?', a: 'Bergen har mange gratis aktiviteter — bibliotek, parker, gallerier, gratiskonserter og utstillinger. Se Gåris gratis-side.' },
+				{ q: 'Hva kan man gjøre i Bergen når det regner?', a: 'KODE, Akvariet, teater, konserter og bibliotek er gode innendørsvalg. Se Gåris regnværsguide.' },
+				{ q: 'Hva er de beste festivalene i Bergen?', a: 'Festspillene, Nattjazz, Bergenfest, Beyond the Gates, Bergen Pride og BIFF. Se Gåris festivalside.' },
+				{ q: 'Er det uteliv i Bergen?', a: 'Bergen har et aktivt uteliv med konserter, klubber, quizkvelder og stand-up. Se Gåris utelivsside.' },
+				{ q: 'Hva skjer i Bergen denne helgen?', a: 'Sjekk Gåris denne-helgen-side. Bergen har typisk 40–80 arrangementer hver helg.' }
+			],
+			en: [
+				{ q: 'What can you do in Bergen?', a: `Bergen has concerts, theatre, exhibitions, family activities, festivals, workshops and nightlife. Gåri collects everything from ${SOURCE_COUNT} local sources.` },
+				{ q: 'What can you do in Bergen today?', a: "Check Gåri's today page for all events in Bergen today — concerts, exhibitions, theatre and more." },
+				{ q: 'What can you do in Bergen with kids?', a: "The Aquarium, Fløyen, KODE, VilVite and Bergen Library are popular choices. Gåri has a dedicated family page." },
+				{ q: 'What can you do in Bergen for free?', a: "Bergen has many free activities — libraries, parks, galleries, free concerts and exhibitions. See Gåri's free events page." },
+				{ q: 'What can you do in Bergen when it rains?', a: "KODE, the Aquarium, theatre, concerts and libraries are great indoor options. See Gåri's rainy day guide." },
+				{ q: 'What are the best festivals in Bergen?', a: "The Bergen International Festival, Nattjazz, Bergenfest, Beyond the Gates, Bergen Pride and BIFF. See Gåri's festival page." },
+				{ q: 'Is there nightlife in Bergen?', a: "Bergen has an active nightlife with concerts, clubs, pub quizzes and stand-up comedy. See Gåri's nightlife page." },
+				{ q: "What's on in Bergen this weekend?", a: "Check Gåri's this weekend page. Bergen typically has 40–80 events each weekend." }
+			]
+		},
+		filterEvents: (events, now) => {
+			const todayStr = toOsloDateStr(now);
+			const endStr = toOsloDateStr(addDays(now, 14));
+			return events.filter(e => eventOverlapsRange(e, todayStr, endStr));
+		}
 	}
 ];
 
@@ -3644,6 +3707,10 @@ const SLUG_ALIASES: Record<string, string> = {
 	'live-musikk': 'konserter',
 	'festivals-in-bergen': 'festivaler',
 	'tomorrow-in-bergen': 'i-morgen',
+	'rainy-day-bergen': 'regndagsguide',
+	'family-bergen': 'familiehelg',
+	'nightlife-bergen': 'uteliv',
+	'things-to-do-bergen': 'ting-a-gjore',
 };
 
 export function getCollection(slug: string): Collection | undefined {
@@ -3728,6 +3795,15 @@ const HREFLANG_PAIRS: Record<string, Record<'no' | 'en', string>> = {
 	'festivals-in-bergen': { no: 'festivaler', en: 'festivals-in-bergen' },
 	'i-morgen': { no: 'i-morgen', en: 'tomorrow-in-bergen' },
 	'tomorrow-in-bergen': { no: 'i-morgen', en: 'tomorrow-in-bergen' },
+	// Phase 3: EN tourist slugs for existing bilingual collections
+	'regndagsguide': { no: 'regndagsguide', en: 'rainy-day-bergen' },
+	'rainy-day-bergen': { no: 'regndagsguide', en: 'rainy-day-bergen' },
+	'familiehelg': { no: 'familiehelg', en: 'family-bergen' },
+	'family-bergen': { no: 'familiehelg', en: 'family-bergen' },
+	'uteliv': { no: 'uteliv', en: 'nightlife-bergen' },
+	'nightlife-bergen': { no: 'uteliv', en: 'nightlife-bergen' },
+	'ting-a-gjore': { no: 'ting-a-gjore', en: 'things-to-do-bergen' },
+	'things-to-do-bergen': { no: 'ting-a-gjore', en: 'things-to-do-bergen' },
 	// SEO aliases — redirect alternate search terms to canonical collections
 	'live-musikk': { no: 'konserter', en: 'konserter' },
 };

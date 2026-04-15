@@ -198,6 +198,9 @@ const STUDENT_VENUES = [
 
 const STUDENT_SCORE_THRESHOLD = 3;
 
+// Bydeler where students live and hang out — no penalty
+const STUDENT_BYDELER = new Set(['Sentrum', 'Bergenhus']);
+
 export function studentRelevanceScore(e: {
 	title_no: string;
 	description_no?: string;
@@ -205,6 +208,7 @@ export function studentRelevanceScore(e: {
 	age_group: string;
 	category: string;
 	venue_name?: string;
+	bydel?: string;
 }): number {
 	const title = e.title_no;
 	const desc = e.description_no || '';
@@ -239,6 +243,9 @@ export function studentRelevanceScore(e: {
 	if (e.age_group === '18+') score += 1;
 	if (/quiz|\bpub\b|\bklubb/i.test(title)) score += 1;
 
+	// ── Location penalty: outside student areas (−2) ──
+	if (e.bydel && !STUDENT_BYDELER.has(e.bydel)) score -= 2;
+
 	return score;
 }
 
@@ -249,6 +256,7 @@ export function isStudentRelevant(e: {
 	age_group: string;
 	category: string;
 	venue_name?: string;
+	bydel?: string;
 }): boolean {
 	// ── Always include: explicit student events ──
 	if (e.age_group === 'students' || e.category === 'student') return true;
