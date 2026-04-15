@@ -173,13 +173,15 @@ export function hasStudentPrice(venueName: string): boolean {
 
 // ── Student filter patterns ──
 
-const SENIOR_RE = /\bsenior|\bpensjonist|\beldretreff|\beldre\b/i;
-const CHILDREN_RE = /\bjunior(?:klubb)?\b|\bfor\s+barn|\bbarnas\s|\bbarneforestilling|\bfor\s+de(?:i)?\s+minste|\bspråkle[ik]k?\b|\bhjelp\s+til\s+skole/i;
+// NOTE: \b doesn't work before Norwegian chars (å,æ,ø are \W in JS regex).
+// Use (?:^|\s) or just drop \b for patterns starting with Norwegian letters.
+const SENIOR_RE = /\bsenior|\bpensjonist|\beldretreff|(?:^|\s)eldre(?:\s|$)/i;
+const CHILDREN_RE = /\bjunior(?:klubb)?(?:\s|$)|\bfor\s+barn|\bbarnas\s|\bbarneforestilling|\bfor\s+de(?:i)?\s+minste|(?:^|\s)språkle[ik]k?(?:\s|$)|\bhjelp\s+til\s+skole/i;
 const YOUTH_TITLE_RE = /\bungdom|\bfor\s+ungdom|\bungdomskveld/i;
 const UNG_STANDALONE_RE = /\bUNG\b/; // uppercase "UNG" = youth branding (Kulturrommet UNG)
-const BUSINESS_RE = /\bnæringsråd|\bnæringsliv|\btransportplan|\bnæringsforening|\bhandelsforening|\bårskonferanse|\bbærekraft(?:s(?:trapp|rapport|strategi))?\b|\bsjømaktseminar|\bserviceby/i;
-const SENIOR_ACTIVITY_RE = /\benkel\s+fottur|\benkel\s+tur\b|\bturvenner\b|\bnabolagskaf[eé]|\bstrikkekaf[eé]|\bdatahjelp|\blesesirkel|\bhøytlesning\b.*\bhåndarbeid|\bhåndarbeid\s+for\s+alle/i;
-const LITERARY_RE = /\bforfattertreff|\bbokbad|\bforfatterm[øo]te|\bboklubb\b|\blitterær\s+lunsj/i;
+const BUSINESS_RE = /(?:^|\s)næringsråd|(?:^|\s)næringsliv|\btransportplan|(?:^|\s)næringsforening|\bhandelsforening|(?:^|\s)årskonferanse|(?:^|\s)bærekraft|(?:^|\s)sjømaktseminar|\bserviceby/i;
+const SENIOR_ACTIVITY_RE = /\benkel\s+fottur|\benkel\s+tur(?:\s|$)|\bturvenner(?:\s|$)|nabolagskaf[eé]|strikkekaf[eé]|\bdatahjelp|\blesesirkel|(?:^|\s)høytlesning\b.*(?:^|\s)håndarbeid|(?:^|\s)håndarbeid\s+for\s+alle/i;
+const LITERARY_RE = /\bforfattertreff|\bbokbad|\bforfatterm[øo]te|\bboklubb(?:\s|$)|litter[æa]r\s+lunsj/i;
 const BUSINESS_VENUES = ['bergen næringsråd', 'næringsforening', 'handelsforening'];
 
 export function isStudentRelevant(e: {
