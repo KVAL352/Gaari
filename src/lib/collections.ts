@@ -3365,6 +3365,264 @@ const collections: Collection[] = [
 				return d >= weekBefore && d <= end;
 			});
 		}
+	},
+	// ── Phase 2 collections (April 2026) ──
+	{
+		id: 'quiz',
+		slug: 'quiz',
+		title: {
+			no: 'Quiz i Bergen',
+			en: 'Pub Quiz in Bergen'
+		},
+		description: {
+			no: 'Quizkvelder i Bergen — Børskjelleren, Finnegans, Victoria, Metz og flere. Finn quiz i Bergen i dag eller denne uken.',
+			en: 'Pub quiz nights in Bergen — Børskjelleren, Finnegans, Victoria, Metz and more. Find a quiz in Bergen today or this week.'
+		},
+		ogSubtitle: {
+			no: 'Quizkvelder i Bergen',
+			en: 'Quiz nights in Bergen'
+		},
+		relatedSlugs: ['uteliv', 'i-kveld', 'gratis'],
+		footerLabel: { no: 'Quiz', en: 'Quiz' },
+		footer: { langs: ['no'], order: 15 },
+		newsletterHeading: { no: 'Quiztips i Bergen', en: 'Quiz night picks in Bergen' },
+		quickAnswer: {
+			no: `Bergen har quizkvelder nesten hver dag i uken — på puber som Børskjelleren, Finnegans, Victoria Cafe, Metz og O'Connors. De fleste quizene er gratis å delta på, og dekker alt fra musikk og film til historie og sport. Gåri samler alle quiz-arrangementer fra ${SOURCE_COUNT} lokale kilder.`,
+			en: `Bergen has pub quiz nights nearly every day of the week — at pubs like Børskjelleren, Finnegans, Victoria Cafe, Metz and O'Connors. Most quizzes are free to join and cover everything from music and film to history and sport. Gåri collects all quiz events from ${SOURCE_COUNT} local sources.`
+		},
+		editorial: {
+			no: [
+				'Bergen har en aktiv quizkultur, med faste quizkvelder spredt over hele uken. Børskjelleren kjører quiz to ganger i uken, Finnegans har fast quiz på onsdager, og Victoria Cafe og Metz har ukentlige quiz-arrangement. De fleste puber tilbyr quiz gratis — du trenger bare et lag og godt humør.',
+				`Gåri samler alle quiz-arrangementer i Bergen fra ${SOURCE_COUNT} lokale kilder. Enten du leter etter quiz i Bergen i dag, i kveld, eller en spesiell ukedag — alt er samlet her.`
+			],
+			en: [
+				'Bergen has an active pub quiz culture, with regular quiz nights spread across the week. Børskjelleren runs quiz twice a week, Finnegans has a fixed Wednesday quiz, and Victoria Cafe and Metz have weekly quiz events. Most pubs offer free entry — you just need a team and good spirits.',
+				`Gåri collects all quiz events in Bergen from ${SOURCE_COUNT} local sources. Whether you are looking for a quiz in Bergen today, tonight, or on a specific weekday — everything is gathered here.`
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hvor er det quiz i Bergen i dag?', a: `Sjekk listen ovenfor for dagens quizkvelder i Bergen. Gåri oppdateres daglig fra ${SOURCE_COUNT} lokale kilder.` },
+				{ q: 'Hvilke puber har quiz i Bergen?', a: 'Børskjelleren, Finnegans, Victoria Cafe, Metz, O\'Connors og Inside Rock Cafe er blant Bergens mest populære quiz-puber.' },
+				{ q: 'Er pubquiz i Bergen gratis?', a: 'De fleste quizkvelder i Bergen er gratis å delta på. Noen steder har premier for vinnerlaget.' },
+				{ q: 'Hvilken dag er det quiz i Bergen?', a: 'Bergen har quizkvelder nesten hver dag. Onsdag og torsdag er mest populært, men du finner quiz på de fleste ukedager.' }
+			],
+			en: [
+				{ q: 'Where is there a pub quiz in Bergen today?', a: `Check the list above for today's quiz nights in Bergen. Gåri updates daily from ${SOURCE_COUNT} local sources.` },
+				{ q: 'Which pubs have quiz in Bergen?', a: 'Børskjelleren, Finnegans, Victoria Cafe, Metz, O\'Connors and Inside Rock Cafe are among Bergen\'s most popular quiz pubs.' },
+				{ q: 'Is pub quiz in Bergen free?', a: 'Most quiz nights in Bergen are free to join. Some venues offer prizes for the winning team.' },
+				{ q: 'What day is pub quiz in Bergen?', a: 'Bergen has quiz nights nearly every day. Wednesday and Thursday are most popular, but you can find quizzes on most weekdays.' }
+			]
+		},
+		filterEvents: (events, now) => {
+			const todayStr = toOsloDateStr(now);
+			const endStr = getEndOfWeekDateStr(todayStr, 14);
+			return events.filter(e => {
+				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
+				const title = (e.title_no || '').toLowerCase();
+				return /\bquiz\b|\btrivia\b|\bquizkveld\b|\bpubquiz\b/.test(title);
+			});
+		}
+	},
+	{
+		id: 'standup',
+		slug: 'stand-up',
+		title: {
+			no: 'Stand-up i Bergen',
+			en: 'Stand-up Comedy in Bergen'
+		},
+		description: {
+			no: 'Stand-up og komedie i Bergen — Lille Ole Bull, Børskjelleren, Ole Bull Scene og flere. Oppdatert daglig.',
+			en: 'Stand-up comedy in Bergen — Lille Ole Bull, Børskjelleren, Ole Bull Scene and more. Updated daily.'
+		},
+		ogSubtitle: {
+			no: 'Komedie i Bergen',
+			en: 'Comedy in Bergen'
+		},
+		relatedSlugs: ['uteliv', 'i-kveld', 'konserter'],
+		footerLabel: { no: 'Stand-up', en: 'Stand-up' },
+		footer: { langs: ['no'], order: 16 },
+		newsletterHeading: { no: 'Komedietips i Bergen', en: 'Comedy picks in Bergen' },
+		quickAnswer: {
+			no: `Bergen har et aktivt stand-up-miljø med jevnlige show på Lille Ole Bull, Børskjelleren, Ole Bull Scene og andre scener. Stand Up Bergen arrangerer Klubbkveld og Humorlaboratoriet flere ganger i uken. Gåri samler alle komedie-arrangementer fra ${SOURCE_COUNT} lokale kilder.`,
+			en: `Bergen has an active stand-up scene with regular shows at Lille Ole Bull, Børskjelleren, Ole Bull Scene and other venues. Stand Up Bergen organises Klubbkveld and Humorlaboratoriet several times a week. Gåri collects all comedy events from ${SOURCE_COUNT} local sources.`
+		},
+		editorial: {
+			no: [
+				'Bergen har et levende stand-up-miljø. Lille Ole Bull er hovedscenen for ukentlige klubbkvelder, mens Børskjelleren huser Humorlaboratoriet — et åpent mikrofon-konsept der nye og erfarne komikere tester materiale. Ole Bull Scene og Forum Scene trekker internasjonale navn.',
+				`Gåri samler alle stand-up- og komediarrangementer i Bergen fra ${SOURCE_COUNT} lokale kilder — fra intime klubbkvelder til store show med internasjonale artister.`
+			],
+			en: [
+				'Bergen has a vibrant stand-up scene. Lille Ole Bull is the main venue for weekly club nights, while Børskjelleren hosts Humorlaboratoriet — an open mic concept where new and experienced comedians test material. Ole Bull Scene and Forum Scene attract international names.',
+				`Gåri collects all stand-up and comedy events in Bergen from ${SOURCE_COUNT} local sources — from intimate club nights to large shows with international artists.`
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hvor er det stand-up i Bergen i dag?', a: `Sjekk listen ovenfor for dagens stand-up-show i Bergen. Gåri oppdateres daglig fra ${SOURCE_COUNT} lokale kilder.` },
+				{ q: 'Hvilke steder har stand-up i Bergen?', a: 'Lille Ole Bull, Børskjelleren, Ole Bull Scene, Forum Scene og Sydvest er blant Bergens mest aktive stand-up-scener.' },
+				{ q: 'Hva koster stand-up i Bergen?', a: 'Humorlaboratoriet på Børskjelleren har fri entré. Klubbkvelder på Lille Ole Bull koster typisk 100–200 kr. Store show varierer.' },
+				{ q: 'Er det stand-up i Bergen på engelsk?', a: 'Noen stand-up-show i Bergen er på engelsk, spesielt når internasjonale komikere besøker. Sjekk arrangementbeskrivelsen for språk.' }
+			],
+			en: [
+				{ q: 'Where is there stand-up comedy in Bergen today?', a: `Check the list above for today's comedy shows in Bergen. Gåri updates daily from ${SOURCE_COUNT} local sources.` },
+				{ q: 'Which venues have stand-up in Bergen?', a: 'Lille Ole Bull, Børskjelleren, Ole Bull Scene, Forum Scene and Sydvest are among Bergen\'s most active comedy venues.' },
+				{ q: 'How much does stand-up cost in Bergen?', a: 'Humorlaboratoriet at Børskjelleren has free entry. Club nights at Lille Ole Bull typically cost 100–200 NOK. Larger shows vary.' },
+				{ q: 'Is there English-language stand-up in Bergen?', a: 'Some stand-up shows in Bergen are in English, especially when international comedians visit. Check the event description for language.' }
+			]
+		},
+		filterEvents: (events, now) => {
+			const todayStr = toOsloDateStr(now);
+			const endStr = getEndOfWeekDateStr(todayStr, 14);
+			return events.filter(e => {
+				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
+				const title = (e.title_no || '').toLowerCase();
+				return /\bstand[\s-]?up\b|\bkomedie\b|\bcomedy\b|\bhumor(?:laboratoriet|show)\b|\bklubbkveld\b/.test(title);
+			});
+		}
+	},
+	{
+		id: 'festivals-hub',
+		slug: 'festivaler',
+		title: {
+			no: 'Festivaler i Bergen',
+			en: 'Festivals in Bergen'
+		},
+		description: {
+			no: 'Alle festivaler i Bergen — Festspillene, Bergenfest, Nattjazz, Beyond the Gates, Bergen Pride, BIFF og flere. Komplett festivalkalender.',
+			en: 'All festivals in Bergen — Bergen International Festival, Bergenfest, Nattjazz, Beyond the Gates, Bergen Pride, BIFF and more. Complete festival calendar.'
+		},
+		ogSubtitle: {
+			no: 'Festivalkalenderen',
+			en: 'The festival calendar'
+		},
+		relatedSlugs: ['festspillene', 'bergenfest', 'nattjazz', 'beyond-the-gates', 'bergen-pride', 'biff'],
+		newsletterHeading: { no: 'Festivaltips i Bergen', en: 'Festival picks in Bergen' },
+		footerLabel: { no: 'Festivaler', en: 'Festivals' },
+		footer: { langs: ['no', 'en'], order: 17 },
+		quickAnswer: {
+			no: `Bergen er en av Norges viktigste festivalbyer. Festspillene (mai–juni), Nattjazz (mai–juni), Bergenfest (juni), Beyond the Gates (juli), Bergen Pride (juni) og BIFF (oktober) er de største. Gåri samler alle festivalprogram fra ${SOURCE_COUNT} lokale kilder.`,
+			en: `Bergen is one of Norway's most important festival cities. The Bergen International Festival (May–June), Nattjazz (May–June), Bergenfest (June), Beyond the Gates (July), Bergen Pride (June) and BIFF (October) are the biggest. Gåri collects all festival programmes from ${SOURCE_COUNT} local sources.`
+		},
+		editorial: {
+			no: [
+				'Bergen har en unik festivalkonsentrasjon. Festspillene i Bergen (grunnlagt 1953) er Nordens flaggskipfestival for musikk og scenekunst, med over 150 arrangementer over to uker. Nattjazz er en av Europas eldste jazzfestivaler. Bergenfest samler nordiske og internasjonale artister i Bergenshus festning. Beyond the Gates er Bergens metalfestival, og BIFF (Bergen Internasjonale Filmfestival) er Norges største filmfestival.',
+				'Bergen Pride feirer mangfold i juni, Borealis utforsker eksperimentell musikk i mars, og en rekke mindre festivaler fyller kalenderen gjennom året. Gåri har egne sider for hver festival med komplett program.'
+			],
+			en: [
+				'Bergen has a unique festival concentration. The Bergen International Festival (founded 1953) is the Nordic flagship festival for music and performing arts, with over 150 events across two weeks. Nattjazz is one of Europe\'s oldest jazz festivals. Bergenfest gathers Nordic and international artists at Bergenhus Fortress. Beyond the Gates is Bergen\'s metal festival, and BIFF (Bergen International Film Festival) is Norway\'s largest film festival.',
+				'Bergen Pride celebrates diversity in June, Borealis explores experimental music in March, and numerous smaller festivals fill the calendar throughout the year. Gåri has dedicated pages for each festival with the complete programme.'
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Hvilke festivaler er i Bergen?', a: 'Bergens største festivaler er Festspillene, Nattjazz, Bergenfest, Beyond the Gates, Bergen Pride og BIFF. Se listen ovenfor for kommende festivaler.' },
+				{ q: 'Når er festivalsesong i Bergen?', a: 'Hovudsesong er mai–juni (Festspillene, Nattjazz, Bergenfest, Sankthans). Beyond the Gates er i juli/august, BIFF i oktober. Bergen har festivaler hele året.' },
+				{ q: 'Finnes det gratis festivaler i Bergen?', a: 'Flere festivaler har gratis arrangementer — Festspillene har utendørskonserter, Bergen Pride har parade og gratisarrangementer, og Nattjazz har enkelte gratisshow.' },
+				{ q: 'Hvor kjøper jeg festivalbilletter i Bergen?', a: 'Gåri lenker direkte til festivalens eget billettsystem — aldri via mellommenn. Klikk på arrangementet for billettlenke.' }
+			],
+			en: [
+				{ q: 'What festivals are in Bergen?', a: 'Bergen\'s biggest festivals are the Bergen International Festival, Nattjazz, Bergenfest, Beyond the Gates, Bergen Pride and BIFF. See the list above for upcoming festivals.' },
+				{ q: 'When is festival season in Bergen?', a: 'Main season is May–June (Bergen Festival, Nattjazz, Bergenfest, Midsummer). Beyond the Gates is in July/August, BIFF in October. Bergen has festivals year-round.' },
+				{ q: 'Are there free festivals in Bergen?', a: 'Several festivals have free events — the Bergen Festival has outdoor concerts, Bergen Pride has a parade and free events, and Nattjazz has some free shows.' },
+				{ q: 'Where do I buy festival tickets in Bergen?', a: 'Gåri links directly to each festival\'s own ticketing system — never via intermediaries. Click the event for the ticket link.' }
+			]
+		},
+		filterEvents: (events, now) => {
+			const todayStr = toOsloDateStr(now);
+			const endStr = getEndOfWeekDateStr(todayStr, 90);
+			return events.filter(e => {
+				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
+				if (e.category === 'festival') return true;
+				const title = (e.title_no || '').toLowerCase();
+				return /\bfestival\b|\bfest(?:spillene|ivalen)\b/.test(title);
+			});
+		}
+	},
+	{
+		id: 'talks',
+		slug: 'foredrag',
+		title: {
+			no: 'Foredrag i Bergen',
+			en: 'Talks & Lectures in Bergen'
+		},
+		description: {
+			no: 'Foredrag, debatter og forelesninger i Bergen — bibliotek, universiteter og kulturhus. Mange er gratis.',
+			en: 'Talks, debates and lectures in Bergen — libraries, universities and cultural venues. Many are free.'
+		},
+		ogSubtitle: {
+			no: 'Foredrag og debatter',
+			en: 'Talks and debates'
+		},
+		relatedSlugs: ['gratis', 'utstillinger', 'voksen'],
+		newsletterHeading: { no: 'Foredrag og debatter i Bergen', en: 'Talks and lectures in Bergen' },
+		quickAnswer: {
+			no: `Bergen har et rikt foredragstilbud. Bergen Offentlige Bibliotek, Litteraturhuset, UiB og en rekke kulturhus arrangerer foredrag, debatter og bokbad gjennom hele året. Mange er gratis og åpne for alle. Gåri samler alle foredragsarrangementer fra ${SOURCE_COUNT} lokale kilder.`,
+			en: `Bergen has a rich programme of talks and lectures. Bergen Public Library, Litteraturhuset, UiB and various cultural venues host talks, debates and book events throughout the year. Many are free and open to all. Gåri collects all talk events from ${SOURCE_COUNT} local sources.`
+		},
+		faq: {
+			no: [
+				{ q: 'Hvor er det foredrag i Bergen?', a: 'Bergen Offentlige Bibliotek, Litteraturhuset, UiB, Bryggens Museum og kulturhus rundt i byen arrangerer jevnlig foredrag og debatter.' },
+				{ q: 'Er foredrag i Bergen gratis?', a: 'Mange foredrag i Bergen er gratis, særlig på bibliotekene og universitetet. Sjekk det enkelte arrangementet for pris.' },
+				{ q: 'Finnes det foredrag på engelsk i Bergen?', a: 'UiB og flere kulturinstitusjoner arrangerer foredrag på engelsk, spesielt innen vitenskap og internasjonale tema.' },
+				{ q: 'Hva slags foredrag finnes i Bergen?', a: 'Alt fra populærvitenskap og historie til litteratur, politikk og debatt. Bergen har foredragstilbud for alle interesser.' }
+			],
+			en: [
+				{ q: 'Where are there talks in Bergen?', a: 'Bergen Public Library, Litteraturhuset, UiB, Bryggens Museum and cultural venues around the city regularly host talks and debates.' },
+				{ q: 'Are talks in Bergen free?', a: 'Many talks in Bergen are free, especially at libraries and the university. Check each event for pricing.' },
+				{ q: 'Are there English-language talks in Bergen?', a: 'UiB and several cultural institutions host talks in English, especially on science and international topics.' },
+				{ q: 'What kind of talks are there in Bergen?', a: 'Everything from popular science and history to literature, politics and debate. Bergen has talks for all interests.' }
+			]
+		},
+		filterEvents: (events, now) => {
+			const todayStr = toOsloDateStr(now);
+			const endStr = getEndOfWeekDateStr(todayStr, 14);
+			return events.filter(e => {
+				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
+				const title = (e.title_no || '').toLowerCase();
+				return /\bforedrag\b|\blecture\b|\bdebatt\b|\bbokbad\b|\bforfattertreff\b|\bforfatter(?:m[øo]te|samtale)\b|\bfagdag\b|\bseminar\b|\btalk\b/.test(title);
+			});
+		}
+	},
+	{
+		id: 'tomorrow',
+		slug: 'i-morgen',
+		title: {
+			no: 'Hva skjer i Bergen i morgen',
+			en: 'What\u2019s On in Bergen Tomorrow'
+		},
+		description: {
+			no: 'Arrangementer i Bergen i morgen — konserter, utstillinger, teater og aktiviteter. Oppdatert daglig.',
+			en: 'Events in Bergen tomorrow — concerts, exhibitions, theatre and activities. Updated daily.'
+		},
+		ogSubtitle: {
+			no: 'I morgen i Bergen',
+			en: 'Tomorrow in Bergen'
+		},
+		relatedSlugs: ['i-dag', 'denne-helgen', 'i-kveld'],
+		newsletterHeading: { no: 'Aldri gå tom for planer i Bergen', en: 'Never run out of Bergen plans' },
+		quickAnswer: {
+			no: `Hva skjer i Bergen i morgen? Gåri viser alle arrangementer som starter i morgen — konserter, utstillinger, teater, familieaktiviteter og mer. Oppdatert daglig fra ${SOURCE_COUNT} lokale kilder.`,
+			en: `What's on in Bergen tomorrow? Gåri shows all events starting tomorrow — concerts, exhibitions, theatre, family activities and more. Updated daily from ${SOURCE_COUNT} local sources.`
+		},
+		faq: {
+			no: [
+				{ q: 'Hva skjer i Bergen i morgen?', a: `Gåri viser alle arrangementer i Bergen i morgen — konserter, utstillinger, teater og aktiviteter. Oppdatert daglig fra ${SOURCE_COUNT} lokale kilder.` },
+				{ q: 'Er det noe gratis å gjøre i Bergen i morgen?', a: 'Bergen har ofte gratis arrangementer daglig. Bruk gratis-filteret for å finne arrangementer uten billettpris i morgen.' },
+				{ q: 'Hva kan familier gjøre i Bergen i morgen?', a: 'Sjekk listen ovenfor og filtrer på familievennlige arrangementer. Akvariet, Fløyen og KODE har ofte daglige aktiviteter.' },
+				{ q: 'Hvor mange arrangementer er det i Bergen i morgen?', a: `Bergen har typisk 20–50 arrangementer daglig. Gåri samler dem fra ${SOURCE_COUNT} lokale kilder og oppdaterer hver morgen.` }
+			],
+			en: [
+				{ q: "What's happening in Bergen tomorrow?", a: `Gåri shows all events in Bergen tomorrow — concerts, exhibitions, theatre and activities. Updated daily from ${SOURCE_COUNT} local sources.` },
+				{ q: 'Is there anything free to do in Bergen tomorrow?', a: "Bergen often has free events daily. Use the free filter to find no-cost activities tomorrow." },
+				{ q: 'What can families do in Bergen tomorrow?', a: 'Check the list above and filter for family-friendly events. The Aquarium, Fløyen and KODE often have daily activities.' },
+				{ q: 'How many events are in Bergen tomorrow?', a: `Bergen typically has 20–50 events daily. Gåri collects them from ${SOURCE_COUNT} local sources and updates every morning.` }
+			]
+		},
+		filterEvents: (events, now) => {
+			const tomorrowStr = addDays(toOsloDateStr(now), 1);
+			return events.filter(e => eventOnDay(e, tomorrowStr));
+		}
 	}
 ];
 
@@ -3373,6 +3631,8 @@ const collectionMap = new Map(collections.map(c => [c.slug, c]));
 /** Aliases that 301-redirect to canonical collection slugs (SEO alternate queries) */
 const SLUG_ALIASES: Record<string, string> = {
 	'live-musikk': 'konserter',
+	'festivals-in-bergen': 'festivaler',
+	'tomorrow-in-bergen': 'i-morgen',
 };
 
 export function getCollection(slug: string): Collection | undefined {
@@ -3452,6 +3712,11 @@ const HREFLANG_PAIRS: Record<string, Record<'no' | 'en', string>> = {
 	'biff-bergen': { no: 'biff', en: 'biff-bergen' },
 	'borealis': { no: 'borealis', en: 'borealis-bergen' },
 	'borealis-bergen': { no: 'borealis', en: 'borealis-bergen' },
+	// Phase 2 new collections
+	'festivaler': { no: 'festivaler', en: 'festivals-in-bergen' },
+	'festivals-in-bergen': { no: 'festivaler', en: 'festivals-in-bergen' },
+	'i-morgen': { no: 'i-morgen', en: 'tomorrow-in-bergen' },
+	'tomorrow-in-bergen': { no: 'i-morgen', en: 'tomorrow-in-bergen' },
 	// SEO aliases — redirect alternate search terms to canonical collections
 	'live-musikk': { no: 'konserter', en: 'konserter' },
 };
