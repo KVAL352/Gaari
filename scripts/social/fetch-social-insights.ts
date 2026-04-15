@@ -16,6 +16,7 @@ const META_TOKEN = process.env.META_ACCESS_TOKEN || process.env.IG_ACCESS_TOKEN 
 const IG_USER_ID = process.env.IG_USER_ID || '';
 const FB_PAGE_ID = process.env.FB_PAGE_ID || '';
 const GRAPH_API = 'https://graph.facebook.com/v22.0';
+const GRAPH_API_RE = /^https:\/\/graph\.facebook\.com\/v[\d.]+/;
 const DRY_RUN = process.argv.includes('--dry-run');
 
 /** How many days back to discover posts */
@@ -73,7 +74,7 @@ async function fetchIgPosts(): Promise<IgPost[]> {
 			if (ts < since) { url = ''; break; }
 			posts.push(post);
 		}
-		url = data.paging?.next ? data.paging.next.replace(GRAPH_API, '') : '';
+		url = data.paging?.next ? data.paging.next.replace(GRAPH_API_RE, '') : '';
 		if (url) await delay(500);
 	}
 
@@ -140,7 +141,7 @@ async function fetchFbPosts(): Promise<FbPost[]> {
 		const data = await graphGetWithToken(url, pageToken);
 		if (!data.data?.length) break;
 		posts.push(...data.data);
-		url = data.paging?.next ? data.paging.next.replace(GRAPH_API, '') : '';
+		url = data.paging?.next ? data.paging.next.replace(GRAPH_API_RE, '') : '';
 		if (url) await delay(500);
 	}
 

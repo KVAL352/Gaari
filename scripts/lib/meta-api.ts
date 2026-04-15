@@ -20,6 +20,7 @@ export const META_AD_ACCOUNT_ID = process.env.META_AD_ACCOUNT_ID || '';
 export const FB_PAGE_ID = process.env.FB_PAGE_ID || '';
 export const IG_USER_ID = process.env.IG_USER_ID || '';
 export const GRAPH_API = 'https://graph.facebook.com/v22.0';
+const GRAPH_API_RE = /^https:\/\/graph\.facebook\.com\/v[\d.]+/;
 
 if (!META_TOKEN) {
 	console.error('Missing META_ACCESS_TOKEN in .env');
@@ -84,7 +85,7 @@ export async function graphGetAll<T>(
 		if (Array.isArray(data.data)) results.push(...data.data);
 		const next = data.paging?.next;
 		if (!next) break;
-		current = next.replace(GRAPH_API, '');
+		current = next.replace(GRAPH_API_RE, '');
 		pages++;
 		if (pages < maxPages) await delay(300);
 	}
