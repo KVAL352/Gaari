@@ -4,7 +4,7 @@
 	import { CATEGORIES, BYDELER } from '$lib/types';
 	import type { Lang, TimeOfDay, GaariEvent } from '$lib/types';
 	import { CATEGORY_HEX_COLORS } from '$lib/utils';
-	import { isFreeEvent, isTouristFriendly } from '$lib/utils';
+	import { isFreeEvent, isTouristFriendly, isStudentRelevant } from '$lib/utils';
 	import FilterPill from './FilterPill.svelte';
 	import MiniCalendar from './MiniCalendar.svelte';
 	import { Users, Drama, GraduationCap, Moon, MapPin, Mail, Sparkle } from 'lucide-svelte';
@@ -94,7 +94,7 @@
 			if (/\bhulen\b/i.test(e.title_no)) return false;
 			return true;
 		}).length;
-		counts.student = activeEvents.filter(e => e.age_group === 'students' || e.category === 'student').length;
+		counts.student = activeEvents.filter(e => isStudentRelevant(e)).length;
 		const adultVenueNames = [
 			'hulen', 'garage', 'kvarteret', 'akademiske kvarter', 'landmark',
 			'bergen kjøtt', 'fincken', 'røkeriet', 'østre', 'bodega',

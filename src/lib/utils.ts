@@ -146,19 +146,16 @@ export function isTouristFriendly(e: { title_no?: string; category?: string; ven
 export function parseLowestPrice(price: string | number | null): number | null {
 	if (price === null || price === undefined || price === '') return null;
 	if (typeof price === 'number') return price;
-	const numbers = price.match(/\d+/g);
+	// Normalize Norwegian thousand separators (space, non-breaking space, period before 3 digits)
+	// "2 399 kr" → "2399 kr", "1.500,-" → "1500,-"
+	const normalized = price.replace(/(\d)[\s\u00a0.](\d{3})\b/g, '$1$2');
+	const numbers = normalized.match(/\d+/g);
 	if (!numbers || numbers.length === 0) return null;
 	return Math.min(...numbers.map(Number));
 }
 
 const AGE_RANGE_RE = /\((\d{1,2})\s*[-–]\s*(\d{1,2})\s*år\)/i;
 
-/**
- * Student-relevant = everything EXCEPT:
- * - Family events
- * - Events explicitly targeting older demographics (age range lower bound > 25)
- * - Expensive events (lowest price > 350 kr)
- */
 // Venues known to offer student pricing (studentrabatt / studentpris)
 const STUDENT_PRICE_VENUES: ReadonlySet<string> = new Set([
 	'ole bull scene',          // Student-torsdag: 50% på stand-up + rimelige barpriser
@@ -174,12 +171,57 @@ export function hasStudentPrice(venueName: string): boolean {
 	return [...STUDENT_PRICE_VENUES].some(sv => v.includes(sv));
 }
 
-export function isStudentRelevant(e: { title_no: string; price: string | number; age_group: string; category: string }): boolean {
-	// Exclude family
+// ── Student filter patterns ──
+
+const SENIOR_RE = /\bsenior|\bpensjonist|\beldretreff|\beldre\b/i;
+const YOUTH_TITLE_RE = /\bungdom|\bfor\s+ungdom|\bungdomskveld|\bfor\s+barn|\bbarnas\s|\bbarneforestilling|\bkulturell\s+ung\b/i;
+const UNG_STANDALONE_RE = /\bUNG\b/; // uppercase "UNG" = youth branding (Kulturrommet UNG)
+const BUSINESS_RE = /\bnæringsråd|\bnæringsliv|\btransportplan|\bnæringsforening|\bhandelsforening/i;
+const SENIOR_ACTIVITY_RE = /\benkel\s+fottur|\benkel\s+tur\b|\bturvenner\b|\bnabolagskaf[eé]/i;
+const LITERARY_RE = /\bforfattertreff|\bbokbad|\bforfatterm[øo]te|\bboklubb\b/i;
+const BUSINESS_VENUES = ['bergen næringsråd', 'næringsforening', 'handelsforening'];
+
+export function isStudentRelevant(e: {
+	title_no: string;
+	description_no?: string;
+	price: string | number;
+	age_group: string;
+	category: string;
+	venue_name?: string;
+}): boolean {
+	// Always include explicit student events
+	if (e.age_group === 'students' || e.category === 'student') return true;
+
+	// Exclude family/children
 	if (e.age_group === 'family' || e.category === 'family') return false;
 
+	// Exclude youth (teens, not college-age)
+	if (e.age_group === 'youth') return false;
+
+	const title = e.title_no;
+	const desc = e.description_no || '';
+	const venue = (e.venue_name || '').toLowerCase();
+	const text = `${title} ${desc}`;
+
+	// Exclude senior/pensjonist events
+	if (SENIOR_RE.test(text) || SENIOR_RE.test(venue)) return false;
+
+	// Exclude youth/children by title keywords
+	if (YOUTH_TITLE_RE.test(title)) return false;
+	if (UNG_STANDALONE_RE.test(title)) return false;
+
+	// Exclude business/professional events
+	if (BUSINESS_RE.test(text)) return false;
+	if (BUSINESS_VENUES.some(v => venue.includes(v))) return false;
+
+	// Exclude gentle/senior-coded activities
+	if (SENIOR_ACTIVITY_RE.test(title)) return false;
+
+	// Exclude literary events at libraries (forfattertreff, bokbad — skews older)
+	if (LITERARY_RE.test(title)) return false;
+
 	// Explicit age range in title — authoritative
-	const ageMatch = e.title_no.match(AGE_RANGE_RE);
+	const ageMatch = title.match(AGE_RANGE_RE);
 	if (ageMatch && parseInt(ageMatch[1], 10) > 25) return false;
 
 	// Exclude expensive events (over 350 kr)

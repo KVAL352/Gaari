@@ -164,7 +164,90 @@ export const GET: RequestHandler = async () => {
 		checks.push({ name: 'pipeline_freshness', status: 'fail', detail: 'Skipped (no connection)' });
 	}
 
-	// Check 6: Data quality — detect orphaned past events and date parsing bugs
+	// Check 6: Image URL health — sample 20 events with image_url, HEAD-check for 404s
+	if (checks[0]?.status === 'pass') {
+		try {
+			const { data: sample, error: imgError } = await supabase
+				.from('events')
+				.select('image_url')
+				.eq('status', 'approved')
+				.not('image_url', 'is', null)
+				.gte('date_start', new Date().toISOString())
+				.order('date_start', { ascending: true })
+				.limit(20);
+
+			if (imgError) {
+				checks.push({ name: 'image_health', status: 'fail', detail: imgError.message });
+			} else if (!sample || sample.length === 0) {
+				checks.push({ name: 'image_health', status: 'pass', detail: 'No events with images to check' });
+			} else {
+				const results = await Promise.allSettled(
+					sample.map((e) =>
+						fetch(e.image_url!, { method: 'HEAD', signal: AbortSignal.timeout(5000) })
+					)
+				);
+				const broken = results.filter(
+					(r) => r.status === 'rejected' || (r.status === 'fulfilled' && r.value.status >= 400)
+				).length;
+				const brokenPct = (broken / sample.length) * 100;
+				checks.push({
+					name: 'image_health',
+					status: brokenPct > 25 ? 'fail' : 'pass',
+					detail: `${broken}/${sample.length} broken image URLs${brokenPct > 25 ? ` (${Math.round(brokenPct)}% — too many broken)` : ''}`
+				});
+			}
+		} catch (err) {
+			checks.push({
+				name: 'image_health',
+				status: 'fail',
+				detail: err instanceof Error ? err.message : 'Unknown error'
+			});
+		}
+	} else {
+		checks.push({ name: 'image_health', status: 'fail', detail: 'Skipped (no connection)' });
+	}
+
+	// Check 7: Database size — row counts for key tables to spot quota issues
+	if (checks[0]?.status === 'pass') {
+		try {
+			const [events, optOuts, editSugs, promotions, inquiries] = await Promise.all([
+				supabase.from('events').select('*', { count: 'exact', head: true }),
+				supabase.from('opt_out_requests').select('*', { count: 'exact', head: true }),
+				supabase.from('edit_suggestions').select('*', { count: 'exact', head: true }),
+				supabase.from('promoted_placements').select('*', { count: 'exact', head: true }),
+				supabase.from('organizer_inquiries').select('*', { count: 'exact', head: true })
+			]);
+
+			const counts: Record<string, number> = {
+				events: events.count ?? 0,
+				opt_outs: optOuts.count ?? 0,
+				edit_suggestions: editSugs.count ?? 0,
+				promotions: promotions.count ?? 0,
+				inquiries: inquiries.count ?? 0
+			};
+			const totalRows = Object.values(counts).reduce((a, b) => a + b, 0);
+			const summary = Object.entries(counts)
+				.map(([k, v]) => `${k}: ${v}`)
+				.join(', ');
+
+			// Supabase free tier: 500MB / ~500k rows is a sensible early warning
+			checks.push({
+				name: 'database_size',
+				status: totalRows > 500_000 ? 'fail' : 'pass',
+				detail: `${totalRows} total rows (${summary})`
+			});
+		} catch (err) {
+			checks.push({
+				name: 'database_size',
+				status: 'fail',
+				detail: err instanceof Error ? err.message : 'Unknown error'
+			});
+		}
+	} else {
+		checks.push({ name: 'database_size', status: 'fail', detail: 'Skipped (no connection)' });
+	}
+
+	// Check 8: Data quality — detect orphaned past events and date parsing bugs
 	if (checks[0]?.status === 'pass') {
 		try {
 			const nowUtc = new Date().toISOString();
