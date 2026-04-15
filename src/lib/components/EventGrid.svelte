@@ -39,15 +39,47 @@
 		return counts;
 	});
 
+	let promotedIdSet = $derived(new Set(promotedEventIds));
+
+	let promotedEvents = $derived(
+		promotedIdSet.size > 0
+			? events.filter(e => promotedIdSet.has(e.id))
+			: []
+	);
+
 	let grouped = $derived.by(() => {
-		const groups = groupEventsByDate(events);
+		const regularEvents = promotedIdSet.size > 0
+			? events.filter(e => !promotedIdSet.has(e.id))
+			: events;
+		const groups = groupEventsByDate(regularEvents);
 		return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
 	});
 
 	let canHide = $derived(!!onHideEvent);
-
-	let promotedIdSet = $derived(new Set(promotedEventIds));
 </script>
+
+{#if promotedEvents.length > 0}
+	<section class="mb-8">
+		<div class="mb-2 flex items-center gap-3 border-l-4 border-[var(--color-accent)] pl-3.5 md:mb-5">
+			<h2 class="text-lg font-semibold text-[var(--color-text-primary)]" style="font-family: var(--font-display)">
+				{$lang === 'no' ? 'Fremhevet' : 'Featured'}
+			</h2>
+		</div>
+		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			{#each promotedEvents as event (event.id)}
+				<EventCard
+					{event}
+					eager={true}
+					promoted={true}
+					{studentContext}
+					onHideEvent={canHide ? onHideEvent : undefined}
+					onHideVenue={canHide ? onHideVenue : undefined}
+					onHideCategory={canHide ? onHideCategory : undefined}
+				/>
+			{/each}
+		</ul>
+	</section>
+{/if}
 
 {#each grouped as [dateKey, dayEvents], groupIdx (dateKey)}
 	{#if showNewsletterCta && groupIdx === 3}
