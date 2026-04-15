@@ -14,7 +14,7 @@
 - `MiniCalendar.svelte` — Inline date picker (ARIA grid structure)
 - `FilterBar.svelte` — Dropdown filter row (hidden on homepage when EventDiscovery active)
 - `CalendarDropdown.svelte` — "Add to Calendar" dropdown (WAI-ARIA menu keyboard nav)
-- `StatusBadge.svelte` — Today, Trolig gratis, Sold Out, Last Tickets, Cancelled
+- `StatusBadge.svelte` — Today, Trolig gratis, Sold Out, Last Tickets, Cancelled, Studentpris
 - `LoadMore.svelte`, `EmptyState.svelte`, `BackToTop.svelte`, `LanguageSwitch.svelte`, `ImagePlaceholder.svelte`
 
 ## CSS theming (`src/app.css`)
