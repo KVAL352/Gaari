@@ -415,6 +415,8 @@ async function main() {
 		return;
 	}
 
+	const now = getOsloNow();
+
 	// 2b. Fetch promoted venues (weekly rotation based on slot_share %)
 	console.log('Fetching promoted placements...');
 	const promotedPlacements = await fetchPromotedPlacements();
@@ -426,7 +428,6 @@ async function main() {
 	console.log(`  ${groups.size} preference groups`);
 
 	// 4. Generate and send per group
-	const now = getOsloNow();
 	const weekLabel = getWeekLabel(now, 'no');
 	let sentCount = 0;
 	let errorCount = 0;
