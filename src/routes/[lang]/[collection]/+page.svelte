@@ -54,9 +54,10 @@
 		filterPrice = '';
 	}
 
-	const DAYS_PER_PAGE = 3;
+	// Pagination: always complete days, capped by event count to keep DOM under ~1500.
+	// Baseline ~95 DOM + ~36 per card → 35 events ≈ 1355 DOM. Minimum 1 day per page.
+	const EVENTS_PER_PAGE = 35;
 	let pageNum = $derived(Number($page.url.searchParams.get('page') || '1'));
-	let visibleDays = $derived(pageNum * DAYS_PER_PAGE);
 
 	// Use server-provided lang for SSR-critical values (JSON-LD, meta tags).
 	// $lang store only syncs via $effect (client-only), so it defaults to 'no' during SSR.
@@ -151,7 +152,25 @@
 		return { from: undefined, to: undefined };
 	});
 
-	let totalDays = $derived(groupEventsByDate(filteredEvents, dateRange.from, dateRange.to).size);
+	let groupedByDate = $derived(
+		Array.from(groupEventsByDate(filteredEvents, dateRange.from, dateRange.to).entries())
+			.sort(([a], [b]) => a.localeCompare(b))
+	);
+	let totalDays = $derived(groupedByDate.length);
+
+	// Days to show on current page: accumulate complete days up to EVENTS_PER_PAGE * pageNum,
+	// minimum 1 day per page so a busy single day doesn't block pagination.
+	let visibleDays = $derived.by(() => {
+		const target = EVENTS_PER_PAGE * pageNum;
+		let events = 0;
+		let days = 0;
+		for (const [, dayEvents] of groupedByDate) {
+			days++;
+			events += dayEvents.length;
+			if (events >= target) break;
+		}
+		return Math.max(days, pageNum);
+	});
 
 	let venueCount = $derived(new Set(filteredEvents.map(e => e.venue_name).filter(Boolean)).size);
 
