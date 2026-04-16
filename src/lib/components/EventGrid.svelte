@@ -98,7 +98,7 @@
 			</span>
 		</div>
 		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each dayEvents as event, i (event.id)}
+			{#each dayEvents as event, i (dateKey + ':' + event.id)}
 				{#if showSignupCard && cumulativeCounts[groupIdx] + i === SIGNUP_CARD_POSITION}
 					<NewsletterSignupCard sampleEvents={events.filter(e => !!e.image_url).slice(0, 5)} />
 				{/if}

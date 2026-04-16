@@ -374,20 +374,21 @@ export function getDateKey(dateStr: string): string {
 
 /** Group events by date. Multi-day events (≤7 days) appear in each day's group
  *  so a Thu-Sat festival shows under Thu, Fri, and Sat. If `rangeFrom`/`rangeTo`
- *  are provided, expansion is clamped to that window (so a weekend page only
- *  shows the Fri/Sat/Sun portions of a Thu-Sat event). Long series (>7 days)
- *  appear only at date_start. */
+ *  are provided, expansion is clamped to that window. Long series (>7 days)
+ *  appear only at date_start.
+ *
+ *  For each instance in a day's group, date_start is rewritten to that day so
+ *  the card renders the remaining range (on Fri it shows "fri–sun", on Sat
+ *  "sat–sun", on Sun just "today"). date_end and time-of-day are preserved. */
 export function groupEventsByDate<T extends { date_start: string; date_end?: string }>(events: T[], rangeFrom?: string, rangeTo?: string): Map<string, T[]> {
 	const today = new Date().toISOString().slice(0, 10);
 	const groups = new Map<string, T[]>();
 	for (const event of events) {
 		const startKey = getDateKey(event.date_start);
 		const endKey = event.date_end ? getDateKey(event.date_end) : startKey;
-		const startMs = new Date(startKey).getTime();
-		const endMs = new Date(endKey).getTime();
-		const durationDays = (endMs - startMs) / 86400000;
+		const durationDays = (new Date(endKey).getTime() - new Date(startKey).getTime()) / 86400000;
+		const timeSuffix = event.date_start.slice(10); // preserve "T18:00:00+00:00"
 
-		// Long series: only group under date_start (or today if stale)
 		if (durationDays > 7) {
 			const key = startKey < today && event.date_end ? today : startKey;
 			if (!groups.has(key)) groups.set(key, []);
@@ -395,7 +396,6 @@ export function groupEventsByDate<T extends { date_start: string; date_end?: str
 			continue;
 		}
 
-		// Multi-day event: expand across each active day within [rangeFrom, rangeTo] ∩ [today, endKey]
 		const fromKey = rangeFrom && rangeFrom > today ? rangeFrom : today;
 		const toKey = rangeTo && rangeTo < endKey ? rangeTo : endKey;
 		const loopStart = startKey > fromKey ? startKey : fromKey;
@@ -406,7 +406,11 @@ export function groupEventsByDate<T extends { date_start: string; date_end?: str
 		while (cursor <= endCursor) {
 			const key = cursor.toISOString().slice(0, 10);
 			if (!groups.has(key)) groups.set(key, []);
-			groups.get(key)!.push(event);
+			// Rewrite date_start to the day this instance is shown under
+			const instance = key === startKey
+				? event
+				: { ...event, date_start: key + timeSuffix };
+			groups.get(key)!.push(instance as T);
 			cursor.setUTCDate(cursor.getUTCDate() + 1);
 		}
 	}
