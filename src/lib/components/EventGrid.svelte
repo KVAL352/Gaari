@@ -25,12 +25,16 @@
 		maxDays?: number;
 		/** Maximum total cards across all day-groups. When set, trims the last group to fit. */
 		maxEvents?: number;
+		/** When false, events appear once at their start date instead of expanding across each day (default: true). */
+		expandMultiDay?: boolean;
+		/** When false, render events as a single flat grid without per-day headers (default: true). */
+		groupByDay?: boolean;
 		onHideEvent?: (id: string) => void;
 		onHideVenue?: (venue: string) => void;
 		onHideCategory?: (category: string) => void;
 	}
 
-	let { events, promotedEventIds = [], placementForEvent = {}, showNewsletterCta = false, showSignupCard = false, studentContext = false, rangeFrom, rangeTo, maxDays, maxEvents, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+	let { events, promotedEventIds = [], placementForEvent = {}, showNewsletterCta = false, showSignupCard = false, studentContext = false, rangeFrom, rangeTo, maxDays, maxEvents, expandMultiDay = true, groupByDay = true, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
 
 	// Global position (0-indexed) at which to inject the signup card.
 	// 7 = appears as the 8th card — after users have scrolled past a few events
@@ -57,11 +61,13 @@
 			: []
 	);
 
+	let regularEvents = $derived(promotedIdSet.size > 0
+		? events.filter(e => !promotedIdSet.has(e.id))
+		: events);
+
 	let grouped = $derived.by(() => {
-		const regularEvents = promotedIdSet.size > 0
-			? events.filter(e => !promotedIdSet.has(e.id))
-			: events;
-		const groups = groupEventsByDate(regularEvents, rangeFrom, rangeTo);
+		if (!groupByDay) return [];
+		const groups = groupEventsByDate(regularEvents, rangeFrom, rangeTo, expandMultiDay);
 		let sorted = Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
 		if (maxDays != null) sorted = sorted.slice(0, maxDays);
 
@@ -111,27 +117,52 @@
 	</section>
 {/if}
 
-{#each grouped as [dateKey, dayEvents], groupIdx (dateKey)}
-	{#if showNewsletterCta && groupIdx === 3}
-		<NewsletterInline location="eventgrid-between-days" />
-	{/if}
+{#if groupByDay}
+	{#each grouped as [dateKey, dayEvents], groupIdx (dateKey)}
+		{#if showNewsletterCta && groupIdx === 3}
+			<NewsletterInline location="eventgrid-between-days" />
+		{/if}
+		<section class="mb-8">
+			<div class="mb-2 flex items-center gap-3 border-l-4 border-[var(--color-text-primary)] pl-3.5 md:mb-5">
+				<h2 class="text-lg font-semibold text-[var(--color-text-primary)]" style="font-family: var(--font-display)">
+					{formatDateSectionHeader(dateKey + 'T00:00:00', $lang)}
+				</h2>
+				<span class="text-sm text-[var(--color-text-muted)]">
+					{dayEvents.length} {$t('events')}
+				</span>
+			</div>
+			<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				{#each dayEvents as event, i (dateKey + ':' + event.id)}
+					{#if showSignupCard && cumulativeCounts[groupIdx] + i === SIGNUP_CARD_POSITION}
+						<NewsletterSignupCard sampleEvents={events.filter(e => !!e.image_url).slice(0, 5)} />
+					{/if}
+					<EventCard
+						{event}
+						eager={groupIdx === 0 && i < 4}
+						promoted={promotedIdSet.has(event.id)}
+						placementId={placementForEvent[event.id] ?? null}
+						{studentContext}
+						onHideEvent={canHide ? onHideEvent : undefined}
+						onHideVenue={canHide ? onHideVenue : undefined}
+						onHideCategory={canHide ? onHideCategory : undefined}
+					/>
+				{/each}
+				{#if showSignupCard && groupIdx === grouped.length - 1 && cumulativeCounts[grouped.length] <= SIGNUP_CARD_POSITION && cumulativeCounts[grouped.length] > 0}
+					<NewsletterSignupCard sampleEvents={events.filter(e => !!e.image_url).slice(0, 5)} />
+				{/if}
+			</ul>
+		</section>
+	{/each}
+{:else}
 	<section class="mb-8">
-		<div class="mb-2 flex items-center gap-3 border-l-4 border-[var(--color-text-primary)] pl-3.5 md:mb-5">
-			<h2 class="text-lg font-semibold text-[var(--color-text-primary)]" style="font-family: var(--font-display)">
-				{formatDateSectionHeader(dateKey + 'T00:00:00', $lang)}
-			</h2>
-			<span class="text-sm text-[var(--color-text-muted)]">
-				{dayEvents.length} {$t('events')}
-			</span>
-		</div>
 		<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each dayEvents as event, i (dateKey + ':' + event.id)}
-				{#if showSignupCard && cumulativeCounts[groupIdx] + i === SIGNUP_CARD_POSITION}
+			{#each regularEvents as event, i (event.id)}
+				{#if showSignupCard && i === SIGNUP_CARD_POSITION}
 					<NewsletterSignupCard sampleEvents={events.filter(e => !!e.image_url).slice(0, 5)} />
 				{/if}
 				<EventCard
 					{event}
-					eager={groupIdx === 0 && i < 4}
+					eager={i < 4}
 					promoted={promotedIdSet.has(event.id)}
 					placementId={placementForEvent[event.id] ?? null}
 					{studentContext}
@@ -140,9 +171,9 @@
 					onHideCategory={canHide ? onHideCategory : undefined}
 				/>
 			{/each}
-			{#if showSignupCard && groupIdx === grouped.length - 1 && cumulativeCounts[grouped.length] <= SIGNUP_CARD_POSITION && cumulativeCounts[grouped.length] > 0}
+			{#if showSignupCard && regularEvents.length <= SIGNUP_CARD_POSITION && regularEvents.length > 0}
 				<NewsletterSignupCard sampleEvents={events.filter(e => !!e.image_url).slice(0, 5)} />
 			{/if}
 		</ul>
 	</section>
-{/each}
+{/if}

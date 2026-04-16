@@ -4,12 +4,15 @@
 	interface Props {
 		shown: number;
 		total: number;
-		href: string;
+		/** Navigate via URL (server-paginated pages). Prefer `onclick` for instant client-side load-more. */
+		href?: string;
+		/** Client-side load-more handler — avoids SvelteKit navigation overhead. */
+		onclick?: () => void;
 		/** Label for the counted unit (default: translated "events") */
 		unitLabel?: string;
 	}
 
-	let { shown, total, href, unitLabel }: Props = $props();
+	let { shown, total, href, onclick, unitLabel }: Props = $props();
 </script>
 
 {#if shown < total}
@@ -17,13 +20,22 @@
 		<p class="tabular-nums text-sm text-[var(--color-text-secondary)]">
 			{$t('showingOf')} {shown} {$t('of')} {total} {unitLabel ?? $t('events')}
 		</p>
-		<a
-			{href}
-			data-sveltekit-noscroll
-			data-sveltekit-replacestate
-			class="rounded-xl border border-[var(--color-text-primary)] bg-[var(--color-bg-surface)] px-8 py-3 text-sm font-semibold text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-text-primary)] hover:text-white"
-		>
-			{$t('loadMore')}
-		</a>
+		{#if onclick}
+			<button
+				{onclick}
+				class="rounded-xl border border-[var(--color-text-primary)] bg-[var(--color-bg-surface)] px-8 py-3 text-sm font-semibold text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-text-primary)] hover:text-white"
+			>
+				{$t('loadMore')}
+			</button>
+		{:else if href}
+			<a
+				{href}
+				data-sveltekit-noscroll
+				data-sveltekit-replacestate
+				class="rounded-xl border border-[var(--color-text-primary)] bg-[var(--color-bg-surface)] px-8 py-3 text-sm font-semibold text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-text-primary)] hover:text-white"
+			>
+				{$t('loadMore')}
+			</a>
+		{/if}
 	</div>
 {/if}

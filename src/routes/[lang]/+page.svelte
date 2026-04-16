@@ -29,7 +29,7 @@
 		return allEvents.filter(e => e.date_start <= cutoff).length;
 	});
 
-	const PAGE_SIZE = 12;
+	const PAGE_SIZE = 16;
 
 	// Read filters from URL
 	let category = $derived(page.url.searchParams.get('category') || '');
@@ -39,7 +39,9 @@
 	let when = $derived(page.url.searchParams.get('when') || '');
 	let time = $derived(page.url.searchParams.get('time') || '');
 	let q = $derived(page.url.searchParams.get('q') || '');
-	let pageNum = $derived(Number(page.url.searchParams.get('page') || '1'));
+	// Pagination is client-state only — avoids SvelteKit navigation cost on every
+	// "Load more" click. Initialized from URL once for deep-link support.
+	let pageNum = $state(Number(page.url.searchParams.get('page') || '1'));
 
 	// Filter events
 	let filteredEvents = $derived.by(() => {
@@ -184,8 +186,18 @@
 		return events;
 	});
 
-	// Pagination
-	let displayedEvents = $derived(filteredEvents.slice(0, pageNum * PAGE_SIZE));
+	// Pagination — snap forward to day boundary so each day-group shown is complete.
+	// Without snap, slice(0, 16) cuts mid-day and leaves a sparse 1-event trailing group.
+	let displayedEvents = $derived.by(() => {
+		const target = pageNum * PAGE_SIZE;
+		if (filteredEvents.length <= target) return filteredEvents;
+		let end = target;
+		const lastDay = filteredEvents[end - 1].date_start.slice(0, 10);
+		while (end < filteredEvents.length && filteredEvents[end].date_start.slice(0, 10) === lastDay) {
+			end++;
+		}
+		return filteredEvents.slice(0, end);
+	});
 
 	// URL update helper — goto with replaceState avoids adding history entries,
 	// and since server load doesn't depend on url params, it won't remount.
@@ -196,13 +208,17 @@
 
 	function handleFilterChange(key: string, value: string) {
 		updateParam(key, value);
+		pageNum = 1;
 	}
 
 	function handleClearAll() {
 		goto(`/${$lang}`, { replaceState: true, noScroll: true, keepFocus: true });
+		pageNum = 1;
 	}
 
-	let nextPageHref = $derived(`?${buildQueryString(page.url.search, 'page', String(pageNum + 1))}`);
+	function handleLoadMore() {
+		pageNum += 1;
+	}
 
 	// Popular events for empty state
 	let popularEvents = $derived(allEvents.filter(e => e.status === 'approved').slice(0, 3));
@@ -383,7 +399,7 @@
 		/>
 	{:else}
 		<div class="event-results" class:fading={transitioning}>
-			<EventGrid events={displayedEvents} showNewsletterCta showSignupCard={!hasActiveFilters && pageNum === 1} studentContext={audience === 'student'} onHideEvent={handleHideEvent} onHideVenue={handleHideVenue} onHideCategory={handleHideCategory} />
+			<EventGrid events={displayedEvents} expandMultiDay={false} showNewsletterCta showSignupCard={!hasActiveFilters && pageNum === 1} studentContext={audience === 'student'} onHideEvent={handleHideEvent} onHideVenue={handleHideVenue} onHideCategory={handleHideCategory} />
 			{#if numHidden > 0}
 				<div class="mb-6 flex items-center justify-center gap-3 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-4 py-2.5">
 					<span class="text-sm text-[var(--color-text-muted)]">
@@ -397,7 +413,7 @@
 					</button>
 				</div>
 			{/if}
-			<LoadMore shown={displayedEvents.length} total={filteredEvents.length} href={nextPageHref} />
+			<LoadMore shown={displayedEvents.length} total={filteredEvents.length} onclick={handleLoadMore} />
 			{#if pageNum > 1}
 				<div class="mt-4">
 					<NewsletterInline location="homepage-below-loadmore" />

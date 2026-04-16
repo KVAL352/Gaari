@@ -375,12 +375,13 @@ export function getDateKey(dateStr: string): string {
 /** Group events by date. Multi-day events (≤7 days) appear in each day's group
  *  so a Thu-Sat festival shows under Thu, Fri, and Sat. If `rangeFrom`/`rangeTo`
  *  are provided, expansion is clamped to that window. Long series (>7 days)
- *  appear only at date_start.
+ *  appear only at date_start. Pass `expandMultiDay=false` to show every event
+ *  exactly once on its start date (used where sparse 1-event days are noise).
  *
  *  For each instance in a day's group, date_start is rewritten to that day so
  *  the card renders the remaining range (on Fri it shows "fri–sun", on Sat
  *  "sat–sun", on Sun just "today"). date_end and time-of-day are preserved. */
-export function groupEventsByDate<T extends { date_start: string; date_end?: string }>(events: T[], rangeFrom?: string, rangeTo?: string): Map<string, T[]> {
+export function groupEventsByDate<T extends { date_start: string; date_end?: string }>(events: T[], rangeFrom?: string, rangeTo?: string, expandMultiDay = true): Map<string, T[]> {
 	const today = new Date().toISOString().slice(0, 10);
 	const groups = new Map<string, T[]>();
 	for (const event of events) {
@@ -389,7 +390,7 @@ export function groupEventsByDate<T extends { date_start: string; date_end?: str
 		const durationDays = (new Date(endKey).getTime() - new Date(startKey).getTime()) / 86400000;
 		const timeSuffix = event.date_start.slice(10); // preserve "T18:00:00+00:00"
 
-		if (durationDays > 7) {
+		if (!expandMultiDay || durationDays > 7) {
 			const key = startKey < today && event.date_end ? today : startKey;
 			if (!groups.has(key)) groups.set(key, []);
 			groups.get(key)!.push(event);
