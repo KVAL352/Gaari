@@ -5,6 +5,16 @@
     "description": "FB-grupper er Gåris #1 trafikkilde (~30% av all trafikk pr. april 2026). Post denne ukens høydepunkter i 'Hva skjer i Bergen' og lignende lokale grupper. Pek til relevant collection (denne-helgen / i-kveld / familiehelg). Etter posting: oppdater denne reminderen til neste søndag."
   },
   {
+    "date": "2026-04-22",
+    "title": "Fase 1-sjekk: attribusjon logger klikk riktig (Brann–Aalesund kampdag)",
+    "description": "Første Brann-kamp med Fremhevet-plassering. Bra dag for verifisering. Kjør i Supabase SQL: SELECT placement_context, COUNT(*) FROM venue_clicks WHERE clicked_at > '2026-04-16' GROUP BY placement_context. Forventet: rader med context 'promoted' (fra Fremhevet Brann-kort), 'organic' (fra andre kort), mulig 'direct' (fra event-detalj). Hvis alle rader har NULL context → EventCard track-click feiler, sjekk nettleser-devtools. Se docs/promoted-placement-attribution.md."
+  },
+  {
+    "date": "2026-05-01",
+    "title": "Fase 1 datamodenhet: 14-dagers sjekkpunkt",
+    "description": "Brann har nå 14+ dager med klikk-attribusjon. Rapport skal vise 'Plasseringen ga dere X ekstra klikk' (promoted − organic). Kjør: cd scripts && npx tsx generate-venue-report.ts 'Brann Stadion' --month 2026-04. Sjekk at lift-linjen er synlig og tallet er positivt. Hvis promoted = organic = 0: track-click fungerer ikke — debug."
+  },
+  {
     "date": "2026-04-21",
     "title": "Sjekk svar: Google EØS-karusell-søknad",
     "description": "Søknad om deltakelse i Google EEA aggregator features (Things to do / events) ble sendt 6. mars 2026 via support.google.com/websearch/contact/search_dma. Sjekket innboks 7. april — ingen svar. Sjekk på nytt 21. april (6 uker etter sending). Hvis fortsatt stille: anta dødt spor."
