@@ -156,21 +156,9 @@
 		Array.from(groupEventsByDate(filteredEvents, dateRange.from, dateRange.to).entries())
 			.sort(([a], [b]) => a.localeCompare(b))
 	);
-	let totalDays = $derived(groupedByDate.length);
+	let totalEvents = $derived(groupedByDate.reduce((sum, [, ev]) => sum + ev.length, 0));
 
-	// Days to show on current page: accumulate complete days up to EVENTS_PER_PAGE * pageNum,
-	// minimum 1 day per page so a busy single day doesn't block pagination.
-	let visibleDays = $derived.by(() => {
-		const target = EVENTS_PER_PAGE * pageNum;
-		let events = 0;
-		let days = 0;
-		for (const [, dayEvents] of groupedByDate) {
-			days++;
-			events += dayEvents.length;
-			if (events >= target) break;
-		}
-		return Math.max(days, pageNum);
-	});
+	let visibleEvents = $derived(EVENTS_PER_PAGE * pageNum);
 
 	let venueCount = $derived(new Set(filteredEvents.map(e => e.venue_name).filter(Boolean)).size);
 
@@ -376,8 +364,8 @@
 			{/if}
 		</div>
 	{:else}
-		<EventGrid events={filteredEvents} promotedEventIds={data.promotedEventIds} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} rangeFrom={dateRange.from} rangeTo={dateRange.to} maxDays={visibleDays} />
-		<LoadMore shown={Math.min(visibleDays, totalDays)} total={totalDays} href={nextPageHref} unitLabel={$lang === 'no' ? 'dager' : 'days'} />
+		<EventGrid events={filteredEvents} promotedEventIds={data.promotedEventIds} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} rangeFrom={dateRange.from} rangeTo={dateRange.to} maxEvents={visibleEvents} />
+		<LoadMore shown={Math.min(visibleEvents, totalEvents)} total={totalEvents} href={nextPageHref} />
 
 	{/if}
 </div>

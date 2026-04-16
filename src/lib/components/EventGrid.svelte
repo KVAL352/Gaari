@@ -20,12 +20,14 @@
 		rangeTo?: string;
 		/** Maximum number of day-groups to show. Pagination reveals complete days at a time. */
 		maxDays?: number;
+		/** Maximum total cards across all day-groups. When set, trims the last group to fit. */
+		maxEvents?: number;
 		onHideEvent?: (id: string) => void;
 		onHideVenue?: (venue: string) => void;
 		onHideCategory?: (category: string) => void;
 	}
 
-	let { events, promotedEventIds = [], showNewsletterCta = false, showSignupCard = false, studentContext = false, rangeFrom, rangeTo, maxDays, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+	let { events, promotedEventIds = [], showNewsletterCta = false, showSignupCard = false, studentContext = false, rangeFrom, rangeTo, maxDays, maxEvents, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
 
 	// Global position (0-indexed) at which to inject the signup card.
 	// 7 = appears as the 8th card — after users have scrolled past a few events
@@ -57,8 +59,26 @@
 			? events.filter(e => !promotedIdSet.has(e.id))
 			: events;
 		const groups = groupEventsByDate(regularEvents, rangeFrom, rangeTo);
-		const sorted = Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
-		return maxDays != null ? sorted.slice(0, maxDays) : sorted;
+		let sorted = Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
+		if (maxDays != null) sorted = sorted.slice(0, maxDays);
+
+		// Cap total cards: trim trailing days/cards to fit maxEvents
+		if (maxEvents != null) {
+			const trimmed: typeof sorted = [];
+			let remaining = maxEvents;
+			for (const [key, dayEvents] of sorted) {
+				if (remaining <= 0) break;
+				if (dayEvents.length <= remaining) {
+					trimmed.push([key, dayEvents]);
+					remaining -= dayEvents.length;
+				} else {
+					trimmed.push([key, dayEvents.slice(0, remaining)]);
+					remaining = 0;
+				}
+			}
+			sorted = trimmed;
+		}
+		return sorted;
 	});
 
 	let canHide = $derived(!!onHideEvent);
