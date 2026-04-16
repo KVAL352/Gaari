@@ -162,6 +162,7 @@ const FUNKIS = {
 	iron: '#1C1C1E',
 	red: '#C82D2D',
 	green: '#1A6B35',
+	neutral: '#4D4D4D',
 	white: '#FFFFFF',
 	plaster: '#F5F3EE',
 	textPrimary: '#141414',
@@ -169,6 +170,29 @@ const FUNKIS = {
 	textMuted: '#6B6862',
 	borderSubtle: '#E8E8E4',
 };
+
+const MIN_MATURE_DAYS = 14; // under 14 dager = for tynt datasett for å fargekode over/under mål
+
+function daysActive(placement: PlacementData, periodEnd: string): number {
+	const today = new Date().toISOString().slice(0, 10);
+	const effectiveEnd = today < periodEnd ? today : periodEnd;
+	const effectiveStart = placement.start_date > period.start ? placement.start_date : period.start;
+	const ms = new Date(effectiveEnd).getTime() - new Date(effectiveStart).getTime();
+	return Math.max(0, Math.floor(ms / 86400000) + 1);
+}
+
+function formatPeriodLabel(placement: PlacementData): string {
+	const today = new Date().toISOString().slice(0, 10);
+	const effectiveEnd = today < period.end ? today : period.end;
+	const effectiveStart = placement.start_date > period.start ? placement.start_date : period.start;
+	const days = daysActive(placement, period.end);
+	const fmt = (d: string) => {
+		const [y, m, day] = d.split('-');
+		const months = ['jan.', 'feb.', 'mars', 'april', 'mai', 'juni', 'juli', 'aug.', 'sep.', 'okt.', 'nov.', 'des.'];
+		return `${parseInt(day)}. ${months[parseInt(m) - 1]}`;
+	};
+	return `Periode: ${fmt(effectiveStart)} – ${fmt(effectiveEnd)} (${days} ${days === 1 ? 'dag' : 'dager'})`;
+}
 
 const TIER_LABELS: Record<string, string> = {
 	basis: 'Basis',
@@ -192,6 +216,16 @@ function generateReportHtml(data: ReportData): string {
 	}
 	const overallShare = totalPageViews > 0 ? (totalVenueImpressions / totalPageViews * 100) : 0;
 
+	const days = daysActive(placement, period.end);
+	const isMature = days >= MIN_MATURE_DAYS;
+
+	// Fargelogikk: kun rødt/grønt når datasettet er modent (≥14 dager).
+	// Ellers nøytral grå — tallet er for tynt til å signalisere over/under mål.
+	function shareColor(share: number): string {
+		if (!isMature) return FUNKIS.neutral;
+		return share >= placement.slot_share ? FUNKIS.green : FUNKIS.red;
+	}
+
 	// Collection breakdown rows
 	const collectionRows = placement.collection_slugs.map(slug => {
 		const venueImps = impressions.get(slug) ?? 0;
@@ -202,7 +236,7 @@ function generateReportHtml(data: ReportData): string {
 				<td style="padding:12px 16px;border-bottom:1px solid ${FUNKIS.borderSubtle};font-size:14px;color:${FUNKIS.textPrimary};">${escapeHtml(slug)}</td>
 				<td style="padding:12px 16px;border-bottom:1px solid ${FUNKIS.borderSubtle};font-size:14px;color:${FUNKIS.textPrimary};text-align:right;font-variant-numeric:tabular-nums;">${venueImps.toLocaleString('nb-NO')}</td>
 				<td style="padding:12px 16px;border-bottom:1px solid ${FUNKIS.borderSubtle};font-size:14px;color:${FUNKIS.textPrimary};text-align:right;font-variant-numeric:tabular-nums;">${totalImps.toLocaleString('nb-NO')}</td>
-				<td style="padding:12px 16px;border-bottom:1px solid ${FUNKIS.borderSubtle};font-size:14px;font-weight:600;color:${share >= placement.slot_share ? FUNKIS.green : FUNKIS.red};text-align:right;">${share.toFixed(1)}%</td>
+				<td style="padding:12px 16px;border-bottom:1px solid ${FUNKIS.borderSubtle};font-size:14px;font-weight:600;color:${shareColor(share)};text-align:right;">${share.toFixed(1)}%</td>
 			</tr>`;
 	}).join('');
 
@@ -238,15 +272,16 @@ function generateReportHtml(data: ReportData): string {
 			</td>
 			<td style="text-align:right;">
 				<div style="font-size:14px;color:${FUNKIS.textSecondary};font-weight:600;">${escapeHtml(period.labelNo)}</div>
-				<div style="font-size:12px;color:${FUNKIS.textMuted};">${TIER_LABELS[placement.tier]} (${placement.slot_share}%)</div>
+				<div style="font-size:12px;color:${FUNKIS.textMuted};">${TIER_LABELS[placement.tier]}-pakke — mål ${placement.slot_share}%</div>
 			</td>
 		</tr>
 	</table>
 
-	<!-- Venue name -->
+	<!-- Venue name + data-status -->
 	<div style="background:${FUNKIS.iron};color:${FUNKIS.white};padding:20px 24px;border-radius:12px;margin-bottom:24px;">
 		<div style="font-family:'Arial Narrow',Arial,sans-serif;font-size:24px;font-weight:700;">${escapeHtml(placement.venue_name)}</div>
-		<div style="font-size:13px;color:#a0a0a0;margin-top:4px;">Promotert plassering siden ${placement.start_date}</div>
+		<div style="font-size:13px;color:#a0a0a0;margin-top:4px;">${escapeHtml(formatPeriodLabel(placement))}</div>
+		${!isMature ? `<div style="font-size:12px;color:#b5b5b5;margin-top:8px;font-style:italic;">Tidlig fase — tallene er tynne i starten og blir mer meningsfulle når dere har vært aktive en full måned.</div>` : ''}
 	</div>
 
 	<!-- Key metrics -->
@@ -255,19 +290,19 @@ function generateReportHtml(data: ReportData): string {
 			<td style="width:33%;padding:0 4px 0 0;">
 				<div style="background:${FUNKIS.white};border-radius:10px;padding:16px;text-align:center;border:1px solid ${FUNKIS.borderSubtle};">
 					<div style="font-size:28px;font-weight:700;color:${FUNKIS.textPrimary};font-variant-numeric:tabular-nums;">${totalVenueImpressions.toLocaleString('nb-NO')}</div>
-					<div style="font-size:11px;color:${FUNKIS.textMuted};margin-top:4px;text-transform:uppercase;letter-spacing:0.05em;">Visninger i topp 3</div>
+					<div style="font-size:11px;color:${FUNKIS.textMuted};margin-top:4px;text-transform:uppercase;letter-spacing:0.05em;">Topp-plasseringer</div>
 				</div>
 			</td>
 			<td style="width:33%;padding:0 4px;">
 				<div style="background:${FUNKIS.white};border-radius:10px;padding:16px;text-align:center;border:1px solid ${FUNKIS.borderSubtle};">
-					<div style="font-size:28px;font-weight:700;color:${overallShare >= placement.slot_share ? FUNKIS.green : FUNKIS.red};font-variant-numeric:tabular-nums;">${overallShare.toFixed(1)}%</div>
+					<div style="font-size:28px;font-weight:700;color:${shareColor(overallShare)};font-variant-numeric:tabular-nums;">${overallShare.toFixed(1)}%</div>
 					<div style="font-size:11px;color:${FUNKIS.textMuted};margin-top:4px;text-transform:uppercase;letter-spacing:0.05em;">Synlighetsandel</div>
 				</div>
 			</td>
 			<td style="width:33%;padding:0 0 0 4px;">
 				<div style="background:${FUNKIS.white};border-radius:10px;padding:16px;text-align:center;border:1px solid ${FUNKIS.borderSubtle};">
 					<div style="font-size:28px;font-weight:700;color:${FUNKIS.textPrimary};font-variant-numeric:tabular-nums;">${clicks.toLocaleString('nb-NO')}</div>
-					<div style="font-size:11px;color:${FUNKIS.textMuted};margin-top:4px;text-transform:uppercase;letter-spacing:0.05em;">Klikk til deres side</div>
+					<div style="font-size:11px;color:${FUNKIS.textMuted};margin-top:4px;text-transform:uppercase;letter-spacing:0.05em;">Klikk på kampene</div>
 				</div>
 			</td>
 		</tr>
@@ -282,7 +317,7 @@ function generateReportHtml(data: ReportData): string {
 		<table width="100%" cellpadding="0" cellspacing="0">
 			<tr style="background:${FUNKIS.plaster};">
 				<th style="padding:10px 16px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${FUNKIS.textMuted};text-align:left;">Side</th>
-				<th style="padding:10px 16px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${FUNKIS.textMuted};text-align:right;">Dine visn.</th>
+				<th style="padding:10px 16px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${FUNKIS.textMuted};text-align:right;">Dine topp-plass.</th>
 				<th style="padding:10px 16px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${FUNKIS.textMuted};text-align:right;">Totalt</th>
 				<th style="padding:10px 16px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${FUNKIS.textMuted};text-align:right;">Andel</th>
 			</tr>
@@ -293,21 +328,33 @@ function generateReportHtml(data: ReportData): string {
 	<!-- Top events -->
 	<div style="background:${FUNKIS.white};border-radius:10px;border:1px solid ${FUNKIS.borderSubtle};overflow:hidden;margin-bottom:24px;">
 		<div style="padding:16px;border-bottom:1px solid ${FUNKIS.borderSubtle};">
-			<div style="font-size:16px;font-weight:700;color:${FUNKIS.textPrimary};">Mest klikkede arrangementer</div>
+			<div style="font-size:16px;font-weight:700;color:${FUNKIS.textPrimary};">Hvilke kamper fanget oppmerksomheten?</div>
 		</div>
 		<table width="100%" cellpadding="0" cellspacing="0">
 			${topEventsHtml}
 		</table>
 	</div>
 
-	<!-- Footer -->
-	<div style="text-align:center;padding:24px 0;border-top:1px solid ${FUNKIS.borderSubtle};">
-		<div style="font-size:12px;color:${FUNKIS.textMuted};">
-			Denne rapporten er automatisk generert av Gåri.<br>
-			Sporsmal? Svar pa denne e-posten eller kontakt <a href="mailto:Kjersti.Therkildsen@gaari.no" style="color:${FUNKIS.red};">Kjersti.Therkildsen@gaari.no</a>
+	<!-- Metodikk -->
+	<div style="background:${FUNKIS.white};border-radius:10px;border:1px solid ${FUNKIS.borderSubtle};padding:16px;margin-bottom:24px;">
+		<div style="font-size:14px;font-weight:700;color:${FUNKIS.textPrimary};margin-bottom:8px;">Slik måler vi</div>
+		<div style="font-size:13px;color:${FUNKIS.textSecondary};line-height:1.5;">
+			<strong>Topp-plasseringer</strong> telles server-side hver gang en av deres kamper velges som Fremhevet på en av de promoterte sidene. <strong>Klikk</strong> telles når en besøkende trykker seg videre fra kortet. Ingen personlig informasjon (IP, cookies, bruker-ID) lagres. Tallene er faktisk målte — ingen estimater, ingen bransjesnitt.
 		</div>
-		<div style="margin-top:12px;">
-			<a href="https://gaari.no" style="font-family:'Arial Narrow',Arial,sans-serif;font-size:14px;font-weight:700;color:${FUNKIS.iron};text-decoration:none;">gaari.no</a>
+	</div>
+
+	<!-- Footer -->
+	<div style="padding:24px 0;border-top:1px solid ${FUNKIS.borderSubtle};">
+		<div style="font-size:14px;color:${FUNKIS.textPrimary};line-height:1.6;margin-bottom:16px;">
+			Har dere spørsmål eller ønsker annen plassering? Svar bare på denne e-posten.
+		</div>
+		<div style="font-size:14px;color:${FUNKIS.textPrimary};">
+			— Kjersti
+		</div>
+		<div style="margin-top:16px;font-size:11px;color:${FUNKIS.textMuted};">
+			<a href="https://gaari.no" style="font-family:'Arial Narrow',Arial,sans-serif;font-size:13px;font-weight:700;color:${FUNKIS.iron};text-decoration:none;">gaari.no</a>
+			&nbsp;·&nbsp;
+			<a href="mailto:Kjersti.Therkildsen@gaari.no" style="color:${FUNKIS.textMuted};text-decoration:none;">Kjersti.Therkildsen@gaari.no</a>
 		</div>
 	</div>
 
