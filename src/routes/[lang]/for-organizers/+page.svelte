@@ -37,4 +37,4 @@
 	<meta name="twitter:image" content={ogImage} />
 </svelte:head>
 
-<ForArrangorerPage heroImages={data.heroImages} />
+<ForArrangorerPage heroImages={data.heroImages} partners={data.partners} />

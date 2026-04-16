@@ -12,7 +12,41 @@ export interface PromotedPlacement {
 	end_date: string | null;
 	contact_email: string | null;
 	notes: string | null;
+	logo_url: string | null;
 	created_at: string;
+}
+
+export interface ActivePartner {
+	venue_name: string;
+	tier: 'basis' | 'standard' | 'partner';
+	logo_url: string | null;
+}
+
+/**
+ * Returns distinct active partners across all collections, for display on
+ * /for-arrangorer. Filters on active + current date range — same rules as
+ * getActivePromotions, just without the collection filter.
+ */
+export async function getActivePartners(): Promise<ActivePartner[]> {
+	const today = getOsloToday();
+
+	const { data, error } = await supabase
+		.from('promoted_placements')
+		.select('venue_name, tier, logo_url')
+		.eq('active', true)
+		.lte('start_date', today)
+		.or(`end_date.is.null,end_date.gte.${today}`);
+
+	if (error) {
+		console.error('Failed to load active partners:', error);
+		return [];
+	}
+
+	const byVenue = new Map<string, ActivePartner>();
+	for (const row of (data ?? []) as ActivePartner[]) {
+		if (!byVenue.has(row.venue_name)) byVenue.set(row.venue_name, row);
+	}
+	return [...byVenue.values()].sort((a, b) => a.venue_name.localeCompare(b.venue_name, 'nb'));
 }
 
 function getOsloToday(): string {

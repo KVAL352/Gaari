@@ -7,9 +7,10 @@
 	interface Props {
 		heroImages: Array<{ url: string; title: string; venue: string }>;
 		venueEventsMap?: Record<string, Array<{ url: string; title: string; venue: string }>>;
+		partners?: Array<{ venue_name: string; tier: 'basis' | 'standard' | 'partner'; logo_url: string | null }>;
 	}
 
-	let { heroImages = [], venueEventsMap = {} }: Props = $props();
+	let { heroImages = [], venueEventsMap = {}, partners = [] }: Props = $props();
 
 	let contactStatus: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
 	let heroEl: HTMLElement | undefined = $state(undefined);
@@ -305,6 +306,36 @@
 		</div>
 	</div>
 </section>
+
+
+<!-- === 1b. PARTNERE — drevet av aktive promoted_placements === -->
+{#if partners.length > 0}
+	<section class="border-b border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-10 md:py-12">
+		<div class="mx-auto max-w-5xl">
+			<p class="mb-6 text-center text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+				{$lang === 'no' ? 'Samarbeidspartnere' : 'Partners'}
+			</p>
+			<ul class="flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
+				{#each partners as p (p.venue_name)}
+					<li class="flex items-center">
+						{#if p.logo_url}
+							<img
+								src={p.logo_url}
+								alt={p.venue_name}
+								loading="lazy"
+								class="h-10 w-auto object-contain opacity-80 transition-opacity hover:opacity-100 md:h-12"
+							/>
+						{:else}
+							<span class="text-base font-semibold text-[var(--color-text-secondary)] md:text-lg">
+								{p.venue_name}
+							</span>
+						{/if}
+					</li>
+				{/each}
+			</ul>
+		</div>
+	</section>
+{/if}
 
 
 <!-- === 2. BRIDGE + SJEKK OM DU ER HER === -->

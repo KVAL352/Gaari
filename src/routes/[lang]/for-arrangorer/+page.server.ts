@@ -1,12 +1,15 @@
 import { redirect } from '@sveltejs/kit';
 import { handleContactSubmit } from './contact-action';
 import { supabase } from '$lib/server/supabase';
+import { getActivePartners } from '$lib/server/promotions';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	if (params.lang === 'en') {
 		throw redirect(307, '/en/for-organizers');
 	}
+
+	const partners = await getActivePartners();
 
 	const { data: events } = await supabase
 		.from('events')
@@ -79,7 +82,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		if (merged.length > 0) venueEventsMap[alias] = merged;
 	}
 
-	return { heroImages, venueEventsMap };
+	return { heroImages, venueEventsMap, partners };
 };
 
 export const actions: Actions = {

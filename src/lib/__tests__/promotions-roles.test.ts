@@ -22,6 +22,7 @@ function makePlacement(overrides: Partial<PromotedPlacement> & { id: string; ven
 		end_date: null,
 		contact_email: null,
 		notes: null,
+		logo_url: null,
 		created_at: '2026-04-01T00:00:00Z',
 		...overrides
 	};

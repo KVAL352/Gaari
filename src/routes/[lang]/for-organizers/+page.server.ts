@@ -1,12 +1,15 @@
 import { redirect } from '@sveltejs/kit';
 import { handleContactSubmit } from '../for-arrangorer/contact-action';
 import { supabase } from '$lib/server/supabase';
+import { getActivePartners } from '$lib/server/promotions';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	if (params.lang === 'no') {
 		throw redirect(307, '/no/for-arrangorer');
 	}
+
+	const partners = await getActivePartners();
 
 	const { data: events } = await supabase
 		.from('events')
@@ -31,7 +34,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		heroImages.push({ url: e.image_url, title: e.title_no, venue: e.venue_name ?? '' });
 	}
 
-	return { heroImages };
+	return { heroImages, partners };
 };
 
 export const actions: Actions = {
