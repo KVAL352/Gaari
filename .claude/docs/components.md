@@ -7,8 +7,8 @@
 - `NewsletterInline.svelte` — Lightweight inline CTA with `location` prop for per-placement Umami tracking.
 - `NewsletterSignupCard.svelte` — Scrapbook-style signup card injected at position 7 in homepage grid. Polaroid collage + "UKE X" sticker. Audience pills (family/voksen/ungdom). Tracks `location: 'homepage-grid-card'`.
 - `HeroSection.svelte` — Compact hero with tagline
-- `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price. `promoted` prop. Dismiss menu.
-- `EventGrid.svelte` — Date-grouped layout, keyed `{#each}` by `event.id`, promotedEventIds, dismiss callbacks
+- `EventCard.svelte` — Grid card with image, title, date, venue, category badge, price. `promoted` + `placementId` props. Click fires /api/track-click with placement_context (promoted/organic). Dismiss menu.
+- `EventGrid.svelte` — Date-grouped layout, keyed `{#each}` by `event.id`. Props: `promotedEventIds`, `placementForEvent` map (event.id → placement.id), dismiss callbacks
 - `EventDiscovery.svelte` — Filter panel (Who/When/What/Where). URL search params as source of truth.
 - `FilterPill.svelte` — Reusable pill button (aria-pressed, 44px touch targets)
 - `MiniCalendar.svelte` — Inline date picker (ARIA grid structure)

@@ -35,7 +35,7 @@
 - `/api/events.ics` — Public iCal feed (30-day, optional `?filter=`)
 - `/api/stripe-webhook` — Stripe webhook (checkout.session.completed, subscription.deleted)
 - `/api/csp-report` — CSP violation reports
-- `/api/track-click` — POST venue click tracking (→ venue_clicks table)
+- `/api/track-click` — POST venue click tracking (→ venue_clicks table). Body: `{venue_name, event_slug, source_page?, placement_context?, placement_id?}`. Context enum: `promoted|organic|direct|newsletter|social`. Skips SKIP_LOG_IPS, rate-limited 30/min per IP.
 - `/api/remind` — POST event reminder signup (→ event_reminders table)
 - `/api/posting-status` — GET/POST/DELETE SoMe posting checklist state (→ social_posting_status table)
 - `/u/api/send` — Umami beacon proxy with correct IP forwarding
