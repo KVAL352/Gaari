@@ -182,9 +182,24 @@ export const GET: RequestHandler = async () => {
 				checks.push({ name: 'image_health', status: 'pass', detail: 'No events with images to check' });
 			} else {
 				const results = await Promise.allSettled(
-					sample.map((e) =>
-						fetch(e.image_url!, { method: 'HEAD', signal: AbortSignal.timeout(5000) })
-					)
+					sample.map(async (e) => {
+						// HEAD first (cheap). Some servers (e.g. Plone/Zope on bergenbibliotek.no)
+						// return 500 on HEAD for endpoints that work fine on GET, so fall back to
+						// a Range GET before flagging the URL as broken.
+						const head = await fetch(e.image_url!, {
+							method: 'HEAD',
+							signal: AbortSignal.timeout(5000)
+						});
+						if (head.ok) return head;
+						const get = await fetch(e.image_url!, {
+							method: 'GET',
+							headers: { Range: 'bytes=0-1023' },
+							signal: AbortSignal.timeout(5000)
+						});
+						const ct = get.headers.get('content-type') ?? '';
+						if (get.ok && ct.startsWith('image/')) return get;
+						return head; // return the original failure for status classification
+					})
 				);
 				const broken = results.filter(
 					(r) => r.status === 'rejected' || (r.status === 'fulfilled' && r.value.status >= 400)
