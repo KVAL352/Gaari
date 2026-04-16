@@ -12,7 +12,7 @@
 - `EventDiscovery.svelte` — Filter panel (Who/When/What/Where). URL search params as source of truth.
 - `FilterPill.svelte` — Reusable pill button (aria-pressed, 44px touch targets)
 - `MiniCalendar.svelte` — Inline date picker (ARIA grid structure)
-- `FilterBar.svelte` — Dropdown filter row (hidden on homepage when EventDiscovery active)
+- `FilterBar.svelte` — Dropdown filter row (hidden on homepage when EventDiscovery active; used on collection pages with client-side filtering, smart hiding of redundant filters per collection type)
 - `CalendarDropdown.svelte` — "Add to Calendar" dropdown (WAI-ARIA menu keyboard nav)
 - `StatusBadge.svelte` — Today, Trolig gratis, Sold Out, Last Tickets, Cancelled, Studentpris
 - `LoadMore.svelte`, `EmptyState.svelte`, `BackToTop.svelte`, `LanguageSwitch.svelte`, `ImagePlaceholder.svelte`
