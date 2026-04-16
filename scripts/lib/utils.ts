@@ -168,6 +168,32 @@ export async function eventExists(sourceUrl: string): Promise<boolean> {
 	return (data && data.length > 0) || false;
 }
 
+// Check if an existing event has a non-null image_url (for scraper self-healing).
+// Assumes event exists — caller should check eventExists() first.
+export async function eventHasImage(sourceUrl: string): Promise<boolean> {
+	const { data } = await supabase
+		.from('events')
+		.select('image_url')
+		.eq('source_url', sourceUrl)
+		.limit(1);
+	return !!(data && data[0]?.image_url);
+}
+
+// Update image_url for an existing event, only if currently null (safe for concurrent scrapes).
+export async function updateEventImage(sourceUrl: string, imageUrl: string): Promise<boolean> {
+	const { data, error } = await supabase
+		.from('events')
+		.update({ image_url: imageUrl })
+		.eq('source_url', sourceUrl)
+		.is('image_url', null)
+		.select('id');
+	if (error) {
+		console.error(`  Failed to update image for ${sourceUrl}:`, error.message);
+		return false;
+	}
+	return (data && data.length > 0) || false;
+}
+
 // Delete a sold-out event by source_url (returns true if an event was deleted)
 export async function deleteEventByUrl(sourceUrl: string): Promise<boolean> {
 	const { data } = await supabase.from('events').delete().eq('source_url', sourceUrl).select('id');

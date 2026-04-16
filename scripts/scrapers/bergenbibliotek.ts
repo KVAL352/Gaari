@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, eventHasImage, updateEventImage, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenbibliotek';
@@ -170,7 +170,18 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		found++;
 
-		if (await eventExists(sourceUrl)) continue;
+		if (await eventExists(sourceUrl)) {
+			// Self-heal: backfill image for events inserted before a past fetchDetail failure
+			if (!(await eventHasImage(sourceUrl))) {
+				await delay(1000);
+				const detail = await fetchDetail(sourceUrl);
+				const healed = detail.imageUrl || extractListingImage($el);
+				if (healed && await updateEventImage(sourceUrl, healed)) {
+					console.log(`  ↻ [image] ${title}`);
+				}
+			}
+			continue;
+		}
 
 		const category = guessCategory(title, tag);
 		const bydel = libraryBydel(location);
