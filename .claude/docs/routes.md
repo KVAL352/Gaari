@@ -14,7 +14,7 @@
 - `/[lang]/venue/[venue]/` — Top 15 venue pages with LocalBusiness JSON-LD, upcoming events, map link. Config in `$lib/venues.ts`.
 - `/[lang]/denne-uken/[uke]/` — Weekly blog post (year-week format, e.g. `2026-16`). Article JSON-LD, auto-generated from event data.
 - `/[lang]/lenker/` — Link-in-bio page for Instagram/Facebook. Prerendered. UTM-tagged links.
-- `/[lang]/for-arrangorer/` — B2B marketing page for venues. 7-section structure with pricing tiers.
+- `/[lang]/for-arrangorer/` — B2B marketing page for venues. Partner-logorad drevet av aktive `promoted_placements` med `logo_url`.
 
 ## Content pages (social)
 - `/r/[date]/[slug]/` — Per-day reel + stories landing page. Not in sitemap.
