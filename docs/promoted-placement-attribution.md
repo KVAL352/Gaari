@@ -2,17 +2,23 @@
 
 **Status:** Design-dokument — ingen kode skrevet, klar for gjennomgang
 **Opprettet:** 2026-04-16
+**Oppdatert:** 2026-04-16 (forenklet — all data skal være målt, ikke estimert)
 **Forfatter:** Kjersti + Claude
 **Driver:** SK Brann aktivert som første gratis-test 2026-04-16 → 2026-07-16. Før videre utrulling av promotert plassering og rapport-bygg, gjør vi en dyp kartlegging slik at fundamentet er riktig og vi unngår rework.
+
+## Fundamentalt prinsipp
+
+**Alle tall som vises til venues er faktisk målt.** Ingen estimater, simuleringer, bransjesnitt, "synlighets-kurver" eller CPM-beregninger. Hvis et tall ikke kan spores direkte til en måling i våre egne tabeller, står det ikke i rapporten. Dette er ikke-forhandlingsbart — tillit er Gåris viktigste ressurs. Se memory: `feedback_only_real_data.md`.
 
 ---
 
 ## 0. Sammendrag (1 minutts lesing)
 
-- **Mål:** Gi venues data som beviser ROI av promotert plassering — faktiske klikk, faktisk lift vs. organisk.
+- **Mål:** Gi venues data som beviser verdien av promotert plassering — faktisk målte klikk fra Fremhevet-plassering vs. klikk fra organisk posisjon.
 - **Stor oppdagelse:** Click-tracking finnes allerede (`venue_clicks`-tabell + `/api/track-click` endpoint + `promoted-click` Umami-event). Jobben er å **lukke gap**, ikke bygge fra scratch.
-- **Kjerne-gap:** `venue_clicks` registrerer KLIKK, men kan ikke fortelle hvilken side klikket kom fra eller om eventet var promotert eller organisk. Uten dette: ingen lift-beregning.
-- **Beslutning:** Holde forsiden clean for promotering. Samle 30 dager data, bygg rapport-utvidelse i fase 2.
+- **Kjerne-gap:** `venue_clicks` registrerer KLIKK, men kan ikke fortelle om eventet var Fremhevet eller organisk da det ble klikket. Uten dette: ingen reell lift-måling.
+- **Løsning — enkel og ærlig:** Utvid `venue_clicks` med `placement_context`-kolonne. Brann har 14 kamper; én rotert som Fremhevet per dag, de 13 andre står organisk. Det gir ekte målte data for begge contexts per kamp over en måned. Ingen estimering.
+- **Beslutning:** Holde forsiden clean for promotering. Samle 30 dager data, bygg fase 1 i mai hvis det trengs.
 - **Estimert arbeid:** ~6 timer totalt — migration (30 min), endpoint-utvidelse (1 t), EventCard-oppdatering (1 t), rapport-utvidelse (2 t), tester (1 t), deploy (30 min).
 
 ---
@@ -239,71 +245,60 @@ Klient-siden leser `data.placementForEvent[event.id]` og sender som prop til Eve
 
 ### 4.6 Endring 5 — utvid `generate-venue-report.ts`
 
-Rapporten får ny seksjon:
+Rapporten får ny seksjon. **Alle tall er faktisk målte, ingen estimater:**
 
 ```
-SK Brann — april 2026
+SK Brann — april 2026 (29 dager aktivert)
 
 VISNINGER (fra placement_log)
-  Totalt promoted:     1 840 (25.2% andel av 7 300 sidevisninger)
+  Totalt Fremhevet:     1 840 (23.2% av 7 930 sidevisninger på 4 sider)
   Per side:
-    /no/sentrum         720
-    /no/voksen          480
-    /no/i-dag           440
-    /no/denne-helgen    200
+    /no/sentrum           720
+    /no/voksen            480
+    /no/i-dag             440
+    /no/denne-helgen      200
 
-KLIKK (fra venue_clicks)
-  Totalt:               101
-  Promoted klikk:        74 (fra placement_context = 'promoted')
-  Organic klikk:         13 (fra placement_context = 'organic')
-  Direct klikk:          14 (fra placement_context = 'direct')
-  Newsletter klikk:       0 (ingen utsending enda)
+KLIKK (fra venue_clicks — splittet på faktisk kontekst)
+  Totalt:                101
+  Fra Fremhevet:          74  ← klikk der kortet stod øverst med Fremhevet-badge
+  Fra organisk:           13  ← klikk der kortet stod i vanlig sortering
+  Fra direkte/søk:        14  ← klikk fra event-detaljside eller direkte URL
 
-LIFT-ANALYSE
-  Promoted CTR:         4.0%  (74 klikk / 1 840 visninger)
-  Organic CTR:          4.2%  (13 klikk / 310 estimerte organiske visninger — se merknad)
-  Netto lift:           +61 klikk/måned som sannsynligvis ikke hadde eksistert uten plasseringen
-                        (1 840 visninger × 4.0% = 74 promoted klikk, minus 13 organiske = 61)
+FORSKJELL (det plasseringen ga dere)
+  Klikk uten Fremhevet:   13
+  Klikk med Fremhevet:    74
+  Ekstra klikk fra plasseringen:  +61 (5,7× flere)
 
-NB: Organiske visninger estimeres basert på hvor eventet ville rangert uten boost.
-Tallet er beste estimat, ikke observert.
+Hvordan vi regner: Brann har 14 kamper. Én roteres som Fremhevet per dag,
+de 13 andre står organisk i listen samme dag. Over måneden fikk vi dermed
+reelle klikktall fra begge kontekster. Ingen estimater.
 
-TOPP-KAMPER
-  Brann – Aalesund        612 visn.,  32 klikk
-  Brann – Fredrikstad     589 visn.,  28 klikk
-  Brann – KFUM            401 visn.,  18 klikk
-  Brann – Sarpsborg       238 visn.,  10 klikk
+TOPP-KAMPER (sortert på totale klikk)
+  Brann – Aalesund       32 klikk (24 Fremhevet / 5 organisk / 3 direkte)
+  Brann – Fredrikstad    28 klikk (21 Fremhevet / 4 organisk / 3 direkte)
+  Brann – KFUM           18 klikk (14 Fremhevet / 2 organisk / 2 direkte)
+  Brann – Sarpsborg      10 klikk ( 7 Fremhevet / 1 organisk / 2 direkte)
 
 TRAFIKKFORDELING
-  Kilde            Klikk    Andel
-  promoted         74       73%
-  direct (søk)     14       14%
-  organic          13       13%
-  newsletter        0        0%
-  social            0        0%
+  Kilde           Klikk    Andel
+  Fremhevet       74       73%
+  Direkte/søk     14       14%
+  Organisk        13       13%
 ```
 
 **Implementering:**
 - Kopier eksisterende `generate-venue-report.ts` — ikke bryt bakoverkompatibilitet
 - Ny query for klikk gruppert på `placement_context`
-- Ny query for source_page breakdown
-- Lift estimeres via: `organic_ctr` anvendt på `organic_impressions` (vi trenger organiske visninger også — se 4.7)
+- "Forskjell"-seksjonen regner kun `promoted_clicks - organic_clicks`. Ingen estimering.
+- **Ingen CPM-beregning, ingen mediaverdi, ingen simulert organisk CTR**. Hvis et tall ikke er direkte målt, står det ikke i rapporten.
 
-### 4.7 Endring 6 — logg organiske visninger (åpent spørsmål)
+### 4.7 Organiske visninger — bevisst utelatt
 
-For å beregne lift trengs også "organiske visninger" — hvor mange ganger Brann-event ble vist **uten** å være promotert. To alternativer:
+**Vi logger IKKE organiske visninger** (hvor mange ganger Brann vises i vanlig sortering). Det ville krevd estimering eller en `event_impression_log`-tabell med mange rader, og viktigst: vi trenger det ikke for rapport-formålet.
 
-**Alt A:** Logg alle event-visninger på collection-sider
-- Ny tabell `event_impression_log(event_id, collection_slug, log_date, impression_count)`
-- Genererer mye data: ~80 events × 4 sider × 30 dager = 9 600 rader/måned for bare collections
-- Gir komplett bilde
+Vi sammenligner kun **klikk fra Fremhevet vs. klikk fra organisk posisjon** — begge deler er direkte målt via `placement_context`. Det er ærlig, enkelt og tilstrekkelig. Hvis en venue spør "hvor mange ganger ble jeg vist organisk?" kan vi svare "det tallet fanger vi ikke i dag" i stedet for å estimere.
 
-**Alt B:** Ikke logg, estimer fra sortering
-- Anta organic CTR er likt mellom venues med samme posisjon
-- Bruk bransjesnitt (top-3 får ~60% av klikkene i en liste på 80 events)
-- Billig, men mindre presist
-
-**Anbefaling:** Alt B i fase 1 (før månedsrapport). Vurder Alt A i fase 2 hvis Brann utfordrer tallene.
+**Vi regner IKKE CTR** (klikk/visninger) fordi det blander promoted impressions med organic clicks. I stedet viser vi absolutte klikktall per kontekst — det er det som betyr noe for venues.
 
 ### 4.8 Endring 7 — skip-IP i track-click
 
@@ -624,16 +619,15 @@ La venues få egen innlogging til dashboard (fase 4). Forutsetter auth, tier-beg
 | Ingen UTM-params i sosiale captions | Pollutter lesbarhet, Meta Insights dekker behovet | 2026-04-16 |
 | Ingen cookies, ingen IP-lagring | Personvern-policy, GDPR-overholdelse | 2026-04-16 |
 | Observere i 30 dager før build | Få empirisk data, unngå premature optimization | 2026-04-16 |
+| **Kun målte data i rapporter — aldri estimater** | Tillit er Gåris viktigste ressurs. Ett påtenkt tall oppdaget = avtale død. | 2026-04-16 |
+| Ingen CPM-beregning, ingen mediaverdi, ingen bransjesnitt-kurver i rapporter | Følger "kun målte data"-prinsippet | 2026-04-16 |
+| Organiske visninger logges IKKE | Trengs ikke for lift-målingen (sammenligner klikk, ikke CTR) + ville krevd estimering | 2026-04-16 |
 
 ---
 
 ## 16. Åpne spørsmål
 
-1. **Lift-definisjon — streng eller mild?**
-   - Streng: `(promoted_ctr - organic_ctr) × promoted_impressions` — krever Alt A fra 4.7
-   - Mild: `promoted_clicks - estimated_organic_clicks` (bransjesnitt) — bruker Alt B
-
-2. **Skal `direct` klikk telle mot venue?**
+1. **Skal `direct` klikk telle mot venue?**
    - Hvis Brann-fan går direkte til gaari.no/events/brann-aalesund-2026-04-22 og klikker "Kjøp billett", er det "Gåri-trafikk" eller "Brann-egen trafikk"?
    - Foreslått: tell, men vis separat i rapporten så venue ser forskjellen.
 
