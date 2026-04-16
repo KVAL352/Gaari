@@ -12,13 +12,14 @@
 		event: GaariEvent;
 		eager?: boolean;
 		promoted?: boolean;
+		placementId?: string | null;
 		studentContext?: boolean;
 		onHideEvent?: (id: string) => void;
 		onHideVenue?: (venue: string) => void;
 		onHideCategory?: (category: string) => void;
 	}
 
-	let { event, eager = false, promoted = false, studentContext = false, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+	let { event, eager = false, promoted = false, placementId = null, studentContext = false, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
 
 	let showStudentPriceBadge = $derived(studentContext && hasStudentPrice(event.venue_name));
 
@@ -87,9 +88,26 @@
 	});
 
 	function trackPromotedClick() {
-		if (promoted && typeof window !== 'undefined' && window.umami) {
+		if (typeof window === 'undefined') return;
+		if (promoted && window.umami) {
 			umami.track('promoted-click', { venue: event.venue_name, slug: event.slug });
 		}
+		// Server-side attribution: log card click with context so venue reports can
+		// split Fremhevet clicks from organic clicks. Fire-and-forget, keepalive so
+		// it survives the navigation.
+		const context = promoted ? 'promoted' : 'organic';
+		fetch('/api/track-click', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			keepalive: true,
+			body: JSON.stringify({
+				venue_name: event.venue_name,
+				event_slug: event.slug,
+				source_page: window.location.pathname,
+				placement_context: context,
+				placement_id: placementId
+			})
+		}).catch(() => { /* fail silently */ });
 	}
 
 	function toggleDismissMenu(e: MouseEvent) {

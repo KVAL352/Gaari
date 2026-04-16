@@ -364,7 +364,7 @@
 			{/if}
 		</div>
 	{:else}
-		<EventGrid events={filteredEvents} promotedEventIds={data.promotedEventIds} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} rangeFrom={dateRange.from} rangeTo={dateRange.to} maxEvents={visibleEvents} />
+		<EventGrid events={filteredEvents} promotedEventIds={data.promotedEventIds} placementForEvent={data.placementForEvent} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} rangeFrom={dateRange.from} rangeTo={dateRange.to} maxEvents={visibleEvents} />
 		<LoadMore shown={Math.min(visibleEvents, totalEvents)} total={totalEvents} href={nextPageHref} />
 
 	{/if}

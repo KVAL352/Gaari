@@ -116,15 +116,35 @@
 	let correctionSubmitted = $state(false);
 	let correctionSubmitting = $state(false);
 
+	function detectClickContext(): 'newsletter' | 'social' | 'direct' {
+		if (typeof window === 'undefined') return 'direct';
+		const params = new URLSearchParams(window.location.search);
+		if (params.get('utm_medium') === 'newsletter') return 'newsletter';
+		const ref = document.referrer;
+		if (ref && /(facebook|instagram|fb\.com|t\.co|x\.com|twitter|bsky|threads|reddit)/i.test(ref)) {
+			return 'social';
+		}
+		return 'direct';
+	}
+
 	function trackTicketClick() {
 		if (typeof window !== 'undefined' && window.umami) {
 			umami.track('ticket-click', { venue: event.venue_name, slug: event.slug });
 		}
-		// Server-side venue click tracking for B2B reporting
+		// Server-side venue click tracking for B2B reporting.
+		// Context: ticket clicks from event-detail are 'direct' unless newsletter/social
+		// referrer says otherwise. The original card-click (if any) was logged separately
+		// with promoted/organic context by EventCard.
 		fetch('/api/track-click', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ venue: event.venue_name, slug: event.slug })
+			keepalive: true,
+			body: JSON.stringify({
+				venue_name: event.venue_name,
+				event_slug: event.slug,
+				source_page: window.location.pathname,
+				placement_context: detectClickContext()
+			})
 		}).catch(() => {}); // fire-and-forget
 	}
 	let correctionError = $state(false);

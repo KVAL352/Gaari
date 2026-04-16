@@ -85,12 +85,20 @@ interface ReportData {
 	impressions: Map<string, number>; // collection_slug → count
 	totalCollectionImpressions: Map<string, number>; // collection_slug → total page views
 	clicks: number;
+	clicksByContext: {
+		promoted: number;
+		organic: number;
+		direct: number;
+		newsletter: number;
+		social: number;
+		unknown: number;
+	};
 	topEvents: Array<{ title: string; slug: string; clicks: number }>;
 }
 
 async function fetchReportData(venue: PlacementData): Promise<ReportData> {
 	// Fetch all data in parallel
-	const [placementLogsResult, collectionImpsResult, clicksResult, topEventsResult] = await Promise.all([
+	const [placementLogsResult, collectionImpsResult, clicksResult] = await Promise.all([
 		// Venue's promoted impressions this month
 		supabase
 			.from('placement_log')
@@ -105,17 +113,10 @@ async function fetchReportData(venue: PlacementData): Promise<ReportData> {
 			.in('collection_slug', venue.collection_slugs)
 			.gte('log_date', period.start)
 			.lte('log_date', period.end),
-		// Ticket clicks this month
+		// Venue clicks this month (with placement_context for attribution)
 		supabase
 			.from('venue_clicks')
-			.select('event_slug')
-			.eq('venue_name', venue.venue_name)
-			.gte('clicked_at', `${period.start}T00:00:00`)
-			.lte('clicked_at', `${period.end}T23:59:59`),
-		// Top events by clicks
-		supabase
-			.from('venue_clicks')
-			.select('event_slug')
+			.select('event_slug, placement_context')
 			.eq('venue_name', venue.venue_name)
 			.gte('clicked_at', `${period.start}T00:00:00`)
 			.lte('clicked_at', `${period.end}T23:59:59`)
@@ -135,11 +136,14 @@ async function fetchReportData(venue: PlacementData): Promise<ReportData> {
 		totalCollectionImpressions.set(row.collection_slug, current + row.impression_count);
 	}
 
-	// Count clicks and aggregate top events
+	// Count clicks, split by context, and aggregate top events
 	const clicksBySlug = new Map<string, number>();
+	const clicksByContext = { promoted: 0, organic: 0, direct: 0, newsletter: 0, social: 0, unknown: 0 };
 	for (const row of clicksResult.data ?? []) {
-		const current = clicksBySlug.get(row.event_slug) ?? 0;
-		clicksBySlug.set(row.event_slug, current + 1);
+		clicksBySlug.set(row.event_slug, (clicksBySlug.get(row.event_slug) ?? 0) + 1);
+		const ctx = row.placement_context as keyof typeof clicksByContext | null;
+		if (ctx && ctx in clicksByContext) clicksByContext[ctx]++;
+		else clicksByContext.unknown++;
 	}
 
 	const topEvents = Array.from(clicksBySlug.entries())
@@ -152,6 +156,7 @@ async function fetchReportData(venue: PlacementData): Promise<ReportData> {
 		impressions,
 		totalCollectionImpressions,
 		clicks: clicksResult.data?.length ?? 0,
+		clicksByContext,
 		topEvents
 	};
 }
@@ -205,7 +210,7 @@ function escapeHtml(s: string): string {
 }
 
 function generateReportHtml(data: ReportData): string {
-	const { placement, impressions, totalCollectionImpressions, clicks, topEvents } = data;
+	const { placement, impressions, totalCollectionImpressions, clicks, clicksByContext, topEvents } = data;
 
 	// Calculate totals
 	let totalVenueImpressions = 0;
@@ -325,6 +330,54 @@ function generateReportHtml(data: ReportData): string {
 		</table>
 	</div>
 
+	${(() => {
+		const { promoted, organic, direct, newsletter, social } = clicksByContext;
+		const trackedTotal = promoted + organic + direct + newsletter + social;
+		if (trackedTotal === 0) return '';
+		const lift = promoted - organic;
+		const multiplier = organic > 0 ? (promoted / organic).toFixed(1) : null;
+		const showLiftSummary = isMature && promoted > 0 && organic > 0;
+		const rows: Array<[string, number, string]> = [
+			['Fra Fremhevet-plassering', promoted, FUNKIS.textPrimary],
+			['Fra vanlig sortering', organic, FUNKIS.textPrimary],
+			['Fra direkte/søk', direct, FUNKIS.textMuted],
+			['Fra nyhetsbrev', newsletter, FUNKIS.textMuted],
+			['Fra sosiale medier', social, FUNKIS.textMuted]
+		];
+		const rowsHtml = rows
+			.filter(([, n]) => n > 0)
+			.map(([label, n, color]) => `
+				<tr>
+					<td style="padding:10px 16px;border-bottom:1px solid ${FUNKIS.borderSubtle};font-size:14px;color:${color};">${label}</td>
+					<td style="padding:10px 16px;border-bottom:1px solid ${FUNKIS.borderSubtle};font-size:14px;color:${color};text-align:right;font-variant-numeric:tabular-nums;font-weight:600;">${n.toLocaleString('nb-NO')}</td>
+				</tr>`)
+			.join('');
+		const liftBlock = showLiftSummary
+			? `<div style="background:${FUNKIS.plaster};padding:14px 16px;border-top:1px solid ${FUNKIS.borderSubtle};">
+					<div style="font-size:15px;color:${FUNKIS.textPrimary};">
+						<strong>Plasseringen ga dere ${lift.toLocaleString('nb-NO')} ekstra klikk</strong>${multiplier ? ` — ${multiplier}× mer fra Fremhevet enn fra vanlig sortering` : ''}.
+					</div>
+					<div style="font-size:12px;color:${FUNKIS.textMuted};margin-top:6px;">
+						Basert på faktisk målte klikk i begge kontekster. Ingen estimater.
+					</div>
+				</div>`
+			: !isMature
+				? `<div style="background:${FUNKIS.plaster};padding:14px 16px;border-top:1px solid ${FUNKIS.borderSubtle};font-size:13px;color:${FUNKIS.textMuted};font-style:italic;">Forskjellsberegning aktiveres når datasettet er modent (14+ dager med både Fremhevet- og organisk-klikk).</div>`
+				: '';
+		return `
+	<!-- Klikk etter kilde -->
+	<div style="background:${FUNKIS.white};border-radius:10px;border:1px solid ${FUNKIS.borderSubtle};overflow:hidden;margin-bottom:24px;">
+		<div style="padding:16px;border-bottom:1px solid ${FUNKIS.borderSubtle};">
+			<div style="font-size:16px;font-weight:700;color:${FUNKIS.textPrimary};">Klikk etter kilde</div>
+			<div style="font-size:12px;color:${FUNKIS.textMuted};margin-top:2px;">Hvordan fant folk veien til kampene</div>
+		</div>
+		<table width="100%" cellpadding="0" cellspacing="0">
+			${rowsHtml}
+		</table>
+		${liftBlock}
+	</div>`;
+	})()}
+
 	<!-- Top events -->
 	<div style="background:${FUNKIS.white};border-radius:10px;border:1px solid ${FUNKIS.borderSubtle};overflow:hidden;margin-bottom:24px;">
 		<div style="padding:16px;border-bottom:1px solid ${FUNKIS.borderSubtle};">
@@ -339,7 +392,7 @@ function generateReportHtml(data: ReportData): string {
 	<div style="background:${FUNKIS.white};border-radius:10px;border:1px solid ${FUNKIS.borderSubtle};padding:16px;margin-bottom:24px;">
 		<div style="font-size:14px;font-weight:700;color:${FUNKIS.textPrimary};margin-bottom:8px;">Slik måler vi</div>
 		<div style="font-size:13px;color:${FUNKIS.textSecondary};line-height:1.5;">
-			<strong>Topp-plasseringer</strong> telles server-side hver gang en av deres kamper velges som Fremhevet på en av de promoterte sidene. <strong>Klikk</strong> telles når en besøkende trykker seg videre fra kortet. Ingen personlig informasjon (IP, cookies, bruker-ID) lagres. Tallene er faktisk målte — ingen estimater, ingen bransjesnitt.
+			<strong>Topp-plasseringer</strong> telles server-side hver gang en av deres kamper velges som Fremhevet. <strong>Klikk</strong> telles når en besøkende trykker seg videre fra kortet, og vi registrerer samtidig konteksten (Fremhevet, vanlig sortering, direkte/søk, nyhetsbrev eller sosiale medier). Det gjør at forskjellen mellom Fremhevet og vanlig sortering er faktisk målt — ikke estimert. Ingen personlig informasjon (IP, cookies, bruker-ID) lagres.
 		</div>
 	</div>
 

@@ -99,6 +99,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 
 	// Promoted placement: bubble featured venues' events into top positions
 	let promotedEventIds: string[] = [];
+	const placementForEvent: Record<string, string> = {};
 	try {
 		const promotions = await getActivePromotions(collection.slug);
 		if (promotions.length > 0) {
@@ -116,6 +117,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 					if (venueEvents.length === 0) continue;
 					const pickedEvent = venueEvents[dayNumber % venueEvents.length];
 					promotedPicks.push(pickedEvent);
+					placementForEvent[pickedEvent.id] = placement.id;
 				}
 
 				if (promotedPicks.length > 0) {
@@ -192,6 +194,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 		events: filtered,
 		hubItems,
 		promotedEventIds,
+		placementForEvent,
 		lang: params.lang as 'no' | 'en',
 		hreflangPaths: (() => {
 			const slugs = getHreflangSlugs(collection.slug);

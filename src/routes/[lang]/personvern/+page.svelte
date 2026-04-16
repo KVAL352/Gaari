@@ -73,6 +73,21 @@
 
 	<section class="mb-8">
 		<h2 class="mb-3 text-xl font-semibold">
+			{$lang === 'no' ? 'Klikk-logg for arrangører' : 'Click log for organisers'}
+		</h2>
+		<p class="leading-relaxed text-[var(--color-text-secondary)]">
+			{#if $lang === 'no'}
+				Når du klikker på et arrangement-kort lagrer vi et anonymt klikk-signal: arrangementets slug, venue-navn, hvilken side klikket skjedde på, og hvorvidt kortet stod som Fremhevet eller i vanlig sortering. Dette brukes kun for å gi arrangørene aggregerte rapporter om hvor mange som oppdaget arrangementene deres.
+				<strong>Ingen personidentifiserende data lagres</strong> — ingen IP, ingen cookies, ingen bruker-ID.
+			{:else}
+				When you click an event card we log an anonymous click signal: the event slug, venue name, which page the click happened on, and whether the card was shown as Featured or in its natural sort position. This is used only to give organisers aggregated reports on how many people discovered their events.
+				<strong>No personally identifiable data is stored</strong> — no IP, no cookies, no user ID.
+			{/if}
+		</p>
+	</section>
+
+	<section class="mb-8">
+		<h2 class="mb-3 text-xl font-semibold">
 			{$lang === 'no' ? 'Skjemadata' : 'Form data'}
 		</h2>
 		<p class="mb-3 leading-relaxed text-[var(--color-text-secondary)]">

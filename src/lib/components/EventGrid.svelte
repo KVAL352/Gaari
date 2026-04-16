@@ -9,6 +9,9 @@
 	interface Props {
 		events: GaariEvent[];
 		promotedEventIds?: string[];
+		/** Map from event.id → promoted_placements.id so clicks on Fremhevet cards
+		 * carry their placement_id to the track-click endpoint for attribution. */
+		placementForEvent?: Record<string, string>;
 		/** Show inline newsletter CTA between date groups (default: false) */
 		showNewsletterCta?: boolean;
 		/** Insert newsletter signup card as a grid item in the first day group (default: false) */
@@ -27,7 +30,7 @@
 		onHideCategory?: (category: string) => void;
 	}
 
-	let { events, promotedEventIds = [], showNewsletterCta = false, showSignupCard = false, studentContext = false, rangeFrom, rangeTo, maxDays, maxEvents, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+	let { events, promotedEventIds = [], placementForEvent = {}, showNewsletterCta = false, showSignupCard = false, studentContext = false, rangeFrom, rangeTo, maxDays, maxEvents, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
 
 	// Global position (0-indexed) at which to inject the signup card.
 	// 7 = appears as the 8th card — after users have scrolled past a few events
@@ -97,6 +100,7 @@
 					{event}
 					eager={true}
 					promoted={true}
+					placementId={placementForEvent[event.id] ?? null}
 					{studentContext}
 					onHideEvent={canHide ? onHideEvent : undefined}
 					onHideVenue={canHide ? onHideVenue : undefined}
@@ -129,6 +133,7 @@
 					{event}
 					eager={groupIdx === 0 && i < 4}
 					promoted={promotedIdSet.has(event.id)}
+					placementId={placementForEvent[event.id] ?? null}
 					{studentContext}
 					onHideEvent={canHide ? onHideEvent : undefined}
 					onHideVenue={canHide ? onHideVenue : undefined}
