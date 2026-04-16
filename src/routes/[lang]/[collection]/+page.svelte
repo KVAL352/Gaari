@@ -54,9 +54,9 @@
 		filterPrice = '';
 	}
 
-	// Pagination: always complete days, capped by event count to keep DOM under ~1500.
-	// Baseline ~95 DOM + ~36 per card → 35 events ≈ 1355 DOM. Minimum 1 day per page.
-	const EVENTS_PER_PAGE = 35;
+	// Pagination: complete days when possible, with an event cap to keep DOM under ~1500.
+	// Baseline ~95 DOM + ~38 per card → 25 events ≈ 1045 DOM, 35 events ≈ 1425 DOM.
+	const EVENTS_PER_PAGE = 25;
 	let pageNum = $derived(Number($page.url.searchParams.get('page') || '1'));
 
 	// Use server-provided lang for SSR-critical values (JSON-LD, meta tags).
