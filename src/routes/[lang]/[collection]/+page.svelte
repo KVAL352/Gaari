@@ -9,6 +9,7 @@
 	import LoadMore from '$lib/components/LoadMore.svelte';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
 	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
+	import { groupEventsByDate } from '$lib/utils';
 	import type { Category, Bydel } from '$lib/types';
 
 	let { data } = $props();
@@ -53,9 +54,9 @@
 		filterPrice = '';
 	}
 
-	const PAGE_SIZE = 12;
+	const DAYS_PER_PAGE = 3;
 	let pageNum = $derived(Number($page.url.searchParams.get('page') || '1'));
-	let displayedEvents = $derived(filteredEvents.slice(0, pageNum * PAGE_SIZE));
+	let visibleDays = $derived(pageNum * DAYS_PER_PAGE);
 
 	// Use server-provided lang for SSR-critical values (JSON-LD, meta tags).
 	// $lang store only syncs via $effect (client-only), so it defaults to 'no' during SSR.
@@ -149,6 +150,8 @@
 		}
 		return { from: undefined, to: undefined };
 	});
+
+	let totalDays = $derived(groupEventsByDate(filteredEvents, dateRange.from, dateRange.to).size);
 
 	let venueCount = $derived(new Set(filteredEvents.map(e => e.venue_name).filter(Boolean)).size);
 
@@ -354,8 +357,8 @@
 			{/if}
 		</div>
 	{:else}
-		<EventGrid events={displayedEvents} promotedEventIds={data.promotedEventIds} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} rangeFrom={dateRange.from} rangeTo={dateRange.to} />
-		<LoadMore shown={displayedEvents.length} total={filteredEvents.length} href={nextPageHref} />
+		<EventGrid events={filteredEvents} promotedEventIds={data.promotedEventIds} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} rangeFrom={dateRange.from} rangeTo={dateRange.to} maxDays={visibleDays} />
+		<LoadMore shown={Math.min(visibleDays, totalDays)} total={totalDays} href={nextPageHref} unitLabel={$lang === 'no' ? 'dager' : 'days'} />
 
 	{/if}
 </div>

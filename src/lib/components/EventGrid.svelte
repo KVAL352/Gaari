@@ -18,12 +18,14 @@
 		/** Date range for multi-day event expansion (YYYY-MM-DD). Events are expanded across each day within this window. */
 		rangeFrom?: string;
 		rangeTo?: string;
+		/** Maximum number of day-groups to show. Pagination reveals complete days at a time. */
+		maxDays?: number;
 		onHideEvent?: (id: string) => void;
 		onHideVenue?: (venue: string) => void;
 		onHideCategory?: (category: string) => void;
 	}
 
-	let { events, promotedEventIds = [], showNewsletterCta = false, showSignupCard = false, studentContext = false, rangeFrom, rangeTo, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+	let { events, promotedEventIds = [], showNewsletterCta = false, showSignupCard = false, studentContext = false, rangeFrom, rangeTo, maxDays, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
 
 	// Global position (0-indexed) at which to inject the signup card.
 	// 7 = appears as the 8th card — after users have scrolled past a few events
@@ -55,7 +57,8 @@
 			? events.filter(e => !promotedIdSet.has(e.id))
 			: events;
 		const groups = groupEventsByDate(regularEvents, rangeFrom, rangeTo);
-		return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
+		const sorted = Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
+		return maxDays != null ? sorted.slice(0, maxDays) : sorted;
 	});
 
 	let canHide = $derived(!!onHideEvent);

@@ -5,15 +5,17 @@
 		shown: number;
 		total: number;
 		href: string;
+		/** Label for the counted unit (default: translated "events") */
+		unitLabel?: string;
 	}
 
-	let { shown, total, href }: Props = $props();
+	let { shown, total, href, unitLabel }: Props = $props();
 </script>
 
 {#if shown < total}
 	<div class="mt-8 flex flex-col items-center gap-3 py-4">
 		<p class="tabular-nums text-sm text-[var(--color-text-secondary)]">
-			{$t('showingOf')} {shown} {$t('of')} {total} {$t('events')}
+			{$t('showingOf')} {shown} {$t('of')} {total} {unitLabel ?? $t('events')}
 		</p>
 		<a
 			{href}
