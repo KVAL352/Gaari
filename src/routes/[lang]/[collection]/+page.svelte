@@ -135,6 +135,21 @@
 		return '';
 	});
 
+	// Range for multi-day event expansion on time-window collections
+	let dateRange = $derived.by(() => {
+		const slug = data.collection.slug;
+		const now = getOsloNow();
+		if (slug === 'denne-helgen' || slug === 'this-weekend' || slug === 'familiehelg') {
+			const { start, end } = getWeekendDates(now);
+			return { from: start, to: end };
+		}
+		if (slug === 'i-dag' || slug === 'today-in-bergen' || slug === 'i-kveld' || slug === 'tonight' || slug === 'studentkveld') {
+			const today = now.toISOString().slice(0, 10);
+			return { from: today, to: today };
+		}
+		return { from: undefined, to: undefined };
+	});
+
 	let venueCount = $derived(new Set(filteredEvents.map(e => e.venue_name).filter(Boolean)).size);
 
 	let relatedCollections: Collection[] = $derived(
@@ -339,7 +354,7 @@
 			{/if}
 		</div>
 	{:else}
-		<EventGrid events={displayedEvents} promotedEventIds={data.promotedEventIds} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} />
+		<EventGrid events={displayedEvents} promotedEventIds={data.promotedEventIds} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} rangeFrom={dateRange.from} rangeTo={dateRange.to} />
 		<LoadMore shown={displayedEvents.length} total={filteredEvents.length} href={nextPageHref} />
 
 	{/if}

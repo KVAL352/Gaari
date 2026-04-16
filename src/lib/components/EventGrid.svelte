@@ -15,12 +15,15 @@
 		showSignupCard?: boolean;
 		/** Show student price badges on venues with known student pricing */
 		studentContext?: boolean;
+		/** Date range for multi-day event expansion (YYYY-MM-DD). Events are expanded across each day within this window. */
+		rangeFrom?: string;
+		rangeTo?: string;
 		onHideEvent?: (id: string) => void;
 		onHideVenue?: (venue: string) => void;
 		onHideCategory?: (category: string) => void;
 	}
 
-	let { events, promotedEventIds = [], showNewsletterCta = false, showSignupCard = false, studentContext = false, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
+	let { events, promotedEventIds = [], showNewsletterCta = false, showSignupCard = false, studentContext = false, rangeFrom, rangeTo, onHideEvent, onHideVenue, onHideCategory }: Props = $props();
 
 	// Global position (0-indexed) at which to inject the signup card.
 	// 7 = appears as the 8th card — after users have scrolled past a few events
@@ -51,7 +54,7 @@
 		const regularEvents = promotedIdSet.size > 0
 			? events.filter(e => !promotedIdSet.has(e.id))
 			: events;
-		const groups = groupEventsByDate(regularEvents, true);
+		const groups = groupEventsByDate(regularEvents, rangeFrom, rangeTo);
 		return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
 	});
 

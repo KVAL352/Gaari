@@ -372,15 +372,43 @@ export function getDateKey(dateStr: string): string {
 	return dateStr.slice(0, 10);
 }
 
-export function groupEventsByDate<T extends { date_start: string; date_end?: string }>(events: T[], clampToToday = false): Map<string, T[]> {
-	const today = clampToToday ? new Date().toISOString().slice(0, 10) : '';
+/** Group events by date. Multi-day events (≤7 days) appear in each day's group
+ *  so a Thu-Sat festival shows under Thu, Fri, and Sat. If `rangeFrom`/`rangeTo`
+ *  are provided, expansion is clamped to that window (so a weekend page only
+ *  shows the Fri/Sat/Sun portions of a Thu-Sat event). Long series (>7 days)
+ *  appear only at date_start. */
+export function groupEventsByDate<T extends { date_start: string; date_end?: string }>(events: T[], rangeFrom?: string, rangeTo?: string): Map<string, T[]> {
+	const today = new Date().toISOString().slice(0, 10);
 	const groups = new Map<string, T[]>();
 	for (const event of events) {
-		let key = getDateKey(event.date_start);
-		// Ongoing multi-day events (date_start passed, date_end future): group under today
-		if (clampToToday && key < today && event.date_end) key = today;
-		if (!groups.has(key)) groups.set(key, []);
-		groups.get(key)!.push(event);
+		const startKey = getDateKey(event.date_start);
+		const endKey = event.date_end ? getDateKey(event.date_end) : startKey;
+		const startMs = new Date(startKey).getTime();
+		const endMs = new Date(endKey).getTime();
+		const durationDays = (endMs - startMs) / 86400000;
+
+		// Long series: only group under date_start (or today if stale)
+		if (durationDays > 7) {
+			const key = startKey < today && event.date_end ? today : startKey;
+			if (!groups.has(key)) groups.set(key, []);
+			groups.get(key)!.push(event);
+			continue;
+		}
+
+		// Multi-day event: expand across each active day within [rangeFrom, rangeTo] ∩ [today, endKey]
+		const fromKey = rangeFrom && rangeFrom > today ? rangeFrom : today;
+		const toKey = rangeTo && rangeTo < endKey ? rangeTo : endKey;
+		const loopStart = startKey > fromKey ? startKey : fromKey;
+		if (loopStart > toKey) continue;
+
+		const cursor = new Date(loopStart + 'T00:00:00Z');
+		const endCursor = new Date(toKey + 'T00:00:00Z');
+		while (cursor <= endCursor) {
+			const key = cursor.toISOString().slice(0, 10);
+			if (!groups.has(key)) groups.set(key, []);
+			groups.get(key)!.push(event);
+			cursor.setUTCDate(cursor.getUTCDate() + 1);
+		}
 	}
 	return groups;
 }
