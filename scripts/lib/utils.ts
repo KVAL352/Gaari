@@ -9,6 +9,7 @@ import { getSourceFallbackImage } from './venues.js';
 const IMAGE_APPROVED_SOURCES = new Set<string>([
 	'ggbergen', // Images provided directly by venue
 	'artlab-manual', // Images provided directly by venue
+	'brettspill', // Fixed Meetup group photo, owned by club
 ]);
 
 export function slugify(text: string): string {
