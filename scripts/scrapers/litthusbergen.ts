@@ -33,11 +33,14 @@ async function fetchDetailPrice(url: string): Promise<{ price: string; ticketUrl
 	return { price, ticketUrl };
 }
 
-/** Parse "Feb 20, 2026" → "2026-02-20" */
+/** Parse "Feb 20, 2026" → "2026-02-20" (timezone-safe: uses local date parts) */
 function parseEnglishDate(str: string): string | null {
 	const d = new Date(str);
 	if (isNaN(d.getTime())) return null;
-	return d.toISOString().slice(0, 10);
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, '0');
+	const day = String(d.getDate()).padStart(2, '0');
+	return `${y}-${m}-${day}`;
 }
 
 function guessCategory(title: string, tags: string[]): string {
