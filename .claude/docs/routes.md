@@ -6,6 +6,7 @@
 - `/[lang]/guide/` — Events hub page with links to all collections. FAQ for "hva skjer i Bergen" queries. **Prerendered**.
 - `/[lang]/datainnsamling/` — Data transparency page (opt-out form). Form action `?/optout`.
 - `/[lang]/personvern/` — Privacy policy (GDPR). Bilingual inline, in sitemap.
+- `/[lang]/opphavsrett/` — Copyright policy and takedown process. Bilingual inline, in sitemap.
 - `/[lang]/tilgjengelighet/` — Accessibility statement (EAA/WCAG 2.2 AA). Bilingual inline, in sitemap.
 - `/[lang]/nyhetsbrev/preferanser/` — Newsletter preferences. HMAC-signed token required. **Server-side loaded**.
 - `/[lang]/submit/` — Event submission form (noindex). Only page with client-side Supabase (image uploads).
@@ -14,12 +15,12 @@
 - `/[lang]/venue/[venue]/` — Top 15 venue pages with LocalBusiness JSON-LD, upcoming events, map link. Config in `$lib/venues.ts`.
 - `/[lang]/denne-uken/[uke]/` — Weekly blog post (year-week format, e.g. `2026-16`). Article JSON-LD, auto-generated from event data.
 - `/[lang]/lenker/` — Link-in-bio page for Instagram/Facebook. Prerendered. UTM-tagged links.
-- `/[lang]/for-arrangorer/` — B2B marketing page for venues. Partner-logorad drevet av aktive `promoted_placements` med `logo_url`.
+- `/[lang]/for-arrangorer/` — B2B marketing page for venues. Partner-logorad drevet av aktive `promoted_placements` med `logo_url`. **Temporarily hidden** (redirects to homepage) while copyright case is pending.
 
 ## Content pages (social)
 - `/r/[date]/[slug]/` — Per-day reel + stories landing page. Not in sitemap.
 - `/r/week/[startdate]/` — Weekly aggregate page for batch posting.
-- `/r/pitch/[venue]/` — B2B pitch report per venue. Dynamic, noindex. Shows events, mockups of promoted placement on collection pages and newsletter, Standard package details. Venue slug supports both æøå and ascii-normalized URLs.
+- `/r/pitch/[venue]/` — B2B pitch report per venue. Dynamic, noindex. Shows events, mockups of promoted placement on collection pages and newsletter, Standard package details. Venue slug supports both æøå and ascii-normalized URLs. **Temporarily hidden** (redirects to homepage) while copyright case is pending.
 
 ## Admin (all protected by HMAC cookie)
 - `/admin/corrections` — Correction review
