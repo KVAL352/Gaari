@@ -32,6 +32,15 @@ function isGenericUrl(url: string): boolean {
 	return GENERIC_PATTERNS.some((p) => p.test(url));
 }
 
+// Hoopla uses queue-it anti-bot — URLs work in browsers but fail for bots
+function isHooplaDomain(url: string): boolean {
+	try {
+		return new URL(url).hostname.endsWith('.hoopla.no');
+	} catch {
+		return false;
+	}
+}
+
 interface EventRow {
 	id: string;
 	title_no: string;
@@ -239,8 +248,8 @@ async function main() {
 				continue;
 			}
 
-			// HTTP check
-			if (!skipHttp) {
+			// HTTP check (skip Hoopla — queue-it blocks bots but URLs work in browsers)
+			if (!skipHttp && !isHooplaDomain(url)) {
 				if (!urlCache.has(url)) {
 					const check = await checkUrl(url);
 					urlCache.set(url, check);

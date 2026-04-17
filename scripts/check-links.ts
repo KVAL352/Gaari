@@ -17,6 +17,15 @@ const SKIP_DOMAINS = new Set([
 	'www.dnt.no',   // Returns errors to automated requests
 ]);
 
+// Hoopla uses queue-it anti-bot — URLs work in browsers but fail for bots
+function isHooplaDomain(url: string): boolean {
+	try {
+		return new URL(url).hostname.endsWith('.hoopla.no');
+	} catch {
+		return false;
+	}
+}
+
 // Soft 404 patterns — pages that return 200 but the event is gone
 const SOFT_404_PATTERNS = [
 	// Norwegian
@@ -86,7 +95,7 @@ async function checkUrl(url: string, method: 'HEAD' | 'GET' = 'HEAD'): Promise<{
 
 function isSkippedDomain(url: string): boolean {
 	try {
-		return SKIP_DOMAINS.has(new URL(url).hostname);
+		return SKIP_DOMAINS.has(new URL(url).hostname) || isHooplaDomain(url);
 	} catch {
 		return false;
 	}
