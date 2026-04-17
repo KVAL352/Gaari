@@ -22,10 +22,15 @@
 	let uploadExt = $state('jpg');
 	let uploadMime = $state('image/jpeg');
 
+	// Image rights
+	let imageRightsConfirmed = $state(false);
+
 	// Website form state
 	let websiteSubmitted = $state(false);
 	let websiteSubmitting = $state(false);
 	let websiteError = $state('');
+	let websiteImageOptOut = $state(false);
+	let websiteImageRights = $state(false);
 
 	// Scroll back to the top of the page when either form transitions to its
 	// success state, so the user actually sees the thank-you message instead
@@ -214,6 +219,7 @@
 		uploadExt = 'jpg';
 		uploadMime = 'image/jpeg';
 		imageWarning = '';
+		imageRightsConfirmed = false;
 		if (imagePreview) URL.revokeObjectURL(imagePreview);
 		imagePreview = '';
 	}
@@ -268,9 +274,9 @@
 			return;
 		}
 
-		// Upload image if provided
+		// Upload image if provided (only if rights confirmed)
 		let imageUrl: string | null = null;
-		if (processedBlob) {
+		if (processedBlob && imageRightsConfirmed) {
 			imageUrl = await uploadImage(slug);
 			if (!imageUrl) {
 				submitError = $lang === 'no'
@@ -342,6 +348,14 @@
 			url = 'https://' + url;
 		}
 
+		if (!websiteImageRights && !websiteImageOptOut) {
+			websiteError = $lang === 'no'
+				? 'Du må enten bekrefte bilderettigheter eller velge å vise uten bilder.'
+				: 'You must either confirm image rights or choose to show without images.';
+			websiteSubmitting = false;
+			return;
+		}
+
 		if (isFacebookUrl(url)) {
 			websiteError = $lang === 'no'
 				? 'Vi kan dessverre ikke hente arrangementer fra Facebook. Du kan i stedet legge inn arrangementer enkeltvis — gå tilbake og velg «Enkeltarrangement».'
@@ -354,9 +368,12 @@
 		const email = (fd.get('contact-email') as string).trim();
 		const note = (fd.get('website-note') as string)?.trim() || '';
 
+		const imageNote = websiteImageOptOut
+			? '\n\n⚠️ Ingen bilderettigheter — vis uten bilder.'
+			: '\n\n✅ Bilderettigheter bekreftet.';
 		const message = note
-			? `Nettside-innsendelse\n\n${note}`
-			: 'Nettside-innsendelse';
+			? `Nettside-innsendelse\n\n${note}${imageNote}`
+			: `Nettside-innsendelse${imageNote}`;
 
 		const { error } = await supabase.from('organizer_inquiries').insert({
 			name,
@@ -482,6 +499,32 @@
 				<AlertTriangle size={16} class="shrink-0" />
 				{$t('websiteNoFacebook')}
 			</p>
+
+			<!-- Image rights -->
+			<fieldset class="space-y-2 rounded-lg border border-[var(--color-border)] px-3 py-3">
+				<legend class="px-1 text-sm font-medium">{$lang === 'no' ? 'Bilderettigheter' : 'Image rights'}</legend>
+
+				<label class="flex items-start gap-2.5 text-sm {websiteImageOptOut ? 'opacity-50' : ''}">
+					<input
+						type="checkbox"
+						bind:checked={websiteImageRights}
+						disabled={websiteImageOptOut}
+						required={!websiteImageOptOut}
+						class="mt-0.5 shrink-0 accent-[var(--color-accent)]"
+					/>
+					<span class="text-[var(--color-text-secondary)]">{$t('websiteImageRights')}</span>
+				</label>
+
+				<label class="flex items-start gap-2.5 text-sm">
+					<input
+						type="checkbox"
+						bind:checked={websiteImageOptOut}
+						onchange={() => { if (websiteImageOptOut) websiteImageRights = false; }}
+						class="mt-0.5 shrink-0 accent-[var(--color-accent)]"
+					/>
+					<span class="text-[var(--color-text-secondary)]">{$t('websiteImageOptOut')}</span>
+				</label>
+			</fieldset>
 
 			{#if websiteError}
 				<p class="text-sm text-red-600" role="alert">{websiteError}</p>
@@ -689,6 +732,18 @@
 							onchange={handleImageSelect}
 							class="hidden"
 						/>
+					</label>
+				{/if}
+
+				{#if imagePreview}
+					<label class="mt-3 flex items-start gap-2.5 rounded-lg border border-[var(--color-border)] px-3 py-2.5 text-sm">
+						<input
+							type="checkbox"
+							bind:checked={imageRightsConfirmed}
+							required
+							class="mt-0.5 shrink-0 accent-[var(--color-accent)]"
+						/>
+						<span class="text-[var(--color-text-secondary)]">{$t('imageRightsConfirm')}</span>
 					</label>
 				{/if}
 			</div>

@@ -147,6 +147,10 @@ export const translations = {
 		websiteNoFacebook: 'Facebook-sider kan dessverre ikke hentes automatisk.',
 		websiteFacebookError: 'Vi kan dessverre ikke hente arrangementer fra Facebook. Du kan i stedet legge inn arrangementer enkeltvis — gå tilbake og velg «Enkeltarrangement».',
 		websiteSubmitted: 'Takk! Vi ser på nettsiden din og tar kontakt.',
+		websiteImageRights: 'Jeg bekrefter at bildene på nettsiden kan brukes av Gåri til å vise arrangementene. Hvis bildene er underlagt tredjeparts opphavsrett, er det arrangørens ansvar å avklare dette.',
+		websiteImageOptOut: 'Vi har ikke rettigheter til bildene — vis arrangementene uten bilder.',
+		imageRightsConfirm: 'Jeg bekrefter at jeg har rett til å bruke dette bildet og gir Gåri tillatelse til å publisere det i forbindelse med arrangementet.',
+		imageRightsRequired: 'Du må bekrefte bilderettighetene for å laste opp bilde.',
 		back: 'Tilbake',
 
 		// About
@@ -370,6 +374,10 @@ export const translations = {
 		websiteNoFacebook: 'Facebook pages cannot be imported automatically.',
 		websiteFacebookError: 'Unfortunately we cannot import events from Facebook. You can add events individually instead — go back and choose "Single event".',
 		websiteSubmitted: 'Thank you! We\'ll review your website and get in touch.',
+		websiteImageRights: 'I confirm that images on the website may be used by Gåri to display the events. If images are subject to third-party copyright, it is the organizer\'s responsibility to clarify this.',
+		websiteImageOptOut: 'We do not have the rights to the images — show the events without images.',
+		imageRightsConfirm: 'I confirm that I have the right to use this image and grant Gåri permission to publish it in connection with the event.',
+		imageRightsRequired: 'You must confirm the image rights to upload an image.',
 		back: 'Back',
 
 		aboutTitle: 'About Gåri',
