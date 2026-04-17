@@ -99,8 +99,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			: undefined;
 
 		const priceStr = event.price || '';
-		// TicketCo URL if available, otherwise the specific event page
-		const ticketUrl = event.ticketUrl || sourceUrl;
+		const ticketUrl = event.ticketUrl || undefined;
 
 		const aiDesc = await generateDescription({ title: event.title, venue: venueName, category, date: dateStart, price: priceStr });
 		const success = await insertEvent({

@@ -111,7 +111,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: venue + ', Bergen',
 			bydel,
 			price: 'Gratis',
-			ticket_url: ticketUrl || `${BASE_URL}/program`,
+			ticket_url: ticketUrl || undefined,
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: imageUrl,

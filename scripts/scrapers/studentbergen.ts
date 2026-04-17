@@ -119,7 +119,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: event.location || 'Bergen',
 			bydel,
 			price,
-			ticket_url: ticketUrl || resolveTicketUrl(event.location, sourceUrl),
+			ticket_url: ticketUrl || undefined,
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: event.image || undefined,

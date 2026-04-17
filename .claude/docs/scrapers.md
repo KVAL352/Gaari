@@ -100,4 +100,4 @@
 | Det Akademiske Kvarter | `kvarteret.ts` | JSON API (`/api/events`), also covered by TicketCo |
 | Kulturhuset i Bergen | `kulturhusetibergen.ts` | Squarespace eventlist, room extraction |
 | Bergen Chamber | `bergenchamber.ts` | HTML |
-| Oseana | `oseana.ts` | HTML |
+| ~~Oseana~~ | `oseana.ts` | DISABLED 2026-04-17 — outside Bergen coverage area |

@@ -177,7 +177,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: 'Bergen',
 			bydel: 'Sentrum',
 			price,
-			ticket_url: ticketUrl || sourceUrl,
+			ticket_url: ticketUrl || undefined,
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: imageUrl,
