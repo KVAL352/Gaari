@@ -171,7 +171,6 @@ async function fetchMailerLite(): Promise<MorningStats['mailerlite']> {
 
 	const subs = await subsRes.json();
 	const camps = await campsRes.json();
-	const latest = camps.data?.[0];
 
 	// Filter campaigns sent in last 48 hours for newsletter health check
 	const cutoff = Date.now() - 48 * 60 * 60 * 1000;
@@ -182,16 +181,37 @@ async function fetchMailerLite(): Promise<MorningStats['mailerlite']> {
 	});
 	const newsletterHealth = evaluateNewsletterHealth(recent);
 
+	// Aggregate stats for the latest batch of personalized campaigns.
+	// Newsletters are split into many campaigns sharing a week prefix
+	// (e.g. "Gåri Uke 16 — …"), so a single campaign's stats are misleading.
+	let lastCampaign: MorningStats['mailerlite'] extends infer T ? T extends { lastCampaign: infer C } ? C : never : never = null;
+	const latest = camps.data?.[0];
+	if (latest) {
+		const weekPrefix = latest.name.match(/^(Gåri Uke \d+)/)?.[1];
+		const batch = weekPrefix
+			? (camps.data as any[]).filter((c: any) => c.name.startsWith(weekPrefix))
+			: [latest];
+		let totalSent = 0;
+		let totalOpens = 0;
+		let totalClicks = 0;
+		for (const c of batch) {
+			totalSent += c.stats?.sent ?? 0;
+			totalOpens += c.stats?.unique_opens_count ?? c.stats?.opens_count ?? 0;
+			totalClicks += c.stats?.clicks_count ?? 0;
+		}
+		const openPct = totalSent > 0 ? Math.round((totalOpens / totalSent) * 100) + '%' : '0%';
+		const clickPct = totalSent > 0 ? Math.round((totalClicks / totalSent) * 100) + '%' : '0%';
+		lastCampaign = {
+			name: weekPrefix ? `${weekPrefix} (${batch.length} kampanjer, ${totalSent} mottakere)` : latest.name,
+			date: latest.scheduled_for || latest.created_at,
+			open_rate: openPct,
+			click_rate: clickPct,
+		};
+	}
+
 	return {
 		subscribers: subs.total ?? 0,
-		lastCampaign: latest
-			? {
-					name: latest.name,
-					date: latest.scheduled_for || latest.created_at,
-					open_rate: latest.stats?.open_rate?.string ?? null,
-					click_rate: latest.stats?.click_rate?.string ?? null,
-				}
-			: null,
+		lastCampaign,
 		totalSent: camps.data?.length ?? 0,
 		newsletterHealth,
 	};
