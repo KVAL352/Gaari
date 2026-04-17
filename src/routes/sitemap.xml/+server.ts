@@ -34,25 +34,11 @@ export async function GET() {
 		}
 	}
 
-	// For arrangører / For organizers
-	priorityUrls += `  <url>
-    <loc>${BASE}/no/for-arrangorer</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="nb" href="${BASE}/no/for-arrangorer" />
-    <xhtml:link rel="alternate" hreflang="en" href="${BASE}/en/for-organizers" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/for-arrangorer" />
-  </url>
-  <url>
-    <loc>${BASE}/en/for-organizers</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="nb" href="${BASE}/no/for-arrangorer" />
-    <xhtml:link rel="alternate" hreflang="en" href="${BASE}/en/for-organizers" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/for-arrangorer" />
-  </url>\n`;
+	// For arrangører — temporarily hidden while copyright case is pending
+	// priorityUrls += `  <url>
+	//   <loc>${BASE}/no/for-arrangorer</loc>
+	//   ...
+	// </url>\n`;
 
 	// Collection pages
 	for (const slug of getAllCollectionSlugs()) {

@@ -1,4 +1,4 @@
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
 import type { PageServerLoad } from './$types';
 
@@ -46,6 +46,9 @@ interface VenueEvent {
 }
 
 export const load: PageServerLoad = async ({ params }) => {
+	// Temporarily hidden while copyright case is pending
+	throw redirect(307, '/no');
+
 	// Decode URL slug to venue name: "grieghallen" → look up in events
 	const slug = decodeURIComponent(params.venue).toLowerCase();
 
