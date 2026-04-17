@@ -200,9 +200,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		}
 		const price = detail.price;
 		// Prefer detail page og:image (Plone keeps it current) over listing CSS background
-		// Skip images for lectures/talks — these are often NTB/stock photos (copyright risk)
-		const isLecture = /foredrag|forelesning|seminar|debatt|samtale|bokprat|bokbad/i.test(title);
-		const imageUrl = isLecture ? undefined : (detail.imageUrl || listingImage);
+		const imageUrl = detail.imageUrl || listingImage;
 
 		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, price });
 

@@ -1,6 +1,15 @@
 import { supabase } from './supabase.js';
 import { getSourceFallbackImage } from './venues.js';
 
+/**
+ * Sources with explicit permission to use their event images.
+ * ALL other sources have images stripped at insert time.
+ * Add sources here only after receiving written image usage permission.
+ */
+const IMAGE_APPROVED_SOURCES = new Set<string>([
+	// None yet — add sources as we get written permission
+]);
+
 export function slugify(text: string): string {
 	return text
 		.toLowerCase()
@@ -308,6 +317,11 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 	// Sanitize optional ticket_url
 	if (event.ticket_url && !isValidUrl(event.ticket_url)) {
 		event.ticket_url = undefined;
+	}
+
+	// Only allow images from sources with explicit written permission.
+	if (event.image_url && !IMAGE_APPROVED_SOURCES.has(event.source)) {
+		event.image_url = undefined;
 	}
 
 	if (isOptedOut(event.source_url)) {
