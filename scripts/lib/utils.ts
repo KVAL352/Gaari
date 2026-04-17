@@ -7,7 +7,8 @@ import { getSourceFallbackImage } from './venues.js';
  * Add sources here only after receiving written image usage permission.
  */
 const IMAGE_APPROVED_SOURCES = new Set<string>([
-	// None yet — add sources as we get written permission
+	'ggbergen', // Images provided directly by venue
+	'artlab-manual', // Images provided directly by venue
 ]);
 
 export function slugify(text: string): string {
