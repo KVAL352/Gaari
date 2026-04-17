@@ -53,7 +53,21 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 			// Check if this looks like an expired event slug (ends with -YYYY-MM-DD)
 			const isEventSlug = /\d{4}-\d{2}-\d{2}$/.test(params.slug);
 			if (isEventSlug) {
-				// Expired event: 410 Gone tells search engines to drop it from the index
+				// Try to find a current event with the same title prefix (handles date corrections)
+				const titlePrefix = params.slug.replace(/-\d{4}-\d{2}-\d{2}$/, '');
+				const { data: similar } = await supabase
+					.from('events')
+					.select('slug')
+					.like('slug', `${titlePrefix}-%`)
+					.eq('status', 'approved')
+					.gte('date_start', new Date().toISOString())
+					.order('date_start', { ascending: true })
+					.limit(1);
+				if (similar?.length) {
+					const lang = params.lang === 'en' ? 'en' : 'no';
+					redirect(301, `/${lang}/events/${similar[0].slug}`);
+				}
+				// No match: 410 Gone tells search engines to drop it from the index
 				throw error(410, 'This event has ended');
 			}
 			// Unknown slug: 302 redirect to relevant collection
