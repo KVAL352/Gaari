@@ -29,8 +29,7 @@
 	let websiteSubmitted = $state(false);
 	let websiteSubmitting = $state(false);
 	let websiteError = $state('');
-	let websiteImageOptOut = $state(false);
-	let websiteImageRights = $state(false);
+	let websiteImageChoice = $state<'rights' | 'no-rights' | 'unsure' | null>(null);
 
 	// Scroll back to the top of the page when either form transitions to its
 	// success state, so the user actually sees the thank-you message instead
@@ -348,10 +347,10 @@
 			url = 'https://' + url;
 		}
 
-		if (!websiteImageRights && !websiteImageOptOut) {
+		if (!websiteImageChoice) {
 			websiteError = $lang === 'no'
-				? 'Du må enten bekrefte bilderettigheter eller velge å vise uten bilder.'
-				: 'You must either confirm image rights or choose to show without images.';
+				? 'Du må velge et alternativ for bilderettigheter.'
+				: 'You must select an option for image rights.';
 			websiteSubmitting = false;
 			return;
 		}
@@ -368,9 +367,12 @@
 		const email = (fd.get('contact-email') as string).trim();
 		const note = (fd.get('website-note') as string)?.trim() || '';
 
-		const imageNote = websiteImageOptOut
-			? '\n\n⚠️ Ingen bilderettigheter — vis uten bilder.'
-			: '\n\n✅ Bilderettigheter bekreftet.';
+		const imageNotes: Record<string, string> = {
+			'rights': '\n\n✅ Bilderettigheter bekreftet.',
+			'no-rights': '\n\n⚠️ Ingen bilderettigheter — vis uten bilder.',
+			'unsure': '\n\n❓ Usikker på bilderettigheter — ønsker å bli kontaktet.'
+		};
+		const imageNote = imageNotes[websiteImageChoice!];
 		const message = note
 			? `Nettside-innsendelse\n\n${note}${imageNote}`
 			: `Nettside-innsendelse${imageNote}`;
@@ -502,14 +504,15 @@
 
 			<!-- Image rights -->
 			<fieldset class="space-y-2 rounded-lg border border-[var(--color-border)] px-3 py-3">
-				<legend class="px-1 text-sm font-medium">{$lang === 'no' ? 'Bilderettigheter' : 'Image rights'}</legend>
+				<legend class="px-1 text-sm font-medium">{$lang === 'no' ? 'Bilderettigheter' : 'Image rights'} *</legend>
 
-				<label class="flex items-start gap-2.5 text-sm {websiteImageOptOut ? 'opacity-50' : ''}">
+				<label class="flex items-start gap-2.5 text-sm">
 					<input
-						type="checkbox"
-						bind:checked={websiteImageRights}
-						disabled={websiteImageOptOut}
-						required={!websiteImageOptOut}
+						type="radio"
+						name="image-rights"
+						value="rights"
+						checked={websiteImageChoice === 'rights'}
+						onchange={() => websiteImageChoice = 'rights'}
 						class="mt-0.5 shrink-0 accent-[var(--color-accent)]"
 					/>
 					<span class="text-[var(--color-text-secondary)]">{$t('websiteImageRights')}</span>
@@ -517,12 +520,26 @@
 
 				<label class="flex items-start gap-2.5 text-sm">
 					<input
-						type="checkbox"
-						bind:checked={websiteImageOptOut}
-						onchange={() => { if (websiteImageOptOut) websiteImageRights = false; }}
+						type="radio"
+						name="image-rights"
+						value="no-rights"
+						checked={websiteImageChoice === 'no-rights'}
+						onchange={() => websiteImageChoice = 'no-rights'}
 						class="mt-0.5 shrink-0 accent-[var(--color-accent)]"
 					/>
 					<span class="text-[var(--color-text-secondary)]">{$t('websiteImageOptOut')}</span>
+				</label>
+
+				<label class="flex items-start gap-2.5 text-sm">
+					<input
+						type="radio"
+						name="image-rights"
+						value="unsure"
+						checked={websiteImageChoice === 'unsure'}
+						onchange={() => websiteImageChoice = 'unsure'}
+						class="mt-0.5 shrink-0 accent-[var(--color-accent)]"
+					/>
+					<span class="text-[var(--color-text-secondary)]">{$t('websiteImageUnsure')}</span>
 				</label>
 			</fieldset>
 
