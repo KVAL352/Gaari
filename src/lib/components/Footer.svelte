@@ -88,6 +88,7 @@
 					<li><a href="/{$lang}/about" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('about')}</a></li>
 					<li><a href="/{$lang}/datainnsamling" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('dataCollection')}</a></li>
 					<li><a href="/{$lang}/personvern" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Personvern' : 'Privacy Policy'}</a></li>
+					<li><a href="/{$lang}/opphavsrett" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Opphavsrett' : 'Copyright'}</a></li>
 					<li><a href="/{$lang}/tilgjengelighet" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Tilgjengelighet' : 'Accessibility'}</a></li>
 					<li><a href="/{$lang}/submit" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('submitEvent')}</a></li>
 					<li><a href="mailto:post@gaari.no" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('contact')}</a></li>

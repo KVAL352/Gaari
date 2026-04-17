@@ -4,7 +4,7 @@ import { getAllVenueSlugs } from '$lib/venues';
 
 const BASE = 'https://gaari.no';
 
-const STATIC_PAGES = ['', '/about', '/guide', '/datainnsamling', '/personvern', '/tilgjengelighet'];
+const STATIC_PAGES = ['', '/about', '/guide', '/datainnsamling', '/personvern', '/opphavsrett', '/tilgjengelighet'];
 
 export async function GET() {
 	const { data: events } = await supabase
