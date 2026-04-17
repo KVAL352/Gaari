@@ -5,6 +5,9 @@ import { getActivePartners } from '$lib/server/promotions';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
+	// Temporarily hidden while copyright case is pending
+	throw redirect(307, `/${params.lang}`);
+
 	if (params.lang === 'en') {
 		throw redirect(307, '/en/for-organizers');
 	}
