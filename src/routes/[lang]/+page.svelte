@@ -170,7 +170,10 @@
 		}
 
 		// Sort: upcoming events first by date_start, then ongoing (past start) by date_end
-		const nowIso = getOsloNow().toISOString();
+		// Use real UTC — date_start is stored as UTC timestamptz. Using getOsloNow()
+		// here would produce a different split than the server sort (+page.server.ts),
+		// causing a hydration mismatch where images appear on the wrong cards.
+		const nowIso = new Date().toISOString();
 		const upcoming = events.filter(e => e.date_start >= nowIso);
 		const ongoing = events.filter(e => e.date_start < nowIso);
 		upcoming.sort((a, b) => a.date_start < b.date_start ? -1 : a.date_start > b.date_start ? 1 : 0);
