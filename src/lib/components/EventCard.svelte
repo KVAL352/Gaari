@@ -58,6 +58,12 @@
 	});
 
 	let imgError = $state(false);
+	// Reset imgError when the image URL changes (component reuse across navigations)
+	let trackedImg = $derived(event.image_url);
+	$effect(() => {
+		void trackedImg;
+		imgError = false;
+	});
 	let showDismissMenu = $state(false);
 
 	async function handleShare(e: MouseEvent) {
