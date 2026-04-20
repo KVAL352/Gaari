@@ -10,7 +10,17 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	'ggbergen', // Images provided directly by venue
 	'artlab-manual', // Images provided directly by venue
 	'brettspill', // Fixed Meetup group photo, owned by club
+	'festspillene', // Christopher Brandt bekreftet 2026-04-19
 ]);
+
+/**
+ * Per-event approvals (substring match on source_url).
+ * Use when the scraper source hosts many organizers (e.g. billetto, ticketco)
+ * and only specific organizers have granted permission.
+ */
+const IMAGE_APPROVED_URL_PATTERNS: string[] = [
+	'billetto.no/e/pavels-juke-joint', // David Pavels bekreftet 2026-04-17
+];
 
 export function slugify(text: string): string {
 	return text
@@ -321,9 +331,13 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 		event.ticket_url = undefined;
 	}
 
-	// Only allow images from sources with explicit written permission.
-	if (event.image_url && !IMAGE_APPROVED_SOURCES.has(event.source)) {
-		event.image_url = undefined;
+	// Only allow images from sources or URLs with explicit written permission.
+	if (event.image_url) {
+		const sourceApproved = IMAGE_APPROVED_SOURCES.has(event.source);
+		const urlApproved = IMAGE_APPROVED_URL_PATTERNS.some(p => event.source_url.includes(p));
+		if (!sourceApproved && !urlApproved) {
+			event.image_url = undefined;
+		}
 	}
 
 	if (isOptedOut(event.source_url)) {
