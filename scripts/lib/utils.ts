@@ -22,6 +22,33 @@ const IMAGE_APPROVED_URL_PATTERNS: string[] = [
 	'billetto.no/e/pavels-juke-joint', // David Pavels bekreftet 2026-04-17
 ];
 
+/**
+ * Bergen Bibliotek: interne og gjentagende events (språkkafé, verksted, familietid) bruker
+ * egne bilder av rom/aktiviteter — trygt å vise. Forelesninger og forfatterbesøk bruker ofte
+ * pressefoto som biblioteket selv ikke har videredistribusjonsrett på (se NTB-saken).
+ * Se feedback_bergenbibliotek_images.md i memory.
+ */
+const BIBLIOTEK_RISKY_TITLE_KEYWORDS = [
+	'foredrag', 'forelesning',
+	'forfatter',
+	'litterær lunsj', 'litterært råd',
+	' møter ',
+	'samtale med', 'spørretime med',
+	'dypdykk',
+	'den offentlige samtalen',
+	'månedens klassiker',
+];
+
+function isImageAllowed(source: string, sourceUrl: string, title: string): boolean {
+	if (IMAGE_APPROVED_SOURCES.has(source)) return true;
+	if (IMAGE_APPROVED_URL_PATTERNS.some(p => sourceUrl.includes(p))) return true;
+	if (source === 'bergenbibliotek') {
+		const t = (title || '').toLowerCase();
+		return !BIBLIOTEK_RISKY_TITLE_KEYWORDS.some(kw => t.includes(kw));
+	}
+	return false;
+}
+
 export function slugify(text: string): string {
 	return text
 		.toLowerCase()
@@ -201,18 +228,16 @@ export async function eventHasImage(sourceUrl: string): Promise<boolean> {
 }
 
 // Update image_url for an existing event, only if currently null (safe for concurrent scrapes).
-// Honors IMAGE_APPROVED_SOURCES / IMAGE_APPROVED_URL_PATTERNS — refuses to set image on unapproved events.
+// Honors the same allowlist as insertEvent — refuses to set image on unapproved events.
 export async function updateEventImage(sourceUrl: string, imageUrl: string): Promise<boolean> {
 	const { data: existing } = await supabase
 		.from('events')
-		.select('source')
+		.select('source, title_no')
 		.eq('source_url', sourceUrl)
 		.limit(1);
-	const source = existing?.[0]?.source;
-	if (!source) return false;
-	const sourceApproved = IMAGE_APPROVED_SOURCES.has(source);
-	const urlApproved = IMAGE_APPROVED_URL_PATTERNS.some(p => sourceUrl.includes(p));
-	if (!sourceApproved && !urlApproved) return false;
+	const row = existing?.[0];
+	if (!row) return false;
+	if (!isImageAllowed(row.source, sourceUrl, row.title_no)) return false;
 
 	const { data, error } = await supabase
 		.from('events')
@@ -343,13 +368,9 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 		event.ticket_url = undefined;
 	}
 
-	// Only allow images from sources or URLs with explicit written permission.
-	if (event.image_url) {
-		const sourceApproved = IMAGE_APPROVED_SOURCES.has(event.source);
-		const urlApproved = IMAGE_APPROVED_URL_PATTERNS.some(p => event.source_url.includes(p));
-		if (!sourceApproved && !urlApproved) {
-			event.image_url = undefined;
-		}
+	// Only allow images from sources/URLs/titles with explicit written permission.
+	if (event.image_url && !isImageAllowed(event.source, event.source_url, event.title_no)) {
+		event.image_url = undefined;
 	}
 
 	if (isOptedOut(event.source_url)) {
