@@ -70,9 +70,9 @@
     "description": "Ingvild (Akvariet) sa prisene justeres igjen tidlig januar 2027. Sjekk akvariet.no/kjop-billett og oppdater ADMISSION_PRICE i akvariet.ts."
   },
   {
-    "date": "2026-04-27",
-    "title": "Følg opp Troll Museum Bergen (siste forsøk)",
-    "description": "Oppfølging #2 sendt 13. april. Hvis fortsatt stille: parkér."
+    "date": "2026-10-01",
+    "title": "Gjenoppta dialog Troll Museum (Petr Arziaev, bergen@trollmuseum.no)",
+    "description": "Petr svarte 2026-04-20: lavsesong nov-mars, oppdaterer nettsiden nærmere november for å gjøre events enklere å integrere. Ta kontakt igjen 1. oktober når sesongen nærmer seg — sjekk om API/JSON-LD/statisk liste er på plass, eller tilby hjelp."
   },
   {
     "date": "2026-04-20",
