@@ -7,7 +7,7 @@ import { getSourceFallbackImage } from './venues.js';
  * Add sources here only after receiving written image usage permission.
  */
 const IMAGE_APPROVED_SOURCES = new Set<string>([
-	'ggbergen', // Images provided directly by venue
+	'gg-bergen', // Images provided directly by venue (scraper SOURCE is 'gg-bergen')
 	'artlab-manual', // Images provided directly by venue
 	'brettspill', // Fixed Meetup group photo, owned by club
 	'festspillene', // Christopher Brandt bekreftet 2026-04-19
