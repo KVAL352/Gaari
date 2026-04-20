@@ -201,7 +201,19 @@ export async function eventHasImage(sourceUrl: string): Promise<boolean> {
 }
 
 // Update image_url for an existing event, only if currently null (safe for concurrent scrapes).
+// Honors IMAGE_APPROVED_SOURCES / IMAGE_APPROVED_URL_PATTERNS — refuses to set image on unapproved events.
 export async function updateEventImage(sourceUrl: string, imageUrl: string): Promise<boolean> {
+	const { data: existing } = await supabase
+		.from('events')
+		.select('source')
+		.eq('source_url', sourceUrl)
+		.limit(1);
+	const source = existing?.[0]?.source;
+	if (!source) return false;
+	const sourceApproved = IMAGE_APPROVED_SOURCES.has(source);
+	const urlApproved = IMAGE_APPROVED_URL_PATTERNS.some(p => sourceUrl.includes(p));
+	if (!sourceApproved && !urlApproved) return false;
+
 	const { data, error } = await supabase
 		.from('events')
 		.update({ image_url: imageUrl })
