@@ -443,9 +443,9 @@ const VENUE_LOCATIONS: Record<string, VenueLocation> = {
 // Source fallback images — used when a scraper can't provide per-event images.
 // Keyed by scraper SOURCE name (same as the `source` field in events table).
 const SOURCE_FALLBACK_IMAGES: Record<string, string> = {
-	// Add entries here as venues provide default images:
-	// 'bodega': 'https://xyz.supabase.co/storage/v1/object/public/venue-images/bodega.jpg',
-	// 'loddefjord': 'https://xyz.supabase.co/storage/v1/object/public/venue-images/loddefjord.jpg',
+	// Mads Liabø bekreftet 2026-04-19: egne bilder/tredjeparter ikke dekket for videredistribusjon,
+	// logo er OK. Brukes som fallback for alle Brann-events.
+	'brann': 'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/fallback/brann.jpg',
 };
 
 /**
