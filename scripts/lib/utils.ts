@@ -11,6 +11,7 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	'artlab-manual', // Images provided directly by venue
 	'brettspill', // Fixed Meetup group photo, owned by club
 	'festspillene', // Christopher Brandt bekreftet 2026-04-19
+	'cornerteateret', // Millan Persdotter Persson bekreftet 2026-04-20
 ]);
 
 /**
