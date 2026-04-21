@@ -38,13 +38,25 @@ const RECURRING_TITLES = [
 	'møt dyrepasser',
 ];
 
-// Films/documentaries that screen daily — recurring, not unique events
+// Films/documentaries that screen daily — recurring, not unique events.
+// Ingvild (markedskoordinator) ba oss eksplisitt 2026-04-20 om ikke å vise
+// kinofilmer fra Akvariet-programmet: "det er dyrepresentasjonene som er
+// grunnen til å gå på Akvariet". Alle kino-titler ekskluderes fra Gåri.
 const RECURRING_FILMS = [
 	'dyrevelferd på akvariet',
 	'the little prince',
 	'den lille prinsen',
 	'kaos i pingvindammen',
+	'til svalbard med seilbåt',
 ];
+
+// Heuristic: cinema films often carry language indicators like "(norsk tale)",
+// "(english)", "sub: engelsk". Catches new films Akvariet adds without us
+// updating RECURRING_FILMS.
+function isCinemaFilm(title: string): boolean {
+	return /\((?:norsk tale|english|norwegian|engelsk tale)/i.test(title)
+		|| /\bsub:\s*(?:engelsk|english|norsk|norwegian)/i.test(title);
+}
 
 function isRecurring(title: string): boolean {
 	const normalized = title
@@ -263,8 +275,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		let daySpecialCount = 0;
 		for (const activity of activities) {
-			// Skip recurring daily activities
-			if (isRecurring(activity.title)) continue;
+			// Skip recurring daily activities and cinema films
+			if (isRecurring(activity.title) || isCinemaFilm(activity.title)) continue;
 
 			// Previously filtered on bg-info highlight class, but Akvariet removed it (Mar 2026).
 			// Now we rely solely on isRecurring() to skip daily repeating activities.
