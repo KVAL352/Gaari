@@ -448,6 +448,8 @@ const SOURCE_FALLBACK_IMAGES: Record<string, string> = {
 	'brann': 'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/fallback/brann.jpg',
 	// DNS logo — fallback for events uten individuelt bilde.
 	'dns': 'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/fallback/dns.png',
+	// Bergen Live bekreftet 2026-04-20: bruker pressebilder fra artist (tredjeparts) — vi bruker logoen istedenfor.
+	'bergenlive': 'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/fallback/bergenlive.png',
 };
 
 /**
