@@ -15,11 +15,6 @@
     "description": "Brann har nå 14+ dager med klikk-attribusjon. Rapport skal vise 'Plasseringen ga dere X ekstra klikk' (promoted − organic). Kjør: cd scripts && npx tsx generate-venue-report.ts 'Brann Stadion' --month 2026-04. Sjekk at lift-linjen er synlig og tallet er positivt. Hvis promoted = organic = 0: track-click fungerer ikke — debug."
   },
   {
-    "date": "2026-04-21",
-    "title": "Sjekk svar: Google EØS-karusell-søknad",
-    "description": "Søknad om deltakelse i Google EEA aggregator features (Things to do / events) ble sendt 6. mars 2026 via support.google.com/websearch/contact/search_dma. Sjekket innboks 7. april — ingen svar. Sjekk på nytt 21. april (6 uker etter sending). Hvis fortsatt stille: anta dødt spor."
-  },
-  {
     "date": "2026-04-28",
     "title": "Følg opp Tikkio",
     "description": "Epost sendt 27. februar — forespørsel om scraping-tillatelse. Kun Intercom auto-svar mottatt. Venter på svar — send eventuell oppfølging nå (3 uker etter 7. april). Scraper klar (scripts/scrapers/tikkio.ts)."
