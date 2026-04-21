@@ -31,6 +31,7 @@ import { generateOneCollection, fetchActiveEvents } from './generate-reels.js';
 import { generateCarousel, type CarouselEvent } from './image-gen.js';
 import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import { pickDiverseEvents } from './event-picker.js';
+import { getRecentlyPostedIds } from './dedup.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
 import type { GaariEvent } from '../../src/lib/types.js';
@@ -387,7 +388,8 @@ async function buildAndUploadCarouselsZip(
 		// reel's events for that day. now = midnight of that day in Oslo.
 		const now = new Date(`${day.dateStr}T08:00:00+02:00`);
 		const filtered = collection.filterEvents(activeEvents as any, now);
-		const selected = pickDiverseEvents(filtered, 8);
+		const recentlyPosted = await getRecentlyPostedIds(day.slug);
+		const selected = pickDiverseEvents(filtered, 8, { recentlyPosted });
 
 		if (selected.length < 4) {
 			console.warn(`  ${day.dateStr} ${day.slug}: only ${selected.length} events with images, skipping carousel`);

@@ -22,6 +22,7 @@ import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
 import { generateReelsFrames, generateReelsOutro, generateStories, type CarouselEvent } from './image-gen.js';
 import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import { pickDiverseEvents } from './event-picker.js';
+import { getRecentlyPostedIds } from './dedup.js';
 import { getVenueInstagram } from '../lib/venues.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
@@ -235,7 +236,11 @@ export async function generateOneCollection(opts: {
 		return null;
 	}
 
-	const selected = pickDiverseEvents(filtered, 8);
+	const recentlyPosted = await getRecentlyPostedIds(slug);
+	if (recentlyPosted.size > 0) {
+		console.log(`  ${recentlyPosted.size} events posted recently (deprioritised)`);
+	}
+	const selected = pickDiverseEvents(filtered, 8, { recentlyPosted });
 	if (selected.length < 4) {
 		console.log(`  Only ${selected.length} events with images, need 4. Skipping.\n`);
 		return null;
@@ -372,7 +377,7 @@ export async function generateOneCollection(opts: {
 		const storyTarget = slug === 'i-dag' || slug === 'today-in-bergen'
 			? STORY_BATCH_SIZE
 			: STORY_BATCH_SIZE_OTHER;
-		const storyEvents = pickDiverseEvents(filtered, storyTarget);
+		const storyEvents = pickDiverseEvents(filtered, storyTarget, { recentlyPosted });
 		const storyCarouselEvents: CarouselEvent[] = storyEvents.map(e => ({
 			title: isEnglish ? (e.title_en || e.title_no) : e.title_no,
 			venue: e.venue_name,

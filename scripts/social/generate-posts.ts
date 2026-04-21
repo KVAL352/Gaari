@@ -6,6 +6,7 @@ import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
 import { generateCarousel, generateStories, type CarouselEvent } from './image-gen.js';
 import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import { pickDiverseEvents } from './event-picker.js';
+import { DEDUP_PAIRS, getRecentlyPostedIds } from './dedup.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
 // ── Schedule config ──
@@ -127,8 +128,6 @@ function getCategoryHashtags(events: Array<{ category: string }>): string[] {
 
 const MAX_CAROUSEL_EVENTS = 8;
 const MIN_IMAGES_FOR_POST = 4;
-/** How many days back to check for recently posted events */
-const DEDUP_LOOKBACK_DAYS = 5;
 
 /**
  * B2B prospects that get hard-capped to 1 post per week UNLESS they become
@@ -137,15 +136,6 @@ const DEDUP_LOOKBACK_DAYS = 5;
 const CAPPED_VENUES = new Set([
 	'Akvariet i Bergen'
 ]);
-
-
-/** Slugs that share the same event pool and shouldn't dedup against each other */
-const DEDUP_PAIRS: Record<string, string> = {
-	'denne-helgen': 'this-weekend',
-	'this-weekend': 'denne-helgen',
-	'i-kveld': 'today-in-bergen',
-	'today-in-bergen': 'i-kveld'
-};
 
 function shouldGenerateToday(schedule: CollectionSchedule, dayOfWeek: number): boolean {
 	return schedule.days.length === 0 || schedule.days.includes(dayOfWeek);
@@ -208,35 +198,6 @@ async function upsertSocialPost(row: {
 	if (error) throw new Error(`Upsert social_posts failed: ${error.message}`);
 }
 
-/**
- * Load event IDs posted in the last N days across all collections,
- * excluding the current slug's paired collection (e.g. denne-helgen ↔ this-weekend).
- */
-async function getRecentlyPostedIds(currentSlug: string): Promise<Set<string>> {
-	const cutoff = new Date();
-	cutoff.setDate(cutoff.getDate() - DEDUP_LOOKBACK_DAYS);
-	const cutoffStr = cutoff.toISOString().slice(0, 10);
-
-	const pairedSlug = DEDUP_PAIRS[currentSlug];
-	const excludeSlugs = [currentSlug, ...(pairedSlug ? [pairedSlug] : [])];
-
-	const { data } = await supabase
-		.from('social_posts')
-		.select('collection_slug, event_ids')
-		.gte('generated_date', cutoffStr)
-		.not('event_ids', 'is', null);
-
-	if (!data) return new Set();
-
-	const ids = new Set<string>();
-	for (const post of data) {
-		if (excludeSlugs.includes(post.collection_slug)) continue;
-		if (Array.isArray(post.event_ids)) {
-			for (const id of post.event_ids) ids.add(id);
-		}
-	}
-	return ids;
-}
 
 /**
  * Only Partner tier (9 000 kr/mnd) includes social media placement.
