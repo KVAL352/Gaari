@@ -1,11 +1,12 @@
+# Security-only configuration — solo project, version updates handled manually.
+# See memory/project_vercel_dependabot_cleanup.md for context.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0
     labels:
       - dependencies
 
@@ -13,8 +14,7 @@ updates:
     directory: /scripts
     schedule:
       interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - scrapers
@@ -23,6 +23,6 @@ updates:
     directory: /
     schedule:
       interval: monthly
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 0
     labels:
       - ci
