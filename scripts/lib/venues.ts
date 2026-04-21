@@ -446,6 +446,8 @@ const SOURCE_FALLBACK_IMAGES: Record<string, string> = {
 	// Mads Liabø bekreftet 2026-04-19: egne bilder/tredjeparter ikke dekket for videredistribusjon,
 	// logo er OK. Brukes som fallback for alle Brann-events.
 	'brann': 'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/fallback/brann.jpg',
+	// DNS logo — fallback for events uten individuelt bilde.
+	'dns': 'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/fallback/dns.png',
 };
 
 /**

@@ -12,6 +12,8 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	'brettspill', // Fixed Meetup group photo, owned by club
 	'festspillene', // Christopher Brandt bekreftet 2026-04-19
 	'cornerteateret', // Millan Persdotter Persson bekreftet 2026-04-20
+	'dns', // Annette Stople bekreftet 2026-04-20
+	'grieghallen', // Lene Meyer Barnes bekreftet 2026-04-20 — "kan ta kontakt om det blir problematisert"
 ]);
 
 /**
