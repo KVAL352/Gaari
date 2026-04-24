@@ -14,6 +14,8 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	'cornerteateret', // Millan Persdotter Persson bekreftet 2026-04-20
 	'dns', // Annette Stople bekreftet 2026-04-20
 	'grieghallen', // Lene Meyer Barnes bekreftet 2026-04-20 — "kan ta kontakt om det blir problematisert"
+	'akvariet', // Ingvild (Markedskoordinator) bekreftet 2026-04-21
+	'biff', // Ingebjørg Aarhus Braseth bekreftet 2026-04-21 — kun bilder fra events lagt ut på biff.no
 ]);
 
 /**
@@ -23,6 +25,12 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
  */
 const IMAGE_APPROVED_URL_PATTERNS: string[] = [
 	'billetto.no/e/pavels-juke-joint', // David Pavels bekreftet 2026-04-17
+	// Stina Aadland Jensen (Utdanning i Bergen) bekreftet 2026-04-21:
+	// Kun løp/tur-arrangement hvor StudentBergen eier bildene selv. Resten bruker arrangørbilder.
+	'studentbergen.no/studentkalender/ulriken-opp',
+	'studentbergen.no/studentkalender/7-fjellsturen',
+	'studentbergen.no/studentkalender/17-mai-feiring-i-bergen',
+	'studentbergen.no/studentkalender/bergen-eco-trail',
 ];
 
 /**
