@@ -30,7 +30,8 @@
 - `/admin/login` / `/admin/logout`
 
 ## API endpoints
-- `/api/health` — Health check (healthy/degraded/unhealthy, 5min cache)
+- `/api/health` — Lightweight liveness probe (1 Supabase query) for UptimeRobot polling
+- `/api/health/deep` — Comprehensive audit: 8 checks (supabase, events, scrape freshness, visibility, pipeline, image-url health, DB size, data quality)
 - `/api/newsletter` — POST newsletter subscriptions (MailerLite + Resend welcome)
 - `/api/calendar.ics` — iCal project calendar (token required)
 - `/api/events.ics` — Public iCal feed (30-day, optional `?filter=`)

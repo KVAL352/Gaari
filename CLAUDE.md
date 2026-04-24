@@ -70,9 +70,9 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 ## Observability
 
 - `hooks.server.ts` structured error logging → Vercel logs
-- `/api/health` — 6 checks (supabase, events, scrape freshness, visibility, pipeline, data quality)
+- `/api/health` — Lightweight liveness probe (1 Supabase query) — polled by UptimeRobot every 5 min
+- `/api/health/deep` — 8 comprehensive checks (supabase, events, scrape freshness, visibility, pipeline, image health, DB size, data quality) — hit by morgen/health skills
 - `scraper_runs` table + `scraper-health.ts` classification → daily digest
-- UptimeRobot polls `/api/health` every 5 min
 
 ## Business model
 

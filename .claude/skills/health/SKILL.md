@@ -20,7 +20,7 @@ Run a health audit on the Gåri production site and local project: **$ARGUMENTS*
 !`curl -s -o /dev/null -w "HTTP %{http_code} in %{time_total}s" https://gaari.no 2>/dev/null || echo "UNREACHABLE"`
 
 ### API health (JSON)
-!`curl -s https://gaari.no/api/health 2>/dev/null || echo "API unreachable"`
+!`curl -s https://gaari.no/api/health/deep 2>/dev/null || echo "API unreachable"`
 
 ### SSL certificate
 !`echo | openssl s_client -servername gaari.no -connect gaari.no:443 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null || echo "SSL check failed"`

@@ -6,7 +6,7 @@ curl -s -o /dev/null -w "status=%{http_code} time=%{time_total}s" https://gaari.
 echo ""
 
 echo "=== API ==="
-curl -s https://gaari.no/api/health
+curl -s https://gaari.no/api/health/deep
 
 echo ""
 echo "=== SSL ==="

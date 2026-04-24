@@ -15,7 +15,7 @@ Run all morning checks in parallel, then present a single unified briefing.
 !`git status --short 2>/dev/null`
 
 ### Site health
-!`curl -s https://gaari.no/api/health 2>/dev/null || echo "Site unreachable"`
+!`curl -s https://gaari.no/api/health/deep 2>/dev/null || echo "Site unreachable"`
 
 ### Last scraper run
 !`gh run list --workflow=scrape.yml --limit 1 --json conclusion,startedAt 2>/dev/null || echo "gh unavailable"`
