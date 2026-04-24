@@ -10,6 +10,10 @@ import type { PageServerLoad } from './$types';
 
 const skipIps = new Set((SKIP_LOG_IPS ?? '').split(',').map(s => s.trim()).filter(Boolean));
 
+export const config = {
+	isr: { expiration: 3600 }
+};
+
 export const load: PageServerLoad = async ({ params, setHeaders, getClientAddress }) => {
 	const collection = getCollection(params.collection);
 	if (!collection) {

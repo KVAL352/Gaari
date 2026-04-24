@@ -15,6 +15,10 @@ function mapPrice(e: Record<string, unknown>): GaariEvent {
 	} as GaariEvent;
 }
 
+export const config = {
+	isr: { expiration: 3600 }
+};
+
 export const load: PageServerLoad = async ({ params, setHeaders }) => {
 	try {
 		// Fetch event by slug

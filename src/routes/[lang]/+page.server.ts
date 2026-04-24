@@ -3,6 +3,10 @@ import { seedEvents } from '$lib/data/seed-events';
 import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad } from './$types';
 
+export const config = {
+	isr: { expiration: 3600 }
+};
+
 export const load: PageServerLoad = async ({ setHeaders, params }) => {
 	setHeaders({ 'cache-control': 's-maxage=3600, stale-while-revalidate=7200' });
 
