@@ -458,6 +458,10 @@ const SOURCE_FALLBACK_IMAGES: Record<string, string> = {
 	// Bytt til ekte konsertbilder (ved å clear image_url og re-scrape) når/hvis 'harmonien'
 	// legges til IMAGE_APPROVED_SOURCES.
 	'harmonien': 'https://gaari.no/fallback/harmonien.svg',
+	// Paint'n Sip — eventkalender-bilder er samarbeidspartner-logoer Matilde IKKE har
+	// videredistribusjonsrett på (bekreftet 2026-04-27). "Andre bilder fra nettsiden" er OK.
+	// Custom SVG = venue-foto IMG_0696 + Paint'n Sip-logo overlay.
+	'paintnsip': 'https://gaari.no/fallback/paintnsip.svg',
 };
 
 /**
