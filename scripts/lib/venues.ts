@@ -450,6 +450,9 @@ const SOURCE_FALLBACK_IMAGES: Record<string, string> = {
 	'dns': 'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/fallback/dns.png',
 	// Bergen Live bekreftet 2026-04-20: bruker pressebilder fra artist (tredjeparts) — vi bruker logoen istedenfor.
 	'bergenlive': 'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/fallback/bergenlive.png',
+	// Festspillene-logoen fra fib.no presse-side. Brukes som fallback for sideprogram (mesterklasser,
+	// samtaler, Buekorps, åpningsseremoni) som ikke har production-thumbnail i Storyblok.
+	'festspillene': 'https://res.cloudinary.com/fib/image/upload/v1713277662/Web-Assets/Logo/Festspillene_i_Bergen_logo_ybbfwg.svg',
 };
 
 /**
