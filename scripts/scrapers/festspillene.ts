@@ -1,5 +1,5 @@
 import { isFamilyTitle } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, delay, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, updateEventImage, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'festspillene';
@@ -147,7 +147,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const syncId = c.SyncId || event.uuid;
 		const sourceUrl = ticketUrl || `https://www.fib.no/program/2026/#${syncId}`;
 
-		if (await eventExists(sourceUrl)) continue;
+		const imageUrl = production?.thumbnail?.filename || production?.mobileThumbnail?.filename;
+
+		if (await eventExists(sourceUrl)) {
+			if (imageUrl) await updateEventImage(sourceUrl, imageUrl);
+			continue;
+		}
 
 		let dateEnd: string | undefined;
 		if (c.SyncEventEndTime) {
@@ -159,7 +164,6 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const category = guessCategory(title, c.SyncScene || '');
 		const price = formatPrice(c.SyncPricing, c.SyncFreeEvent);
-		const imageUrl = production?.thumbnail?.filename || production?.mobileThumbnail?.filename;
 		const venue = c.SyncScene || 'Festspillene i Bergen';
 
 		const aiDesc = await generateDescription({ title, venue, category, date: startDate.toISOString(), price: price || '' });
