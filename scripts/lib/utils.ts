@@ -52,12 +52,33 @@ const BIBLIOTEK_RISKY_TITLE_KEYWORDS = [
 	'månedens klassiker',
 ];
 
+/**
+ * Bergen kommune kulturkalender: Elen Langeland (kulturkontoret) bekreftet 2026-04-27 at logoer
+ * (UNG-klubber) og stockbilder er OK. Personbilder uten eksterne avtaler er usikre — "der dere er
+ * usikre, er det best å ta en avsjekk hos oss, eller la være å bruke bilde". Vi blokkerer titler
+ * som typisk indikerer navngitt person (foredrag, konsert med X, jazzgalleri-serie, forfatter).
+ */
+const BERGENKOMMUNE_RISKY_TITLE_KEYWORDS = [
+	'foredrag', 'forelesning', 'konsertforedrag',
+	'forfatter',
+	'litterær',
+	'samtale med',
+	'mestermøte',
+	'jazzgalleri',
+	'det melodiske',
+	'konsert med', 'konsert m/',
+];
+
 function isImageAllowed(source: string, sourceUrl: string, title: string): boolean {
 	if (IMAGE_APPROVED_SOURCES.has(source)) return true;
 	if (IMAGE_APPROVED_URL_PATTERNS.some(p => sourceUrl.includes(p))) return true;
 	if (source === 'bergenbibliotek') {
 		const t = (title || '').toLowerCase();
 		return !BIBLIOTEK_RISKY_TITLE_KEYWORDS.some(kw => t.includes(kw));
+	}
+	if (source === 'bergenkommune') {
+		const t = (title || '').toLowerCase();
+		return !BERGENKOMMUNE_RISKY_TITLE_KEYWORDS.some(kw => t.includes(kw));
 	}
 	return false;
 }

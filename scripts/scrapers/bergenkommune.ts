@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapCategory, mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, updateEventImage, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenkommune';
@@ -209,7 +209,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			continue;
 		}
 
-		if (await eventExists(event.detailUrl)) continue;
+		if (await eventExists(event.detailUrl)) {
+			// Existing event — upsert image from list page if scraper has one (filtered by isImageAllowed).
+			if (event.imageUrl) await updateEventImage(event.detailUrl, event.imageUrl);
+			continue;
+		}
 
 		// Fetch detail page for richer data
 		await delay(1000);
