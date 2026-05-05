@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, updateEventImage, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'fyllingsdalenteater';
@@ -70,8 +70,19 @@ async function scrapeShowPage(url: string): Promise<{ found: number; inserted: n
 		return { found: 0, inserted: 0 };
 	}
 
-	// Get image from page
-	const imageUrl = $('meta[property="og:image"]').attr('content') || undefined;
+	// Production banner: pick the largest image from wp-content/uploads in a recent year folder.
+	// Generic site assets sit in /uploads/2022/... while current production banners sit in
+	// /uploads/2026/.... We prefer the largest image so we get the hero banner, not a thumbnail.
+	const recentYear = new Date().getFullYear();
+	const yearPattern = new RegExp(`/wp-content/uploads/${recentYear - 1}/|/wp-content/uploads/${recentYear}/`);
+	let bestImg: { src: string; width: number } | null = null;
+	$('img[src*="/wp-content/uploads/"]').each((_, el) => {
+		const src = $(el).attr('src');
+		if (!src || !yearPattern.test(src)) return;
+		const width = parseInt($(el).attr('width') || '0', 10);
+		if (!bestImg || width > bestImg.width) bestImg = { src, width };
+	});
+	const imageUrl: string | undefined = bestImg?.src;
 
 	for (const opt of options) {
 		const $opt = $(opt);
@@ -112,7 +123,10 @@ async function scrapeShowPage(url: string): Promise<{ found: number; inserted: n
 		const timeStr = startDate.toISOString().slice(11, 16);
 		const sourceUrl = ticketUrl || `${url}#${dateStr}-${timeStr}`;
 
-		if (await eventExists(sourceUrl)) continue;
+		if (await eventExists(sourceUrl)) {
+			if (imageUrl) await updateEventImage(sourceUrl, imageUrl);
+			continue;
+		}
 
 		const showTitle = `${pageTitle}`;
 		const aiDesc = await generateDescription({
