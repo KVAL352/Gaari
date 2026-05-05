@@ -453,6 +453,10 @@ const SOURCE_FALLBACK_IMAGES: Record<string, string> = {
 	// Festspillene-logoen fra fib.no presse-side. Brukes som fallback for sideprogram (mesterklasser,
 	// samtaler, Buekorps, åpningsseremoni) som ikke har production-thumbnail i Storyblok.
 	'festspillene': 'https://res.cloudinary.com/fib/image/upload/v1713277662/Web-Assets/Logo/Festspillene_i_Bergen_logo_ybbfwg.svg',
+	// Bergen Filharmoniske / Harmonien — venter på bilderettighetbekreftelse (purret 2026-05-05).
+	// Bruker brand-merket fra favicon.svg som fallback inntil de svarer; bytt til ekte konsertbilder
+	// (ved å clear image_url og re-scrape) når/hvis 'harmonien' legges til IMAGE_APPROVED_SOURCES.
+	'harmonien': 'https://harmonien.no/favicon.svg',
 };
 
 /**
