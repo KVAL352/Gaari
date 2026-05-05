@@ -26,28 +26,42 @@ async function fetchOgImage(url: string): Promise<string | null> {
 	return og || null;
 }
 
+// Approved at the source level — every event from these sources may have its og:image restored.
+// updateEventImage() re-checks isImageAllowed() before writing, so bergenbibliotek's title-keyword
+// filter (foredrag/forelesning/etc.) is enforced automatically.
+const SOURCE_BACKFILL = [
+	'akvariet',
+	'biff',
+	'bitteater',
+	'fyllingsdalenteater',
+	'festspillene',
+	'cornerteateret',
+	'dns',
+	'grieghallen',
+	'brettspill',
+	'bergenbibliotek',
+];
+
+// Approved per-URL — only specific events under these sources are allowed.
+const STUDENTBERGEN_PATTERNS = ['ulriken-opp', '7-fjellsturen', '17-mai-feiring-i-bergen', 'bergen-eco-trail'];
+
 async function main() {
 	const nowUtc = new Date().toISOString();
 
-	// Akvariet + BIFF: every event without image
-	// StudentBergen: only the 4 whitelisted events (others should stay imageless)
-	const { data: akvariet } = await supabase
-		.from('events')
-		.select('source_url, source, title_no')
-		.eq('source', 'akvariet')
-		.is('image_url', null)
-		.gte('date_start', nowUtc);
+	const sourceResults = await Promise.all(
+		SOURCE_BACKFILL.map(async s => {
+			const { data } = await supabase
+				.from('events')
+				.select('source_url, source, title_no')
+				.eq('source', s)
+				.is('image_url', null)
+				.gte('date_start', nowUtc);
+			return { source: s, rows: (data || []) as Row[] };
+		})
+	);
 
-	const { data: biff } = await supabase
-		.from('events')
-		.select('source_url, source, title_no')
-		.eq('source', 'biff')
-		.is('image_url', null)
-		.gte('date_start', nowUtc);
-
-	const SB_PATTERNS = ['ulriken-opp', '7-fjellsturen', '17-mai-feiring-i-bergen', 'bergen-eco-trail'];
 	const sbResults = await Promise.all(
-		SB_PATTERNS.map(p =>
+		STUDENTBERGEN_PATTERNS.map(p =>
 			supabase
 				.from('events')
 				.select('source_url, source, title_no')
@@ -60,12 +74,16 @@ async function main() {
 	const studentbergen: Row[] = sbResults.flatMap(r => r.data || []);
 
 	const all: Row[] = [
-		...(akvariet || []),
-		...(biff || []),
+		...sourceResults.flatMap(r => r.rows),
 		...studentbergen,
 	];
 
-	console.log(`Backfilling ${all.length} events (akvariet=${akvariet?.length ?? 0}, biff=${biff?.length ?? 0}, studentbergen=${studentbergen.length})\n`);
+	const breakdown = sourceResults
+		.map(r => `${r.source}=${r.rows.length}`)
+		.concat(`studentbergen=${studentbergen.length}`)
+		.filter(s => !s.endsWith('=0'))
+		.join(', ');
+	console.log(`Backfilling ${all.length} events (${breakdown})\n`);
 
 	let updated = 0;
 	let noImage = 0;
