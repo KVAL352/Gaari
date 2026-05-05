@@ -16,6 +16,8 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	'grieghallen', // Lene Meyer Barnes bekreftet 2026-04-20 — "kan ta kontakt om det blir problematisert"
 	'akvariet', // Ingvild (Markedskoordinator) bekreftet 2026-04-21
 	'biff', // Ingebjørg Aarhus Braseth bekreftet 2026-04-21 — kun bilder fra events lagt ut på biff.no
+	'bitteater', // İrem Müftüoğlu bekreftet 2026-04-22
+	'fyllingsdalenteater', // Yasmin Kamalkhani bekreftet 2026-04-22
 ]);
 
 /**
