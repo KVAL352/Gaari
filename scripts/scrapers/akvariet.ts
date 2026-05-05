@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, updateEventImage, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'akvariet';
@@ -296,12 +296,15 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				.replace(/["""]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 			const sourceUrl = `${BASE_URL}/hva-skjer/aktivitetskalender/dag/${dateStr}#${titleSlug}`;
 
-			if (await eventExists(sourceUrl)) continue;
-
-			// Fallback: fetch og:image from detail page if calendar card had no image
+			// Resolve image first so we can update existing events that lack one
 			let imageUrl = activity.imageUrl;
 			if (!imageUrl && activity.detailUrl) {
 				imageUrl = await fetchDetailImage(activity.detailUrl);
+			}
+
+			if (await eventExists(sourceUrl)) {
+				if (imageUrl) await updateEventImage(sourceUrl, imageUrl);
+				continue;
 			}
 
 			// Build ISO timestamp
