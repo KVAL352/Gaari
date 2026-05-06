@@ -163,6 +163,18 @@
 								Last ned alt
 							</a>
 						</div>
+					{:else if day.mp4Url || day.storiesZipUrl || day.carouselZipUrl}
+						<div class="download-row">
+							{#if day.mp4Url}
+								<a class="dl-btn dl-btn-mp4" href={day.mp4Url} download={`gaari-${day.dateStr}-${day.slug}-reel.mp4`}>Reel (MP4)</a>
+							{/if}
+							{#if day.storiesZipUrl}
+								<a class="dl-btn dl-btn-stories" href={day.storiesZipUrl} download={`gaari-${day.dateStr}-${day.slug}-stories.zip`}>Stories (ZIP)</a>
+							{/if}
+							{#if day.carouselZipUrl}
+								<a class="dl-btn dl-btn-carousel" href={day.carouselZipUrl} download={`gaari-${day.dateStr}-${day.slug}-carousel.zip`}>Carousel (ZIP)</a>
+							{/if}
+						</div>
 					{/if}
 
 					<!-- Copy buttons -->
@@ -375,6 +387,9 @@
 	}
 
 	.dl-btn.day-zip { background: #C82D2D; flex: 1; }
+	.dl-btn-mp4 { background: #2D5FC8; }
+	.dl-btn-stories { background: #C8762D; }
+	.dl-btn-carousel { background: #2DC862; }
 
 
 	.dl-btn:active {
