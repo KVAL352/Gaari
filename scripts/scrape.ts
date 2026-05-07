@@ -68,6 +68,7 @@ import { writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
 import { removeExpiredEvents, refreshStaleMultiDateEvents, loadOptOuts, getOptOutDomains, loadExistingUrls } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
+import { enrichRecurringTitles } from './lib/enrich-titles.js';
 import { supabase } from './lib/supabase.js';
 
 interface ScraperResult {
@@ -362,6 +363,17 @@ async function main() {
 		console.log(`Removed ${dupsRemoved} duplicate events\n`);
 	} catch (err: any) {
 		console.error(`Deduplication failed: ${err.message}\n`);
+	}
+
+	// Step 3b: Enrich titles for recurring events (append day-of-week + date for SEO/uniqueness)
+	let titlesEnriched = 0;
+	try {
+		console.log('\n--- Enriching recurring titles ---');
+		const r = await enrichRecurringTitles();
+		titlesEnriched = r.updated;
+		console.log(`Scanned ${r.scanned} events, ${r.groups} recurring groups, updated ${r.updated} titles\n`);
+	} catch (err: any) {
+		console.error(`Title enrichment failed: ${err.message}\n`);
 	}
 
 	// Step 4: IndexNow ping for updated pages (events + collections + homepage)
