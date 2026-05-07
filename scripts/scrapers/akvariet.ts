@@ -8,10 +8,10 @@ const CALENDAR_URL = `${BASE_URL}/hva-skjer/aktivitetskalender/dag`;
 const DAYS_AHEAD = 14;
 
 // Akvariet fixed admission price — activities are included in general admission.
-// Update when prices change. Prices change from May 1, 2026.
-// (Last verified: Mar 2026, reminder set for Mar 2027)
-const ADMISSION_PRICE = 'Inkl. i billett (fra 245 kr)';
-const AFTERNOON_PRICE = 'Inkl. i billett (ettermiddagsbillett fra kl. 16)';
+// Update when prices change.
+// (Last verified: May 2026, reminder set for ~May 2027)
+const ADMISSION_PRICE = 'Inkl. i billett (voksen 415 kr, barn 265 kr, familie 1 145 kr)';
+const AFTERNOON_PRICE = 'Inkl. i ettermiddagsbillett kl. 16-18 (voksen 355 kr, barn 225 kr, familie 970 kr)';
 
 // Special article page for the recurring "sleepover at Akvariet" event.
 // This is published as a news article (not in the daily activity calendar) and
