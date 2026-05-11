@@ -26,6 +26,11 @@
   },
   {
     "date": "2026-06-01",
+    "title": "SoMe-tillatelse-batch: be venues om FB/IG-bruk",
+    "description": "14-dagers opt-out-vinduet etter hot-link-policy varsel 2026-05-11 utløper 2026-05-25. Hvis ingen kraftige opt-outs: send oppfølgings-mail til alle 22 hot-link-godkjente venues + de 14 eksisterende eksplisitt-ja-kildene som spør om vi kan bruke bildene i daglig FB/IG-posting. Få også på plass logikk for å filtrere social-posts.yml-genererte poster etter en ny SOCIAL_APPROVED_SOURCES-liste. Når liste er klar: skru på social-posts.yml-cron igjen (kommentert ut 2026-05-11)."
+  },
+  {
+    "date": "2026-06-01",
     "title": "Kvartalsvis sikkerhetssjekk Q2 2026",
     "description": "1) Roter ADMIN_PASSWORD og ADMIN_SESSION_SECRET. 2) Roter CALENDAR_FEED_TOKEN. 3) Merg Dependabot-PRer. 4) npm audit i root og scripts/. 5) Sjekk Vercel CSP-logs. 6) Vurder å rotere GEMINI_API_KEY og RESEND_API_KEY."
   },
