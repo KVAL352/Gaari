@@ -1,11 +1,15 @@
 name: Generate & Post Social Content
 
+# PAUSED 2026-05-11 pending SoMe-tillatelse-batch (~2026-06-01).
+# Hot-link på gaari.no er lovlig (Svensson/BestWater), men SoMe-posting krever
+# opp-/nedlasting til Meta-CDN som ikke dekkes av samme doktrine. Re-enables
+# etter eksplisitt skriftlig ja fra venuer for SoMe-bruk.
+# Schedule cron disabled — only manual workflow_dispatch works.
+
 on:
-  schedule:
-    # FB at 07:00 UTC (08:00 CET)
-    - cron: '0 7 * * *'
-    # IG carousel at 14:00 UTC (16:00 CEST)
-    - cron: '0 14 * * *'
+  # schedule:
+  #   - cron: '0 7 * * *'   # FB at 07:00 UTC
+  #   - cron: '0 14 * * *'  # IG carousel at 14:00 UTC
   workflow_dispatch:
     inputs:
       platform:
