@@ -30,7 +30,21 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	'colonialen', 'oconnors', 'stenematglede', 'floyen', 'bergenkjott',
 	'bymuseet', 'ostre', 'bergenfilmklubb', 'carteblanche', 'kunsthall',
 	'usfverftet', 'kvarteret',
+	// Fase 3 aktivert 2026-05-11 (aggregatorer). Plattformer notifisert samme dag.
+	// Filtreres ytterligere av IMAGE_BLOCKED_VENUES nedenfor (Hulen sa nei).
+	'billetto', 'ticketco',
 ]);
+
+/**
+ * Venues som har eksplisitt sagt nei til bildebruk pga tredjeparts-rettigheter.
+ * Sjekkes ved hver insert/update — selv om kilden er IMAGE_APPROVED_SOURCES,
+ * blokkeres bildet hvis venue_name matcher.
+ *
+ * Matchet via case-insensitive substring på venue_name.
+ */
+const IMAGE_BLOCKED_VENUE_PATTERNS = [
+	'hulen', // Aurora Fykse 2026-04-23: betinget ja (kreditering eller plakat). Vi har ikke kreditering-felt; blokker til SoMe-batchen 2026-06-01.
+];
 
 /**
  * Per-event approvals (substring match on source_url).
@@ -127,7 +141,12 @@ export async function verifyHotlinkable(imageUrl: string): Promise<boolean> {
 	return result;
 }
 
-function isImageAllowed(source: string, sourceUrl: string, title: string): boolean {
+function isImageAllowed(source: string, sourceUrl: string, title: string, venueName?: string): boolean {
+	// Blokker venues som har sagt nei, uavhengig av kilde
+	if (venueName) {
+		const v = venueName.toLowerCase();
+		if (IMAGE_BLOCKED_VENUE_PATTERNS.some(p => v.includes(p))) return false;
+	}
 	if (IMAGE_APPROVED_SOURCES.has(source)) return true;
 	if (IMAGE_APPROVED_URL_PATTERNS.some(p => sourceUrl.includes(p))) return true;
 	if (source === 'bergenbibliotek') {
@@ -324,12 +343,12 @@ export async function eventHasImage(sourceUrl: string): Promise<boolean> {
 export async function updateEventImage(sourceUrl: string, imageUrl: string): Promise<boolean> {
 	const { data: existing } = await supabase
 		.from('events')
-		.select('source, title_no')
+		.select('source, title_no, venue_name')
 		.eq('source_url', sourceUrl)
 		.limit(1);
 	const row = existing?.[0];
 	if (!row) return false;
-	if (!isImageAllowed(row.source, sourceUrl, row.title_no)) return false;
+	if (!isImageAllowed(row.source, sourceUrl, row.title_no, row.venue_name)) return false;
 	if (!(await verifyHotlinkable(imageUrl))) return false;
 
 	const { data, error } = await supabase
@@ -462,7 +481,7 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 	}
 
 	// Only allow images from sources/URLs/titles with explicit written permission.
-	if (event.image_url && !isImageAllowed(event.source, event.source_url, event.title_no)) {
+	if (event.image_url && !isImageAllowed(event.source, event.source_url, event.title_no, event.venue_name)) {
 		event.image_url = undefined;
 	}
 

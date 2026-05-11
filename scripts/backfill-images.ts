@@ -49,6 +49,8 @@ const SOURCE_BACKFILL = [
 	// Disse mangler typisk og:image på detail-sider, men inkluderes for sjekk
 	'dnt', 'bodega', 'bergenfest', 'olebull', 'generasjonsfestivalen',
 	'studentbergen', 'ostre', 'kvarteret',
+	// Fase 3 — aggregatorer
+	'billetto', 'ticketco',
 ];
 
 // Approved per-URL — only specific events under these sources are allowed.
