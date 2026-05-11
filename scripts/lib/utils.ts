@@ -36,14 +36,21 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 ]);
 
 /**
- * Venues som har eksplisitt sagt nei til bildebruk pga tredjeparts-rettigheter.
- * Sjekkes ved hver insert/update — selv om kilden er IMAGE_APPROVED_SOURCES,
- * blokkeres bildet hvis venue_name matcher.
+ * Venues/arrangører som har eksplisitt sagt nei til bildebruk pga tredjeparts-rettigheter.
+ * Sjekkes ved hver insert/update mot BÅDE venue_name OG title — selv om kilden er
+ * IMAGE_APPROVED_SOURCES, blokkeres bildet hvis enten matcher.
  *
- * Matchet via case-insensitive substring på venue_name.
+ * Trengs fordi arrangører som Bjørgvin Blues holder events på andre venues (Madam Felle),
+ * der venue_name ikke matcher arrangørens navn. Tittelen inneholder typisk arrangørens navn.
+ *
+ * Matchet via case-insensitive substring.
  */
 const IMAGE_BLOCKED_VENUE_PATTERNS = [
 	'hulen', // Aurora Fykse 2026-04-23: betinget ja (kreditering eller plakat). Vi har ikke kreditering-felt; blokker til SoMe-batchen 2026-06-01.
+	'bjørgvin blues', 'bjorgvin blues', 'bjørgvin bluesklubb', 'bjorgvin bluesklubb', // Grethe 2026-04-24: tredjeparts blir for omfattende.
+	'bergen live', 'bergenlive', // Mats Sævig 2026-04-20: pressebilder fra artist.
+	'sk brann', 'brann stadion', // Mads Liabø 2026-04-19: NTB/Bildbyrån/freelance/presse.
+	'bek ', // BEK (Siren Løkaas) 2026-04-21: kunstnerne eier bildene. Trailing space for å unngå false-match.
 ];
 
 /**
@@ -141,11 +148,16 @@ export async function verifyHotlinkable(imageUrl: string): Promise<boolean> {
 	return result;
 }
 
-function isImageAllowed(source: string, sourceUrl: string, title: string, venueName?: string): boolean {
-	// Blokker venues som har sagt nei, uavhengig av kilde
-	if (venueName) {
-		const v = venueName.toLowerCase();
-		if (IMAGE_BLOCKED_VENUE_PATTERNS.some(p => v.includes(p))) return false;
+const FALLBACK_URL_PREFIX = 'supabase.co/storage/v1/object/public/event-images/fallback/';
+
+function isImageAllowed(source: string, sourceUrl: string, title: string, venueName?: string, imageUrl?: string): boolean {
+	// Blokker venues/arrangører som har sagt nei — sjekker både venue_name og title.
+	// Vår egen fallback-grafikk (logo) er unntatt: den hostes hos oss og er
+	// eksplisitt godkjent for hver kilde i SOURCE_FALLBACK_IMAGES.
+	const isOurFallback = imageUrl && imageUrl.includes(FALLBACK_URL_PREFIX);
+	if (!isOurFallback) {
+		const haystack = `${venueName || ''} ${title || ''}`.toLowerCase();
+		if (IMAGE_BLOCKED_VENUE_PATTERNS.some(p => haystack.includes(p))) return false;
 	}
 	if (IMAGE_APPROVED_SOURCES.has(source)) return true;
 	if (IMAGE_APPROVED_URL_PATTERNS.some(p => sourceUrl.includes(p))) return true;
@@ -348,7 +360,7 @@ export async function updateEventImage(sourceUrl: string, imageUrl: string): Pro
 		.limit(1);
 	const row = existing?.[0];
 	if (!row) return false;
-	if (!isImageAllowed(row.source, sourceUrl, row.title_no, row.venue_name)) return false;
+	if (!isImageAllowed(row.source, sourceUrl, row.title_no, row.venue_name, imageUrl)) return false;
 	if (!(await verifyHotlinkable(imageUrl))) return false;
 
 	const { data, error } = await supabase
@@ -481,7 +493,7 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 	}
 
 	// Only allow images from sources/URLs/titles with explicit written permission.
-	if (event.image_url && !isImageAllowed(event.source, event.source_url, event.title_no, event.venue_name)) {
+	if (event.image_url && !isImageAllowed(event.source, event.source_url, event.title_no, event.venue_name, event.image_url)) {
 		event.image_url = undefined;
 	}
 
