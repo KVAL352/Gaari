@@ -6,11 +6,8 @@ import { SOURCE_COUNT } from './constants';
 // Shared filter functions for seasonal collections (NO + EN pairs share the same logic)
 const filter17Mai = (events: GaariEvent[], now: Date) => {
 	const year = now.getFullYear();
-	const startStr = `${year}-05-14`;
-	const endStr = `${year}-05-18`;
-	return events.filter(e => {
-		return eventOverlapsRange(e, startStr, endStr);
-	});
+	const dayStr = `${year}-05-17`;
+	return events.filter(e => eventOnDay(e, dayStr));
 };
 
 const filterJulemarked = (events: GaariEvent[], now: Date) => {
