@@ -29,6 +29,7 @@ import { scrape as scrapeBrettspill } from './scrapers/brettspill.js';
 import { scrape as scrapeMediaCity } from './scrapers/mediacity.js';
 import { scrape as scrapeForumScene } from './scrapers/forumscene.js';
 import { scrape as scrapeUSFVerftet } from './scrapers/usfverftet.js';
+import { scrape as scrapeVisningsromUSF } from './scrapers/visningsromusf.js';
 import { scrape as scrapeDNS } from './scrapers/dns.js';
 import { scrape as scrapeOleBull } from './scrapers/olebull.js';
 import { scrape as scrapeGrieghallen } from './scrapers/grieghallen.js';
@@ -133,6 +134,7 @@ export const scrapers: Record<string, () => Promise<{ found: number; inserted: n
 	bergenkjott: scrapeBergenKjott,
 	bergenchamber: scrapeBergenChamber,
 	usfverftet: scrapeUSFVerftet,
+	visningsromusf: scrapeVisningsromUSF,
 	floyen: scrapeFloyen,
 	oconnors: scrapeOConnors,
 	litthusbergen: scrapeLitthus,

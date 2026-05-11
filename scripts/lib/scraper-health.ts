@@ -28,6 +28,7 @@ const SEASONAL_SCRAPERS = new Set([
 	'vvv',
 	'bergenpride',
 	'biff',
+	'visningsromusf',
 ]);
 
 // Scrapers removed from the pipeline — historical scraper_runs rows linger

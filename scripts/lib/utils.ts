@@ -18,6 +18,7 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	'biff', // Ingebjørg Aarhus Braseth bekreftet 2026-04-21 — kun bilder fra events lagt ut på biff.no
 	'bitteater', // İrem Müftüoğlu bekreftet 2026-04-22
 	'fyllingsdalenteater', // Yasmin Kamalkhani bekreftet 2026-04-22
+	'visningsromusf', // Line Nord bekreftet 2026-05-07 via B2B-skjema (Visningsrommet USF)
 ]);
 
 /**

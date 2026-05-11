@@ -43,6 +43,7 @@ const SOURCE_RANK: Record<string, number> = {
 	bergenfilmklubb: 4,
 	cornerteateret: 4,
 	kunsthall: 4,
+	visningsromusf: 4,
 	litthusbergen: 4,
 	bergenbibliotek: 4,
 	floyen: 4,
