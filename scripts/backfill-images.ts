@@ -40,6 +40,8 @@ const SOURCE_BACKFILL = [
 	'grieghallen',
 	'brettspill',
 	'bergenbibliotek',
+	'museumvest',
+	'kode',
 ];
 
 // Approved per-URL — only specific events under these sources are allowed.

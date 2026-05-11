@@ -20,6 +20,9 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	'fyllingsdalenteater', // Yasmin Kamalkhani bekreftet 2026-04-22
 	'visningsromusf', // Line Nord bekreftet 2026-05-07 via B2B-skjema (Visningsrommet USF)
 	'loddefjord', // Marjolein Roozen (Bergen Kommune) bekreftet 2026-04-23: hot-link til hvaskjeriloddefjord.no/images/{id} — bildene hostes hos kommunen, ansvar ligger der. Vi handler i god tro basert på Marjoleins henvisning til kalenderen.
+	// Fase 1 hot-link-policy aktivert 2026-05-11 (lavrisiko: offentlig institusjon, egne ansatte kuraterer). Se image-policy.md.
+	'museumvest', // Hot-link til museumvest.no
+	'kode', // Hot-link til Sanity CDN (KODE-eid prosjekt)
 ]);
 
 /**
