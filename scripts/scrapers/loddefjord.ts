@@ -1,10 +1,9 @@
-import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 import { mapCategory } from '../lib/categories.js';
 
 const SOURCE = 'loddefjord';
-const BASE_URL = 'https://hvaskjeriloddefjord.no/kalender';
+const ITEMS_URL_BASE = 'https://hvaskjeriloddefjord.no/wwdok/37199-0.html?type=items';
 
 // All sub-areas belong to Laksevåg bydel
 const BYDEL = 'Laksevåg';
@@ -75,28 +74,32 @@ interface LoddefjordEvent {
 	details: string;
 }
 
+function fmtDate(d: Date): string {
+	const dd = String(d.getDate()).padStart(2, '0');
+	const mm = String(d.getMonth() + 1).padStart(2, '0');
+	return `${dd}.${mm}.${d.getFullYear()}`;
+}
+
 export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`\n[${SOURCE}] Fetching Hva skjer i Loddefjord events...`);
 
-	const html = await fetchHTML(BASE_URL);
-	if (!html) {
-		console.error(`[${SOURCE}] Failed to fetch calendar page`);
-		return { found: 0, inserted: 0 };
-	}
-
-	// Extract JSON from <script id="calendar-data" type="application/json">
-	const $ = cheerio.load(html);
-	const jsonStr = $('#calendar-data').text();
-	if (!jsonStr) {
-		console.error(`[${SOURCE}] Could not find #calendar-data script tag`);
-		return { found: 0, inserted: 0 };
-	}
+	const from = new Date();
+	const to = new Date();
+	to.setMonth(to.getMonth() + 12);
+	const url = `${ITEMS_URL_BASE}&datefrom=${fmtDate(from)}&dateto=${fmtDate(to)}`;
 
 	let events: LoddefjordEvent[];
 	try {
-		events = JSON.parse(jsonStr);
-	} catch {
-		console.error(`[${SOURCE}] Failed to parse calendar JSON`);
+		const res = await fetch(url, {
+			headers: { 'User-Agent': 'Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)' },
+		});
+		if (!res.ok) {
+			console.error(`[${SOURCE}] Failed to fetch items (HTTP ${res.status})`);
+			return { found: 0, inserted: 0 };
+		}
+		events = (await res.json()) as LoddefjordEvent[];
+	} catch (err) {
+		console.error(`[${SOURCE}] Fetch error:`, err instanceof Error ? err.message : err);
 		return { found: 0, inserted: 0 };
 	}
 

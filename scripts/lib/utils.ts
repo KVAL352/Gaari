@@ -19,6 +19,7 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	'bitteater', // İrem Müftüoğlu bekreftet 2026-04-22
 	'fyllingsdalenteater', // Yasmin Kamalkhani bekreftet 2026-04-22
 	'visningsromusf', // Line Nord bekreftet 2026-05-07 via B2B-skjema (Visningsrommet USF)
+	'loddefjord', // Marjolein Roozen (Bergen Kommune) bekreftet 2026-04-23: hot-link til hvaskjeriloddefjord.no/images/{id} — bildene hostes hos kommunen, ansvar ligger der. Vi handler i god tro basert på Marjoleins henvisning til kalenderen.
 ]);
 
 /**
