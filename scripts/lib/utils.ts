@@ -74,6 +74,52 @@ const BERGENKOMMUNE_RISKY_TITLE_KEYWORDS = [
 	'konsert med', 'konsert m/',
 ];
 
+/**
+ * HEAD-request bildets URL med Referer: gaari.no for å sjekke om kilden tillater
+ * ekstern lenking. Implementerer VG Bild-Kunst-doktrinen (C-392/19): tekniske
+ * sperrer mot embedding må respekteres.
+ *
+ * Returnerer false KUN ved permanent client-error (4xx) eller eksplisitt
+ * robots-header som blokkerer image-bruk. 5xx/timeout/network-feil → true
+ * (ikke straff kilder for midlertidig nedetid).
+ */
+const hotlinkCache = new Map<string, boolean>();
+
+export async function verifyHotlinkable(imageUrl: string): Promise<boolean> {
+	const cached = hotlinkCache.get(imageUrl);
+	if (cached !== undefined) return cached;
+
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 5000);
+	let result = true;
+	try {
+		const res = await fetch(imageUrl, {
+			method: 'HEAD',
+			headers: {
+				'User-Agent': 'Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)',
+				'Referer': 'https://gaari.no',
+			},
+			redirect: 'follow',
+			signal: controller.signal,
+		});
+		// Permanent client errors → blokkert
+		if (res.status >= 400 && res.status < 500) {
+			result = false;
+		} else {
+			const robotsTag = res.headers.get('x-robots-tag');
+			if (robotsTag && /noimageindex|noai/i.test(robotsTag)) result = false;
+		}
+	} catch {
+		// Network error / timeout → ikke straff
+		result = true;
+	} finally {
+		clearTimeout(timeoutId);
+	}
+
+	hotlinkCache.set(imageUrl, result);
+	return result;
+}
+
 function isImageAllowed(source: string, sourceUrl: string, title: string): boolean {
 	if (IMAGE_APPROVED_SOURCES.has(source)) return true;
 	if (IMAGE_APPROVED_URL_PATTERNS.some(p => sourceUrl.includes(p))) return true;
@@ -277,6 +323,7 @@ export async function updateEventImage(sourceUrl: string, imageUrl: string): Pro
 	const row = existing?.[0];
 	if (!row) return false;
 	if (!isImageAllowed(row.source, sourceUrl, row.title_no)) return false;
+	if (!(await verifyHotlinkable(imageUrl))) return false;
 
 	const { data, error } = await supabase
 		.from('events')
@@ -409,6 +456,11 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 
 	// Only allow images from sources/URLs/titles with explicit written permission.
 	if (event.image_url && !isImageAllowed(event.source, event.source_url, event.title_no)) {
+		event.image_url = undefined;
+	}
+
+	// Respekter tekniske sperrer (VG Bild-Kunst C-392/19).
+	if (event.image_url && !(await verifyHotlinkable(event.image_url))) {
 		event.image_url = undefined;
 	}
 
