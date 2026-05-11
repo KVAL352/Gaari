@@ -42,6 +42,13 @@ const SOURCE_BACKFILL = [
 	'bergenbibliotek',
 	'museumvest',
 	'kode',
+	// Fase 2 hot-link
+	'forumscene', 'litthusbergen', 'beyondthegates', 'kulturhusetibergen',
+	'colonialen', 'oconnors', 'floyen', 'bergenkjott', 'bymuseet',
+	'bergenfilmklubb', 'carteblanche', 'kunsthall', 'usfverftet', 'stenematglede',
+	// Disse mangler typisk og:image på detail-sider, men inkluderes for sjekk
+	'dnt', 'bodega', 'bergenfest', 'olebull', 'generasjonsfestivalen',
+	'studentbergen', 'ostre', 'kvarteret',
 ];
 
 // Approved per-URL — only specific events under these sources are allowed.

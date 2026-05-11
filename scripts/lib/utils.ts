@@ -23,6 +23,13 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	// Fase 1 hot-link-policy aktivert 2026-05-11 (lavrisiko: offentlig institusjon, egne ansatte kuraterer). Se image-policy.md.
 	'museumvest', // Hot-link til museumvest.no
 	'kode', // Hot-link til Sanity CDN (KODE-eid prosjekt)
+	// Fase 2 hot-link-policy aktivert 2026-05-11 (venues/festivaler med egne ansatte). Varsel sendt samme dag.
+	// verifyHotlinkable() filtrerer ut blokkerte bilder automatisk.
+	'dnt', 'bodega', 'bergenfest', 'olebull', 'forumscene', 'generasjonsfestivalen',
+	'litthusbergen', 'beyondthegates', 'studentbergen', 'kulturhusetibergen',
+	'colonialen', 'oconnors', 'stenematglede', 'floyen', 'bergenkjott',
+	'bymuseet', 'ostre', 'bergenfilmklubb', 'carteblanche', 'kunsthall',
+	'usfverftet', 'kvarteret',
 ]);
 
 /**
