@@ -147,9 +147,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			dateEnd = new Date(`${endDate}T${event.endTime}:00${bergenOffset(endDate)}`).toISOString();
 		}
 
-		// Image URL from imageId
+		// Image URL: /irisimage/{id}/{id}.jpg + crop params from imageMeta
 		const imageUrl = event.imageId
-			? `https://hvaskjeriloddefjord.no/images/${event.imageId}`
+			? `https://hvaskjeriloddefjord.no/irisimage/${event.imageId}/${event.imageId}.jpg?maxheight=720${event.imageMeta ? '&' + event.imageMeta : ''}`
 			: undefined;
 
 		const aiDesc = await generateDescription({

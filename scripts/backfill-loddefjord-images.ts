@@ -14,6 +14,7 @@ interface LoddefjordEvent {
 	title: string;
 	urlText: string;
 	imageId: number | null;
+	imageMeta: string;
 	startDate: string;
 }
 
@@ -48,7 +49,7 @@ async function main() {
 			continue;
 		}
 		const sourceUrl = `https://hvaskjeriloddefjord.no/${ev.urlText}`;
-		const imageUrl = `https://hvaskjeriloddefjord.no/images/${ev.imageId}`;
+		const imageUrl = `https://hvaskjeriloddefjord.no/irisimage/${ev.imageId}/${ev.imageId}.jpg?maxheight=720${ev.imageMeta ? '&' + ev.imageMeta : ''}`;
 		const ok = await updateEventImage(sourceUrl, imageUrl);
 		if (ok) {
 			console.log(`  updated  ${ev.title}`);
