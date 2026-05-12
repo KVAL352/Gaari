@@ -284,7 +284,6 @@
 			</figcaption>
 		{/if}
 	</figure>
-	</div>
 
 	<!-- Badges -->
 	<div class="mb-3 flex gap-2">
