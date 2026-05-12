@@ -647,18 +647,18 @@ describe('17. mai filter (17-mai)', () => {
 		expect(collection.seasonal).toBe(true);
 	});
 
-	it('includes events May 14–18', () => {
+	it('includes only events on May 17', () => {
 		const now = new Date('2026-05-10T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-05-14T10:00:00Z' }), // May 14 ✓
-			makeEvent({ id: '2', date_start: '2026-05-15T10:00:00Z' }), // May 15 ✓
+			makeEvent({ id: '1', date_start: '2026-05-14T10:00:00Z' }), // May 14 — excluded
+			makeEvent({ id: '2', date_start: '2026-05-15T10:00:00Z' }), // May 15 — excluded
 			makeEvent({ id: '3', date_start: '2026-05-17T10:00:00Z' }), // May 17 ✓
-			makeEvent({ id: '4', date_start: '2026-05-18T10:00:00Z' }), // May 18 ✓
+			makeEvent({ id: '4', date_start: '2026-05-18T10:00:00Z' }), // May 18 — excluded
 			makeEvent({ id: '5', date_start: '2026-05-13T10:00:00Z' }), // May 13 — excluded
 			makeEvent({ id: '6', date_start: '2026-05-19T10:00:00Z' })  // May 19 — excluded
 		];
 		const result = collection.filterEvents(events, now);
-		expect(result.map(e => e.id)).toEqual(['1', '2', '3', '4']);
+		expect(result.map(e => e.id)).toEqual(['3']);
 	});
 
 	it('returns empty outside May window', () => {
