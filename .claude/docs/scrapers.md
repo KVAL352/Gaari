@@ -10,7 +10,7 @@
 ## Community calendars
 | Source | File | Method |
 |--------|------|--------|
-| Hva skjer i Loddefjord | `loddefjord.ts` | Embedded JSON in `#calendar-data` script tag. 156+ events, Laksevåg bydel. |
+| Hva skjer i Loddefjord | `loddefjord.ts` | AJAX endpoint `/wwdok/37199-0.html?type=items&datefrom=...`. Image URL pattern `/irisimage/{id}/{id}.jpg?maxheight=720`. 200+ events, Laksevåg bydel. |
 
 **Disabled scrapers:**
 - ~~BarnasNorge~~ (`barnasnorge.ts`) — disabled Feb 25, 2026. All venues covered by dedicated scrapers. Issues: AI-generated stock images from Webflow CDN, address-based venue names, complex URL resolution.
@@ -49,6 +49,7 @@
 | Media City Bergen | `mediacity.ts` | HTML |
 | BEK | `bek.ts` | WordPress REST API (`/wp-json/`) |
 | Bergen Filmklubb | `bergenfilmklubb.ts` | HTML |
+| Visningsrommet USF | `visningsromusf.ts` | HTML forsiden. Seasonal — programmet oppdateres halvårlig, returnerer 0 events graceful mellom semestre. |
 
 ## Libraries, museums & landmarks
 | Source | File | Method |
