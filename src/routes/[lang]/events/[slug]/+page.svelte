@@ -261,21 +261,29 @@
 	</a>
 
 	<!-- Hero image -->
-	<div class="mb-6 aspect-[16/9] overflow-hidden rounded-2xl bg-[var(--color-surface)]">
-		{#if event.image_url}
-			<img
-				src={optimizedSrc(event.image_url, 800)}
-				srcset={optimizedSrcset(event.image_url, [800, 1200])}
-				sizes="(max-width: 56rem) calc(100vw - 2rem), 54rem"
-				alt={title}
-				class="h-full w-full object-cover"
-				width="800"
-				height="450"
-				fetchpriority="high"
-			/>
-		{:else}
-			<ImagePlaceholder category={event.category} size={64} />
+	<figure class="mb-6">
+		<div class="aspect-[16/9] overflow-hidden rounded-2xl bg-[var(--color-surface)]">
+			{#if event.image_url}
+				<img
+					src={optimizedSrc(event.image_url, 800)}
+					srcset={optimizedSrcset(event.image_url, [800, 1200])}
+					sizes="(max-width: 56rem) calc(100vw - 2rem), 54rem"
+					alt={title}
+					class="h-full w-full object-cover"
+					width="800"
+					height="450"
+					fetchpriority="high"
+				/>
+			{:else}
+				<ImagePlaceholder category={event.category} size={64} />
+			{/if}
+		</div>
+		{#if event.image_url && event.image_credit}
+			<figcaption class="mt-1.5 text-xs text-[var(--color-text-muted)]">
+				{event.image_credit}
+			</figcaption>
 		{/if}
+	</figure>
 	</div>
 
 	<!-- Badges -->

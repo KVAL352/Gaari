@@ -150,7 +150,15 @@ export async function verifyHotlinkable(imageUrl: string): Promise<boolean> {
 
 const FALLBACK_URL_PREFIX = 'supabase.co/storage/v1/object/public/event-images/fallback/';
 
-function isImageAllowed(source: string, sourceUrl: string, title: string, venueName?: string, imageUrl?: string): boolean {
+/**
+ * Image credit som signaliserer at bildet kan brukes selv om tittelen ellers
+ * ville blitt blokkert (forfatter/foredrag-keywords). Bekreftet av Camilla
+ * Larsen (Bergen offentlige bibliotek) 2026-05-12: forfatterportretter fra
+ * forlag er OK når fotografen er kreditert.
+ */
+const CREDIT_UNLOCKS_BLOCKED_TITLE = /Foto\s*:|Fotograf\s*:|Illustrasjon\s*:|Illustrasjonsfoto\s*:|Ragnar\s+R(?:ø|o)rnes|Unsplash/i;
+
+function isImageAllowed(source: string, sourceUrl: string, title: string, venueName?: string, imageUrl?: string, imageCredit?: string): boolean {
 	// Blokker venues/arrangører som har sagt nei — sjekker både venue_name og title.
 	// Vår egen fallback-grafikk (logo) er unntatt: den hostes hos oss og er
 	// eksplisitt godkjent for hver kilde i SOURCE_FALLBACK_IMAGES.
@@ -163,7 +171,10 @@ function isImageAllowed(source: string, sourceUrl: string, title: string, venueN
 	if (IMAGE_APPROVED_URL_PATTERNS.some(p => sourceUrl.includes(p))) return true;
 	if (source === 'bergenbibliotek') {
 		const t = (title || '').toLowerCase();
-		return !BIBLIOTEK_RISKY_TITLE_KEYWORDS.some(kw => t.includes(kw));
+		const isRiskyTitle = BIBLIOTEK_RISKY_TITLE_KEYWORDS.some(kw => t.includes(kw));
+		if (!isRiskyTitle) return true;
+		// Risky title (foredrag, forfatter, …) — slipp gjennom hvis kreditering finnes
+		return !!(imageCredit && CREDIT_UNLOCKS_BLOCKED_TITLE.test(imageCredit));
 	}
 	if (source === 'bergenkommune') {
 		const t = (title || '').toLowerCase();
@@ -446,6 +457,7 @@ export interface ScrapedEvent {
 	source: string;
 	source_url: string;
 	image_url?: string;
+	image_credit?: string;
 	age_group: string;
 	language: string;
 	status: string;
@@ -493,13 +505,15 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 	}
 
 	// Only allow images from sources/URLs/titles with explicit written permission.
-	if (event.image_url && !isImageAllowed(event.source, event.source_url, event.title_no, event.venue_name, event.image_url)) {
+	if (event.image_url && !isImageAllowed(event.source, event.source_url, event.title_no, event.venue_name, event.image_url, event.image_credit)) {
 		event.image_url = undefined;
+		event.image_credit = undefined;
 	}
 
 	// Respekter tekniske sperrer (VG Bild-Kunst C-392/19).
 	if (event.image_url && !(await verifyHotlinkable(event.image_url))) {
 		event.image_url = undefined;
+		event.image_credit = undefined;
 	}
 
 	if (isOptedOut(event.source_url)) {

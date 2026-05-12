@@ -38,6 +38,7 @@ export interface GaariEvent {
 	source?: string;
 	source_url?: string;
 	image_url?: string;
+	image_credit?: string;
 	age_group: AgeGroup;
 	language: EventLanguage;
 	status: EventStatus;

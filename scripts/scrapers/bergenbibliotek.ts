@@ -62,8 +62,39 @@ function libraryBydel(location: string): string {
 	return 'Sentrum';
 }
 
-/** Fetch detail page — extract price, image, and check body text for non-public keywords */
-async function fetchDetail(url: string): Promise<{ price: string; nonPublic: boolean; imageUrl?: string }> {
+/**
+ * Extract image credit from detail page body text. Camilla (kommunikasjonsrådgiver
+ * Bergen offentlige bibliotek) bekreftet 2026-05-12: kreditering står "under bildet
+ * i kalenderen" når den finnes, men "glipper innimellom". Trygge kategorier:
+ *   - "Ragnar Rørnes" (bibliotekets faste illustratør) — fritt å bruke
+ *   - "Unsplash" — fritt å bruke
+ *   - Forfatterportretter fra forlag — OK med fotografkreditering
+ *   - Bibliotekets egne bilder — OK
+ * Eksterne arrangører har vi ikke videredistribusjonsrett på.
+ */
+function extractImageCredit($: cheerio.CheerioAPI): string | undefined {
+	// Look at non-empty img alt/title attributes inside content figures
+	const figureImg = $('figure img').first();
+	const alt = (figureImg.attr('alt') || '').trim();
+	if (alt && /foto|fotograf|illustrasjon|illustrasjonsfoto|©/i.test(alt)) {
+		return alt;
+	}
+
+	// Search visible body text for credit lines
+	const bodyText = $('main').text().replace(/\s+/g, ' ').trim();
+	// "Foto: Navn Navnesen" / "Fotograf: Navn" / "Illustrasjon: Navn"
+	const photoMatch = bodyText.match(/(?:Foto|Fotograf|Illustrasjon|Illustrasjonsfoto)\s*:\s*([^.\n,()]{2,80})/i);
+	if (photoMatch) return photoMatch[0].trim();
+	// "Illustrasjon av Ragnar Rørnes" pattern
+	const ragnarMatch = bodyText.match(/Ragnar\s+R(?:ø|o)rnes/i);
+	if (ragnarMatch) return `Illustrasjon: Ragnar Rørnes`;
+	// "Bilde: Unsplash" eller "Foto fra Unsplash"
+	if (/Unsplash/i.test(bodyText)) return 'Bilde: Unsplash';
+	return undefined;
+}
+
+/** Fetch detail page — extract price, image, credit, and check body text for non-public keywords */
+async function fetchDetail(url: string): Promise<{ price: string; nonPublic: boolean; imageUrl?: string; imageCredit?: string }> {
 	const html = await fetchHTML(url);
 	if (!html) return { price: 'Gratis', nonPublic: false };
 	const $ = cheerio.load(html);
@@ -79,10 +110,12 @@ async function fetchDetail(url: string): Promise<{ price: string; nonPublic: boo
 	const stableOg = ogImages.find(u => u.includes('@@download/'));
 	const imageUrl = twitterImage || stableOg || ogImages.find(u => u.includes('@@images/')) || undefined;
 
+	const imageCredit = imageUrl ? extractImageCredit($) : undefined;
+
 	const priceText = $('div.exclude').first().text().trim();
-	if (!priceText) return { price: 'Gratis', nonPublic, imageUrl };
-	if (/gratis|free/i.test(priceText)) return { price: 'Gratis', nonPublic, imageUrl };
-	return { price: priceText, nonPublic, imageUrl };
+	if (!priceText) return { price: 'Gratis', nonPublic, imageUrl, imageCredit };
+	if (/gratis|free/i.test(priceText)) return { price: 'Gratis', nonPublic, imageUrl, imageCredit };
+	return { price: priceText, nonPublic, imageUrl, imageCredit };
 }
 
 /** Extract image URL from the listing link's background-image style */
@@ -201,6 +234,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const price = detail.price;
 		// Prefer detail page og:image (Plone keeps it current) over listing CSS background
 		const imageUrl = detail.imageUrl || listingImage;
+		const imageCredit = detail.imageCredit;
 
 		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, price });
 
@@ -221,6 +255,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: imageUrl,
+			image_credit: imageCredit,
 			age_group: category === 'family' ? 'family' : 'all',
 			language: 'no',
 			status: 'approved',
