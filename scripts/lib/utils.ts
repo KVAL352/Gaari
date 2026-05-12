@@ -635,6 +635,30 @@ export async function removeExpiredEvents(): Promise<{ deleted: number; slugs: s
 	return { deleted, slugs: allSlugs };
 }
 
+// Sources whose scrapers have been disabled. Any events still tagged with these
+// sources are stale — drop them at the start of every pipeline run so they don't
+// linger on collection pages. Note: scraper-health.ts has its own narrower list
+// for filtering historical scraper_runs rows.
+export const DISABLED_SOURCES = ['bergenlive', 'oseana', 'barnasnorge', 'eventbrite', 'kulturikveld'];
+
+export async function removeDisabledSourceEvents(): Promise<number> {
+	const { data } = await supabase
+		.from('events')
+		.select('id')
+		.in('source', DISABLED_SOURCES);
+
+	if (!data || data.length === 0) return 0;
+
+	const ids = data.map(e => e.id);
+	let deleted = 0;
+	for (let i = 0; i < ids.length; i += 100) {
+		const batch = ids.slice(i, i + 100);
+		const { error } = await supabase.from('events').delete().in('id', batch);
+		if (!error) deleted += batch.length;
+	}
+	return deleted;
+}
+
 // Scrapers that set date_start/date_end to discrete show dates (first/last performance).
 // When the first show passes, the event shows a stale date — delete so the scraper
 // re-inserts with the next future show date.

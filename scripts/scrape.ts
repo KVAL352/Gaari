@@ -67,7 +67,7 @@ import { scrape as scrapeLoddefjord } from './scrapers/loddefjord.js';
 import { scrape as scrapeGenerasjonsfestivalen } from './scrapers/generasjonsfestivalen.js';
 import { writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
-import { removeExpiredEvents, refreshStaleMultiDateEvents, loadOptOuts, getOptOutDomains, loadExistingUrls } from './lib/utils.js';
+import { removeExpiredEvents, refreshStaleMultiDateEvents, removeDisabledSourceEvents, loadOptOuts, getOptOutDomains, loadExistingUrls } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 import { enrichRecurringTitles } from './lib/enrich-titles.js';
 import { supabase } from './lib/supabase.js';
@@ -245,6 +245,9 @@ async function main() {
 
 		staleRefreshed = await refreshStaleMultiDateEvents();
 		if (staleRefreshed > 0) console.log(`Refreshed ${staleRefreshed} multi-date events with stale start dates`);
+
+		const disabledRemoved = await removeDisabledSourceEvents();
+		if (disabledRemoved > 0) console.log(`Removed ${disabledRemoved} events from disabled sources`);
 		console.log();
 	} catch (err: any) {
 		console.error(`Failed to remove expired events: ${err.message}`);
