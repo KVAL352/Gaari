@@ -361,6 +361,18 @@ export async function eventHasImage(sourceUrl: string): Promise<boolean> {
 	return !!(data && data[0]?.image_url);
 }
 
+// Status for self-healing — one query, both flags. Use this when a scraper may
+// want to backfill either field to avoid two round-trips.
+export async function getEventImageStatus(sourceUrl: string): Promise<{ hasImage: boolean; hasCredit: boolean }> {
+	const { data } = await supabase
+		.from('events')
+		.select('image_url, image_credit')
+		.eq('source_url', sourceUrl)
+		.limit(1);
+	const row = data?.[0];
+	return { hasImage: !!row?.image_url, hasCredit: !!row?.image_credit };
+}
+
 // Update image_url for an existing event, only if currently null (safe for concurrent scrapes).
 // Honors the same allowlist as insertEvent — refuses to set image on unapproved events.
 export async function updateEventImage(sourceUrl: string, imageUrl: string): Promise<boolean> {
@@ -382,6 +394,24 @@ export async function updateEventImage(sourceUrl: string, imageUrl: string): Pro
 		.select('id');
 	if (error) {
 		console.error(`  Failed to update image for ${sourceUrl}:`, error.message);
+		return false;
+	}
+	return (data && data.length > 0) || false;
+}
+
+// Update image_credit for an existing event, only if currently null.
+// Caller is responsible for verifying credit makes sense for the image.
+export async function updateEventCredit(sourceUrl: string, credit: string): Promise<boolean> {
+	const trimmed = credit.trim().slice(0, 200);
+	if (!trimmed) return false;
+	const { data, error } = await supabase
+		.from('events')
+		.update({ image_credit: trimmed })
+		.eq('source_url', sourceUrl)
+		.is('image_credit', null)
+		.select('id');
+	if (error) {
+		console.error(`  Failed to update credit for ${sourceUrl}:`, error.message);
 		return false;
 	}
 	return (data && data.length > 0) || false;

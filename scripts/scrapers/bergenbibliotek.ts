@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, eventHasImage, updateEventImage, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, getEventImageStatus, updateEventImage, updateEventCredit, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenbibliotek';
@@ -72,7 +72,13 @@ function libraryBydel(location: string): string {
  *   - Bibliotekets egne bilder — OK
  * Eksterne arrangører har vi ikke videredistribusjonsrett på.
  */
-function extractImageCredit($: cheerio.CheerioAPI): string | undefined {
+function extractImageCredit($: cheerio.CheerioAPI, imageUrl?: string): string | undefined {
+	// Unsplash photos uploaded via the standard download flow keep `-unsplash` in
+	// the filename. This is the most reliable signal — body text rarely repeats it.
+	if (imageUrl && /-unsplash\.(jpe?g|png|webp)(?:$|[?#])/i.test(imageUrl)) {
+		return 'Bilde: Unsplash';
+	}
+
 	// Look at non-empty img alt/title attributes inside content figures
 	const figureImg = $('figure img').first();
 	const alt = (figureImg.attr('alt') || '').trim();
@@ -80,8 +86,9 @@ function extractImageCredit($: cheerio.CheerioAPI): string | undefined {
 		return alt;
 	}
 
-	// Search visible body text for credit lines
-	const bodyText = $('main').text().replace(/\s+/g, ' ').trim();
+	// Search visible body text for credit lines. Use 'body' (not 'main') because
+	// Plone places credit lines inside sidebar/aside elements on some templates.
+	const bodyText = $('body').text().replace(/\s+/g, ' ').trim();
 	// "Foto: Navn Navnesen" / "Fotograf: Navn" / "Illustrasjon: Navn"
 	const photoMatch = bodyText.match(/(?:Foto|Fotograf|Illustrasjon|Illustrasjonsfoto)\s*:\s*([^.\n,()]{2,80})/i);
 	if (photoMatch) return photoMatch[0].trim();
@@ -110,7 +117,9 @@ async function fetchDetail(url: string): Promise<{ price: string; nonPublic: boo
 	const stableOg = ogImages.find(u => u.includes('@@download/'));
 	const imageUrl = twitterImage || stableOg || ogImages.find(u => u.includes('@@images/')) || undefined;
 
-	const imageCredit = imageUrl ? extractImageCredit($) : undefined;
+	// Always try to extract credit — even if this fetch didn't return an imageUrl,
+	// the caller may pass through to backfill credit for a previously stored image.
+	const imageCredit = extractImageCredit($, imageUrl);
 
 	const priceText = $('div.exclude').first().text().trim();
 	if (!priceText) return { price: 'Gratis', nonPublic, imageUrl, imageCredit };
@@ -204,13 +213,22 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		found++;
 
 		if (await eventExists(sourceUrl)) {
-			// Self-heal: backfill image for events inserted before a past fetchDetail failure
-			if (!(await eventHasImage(sourceUrl))) {
+			// Self-heal: backfill image_url and/or image_credit for events that were
+			// inserted before either field was supported (or before a past fetchDetail failure).
+			const status = await getEventImageStatus(sourceUrl);
+			if (!status.hasImage || !status.hasCredit) {
 				await delay(1000);
 				const detail = await fetchDetail(sourceUrl);
-				const healed = detail.imageUrl || extractListingImage($el);
-				if (healed && await updateEventImage(sourceUrl, healed)) {
-					console.log(`  ↻ [image] ${title}`);
+				if (!status.hasImage) {
+					const healed = detail.imageUrl || extractListingImage($el);
+					if (healed && await updateEventImage(sourceUrl, healed)) {
+						console.log(`  ↻ [image] ${title}`);
+					}
+				}
+				if (!status.hasCredit && detail.imageCredit) {
+					if (await updateEventCredit(sourceUrl, detail.imageCredit)) {
+						console.log(`  ↻ [credit] ${title} — ${detail.imageCredit}`);
+					}
 				}
 			}
 			continue;
