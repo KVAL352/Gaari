@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, getEventImageStatus, updateEventImage, updateEventCredit, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, getEventImageStatus, updateEventImage, updateEventCredit, insertEvent, fetchHTML, delay, bergenOffset, extractImageCredit } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenbibliotek';
@@ -62,46 +62,13 @@ function libraryBydel(location: string): string {
 	return 'Sentrum';
 }
 
-/**
- * Extract image credit from detail page body text. Camilla (kommunikasjonsrådgiver
- * Bergen offentlige bibliotek) bekreftet 2026-05-12: kreditering står "under bildet
- * i kalenderen" når den finnes, men "glipper innimellom". Trygge kategorier:
- *   - "Ragnar Rørnes" (bibliotekets faste illustratør) — fritt å bruke
- *   - "Unsplash" — fritt å bruke
- *   - Forfatterportretter fra forlag — OK med fotografkreditering
- *   - Bibliotekets egne bilder — OK
- * Eksterne arrangører har vi ikke videredistribusjonsrett på.
- */
-function extractImageCredit($: cheerio.CheerioAPI, imageUrl?: string): string | undefined {
-	// Unsplash photos uploaded via the standard download flow keep `-unsplash` in
-	// the filename. This is the most reliable signal — body text rarely repeats it.
-	if (imageUrl && /-unsplash\.(jpe?g|png|webp)(?:$|[?#])/i.test(imageUrl)) {
-		return 'Bilde: Unsplash';
-	}
-
-	// Look at non-empty img alt/title attributes inside content figures
-	const figureImg = $('figure img').first();
-	const alt = (figureImg.attr('alt') || '').trim();
-	if (alt && /foto|fotograf|illustrasjon|illustrasjonsfoto|©/i.test(alt)) {
-		return alt;
-	}
-
-	// Search visible body text for credit lines. Use 'body' (not 'main') because
-	// Plone places credit lines inside sidebar/aside elements on some templates.
-	const bodyText = $('body').text().replace(/\s+/g, ' ').trim();
-	// "Foto: Navn Navnesen" / "Fotograf: Navn" / "Illustrasjon: Navn"
-	const photoMatch = bodyText.match(/(?:Foto|Fotograf|Illustrasjon|Illustrasjonsfoto)\s*:\s*([^.\n,()]{2,80})/i);
-	if (photoMatch) return photoMatch[0].trim();
-	// "Illustrasjon av Ragnar Rørnes" pattern
-	const ragnarMatch = bodyText.match(/Ragnar\s+R(?:ø|o)rnes/i);
-	if (ragnarMatch) return `Illustrasjon: Ragnar Rørnes`;
-	// "Bilde: Unsplash" eller "Foto fra Unsplash"
-	if (/Unsplash/i.test(bodyText)) return 'Bilde: Unsplash';
-	return undefined;
-}
-
-/** Fetch detail page — extract price, image, credit, and check body text for non-public keywords */
-async function fetchDetail(url: string): Promise<{ price: string; nonPublic: boolean; imageUrl?: string; imageCredit?: string }> {
+/** Fetch detail page — extract price, image, credit, and check body text for non-public keywords.
+ *  Credit extraction is generic (see `extractImageCredit` in lib/utils.ts).
+ *  Camilla (kommunikasjonsrådgiver Bergen offentlige bibliotek) bekreftet 2026-05-12 at
+ *  kreditering står "under bildet i kalenderen" når den finnes, men "glipper innimellom".
+ *  Trygge kategorier her er Ragnar Rørnes-illustrasjoner, Unsplash, forfatterportretter
+ *  med fotografkreditering, og bibliotekets egne bilder. */
+async function fetchDetail(url: string, title?: string): Promise<{ price: string; nonPublic: boolean; imageUrl?: string; imageCredit?: string }> {
 	const html = await fetchHTML(url);
 	if (!html) return { price: 'Gratis', nonPublic: false };
 	const $ = cheerio.load(html);
@@ -119,7 +86,7 @@ async function fetchDetail(url: string): Promise<{ price: string; nonPublic: boo
 
 	// Always try to extract credit — even if this fetch didn't return an imageUrl,
 	// the caller may pass through to backfill credit for a previously stored image.
-	const imageCredit = extractImageCredit($, imageUrl);
+	const imageCredit = extractImageCredit($, imageUrl, title);
 
 	const priceText = $('div.exclude').first().text().trim();
 	if (!priceText) return { price: 'Gratis', nonPublic, imageUrl, imageCredit };
@@ -218,7 +185,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			const status = await getEventImageStatus(sourceUrl);
 			if (!status.hasImage || !status.hasCredit) {
 				await delay(1000);
-				const detail = await fetchDetail(sourceUrl);
+				const detail = await fetchDetail(sourceUrl, title);
 				if (!status.hasImage) {
 					const healed = detail.imageUrl || extractListingImage($el);
 					if (healed && await updateEventImage(sourceUrl, healed)) {
@@ -243,7 +210,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		// Fetch detail page for price, image + non-public keyword check
 		await delay(1000);
-		const detail = await fetchDetail(sourceUrl);
+		const detail = await fetchDetail(sourceUrl, title);
 		if (detail.nonPublic) {
 			console.log(`  [skip] ${title} (non-public — detail page)`);
 			found--;

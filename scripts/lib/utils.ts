@@ -1,5 +1,128 @@
+import type * as cheerio from 'cheerio';
 import { supabase } from './supabase.js';
 import { getSourceFallbackImage } from './venues.js';
+
+/**
+ * Generic photo-credit extractor for scrapers that load HTML with cheerio.
+ *
+ * Strategy (first match wins):
+ *   1. Unsplash filename heuristic — `*-unsplash.{jpg,png,webp}` in imageUrl
+ *   2. Figure img alt/title containing photo-credit keywords
+ *   3. Visible body text: "Foto: …" / "Fotograf: …" / "Illustrasjon: …" / "© …"
+ *   4. Known illustrator names (Ragnar Rørnes — Bergen Bibliotek's house illustrator)
+ *
+ * Pass `title` to truncate credit at the event's own title — Plone/WordPress
+ * templates often place the title right after the credit, and the body-text
+ * regex would otherwise slurp it into the captured string.
+ *
+ * Returns undefined when no credit can be found. Output is trimmed and capped at 80 chars.
+ */
+export function extractImageCredit(
+	$: cheerio.CheerioAPI,
+	imageUrl?: string,
+	title?: string
+): string | undefined {
+	// 1. Unsplash detected from image filename — most reliable signal
+	if (imageUrl && /-unsplash\.(jpe?g|png|webp)(?:$|[?#])/i.test(imageUrl)) {
+		return 'Bilde: Unsplash';
+	}
+
+	// 2. Figure img alt/title attribute — only when the value looks like a credit
+	// (starts with "Foto:" / "Fotograf:" / "Illustrasjon:" or contains ©).
+	// "Et foto av en ridende cowboy" is alt text describing the image, not credit,
+	// so we require the keyword at the start with a separator.
+	const figureImg = $('figure img').first();
+	const alt = (figureImg.attr('alt') || '').trim();
+	if (alt && (/^(?:foto|fotograf|illustrasjon|illustrasjonsfoto)\s*[:\-—–]/i.test(alt) || /©/.test(alt))) {
+		const c = cleanCredit(alt, title);
+		if (c) return c;
+	}
+	const imgTitle = (figureImg.attr('title') || '').trim();
+	if (imgTitle && (/^(?:foto|fotograf|illustrasjon|illustrasjonsfoto)\s*[:\-—–]/i.test(imgTitle) || /©/.test(imgTitle))) {
+		const c = cleanCredit(imgTitle, title);
+		if (c) return c;
+	}
+
+	// 3. Body text: "Foto: Navn Navnesen" / "Fotograf: Navn" / "Illustrasjon: Navn"
+	//
+	// Preserve block-level boundaries as newlines so the regex stops at the natural
+	// end of the credit line — otherwise sentences after the credit get slurped in
+	// (e.g. "Foto: Mika Ranta Støttet av Stiftelsen…"). Cheerio's `.text()` would
+	// flatten everything to a single line.
+	$('br, p, div, figcaption, li, footer, aside, h1, h2, h3, h4, h5, h6').each((_i, el) => {
+		$(el).append('\n');
+	});
+	const bodyText = $('body').text().replace(/[ \t]+/g, ' ').replace(/\n+/g, '\n').trim();
+	// Capture stops at newline, comma, or parens. Periods that look like sentence
+	// boundaries (period followed by lowercase or end) also stop; "Off."-style
+	// abbreviation periods (followed by optional whitespace then an uppercase letter)
+	// are allowed through.
+	const photoMatch = bodyText.match(/(?:Foto|Fotograf|Illustrasjon|Illustrasjonsfoto)\s*:\s*((?:\.(?=\s*[A-ZÆØÅ])|[^.\n,()]){2,80})/i);
+	if (photoMatch) {
+		const c = cleanCredit(photoMatch[0], title);
+		if (c) return c;
+	}
+
+	// "Illustrasjon av Ragnar Rørnes" — Bergen Bibliotek's house illustrator
+	if (/Ragnar\s+R(?:ø|o)rnes/i.test(bodyText)) return 'Illustrasjon: Ragnar Rørnes';
+
+	// 4. Unsplash mentioned in body text (e.g. "Bilde fra Unsplash")
+	if (/Unsplash/i.test(bodyText)) return 'Bilde: Unsplash';
+
+	return undefined;
+}
+
+/**
+ * Trim a raw credit string. If the event title appears inside the credit,
+ * truncate before the title — Plone/WP templates often write the title
+ * directly after a "Foto: X" line with no separator, and the body-text regex
+ * captures both. Always cap at 80 chars as a safety net.
+ */
+/** Sentence-starter words that frequently follow a credit line in Norwegian event
+ *  templates (Squarespace, custom CMS). Capture stops here so we don't slurp the
+ *  next paragraph. Lowercase compare. */
+const CREDIT_STOPWORDS = new Set([
+	'waiver', 'ansvarsfraskrivelse', 'ansvarlig',
+	'kjøp', 'kjøpte', 'bestill', 'reduser', 'fribillett',
+	'sponset', 'støttet', 'velkommen', 'åpne', 'lukk', 'bildetekst',
+	'mer', 'pris', 'inkludert', 'gratis', 'praktisk', 'klikk',
+	'programmet', 'forestillingen', 'konserten', 'stykket', 'filmen',
+	'med', 'du', 'vi', 'han', 'hun', 'den', 'det', 'en', 'et', 'av', 'til',
+	'før', 'etter', 'også', 'bien'
+]);
+
+function cleanCredit(raw: string, title?: string): string {
+	let cleaned = raw.trim();
+	if (title && title.length >= 6) {
+		const titleStart = title.slice(0, 12);
+		const idx = cleaned.indexOf(titleStart);
+		if (idx > 4) cleaned = cleaned.slice(0, idx).trim();
+	}
+
+	// Stop at known sentence-starter tokens (Squarespace/custom CMS continuations)
+	// and at any CSS-class-like artefact (`#block-...`).
+	const m = cleaned.match(/^([^:]+:)\s*(.*)$/);
+	if (m) {
+		const prefix = m[1];
+		const tokens = m[2].split(/\s+/);
+		const kept: string[] = [];
+		for (const tok of tokens) {
+			if (tok.startsWith('#')) break;
+			if (CREDIT_STOPWORDS.has(tok.toLowerCase().replace(/[.,;:]+$/, ''))) break;
+			kept.push(tok);
+		}
+		cleaned = `${prefix} ${kept.join(' ')}`.trim();
+	}
+
+	// Drop trailing artefacts: punctuation, dash, colon, pipe, whitespace
+	cleaned = cleaned.replace(/[\s\-:|.,;"]+$/, '').trim();
+
+	// Reject result that is just the prefix with no name (e.g. "Foto" after
+	// title-truncation chewed up the whole captured string).
+	if (/^(?:Foto|Fotograf|Illustrasjon|Illustrasjonsfoto|©)\s*:?\s*$/i.test(cleaned)) return '';
+
+	return cleaned.slice(0, 80);
+}
 
 /**
  * Sources with explicit permission to use their event images.

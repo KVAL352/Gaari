@@ -70,6 +70,7 @@ import { randomUUID } from 'crypto';
 import { removeExpiredEvents, refreshStaleMultiDateEvents, removeDisabledSourceEvents, loadOptOuts, getOptOutDomains, loadExistingUrls } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 import { enrichRecurringTitles } from './lib/enrich-titles.js';
+import { backfillImageCredits } from './lib/credit-backfill.js';
 import { supabase } from './lib/supabase.js';
 
 interface ScraperResult {
@@ -379,6 +380,18 @@ async function main() {
 		console.log(`Scanned ${r.scanned} events, ${r.groups} recurring groups, updated ${r.updated} titles\n`);
 	} catch (err: any) {
 		console.error(`Title enrichment failed: ${err.message}\n`);
+	}
+
+	// Step 3c: Backfill image_credit for events that have an image but no credit yet.
+	// Capped at 60 events/run (~90s) so pipeline stays well under deadline. Bulk
+	// backfill of historical events is run separately via `npx tsx scripts/lib/credit-backfill.ts`.
+	let creditsBackfilled = 0;
+	try {
+		console.log('\n--- Backfilling image credits ---');
+		const r = await backfillImageCredits({ limit: 60 });
+		creditsBackfilled = r.updated;
+	} catch (err: any) {
+		console.error(`Credit backfill failed: ${err.message}\n`);
 	}
 
 	// Step 4: IndexNow ping for updated pages (events + collections + homepage)
