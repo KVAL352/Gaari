@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-05-27",
+    "title": "Sjekk Vercel-dashboard — verifiser effekt av ISR-fikser",
+    "description": "5 dager etter ISR-optimaliseringene (22. mai): event-detalj til 7-dagers expiration, fjernet new Date() fra SSR-output på homepage/collection. Logg inn på vercel.com/kjerstis-projects/usage og sammenlign med utgangspunktet: ISR Reads 644K/1M, ISR Writes 911K/200K, Origin Transfer 8.0/10 GB, Fluid Active CPU 3t11m/4t. Forventet: ISR Writes skal trende ned (gammel cache utløper underveis). Hvis ikke — utvid undersøkelsen til andre ikke-deterministiske kilder."
+  },
+  {
     "date": "2026-06-01",
     "title": "Månedlig Vercel dashboard-sjekk",
     "description": "Logg inn på vercel.com/kjerstis-projects/usage og noter prosent for ISR Reads, Fast Origin Transfer, Fluid Active CPU. Hvis noen er >50% før månedsskiftet — vurder optimaliseringer (sjekk ISR-expirations, sitemap-størrelse, bot-trafikk). Vercel free-tier eksponerer ikke usage via API, så dette må gjøres manuelt. Etter sjekk: flytt reminder til 1. juli."
