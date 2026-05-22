@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-06-09",
+    "title": "Spør Fase 1/2-venues om eksplisitt SoMe-bildebruk",
+    "description": "Hot-link/opt-out-policy gjelder kun visning på gaari.no. For å utvide Tier 1 (PROMO_APPROVED_SOURCES) — særlig nightlife og gratis-events — send en kort epost til Fase 1+2 venues (museumvest, kode, dnt, bodega, bergenfest, olebull, forumscene, generasjonsfestivalen, litthusbergen, beyondthegates, studentbergen, kulturhusetibergen, colonialen, oconnors, stenematglede, floyen, bergenkjott, bymuseet, ostre, bergenfilmklubb, carteblanche, kunsthall, usfverftet, kvarteret) og spør om de ønsker SoMe-promotering. Se [[feedback_promo_only_written_yes.md]] og [[outreach-active.md]]."
+  },
+  {
     "date": "2026-04-20",
     "title": "Ukentlig: post i FB-grupper (Hva skjer i Bergen)",
     "description": "FB-grupper er Gåris #1 trafikkilde (~30% av all trafikk pr. april 2026). Post denne ukens høydepunkter i 'Hva skjer i Bergen' og lignende lokale grupper. Pek til relevant collection (denne-helgen / i-kveld / familiehelg). Etter posting: oppdater denne reminderen til neste søndag."
@@ -95,7 +100,7 @@
     "description": "Sendt 9. april: Fyllingsdalen Teater, DNT Bergen (André), Bymuseet (oppfølging #2), UiB (studentsider). Sjekk innboks for svar. Hvis stille: vurder om det er verdt en siste oppfølging eller om det bør parkeres."
   },
   {
-    "date": "2026-05-01",
+    "date": "2026-06-19",
     "title": "Månedlig AI-synlighetssjekk",
     "description": "Spør Claude: 'sjekk AI-søk posisjonering'. Sjekker: 1) Søk 'hva skjer i Bergen' på ChatGPT, Perplexity, Gemini — siteres gaari.no? 2) Umami ai-referral events siste 30 dager. 3) Bing indeksdekning (Bing Webmaster). 4) GSC-impressions på collection-sider. Etter sjekk: oppdater denne reminderen til 1. juni."
   },
