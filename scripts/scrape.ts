@@ -14,7 +14,7 @@ import { scrape as scrapeBorealis } from './scrapers/borealis.js';
 import { scrape as scrapeTicketCo } from './scrapers/ticketco.js';
 import { scrape as scrapeHoopla } from './scrapers/hoopla.js';
 // Tikkio: waiting for permission — email sent 2026-02-27
-// import { scrape as scrapeTikkio } from './scrapers/tikkio.js';
+import { scrape as scrapeTikkio } from './scrapers/tikkio.js';
 import { scrape as scrapeNordnesSjobad } from './scrapers/nordnessjobad.js';
 import { scrape as scrapeRaabrent } from './scrapers/raabrent.js';
 import { scrape as scrapeBergenChamber } from './scrapers/bergenchamber.js';
@@ -91,7 +91,7 @@ export const scrapers: Record<string, () => Promise<{ found: number; inserted: n
 	// barnasnorge: scrapeBarnasNorge, // Disabled — see import comment above
 	borealis: scrapeBorealis,
 	hoopla: scrapeHoopla,
-	// tikkio: scrapeTikkio, // Waiting for permission — email sent 2026-02-27
+	tikkio: scrapeTikkio,
 	nordnessjobad: scrapeNordnesSjobad,
 	raabrent: scrapeRaabrent,
 	colonialen: scrapeColonialen,

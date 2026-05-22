@@ -185,6 +185,9 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	// Fase 3 aktivert 2026-05-11 (aggregatorer). Plattformer notifisert samme dag.
 	// Filtreres ytterligere av IMAGE_BLOCKED_VENUES nedenfor (Hulen sa nei).
 	'billetto', 'ticketco',
+	// Tikkio Public Discovery API lansert 2026-05-19 (Yngvar @ Tikkio): API-en
+	// returnerer image_url på cdn.tikkio.com — implisitt godkjent for discovery-bruk.
+	'tikkio',
 ]);
 
 /**
