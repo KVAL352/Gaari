@@ -63,7 +63,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 ## Hosting & domains
 
-- **Vercel** (SvelteKit adapter). ISR (1h) on homepage, collections, and event detail pages via `export const config = { isr: { expiration: 3600 } }`.
+- **Vercel** (SvelteKit adapter). ISR via `export const config = { isr: { expiration: SECONDS } }` — 1h on homepage and collections (time-sensitive listings), 24h on event detail pages (rarely change after creation, dominate Vercel free-tier ISR usage).
 - `gaari.no` + `gåri.no` (IDN redirect via `hooks.server.ts`)
 - Umami Cloud analytics (proxied via `/u/`). Favicon: red "G" SVG.
 
