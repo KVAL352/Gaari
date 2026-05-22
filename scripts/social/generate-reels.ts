@@ -16,6 +16,7 @@ import { writeFileSync, mkdirSync, existsSync, unlinkSync, readFileSync } from '
 import { resolve } from 'path';
 import { execSync } from 'child_process';
 import { supabase } from '../lib/supabase.js';
+import { isPromoApproved, PROMO_APPROVED_SOURCES } from '../lib/utils.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
@@ -110,6 +111,7 @@ interface ReelDelivery {
 	frameCount: number;
 	durationSec: number;
 	storyCount: number;
+	pickedEventIds: string[];
 }
 
 /** Send a mobile-optimized email so the user can download the MP4 and copy the caption. */
@@ -221,8 +223,10 @@ export async function generateOneCollection(opts: {
 	activeEvents: GaariEvent[];
 	tmpDir: string;
 	dryRun?: boolean;
+	/** Event IDs already picked earlier in this run — deprioritise to avoid same-week duplicates. */
+	excludedEventIds?: Set<string>;
 }): Promise<ReelDelivery | null> {
-	const { slug, dateStr, now, activeEvents, tmpDir, dryRun = false } = opts;
+	const { slug, dateStr, now, activeEvents, tmpDir, dryRun = false, excludedEventIds } = opts;
 	console.log(`--- ${slug} (${dateStr}) ---`);
 	const collection = getCollection(slug);
 	if (!collection) {
@@ -237,12 +241,13 @@ export async function generateOneCollection(opts: {
 	}
 
 	const recentlyPosted = await getRecentlyPostedIds(slug);
-	if (recentlyPosted.size > 0) {
-		console.log(`  ${recentlyPosted.size} events posted recently (deprioritised)`);
+	const combined = new Set<string>([...recentlyPosted, ...(excludedEventIds ?? [])]);
+	if (combined.size > 0) {
+		console.log(`  ${combined.size} events deprioritised (${recentlyPosted.size} from DB + ${excludedEventIds?.size ?? 0} from same-run picks)`);
 	}
-	const selected = pickDiverseEvents(filtered, 8, { recentlyPosted });
-	if (selected.length < 4) {
-		console.log(`  Only ${selected.length} events with images, need 4. Skipping.\n`);
+	const selected = pickDiverseEvents(filtered, 8, { recentlyPosted: combined });
+	if (selected.length < 5) {
+		console.log(`  Only ${selected.length} events with images, need 5. Skipping.\n`);
 		return null;
 	}
 
@@ -434,7 +439,8 @@ export async function generateOneCollection(opts: {
 			caption,
 			frameCount: frames.length,
 			durationSec: frames.length * FRAME_DURATION,
-			storyCount: storyManifest.length
+			storyCount: storyManifest.length,
+			pickedEventIds: selected.map(e => e.id!).filter(Boolean)
 		};
 	}
 
@@ -476,7 +482,12 @@ export async function fetchActiveEvents(): Promise<GaariEvent[]> {
 	if (error || !data) {
 		throw new Error(`Failed to fetch events: ${error?.message}`);
 	}
-	return (data as any).filter((e: any) => e.status !== 'cancelled') as GaariEvent[];
+	const all = (data as any).filter((e: any) => e.status !== 'cancelled') as GaariEvent[];
+	// SoMe-content kun fra kilder med skriftlig ja til bildebruk.
+	// Hot-link-policy (Fase 1+2+3) gjelder visning på gaari.no, ikke aktiv promo.
+	const promo = all.filter(e => isPromoApproved(e.source));
+	console.log(`  Fetched ${all.length} active events, ${promo.length} promo-eligible (${PROMO_APPROVED_SOURCES.size} kilder med skriftlig ja)`);
+	return promo;
 }
 
 async function main() {
@@ -510,7 +521,10 @@ async function main() {
 	console.log('Done.');
 }
 
-main().catch(err => {
-	console.error(err);
-	process.exit(1);
-});
+// Only run main() when invoked directly — not when imported (e.g., by generate-week.ts).
+if (process.argv[1]?.includes('generate-reels')) {
+	main().catch(err => {
+		console.error(err);
+		process.exit(1);
+	});
+}

@@ -1,5 +1,6 @@
 import { writeFileSync } from 'fs';
 import { supabase } from '../lib/supabase.js';
+import { isPromoApproved, PROMO_APPROVED_SOURCES } from '../lib/utils.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
@@ -127,7 +128,7 @@ function getCategoryHashtags(events: Array<{ category: string }>): string[] {
 }
 
 const MAX_CAROUSEL_EVENTS = 8;
-const MIN_IMAGES_FOR_POST = 4;
+const MIN_IMAGES_FOR_POST = 5;
 
 /**
  * B2B prospects that get hard-capped to 1 post per week UNLESS they become
@@ -153,7 +154,7 @@ async function fetchEvents(): Promise<GaariEvent[]> {
 
 	const { data, error } = await supabase
 		.from('events')
-		.select('id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status')
+		.select('id,source,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status')
 		.in('status', ['approved', 'cancelled'])
 		.gte('date_start', nowOslo)
 		.order('date_start', { ascending: true })
@@ -162,10 +163,14 @@ async function fetchEvents(): Promise<GaariEvent[]> {
 	if (error) throw new Error(`Supabase query failed: ${error.message}`);
 	if (!data || data.length === 0) return [];
 
-	return data.map(e => ({
+	const mapped = data.map(e => ({
 		...e,
 		price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
 	}));
+	// SoMe-content kun fra kilder med skriftlig ja til bildebruk.
+	const promo = mapped.filter(e => isPromoApproved((e as any).source));
+	console.log(`  Fetched ${mapped.length} events, ${promo.length} promo-eligible (${PROMO_APPROVED_SOURCES.size} kilder)`);
+	return promo as any;
 }
 
 async function uploadToStorage(path: string, buffer: Buffer, contentType: string): Promise<string> {

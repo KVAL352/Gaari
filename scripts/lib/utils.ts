@@ -125,6 +125,35 @@ function cleanCredit(raw: string, title?: string): string {
 }
 
 /**
+ * Sources with skriftlig ja til å bruke bildene i aktiv promotering (SoMe,
+ * nyhetsbrev-headliner, FB-gruppe-posts). Subset of IMAGE_APPROVED_SOURCES —
+ * krever eksplisitt e-postbekreftelse, ikke hot-link/opt-out-policy.
+ *
+ * IMAGE_APPROVED_SOURCES brukes for å vise bilder på gaari.no (legal display
+ * under hot-link-policy). PROMO_APPROVED_SOURCES brukes for å sende bilder ut
+ * i SoMe-feeds der vi aktivt promoterer arrangementet.
+ */
+export const PROMO_APPROVED_SOURCES = new Set<string>([
+	'gg-bergen', // Bilder levert direkte av venue
+	'artlab-manual', // Bilder levert direkte av venue
+	'brettspill', // Fixed Meetup group photo, owned by club
+	'festspillene', // Christopher Brandt bekreftet 2026-04-19
+	'cornerteateret', // Millan Persdotter Persson bekreftet 2026-04-20
+	'dns', // Annette Stople bekreftet 2026-04-20
+	'grieghallen', // Lene Meyer Barnes bekreftet 2026-04-20
+	'akvariet', // Ingvild (Markedskoordinator) bekreftet 2026-04-21
+	'biff', // Ingebjørg Aarhus Braseth bekreftet 2026-04-21
+	'bitteater', // İrem Müftüoğlu bekreftet 2026-04-22
+	'fyllingsdalenteater', // Yasmin Kamalkhani bekreftet 2026-04-22
+	'visningsromusf', // Line Nord bekreftet 2026-05-07 via B2B-skjema
+	'loddefjord', // Marjolein Roozen (Bergen Kommune) bekreftet 2026-04-23
+]);
+
+export function isPromoApproved(source: string): boolean {
+	return PROMO_APPROVED_SOURCES.has(source);
+}
+
+/**
  * Sources with explicit permission to use their event images.
  * ALL other sources have images stripped at insert time.
  * Add sources here only after receiving written image usage permission.

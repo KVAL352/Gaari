@@ -82,10 +82,10 @@ interface DaySchedule {
 
 const SCHEDULE_BY_DOW = new Map<number, DaySchedule>([
 	[1, { dayOfWeek: 1, dayName: { no: 'Mandag', en: 'Monday' }, slug: 'gratis', label: 'Gratis denne uka' }],
-	[2, { dayOfWeek: 2, dayName: { no: 'Tirsdag', en: 'Tuesday' }, slug: 'teater', label: 'Teater denne uka' }],
-	[3, { dayOfWeek: 3, dayName: { no: 'Onsdag', en: 'Wednesday' }, slug: 'utstillinger', label: 'Utstillinger denne uka' }],
+	[2, { dayOfWeek: 2, dayName: { no: 'Tirsdag', en: 'Tuesday' }, slug: 'utstillinger', label: 'Utstillinger denne uka' }],
+	[3, { dayOfWeek: 3, dayName: { no: 'Onsdag', en: 'Wednesday' }, slug: 'teater', label: 'Teater denne uka' }],
 	[4, { dayOfWeek: 4, dayName: { no: 'Torsdag', en: 'Thursday' }, slug: 'denne-helgen', label: 'Helgens høydepunkter' }],
-	[5, { dayOfWeek: 5, dayName: { no: 'Fredag', en: 'Friday' }, slug: 'uteliv', label: 'Uteliv i helgen' }],
+	[5, { dayOfWeek: 5, dayName: { no: 'Fredag', en: 'Friday' }, slug: 'denne-helgen', label: 'Helgen begynner' }],
 	[6, { dayOfWeek: 6, dayName: { no: 'Lørdag', en: 'Saturday' }, slug: 'i-dag', label: 'Lørdagens program' }]
 ]);
 
@@ -858,6 +858,9 @@ async function main() {
 	console.log(`Fetched ${activeEvents.length} active events\n`);
 
 	const days: DayManifest[] = [];
+	// Akkumulert sett av event-IDer plukket tidligere i denne kjøringen.
+	// Sendes til generateOneCollection så samme event ikke ender på to dager.
+	const pickedThisRun = new Set<string>();
 
 	for (const dateStr of dates) {
 		const dow = isoDayOfWeek(dateStr); // 1=Mon..7=Sun
@@ -875,8 +878,13 @@ async function main() {
 			now,
 			activeEvents,
 			tmpDir,
-			dryRun: false
+			dryRun: false,
+			excludedEventIds: pickedThisRun
 		});
+
+		if (delivery?.pickedEventIds) {
+			for (const id of delivery.pickedEventIds) pickedThisRun.add(id);
+		}
 
 		if (delivery) {
 			days.push({
