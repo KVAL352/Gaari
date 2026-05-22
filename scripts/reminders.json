@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-06-01",
+    "title": "Månedlig Vercel dashboard-sjekk",
+    "description": "Logg inn på vercel.com/kjerstis-projects/usage og noter prosent for ISR Reads, Fast Origin Transfer, Fluid Active CPU. Hvis noen er >50% før månedsskiftet — vurder optimaliseringer (sjekk ISR-expirations, sitemap-størrelse, bot-trafikk). Vercel free-tier eksponerer ikke usage via API, så dette må gjøres manuelt. Etter sjekk: flytt reminder til 1. juli."
+  },
+  {
     "date": "2026-06-09",
     "title": "Spør Fase 1/2-venues om eksplisitt SoMe-bildebruk",
     "description": "Hot-link/opt-out-policy gjelder kun visning på gaari.no. For å utvide Tier 1 (PROMO_APPROVED_SOURCES) — særlig nightlife og gratis-events — send en kort epost til Fase 1+2 venues (museumvest, kode, dnt, bodega, bergenfest, olebull, forumscene, generasjonsfestivalen, litthusbergen, beyondthegates, studentbergen, kulturhusetibergen, colonialen, oconnors, stenematglede, floyen, bergenkjott, bymuseet, ostre, bergenfilmklubb, carteblanche, kunsthall, usfverftet, kvarteret) og spør om de ønsker SoMe-promotering. Se [[feedback_promo_only_written_yes.md]] og [[outreach-active.md]]."

@@ -48,6 +48,7 @@ Run all morning checks in parallel, then present a single unified briefing.
 3. **Quick memory lint** — run a lightweight check (no full lint, just critical issues):
    - Check that all files in MEMORY.md exist on disk
    - Flag any project-type memory files where `last_verified` in frontmatter is >21 days old
+4. **Vercel-status** — Som del av email-sjekken, søk inboksen via `mcp__protonmail__search_emails` med query "Approaching your limits" (fra notifications@vercel.com). Hent eposter fra siste 30 dager. Trekk ut prosent og metric-navn fra emnefeltet/innholdet. Flagg i briefingen som "Vercel: X % [metric], Y % [metric]" hvis noen finnes. Vercel free-tier eksponerer ikke usage via API, så epost-alarmene er vår eneste signal.
 
 ## Briefing format
 
@@ -82,6 +83,10 @@ Present everything as one compact briefing:
 
 ### Sosiale medier
 - Siste FB/IG-posting: status + tidspunkt
+
+### Vercel-status
+- Hvis alarm-eposter finnes siste 30 dager: list metrikker og prosenter
+- Hvis ingen alarmer: "Ingen alarmer siste 30 dager" (én linje)
 
 ### Kode
 - Branch: <current>
