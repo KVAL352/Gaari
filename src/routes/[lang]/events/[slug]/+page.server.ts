@@ -16,11 +16,13 @@ function mapPrice(e: Record<string, unknown>): GaariEvent {
 }
 
 export const config = {
-	// 24h ISR on event detail pages: ~1900 unique URLs × crawl-driven revalidation
-	// is the main driver of ISR Reads + CPU on Vercel free tier. Event-detail
-	// content (title, date, venue, AI desc) changes very rarely after creation,
-	// so 24h is safe. Listings stay at 1h since "today's events" is time-sensitive.
-	isr: { expiration: 86400 }
+	// 7-day ISR on event detail pages: ~1900 unique URLs × 2 languages × crawl-
+	// driven revalidation drove ISR Writes 4.5× over Vercel Hobby tier (200K/mo).
+	// Event-detail content (title, date, venue, AI desc) is effectively
+	// immutable after creation — corrections come via admin edit which triggers
+	// on-demand revalidation. 7 days cuts writes per URL ~7× vs daily refresh.
+	// Listings (homepage/collections) stay at 1h since they're time-sensitive.
+	isr: { expiration: 604800 }
 };
 
 export const load: PageServerLoad = async ({ params, setHeaders }) => {
