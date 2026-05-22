@@ -237,7 +237,7 @@
 			? `Hva skjer i Bergen? Konserter, utstillinger, teater, mat og mer. Oppdatert daglig fra ${SOURCE_COUNT} lokale kilder.`
 			: `What\u2019s on in Bergen? Concerts, exhibitions, theatre, food and more. Updated daily from ${SOURCE_COUNT} local sources.`,
 		url: getCanonicalUrl(`/${$lang}`),
-		dateModified: new Date().toISOString().slice(0, 10),
+		dateModified: data.dateModified,
 		publisher: { '@type': 'Organization', name: 'Gåri', url: 'https://gaari.no' },
 		numberOfItems: allEvents.length,
 		mainEntity: {
@@ -363,7 +363,7 @@
 	<meta property="og:image" content={`${page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
-	<meta property="article:modified_time" content={new Date().toISOString()} />
+	<meta property="article:modified_time" content={`${data.dateModified}T00:00:00Z`} />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={$t('homeSeoTitle')} />
 	<meta name="twitter:description" content={homeDescription} />

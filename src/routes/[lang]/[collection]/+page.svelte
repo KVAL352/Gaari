@@ -96,7 +96,7 @@
 		headline: title,
 		description: descriptionBase,
 		url: canonicalUrl,
-		dateModified: new Date().toISOString().slice(0, 10),
+		dateModified: data.dateModified,
 		author: { '@type': 'Organization', name: 'Gåri', url: 'https://gaari.no' },
 		publisher: { '@type': 'Organization', name: 'Gåri', url: 'https://gaari.no' },
 		inLanguage: ssrLang === 'no' ? 'nb' : 'en',
@@ -225,7 +225,7 @@
 	<meta property="og:image" content={`${$page.url.origin}/og/c/${data.collection.slug}.png${ssrLang === 'en' ? '?lang=en' : ''}`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
-	<meta property="article:modified_time" content={new Date().toISOString()} />
+	<meta property="article:modified_time" content={`${data.dateModified}T00:00:00Z`} />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={`${title} — Gåri`} />
 	<meta name="twitter:description" content={description} />
@@ -254,7 +254,7 @@
 	{/if}
 	<p class="mt-2 flex flex-wrap gap-x-2 text-xs text-[var(--color-text-muted)]">
 		<span>{filteredEvents.length} {$t('events')}{venueCount > 1 ? ` ${$lang === 'no' ? 'fra' : 'from'} ${venueCount} ${$lang === 'no' ? 'scener' : 'venues'}` : ''}</span>
-		<span>· {$lang === 'no' ? 'Sist sjekket' : 'Last checked'} {new Date().toLocaleDateString($lang === 'no' ? 'nb-NO' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+		<span>· {$lang === 'no' ? 'Sist sjekket' : 'Last checked'} {new Date(`${data.dateModified}T00:00:00Z`).toLocaleDateString($lang === 'no' ? 'nb-NO' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
 	</p>
 </section>
 

@@ -11,6 +11,10 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 	setHeaders({ 'cache-control': 's-maxage=3600, stale-while-revalidate=7200' });
 
 	const lang = params.lang === 'en' ? 'en' : 'no';
+	// Date-only (YYYY-MM-DD) — stable across same-day ISR revalidations, prevents
+	// non-deterministic ISR Writes triggered by full-ISO timestamps in JSON-LD
+	// and article:modified_time meta tags.
+	const dateModified = new Date().toISOString().slice(0, 10);
 
 	try {
 		// Use UTC — date_start is stored as UTC (timestamptz) in Supabase
@@ -73,14 +77,14 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 				return true;
 			});
 
-			return { events, source: 'supabase' as const, lang };
+			return { events, source: 'supabase' as const, lang, dateModified };
 		}
 
 		// Empty table — fall back to seed data
-		return { events: seedEvents, source: 'seed' as const, lang };
+		return { events: seedEvents, source: 'seed' as const, lang, dateModified };
 	} catch (err) {
 		// Supabase unreachable — fall back to seed data
 		console.error('Supabase load failed:', err);
-		return { events: seedEvents, source: 'seed' as const, lang };
+		return { events: seedEvents, source: 'seed' as const, lang, dateModified };
 	}
 };

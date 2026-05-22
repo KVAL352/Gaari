@@ -200,6 +200,9 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 		promotedEventIds,
 		placementForEvent,
 		lang: params.lang as 'no' | 'en',
+		// Date-only (YYYY-MM-DD) — stable across same-day ISR revalidations, prevents
+		// non-deterministic ISR Writes triggered by full-ISO timestamps in templates.
+		dateModified: new Date().toISOString().slice(0, 10),
 		hreflangPaths: (() => {
 			const slugs = getHreflangSlugs(collection.slug);
 			return { no: `/no/${slugs.no}`, en: `/en/${slugs.en}` };
