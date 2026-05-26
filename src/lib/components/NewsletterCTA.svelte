@@ -241,6 +241,11 @@
 				{@render pillRow()}
 			{/if}
 
+			<p class="mt-3 text-xs text-[var(--color-text-secondary)]">
+				{$t('nlPrivacyNote')}
+				<a href="/{$lang}/personvern" class="underline hover:text-[var(--color-text-primary)]">{$t('nlPrivacyNoteLink')}</a>.
+			</p>
+
 			{#if status === 'error'}
 				<p class="mt-2 text-sm text-[var(--funkis-red)]" role="alert">{errorMessage}</p>
 			{/if}
@@ -303,6 +308,11 @@
 				{@render pillRow()}
 			</div>
 		{/if}
+
+		<p class="mx-auto mt-3 max-w-md text-center text-xs text-[var(--color-text-secondary)]">
+			{$t('nlPrivacyNote')}
+			<a href="/{$lang}/personvern" class="underline hover:text-[var(--color-text-primary)]">{$t('nlPrivacyNoteLink')}</a>.
+		</p>
 
 		{#if status === 'error'}
 			<p class="mt-2 text-center text-sm text-[var(--funkis-red)]" role="alert">{errorMessage}</p>

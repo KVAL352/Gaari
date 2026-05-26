@@ -47,9 +47,10 @@ export const actions: Actions = {
 			return fail(400, { error: 'id is required' });
 		}
 
+		// GDPR: drop submitter_email at approval — its only purpose was to confirm/reject.
 		const { error } = await supabaseAdmin
 			.from('events')
-			.update({ status: 'approved' })
+			.update({ status: 'approved', submitter_email: null })
 			.eq('id', id);
 
 		if (error) {

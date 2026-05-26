@@ -756,6 +756,10 @@
 							: $t('nlSubscribe')}
 					</button>
 				</form>
+				<p class="nl-privacy">
+					{$t('nlPrivacyNote')}
+					<a href="/{lang}/personvern">{$t('nlPrivacyNoteLink')}</a>.
+				</p>
 				{#if nlStatus === 'error'}
 					<p class="nl-error" role="alert">{lang === 'no' ? 'Noe gikk galt. Prøv igjen.' : 'Something went wrong. Try again.'}</p>
 				{/if}
@@ -1069,6 +1073,21 @@
 	.nl-submit:disabled {
 		opacity: 0.7;
 		cursor: not-allowed;
+	}
+
+	.nl-privacy {
+		font-size: 0.6875rem;
+		color: var(--color-text-secondary);
+		margin: 0.375rem 0 0 0;
+		line-height: 1.4;
+	}
+
+	.nl-privacy a {
+		text-decoration: underline;
+	}
+
+	.nl-privacy a:hover {
+		color: var(--color-text-primary);
 	}
 
 	.nl-error {

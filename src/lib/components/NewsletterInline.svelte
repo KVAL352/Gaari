@@ -64,6 +64,10 @@
 				</button>
 			</div>
 		</form>
+		<p class="mt-2 text-center text-xs text-[var(--color-text-secondary)]">
+			{$t('nlPrivacyNote')}
+			<a href="/{$lang}/personvern" class="underline hover:text-[var(--color-text-primary)]">{$t('nlPrivacyNoteLink')}</a>.
+		</p>
 		{#if status === 'error'}
 			<p class="mt-2 text-center text-sm text-[var(--funkis-red)]" role="alert">
 				{$lang === 'no' ? 'Noe gikk galt. Pr\u00f8v igjen.' : 'Something went wrong. Please try again.'}
