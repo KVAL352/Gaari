@@ -203,31 +203,18 @@
 		<h2 class="mb-3 text-xl font-semibold">
 			{$lang === 'no' ? 'Informasjonskapsler' : 'Cookies'}
 		</h2>
-		<p class="mb-3 leading-relaxed text-[var(--color-text-secondary)]">
-			{$lang === 'no'
-				? 'Gåri bruker ingen sporings- eller markedsføringscookies. Følgende cookies kan settes:'
-				: 'Gåri uses no tracking or marketing cookies. The following cookies may be set:'}
-		</p>
-		<ul class="space-y-2 text-[var(--color-text-secondary)]">
-			<li class="leading-relaxed">
-				<strong>ai_ref</strong> —
-				{#if $lang === 'no'}
-					kortvarig cookie (30 sekunder) som settes hvis du kommer fra en AI-søketjeneste (ChatGPT, Claude, Perplexity, Copilot eller liknende). Brukes utelukkende til å attribuere første-treff til riktig kilde i intern statistikk. Inneholder kun navn på AI-tjenesten, ingen personidentifiserbar informasjon.
-				{:else}
-					short-lived cookie (30 seconds) set if you arrive from an AI search service (ChatGPT, Claude, Perplexity, Copilot or similar). Used solely to attribute the first hit to the correct source in internal statistics. Contains only the AI service name, no personally identifiable information.
-				{/if}
-			</li>
-			<li class="leading-relaxed">
-				<strong>{$lang === 'no' ? 'Admin-øktcookie' : 'Admin session cookie'}</strong> —
-				{$lang === 'no'
-					? 'kun på /admin-sider for innloggede administratorer. Aldri for vanlige besøkende.'
-					: 'only on /admin pages for logged-in administrators. Never for regular visitors.'}
-			</li>
-		</ul>
-		<p class="mt-3 leading-relaxed text-[var(--color-text-secondary)]">
-			{$lang === 'no'
-				? 'Analysetjenesten Umami plasserer ingen cookies.'
-				: 'The Umami analytics service places no cookies.'}
+		<p class="leading-relaxed text-[var(--color-text-secondary)]">
+			{#if $lang === 'no'}
+				Gåri bruker ingen sporings-, analyse- eller markedsføringscookies for vanlige besøkende.
+				Den eneste informasjonskapselen som plasseres er en admin-øktcookie — kun på /admin-sider
+				for innloggede administratorer, aldri for vanlige besøkende. Analysetjenesten Umami
+				plasserer heller ingen cookies. Av samme grunn trenger vi ikke et samtykkebanner.
+			{:else}
+				Gåri uses no tracking, analytics or marketing cookies for regular visitors.
+				The only cookie placed is an admin session cookie — only on /admin pages for
+				logged-in administrators, never for regular visitors. The Umami analytics service
+				also places no cookies. For the same reason, we do not need a consent banner.
+			{/if}
 		</p>
 	</section>
 
