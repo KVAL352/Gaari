@@ -6,6 +6,11 @@
   },
   {
     "date": "2026-06-01",
+    "title": "Send Brann månedsrapport #1 (full mai 2026)",
+    "description": "Mai er ferdig — generer og send full mai-rapport til mads.liabo@brann.no. Kjør: cd scripts && npx tsx generate-venue-report.ts \"Brann Stadion\" --month 2026-05. Sjekk rapporten i nettleser før sending. Husk: rapporten viser kort-klikk og billett-klikk separat — vurder å nevne dette i eposten. Etter sending: marker project_calendar-tasken som done (Brann månedsrapport #1) og oppdater reminder for #2 (16. juni)."
+  },
+  {
+    "date": "2026-06-01",
     "title": "Månedlig Vercel dashboard-sjekk",
     "description": "Logg inn på vercel.com/kjerstis-projects/usage og noter prosent for ISR Reads, Fast Origin Transfer, Fluid Active CPU. Hvis noen er >50% før månedsskiftet — vurder optimaliseringer (sjekk ISR-expirations, sitemap-størrelse, bot-trafikk). Vercel free-tier eksponerer ikke usage via API, så dette må gjøres manuelt. Etter sjekk: flytt reminder til 1. juli."
   },
@@ -30,14 +35,9 @@
     "description": "Brann har nå 14+ dager med klikk-attribusjon. Rapport skal vise 'Plasseringen ga dere X ekstra klikk' (promoted − organic). Kjør: cd scripts && npx tsx generate-venue-report.ts 'Brann Stadion' --month 2026-04. Sjekk at lift-linjen er synlig og tallet er positivt. Hvis promoted = organic = 0: track-click fungerer ikke — debug."
   },
   {
-    "date": "2026-04-28",
-    "title": "Følg opp Tikkio",
-    "description": "Epost sendt 27. februar — forespørsel om scraping-tillatelse. Kun Intercom auto-svar mottatt. Venter på svar — send eventuell oppfølging nå (3 uker etter 7. april). Scraper klar (scripts/scrapers/tikkio.ts)."
-  },
-  {
-    "date": "2026-05-15",
+    "date": "2026-06-09",
     "title": "Sjekk Bergen Street Food eventside",
-    "description": "Fabio (fabio@bergenstreetfood.no) sa eventsiden blir klar ~midten av mai, whitelabeled på bergenstreetfood.no. Sjekk om den er live. Hvis ja: lag scraper. Hvis nei: vent en uke til."
+    "description": "Fabio (fabio@bergenstreetfood.no) sa eventsiden blir klar ~midten av mai, whitelabeled på bergenstreetfood.no. Sjekket 2026-05-26: /program-siden er fortsatt tom (kun header + venue-info, ingen event-listings). Spurte 19. mai om timing — ikke svar ennå. Sjekk på nytt 9. juni; hvis fortsatt tom, vurder direkte purring til Fabio."
   },
   {
     "date": "2026-06-01",
@@ -70,11 +70,6 @@
     "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i borealis.ts. Oppdater også send-daily-digest.ts."
   },
   {
-    "date": "2026-04-27",
-    "title": "Oppdater Akvariet-priser for sommersesongen",
-    "description": "Ingvild (markedskoordinator, post@akvariet.no) bekreftet 23. mars: nye sommerpriser fra 1. mai, gjelder ut august. Tilbake til dagens priser 1. september. Sjekk akvariet.no/kjop-billett og oppdater ADMISSION_PRICE i akvariet.ts. Husk også ettermiddagsbillett-pris."
-  },
-  {
     "date": "2026-08-25",
     "title": "Oppdater Akvariet-priser tilbake til normalpriser",
     "description": "Sommerpriser utløper 31. august. Fra 1. september gjelder dagens priser igjen. Sjekk akvariet.no og oppdater ADMISSION_PRICE i akvariet.ts."
@@ -90,19 +85,9 @@
     "description": "Petr svarte 2026-04-20: lavsesong nov-mars, oppdaterer nettsiden nærmere november for å gjøre events enklere å integrere. Ta kontakt igjen 1. oktober når sesongen nærmer seg — sjekk om API/JSON-LD/statisk liste er på plass, eller tilby hjelp."
   },
   {
-    "date": "2026-04-28",
-    "title": "Følg opp Bodega (Martin Sande)",
-    "description": "Oppfølging #2 sendt 13. april (bildeforespørsel påminnelse). Martin svarte 7. april: tar møte, vil filtrere events, sender bilder. Sjekk innboks: 1) Har bilder kommet? 2) Eventfiltrering? 3) API-nøkkel-rotering? Hvis stille: siste forsøk. (Utsatt fra 2026-04-20 — vi tok nylig kontakt.)"
-  },
-  {
     "date": "2026-04-21",
     "title": "Følg opp Art Lab Bergen (Konstantin)",
     "description": "Konstantin svarte 7. april: positiv, har sendt info om 3 kurs (botanisk akvarell + hyttekos publisert, barnekurs venter på datoer). Sa han skulle teste Wix Events. Sjekk: 1) Har vi fått oppstartsdatoer for barnekurset? 2) Har Wix Events-lenken kommet? 3) Har de lagt Gåri-link i footeren på artlabstudio.no? 13 barnekurs-bilder ligger i C:/Users/kjers/Pictures/artlab-barnekurs-bilder/ klar til bruk."
-  },
-  {
-    "date": "2026-04-27",
-    "title": "Sjekk SEO-effekt av title/description-endringer",
-    "description": "9. april: oppdaterte collection-titler til søkefrase-match ('Hva skjer i Bergen denne helgen/i kveld/i dag'), venue name-dropping i meta descriptions, nye FAQ-items for long-tail (mat-og-drikke, studentkveld, utstillinger, 17-mai). Google bruker 1-3 uker på å oppdatere. Sjekk GSC: har CTR/posisjon endret seg for de berørte sidene? Kjør 'sjekk posisjonering på søk' i Claude."
   },
   {
     "date": "2026-04-23",
