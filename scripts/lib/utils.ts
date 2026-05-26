@@ -178,7 +178,10 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	// Fase 2 hot-link-policy aktivert 2026-05-11 (venues/festivaler med egne ansatte). Varsel sendt samme dag.
 	// verifyHotlinkable() filtrerer ut blokkerte bilder automatisk.
 	'dnt', 'bodega', 'bergenfest', 'olebull', 'forumscene', 'generasjonsfestivalen',
-	'litthusbergen', 'beyondthegates', 'studentbergen', 'kulturhusetibergen',
+	// beyondthegates trukket tilbake 2026-05-26: Torgrim Øyre svarte "Vi kan ikke gi
+	// deg noe entydig svar her. Bilder vi bruker kommer fra mange forskjellige
+	// opphavsmenn." — ikke trygt under hot-link-policy.
+	'litthusbergen', 'studentbergen', 'kulturhusetibergen',
 	'colonialen', 'oconnors', 'stenematglede', 'floyen', 'bergenkjott',
 	'bymuseet', 'ostre', 'bergenfilmklubb', 'carteblanche', 'kunsthall',
 	'usfverftet', 'kvarteret',
@@ -206,6 +209,8 @@ const IMAGE_BLOCKED_VENUE_PATTERNS = [
 	'bergen live', 'bergenlive', // Mats Sævig 2026-04-20: pressebilder fra artist.
 	'sk brann', 'brann stadion', // Mads Liabø 2026-04-19: NTB/Bildbyrån/freelance/presse.
 	'bek ', // BEK (Siren Løkaas) 2026-04-21: kunstnerne eier bildene. Trailing space for å unngå false-match.
+	'mg event', // Pål Roppen 2026-05-06: "Er greit at arrangementene er der. Ikke ha på bilder" — events OK, bilder nei.
+	'beyond the gates', 'beyondthegates', // Torgrim Øyre 2026-05-07: bilder fra mange forskjellige opphavsmenn, ikke entydig tillatelse.
 ];
 
 /**
