@@ -334,24 +334,27 @@ function generateReportHtml(data: ReportData): string {
 		const { promoted, organic, direct, newsletter, social } = clicksByContext;
 		const trackedTotal = promoted + organic + direct + newsletter + social;
 		if (trackedTotal === 0) return '';
+		const cardTotal = promoted + organic;
+		const detailTotal = direct + newsletter + social;
 		const lift = promoted - organic;
 		const multiplier = organic > 0 ? (promoted / organic).toFixed(1) : null;
 		const showLiftSummary = isMature && promoted > 0 && organic > 0;
-		const rows: Array<[string, number, string]> = [
+		const renderRow = ([label, n, color]: [string, number, string]) => `
+			<tr>
+				<td style="padding:10px 16px;border-bottom:1px solid ${FUNKIS.borderSubtle};font-size:14px;color:${color};">${label}</td>
+				<td style="padding:10px 16px;border-bottom:1px solid ${FUNKIS.borderSubtle};font-size:14px;color:${color};text-align:right;font-variant-numeric:tabular-nums;font-weight:600;">${n.toLocaleString('nb-NO')}</td>
+			</tr>`;
+		const cardRows: Array<[string, number, string]> = [
 			['Fra Fremhevet-plassering', promoted, FUNKIS.textPrimary],
-			['Fra vanlig sortering', organic, FUNKIS.textPrimary],
-			['Fra direkte/søk', direct, FUNKIS.textMuted],
-			['Fra nyhetsbrev', newsletter, FUNKIS.textMuted],
-			['Fra sosiale medier', social, FUNKIS.textMuted]
+			['Fra vanlig sortering', organic, FUNKIS.textPrimary]
 		];
-		const rowsHtml = rows
-			.filter(([, n]) => n > 0)
-			.map(([label, n, color]) => `
-				<tr>
-					<td style="padding:10px 16px;border-bottom:1px solid ${FUNKIS.borderSubtle};font-size:14px;color:${color};">${label}</td>
-					<td style="padding:10px 16px;border-bottom:1px solid ${FUNKIS.borderSubtle};font-size:14px;color:${color};text-align:right;font-variant-numeric:tabular-nums;font-weight:600;">${n.toLocaleString('nb-NO')}</td>
-				</tr>`)
-			.join('');
+		const detailRows: Array<[string, number, string]> = [
+			['Fra søk/direkte', direct, FUNKIS.textPrimary],
+			['Fra nyhetsbrev', newsletter, FUNKIS.textPrimary],
+			['Fra sosiale medier', social, FUNKIS.textPrimary]
+		];
+		const cardRowsHtml = cardRows.filter(([, n]) => n > 0).map(renderRow).join('');
+		const detailRowsHtml = detailRows.filter(([, n]) => n > 0).map(renderRow).join('');
 		const liftBlock = showLiftSummary
 			? `<div style="background:${FUNKIS.plaster};padding:14px 16px;border-top:1px solid ${FUNKIS.borderSubtle};">
 					<div style="font-size:15px;color:${FUNKIS.textPrimary};">
@@ -364,18 +367,42 @@ function generateReportHtml(data: ReportData): string {
 			: !isMature
 				? `<div style="background:${FUNKIS.plaster};padding:14px 16px;border-top:1px solid ${FUNKIS.borderSubtle};font-size:13px;color:${FUNKIS.textMuted};font-style:italic;">Forskjellsberegning aktiveres når datasettet er modent (14+ dager med både Fremhevet- og organisk-klikk).</div>`
 				: '';
-		return `
-	<!-- Klikk etter kilde -->
-	<div style="background:${FUNKIS.white};border-radius:10px;border:1px solid ${FUNKIS.borderSubtle};overflow:hidden;margin-bottom:24px;">
+		const cardSection = cardTotal > 0
+			? `
+	<!-- Klikk fra Gåris listing-sider -->
+	<div style="background:${FUNKIS.white};border-radius:10px;border:1px solid ${FUNKIS.borderSubtle};overflow:hidden;margin-bottom:16px;">
 		<div style="padding:16px;border-bottom:1px solid ${FUNKIS.borderSubtle};">
-			<div style="font-size:16px;font-weight:700;color:${FUNKIS.textPrimary};">Klikk etter kilde</div>
-			<div style="font-size:12px;color:${FUNKIS.textMuted};margin-top:2px;">Hvordan fant folk veien til kampene</div>
+			<div style="font-size:16px;font-weight:700;color:${FUNKIS.textPrimary};">Klikk fra Gåris listing-sider (${cardTotal.toLocaleString('nb-NO')})</div>
+			<div style="font-size:12px;color:${FUNKIS.textMuted};margin-top:2px;">Brukere som klikket et arrangement-kort fra forsider og samlessider</div>
 		</div>
 		<table width="100%" cellpadding="0" cellspacing="0">
-			${rowsHtml}
+			${cardRowsHtml}
 		</table>
 		${liftBlock}
+	</div>`
+			: `
+	<!-- Ingen kort-klikk -->
+	<div style="background:${FUNKIS.white};border-radius:10px;border:1px solid ${FUNKIS.borderSubtle};overflow:hidden;margin-bottom:16px;">
+		<div style="padding:16px;border-bottom:1px solid ${FUNKIS.borderSubtle};">
+			<div style="font-size:16px;font-weight:700;color:${FUNKIS.textPrimary};">Klikk fra Gåris listing-sider (0)</div>
+			<div style="font-size:12px;color:${FUNKIS.textMuted};margin-top:2px;">Brukere som klikket et arrangement-kort fra forsider og samlessider</div>
+		</div>
+		<div style="padding:14px 16px;font-size:13px;color:${FUNKIS.textMuted};font-style:italic;">Ingen brukere klikket på kort i denne perioden — alle som besøkte event-sidene fant veien dit direkte (se under).</div>
 	</div>`;
+		const detailSection = detailTotal > 0
+			? `
+	<!-- Klikk fra event-detalj-siden -->
+	<div style="background:${FUNKIS.white};border-radius:10px;border:1px solid ${FUNKIS.borderSubtle};overflow:hidden;margin-bottom:24px;">
+		<div style="padding:16px;border-bottom:1px solid ${FUNKIS.borderSubtle};">
+			<div style="font-size:16px;font-weight:700;color:${FUNKIS.textPrimary};">Klikk fra event-siden (${detailTotal.toLocaleString('nb-NO')})</div>
+			<div style="font-size:12px;color:${FUNKIS.textMuted};margin-top:2px;">Brukere som havnet på event-siden via søk, nyhetsbrev eller sosiale medier — deretter klikket videre</div>
+		</div>
+		<table width="100%" cellpadding="0" cellspacing="0">
+			${detailRowsHtml}
+		</table>
+	</div>`
+			: '';
+		return cardSection + detailSection;
 	})()}
 
 	<!-- Top events -->
@@ -392,7 +419,7 @@ function generateReportHtml(data: ReportData): string {
 	<div style="background:${FUNKIS.white};border-radius:10px;border:1px solid ${FUNKIS.borderSubtle};padding:16px;margin-bottom:24px;">
 		<div style="font-size:14px;font-weight:700;color:${FUNKIS.textPrimary};margin-bottom:8px;">Slik måler vi</div>
 		<div style="font-size:13px;color:${FUNKIS.textSecondary};line-height:1.5;">
-			<strong>Topp-plasseringer</strong> telles server-side hver gang en av deres kamper velges som Fremhevet. <strong>Klikk</strong> telles når en besøkende trykker seg videre fra kortet, og vi registrerer samtidig konteksten (Fremhevet, vanlig sortering, direkte/søk, nyhetsbrev eller sosiale medier). Det gjør at forskjellen mellom Fremhevet og vanlig sortering er faktisk målt — ikke estimert. Ingen personlig informasjon (IP, cookies, bruker-ID) lagres.
+			<strong>Topp-plasseringer</strong> telles server-side hver gang en av deres kamper velges som Fremhevet på en samlesside. <strong>Klikk fra Gåris listing-sider</strong> telles når en besøkende trykker seg videre fra et arrangement-kort (Fremhevet eller vanlig sortering). <strong>Klikk fra event-siden</strong> telles når en besøkende kommer rett til event-siden (via Google-søk, nyhetsbrev eller sosiale medier) og deretter trykker seg videre fra siden. De to målingene er separate fordi de svarer på to ulike spørsmål: «driver Fremhevet kortklikk?» og «hvor mye SEO-trafikk får dere via Gåri-sider?». Ingen personlig informasjon (IP, cookies, bruker-ID) lagres.
 		</div>
 	</div>
 
