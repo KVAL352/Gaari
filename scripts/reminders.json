@@ -103,5 +103,10 @@
     "date": "2026-04-22",
     "title": "Registrer Gåri i norske kataloger",
     "description": "SEO domeneautoritet: 1) Sjekk om Gåri har orgnr i Brønnøysund (grunnlag for Proff/Gulesider/1881). 2) Registrer på minbedrift.1881.no (gratis). 3) Kontakt Bergen Kommune kultur for lenke fra bergen.kommune.no/hvaskjer."
+  },
+  {
+    "date": "2026-06-02",
+    "title": "Følg opp DPA-forespørsler (Supabase, Vercel, Resend)",
+    "description": "Sjekk om svar har kommet på DPA-forespørsler sendt 2026-05-26: 1) Supabase PandaDoc (signer hvis kommet). 2) privacy@vercel.com (Hobby-plan DPA). 3) support@resend.com (DPA). For dem som ikke har svart: send vennlig påminnelse. Lagre signerte PDF-er i docs/legal/dpa/ og oppdater README.md-registeret. MailerLite og Stripe er ferdig (auto-aksept via ToU/SSA)."
   }
 ]
