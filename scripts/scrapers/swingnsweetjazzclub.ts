@@ -69,8 +69,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const imageUrl = $(el).find('img').attr('src') || undefined;
 
 		const offset = bergenOffset(date);
-		// Events are Saturday evenings, typically 20:00
-		const dateStart = `${date}T20:00:00${offset}`;
+		// Gro Snilstveit (styreleder) bekreftet 2026-05-06: konsertene starter alltid 14:00.
+		const dateStart = `${date}T14:00:00${offset}`;
 
 		const aiDesc = await generateDescription({
 			title,
