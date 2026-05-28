@@ -7,6 +7,7 @@
 - `/[lang]/datainnsamling/` — Data transparency page (opt-out form). Form action `?/optout`.
 - `/[lang]/personvern/` — Privacy policy (GDPR). Bilingual inline, in sitemap.
 - `/[lang]/opphavsrett/` — Copyright policy and takedown process. Bilingual inline, in sitemap.
+- `/[lang]/vilkar/` — Terms of Use with scraping prohibition and IP-protection clauses (åndsverksloven § 24, mfl. §§ 25/30). Bilingual inline, in sitemap.
 - `/[lang]/tilgjengelighet/` — Accessibility statement (EAA/WCAG 2.2 AA). Bilingual inline, in sitemap.
 - `/[lang]/nyhetsbrev/preferanser/` — Newsletter preferences. HMAC-signed token required. **Server-side loaded**.
 - `/[lang]/submit/` — Event submission form (noindex). Only page with client-side Supabase (image uploads).
