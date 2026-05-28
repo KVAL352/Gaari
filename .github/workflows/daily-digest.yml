@@ -77,6 +77,7 @@ jobs:
           VISITORS=$(jq -r '.visitors // "N/A"' "$SUMMARY_FILE")
           SUBSCRIBERS=$(jq -r '.subscribers // "N/A"' "$SUMMARY_FILE")
           EXPIRING=$(jq '.expiringPlacements' "$SUMMARY_FILE")
+          CANARIES=$(jq '.canariesActive // 0' "$SUMMARY_FILE")
           SENT=$(jq -r '.emailSent' "$SUMMARY_FILE")
 
           STATUS="✅ All clear"
@@ -98,4 +99,5 @@ jobs:
           echo "| Yesterday visitors | ${VISITORS} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Subscribers | ${SUBSCRIBERS} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Expiring placements | ${EXPIRING} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Canaries active | ${CANARIES} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Email sent | ${SENT} |" >> "$GITHUB_STEP_SUMMARY"

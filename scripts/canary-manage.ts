@@ -65,12 +65,12 @@ function fmtDate(d: string | null): string {
 	return new Date(d).toLocaleDateString('nb-NO', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-async function listCanaries() {
+async function listCanaries(brief = false) {
 	const { data, error } = await supabase
 		.from('events')
 		.select('id, slug, title_no, venue_name, date_start, status, created_at')
 		.eq('is_canary', true)
-		.order('created_at', { ascending: false });
+		.order('date_start', { ascending: true });
 
 	if (error) {
 		console.error('Failed to list canaries:', error.message);
@@ -78,7 +78,20 @@ async function listCanaries() {
 	}
 
 	if (!data || data.length === 0) {
-		console.log('No canary events planted.');
+		console.log(brief ? 'Active canaries: 0 (WARN: below recommended minimum of 3)' : 'No canary events planted.');
+		return;
+	}
+
+	const today = new Date(new Date().toISOString().slice(0, 10));
+	const active = data.filter(c => new Date(c.date_start) >= today);
+
+	if (brief) {
+		console.log(`Active canaries: ${active.length}${active.length < 3 ? ' (WARN: below recommended minimum of 3)' : ''}`);
+		for (const c of active) {
+			const days = Math.ceil((new Date(c.date_start).getTime() - today.getTime()) / 86400000);
+			const tag = days < 30 ? '[CRITICAL <30d]' : days < 60 ? '[REPLACE SOON <60d]' : '';
+			console.log(`  ${String(days).padStart(4)}d  ${tag.padEnd(20)} ${c.title_no.slice(0, 50)} @ ${c.venue_name}`);
+		}
 		return;
 	}
 
@@ -194,7 +207,7 @@ const [cmd, ...args] = process.argv.slice(2);
 
 switch (cmd) {
 	case 'list':
-		await listCanaries();
+		await listCanaries(args.includes('--brief'));
 		break;
 	case 'signatures':
 		await printSignatures();

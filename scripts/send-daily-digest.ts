@@ -69,6 +69,14 @@ interface ExpiringPlacement {
 	daysLeft: number;
 }
 
+interface CanaryHealth {
+	slug: string;
+	title: string;
+	venue: string;
+	date_start: string;
+	daysUntilExpiry: number;
+}
+
 interface SourceFreshness {
 	source: string;
 	totalEvents: number;
@@ -170,6 +178,7 @@ interface DigestData {
 	subscribers: number | null;
 	subscribersPrev: number | null;
 	expiringPlacements: ExpiringPlacement[];
+	canaryHealth: CanaryHealth[];
 	festivalReminders: FestivalReminder[];
 	reminders: Reminder[];
 	newsletterReport: NewsletterReport | null;
@@ -381,6 +390,33 @@ async function collectExpiringPlacements(): Promise<ExpiringPlacement[]> {
 		const now = new Date(TODAY);
 		const daysLeft = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 		return { venue_name: p.venue_name, tier: p.tier, end_date: p.end_date, daysLeft };
+	});
+}
+
+async function collectCanaryHealth(): Promise<CanaryHealth[]> {
+	console.log('🐤 Checking canary health...');
+
+	const { data } = await supabase
+		.from('events')
+		.select('slug, title_no, venue_name, date_start')
+		.eq('is_canary', true)
+		.eq('status', 'approved')
+		.gte('date_start', TODAY)
+		.order('date_start', { ascending: true });
+
+	if (!data) return [];
+
+	const now = new Date(TODAY);
+	return data.map((c: { slug: string; title_no: string; venue_name: string; date_start: string }) => {
+		const expiry = new Date(c.date_start);
+		const daysUntilExpiry = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+		return {
+			slug: c.slug,
+			title: c.title_no,
+			venue: c.venue_name,
+			date_start: c.date_start,
+			daysUntilExpiry
+		};
 	});
 }
 
@@ -1282,6 +1318,47 @@ function renderHtml(data: DigestData): string {
 		`).join('')}
 	` : '';
 
+	// Canary section — shown when there are warnings (<3 active, or any expiring
+	// within 60 days), and as a monthly "all clear" summary on the 1st of each month.
+	const dayOfMonth = new Date(TODAY).getUTCDate();
+	const isMonthlySummary = dayOfMonth === 1;
+	const canaryWarnings = data.canaryHealth.length < 3 || data.canaryHealth.some(c => c.daysUntilExpiry < 60);
+	const showCanarySection = isMonthlySummary || canaryWarnings;
+
+	const canaryHtml = showCanarySection ? `
+		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Canary-overvåkning</h2>
+		${data.canaryHealth.length < 3 ? `
+			<p style="background:#fef2f2;border-left:3px solid #dc2626;padding:8px 12px;margin:0 0 12px;font-size:14px;color:#991b1b">
+				⚠️ Kun ${data.canaryHealth.length} canary aktiv${data.canaryHealth.length === 1 ? '' : 'e'} — anbefalt minimum er 3. Plant ny via <code>cd scripts && npx tsx canary-manage.ts add --json &lt;fil&gt;</code>. Se <code>docs/ip-protection.md § 2.3</code> for designregler.
+			</p>
+		` : ''}
+		${data.canaryHealth.length === 0 ? `
+			<p style="font-size:14px;color:#666">Ingen aktive canaries. Systemet er ikke i drift.</p>
+		` : `
+			<table style="width:100%;border-collapse:collapse;margin-bottom:12px">
+				<thead><tr style="background:#f5f5f5">
+					<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Tittel</th>
+					<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Venue</th>
+					<th style="text-align:right;padding:8px;border:1px solid #ddd;font-size:13px">Utløper</th>
+					<th style="text-align:right;padding:8px;border:1px solid #ddd;font-size:13px">Dager igjen</th>
+				</tr></thead>
+				<tbody>
+					${data.canaryHealth.map(c => `
+						<tr>
+							<td style="padding:8px;border:1px solid #ddd;font-size:14px"><a href="${SITE_URL}/no/events/${c.slug}" style="color:#C82D2D">${c.title}</a></td>
+							<td style="padding:8px;border:1px solid #ddd;font-size:14px">${c.venue}</td>
+							<td style="text-align:right;padding:8px;border:1px solid #ddd;font-size:14px">${c.date_start.slice(0, 10)}</td>
+							<td style="text-align:right;padding:8px;border:1px solid #ddd;font-size:14px;color:${c.daysUntilExpiry < 30 ? '#dc2626' : c.daysUntilExpiry < 60 ? '#d97706' : '#16a34a'};font-weight:600">${c.daysUntilExpiry}</td>
+						</tr>
+					`).join('')}
+				</tbody>
+			</table>
+			${isMonthlySummary && !canaryWarnings ? `
+				<p style="font-size:13px;color:#666;margin:0">Månedsoppsummering: ${data.canaryHealth.length} canaries aktive, alle har ≥60 dager til utløp. Ingenting å gjøre.</p>
+			` : ''}
+		`}
+	` : '';
+
 	const placementsHtml = data.expiringPlacements.length > 0 ? `
 		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Utløpende plasseringer (7 dager)</h2>
 		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
@@ -1327,6 +1404,7 @@ function renderHtml(data: DigestData): string {
 	${festivalHtml}
 	${remindersHtml}
 	${placementsHtml}
+	${canaryHtml}
 
 	<div style="border-top:1px solid #ddd;padding-top:12px;margin-top:24px;color:#999;font-size:12px">
 		<p style="margin:0">Automatisk generert. <a href="${SITE_URL}/admin/calendar" style="color:#C82D2D">Åpne admin</a></p>
@@ -1393,6 +1471,7 @@ function writeSummary(data: DigestData, emailSent: boolean) {
 		visitors: data.traffic?.visitors ?? null,
 		subscribers: data.subscribers,
 		expiringPlacements: data.expiringPlacements.length,
+		canariesActive: data.canaryHealth.length,
 		emailSent
 	};
 
@@ -1406,7 +1485,7 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel
-	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, newsletterReport, socialStatus, activeCampaigns] = await Promise.all([
+	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, canaryHealth, newsletterReport, socialStatus, activeCampaigns] = await Promise.all([
 		collectPendingCounts(),
 		collectScraperActivity(),
 		collectScraperHealth(),
@@ -1415,6 +1494,7 @@ async function main() {
 		collectTraffic(),
 		collectSubscribers(),
 		collectExpiringPlacements(),
+		collectCanaryHealth(),
 		collectNewsletterReport(),
 		collectSocialStatus(),
 		collectActiveCampaigns()
@@ -1434,6 +1514,7 @@ async function main() {
 		subscribers: subscriberData.current,
 		subscribersPrev: subscriberData.previous,
 		expiringPlacements,
+		canaryHealth,
 		festivalReminders,
 		reminders,
 		newsletterReport,
@@ -1457,6 +1538,7 @@ async function main() {
 		console.log(`   Subscribers: ${subscriberData.current}${delta}`);
 	}
 	if (expiringPlacements.length > 0) console.log(`   Expiring placements: ${expiringPlacements.length}`);
+	console.log(`   Canaries active: ${canaryHealth.length}${canaryHealth.length < 3 ? ' ⚠️ below recommended minimum of 3' : ''}`);
 	const brokenCount = scraperHealth.filter(s => s.status === 'broken').length;
 	const warningCount = scraperHealth.filter(s => s.status === 'warning').length;
 	if (scraperHealth.length > 0) {

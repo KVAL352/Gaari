@@ -41,6 +41,9 @@ Run all morning checks in parallel, then present a single unified briefing.
 ### Today's reminders
 !`cd /c/Users/kjers/Projects/Gaari && node -e "const r=require('./scripts/reminders.json');const t=new Date().toISOString().slice(0,10);const w=new Date(Date.now()+7*864e5).toISOString().slice(0,10);const hits=r.filter(x=>x.date<=w).sort((a,b)=>a.date.localeCompare(b.date));hits.forEach(x=>console.log(x.date<t?'OVERDUE':'',x.date,x.title))" 2>/dev/null || echo "Reminders unavailable"`
 
+### Canary overvåkning (IP-protection)
+!`cd /c/Users/kjers/Projects/Gaari/scripts && npx tsx canary-manage.ts list --brief 2>/dev/null || echo "Canary check unavailable"`
+
 ## Then do these in parallel
 
 1. **Check email** — use the `email` skill to check all Protonmail folders (INBOX + all Unresolved folders: Inquiries, Submissions, Corrections, Opt-outs). Triage and clean up so all Unresolved folders are empty before moving on.
@@ -97,6 +100,11 @@ Present everything as one compact briefing:
 - [I dag] ...
 - [Denne uken] ...
 
+### Canary-overvåkning
+- Vis kun hvis: antall canaries < 3, ELLER noen har <60 dager til utløp, ELLER det er 1. i måneden (månedlig "alt-OK"-rapport)
+- Format: "N canaries aktive. [Title] utløper om X dager (PLANT ERSTATTER)" for hver som nærmer seg.
+- Ved <30 dager: flagg som CRITICAL og inkluder lenke til docs/ip-protection.md § 2.3
+
 ### Vedlikehold
 - X stale memory-filer (>21 dager, type: project)
 - Broken refs: [ja/nei]
@@ -127,6 +135,7 @@ Flag any of these if <14 days away:
 - Early Bird B2B pricing deadline (project_b2b_pricing.md)
 - Upcoming seasonal content deadlines (17. mai, sankthans)
 - Quarterly security check (reminders.json)
+- Canary expiry (any active canary with `date_start` <60 days away — plant erstatter før den utløper)
 
 Show as a "DEADLINE"-linje ovenfor "Neste steg" i briefingen.
 

@@ -1,0 +1,16 @@
+# Canary scan targets — one URL per line, # for comments.
+# Run via: npx tsx canary-scan.ts --file canary-targets.txt
+# Or automatically: .github/workflows/canary-scan-monthly.yml (1st of each month)
+#
+# Add a new competitor:
+#  1. Their homepage (catches most listings)
+#  2. Their sitemap (catches deep URLs)
+#  3. Their event-list pages if they have a separate /events or /arrangementer route
+
+# Visit Bergen — Visit Norway's official Bergen tourism site
+https://www.visitbergen.com/things-to-do/events
+https://www.visitbergen.com/sitemap.xml
+
+# iBergen — Bergen city portal
+https://ibergen.no/
+https://ibergen.no/arrangementer

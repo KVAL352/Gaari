@@ -189,6 +189,8 @@ async function main() {
 	console.log(`\n${allHits.length} total match(es) across ${targets.length} target(s).`);
 	if (allHits.length > 0) {
 		console.log('Review the evidence files in outputs/canary-evidence/ before acting.');
+		// Exit non-zero so CI workflows surface this as a failure and notify.
+		process.exit(2);
 	}
 }
 
