@@ -88,6 +88,7 @@
 | Borealis | `borealis.ts` | WordPress schedule tables, program listing page |
 | Festspillene | `festspillene.ts` | HTML |
 | Bergenfest | `bergenfest.ts` | HTML |
+| Nattjazz | `nattjazz.ts` | Wix CMS JSON embedded in `/spilleplan2026` (slug-anchored, 1500-char field window) |
 | Beyond the Gates | `beyondthegates.ts` | Squarespace menu blocks |
 | VVV (climate festival) | `vvv.ts` | Squarespace carousel |
 | Bergen Pride | `bergenpride.ts` | Vev SPA HTML (daily program pages) + TicketCo subdomain |
