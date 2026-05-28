@@ -10,7 +10,7 @@
 ## Community calendars
 | Source | File | Method |
 |--------|------|--------|
-| Hva skjer i Loddefjord | `loddefjord.ts` | AJAX endpoint `/wwdok/37199-0.html?type=items&datefrom=...`. Image URL pattern `/irisimage/{id}/{id}.jpg?maxheight=720`. 200+ events, Laksevåg bydel. |
+| Hva skjer i Loddefjord | `loddefjord.ts` | AJAX endpoint `/wwdok/37199-0.html?type=items&datefrom=...`. Image URL pattern `/irisimage/{id}/{id}.jpg?maxheight=720`. 200+ events, Laksevåg bydel. Kilden bruker JS-basert navigering uten per-event URL — `source_url` lagres som `https://hvaskjeriloddefjord.no/#{urlText}` (fragment for unik dedup), `ticket_url` er arrangørens `url`-felt fra JSON eller forsiden som fallback. |
 
 **Disabled scrapers:**
 - ~~BarnasNorge~~ (`barnasnorge.ts`) — disabled Feb 25, 2026. All venues covered by dedicated scrapers. Issues: AI-generated stock images from Webflow CDN, address-based venue names, complex URL resolution.

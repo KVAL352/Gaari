@@ -128,8 +128,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const dateStart = new Date(`${event.startDate}T${event.startTime}:00${bergenOffset(event.startDate)}`);
 		if (isNaN(dateStart.getTime()) || dateStart.getTime() < Date.now() - 86400000) continue;
 
-		// Build source URL
-		const sourceUrl = `https://hvaskjeriloddefjord.no/${event.urlText}`;
+		// hvaskjeriloddefjord.no uses JS-based navigation (updateContent(...)) and has
+		// no real per-event URL — `/{urlText}` returns 404. Fragment keeps source_url
+		// unique for dedup while still resolving to the working homepage when followed.
+		const sourceUrl = `https://hvaskjeriloddefjord.no/#${event.urlText}`;
+		const ticketUrl = event.url?.trim() || 'https://hvaskjeriloddefjord.no/';
 
 		found++;
 
@@ -173,7 +176,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			address: event.location,
 			bydel: BYDEL,
 			price,
-			ticket_url: undefined,
+			ticket_url: ticketUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
 			image_url: imageUrl,
