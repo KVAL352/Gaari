@@ -1,3 +1,10 @@
+# Gåri — gaari.no
+# Crawling and use of this site is governed by our Terms of Use:
+#   https://gaari.no/no/vilkar  /  https://gaari.no/en/vilkar
+# Search engine indexing is welcome. Systematic data collection (bulk
+# scraping, database extraction, reuse in competing services) requires
+# prior written permission — post@gaari.no.
+
 User-agent: *
 Allow: /
 Disallow: /no/submit
