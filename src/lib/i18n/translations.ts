@@ -128,7 +128,7 @@ export const translations = {
 		ticketUrl: 'Billettlenke',
 		imageUrl: 'Bildelenke',
 		submitterEmail: 'Din e-post (valgfritt)',
-		submitterEmailPlaceholder: 'For tilbakemelding hvis arrangementet ikke godkjennes',
+		submitterEmailPlaceholder: 'Jeg sender deg lenke når arrangementet er publisert',
 		submit: 'Send inn',
 
 		// Submit — choice screen
@@ -358,7 +358,7 @@ export const translations = {
 		ticketUrl: 'Ticket URL',
 		imageUrl: 'Image URL',
 		submitterEmail: 'Your email (optional)',
-		submitterEmailPlaceholder: 'For feedback if your event is not approved',
+		submitterEmailPlaceholder: "I'll send you a link when the event is published",
 		submit: 'Submit',
 
 		// Submit — choice screen

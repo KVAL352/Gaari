@@ -263,9 +263,10 @@ async function approveCorrection(partialId: string) {
 				``,
 				`Takk for at du sendte inn en rettelse for «${eventTitle}» på Gåri.`,
 				``,
-				`Vi har nå oppdatert arrangementet med informasjonen du foreslo. Vi setter pris på at du hjelper oss med å holde informasjonen korrekt!`,
+				`Jeg har nå oppdatert arrangementet med informasjonen du foreslo. Takk for at du hjelper meg med å holde informasjonen korrekt.`,
 				``,
-				`Vennlig hilsen`,
+				`Vennlig hilsen,`,
+				`Kjersti`,
 				`Gåri — gaari.no`
 			].join('\n')
 		);
@@ -279,7 +280,7 @@ async function approveSubmission(partialId: string) {
 
 	const { data: event } = await supabase
 		.from('events')
-		.select('title_no, status')
+		.select('title_no, slug, submitter_email, status')
 		.eq('id', id)
 		.single();
 
@@ -294,7 +295,31 @@ async function approveSubmission(partialId: string) {
 
 	if (error) throw new Error(`Failed to approve: ${error.message}`);
 
-	console.log(`\n✅ Submission approved: ${event.title_no}\n`);
+	console.log(`\n✅ Submission approved: ${event.title_no}`);
+
+	if (event.submitter_email) {
+		await sendEmail(
+			event.submitter_email,
+			`«${event.title_no}» er nå publisert på Gåri`,
+			[
+				`Hei,`,
+				``,
+				`«${event.title_no}» er nå godkjent og publisert på Gåri.`,
+				``,
+				`Du kan se det her: https://gaari.no/no/${event.slug}`,
+				``,
+				`Jeg kan gjøre feil, så hvis du ser noe som ikke stemmer eller mangler, send meg en kort melding på post@gaari.no så retter jeg det opp.`,
+				``,
+				`Takk for at du bidro med innhold til Gåri.`,
+				``,
+				`Vennlig hilsen,`,
+				`Kjersti`,
+				`Gåri — gaari.no`
+			].join('\n')
+		);
+	}
+
+	console.log('');
 }
 
 async function approveOptout(partialId: string) {
