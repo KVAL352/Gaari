@@ -105,6 +105,11 @@
     "description": "SEO domeneautoritet: 1) Sjekk om Gåri har orgnr i Brønnøysund (grunnlag for Proff/Gulesider/1881). 2) Registrer på minbedrift.1881.no (gratis). 3) Kontakt Bergen Kommune kultur for lenke fra bergen.kommune.no/hvaskjer."
   },
   {
+    "date": "2026-08-28",
+    "title": "Sjekk om kaskjerbergen.no er aktiv igjen (kvartalsvis)",
+    "description": "Per 2026-05-28: kaskjerbergen.no har DNS men port 443 refused — tilsynelatende defunct. Var Gåris nærmeste direkte konkurrent (samme aggregator-modell, laget av Paal Kobbeltvedt og Eskild Halvorsen). Sjekk: curl -v https://kaskjerbergen.no/. Hvis den er tilbake: legg til i scripts/canary-targets.txt under hovedlisten. Også sjekk om 10times.com og bandsintown.com fortsatt blokkerer vår User-Agent (anti-bot 403) — hvis åpne, legg dem til. Etter sjekk: flytt reminderen tre måneder frem."
+  },
+  {
     "date": "2026-06-02",
     "title": "Følg opp DPA-forespørsler (Supabase, Vercel, Resend)",
     "description": "Sjekk om svar har kommet på DPA-forespørsler sendt 2026-05-26: 1) Supabase PandaDoc (signer hvis kommet). 2) privacy@vercel.com (Hobby-plan DPA). 3) support@resend.com (DPA). For dem som ikke har svart: send vennlig påminnelse. Lagre signerte PDF-er i docs/legal/dpa/ og oppdater README.md-registeret. MailerLite og Stripe er ferdig (auto-aksept via ToU/SSA)."

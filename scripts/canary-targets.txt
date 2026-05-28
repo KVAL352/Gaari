@@ -14,3 +14,20 @@ https://www.visitbergen.com/sitemap.xml
 # iBergen — Bergen city portal
 https://ibergen.no/
 https://ibergen.no/arrangementer
+
+# AllEvents — global event aggregator with active Bergen section
+https://allevents.in/bergen
+https://allevents.in/bergen/this-weekend
+
+# Songkick — concert aggregator (Bergen metro area)
+https://www.songkick.com/metro-areas/31419-norway-bergen
+
+# Not scannable (return 403 against our User-Agent — anti-bot protection).
+# Manual quarterly check: open in browser, search HTML for active canary titles.
+#   https://10times.com/bergen-no
+#   https://www.bandsintown.com/c/bergen-norway
+
+# Defunct as of 2026-05-28 — DNS exists but port 443 refused. Re-check
+# quarterly (see reminders.json: "Sjekk om kaskjerbergen.no er aktiv igjen").
+#   https://kaskjerbergen.no/  (was Bergen's main aggregator competitor)
+#   http://www.konsertbergen.no/  (old domain, NXDOMAIN)
