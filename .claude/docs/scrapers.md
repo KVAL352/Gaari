@@ -63,7 +63,7 @@
 ## Food, nightlife & recreation
 | Source | File | Method |
 |--------|------|--------|
-| Bergen Kjott | `bergenkjott.ts` | HTML |
+| Bergen Kjott | `bergenkjott.ts` | RSS feed (`?format=rss`) + per-event JSON-LD Event schema. Tidligere `?format=json`, byttet 2026-05-28 da robots.txt blokkerer `/*?format=json`. |
 | Colonialen | `colonialen.ts` | HTML |
 | Rabrent | `raabrent.ts` | HTML |
 | Paint'n Sip | `paintnsip.ts` | HTML |
