@@ -33,8 +33,10 @@ const filterPaske = (events: GaariEvent[], now: Date) => {
 
 const filterSankthans = (events: GaariEvent[], now: Date) => {
 	const year = now.getFullYear();
-	const startStr = `${year}-06-21`;
-	const endStr = `${year}-06-24`;
+	// Window 19-25. juni fanger weekend-før (Tønnebålet på Laksevåg holdes
+	// alltid lørdag før selve Sankthansaften) og dagene rett etter.
+	const startStr = `${year}-06-19`;
+	const endStr = `${year}-06-25`;
 	return events.filter(e => {
 		return eventOverlapsRange(e, startStr, endStr);
 	});
