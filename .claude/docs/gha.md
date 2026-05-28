@@ -10,4 +10,5 @@
 - **Social Posts** (`social-posts.yml`): FB 07:00 UTC, IG 14:00 UTC. `generate-posts.ts` + `post-to-socials.ts`.
 - **Send Reminders** (`send-reminders.yml`): daily 16:00 UTC. `scripts/send-reminders.ts`. Sends event reminder emails for tomorrow via Resend.
 - **Quality Audit** (`quality-audit.yml`): 1st of month 09:00 UTC. 10 automated checks.
+- **Canary Scan** (`canary-scan-monthly.yml`): 1st of month 07:00 UTC. `scripts/canary-scan.ts --file canary-targets.txt`. Detects database copying by scanning competitor URLs for planted canary fingerprints. On hit: saves evidence locally, archives targets to Wayback Machine, writes action checklist with lawyer-review reminder, emails post@gaari.no, uploads evidence as 365-day artifact. Secrets: SUPABASE, RESEND_API_KEY.
 - **Admin CLI** (`scripts/admin-ops.ts`): Local only. `cd scripts && npx tsx admin-ops.ts <list|approve|reject|status>`.
