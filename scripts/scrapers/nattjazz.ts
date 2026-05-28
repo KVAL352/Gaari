@@ -15,6 +15,7 @@ interface ConcertRecord {
 	time: string;          // HH:MM
 	scene: string;         // e.g. "SARDINEN", "HALLEN USF"
 	tagline?: string;
+	fotokred?: string;     // photographer credit from Nattjazz CMS
 }
 
 function findNearestField(html: string, anchor: number, field: string, maxDistance = 4000): string | undefined {
@@ -60,6 +61,7 @@ function parseConcerts(html: string): ConcertRecord[] {
 		const spilletid = findNearestField(html, anchor, 'spilletid', 1500);
 		const scene = findNearestField(html, anchor, 'spillerDato1', 1500);
 		const tagline = findNearestField(html, anchor, 'description', 1500);
+		const fotokred = findNearestField(html, anchor, 'fotokred', 1500);
 
 		// Require date — without it we can't insert anything sensible
 		if (!date || !/^2\d{3}-\d{2}-\d{2}$/.test(date)) continue;
@@ -97,6 +99,7 @@ function parseConcerts(html: string): ConcertRecord[] {
 			time,
 			scene: scene || '',
 			tagline: tagline?.trim() || undefined,
+			fotokred: fotokred?.trim() || undefined,
 		});
 	}
 
@@ -150,6 +153,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			price: '',
 		});
 
+		// Lagre fotokred selv om vi ikke viser bilde nå — hvis Nattjazz senere
+		// godkjenner bildebruk, har vi kreditering klar uten å re-scrape.
 		const success = await insertEvent({
 			slug: makeSlug(displayTitle, c.date),
 			title_no: displayTitle,
@@ -165,6 +170,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
+			image_credit: c.fotokred,
 			age_group: 'all',
 			language: 'both',
 			status: 'approved',

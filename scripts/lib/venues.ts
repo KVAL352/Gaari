@@ -473,6 +473,73 @@ export function getSourceFallbackImage(source: string): string | null {
 }
 
 /**
+ * Display labels brukt som siste-utvei kreditering når extractor ikke finner
+ * fotograf i kildens HTML. Brukes for kilder hvor vi har skriftlig ja men
+ * sidene ikke har synlig "Foto: X"-kreditering (DNS, USF Verftet, Bergenfest,
+ * BIFF, m.fl.).
+ *
+ * Tonen er nøytral — "Foto: X" antyder ikke at X er fotografen, bare at bildet
+ * kommer via dem. Hot-link-policy (image-policy.md) tillater dette.
+ */
+const SOURCE_DISPLAY_LABELS: Record<string, string> = {
+	'akvariet': 'Foto: Akvariet i Bergen',
+	'bergenbibliotek': 'Bilde: Bergen offentlige bibliotek',
+	'bergenfest': 'Foto: Bergenfest',
+	'bergenkommune': 'Bilde: Bergen kommune',
+	'brann': 'Foto: SK Brann',
+	'brettspill': 'Foto: Brettspill-cafe Bergen',
+	'gg-bergen': 'Foto: GG Bergen',
+	'paintnsip': "Foto: Paint'n Sip",
+	'bergenfilmklubb': 'Foto: Bergen Filmklubb',
+	'bergenkjott': 'Foto: Bergen Kjøtt',
+	'biff': 'Foto: BIFF',
+	'bitteater': 'Foto: BIT Teatergarasjen',
+	'bodega': 'Foto: Bodega',
+	'bymuseet': 'Foto: Bymuseet i Bergen',
+	'carteblanche': 'Foto: Carte Blanche',
+	'colonialen': 'Foto: Colonialen',
+	'cornerteateret': 'Foto: Cornerteateret',
+	'dns': 'Foto: Den Nationale Scene',
+	'dnt': 'Foto: Bergen og Hordaland Turlag',
+	'festspillene': 'Foto: Festspillene i Bergen',
+	'floyen': 'Foto: Fløyen',
+	'forumscene': 'Foto: Forum Scene',
+	'fyllingsdalenteater': 'Foto: Fyllingsdalen Teater',
+	'generasjonsfestivalen': 'Foto: Generasjonsfestivalen',
+	'grieghallen': 'Foto: Grieghallen',
+	'harmonien': 'Foto: Bergen Filharmoniske Orkester',
+	'kode': 'Foto: KODE',
+	'kunsthall': 'Foto: Bergen Kunsthall',
+	'kulturhusetibergen': 'Foto: Kulturhuset i Bergen',
+	'kvarteret': 'Foto: Det Akademiske Kvarter',
+	'litthusbergen': 'Foto: Litteraturhuset i Bergen',
+	'loddefjord': 'Foto: Lyderhorn Frivilligsentral',
+	'museumvest': 'Foto: Museum Vest',
+	'oconnors': "Foto: O'Connors",
+	'olebull': 'Foto: Ole Bull Scene',
+	'ostre': 'Foto: Østre',
+	'stenematglede': 'Foto: Stene Matglede',
+	'studentbergen': 'Foto: Utdanning i Bergen',
+	'usfverftet': 'Foto: USF Verftet',
+	'visningsromusf': 'Foto: Visningsrommet USF',
+	// Aggregator-plattformer — "Bilde via X" indikerer at vi hot-linker fra
+	// plattformen, ikke at plattformen er fotografen. Per arrangør har vi ikke
+	// per-event credit; plattformens ToS pålegger uploader å ha rettigheter.
+	'ticketco': 'Bilde via TicketCo',
+	'tikkio': 'Bilde via Tikkio',
+	'hoopla': 'Bilde via Hoopla',
+};
+
+/**
+ * Return a sensible fallback credit for an approved source when the per-page
+ * extractor finds no photographer name. Returns undefined for sources not in
+ * the display-label map (e.g. ticketco/billetto where per-event credit varies).
+ */
+export function getSourceDisplayCredit(source: string): string | undefined {
+	return SOURCE_DISPLAY_LABELS[source];
+}
+
+/**
  * Look up a venue's physical location (address + coordinates) by name.
  * Returns null if not found.
  */

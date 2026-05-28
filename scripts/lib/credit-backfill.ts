@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { supabase } from './supabase.js';
 import { fetchHTML, delay, extractImageCredit, updateEventCredit } from './utils.js';
+import { getSourceDisplayCredit } from './venues.js';
 
 /**
  * Generic credit-backfill for any source.
@@ -96,12 +97,19 @@ export async function backfillImageCredits(opts: BackfillOptions = {}): Promise<
 			continue;
 		}
 
-		// Skip anchor URLs (foo.com/page#event-name): the whole page contains
-		// many events plus shared content (festival disclaimers, sponsor lists),
-		// so a page-level credit extractor would attribute the wrong credit. Such
-		// sources need credit extracted per-event by the scraper itself.
+		// Source-level fallback for approved sources. Computed up-front so
+		// fetch-failed / anchor-URL events also get a sensible credit.
+		const sourceFallback = getSourceDisplayCredit(ev.source);
+
+		// Anchor URLs (foo.com/page#event-name) point at a shared page so we
+		// can't reliably extract per-event credit. Use source-level fallback
+		// if available — leaves blank otherwise.
 		if (ev.source_url.includes('#')) {
 			skippedAnchor++;
+			if (sourceFallback && await updateEventCredit(ev.source_url, sourceFallback)) {
+				updated++;
+				if (verbose) console.log(`  ↻ [${ev.source}] ${ev.title_no} — ${sourceFallback} (anchor fallback)`);
+			}
 			continue;
 		}
 
@@ -111,11 +119,20 @@ export async function backfillImageCredits(opts: BackfillOptions = {}): Promise<
 		const html = await fetchHTML(ev.source_url);
 		if (!html) {
 			fetchFailed++;
+			// Fetch failed but we may still have a source-level fallback.
+			if (sourceFallback && await updateEventCredit(ev.source_url, sourceFallback)) {
+				updated++;
+				if (verbose) console.log(`  ↻ [${ev.source}] ${ev.title_no} — ${sourceFallback} (fetch-failed fallback)`);
+			}
 			continue;
 		}
 
 		const $ = cheerio.load(html);
-		const credit = extractImageCredit($, ev.image_url || undefined, ev.title_no);
+		let credit = extractImageCredit($, ev.image_url || undefined, ev.title_no);
+		// Fallback: many approved sources (DNS, USFV, Bergenfest, BIFF…) don't
+		// expose a "Foto: X" line in the event HTML. Use the source-level
+		// display label so the figcaption isn't blank.
+		if (!credit) credit = sourceFallback;
 		if (!credit) {
 			noCreditFound++;
 			continue;
