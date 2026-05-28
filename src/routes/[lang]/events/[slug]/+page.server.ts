@@ -5,7 +5,7 @@ import { seedEvents } from '$lib/data/seed-events';
 import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad, Actions } from './$types';
 
-const EVENT_COLUMNS = 'id,slug,title_no,title_en,description_no,description_en,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,source_url,image_url,image_credit,age_group,language,status,is_sold_out';
+const EVENT_COLUMNS = 'id,slug,title_no,title_en,description_no,description_en,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,source_url,image_url,image_credit,age_group,language,status,is_sold_out,is_canary';
 
 function mapPrice(e: Record<string, unknown>): GaariEvent {
 	const price = e.price;

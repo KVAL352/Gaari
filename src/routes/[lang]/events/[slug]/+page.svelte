@@ -285,6 +285,25 @@
 		{/if}
 	</figure>
 
+	{#if event.is_canary}
+		<div class="mb-4 rounded-md border border-amber-500 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">
+			<strong>
+				{$lang === 'no' ? 'Testdatapunkt — ikke et virkelig arrangement.' : 'Synthetic test entry — not a real event.'}
+			</strong>
+			<span class="ml-1">
+				{#if $lang === 'no'}
+					Denne oppføringen ligger på Gåri for å oppdage uautorisert kopiering av databasen vår.
+					Den er ikke ment for billettkjøp eller deltakelse. Se
+					<a href="/{$lang}/vilkar" class="underline">bruksvilkår</a>.
+				{:else}
+					This entry exists on Gåri to detect unauthorised copying of our database.
+					It is not intended for ticket purchase or attendance. See
+					<a href="/{$lang}/vilkar" class="underline">terms of use</a>.
+				{/if}
+			</span>
+		</div>
+	{/if}
+
 	<!-- Badges -->
 	<div class="mb-3 flex gap-2">
 		{#if isCancelled}

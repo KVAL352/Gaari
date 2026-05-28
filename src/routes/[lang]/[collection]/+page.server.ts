@@ -45,6 +45,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			.from('events')
 			.select(collFields)
 			.in('status', ['approved', 'cancelled'])
+			.eq('is_canary', false)
 			.gte('date_start', startFloor)
 			.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
 			.order('date_start', { ascending: true })

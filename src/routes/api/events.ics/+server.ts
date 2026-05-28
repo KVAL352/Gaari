@@ -72,6 +72,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		.from('events')
 		.select('id, slug, title_no, title_en, description_no, venue_name, address, date_start, date_end, category, price, ticket_url, image_url')
 		.eq('status', 'approved')
+		.eq('is_canary', false)
 		.or(`date_end.gte.${now},and(date_end.is.null,date_start.gte.${now})`)
 		.lte('date_start', lookahead.toISOString())
 		.order('date_start', { ascending: true })

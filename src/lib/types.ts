@@ -43,6 +43,7 @@ export interface GaariEvent {
 	language: EventLanguage;
 	status: EventStatus;
 	is_sold_out?: boolean;
+	is_canary?: boolean;
 }
 
 export interface FilterState {
