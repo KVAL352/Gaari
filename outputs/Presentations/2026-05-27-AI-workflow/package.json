@@ -1,0 +1,19 @@
+{
+  "name": "ai-workflow-gaari-2026-05-27",
+  "private": true,
+  "scripts": {
+    "dev": "slidev --port 3032 --open false",
+    "build": "slidev build",
+    "export": "slidev export"
+  },
+  "dependencies": {
+    "@slidev/cli": "52.15.1",
+    "@slidev/theme-seriph": "0.25.0"
+  },
+  "devDependencies": {
+    "playwright-chromium": "^1.60.0"
+  },
+  "overrides": {
+    "vite": "8.0.11"
+  }
+}

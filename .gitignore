@@ -30,3 +30,4 @@ scripts/social/.reels-tmp/
 scripts/.weekly-report-preview.html
 reports/
 .claude/scheduled_tasks.lock
+outputs/**/*.mp4

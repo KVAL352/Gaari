@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<title>meta CLI mockup</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%; width: 100%;
+    background: #F5F3EE;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    overflow: hidden;
+  }
+  .terminal {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 86%;
+    max-width: 1100px;
+    background: #1C1C1E;
+    box-shadow: 0 12px 36px rgba(28,28,30,0.35);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .titlebar {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    background: #2A2A2C;
+    border-bottom: 1px solid #3A3A3C;
+  }
+  .dot { width: 13px; height: 13px; border-radius: 50%; margin-right: 8px; }
+  .dot.r { background: #ff5f56; }
+  .dot.y { background: #ffbd2e; }
+  .dot.g { background: #27c93f; }
+  .titlebar .label {
+    margin-left: auto;
+    color: #9a9a9a;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+  .content {
+    padding: 28px 32px 36px 32px;
+    color: #F5F3EE;
+    font-size: 26px;
+    line-height: 1.5;
+    min-height: 480px;
+  }
+  .prompt-symbol { color: #E8A838; }
+  .step { color: #C82D2D; }
+  .check { color: #27c93f; }
+  .dim { opacity: 0.6; }
+  .note { color: #9bd3ff; }
+  .line { opacity: 0; transform: translateY(4px); transition: opacity .12s ease-out, transform .12s ease-out; }
+  .line.show { opacity: 1; transform: translateY(0); }
+  .cursor {
+    display: inline-block;
+    width: 9px; height: 19px;
+    background: #F5F3EE;
+    margin-left: 4px;
+    vertical-align: text-bottom;
+    animation: blink 1s infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div class="terminal">
+  <div class="titlebar">
+    <span class="dot r"></span>
+    <span class="dot y"></span>
+    <span class="dot g"></span>
+    <span class="label">meta · ukentlig post</span>
+  </div>
+  <div class="content" id="content">
+    <div class="line" data-delay="500"><span class="prompt-symbol">$</span> npm run meta -- post <span class="dim">--collection konserter-i-bergen</span></div>
+    <div class="line" data-delay="1500"><span class="step">⏺</span> velger event: <span class="note">"Bergen Filharmoniske · Grieghallen, 14. juni"</span></div>
+    <div class="line" data-delay="2700"><span class="step">⏺</span> genererer carousel (1080×1080, 3 slides) ...</div>
+    <div class="line" data-delay="4000"><span class="step">⏺</span> skriver caption etter stilguide ...</div>
+    <div class="line" data-delay="5200"><span class="step">⏺</span> publiserer til FB-gruppe: <span class="note">"Hva skjer i Bergen"</span></div>
+    <div class="line" data-delay="6400"><span class="check">✓</span> Live · post-ID 12345_67890 · <span class="dim">82 reaksjoner</span><span class="cursor"></span></div>
+  </div>
+</div>
+
+<script>
+  const lines = document.querySelectorAll('.line');
+  // Start with all lines visible (no empty initial frame)
+  lines.forEach(l => l.classList.add('show'));
+  // After 3s, begin the animated loop
+  setTimeout(() => {
+    function play() {
+      lines.forEach(l => l.classList.remove('show'));
+      lines.forEach(l => {
+        const delay = parseInt(l.dataset.delay, 10);
+        setTimeout(() => l.classList.add('show'), delay);
+      });
+    }
+    play();
+    setInterval(play, 10000);
+  }, 3000);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,333 @@
+/* ==============================================
+   GÅRI FUNKIS — Slidev theme overrides
+   Inspirert av Sundt-bygget i Bergen (1938)
+   Per Grieg, arkitekt
+   ============================================== */
+
+:root {
+  /* Funkis palette — speiler src/app.css i Gaari-prosjektet */
+  --gaari-white:        #FFFFFF;
+  --gaari-plaster:      #F5F3EE;
+  --gaari-plaster-warm: #EDEAE3;
+  --gaari-shadow-light: #D4D1CA;
+  --gaari-shadow:       #B4BAC2;
+  --gaari-granite:      #6B6862;
+  --gaari-steel:        #3A3A3C;
+  --gaari-iron:         #1C1C1E;
+  --gaari-red:          #C82D2D;
+  --gaari-red-hover:    #A82424;
+  --gaari-red-subtle:   #F9EEEE;
+  --gaari-fjord:        #2B6B8A;
+  --gaari-rain:         #7B9EAE;
+  --gaari-sol:          #E8A838;
+  --gaari-amber:        #B8860B;
+  --gaari-green:        #1E7A3A;
+
+  /* Bakoverkompatibel skygge: --rose-* peker til Funkis-tilsvarende.
+     Lar slides.md beholde inline-stiler uten å måtte endre dem. */
+  --rose-red:          var(--gaari-red);
+  --rose-red-deep:     var(--gaari-red-hover);
+  --rose-canvas:       var(--gaari-shadow-light);
+  --rose-cream:        var(--gaari-plaster-warm);
+  --rose-beige:        var(--gaari-shadow-light);
+  --rose-teal:         var(--gaari-fjord);
+  --rose-green:        var(--gaari-steel);
+  --rose-brown:        var(--gaari-granite);
+  --rose-brown-warm:   var(--gaari-granite);
+  --rose-charcoal:     var(--gaari-iron);
+  --rose-paper:        var(--gaari-plaster);
+  --rose-paper-light:  var(--gaari-white);
+  --rose-bg-warm:      var(--gaari-plaster-warm);
+  --rose-bg-warmer:    var(--gaari-shadow-light);
+}
+
+/* ==============================================
+   LAYOUT BASE
+   ============================================== */
+
+.slidev-layout {
+  background: var(--gaari-plaster) !important;
+  color: var(--gaari-iron) !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+/* Top accent — solid red architectural band */
+.slidev-layout::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6px;
+  background: var(--gaari-red);
+  z-index: 10;
+}
+
+/* Bottom accent — thin granite baseboard */
+.slidev-layout::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--gaari-granite);
+  z-index: 10;
+}
+
+/* ==============================================
+   TYPOGRAPHY
+   ============================================== */
+
+.slidev-layout h1,
+.slidev-layout h2,
+.slidev-layout h3 {
+  font-family: 'Barlow Condensed', system-ui, sans-serif !important;
+  letter-spacing: -0.005em;
+}
+
+.slidev-layout h1 {
+  color: var(--gaari-iron) !important;
+  font-weight: 700;
+  border-bottom: 2px solid var(--gaari-red);
+  padding-bottom: 0.3rem;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.slidev-layout h2 {
+  color: var(--gaari-steel) !important;
+  font-weight: 500;
+}
+
+.slidev-layout h3 {
+  color: var(--gaari-granite) !important;
+  font-weight: 500;
+}
+
+
+.slidev-layout strong { color: var(--gaari-red); font-weight: 600; }
+.slidev-layout em { color: var(--gaari-granite); font-style: italic; }
+.slidev-layout a { color: var(--gaari-red); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.slidev-layout a:hover { color: var(--gaari-red-hover); }
+
+.slidev-layout p, .slidev-layout li {
+  color: #000 !important;
+}
+
+/* Subtitle/lede-paragraf: tyngre vekt så Inter-tekst ikke ser vasket ut */
+.slidev-layout h1 + p {
+  color: #000 !important;
+  font-weight: 600 !important;
+  line-height: 1.45 !important;
+  margin-bottom: 0.7rem !important;
+}
+
+/* ==============================================
+   TABLES — clean Funkis grid
+   ============================================== */
+
+.slidev-layout table {
+  border-collapse: collapse;
+  background: var(--gaari-white);
+  border: 1px solid var(--gaari-shadow-light);
+}
+.slidev-layout table th {
+  background-color: var(--gaari-iron);
+  color: var(--gaari-white);
+  border: none;
+  padding: 0.6rem 0.9rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.95rem;
+}
+.slidev-layout table td {
+  border-color: var(--gaari-shadow-light);
+  padding: 0.55rem 0.9rem;
+  background: var(--gaari-white);
+}
+.slidev-layout table tr:nth-child(even) td {
+  background: var(--gaari-plaster);
+}
+
+.slidev-layout hr {
+  border-color: var(--gaari-shadow-light);
+}
+
+.slidev-layout blockquote {
+  border-left: 3px solid var(--gaari-red);
+  background: var(--gaari-red-subtle);
+  padding: 0.8rem 1rem;
+  color: var(--gaari-iron);
+}
+
+.slidev-layout code {
+  color: var(--gaari-red);
+  background: var(--gaari-red-subtle);
+  padding: 0.1em 0.3em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.92em;
+}
+
+.slidev-layout ul li::marker {
+  color: var(--gaari-red);
+}
+
+/* ==============================================
+   HIDE ACCENT BARS (cover slides etc.)
+   ============================================== */
+
+.slidev-layout.cover-no-accent::before,
+.slidev-layout.cover-no-accent::after {
+  display: none !important;
+}
+
+/* ==============================================
+   COVER — Funkis: white field, big red title
+   ============================================== */
+
+.cover-funkis {
+  background: var(--gaari-white) !important;
+  position: relative;
+}
+.cover-funkis::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--gaari-red);
+}
+.cover-funkis::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gaari-granite);
+}
+.cover-funkis h1 {
+  color: var(--gaari-iron) !important;
+  border-bottom: none !important;
+  font-family: 'Barlow Condensed', sans-serif !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.cover-funkis h2 {
+  color: var(--gaari-granite) !important;
+  font-weight: 400;
+  font-family: 'Inter', sans-serif !important;
+  text-transform: none;
+}
+.cover-funkis p, .cover-funkis div {
+  color: var(--gaari-iron);
+}
+
+/* Keep cover-tan working as alias for cover-funkis (back-compat for slides.md) */
+.cover-tan {
+  background: var(--gaari-white) !important;
+}
+.cover-tan h1 {
+  color: var(--gaari-iron) !important;
+  border-bottom: none !important;
+  font-family: 'Barlow Condensed', sans-serif !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.cover-tan h2 {
+  color: var(--gaari-granite) !important;
+  font-weight: 400;
+  font-family: 'Inter', sans-serif !important;
+}
+.cover-tan p, .cover-tan div { color: var(--gaari-iron); }
+
+/* ==============================================
+   FINDINGS CARD — Funkis bordered surface
+   ============================================== */
+
+.findings-card {
+  background: var(--gaari-white);
+  border: 1px solid var(--gaari-shadow-light);
+  border-left: 3px solid var(--gaari-red);
+  padding: 0.9rem 1.1rem;
+}
+
+.stat-card {
+  background: var(--gaari-white);
+  border: 1px solid var(--gaari-shadow-light);
+  border-top: 3px solid var(--gaari-red);
+  padding: 0.85rem 1rem;
+}
+
+/* Neutralise any wrapper Slidev/markdown may inject inside cards */
+.findings-card > p,
+.findings-card > p:last-child,
+.stat-card > p,
+.stat-card > p:last-child {
+  background: transparent !important;
+  margin: 0 0 0.4rem 0 !important;
+  padding: 0 !important;
+}
+.findings-card > p:last-child,
+.stat-card > p:last-child {
+  margin-bottom: 0 !important;
+}
+.findings-card > ul,
+.stat-card > ul {
+  margin: 0.3rem 0 !important;
+  padding-left: 1.2rem !important;
+}
+
+/* ==============================================
+   ACCENT BAR (inline)
+   ============================================== */
+
+.accent-bar {
+  display: inline-block;
+  width: 60px;
+  height: 3px;
+  background: var(--gaari-red);
+  margin-bottom: 1rem;
+}
+
+/* ==============================================
+   STEPS LIST — numbered Funkis steps
+   ============================================== */
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  line-height: 1.45;
+}
+.step-num {
+  flex-shrink: 0;
+  width: 1.9rem;
+  height: 1.9rem;
+  background: var(--gaari-iron);
+  color: var(--gaari-white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 0.05rem;
+}
+.step-text {
+  flex: 1;
+  padding-top: 0.2rem;
+}

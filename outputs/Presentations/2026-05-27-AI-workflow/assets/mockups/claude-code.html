@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<title>Claude Code mockup</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%; width: 100%;
+    background: #F5F3EE;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    overflow: hidden;
+  }
+  .terminal {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 86%;
+    max-width: 1100px;
+    background: #1C1C1E;
+    box-shadow: 0 12px 36px rgba(28,28,30,0.35);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .titlebar {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    background: #2A2A2C;
+    border-bottom: 1px solid #3A3A3C;
+  }
+  .dot { width: 13px; height: 13px; border-radius: 50%; margin-right: 8px; }
+  .dot.r { background: #ff5f56; }
+  .dot.y { background: #ffbd2e; }
+  .dot.g { background: #27c93f; }
+  .titlebar .label {
+    margin-left: auto;
+    color: #9a9a9a;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+  .content {
+    padding: 28px 32px 36px 32px;
+    color: #F5F3EE;
+    font-size: 26px;
+    line-height: 1.5;
+    min-height: 480px;
+  }
+  .prompt-symbol { color: #E8A838; }
+  .prompt-text { color: #F5F3EE; opacity: 0.95; }
+  .step { color: #C82D2D; }
+  .check { color: #27c93f; }
+  .dim { opacity: 0.6; }
+  .line { opacity: 0; transform: translateY(4px); transition: opacity .12s ease-out, transform .12s ease-out; }
+  .line.show { opacity: 1; transform: translateY(0); }
+  .cursor {
+    display: inline-block;
+    width: 9px; height: 19px;
+    background: #F5F3EE;
+    margin-left: 4px;
+    vertical-align: text-bottom;
+    animation: blink 1s infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div class="terminal">
+  <div class="titlebar">
+    <span class="dot r"></span>
+    <span class="dot y"></span>
+    <span class="dot g"></span>
+    <span class="label">claude · ~/Gaari</span>
+  </div>
+  <div class="content" id="content">
+    <div class="line" data-delay="600"><span class="prompt-symbol">$</span> claude</div>
+    <div class="line" data-delay="1400"><span class="dim">&gt;</span> <span class="prompt-text">legg til en scraper for Litteraturhuset i Bergen</span></div>
+    <div class="line" data-delay="2400"><span class="step">⏺</span> leser kodebasen ...</div>
+    <div class="line" data-delay="3400"><span class="step">⏺</span> analyserer litthusbergen.no</div>
+    <div class="line" data-delay="4400"><span class="step">⏺</span> skriver <span style="color:#9bd3ff;">scripts/scrapers/litthus.ts</span></div>
+    <div class="line" data-delay="5400"><span class="step">⏺</span> legger til i scrape.ts</div>
+    <div class="line" data-delay="6400"><span class="step">⏺</span> kjører <span style="color:#9bd3ff;">npm test</span> — 1 ny test passerte</div>
+    <div class="line" data-delay="7400"><span class="check">✓</span> klar. Ny scraper kjører kl 06:00 UTC.<span class="cursor"></span></div>
+  </div>
+</div>
+
+<script>
+  const lines = document.querySelectorAll('.line');
+  // Start with all lines visible (no empty initial frame)
+  lines.forEach(l => l.classList.add('show'));
+  // After 3s, begin the animated loop
+  setTimeout(() => {
+    function play() {
+      lines.forEach(l => l.classList.remove('show'));
+      lines.forEach(l => {
+        const delay = parseInt(l.dataset.delay, 10);
+        setTimeout(() => l.classList.add('show'), delay);
+      });
+    }
+    play();
+    setInterval(play, 11000);
+  }, 3000);
+</script>
+
+</body>
+</html>
