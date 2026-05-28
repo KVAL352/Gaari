@@ -298,6 +298,18 @@
 
 		const suggestions: Array<{ slug: string; label: Record<string, string> }> = [];
 
+		// Surface in-season festival when it has events within 14 days
+		const cutoff14d = addDays(now, 14).toISOString();
+		const upcomingFestivals: Array<{ slug: string; match: (e: GaariEvent) => boolean; label: Record<string, string> }> = [
+			{ slug: 'bergenfest', match: (e) => !!e.source_url?.includes('bergenfest.no'), label: { no: 'Bergenfest →', en: 'Bergenfest →' } }
+		];
+		for (const fest of upcomingFestivals) {
+			if (allEvents.some((e) => fest.match(e) && e.date_start <= cutoff14d)) {
+				suggestions.push({ slug: fest.slug, label: fest.label });
+				break;
+			}
+		}
+
 		if (isWeekend) {
 			suggestions.push({ slug: 'denne-helgen', label: { no: 'Denne helgen', en: 'This weekend' } });
 		}

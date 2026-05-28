@@ -2582,12 +2582,12 @@ const collections: Collection[] = [
 		seasonal: true,
 		maxPerVenue: 50,
 		title: {
-			no: 'Bergenfest 2026 — Program og billetter',
-			en: 'Bergenfest 2026 — Lineup and Tickets'
+			no: 'Bergenfest — Program 10.–13. juni',
+			en: 'Bergenfest — Lineup 10–13 June'
 		},
 		description: {
-			no: 'Bergenfest-programmet — artister, billetter og praktisk info. Bergenhus Festning, Bergen.',
-			en: 'Bergenfest lineup — artists, tickets and practical info. Bergenhus Fortress, Bergen, Norway.'
+			no: '10.–13. juni på Bergenhus Festning. Lewis Capaldi, The Hives, Of Monsters and Men og flere — program og billettlenker.',
+			en: '10–13 June at Bergenhus Fortress. Lewis Capaldi, The Hives, Of Monsters and Men and more — line-up and ticket links.'
 		},
 		ogSubtitle: {
 			no: 'Musikk på Bergenhus Festning',
@@ -2598,8 +2598,8 @@ const collections: Collection[] = [
 		footer: { langs: ['no'], order: 13 },
 		newsletterHeading: { no: 'Bergenfest — årets artister', en: 'Bergenfest — this year\'s lineup' },
 		quickAnswer: {
-			no: 'Bergenfest er en årlig musikkfestival på Bergenhus Festning i Bergen sentrum, med norske og internasjonale artister i fire dager i juni. Festivalen kombinerer pop, rock, elektronika og hip-hop i historiske omgivelser med utsikt over Vågen.',
-			en: 'Bergenfest is an annual music festival at Bergenhus Fortress in central Bergen, featuring Norwegian and international artists over four days in June. The festival combines pop, rock, electronic and hip-hop music in a historic setting overlooking the harbour (Vågen).'
+			no: 'Bergenfest 2026 arrangeres 10.–13. juni på Koengen ved Bergenhus Festning i Bergen sentrum. Headlinere inkluderer Lewis Capaldi, The Hives, Nothing But Thieves, Of Monsters and Men, Kings of Convenience og Dermot Kennedy. Festivalen kombinerer pop, rock, indie og hip-hop med utsikt over Vågen og Bryggen.',
+			en: 'Bergenfest 2026 takes place 10–13 June at Koengen by Bergenhus Fortress in central Bergen. Headliners include Lewis Capaldi, The Hives, Nothing But Thieves, Of Monsters and Men, Kings of Convenience and Dermot Kennedy. The festival combines pop, rock, indie and hip-hop with views over the harbour (Vågen) and Bryggen.'
 		},
 		editorial: {
 			no: [
@@ -2615,7 +2615,7 @@ const collections: Collection[] = [
 		},
 		faq: {
 			no: [
-				{ q: 'Når er Bergenfest?', a: 'Bergenfest arrangeres over fire dager i midten av juni hvert år. Nøyaktige datoer varierer.' },
+				{ q: 'Når er Bergenfest 2026?', a: 'Bergenfest 2026 arrangeres onsdag 10. til lørdag 13. juni på Koengen ved Bergenhus Festning. Festivalen holdes hvert år i juni.' },
 				{ q: 'Hvor holdes Bergenfest?', a: 'Koengen ved Bergenhus Festning i Bergen sentrum. Nær Bryggen og lett tilgjengelig med buss og bybane.' },
 				{ q: 'Hvordan kjøper jeg billetter til Bergenfest?', a: 'Billetter selges via bergenfest.no. Du kan kjøpe dagspass eller festivalpass for alle fire dager.' },
 				{ q: 'Er det aldersgrense på Bergenfest?', a: 'Festivalen er åpen for alle aldre, men det kan være 18-årsgrense på visse soner etter kl. 23.' },
@@ -2623,7 +2623,7 @@ const collections: Collection[] = [
 				{ q: 'Hva er Koengen?', a: 'Koengen er utendørsarenaen ved Bergenhus Festning i Bergen sentrum, brukt til Norges største konserter og festivaler. Bergenfest bruker Koengen som sin hovedscene med utsikt over Vågen og Bryggen.' }
 			],
 			en: [
-				{ q: 'When is Bergenfest?', a: 'Bergenfest takes place over four days in mid-June each year. Exact dates vary — check this page for the updated lineup.' },
+				{ q: 'When is Bergenfest 2026?', a: 'Bergenfest 2026 takes place Wednesday 10 to Saturday 13 June at Koengen by Bergenhus Fortress. The festival runs each year in June.' },
 				{ q: 'Where is Bergenfest held?', a: 'At Koengen, outside Bergenhus Fortress in central Bergen. Near Bryggen and easily accessible by bus and light rail.' },
 				{ q: 'How do I buy Bergenfest tickets?', a: 'Tickets are sold through bergenfest.no. You can buy single-day passes or full festival passes for all four days.' },
 				{ q: 'Is there an age limit at Bergenfest?', a: 'The festival is open to all ages, but certain zones may have 18+ restrictions after 23:00.' },
@@ -2643,12 +2643,12 @@ const collections: Collection[] = [
 		seasonal: true,
 		maxPerVenue: 50,
 		title: {
-			no: 'Bergenfest',
-			en: 'Bergenfest Bergen'
+			no: 'Bergenfest — Program 10.–13. juni',
+			en: 'Bergenfest Bergen — Lineup 10–13 June'
 		},
 		description: {
-			no: 'Bergenfest-programmet — artister, billetter og praktisk info.',
-			en: 'Bergenfest lineup and schedule — artists, tickets and practical info. Bergenhus Fortress, Bergen.'
+			no: '10.–13. juni på Bergenhus Festning. Lewis Capaldi, The Hives, Of Monsters and Men og flere — program og billettlenker.',
+			en: '10–13 June at Bergenhus Fortress, Bergen. Lewis Capaldi, The Hives, Of Monsters and Men and more — full line-up and ticket links.'
 		},
 		ogSubtitle: {
 			no: 'Musikk på Bergenhus Festning',
@@ -2659,8 +2659,8 @@ const collections: Collection[] = [
 		footer: { langs: ['en'], order: 13 },
 		newsletterHeading: { no: 'Bergenfest — årets artister', en: 'Bergenfest — this year\'s lineup' },
 		quickAnswer: {
-			no: 'Bergenfest er en årlig musikkfestival på Bergenhus Festning i Bergen sentrum.',
-			en: 'Bergenfest is an annual music festival at Bergenhus Fortress in central Bergen, featuring Norwegian and international artists over four days in June. The festival combines pop, rock, electronic and hip-hop music in a historic setting overlooking the harbour (Vågen).'
+			no: 'Bergenfest 2026 arrangeres 10.–13. juni på Koengen ved Bergenhus Festning i Bergen sentrum.',
+			en: 'Bergenfest 2026 takes place 10–13 June at Koengen by Bergenhus Fortress in central Bergen. Headliners include Lewis Capaldi, The Hives, Nothing But Thieves, Of Monsters and Men, Kings of Convenience and Dermot Kennedy. The festival combines pop, rock, indie and hip-hop with views over the harbour (Vågen) and Bryggen.'
 		},
 		editorial: {
 			no: [
@@ -2676,7 +2676,7 @@ const collections: Collection[] = [
 		},
 		faq: {
 			no: [
-				{ q: 'Når er Bergenfest?', a: 'Bergenfest arrangeres over fire dager i midten av juni hvert år.' },
+				{ q: 'Når er Bergenfest 2026?', a: 'Bergenfest 2026 arrangeres 10.–13. juni på Koengen ved Bergenhus Festning.' },
 				{ q: 'Hvor holdes Bergenfest?', a: 'Koengen ved Bergenhus Festning i Bergen sentrum.' },
 				{ q: 'Hvordan kjøper jeg billetter til Bergenfest?', a: 'Via bergenfest.no. Dagspass eller festivalpass for alle dager.' },
 				{ q: 'Er det aldersgrense på Bergenfest?', a: 'Åpen for alle aldre, men 18-årsgrense på visse soner etter kl. 23.' },
@@ -2684,7 +2684,7 @@ const collections: Collection[] = [
 				{ q: 'Hvem har opptrådt på Bergenfest?', a: 'Bergenfest har hatt internasjonale artister som Beyoncé, Bob Dylan, Elton John og Kylie Minogue. Festivalen er kjent for sin blanding av globale stjerner og spennende oppdagelser. Sjekk bergenfest.no for årets program.' }
 			],
 			en: [
-				{ q: 'When is Bergenfest?', a: 'Bergenfest takes place over four days in mid-June each year. Exact dates vary — check this page for the updated lineup.' },
+				{ q: 'When is Bergenfest 2026?', a: 'Bergenfest 2026 takes place 10–13 June at Koengen by Bergenhus Fortress. Exact dates vary by year — check this page for the updated lineup.' },
 				{ q: 'Where is Bergenfest held?', a: 'At Koengen, outside Bergenhus Fortress in central Bergen. Near Bryggen and easily accessible by bus and light rail.' },
 				{ q: 'How do I buy Bergenfest tickets?', a: 'Tickets are sold through bergenfest.no. You can buy single-day passes or full festival passes for all four days.' },
 				{ q: 'Is there an age limit at Bergenfest?', a: 'The festival is open to all ages, but certain zones may have 18+ restrictions after 23:00.' },
