@@ -21,7 +21,7 @@ const SUBDOMAINS = [
 	'vic',
 	'vestnorsk',
 	// 'borealis', // Now handled by dedicated scraper (borealis.ts)
-	'nattjazz',
+	// 'nattjazz', // Now handled by dedicated scraper (nattjazz.ts) — scrapes nattjazz.no/spilleplan2026
 	'landmark',
 	'sl',
 	// 'ekko', // Now handled by dedicated scraper (ostre.ts)

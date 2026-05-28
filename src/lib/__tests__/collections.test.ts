@@ -992,20 +992,20 @@ describe('nattjazz filter', () => {
 	const collection = getCollection('nattjazz')!;
 	const now = new Date('2026-05-25T12:00:00');
 
-	it('includes events with nattjazz.ticketco.no source_url', () => {
+	it('includes events from the dedicated nattjazz scraper', () => {
 		const events = [
-			makeEvent({ id: '1', source_url: 'https://nattjazz.ticketco.no/no/nb/events/12345' }),
-			makeEvent({ id: '2', source_url: 'https://nattjazz.ticketco.no/no/nb/events/67890' }),
-			makeEvent({ id: '3', source_url: 'https://hulen.ticketco.no/no/nb/events/11111' })
+			makeEvent({ id: '1', source: 'nattjazz', source_url: 'https://www.nattjazz.no/artister/harold-lopez-nussa' }),
+			makeEvent({ id: '2', source: 'nattjazz', source_url: 'https://www.nattjazz.no/artister/susanne-sundfoer' }),
+			makeEvent({ id: '3', source: 'kvarteret', source_url: 'https://kvarteret.no/event/12345' })
 		];
 		const result = collection.filterEvents(events, now);
 		expect(result.map(e => e.id)).toEqual(['1', '2']);
 	});
 
-	it('excludes other ticketco subdomains', () => {
+	it('excludes events from other sources', () => {
 		const events = [
-			makeEvent({ id: '1', source_url: 'https://kvarteret.ticketco.no/no/nb/events/111' }),
-			makeEvent({ id: '2', source_url: 'https://nattjazz.ticketco.no/no/nb/events/222' })
+			makeEvent({ id: '1', source: 'kvarteret', source_url: 'https://kvarteret.ticketco.no/no/nb/events/111' }),
+			makeEvent({ id: '2', source: 'nattjazz', source_url: 'https://www.nattjazz.no/artister/beharie' })
 		];
 		const result = collection.filterEvents(events, now);
 		expect(result.map(e => e.id)).toEqual(['2']);
@@ -1014,7 +1014,7 @@ describe('nattjazz filter', () => {
 	it('EN slug resolves to same filter', () => {
 		const en = getCollection('nattjazz-bergen')!;
 		const events = [
-			makeEvent({ id: '1', source_url: 'https://nattjazz.ticketco.no/no/nb/events/123' })
+			makeEvent({ id: '1', source: 'nattjazz', source_url: 'https://www.nattjazz.no/artister/diket' })
 		];
 		expect(en.filterEvents(events, now)).toHaveLength(1);
 	});

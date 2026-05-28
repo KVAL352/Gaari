@@ -74,7 +74,8 @@ const filterBySourceDomain = (events: GaariEvent[], domain: string) =>
 const filterFestspillene = (events: GaariEvent[]) => filterBySourceDomain(events, 'fib.no');
 const filterBergenfest = (events: GaariEvent[]) => filterBySourceDomain(events, 'bergenfest.no');
 const filterBeyondTheGates = (events: GaariEvent[]) => filterBySourceDomain(events, 'beyondthegates.no');
-const filterNattjazz = (events: GaariEvent[]) => filterBySourceDomain(events, 'nattjazz.ticketco.no');
+const filterNattjazz = (events: GaariEvent[]) =>
+	events.filter(e => e.source === 'nattjazz' || e.source_url?.includes('nattjazz.no'));
 const filterBergenPride = (events: GaariEvent[]) =>
 	events.filter(e => e.source_url?.includes('bergenpride.no') || e.source_url?.includes('bergenpride.ticketco.events'));
 const filterBIFF = (events: GaariEvent[]) => filterBySourceDomain(events, 'biff.no');

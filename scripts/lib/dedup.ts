@@ -22,6 +22,7 @@ const SOURCE_RANK: Record<string, number> = {
 	carteblanche: 5,
 	festspillene: 5,
 	bergenfest: 5,
+	nattjazz: 5,
 	beyondthegates: 5,
 	brann: 5,
 	kulturhusetibergen: 5,
