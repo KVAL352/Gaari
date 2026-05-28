@@ -12,7 +12,7 @@ Register over signerte/aksepterte DPA-er per GDPR Art. 28.
 | Stripe      | Automatisk via SSA           | Aktiv      | 2026-05-26  | `Stripe_DPA_2026-05-26.pdf`        |
 | Supabase    | Krever signering via PandaDoc| Forespurt  | 2026-05-26  | (venter på PandaDoc)               |
 | Vercel      | Hobby — krever henvendelse   | Forespurt  | 2026-05-26  | (venter på svar fra privacy@vercel.com) |
-| Resend      | Krever henvendelse           | Forespurt  | 2026-05-26  | (venter på svar fra support@resend.com) |
+| Resend      | Automatisk via signup        | Bekreftet  | 2026-05-26  | (last ned manuelt fra `resend.com/settings/documents` — DPA er "fully executed on signup" iflg. Evan @ Resend 2026-05-26; lagre som `Resend_DPA_2026-05-26.pdf`) |
 
 ## Hva en DPA er
 
