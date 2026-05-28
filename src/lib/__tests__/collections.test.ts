@@ -746,17 +746,19 @@ describe('påske filter (paske)', () => {
 describe('sankthans filter', () => {
 	const collection = getCollection('sankthans')!;
 
-	it('includes events June 21–24', () => {
+	it('includes events June 19–25 (weekend-before + tail captures Tønnebålet)', () => {
 		const now = new Date('2026-06-15T12:00:00');
 		const events = [
 			makeEvent({ id: '1', date_start: '2026-06-21T18:00:00Z' }), // June 21 ✓
 			makeEvent({ id: '2', date_start: '2026-06-23T20:00:00Z' }), // Sankthansaften ✓
 			makeEvent({ id: '3', date_start: '2026-06-24T10:00:00Z' }), // June 24 ✓
-			makeEvent({ id: '4', date_start: '2026-06-20T18:00:00Z' }), // June 20 — excluded
-			makeEvent({ id: '5', date_start: '2026-06-25T10:00:00Z' })  // June 25 — excluded
+			makeEvent({ id: '4', date_start: '2026-06-20T18:00:00Z' }), // June 20 (Tønnebålet weekend-før) ✓
+			makeEvent({ id: '5', date_start: '2026-06-25T10:00:00Z' }), // June 25 ✓
+			makeEvent({ id: '6', date_start: '2026-06-18T18:00:00Z' }), // June 18 — excluded
+			makeEvent({ id: '7', date_start: '2026-06-26T10:00:00Z' })  // June 26 — excluded
 		];
 		const result = collection.filterEvents(events, now);
-		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
+		expect(result.map(e => e.id)).toEqual(['1', '2', '3', '4', '5']);
 	});
 
 	it('EN counterpart works', () => {
