@@ -1,3 +1,5 @@
+import { SOURCE_COUNT } from '$lib/constants';
+
 export const translations = {
 	no: {
 		// General
@@ -215,7 +217,7 @@ export const translations = {
 
 		// Newsletter CTA
 		nlHeading: '5 tips for helgen — hver torsdag',
-		nlSubtext: 'Håndplukket fra 55 kilder. Alltid gratis.',
+		nlSubtext: `Håndplukket fra ${SOURCE_COUNT} kilder. Alltid gratis.`,
 		nlMicrocopy: 'Gratis — ingen spam. Kun det beste fra Bergen.',
 		nlPlaceholder: 'Din e-post',
 		nlSubscribe: 'Meld meg på',
@@ -441,7 +443,7 @@ export const translations = {
 
 		// Newsletter CTA
 		nlHeading: '5 weekend picks — every Thursday',
-		nlSubtext: 'Hand-picked from 55 sources. Always free.',
+		nlSubtext: `Hand-picked from ${SOURCE_COUNT} sources. Always free.`,
 		nlMicrocopy: 'Free — no spam. Only the best from Bergen.',
 		nlPlaceholder: 'Your email',
 		nlSubscribe: 'Sign me up',
