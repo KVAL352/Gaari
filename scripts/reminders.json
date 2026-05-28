@@ -1,8 +1,8 @@
 [
   {
-    "date": "2026-05-27",
-    "title": "Sjekk Vercel-dashboard — verifiser effekt av ISR-fikser",
-    "description": "5 dager etter ISR-optimaliseringene (22. mai): event-detalj til 7-dagers expiration, fjernet new Date() fra SSR-output på homepage/collection. Logg inn på vercel.com/kjerstis-projects/usage og sammenlign med utgangspunktet: ISR Reads 644K/1M, ISR Writes 911K/200K, Origin Transfer 8.0/10 GB, Fluid Active CPU 3t11m/4t. Forventet: ISR Writes skal trende ned (gammel cache utløper underveis). Hvis ikke — utvid undersøkelsen til andre ikke-deterministiske kilder."
+    "date": "2026-06-27",
+    "title": "Vercel Pro: vurder faktisk forbruk etter første full måned",
+    "description": "Oppgradert til Pro 2026-05-27 etter 300% ISR Writes-alarm. Pro gir 1M ISR Writes inkludert. Logg inn på vercel.com/kjerstis-projects/usage og noter: ISR Reads, ISR Writes, Origin Transfer, Fluid Active CPU. Hvis vi ligger godt under 50% av Pro-limits, er ISR-optimaliseringene fra 22. mai (7d event-detalj) effektive. Hvis nært/over Pro-limits — vurder ytterligere optimaliseringer (collections 1h → 4h, undersøke s-maxage vs ISR-konflikt på event-detail)."
   },
   {
     "date": "2026-06-01",
@@ -10,9 +10,9 @@
     "description": "Mai er ferdig — generer og send full mai-rapport til mads.liabo@brann.no. Kjør: cd scripts && npx tsx generate-venue-report.ts \"Brann Stadion\" --month 2026-05. Sjekk rapporten i nettleser før sending. Husk: rapporten viser kort-klikk og billett-klikk separat — vurder å nevne dette i eposten. Etter sending: marker project_calendar-tasken som done (Brann månedsrapport #1) og oppdater reminder for #2 (16. juni)."
   },
   {
-    "date": "2026-06-01",
-    "title": "Månedlig Vercel dashboard-sjekk",
-    "description": "Logg inn på vercel.com/kjerstis-projects/usage og noter prosent for ISR Reads, Fast Origin Transfer, Fluid Active CPU. Hvis noen er >50% før månedsskiftet — vurder optimaliseringer (sjekk ISR-expirations, sitemap-størrelse, bot-trafikk). Vercel free-tier eksponerer ikke usage via API, så dette må gjøres manuelt. Etter sjekk: flytt reminder til 1. juli."
+    "date": "2026-09-01",
+    "title": "Kvartalsvis Vercel dashboard-sjekk (Pro)",
+    "description": "På Pro siden 2026-05-27 så akutt risk er borte. Sjekk likevel kvartalsvis: logg inn på vercel.com/kjerstis-projects/usage og noter prosent for ISR Reads, ISR Writes, Fast Origin Transfer, Fluid Active CPU mot Pro-limits (1M ISR Writes, etc.). Hvis trafikk har vokst slik at vi nærmer oss on-demand-pricing, vurder optimaliseringer. Etter sjekk: flytt reminder til 1. desember."
   },
   {
     "date": "2026-06-09",
