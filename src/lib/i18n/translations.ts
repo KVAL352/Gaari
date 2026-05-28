@@ -7,7 +7,10 @@ export const translations = {
 		homeSeoTitle: 'Hva skjer i Bergen? Arrangementer i dag og denne uken — Gåri',
 
 		// Navigation
-		explore: 'Utforsk',
+		// "explore" is used only as the back-link anchor on event-detail pages.
+		// Keyword-rich anchor: 1700+ event pages link to /no via this text, signalling to Google
+		// that /no is the canonical "hva skjer i Bergen"-side.
+		explore: 'Hva skjer i Bergen',
 		categories: 'Kategorier',
 		map: 'Kart',
 		saved: 'Lagret',
@@ -247,7 +250,7 @@ export const translations = {
 		heroSubtitle: 'What\u2019s on in Bergen? All events in one place',
 		homeSeoTitle: 'What\u2019s On in Bergen? Events Today and This Week — Gåri',
 
-		explore: 'Explore',
+		explore: "What's On in Bergen",
 		categories: 'Categories',
 		map: 'Map',
 		saved: 'Saved',
