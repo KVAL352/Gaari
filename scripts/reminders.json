@@ -105,6 +105,11 @@
     "description": "SEO domeneautoritet: 1) Sjekk om Gåri har orgnr i Brønnøysund (grunnlag for Proff/Gulesider/1881). 2) Registrer på minbedrift.1881.no (gratis). 3) Kontakt Bergen Kommune kultur for lenke fra bergen.kommune.no/hvaskjer."
   },
   {
+    "date": "2026-05-29",
+    "title": "Dypdykk: er den juridiske logikken i bruksvilkår riktig?",
+    "description": "Sammen med Claude: gjennomgå argumentene i /vilkar og docs/ip-protection.md mot konkret rettspraksis. Sjekk: (1) Holder sui generis-databasevern (åndsverksloven § 24) for vår størrelse og innsats? Hva sier nyere norsk/EU-praksis? (2) Er AI-genererte beskrivelser åndsverksbeskyttet i Norge? (3) Hvor langt strekker Finn.no v Supersøk-presedensen seg — gjelder den asymmetriske aggregatorer (vi sender trafikk tilbake)? (4) Hva er sannsynlig utfall hvis vi går til retten med kun canary-treff som bevis? Mål: identifisere svakhetene før advokat-gjennomgang."
+  },
+  {
     "date": "2026-08-28",
     "title": "Sjekk om kaskjerbergen.no er aktiv igjen (kvartalsvis)",
     "description": "Per 2026-05-28: kaskjerbergen.no har DNS men port 443 refused — tilsynelatende defunct. Var Gåris nærmeste direkte konkurrent (samme aggregator-modell, laget av Paal Kobbeltvedt og Eskild Halvorsen). Sjekk: curl -v https://kaskjerbergen.no/. Hvis den er tilbake: legg til i scripts/canary-targets.txt under hovedlisten. Også sjekk om 10times.com og bandsintown.com fortsatt blokkerer vår User-Agent (anti-bot 403) — hvis åpne, legg dem til. Etter sjekk: flytt reminderen tre måneder frem."

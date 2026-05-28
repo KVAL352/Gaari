@@ -3,6 +3,10 @@
 **Sist oppdatert:** 2026-05-28
 **Status:** Aktivt — lag-på-lag forsvar mot kopiering av Gåri-databasen
 
+> ## ⚠️ STOPP — Før du sender første opphørspålegg
+>
+> Bruksvilkårene på /vilkar lener seg på åndsverksloven § 24 og Finn.no v Supersøk-presedensen — sannsynlig anvendelig, men **ikke testet i rett for vår type database**. Få bruksvilkårene gjennomgått av advokat med IP/tech-erfaring (1–2 timer rådgivning, ~2 000–4 000 kr) FØR du sender første opphørspålegg. Detaljer i § 3 nedenfor.
+
 ---
 
 ## 1. Trusselbilde

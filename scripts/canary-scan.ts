@@ -116,14 +116,106 @@ async function fetchTarget(url: string): Promise<string | null> {
 	}
 }
 
-function saveEvidence(target: string, html: string, hits: Hit[]) {
+function saveEvidence(target: string, html: string, hits: Hit[], evidenceDir: string) {
 	const safeName = target.replace(/[^a-z0-9]+/gi, '_').slice(0, 80);
-	const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-	const dir = `../outputs/canary-evidence/${stamp}`;
-	if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-	writeFileSync(`${dir}/${safeName}.html`, html);
-	writeFileSync(`${dir}/${safeName}.json`, JSON.stringify({ target, hits, capturedAt: new Date().toISOString() }, null, 2));
-	console.log(`  Saved evidence: ${dir}/${safeName}.html`);
+	writeFileSync(`${evidenceDir}/${safeName}.html`, html);
+	writeFileSync(`${evidenceDir}/${safeName}.json`, JSON.stringify({ target, hits, capturedAt: new Date().toISOString() }, null, 2));
+	console.log(`  Saved evidence: ${evidenceDir}/${safeName}.html`);
+}
+
+async function archiveToWayback(url: string): Promise<string | null> {
+	// Trigger an independent third-party archive. This is legal-grade because
+	// Wayback Machine timestamps are accepted as evidence in many jurisdictions.
+	try {
+		const res = await fetch(`https://web.archive.org/save/${encodeURI(url)}`, {
+			headers: { 'User-Agent': USER_AGENT },
+			signal: AbortSignal.timeout(60_000)
+		});
+		// Wayback returns 200 + Location header with snapshot URL, or sometimes 302
+		const snapshot = res.headers.get('content-location') || res.headers.get('location');
+		if (snapshot) return `https://web.archive.org${snapshot.startsWith('http') ? '' : snapshot}`;
+		return res.ok ? `https://web.archive.org/web/*/${url}` : null;
+	} catch (e) {
+		console.error(`  Wayback archive failed for ${url}: ${e instanceof Error ? e.message : e}`);
+		return null;
+	}
+}
+
+function writeActionChecklist(evidenceDir: string, hits: Hit[], waybackUrls: Record<string, string | null>) {
+	const lines: string[] = [
+		`# CANARY HIT — handlingssjekkliste`,
+		``,
+		`**Oppdaget:** ${new Date().toISOString()}`,
+		`**Antall treff:** ${hits.length}`,
+		``,
+		`## STOPP — Les dette først`,
+		``,
+		`Et canary-treff er sterkt bevis, men IKKE send krav om opphør før du har:`,
+		``,
+		`1. **Verifisert at treffet ikke er en falsk positiv.** Sjekk evidensen i denne mappa. Match tittel + venue + dato eksakt mot vår canary-database (\`cd scripts && npx tsx canary-manage.ts list\`).`,
+		`2. **Fått advokat-gjennomgang av bruksvilkår.** Se docs/ip-protection.md § 3. Mitt utkast på /vilkar lener seg på åndsverksloven § 24 og Finn.no v Supersøk — sannsynlig, men ikke testet i rett for *vår* type database. Bruk 1–2 timer rådgivning (~2 000–4 000 kr) hos advokat med IP/tech-erfaring.`,
+		`3. **Verifisert Wayback Machine-arkivet.** Lenker nedenfor — sjekk at de fungerer. Hvis ikke: lag manuelt snapshot via https://web.archive.org/save/<url>.`,
+		`4. **Skannet bredt.** Hvis én canary er treff, finn alle. Sjekk også om de har kopiert AI-beskrivelser og venue-mapping (ikke bare canaries).`,
+		``,
+		`## Treff`,
+		``,
+		...hits.map(h => `- **${h.matchedOn}** på \`${h.target}\` — canary \`${h.canaryId.slice(0, 8)}\``),
+		``,
+		`## Wayback Machine-arkiver`,
+		``,
+		...Object.entries(waybackUrls).map(([t, w]) => `- ${t} → ${w ?? 'ARKIVERING FEILET — manuelt: https://web.archive.org/save/' + encodeURI(t)}`),
+		``,
+		`## Bevis-filer`,
+		``,
+		`Rå HTML og JSON for hvert treff ligger i samme mappe. Behold denne mappa uendret som primær bevismateriale.`,
+		``,
+		`## Neste steg`,
+		``,
+		`1. Konsulter advokat med materialet — se docs/ip-protection.md § 3.`,
+		`2. Lagre denne mappa OG GHA-artifact (90 dagers retensjon) på et permanent sted før sletting.`,
+		`3. Hvis advokat anbefaler opphørspålegg: skriv brev med henvisning til bruksvilkår, vedlegg bevis, sett 14-dagers frist.`,
+	];
+	writeFileSync(`${evidenceDir}/README.md`, lines.join('\n'));
+}
+
+async function sendHitAlert(hits: Hit[], evidenceDir: string, waybackUrls: Record<string, string | null>) {
+	const key = process.env.RESEND_API_KEY;
+	if (!key) {
+		console.log('  Email alert skipped (no RESEND_API_KEY)');
+		return;
+	}
+	const subject = `🚨 Canary-treff oppdaget — ${hits.length} match${hits.length === 1 ? '' : 'es'}`;
+	const targets = [...new Set(hits.map(h => h.target))];
+	const text = [
+		`Canary-scan oppdaget ${hits.length} treff på ${targets.length} domene${targets.length === 1 ? '' : 'r'}.`,
+		``,
+		`STOPP. Ikke send krav om opphør før du har:`,
+		`  1. Verifisert treffene mot canary-databasen`,
+		`  2. Fått advokat-gjennomgang av /vilkar (~2000-4000 kr, 1-2 timer)`,
+		`  3. Verifisert Wayback Machine-arkivene`,
+		``,
+		`Treff:`,
+		...hits.map(h => `  - [${h.matchedOn}] ${h.target} → canary ${h.canaryId.slice(0, 8)}`),
+		``,
+		`Wayback-arkiver:`,
+		...Object.entries(waybackUrls).map(([t, w]) => `  - ${t} → ${w ?? 'FEILET'}`),
+		``,
+		`Bevis lagret i: ${evidenceDir}`,
+		`Full handlingssjekkliste: ${evidenceDir}/README.md`,
+		``,
+		`Se docs/ip-protection.md § 3 for full workflow.`,
+	].join('\n');
+
+	const resp = await fetch('https://api.resend.com/emails', {
+		method: 'POST',
+		headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+		body: JSON.stringify({ from: 'Gåri <noreply@gaari.no>', to: ['post@gaari.no'], subject, text })
+	});
+	if (resp.ok) {
+		console.log('  📧 Hit alert email sent to post@gaari.no');
+	} else {
+		console.error(`  ❌ Hit alert email failed: ${resp.status}`);
+	}
 }
 
 async function main() {
@@ -162,7 +254,11 @@ async function main() {
 
 	console.log(`Scanning ${targets.length} target(s) for ${canaries.length} canary fingerprint(s)...\n`);
 
+	const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+	const evidenceDir = `../outputs/canary-evidence/${stamp}`;
 	const allHits: Hit[] = [];
+	const hitTargets: { target: string; html: string; hits: Hit[] }[] = [];
+
 	for (const target of targets) {
 		console.log(`→ ${target}`);
 		const html = await fetchTarget(target);
@@ -180,15 +276,40 @@ async function main() {
 
 		if (hits.length > 0) {
 			allHits.push(...hits);
-			saveEvidence(target, html, hits);
+			hitTargets.push({ target, html, hits });
 		} else {
 			console.log('  no matches');
 		}
 	}
 
 	console.log(`\n${allHits.length} total match(es) across ${targets.length} target(s).`);
+
 	if (allHits.length > 0) {
-		console.log('Review the evidence files in outputs/canary-evidence/ before acting.');
+		if (!existsSync(evidenceDir)) mkdirSync(evidenceDir, { recursive: true });
+
+		// Save raw HTML + JSON per target
+		for (const { target, html, hits } of hitTargets) {
+			saveEvidence(target, html, hits, evidenceDir);
+		}
+
+		// Independent third-party archive via Wayback Machine
+		console.log('\nArchiving to Wayback Machine...');
+		const waybackUrls: Record<string, string | null> = {};
+		for (const { target } of hitTargets) {
+			const w = await archiveToWayback(target);
+			waybackUrls[target] = w;
+			console.log(`  ${target} → ${w ?? 'FAILED'}`);
+		}
+
+		// Action checklist with explicit lawyer-review reminder
+		writeActionChecklist(evidenceDir, allHits, waybackUrls);
+
+		// Email alert to admin with full context
+		await sendHitAlert(allHits, evidenceDir, waybackUrls);
+
+		console.log(`\nEvidence saved to: ${evidenceDir}`);
+		console.log('Read README.md in that folder BEFORE acting.');
+
 		// Exit non-zero so CI workflows surface this as a failure and notify.
 		process.exit(2);
 	}

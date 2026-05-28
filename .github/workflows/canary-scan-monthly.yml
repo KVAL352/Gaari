@@ -43,6 +43,7 @@ jobs:
         env:
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: npx tsx canary-scan.ts --file canary-targets.txt
 
       - name: Upload evidence on hit
@@ -51,7 +52,9 @@ jobs:
         with:
           name: canary-evidence-${{ github.run_id }}
           path: outputs/canary-evidence/
-          retention-days: 90
+          # 365 days — legal cases take time to develop. Local copy in
+          # the repo's outputs/ folder is the long-term archive.
+          retention-days: 365
 
       - name: Job summary
         if: always()
