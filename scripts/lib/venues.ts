@@ -515,6 +515,7 @@ const SOURCE_DISPLAY_LABELS: Record<string, string> = {
 	'litthusbergen': 'Foto: Litteraturhuset i Bergen',
 	'loddefjord': 'Foto: Lyderhorn Frivilligsentral',
 	'museumvest': 'Foto: Museum Vest',
+	'nattjazz': 'Foto: Nattjazz',
 	'oconnors': "Foto: O'Connors",
 	'olebull': 'Foto: Ole Bull Scene',
 	'ostre': 'Foto: Østre',

@@ -16,6 +16,26 @@ interface ConcertRecord {
 	scene: string;         // e.g. "SARDINEN", "HALLEN USF"
 	tagline?: string;
 	fotokred?: string;     // photographer credit from Nattjazz CMS
+	imageUrl?: string;     // hot-link URL on static.wixstatic.com
+}
+
+/**
+ * Convert Wix internal image reference to a hot-linkable HTTPS URL.
+ *
+ * Input format (from Wix CMS):
+ *   `wix:image://v1/991482_<hash>~mv2.jpg/<original-filename>#originWidth=W&originHeight=H`
+ *
+ * Output: static.wixstatic.com URL with 16:9 fill-transform (w=800, h=450),
+ * matching the size we use for other festivals. Wix CDN respects Referer and
+ * has no hot-link block as of 2026-05-28 — verifyHotlinkable() will catch any
+ * future change automatically.
+ */
+function wixImageUrl(ref: string | undefined): string | undefined {
+	if (!ref) return undefined;
+	const m = ref.match(/^wix:image:\/\/v1\/(\S+?\.(?:jpg|jpeg|png|webp))\/([^#?]+)/i);
+	if (!m) return undefined;
+	const [, fileId, name] = m;
+	return `https://static.wixstatic.com/media/${fileId}/v1/fill/w_800,h_450,al_c,q_85,enc_auto/${name}`;
 }
 
 function findNearestField(html: string, anchor: number, field: string, maxDistance = 4000): string | undefined {
@@ -30,6 +50,26 @@ function findNearestField(html: string, anchor: number, field: string, maxDistan
 		}
 	}
 	return best;
+}
+
+/**
+ * Like findNearestField but allows backslash-escaped characters in the value
+ * (Wix image references contain `\/` and `~` sequences that the simpler regex
+ * truncates at).
+ */
+function findNearestEscapedField(html: string, anchor: number, field: string, maxDistance = 4000): string | undefined {
+	const re = new RegExp(`"${field}":"((?:[^"\\\\]|\\\\.){1,500})"`, 'g');
+	let best: string | undefined;
+	let bestDist = maxDistance + 1;
+	for (const m of html.matchAll(re)) {
+		const dist = Math.abs((m.index ?? 0) - anchor);
+		if (dist < bestDist) {
+			bestDist = dist;
+			best = m[1];
+		}
+	}
+	// Unescape JSON-style \/ and \" sequences so downstream parsers see real chars
+	return best ? best.replace(/\\\//g, '/').replace(/\\"/g, '"') : best;
 }
 
 function titleCase(s: string): string {
@@ -62,6 +102,7 @@ function parseConcerts(html: string): ConcertRecord[] {
 		const scene = findNearestField(html, anchor, 'spillerDato1', 1500);
 		const tagline = findNearestField(html, anchor, 'description', 1500);
 		const fotokred = findNearestField(html, anchor, 'fotokred', 1500);
+		const imageRef = findNearestEscapedField(html, anchor, 'image', 1500);
 
 		// Require date — without it we can't insert anything sensible
 		if (!date || !/^2\d{3}-\d{2}-\d{2}$/.test(date)) continue;
@@ -100,6 +141,7 @@ function parseConcerts(html: string): ConcertRecord[] {
 			scene: scene || '',
 			tagline: tagline?.trim() || undefined,
 			fotokred: fotokred?.trim() || undefined,
+			imageUrl: wixImageUrl(imageRef),
 		});
 	}
 
@@ -153,8 +195,6 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			price: '',
 		});
 
-		// Lagre fotokred selv om vi ikke viser bilde nå — hvis Nattjazz senere
-		// godkjenner bildebruk, har vi kreditering klar uten å re-scrape.
 		const success = await insertEvent({
 			slug: makeSlug(displayTitle, c.date),
 			title_no: displayTitle,
@@ -170,6 +210,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
+			image_url: c.imageUrl,
 			image_credit: c.fotokred,
 			age_group: 'all',
 			language: 'both',

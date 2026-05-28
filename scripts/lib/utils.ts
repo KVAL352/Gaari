@@ -178,6 +178,10 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	// Fase 2 hot-link-policy aktivert 2026-05-11 (venues/festivaler med egne ansatte). Varsel sendt samme dag.
 	// verifyHotlinkable() filtrerer ut blokkerte bilder automatisk.
 	'dnt', 'bodega', 'bergenfest', 'olebull', 'forumscene', 'generasjonsfestivalen',
+	// Nattjazz aktivert 2026-05-28 (festivalstart 29.05). Nattjazz krediterer
+	// hver foto med konkret fotograf-navn i sin Wix CMS, så scraperen lagrer
+	// `image_credit` per event. verifyHotlinkable() sjekker Wix CDN ved hver insert.
+	'nattjazz',
 	// beyondthegates trukket tilbake 2026-05-26: Torgrim Øyre svarte "Vi kan ikke gi
 	// deg noe entydig svar her. Bilder vi bruker kommer fra mange forskjellige
 	// opphavsmenn." — ikke trygt under hot-link-policy.
