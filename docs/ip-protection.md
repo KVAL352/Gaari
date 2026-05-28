@@ -44,9 +44,12 @@ Et canary-arrangement er et plausibelt-utseende, men oppdiktet event som kun fin
 **Hvor de bor:** I `events`-tabellen med `is_canary = true`.
 
 **Hvor de vises:**
-- ✅ Event-detail-side (`/[lang]/events/[slug]`) — med synlig "Testdatapunkt"-banner.
-- ✅ Venue-side (`/[lang]/venue/[slug]`) — beitemark for scrapere som crawler venues.
-- ❌ Hjemmeside, samlinger, sitemap, RSS, ICS — alle filtrerer ut `is_canary = true`.
+- ✅ Event-detail-side (`/[lang]/events/[slug]`) — med synlig "Testdatapunkt"-banner og `<meta name="robots" content="noindex,nofollow">`.
+- ✅ Sitemap (`/sitemap.xml`) — slik at scrapere som crawler sitemap finner URL-ene. Google respekterer noindex og indekserer dem ikke.
+- ✅ Venue-side (`/[lang]/venue/[slug]`) — beitemark for venue-crawlere (begrenset til 50 events; canary kan falle utenfor for høyvolums-venues som Akvariet).
+- ❌ Hjemmeside, samlinger, RSS, ICS — filtrerer ut `is_canary = true` så vanlige brukere ikke ser dem i listinger.
+
+**Designvalget:** Sitemap er det dominante bait-flaten — det er der scrapere oppdager URL-er. Vi inkluderer canaries der, men `noindex,nofollow` hindrer Google fra å vise dem i søkeresultater. Malicious scrapere respekterer ikke noindex og tar dem med. Real users finner dem nesten aldri.
 
 **Hvorfor synlig banner?** Hvis en bruker tilfeldigvis finner siden, må de få vite at det er testdata. Banneret er funksjonelt nødvendig for åpenhet. Naive scrapere som tar tittel/beskrivelse/venue uten å sjekke for advarsler kopierer fortsatt.
 
@@ -67,7 +70,7 @@ cat > /tmp/canary-1.json <<'JSON'
   "date_start": "2026-09-14T20:00:00+02:00",
   "price": "",
   "ticket_url": "https://gaari.no/no",
-  "source_url": "https://gaari.no/no"
+  "source_url": "https://gaari.no/no#canary-music-2026-09-14"
 }
 JSON
 
@@ -83,6 +86,7 @@ npx tsx canary-manage.ts list
 4. **Kategori skal være vanlig.** Music, culture, theatre — events i mer obskure kategorier (workshop, tours) ses sjeldnere.
 5. **Pris settes tom eller "Trolig gratis".** Reduserer sjansen for at noen prøver å kjøpe billett.
 6. **`ticket_url` peker tilbake til gaari.no.** Ingen risiko for at brukere blir sendt til feil sted.
+7. **`source_url` må være unik.** Databasen har UNIQUE-indeks på `source_url`. Bruk en fragment som `https://gaari.no/no#canary-<kategori>-<dato>` for å holde det unikt.
 
 **Anbefalt rytme:** 2–4 canaries spredt utover året. For mange og det blir merkbart i listinger; for få og deteksjon blir treig.
 

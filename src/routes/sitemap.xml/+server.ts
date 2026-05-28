@@ -11,7 +11,6 @@ export async function GET() {
 		.from('events')
 		.select('slug, date_start, created_at, description_no, image_url')
 		.in('status', ['approved'])
-		.eq('is_canary', false)
 		.order('date_start', { ascending: false })
 		.limit(5000);
 

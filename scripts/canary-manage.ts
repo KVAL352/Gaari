@@ -24,12 +24,16 @@
  *     "date_start": "2026-09-14T20:00:00+02:00",
  *     "price": "",
  *     "ticket_url": "https://gaari.no/no",
- *     "source_url": "https://gaari.no/no"
+ *     "source_url": "https://gaari.no/no#canary-music-2026-09-14"
  *   }
  *
  * The slug is generated from title + date. The event is inserted with
  * status='approved' and is_canary=true. Pick titles, artist names and
  * dates that look plausible but DO NOT match a real event anywhere.
+ *
+ * source_url MUST be unique across all events (DB has a UNIQUE index on
+ * source_url). Use a fragment like #canary-<category>-<date> to keep it
+ * unique while still pointing at gaari.no.
  *
  * Env vars: PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  */
