@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'jungelfest';
@@ -188,6 +188,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 	// Pull per-artist images from the jungelen.org Cargo page (best-effort).
 	const artistImages: Record<string, string> = {};
+	await delay(1500);
 	const jungelenHtml = await fetchHTML(JUNGELEN_URL);
 	if (jungelenHtml) {
 		for (const [artist, pattern] of Object.entries(ARTIST_IMAGE_HINTS)) {

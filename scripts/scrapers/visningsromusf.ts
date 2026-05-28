@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'visningsromusf';
@@ -89,6 +89,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		if (await eventExists(ex.url)) continue;
 
+		await delay(1500);
 		let imageUrl: string | undefined;
 		const detailHtml = await fetchHTML(ex.url);
 		if (detailHtml) {

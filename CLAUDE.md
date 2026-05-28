@@ -26,6 +26,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 ## Important rules
 
+- **New scraper? Follow the checklist**: `docs/new-scraper-checklist.md`. robots.txt MUST be checked and reported before any code is written or any new source is recommended.
 - **No traffic to aggregators**: ticket_url must point to actual venue/ticket pages.
 - **No copied descriptions (åndsverksloven)**: Always AI-generated or template. Never raw scraped text.
 - **No non-public events**: Exclude barnehage, SFO, school visits, members-only.

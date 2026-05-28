@@ -3,7 +3,7 @@ import { makeSlug, eventExists, insertEvent, fetchHTML, delay, deleteEventByUrl 
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'usfverftet';
-const LISTING_URL = 'https://usf.no/program';
+const LISTING_URL = 'https://www.usf.no/arrangementer';
 
 interface USFEventSummary {
 	objectId: string;

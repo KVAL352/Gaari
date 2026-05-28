@@ -1,34 +1,27 @@
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenkjott';
 const BASE_URL = 'https://www.bergenkjott.org';
-const JSON_URL = `${BASE_URL}/kalendar?format=json`;
+const RSS_URL = `${BASE_URL}/kalendar?format=rss`;
 const VENUE = 'Bergen Kjøtt';
 const ADDRESS = 'Skutevikstorget 1, Bergen';
 const USER_AGENT = 'Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)';
 
-interface SquarespaceItem {
-	title: string;
-	fullUrl: string;
-	startDate: number; // ms epoch
-	endDate?: number;
-	body?: string;
-	assetUrl?: string;
-	location?: {
-		addressTitle?: string;
-		addressLine1?: string;
-		addressLine2?: string;
-	};
+interface EventJsonLd {
+	'@type': string;
+	name?: string;
+	startDate?: string;
+	endDate?: string;
+	image?: string | string[];
+	location?: { name?: string; address?: string };
 }
 
-/** Word-boundary check — avoids false positives like "format" matching "mat" */
 function hasWord(text: string, word: string): boolean {
 	return new RegExp(`\\b${word}\\b`).test(text);
 }
 
-/** Check for Norwegian compound words ending with the keyword */
 function hasCompound(text: string, suffix: string): boolean {
 	return new RegExp(`\\w${suffix}\\b`).test(text);
 }
@@ -50,66 +43,104 @@ function stripHtml(html: string): string {
 	return html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-function extractPrice(body: string): string {
-	const text = stripHtml(body);
+function extractPrice(text: string): string {
 	const m = text.match(/\b(\d{2,5})\s*kr\b/i) || text.match(/\bkr\.?\s*(\d{2,5})\b/i);
 	if (m) return `${m[1]} kr`;
 	if (/gratis|fri\s+inngang|free\s+entry/i.test(text)) return 'Gratis';
 	return '';
 }
 
-export async function scrape(): Promise<{ found: number; inserted: number }> {
-	console.log(`\n[${SOURCE}] Fetching Bergen Kjøtt events (Squarespace JSON API)...`);
+function extractRssLinks(rssXml: string): { title: string; link: string; description: string }[] {
+	const items: { title: string; link: string; description: string }[] = [];
+	const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+	let m: RegExpExecArray | null;
+	while ((m = itemRegex.exec(rssXml)) !== null) {
+		const block = m[1];
+		const title = block.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/)?.[1].trim() || '';
+		const link = block.match(/<link>([\s\S]*?)<\/link>/)?.[1].trim() || '';
+		const description = block.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/)?.[1] || '';
+		if (title && link) items.push({ title, link, description });
+	}
+	return items;
+}
 
-	let data: { items?: SquarespaceItem[] };
+function extractEventJsonLd(html: string): EventJsonLd | null {
+	const blocks = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g) || [];
+	for (const block of blocks) {
+		const json = block.replace(/<script[^>]*>/, '').replace(/<\/script>/, '');
+		try {
+			const parsed = JSON.parse(json);
+			if (parsed['@type'] === 'Event') return parsed;
+		} catch {
+			continue;
+		}
+	}
+	return null;
+}
+
+export async function scrape(): Promise<{ found: number; inserted: number }> {
+	console.log(`\n[${SOURCE}] Fetching Bergen Kjøtt events (RSS + detail pages)...`);
+
+	let rssXml: string;
 	try {
-		const res = await fetch(JSON_URL, {
-			headers: { 'User-Agent': USER_AGENT },
-		});
+		const res = await fetch(RSS_URL, { headers: { 'User-Agent': USER_AGENT } });
 		if (!res.ok) {
-			console.error(`[${SOURCE}] JSON API returned ${res.status}`);
+			console.error(`[${SOURCE}] RSS feed returned ${res.status}`);
 			return { found: 0, inserted: 0 };
 		}
-		data = await res.json();
+		rssXml = await res.text();
 	} catch (err) {
-		console.error(`[${SOURCE}] Failed to fetch JSON:`, err);
+		console.error(`[${SOURCE}] Failed to fetch RSS:`, err);
 		return { found: 0, inserted: 0 };
 	}
 
-	const items = data.items || [];
-	console.log(`[${SOURCE}] Found ${items.length} events in JSON feed`);
+	const rssItems = extractRssLinks(rssXml);
+	console.log(`[${SOURCE}] Found ${rssItems.length} items in RSS feed`);
 
-	if (items.length === 0) return { found: 0, inserted: 0 };
+	if (rssItems.length === 0) return { found: 0, inserted: 0 };
 
 	const now = new Date();
 	let found = 0;
 	let inserted = 0;
 
-	for (const item of items) {
-		if (!item.title || !item.startDate) continue;
-
-		const startDate = new Date(item.startDate);
-		if (startDate < now) continue;
-
-		const sourceUrl = `${BASE_URL}${item.fullUrl}`;
+	for (const item of rssItems) {
+		const sourceUrl = item.link;
 		if (await eventExists(sourceUrl)) continue;
+
+		await delay(1500);
+
+		let html: string;
+		try {
+			const res = await fetch(sourceUrl, { headers: { 'User-Agent': USER_AGENT } });
+			if (!res.ok) continue;
+			html = await res.text();
+		} catch {
+			continue;
+		}
+
+		const eventLd = extractEventJsonLd(html);
+		if (!eventLd?.startDate) continue;
+
+		const startDate = new Date(eventLd.startDate);
+		if (startDate < now) continue;
 
 		found++;
 
-		const title = item.title;
+		const title = eventLd.name?.replace(/\s+—\s+Bergen Kjøtt\s*$/, '').trim() || item.title;
 		const dateStart = startDate.toISOString();
-		const dateEnd = item.endDate ? new Date(item.endDate).toISOString() : undefined;
+		const dateEnd = eventLd.endDate ? new Date(eventLd.endDate).toISOString() : undefined;
 		const datePart = dateStart.slice(0, 10);
 		const category = guessCategory(title);
 		const bydel = mapBydel(VENUE);
 
-		const imageUrl = item.assetUrl || undefined;
-		const venueName = item.location?.addressTitle || VENUE;
-		const address = item.location?.addressLine1
-			? `${item.location.addressLine1}, ${item.location?.addressLine2 || 'Bergen'}`
+		const imageUrl = Array.isArray(eventLd.image) ? eventLd.image[0] : eventLd.image;
+		const venueName = eventLd.location?.name || VENUE;
+		const address = eventLd.location?.address
+			? eventLd.location.address.replace(/\n/g, ', ')
 			: ADDRESS;
 
-		const price = item.body ? extractPrice(item.body) : '';
+		const bodyText = stripHtml(item.description);
+		const price = extractPrice(bodyText);
 		const aiDesc = await generateDescription({ title, venue: venueName, category, date: startDate, price });
 
 		const success = await insertEvent({
@@ -128,7 +159,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: sourceUrl,
 			source: SOURCE,
 			source_url: sourceUrl,
-			image_url: imageUrl,
+			image_url: imageUrl || undefined,
 			age_group: 'all',
 			language: title.match(/[a-zA-Z]{5,}/) ? 'both' : 'no',
 			status: 'approved',

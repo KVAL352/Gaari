@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel, isFamilyTitle } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, deleteEventByUrl, fetchHTML, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, deleteEventByUrl, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'dns';
@@ -65,6 +65,7 @@ async function fetchProductionUrls(): Promise<Map<string, ProductionInfo>> {
 
 /** Fetch og:image from a production detail page */
 async function fetchProductionImage(url: string): Promise<string | undefined> {
+	await delay(1500);
 	const html = await fetchHTML(url);
 	if (!html) return undefined;
 	const $ = cheerio.load(html);

@@ -85,6 +85,7 @@ function resolveVenue(rawVenue: string): { name: string; address: string } {
 async function fetchEventImage(detailUrl: string, imageCache: Map<string, string | undefined>): Promise<string | undefined> {
 	if (imageCache.has(detailUrl)) return imageCache.get(detailUrl);
 
+	await delay(1500);
 	try {
 		const html = await fetchHTML(detailUrl);
 		if (!html) { imageCache.set(detailUrl, undefined); return undefined; }

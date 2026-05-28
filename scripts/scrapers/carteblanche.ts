@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { makeSlug, eventExists, insertEvent, fetchHTML, bergenOffset } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'carteblanche';
@@ -140,6 +140,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// Fetch og:image from detail page
 		let imageUrl: string | undefined;
 		if (detailUrl) {
+			await delay(1500);
 			const detailHtml = await fetchHTML(detailUrl);
 			if (detailHtml) {
 				const $d = cheerio.load(detailHtml);
