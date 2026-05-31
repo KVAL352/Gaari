@@ -1,0 +1,77 @@
+name: Check Stale Events (weekly)
+
+# Catches events that have drifted from their source — date moved, title
+# changed, event removed — but stayed in our DB because `eventExists()` in
+# the scraper short-circuits on duplicate source_url. Scope: events with
+# date_start within 30 days. Flagged events are reported, never auto-mutated.
+#
+# Manual run: Actions tab → "Check Stale Events" → "Run workflow"
+
+on:
+  schedule:
+    # Mondays 06:00 UTC (07:00 CET / 08:00 CEST) — before daily-digest so
+    # the digest can pick up flagged counts if we wire that in.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Window in days (default 30)'
+        required: false
+        default: '30'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    # 200+ events × 1.5s throttle ≈ 5 min worst case. Cap at 15 for safety.
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install dependencies
+        working-directory: scripts
+        run: npm ci
+        timeout-minutes: 2
+
+      - name: Run stale-event check
+        id: check
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          DAYS="${{ inputs.days || '30' }}"
+          npx tsx check-stale-events.ts --days "$DAYS" --json > "${{ runner.temp }}/stale-events.json"
+          FLAGGED=$(jq '.flagged' "${{ runner.temp }}/stale-events.json")
+          echo "flagged=$FLAGGED" >> "$GITHUB_OUTPUT"
+          # Also print human-readable output for the log
+          jq -r '.flags[] | "\(.reason)\t\(.dbDate)\t\(.title)\t\(.sourceUrl)"' "${{ runner.temp }}/stale-events.json"
+
+      - name: Upload flagged report
+        if: steps.check.outputs.flagged != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: stale-events-${{ github.run_id }}
+          path: ${{ runner.temp }}/stale-events.json
+          retention-days: 30
+
+      - name: Job summary
+        if: always()
+        run: |
+          FLAGGED="${{ steps.check.outputs.flagged }}"
+          echo "## Stale Event Check — $(date -u +%Y-%m-%d)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$FLAGGED" = "0" ] || [ -z "$FLAGGED" ]; then
+            echo "✅ No stale events detected" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ $FLAGGED event(s) flagged — review the artifact" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Resolution: delete the row in Supabase and let the next scrape pick it up fresh." >> "$GITHUB_STEP_SUMMARY"
+          fi
