@@ -161,19 +161,21 @@
 
 		<div class="relative aspect-[16/9] overflow-hidden bg-[var(--color-surface)]">
 			{#if event.image_url && !imgError}
-				<img
-					src={optimizedSrc(event.image_url, 400)}
-					srcset={optimizedSrcset(event.image_url, [400, 600])}
-					sizes="(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc(50vw - 2.5rem), 400px"
-					alt={title}
-					loading={eager ? 'eager' : 'lazy'}
-					fetchpriority={eager ? 'high' : 'auto'}
-					decoding={eager ? 'sync' : 'async'}
-					width="400"
-					height="225"
-					class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
-					onerror={() => imgError = true}
-				/>
+				{#key event.id}
+					<img
+						src={optimizedSrc(event.image_url, 400)}
+						srcset={optimizedSrcset(event.image_url, [400, 600])}
+						sizes="(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc(50vw - 2.5rem), 400px"
+						alt={title}
+						loading={eager ? 'eager' : 'lazy'}
+						fetchpriority={eager ? 'high' : 'auto'}
+						decoding={eager ? 'sync' : 'async'}
+						width="400"
+						height="225"
+						class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+						onerror={() => imgError = true}
+					/>
+				{/key}
 			{:else}
 				<ImagePlaceholder category={event.category} />
 			{/if}
