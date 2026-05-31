@@ -79,8 +79,8 @@ interface CanaryHealth {
 
 interface SilentScraper {
 	source: string;
-	daysSinceLastEvent: number;
-	lastCreatedAt: string;
+	lastRunAt: string;
+	daysSinceLastSuccess: number | null; // null = never found anything
 }
 
 interface SourceFreshness {
@@ -403,33 +403,65 @@ async function collectExpiringPlacements(): Promise<ExpiringPlacement[]> {
 async function collectSilentScrapers(): Promise<SilentScraper[]> {
 	console.log('🤐 Checking for silent scrapers...');
 
-	// For each scraper source, find the most recently created event.
-	// A source that hasn't inserted ANY events in N days is either
-	// (a) genuinely idle (small venue with no upcoming bookings — OK)
-	// (b) broken (parser stopped working — needs attention)
-	// We flag >7 days as "warrants a look". Threshold tuned to avoid
-	// alerting on slow venues like nordnessjobad / bek that legitimately
-	// publish events every few weeks.
+	// "Silent" = scraper has run successfully in the last 14 days but never
+	// FOUND a single event on its source. This is the real broken-scraper
+	// signal — a parser regression, source layout change, or a finished
+	// festival whose URL still resolves but listing is empty.
+	//
+	// We deliberately use scraper_runs.found (not events.created_at) because
+	// low-volume venues like bitteater publish 8 events once a quarter — the
+	// scraper still WORKS even though no NEW rows have hit the events table.
+	// Confusing the two gave 7 false positives vs 0 real bugs in initial dry-runs.
+	const since = new Date(Date.now() - 14 * 86400000).toISOString();
 	const { data } = await supabase
-		.from('events')
-		.select('source, created_at')
-		.not('source', 'is', null)
-		.order('created_at', { ascending: false });
+		.from('scraper_runs')
+		.select('scraper_name, found, run_at')
+		.gte('run_at', since)
+		.order('run_at', { ascending: false });
 
 	if (!data) return [];
 
-	const lastBySource: Record<string, string> = {};
-	for (const row of data as Array<{ source: string; created_at: string }>) {
-		if (!lastBySource[row.source]) lastBySource[row.source] = row.created_at;
+	type Run = { scraper_name: string; found: number; run_at: string };
+	const maxFound: Record<string, number> = {};
+	const lastRun: Record<string, string> = {};
+	for (const row of data as Run[]) {
+		if (!(row.scraper_name in maxFound) || row.found > maxFound[row.scraper_name]) {
+			maxFound[row.scraper_name] = row.found;
+		}
+		if (!lastRun[row.scraper_name]) lastRun[row.scraper_name] = row.run_at;
+	}
+
+	// For each silent scraper, find when it last had a successful run (found > 0).
+	// This is the actual "days silent" metric — sorts the highest-priority
+	// regressions (recently-working scrapers that just broke) to the top.
+	const silentSources = Object.entries(maxFound).filter(([, max]) => max === 0).map(([n]) => n);
+	const lastSuccessBySource: Record<string, string> = {};
+	if (silentSources.length > 0) {
+		const { data: lastSuccess } = await supabase
+			.from('scraper_runs')
+			.select('scraper_name, run_at')
+			.in('scraper_name', silentSources)
+			.gt('found', 0)
+			.order('run_at', { ascending: false });
+		for (const row of (lastSuccess || []) as Array<{ scraper_name: string; run_at: string }>) {
+			if (!lastSuccessBySource[row.scraper_name]) lastSuccessBySource[row.scraper_name] = row.run_at;
+		}
 	}
 
 	const now = Date.now();
-	const silent: SilentScraper[] = [];
-	for (const [source, lastCreatedAt] of Object.entries(lastBySource)) {
-		const days = Math.floor((now - new Date(lastCreatedAt).getTime()) / 86400000);
-		if (days >= 7) silent.push({ source, daysSinceLastEvent: days, lastCreatedAt });
-	}
-	silent.sort((a, b) => b.daysSinceLastEvent - a.daysSinceLastEvent);
+	const silent: SilentScraper[] = silentSources.map(source => {
+		const lastSuccess = lastSuccessBySource[source];
+		const daysSinceLastSuccess = lastSuccess
+			? Math.floor((now - new Date(lastSuccess).getTime()) / 86400000)
+			: null;
+		return { source, lastRunAt: lastRun[source], daysSinceLastSuccess };
+	});
+	// Recently-broken scrapers (low days) first; never-worked ones last
+	silent.sort((a, b) => {
+		if (a.daysSinceLastSuccess === null) return 1;
+		if (b.daysSinceLastSuccess === null) return -1;
+		return a.daysSinceLastSuccess - b.daysSinceLastSuccess;
+	});
 	return silent;
 }
 
@@ -1403,24 +1435,29 @@ function renderHtml(data: DigestData): string {
 	// venues (small ones with sporadic bookings) live alongside actually-broken
 	// scrapers, so this is a "warrants a look" rather than an alarm.
 	const silentScrapersHtml = data.silentScrapers.length > 0 ? `
-		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Scrapere uten nye events siste 7+ dager</h2>
+		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Scrapere uten treff siste 14 dager</h2>
 		<p style="font-size:13px;color:#666;margin:0 0 12px">
-			Kan være en stille periode hos kilden — eller en parser som har sluttet å virke. Sjekk hvis ukentlig advarsel vedvarer.
+			Scraperne har kjørt, men funnet 0 events på kilden. Kan være avsluttet festival eller en parser som har sluttet å plukke opp listingen. Sjekk hvis det er en pågående kilde.
 		</p>
 		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
 			<thead><tr style="background:#f5f5f5">
 				<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Kilde</th>
-				<th style="text-align:right;padding:8px;border:1px solid #ddd;font-size:13px">Dager stille</th>
-				<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Siste event opprettet</th>
+				<th style="text-align:right;padding:8px;border:1px solid #ddd;font-size:13px">Dager siden treff</th>
+				<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Sist fant noe</th>
 			</tr></thead>
 			<tbody>
-				${data.silentScrapers.map(s => `
+				${data.silentScrapers.map(s => {
+					const days = s.daysSinceLastSuccess;
+					const color = days === null ? '#666' : days <= 14 ? '#dc2626' : days <= 60 ? '#d97706' : '#666';
+					const dayStr = days === null ? 'aldri' : String(days);
+					return `
 					<tr>
 						<td style="padding:8px;border:1px solid #ddd;font-size:14px">${s.source}</td>
-						<td style="text-align:right;padding:8px;border:1px solid #ddd;font-size:14px;color:${s.daysSinceLastEvent >= 30 ? '#dc2626' : s.daysSinceLastEvent >= 14 ? '#d97706' : '#666'};font-weight:600">${s.daysSinceLastEvent}</td>
-						<td style="padding:8px;border:1px solid #ddd;font-size:14px">${s.lastCreatedAt.slice(0, 10)}</td>
+						<td style="text-align:right;padding:8px;border:1px solid #ddd;font-size:14px;color:${color};font-weight:600">${dayStr}</td>
+						<td style="padding:8px;border:1px solid #ddd;font-size:14px">${days === null ? '–' : (Date.now() - new Date(s.lastRunAt).getTime() < 86400000 ? new Date(Date.now() - days * 86400000).toISOString().slice(0, 10) : '?')}</td>
 					</tr>
-				`).join('')}
+					`;
+				}).join('')}
 			</tbody>
 		</table>
 	` : '';
