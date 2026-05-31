@@ -72,6 +72,18 @@ function findNearestEscapedField(html: string, anchor: number, field: string, ma
 	return best ? best.replace(/\\\//g, '/').replace(/\\"/g, '"') : best;
 }
 
+// Minimal HTML entity decoder for table-extracted titles (& → &amp;, etc).
+// Cheerio would be overkill for the handful of entities Wix actually emits here.
+function decodeEntities(s: string): string {
+	return s
+		.replace(/&amp;/g, '&')
+		.replace(/&quot;/g, '"')
+		.replace(/&#(?:x27|39);/g, "'")
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&nbsp;/g, ' ');
+}
+
 function titleCase(s: string): string {
 	// Only title-case strings that are entirely uppercase (Nattjazz convention).
 	// Strings already in mixed case are left alone.
@@ -81,64 +93,103 @@ function titleCase(s: string): string {
 	return s.toLowerCase().replace(/(?:^|[\s\-—–&/(])[a-zæøå]/g, ch => ch.toUpperCase());
 }
 
-function parseConcerts(html: string): ConcertRecord[] {
-	// Each artist appears as a Wix CMS record. Anchor on the unique artist slug
-	// (link-portfolio-1-title) and bind nearest fields within a tight 1500-char
-	// window — wider windows let fields from neighbouring records leak in. A few
-	// records (collab acts like "Møster/BBB/Garrubo") have no title1 in the CMS;
-	// for those we fall back to a slug-derived display name.
-	const linkRe = /"link-portfolio-1-title":"\\?\/artister\\?\/([a-z0-9-]+)"/g;
-	const seen = new Set<string>();
-	const out: ConcertRecord[] = [];
+// Norwegian month names → number, used by parseTableRows() to decode date headers
+// like "FREDAG 29 MAI" or "LØRDAG 6 JUNI".
+const NB_MONTH: Record<string, number> = { 'MAI': 5, 'JUNI': 6, 'JULI': 7 };
 
-	for (const m of html.matchAll(linkRe)) {
+/**
+ * Authoritative source for date/time/venue/title: the visible HTML table.
+ *
+ * Date is determined by the most recent `<weekday> <day> <month>` header
+ * preceding each artist row — same way a human reads the spilleplan. This
+ * removes the previous JSON "nearest-date" fragility that occasionally
+ * picked up a neighbour artist's date (e.g. Nubiyan Twist showing as
+ * 2026-06-01 when its row is under FREDAG 29 MAI, 2026-05-29).
+ *
+ * Image and tagline still come from the Wix JSON anchored on the slug,
+ * since the table doesn't carry those fields.
+ */
+function parseTableRows(html: string): Array<{ slug: string; title: string; date: string; time: string; scene: string; htmlPos: number }> {
+	// 1) Index date headers by position
+	const headerRe = /(?:FREDAG|LØRDAG|SØNDAG|MANDAG|TIRSDAG|ONSDAG|TORSDAG)\s+(\d{1,2})\s+(MAI|JUNI|JULI)/g;
+	const headers: Array<[number, string]> = [];
+	for (const m of html.matchAll(headerRe)) {
+		const day = parseInt(m[1], 10);
+		const mon = NB_MONTH[m[2]];
+		if (!mon) continue;
+		headers.push([m.index ?? 0, `2026-${String(mon).padStart(2, '0')}-${String(day).padStart(2, '0')}`]);
+	}
+
+	// 2) Match each artist row: three consecutive table cells (title, time, venue)
+	// all pointing to the same /artister/<slug>. The {0,800} windows tolerate the
+	// styling chunks Wix injects between cells. The time cell allows both `:` and
+	// `.` separators (Bajazz family concerts use `11.45 + 12.30`).
+	const rowRe = /\/artister\/([a-z0-9-]+)"[^>]*><div[^>]*>([^<]+)<\/div>[\s\S]{0,800}?\/artister\/\1"[^>]*><div[^>]*>(\d{1,2}[:.]\d{2}[^<]*)<\/div>[\s\S]{0,800}?\/artister\/\1"[^>]*><div[^>]*>([^<]+)<\/div>/g;
+	const seen = new Set<string>();
+	const rows: Array<{ slug: string; title: string; date: string; time: string; scene: string; htmlPos: number }> = [];
+
+	for (const m of html.matchAll(rowRe)) {
 		const slug = m[1];
 		if (seen.has(slug)) continue;
-		const anchor = m.index ?? 0;
+		seen.add(slug);
 
-		const title1 = findNearestField(html, anchor, 'title1', 1500);
-		const date = findNearestField(html, anchor, 'date', 1500);
-		const spilletid = findNearestField(html, anchor, 'spilletid', 1500);
-		const scene = findNearestField(html, anchor, 'spillerDato1', 1500);
-		const tagline = findNearestField(html, anchor, 'description', 1500);
-		const fotokred = findNearestField(html, anchor, 'fotokred', 1500);
-		const imageRef = findNearestEscapedField(html, anchor, 'image', 1500);
-
-		// Require date — without it we can't insert anything sensible
-		if (!date || !/^2\d{3}-\d{2}-\d{2}$/.test(date)) continue;
-
-		// Parse time. Handle "18:30", "11.45 + 12.30", missing.
-		// Default to 21:00 (typical festival start) when no time is given for the concert
-		// (a few records on the spilleplan omit it — listings will still get correct day).
-		let time = '21:00';
-		if (spilletid) {
-			const t = spilletid.trim();
-			const tm = t.match(/(\d{1,2})[:.](\d{2})/);
-			if (tm) {
-				const hh = tm[1].padStart(2, '0');
-				time = `${hh}:${tm[2]}`;
-			}
+		const pos = m.index ?? 0;
+		// Latest date header BEFORE this row
+		let date: string | null = null;
+		for (const [dpos, ddate] of headers) {
+			if (dpos < pos) date = ddate;
+			else break;
 		}
+		if (!date) continue;
 
-		// Fall back to slug-derived name when title1 is missing from the CMS record.
-		const fallbackTitle = slug.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim()
-			.replace(/\b[a-zæøå]/g, ch => ch.toUpperCase());
-		const rawTitle = (title1 || fallbackTitle).trim();
-		// Strip Nattjazz's free-concert markers (* / ** / ***)
-		let cleanTitle = titleCase(rawTitle.replace(/\*+$/, '').trim());
+		// Time can be `21:00`, `11.45`, `11.45 + 12.30`. Take the first HH:MM-like
+		// segment, normalise `.` to `:`. Multi-time entries are kept as the first
+		// performance — same behaviour as the previous JSON-based parser.
+		const timeMatch = m[3].match(/(\d{1,2})[:.](\d{2})/);
+		if (!timeMatch) continue;
+		const time = `${timeMatch[1].padStart(2, '0')}:${timeMatch[2]}`;
 
-		// Programserie "Jazz I Sikte: X" — flip to "X — Jazz i sikte" so dedup
-		// doesn't merge two distinct concerts in the series on the same day.
+		rows.push({
+			slug,
+			title: decodeEntities(m[2].trim()),
+			date,
+			time,
+			scene: decodeEntities(m[4].trim()),
+			htmlPos: pos,
+		});
+	}
+
+	return rows;
+}
+
+function parseConcerts(html: string): ConcertRecord[] {
+	const rows = parseTableRows(html);
+	const out: ConcertRecord[] = [];
+
+	for (const row of rows) {
+		// Supplementary fields (tagline, photographer credit, image) still come
+		// from the Wix JSON. Anchor at the HTML-table row position — much tighter
+		// than the previous global "nearest field" scan, and aligned with the
+		// visual layout we just parsed.
+		const tagline = findNearestField(html, row.htmlPos, 'description', 3000);
+		const fotokred = findNearestField(html, row.htmlPos, 'fotokred', 3000);
+		const imageRef = findNearestEscapedField(html, row.htmlPos, 'image', 3000);
+
+		// Strip Nattjazz's free-concert markers (* / ** / ***) and title-case
+		// purely-uppercase strings (e.g. "NUBIYAN TWIST" → "Nubiyan Twist").
+		let cleanTitle = titleCase(row.title.replace(/\*+$/, '').trim());
+
+		// Programserie "Jazz I Sikte: X" → "X — Jazz i sikte" so dedup doesn't
+		// merge two distinct concerts in the series on the same day.
 		const series = cleanTitle.match(/^Jazz I Sikte:\s*(.+)$/i);
 		if (series) cleanTitle = `${series[1].trim()} — Jazz i sikte`;
 
-		seen.add(slug);
 		out.push({
-			slug,
+			slug: row.slug,
 			title: cleanTitle,
-			date,
-			time,
-			scene: scene || '',
+			date: row.date,
+			time: row.time,
+			scene: row.scene,
 			tagline: tagline?.trim() || undefined,
 			fotokred: fotokred?.trim() || undefined,
 			imageUrl: wixImageUrl(imageRef),
