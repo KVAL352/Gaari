@@ -91,7 +91,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const start = s.content.SyncEventStartTime;
 		if (!start || !start.startsWith('2026-')) return false;
 		if (s.content.SyncPrivateEvent) return false;
-		const startDate = new Date(`${start.replace(' ', 'T')}:00${bergenOffset(start)}`);
+		const startDate = new Date(`${start.replace(' ', 'T')}:00Z`);
 		return startDate.getTime() > cutoff.getTime();
 	});
 
@@ -139,8 +139,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		const start = c.SyncEventStartTime;
 		const dateOnly = start.slice(0, 10);
-		const offset = bergenOffset(dateOnly);
-		const startDate = new Date(`${start.replace(' ', 'T')}:00${offset}`);
+		// Storyblok's SyncEventStartTime is stored in UTC, not Oslo local time
+		// (verified against billett.fib.no ticket pages: API "10:00" on 2026-06-01
+		// = ticket vendor "12.00.00" Oslo = 10:00 UTC). Applying bergenOffset()
+		// here would double-convert and shift every Festspillene event 2h earlier.
+		const startDate = new Date(`${start.replace(' ', 'T')}:00Z`);
 
 		const ticketUrl = c.SyncBookingLink?.url || '';
 		// Use SyncId or UUID for unique source URL when no ticket link
@@ -156,7 +159,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		let dateEnd: string | undefined;
 		if (c.SyncEventEndTime) {
-			const endDate = new Date(`${c.SyncEventEndTime.replace(' ', 'T')}:00${bergenOffset(c.SyncEventEndTime)}`);
+			// Same UTC-not-Oslo convention as SyncEventStartTime
+			const endDate = new Date(`${c.SyncEventEndTime.replace(' ', 'T')}:00Z`);
 			if (!isNaN(endDate.getTime()) && endDate.getTime() > startDate.getTime()) {
 				dateEnd = endDate.toISOString();
 			}
