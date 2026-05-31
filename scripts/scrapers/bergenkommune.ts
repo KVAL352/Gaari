@@ -230,7 +230,10 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		// Build time-aware date_start (Oslo local time → UTC via bergenOffset)
 		const offset = bergenOffset(event.dateStart);
-		let dateStart = `${event.dateStart}T00:00:00Z`; // placeholder: midnight UTC = no known time
+		// Default to noon Oslo when no time is known — UTC midnight (00:00Z)
+		// would display as 02:00 in CEST/01:00 in CET, which looks broken
+		// in "I dag kl. 02:00"-style frontends.
+		let dateStart = `${event.dateStart}T12:00:00${offset}`;
 		if (detail?.time) {
 			const timeMatch = detail.time.match(/(\d{1,2})[.:](\d{2})/);
 			if (timeMatch) {

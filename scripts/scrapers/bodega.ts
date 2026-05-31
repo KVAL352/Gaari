@@ -139,8 +139,10 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			// dateTime includes timezone offset — parse directly
 			dateStart = new Date(ev.start.dateTime).toISOString();
 		} else if (ev.start.date) {
-			// All-day event — use midnight placeholder
-			dateStart = `${ev.start.date}T00:00:00Z`;
+			// All-day event — default to noon Oslo so it displays at a sensible
+			// time. UTC midnight (00:00Z) would render as 02:00 CEST / 01:00 CET
+			// on the frontend.
+			dateStart = `${ev.start.date}T12:00:00${bergenOffset(ev.start.date)}`;
 		} else {
 			continue;
 		}

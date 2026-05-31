@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'kunsthall';
@@ -78,10 +78,12 @@ async function scrapeEvents(): Promise<{ found: number; inserted: number }> {
 			// Unix timestamp — convert to Oslo local date string
 			const utcDate = new Date(parseInt(timestamp) * 1000);
 			const osloDateStr = utcDate.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
-			// osloDateStr is "YYYY-MM-DD" in Oslo timezone
-			const month = parseInt(osloDateStr.slice(5, 7));
-			const offset = (month >= 4 && month <= 10) ? '+02:00' : '+01:00';
-			dateStart = new Date(`${osloDateStr}T${eventTime}:00${offset}`).toISOString();
+			// osloDateStr is "YYYY-MM-DD" in Oslo timezone. Use bergenOffset()
+			// instead of a hardcoded month range — the prior `month>=4 && month<=10`
+			// guessed wrong the last week of March (DST has started but month=3)
+			// and the last week of October (DST ended but month=10), leaving
+			// events one hour off.
+			dateStart = new Date(`${osloDateStr}T${eventTime}:00${bergenOffset(osloDateStr)}`).toISOString();
 		} else {
 			// ISO date string
 			dateStart = new Date(timestamp).toISOString();
