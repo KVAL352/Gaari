@@ -77,6 +77,12 @@ interface CanaryHealth {
 	daysUntilExpiry: number;
 }
 
+interface SilentScraper {
+	source: string;
+	daysSinceLastEvent: number;
+	lastCreatedAt: string;
+}
+
 interface SourceFreshness {
 	source: string;
 	totalEvents: number;
@@ -179,6 +185,7 @@ interface DigestData {
 	subscribersPrev: number | null;
 	expiringPlacements: ExpiringPlacement[];
 	canaryHealth: CanaryHealth[];
+	silentScrapers: SilentScraper[];
 	festivalReminders: FestivalReminder[];
 	reminders: Reminder[];
 	newsletterReport: NewsletterReport | null;
@@ -391,6 +398,39 @@ async function collectExpiringPlacements(): Promise<ExpiringPlacement[]> {
 		const daysLeft = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 		return { venue_name: p.venue_name, tier: p.tier, end_date: p.end_date, daysLeft };
 	});
+}
+
+async function collectSilentScrapers(): Promise<SilentScraper[]> {
+	console.log('🤐 Checking for silent scrapers...');
+
+	// For each scraper source, find the most recently created event.
+	// A source that hasn't inserted ANY events in N days is either
+	// (a) genuinely idle (small venue with no upcoming bookings — OK)
+	// (b) broken (parser stopped working — needs attention)
+	// We flag >7 days as "warrants a look". Threshold tuned to avoid
+	// alerting on slow venues like nordnessjobad / bek that legitimately
+	// publish events every few weeks.
+	const { data } = await supabase
+		.from('events')
+		.select('source, created_at')
+		.not('source', 'is', null)
+		.order('created_at', { ascending: false });
+
+	if (!data) return [];
+
+	const lastBySource: Record<string, string> = {};
+	for (const row of data as Array<{ source: string; created_at: string }>) {
+		if (!lastBySource[row.source]) lastBySource[row.source] = row.created_at;
+	}
+
+	const now = Date.now();
+	const silent: SilentScraper[] = [];
+	for (const [source, lastCreatedAt] of Object.entries(lastBySource)) {
+		const days = Math.floor((now - new Date(lastCreatedAt).getTime()) / 86400000);
+		if (days >= 7) silent.push({ source, daysSinceLastEvent: days, lastCreatedAt });
+	}
+	silent.sort((a, b) => b.daysSinceLastEvent - a.daysSinceLastEvent);
+	return silent;
 }
 
 async function collectCanaryHealth(): Promise<CanaryHealth[]> {
@@ -1359,6 +1399,32 @@ function renderHtml(data: DigestData): string {
 		`}
 	` : '';
 
+	// Silent scrapers — sources with no new events in 7+ days. Genuinely idle
+	// venues (small ones with sporadic bookings) live alongside actually-broken
+	// scrapers, so this is a "warrants a look" rather than an alarm.
+	const silentScrapersHtml = data.silentScrapers.length > 0 ? `
+		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Scrapere uten nye events siste 7+ dager</h2>
+		<p style="font-size:13px;color:#666;margin:0 0 12px">
+			Kan være en stille periode hos kilden — eller en parser som har sluttet å virke. Sjekk hvis ukentlig advarsel vedvarer.
+		</p>
+		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+			<thead><tr style="background:#f5f5f5">
+				<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Kilde</th>
+				<th style="text-align:right;padding:8px;border:1px solid #ddd;font-size:13px">Dager stille</th>
+				<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Siste event opprettet</th>
+			</tr></thead>
+			<tbody>
+				${data.silentScrapers.map(s => `
+					<tr>
+						<td style="padding:8px;border:1px solid #ddd;font-size:14px">${s.source}</td>
+						<td style="text-align:right;padding:8px;border:1px solid #ddd;font-size:14px;color:${s.daysSinceLastEvent >= 30 ? '#dc2626' : s.daysSinceLastEvent >= 14 ? '#d97706' : '#666'};font-weight:600">${s.daysSinceLastEvent}</td>
+						<td style="padding:8px;border:1px solid #ddd;font-size:14px">${s.lastCreatedAt.slice(0, 10)}</td>
+					</tr>
+				`).join('')}
+			</tbody>
+		</table>
+	` : '';
+
 	const placementsHtml = data.expiringPlacements.length > 0 ? `
 		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Utløpende plasseringer (7 dager)</h2>
 		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
@@ -1404,6 +1470,7 @@ function renderHtml(data: DigestData): string {
 	${festivalHtml}
 	${remindersHtml}
 	${placementsHtml}
+	${silentScrapersHtml}
 	${canaryHtml}
 
 	<div style="border-top:1px solid #ddd;padding-top:12px;margin-top:24px;color:#999;font-size:12px">
@@ -1472,6 +1539,7 @@ function writeSummary(data: DigestData, emailSent: boolean) {
 		subscribers: data.subscribers,
 		expiringPlacements: data.expiringPlacements.length,
 		canariesActive: data.canaryHealth.length,
+		silentScrapers: data.silentScrapers.length,
 		emailSent
 	};
 
@@ -1485,7 +1553,7 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel
-	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, canaryHealth, newsletterReport, socialStatus, activeCampaigns] = await Promise.all([
+	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, canaryHealth, silentScrapers, newsletterReport, socialStatus, activeCampaigns] = await Promise.all([
 		collectPendingCounts(),
 		collectScraperActivity(),
 		collectScraperHealth(),
@@ -1495,6 +1563,7 @@ async function main() {
 		collectSubscribers(),
 		collectExpiringPlacements(),
 		collectCanaryHealth(),
+		collectSilentScrapers(),
 		collectNewsletterReport(),
 		collectSocialStatus(),
 		collectActiveCampaigns()
@@ -1515,6 +1584,7 @@ async function main() {
 		subscribersPrev: subscriberData.previous,
 		expiringPlacements,
 		canaryHealth,
+		silentScrapers,
 		festivalReminders,
 		reminders,
 		newsletterReport,

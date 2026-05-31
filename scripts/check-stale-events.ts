@@ -35,6 +35,7 @@ interface Event {
 	date_start: string;
 	source: string | null;
 	source_url: string;
+	image_url: string | null;
 }
 
 interface StaleFlag {
@@ -44,7 +45,7 @@ interface StaleFlag {
 	source: string | null;
 	dbDate: string;
 	sourceUrl: string;
-	reason: 'title-missing' | 'date-mismatch' | 'fetch-failed' | 'source-likely-changed';
+	reason: 'title-missing' | 'date-mismatch' | 'fetch-failed' | 'source-likely-changed' | 'image-broken';
 	detail: string;
 }
 
@@ -207,6 +208,34 @@ async function fetchHtml(url: string): Promise<string | null> {
 	}
 }
 
+/**
+ * Probe an image URL with HEAD. Returns status code, or null on network failure.
+ * Some CDNs reject HEAD — for those we fall back to a tiny Range GET.
+ */
+async function probeImage(url: string): Promise<number | null> {
+	try {
+		const head = await fetch(url, {
+			method: 'HEAD',
+			headers: { 'User-Agent': USER_AGENT },
+			signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+			redirect: 'follow',
+		});
+		// 405 Method Not Allowed → try Range GET
+		if (head.status === 405) {
+			const get = await fetch(url, {
+				method: 'GET',
+				headers: { 'User-Agent': USER_AGENT, 'Range': 'bytes=0-0' },
+				signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+				redirect: 'follow',
+			});
+			return get.status;
+		}
+		return head.status;
+	} catch {
+		return null;
+	}
+}
+
 async function checkEvent(event: Event): Promise<StaleFlag | null> {
 	let host = '';
 	try {
@@ -232,6 +261,21 @@ async function checkEvent(event: Event): Promise<StaleFlag | null> {
 
 	const titleOk = findTitle(html, event.title_no);
 	const dateOk = findDate(html, event.date_start);
+
+	// Image-URL probe runs in parallel with the title/date verdict so the
+	// throttle stays at 1.5s/event total. We only flag if status is a hard
+	// 4xx — transient 5xx errors and timeouts are common for hot-linked
+	// images and would create noise.
+	if (event.image_url) {
+		const imgStatus = await probeImage(event.image_url);
+		if (imgStatus !== null && imgStatus >= 400 && imgStatus < 500) {
+			return {
+				id: event.id, slug: event.slug, title: event.title_no, source: event.source,
+				dbDate: event.date_start, sourceUrl: event.source_url,
+				reason: 'image-broken', detail: `image_url returned HTTP ${imgStatus} — ${event.image_url}`,
+			};
+		}
+	}
 
 	if (!titleOk && !dateOk) {
 		return {
@@ -308,7 +352,7 @@ async function main() {
 
 	let query = supabase
 		.from('events')
-		.select('id, slug, title_no, date_start, source, source_url')
+		.select('id, slug, title_no, date_start, source, source_url, image_url')
 		.eq('status', 'approved')
 		.eq('is_canary', false)
 		.gte('date_start', new Date().toISOString())
