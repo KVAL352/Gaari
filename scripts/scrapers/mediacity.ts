@@ -33,8 +33,14 @@ function parseDateRange(dateStr: string, timeStr: string, year: number): { dateS
 
 	// Extract time: "Time: 09:00 - 16:00" or "Time: 14:15 - 16:00"
 	const timeMatch = timeStr.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
-	const startHour = timeMatch ? parseInt(timeMatch[1]) : 0;
-	const startMin = timeMatch ? parseInt(timeMatch[2]) : 0;
+	// Single-time fallback: "kl. 15:00" / "Time: 15:00" without range
+	const singleTimeMatch = !timeMatch ? timeStr.match(/(\d{1,2}):(\d{2})/) : null;
+
+	// Default hour 12 (noon) Oslo when no time can be parsed — 00:00 Oslo becomes
+	// 22:00 previous-day UTC during CEST, shifting the event back one calendar
+	// day in listings (broke Sommerstart hos Medieklyngen: 2 → 1 June).
+	const startHour = timeMatch ? parseInt(timeMatch[1]) : (singleTimeMatch ? parseInt(singleTimeMatch[1]) : 12);
+	const startMin = timeMatch ? parseInt(timeMatch[2]) : (singleTimeMatch ? parseInt(singleTimeMatch[2]) : 0);
 	const endHour = timeMatch ? parseInt(timeMatch[3]) : 0;
 	const endMin = timeMatch ? parseInt(timeMatch[4]) : 0;
 

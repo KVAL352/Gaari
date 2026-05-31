@@ -59,7 +59,10 @@ function parseEventDateTime(timeText: string): { start: string; end: string | un
 		const dateIso = parseNorwegianDate(dateOnly[1]);
 		if (dateIso) {
 			const dp = toDatePart(dateIso);
-			return { start: new Date(`${dp}T00:00:00${bergenOffset(dp)}`).toISOString(), end: undefined };
+			// Use noon (12:00) Oslo so the UTC date stays on the correct day.
+			// 00:00 Oslo becomes 22:00 previous-day UTC during CEST and shifts the
+			// event back one calendar day in listings (broke AdO Cup 12 → 11 June).
+			return { start: new Date(`${dp}T12:00:00${bergenOffset(dp)}`).toISOString(), end: undefined };
 		}
 	}
 
