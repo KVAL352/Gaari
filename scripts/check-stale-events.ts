@@ -36,6 +36,7 @@ interface Event {
 	source: string | null;
 	source_url: string;
 	image_url: string | null;
+	ticket_url: string | null;
 }
 
 interface StaleFlag {
@@ -45,7 +46,7 @@ interface StaleFlag {
 	source: string | null;
 	dbDate: string;
 	sourceUrl: string;
-	reason: 'title-missing' | 'date-mismatch' | 'fetch-failed' | 'source-likely-changed' | 'image-broken';
+	reason: 'title-missing' | 'date-mismatch' | 'fetch-failed' | 'source-likely-changed' | 'image-broken' | 'ticket-broken';
 	detail: string;
 }
 
@@ -61,6 +62,16 @@ const SKIP_HOSTS = new Set([
 	'calendar.google.com',
 	'meetup.com',
 	'www.meetup.com',
+]);
+
+// Ticket vendors that aggressively bot-protect every URL (401/403 even on
+// HEAD). Their links work fine for real browsers — skip the probe entirely
+// rather than generate noise. Verified empirically against a 50-event scan.
+const SKIP_TICKET_HOSTS = new Set([
+	'www.ticketmaster.no',
+	'ticketmaster.no',
+	'www.dnt.no',
+	'dnt.no',
 ]);
 
 const NB_MONTHS: Record<number, string[]> = {
@@ -262,10 +273,8 @@ async function checkEvent(event: Event): Promise<StaleFlag | null> {
 	const titleOk = findTitle(html, event.title_no);
 	const dateOk = findDate(html, event.date_start);
 
-	// Image-URL probe runs in parallel with the title/date verdict so the
-	// throttle stays at 1.5s/event total. We only flag if status is a hard
-	// 4xx — transient 5xx errors and timeouts are common for hot-linked
-	// images and would create noise.
+	// Image-URL probe — flag hard 4xx (transient 5xx and timeouts are common
+	// for hot-linked images and would create noise).
 	if (event.image_url) {
 		const imgStatus = await probeImage(event.image_url);
 		if (imgStatus !== null && imgStatus >= 400 && imgStatus < 500) {
@@ -274,6 +283,24 @@ async function checkEvent(event: Event): Promise<StaleFlag | null> {
 				dbDate: event.date_start, sourceUrl: event.source_url,
 				reason: 'image-broken', detail: `image_url returned HTTP ${imgStatus} — ${event.image_url}`,
 			};
+		}
+	}
+
+	// Ticket-URL probe. Skip ticket vendors that bot-protect — their links
+	// work for real browsers. Only flag 404 (Gone) and 410, which are hard
+	// signals that the listing has been removed.
+	if (event.ticket_url && event.ticket_url !== event.source_url) {
+		let ticketHost = '';
+		try { ticketHost = new URL(event.ticket_url).hostname; } catch { /* skip */ }
+		if (ticketHost && !SKIP_TICKET_HOSTS.has(ticketHost)) {
+			const ticketStatus = await probeImage(event.ticket_url); // HEAD probe — same shape
+			if (ticketStatus === 404 || ticketStatus === 410) {
+				return {
+					id: event.id, slug: event.slug, title: event.title_no, source: event.source,
+					dbDate: event.date_start, sourceUrl: event.source_url,
+					reason: 'ticket-broken', detail: `ticket_url returned HTTP ${ticketStatus} — ${event.ticket_url}`,
+				};
+			}
 		}
 	}
 
@@ -352,7 +379,7 @@ async function main() {
 
 	let query = supabase
 		.from('events')
-		.select('id, slug, title_no, date_start, source, source_url, image_url')
+		.select('id, slug, title_no, date_start, source, source_url, image_url, ticket_url')
 		.eq('status', 'approved')
 		.eq('is_canary', false)
 		.gte('date_start', new Date().toISOString())

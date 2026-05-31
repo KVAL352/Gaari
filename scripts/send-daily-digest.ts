@@ -83,6 +83,14 @@ interface SilentScraper {
 	daysSinceLastSuccess: number | null; // null = never found anything
 }
 
+interface DataAnomaly {
+	slug: string;
+	title: string;
+	source: string | null;
+	type: 'reversed-interval';
+	detail: string;
+}
+
 interface SourceFreshness {
 	source: string;
 	totalEvents: number;
@@ -186,6 +194,7 @@ interface DigestData {
 	expiringPlacements: ExpiringPlacement[];
 	canaryHealth: CanaryHealth[];
 	silentScrapers: SilentScraper[];
+	dataAnomalies: DataAnomaly[];
 	festivalReminders: FestivalReminder[];
 	reminders: Reminder[];
 	newsletterReport: NewsletterReport | null;
@@ -463,6 +472,36 @@ async function collectSilentScrapers(): Promise<SilentScraper[]> {
 		return a.daysSinceLastSuccess - b.daysSinceLastSuccess;
 	});
 	return silent;
+}
+
+async function collectDataAnomalies(): Promise<DataAnomaly[]> {
+	console.log('🔍 Checking for data anomalies...');
+
+	// Events with date_end before date_start — logically impossible interval,
+	// always a scraper bug (range parser swapped, recurring-event range picked
+	// "last future occurrence" + "first past occurrence", etc).
+	// We deliberately don't AUTO-DELETE — they're rare enough to review.
+	const { data } = await supabase
+		.from('events')
+		.select('slug, title_no, source, date_start, date_end')
+		.not('date_end', 'is', null)
+		.gte('date_start', new Date().toISOString());
+
+	if (!data) return [];
+
+	const anomalies: DataAnomaly[] = [];
+	for (const row of data as Array<{ slug: string; title_no: string; source: string | null; date_start: string; date_end: string }>) {
+		if (new Date(row.date_end) < new Date(row.date_start)) {
+			anomalies.push({
+				slug: row.slug,
+				title: row.title_no,
+				source: row.source,
+				type: 'reversed-interval',
+				detail: `date_end (${row.date_end.slice(0, 10)}) before date_start (${row.date_start.slice(0, 10)})`,
+			});
+		}
+	}
+	return anomalies;
 }
 
 async function collectCanaryHealth(): Promise<CanaryHealth[]> {
@@ -1462,6 +1501,29 @@ function renderHtml(data: DigestData): string {
 		</table>
 	` : '';
 
+	const dataAnomaliesHtml = data.dataAnomalies.length > 0 ? `
+		<h2 style="border-bottom:2px solid #dc2626;padding-bottom:6px">Data-anomalier (krever manuell rydding)</h2>
+		<p style="font-size:13px;color:#666;margin:0 0 12px">
+			Events der date_end er FØR date_start — alltid en scraper-bug. Slett raden i Supabase og dokumenter scraperen som trenger fix.
+		</p>
+		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+			<thead><tr style="background:#fef2f2">
+				<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Kilde</th>
+				<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Tittel</th>
+				<th style="text-align:left;padding:8px;border:1px solid #ddd;font-size:13px">Problem</th>
+			</tr></thead>
+			<tbody>
+				${data.dataAnomalies.map(a => `
+					<tr>
+						<td style="padding:8px;border:1px solid #ddd;font-size:13px">${a.source || '?'}</td>
+						<td style="padding:8px;border:1px solid #ddd;font-size:13px"><a href="${SITE_URL}/admin/calendar?slug=${a.slug}" style="color:#C82D2D">${a.title.slice(0, 50)}</a></td>
+						<td style="padding:8px;border:1px solid #ddd;font-size:13px;color:#dc2626">${a.detail}</td>
+					</tr>
+				`).join('')}
+			</tbody>
+		</table>
+	` : '';
+
 	const placementsHtml = data.expiringPlacements.length > 0 ? `
 		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Utløpende plasseringer (7 dager)</h2>
 		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
@@ -1506,6 +1568,7 @@ function renderHtml(data: DigestData): string {
 	${socialHtml}
 	${festivalHtml}
 	${remindersHtml}
+	${dataAnomaliesHtml}
 	${placementsHtml}
 	${silentScrapersHtml}
 	${canaryHtml}
@@ -1590,7 +1653,7 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel
-	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, canaryHealth, silentScrapers, newsletterReport, socialStatus, activeCampaigns] = await Promise.all([
+	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, canaryHealth, silentScrapers, dataAnomalies, newsletterReport, socialStatus, activeCampaigns] = await Promise.all([
 		collectPendingCounts(),
 		collectScraperActivity(),
 		collectScraperHealth(),
@@ -1601,6 +1664,7 @@ async function main() {
 		collectExpiringPlacements(),
 		collectCanaryHealth(),
 		collectSilentScrapers(),
+		collectDataAnomalies(),
 		collectNewsletterReport(),
 		collectSocialStatus(),
 		collectActiveCampaigns()
@@ -1622,6 +1686,7 @@ async function main() {
 		expiringPlacements,
 		canaryHealth,
 		silentScrapers,
+		dataAnomalies,
 		festivalReminders,
 		reminders,
 		newsletterReport,
