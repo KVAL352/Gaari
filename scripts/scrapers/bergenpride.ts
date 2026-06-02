@@ -156,7 +156,20 @@ async function discoverDayPages(): Promise<string[]> {
 	return slugs.size > 0 ? [...slugs] : FALLBACK_DAY_PAGES;
 }
 
+// PAUSE under Regnbuedagene 2026 (29. mai–6. juni). Programmet er allerede hentet
+// inn (events m/ per-event-bilder backfillet 2026-06-02 fra Vev CSS-var-mapping).
+// Bergen Pride republiserer Vev-siden under festivalen, så daglig re-scrape ville
+// risikere dublett-events fra endrede titler. Tidlig retur (ikke fjerning fra map)
+// pauser fetchingen uten å endre kildetellingen eller røre eksisterende events.
+// FJERN denne guarden etter 6. juni for å re-aktivere scraperen.
+const PAUSED_UNTIL = '2026-06-07';
+
 export async function scrape(): Promise<{ found: number; inserted: number }> {
+	if (new Date().toISOString().slice(0, 10) < PAUSED_UNTIL) {
+		console.log(`\n[${SOURCE}] PAUSET under Regnbuedagene (til ${PAUSED_UNTIL}) — hopper over.`);
+		return { found: 0, inserted: 0 };
+	}
+
 	console.log(`\n[${SOURCE}] Fetching Bergen Pride events...`);
 
 	let found = 0;
