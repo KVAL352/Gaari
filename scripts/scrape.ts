@@ -59,7 +59,7 @@ import { scrape as scrapeOConnors } from './scrapers/oconnors.js';
 import { scrape as scrapeBilletto } from './scrapers/billetto.js';
 import { scrape as scrapeSteneMatglede } from './scrapers/stenematglede.js';
 import { scrape as scrapeBIFF } from './scrapers/biff.js';
-import { scrape as scrapeBergenPride } from './scrapers/bergenpride.js';
+// import { scrape as scrapeBergenPride } from './scrapers/bergenpride.js'; // PAUSET under Regnbuedagene, se scrapers-map nedenfor
 import { scrape as scrapeOstre } from './scrapers/ostre.js';
 import { scrape as scrapeSwingNSweet } from './scrapers/swingnsweetjazzclub.js';
 import { scrape as scrapeBodega } from './scrapers/bodega.js';
@@ -127,7 +127,12 @@ export const scrapers: Record<string, () => Promise<{ found: number; inserted: n
 	billetto: scrapeBilletto,
 	stenematglede: scrapeSteneMatglede,
 	biff: scrapeBIFF,
-	bergenpride: scrapeBergenPride,
+	// bergenpride: PAUSET under Regnbuedagene (29. mai–6. juni 2026). Programmet er
+	// allerede hentet inn (29 events m/ per-event-bilder backfillet 2026-06-02), og
+	// Bergen Pride republiserer Vev-siden under festivalen — re-scrape ville risikere
+	// dublett-events fra endrede titler. IKKE lagt til DISABLED_SOURCES (det ville
+	// slette eventene). Re-aktiver (avkommenter) etter 6. juni.
+	// bergenpride: scrapeBergenPride,
 	bodega: scrapeBodega,
 	jungelfest: scrapeJungelfest,
 	loddefjord: scrapeLoddefjord,
