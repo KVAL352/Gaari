@@ -195,6 +195,9 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	// Tikkio Public Discovery API lansert 2026-05-19 (Yngvar @ Tikkio): API-en
 	// returnerer image_url på cdn.tikkio.com — implisitt godkjent for discovery-bruk.
 	'tikkio',
+	// Bergen Pride bekreftet 2026-06-01: "Dere må gjerne ha arrangementene på deres
+	// side. Vi bruker ikke tredjepartsbilder." — egne bilder, ingen tredjeparts-risiko.
+	'bergenpride',
 ]);
 
 /**
