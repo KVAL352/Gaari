@@ -4,135 +4,145 @@ import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/uti
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenpride';
-const BASE_URL = 'https://bergenpride.no';
+// Must be www: the bare apex (bergenpride.no) 301-redirects to the www root and
+// drops the path, so program pages return an empty SPA shell. www serves the
+// pre-rendered program content directly.
+const BASE_URL = 'https://www.bergenpride.no';
 const DELAY_MS = 1500;
 const FALLBACK_IMAGE = 'https://cdn.vev.design/private/mC0LTzRlF5YCXni49Kl530JDBeE3/image/ohTUjkB0xN_2j7ucg.svg';
 
-// 2025 program page URLs — updated annually when program is published.
-// Bergen Pride 2026: June 13–21. URL pattern includes weekday + date.
-const PROGRAM_PAGES = [
-	'/program-friday-13th/',
-	'/program-saturday-14th/',
-	'/program-sunday-15th/',
-	'/program-monday-16th/',
-	'/program-tuesday-17th/',
-	'/program-wednesday-18th/',
-	'/program-thursday-19th/',
-	'/program-friday-20th/',
-	'/program-friday-20th-copy/', // Saturday 21st (parade day)
+// bergenpride.no is a Vev SPA. Each day of the programme is a separate page whose
+// URL slug is STALE (named for a previous year, e.g. /program-friday-13th/), but
+// whose content carries the real date in an <h3> heading ("Tuesday, June 2nd").
+// We therefore discover the day pages dynamically from the homepage nav and read
+// the date from the page content — no hardcoded date mapping to go stale.
+const FALLBACK_DAY_PAGES = [
+	'program-friday-13th', 'program-saturday-14th', 'program-sunday-15th',
+	'program-monday-16th', 'program-tuesday-17th', 'program-wednesday-18th',
+	'program-thursday-19th', 'program-friday-20th', 'program-friday-20th-copy',
 ];
 
-// Map page URL slugs to actual dates for 2026
-const PAGE_DATES: Record<string, string> = {
-	'friday-13th': '2026-06-13',
-	'saturday-14th': '2026-06-14',
-	'sunday-15th': '2026-06-15',
-	'monday-16th': '2026-06-16',
-	'tuesday-17th': '2026-06-17',
-	'wednesday-18th': '2026-06-18',
-	'thursday-19th': '2026-06-19',
-	'friday-20th': '2026-06-20',
-	'friday-20th-copy': '2026-06-21', // Saturday despite URL
+const MONTHS: Record<string, number> = {
+	january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
+	july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
 };
-
-function getDateFromPageUrl(pageUrl: string): string | null {
-	for (const [slug, date] of Object.entries(PAGE_DATES)) {
-		if (pageUrl.includes(slug)) return date;
-	}
-	return null;
-}
+// Day heading inside a programme page, e.g. "Tuesday, June 2nd" or "Thursday June 4th".
+const DAY_HEADING = /\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b[\s,–-]+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?/i;
+// Time separator varies on the site: "Tid: 19:00" and "Tid: 19.00" both occur.
+const TIME_RE = /Tid:\s*(\d{1,2})[:.](\d{2})/i;
 
 function guessCategory(title: string, venue: string): string {
 	const text = `${title} ${venue}`.toLowerCase();
 	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(text);
 	if (w('konsert') || w('dj') || w('musikk') || w('drag') || w('show')) return 'nightlife';
 	if (w('parade') || w('tog')) return 'festival';
-	if (w('workshop') || w('kurs') || w('samtale')) return 'workshop';
-	if (w('barn') || w('familie') || w('kids') || w('ungdom') || w('youth')) return 'family';
-	if (w('fest') || w('party') || w('park')) return 'nightlife';
-	if (w('utstilling') || w('film') || w('kunst')) return 'culture';
+	if (w('workshop') || w('kurs') || w('samtale') || w('debatt') || w('q&a')) return 'workshop';
+	if (w('barn') || w('familie') || w('kids') || w('ungdom') || w('youth') || w('kafé') || w('kafe')) return 'family';
+	if (w('fest') || w('party') || w('park') || w('quiz')) return 'nightlife';
+	if (w('utstilling') || w('film') || w('kunst') || w('foredrag')) return 'culture';
 	return 'festival';
 }
 
 /**
- * Parse events from Vev-rendered HTML.
- * Vev uses custom <vev> elements. Events follow this pattern:
- * - Day headers: <h3> with "Day, Month Date" or similar
- * - Event title: <strong> inside <p> elements
- * - Time: "Tid: HH:MM" pattern
- * - Venue: plain text before time
- * - Description: accordion body-text div
+ * Resolve the festival year for a given month. The programme runs late May to early
+ * June. Scraping happens around that window, so the current year is correct; if a
+ * parsed date lands far in the past (off-season scrape of next year's stale slugs),
+ * roll forward a year. removeExpiredEvents() prunes anything that slips through.
  */
-function parseVevEvents(html: string, pageDate: string): Array<{
+function resolveYear(month: number, day: number): number {
+	const now = new Date();
+	let year = now.getUTCFullYear();
+	const candidate = new Date(Date.UTC(year, month - 1, day));
+	const daysAgo = (now.getTime() - candidate.getTime()) / 86_400_000;
+	if (daysAgo > 90) year += 1;
+	return year;
+}
+
+interface ParsedEvent {
 	title: string;
 	venue: string;
-	time: string;
-	description: string;
-}> {
+	date: string; // YYYY-MM-DD
+	time: string; // HH:MM
+}
+
+/**
+ * Parse one day's programme page. Walks the rendered text blocks in document order.
+ * Day headings set the current date; each "Tid: HH:MM" marker closes an event whose
+ * title and venue are the two preceding content blocks (skipping "Read more" toggles
+ * and other time lines). Pattern in the DOM is: TITLE → VENUE → "Tid: HH:MM".
+ */
+export function parseDayPage(html: string): ParsedEvent[] {
 	const $ = cheerio.load(html);
-	const events: Array<{ title: string; venue: string; time: string; description: string }> = [];
 
-	// Find all text content blocks
-	const textBlocks: string[] = [];
-	$('p, h3, h4').each((_, el) => {
-		const text = $(el).text().trim();
-		if (text) textBlocks.push(text);
+	const seq: string[] = [];
+	$('h1,h2,h3,h4,h5,strong,b,p,span,div,a').each((_, el) => {
+		const own = $(el).clone().children().remove().end().text().trim();
+		if (own && own.length <= 140 && own !== seq[seq.length - 1]) seq.push(own);
 	});
 
-	// Find description blocks (accordion content)
-	const descriptions: string[] = [];
-	$('.body-text div, .body-text').each((_, el) => {
-		const text = $(el).text().trim();
-		if (text && text.length > 20) descriptions.push(text);
-	});
+	const events: ParsedEvent[] = [];
+	let currentDate = '';
 
-	// Parse events by finding "Tid:" patterns and working backwards for title/venue
-	let currentTitle = '';
-	let currentVenue = '';
-	let descIdx = 0;
-
-	for (let i = 0; i < textBlocks.length; i++) {
-		const block = textBlocks[i];
-
-		// Check for time pattern: "Tid: HH:MM" or "Tid: HH:MM – HH:MM"
-		const timeMatch = block.match(/Tid:\s*(\d{1,2}:\d{2})/i);
-		if (timeMatch) {
-			// Title is usually 1-3 blocks before the time
-			// Look backwards for a strong/bold title (contains actual event name)
-			for (let j = i - 1; j >= Math.max(0, i - 4); j--) {
-				const prev = textBlocks[j];
-				// Skip venue-like entries and time entries
-				if (prev.match(/Tid:/i) || prev.match(/^\d{1,2}:\d{2}$/)) continue;
-				if (!currentTitle && prev.length > 2 && prev.length < 200) {
-					currentTitle = prev;
-					break;
-				}
-			}
-
-			// Venue is often the block right before time
-			if (i > 0) {
-				const prevBlock = textBlocks[i - 1];
-				if (!prevBlock.match(/Tid:/i) && prevBlock.length < 100 && prevBlock !== currentTitle) {
-					currentVenue = prevBlock;
-				}
-			}
-
-			if (currentTitle) {
-				events.push({
-					title: currentTitle,
-					venue: currentVenue || 'Bergen Pride',
-					time: timeMatch[1],
-					description: descriptions[descIdx] || '',
-				});
-				descIdx++;
-			}
-
-			currentTitle = '';
-			currentVenue = '';
+	const lookBack = (from: number, floor: number): { s: string; j: number } | null => {
+		for (let j = from; j >= floor; j--) {
+			const s = seq[j];
+			if (/^read more$/i.test(s) || TIME_RE.test(s)) continue;
+			return { s, j };
 		}
+		return null;
+	};
+
+	for (let i = 0; i < seq.length; i++) {
+		const dh = seq[i].match(DAY_HEADING);
+		if (dh) {
+			const month = MONTHS[dh[1].toLowerCase()];
+			const day = parseInt(dh[2], 10);
+			if (month && day) {
+				const year = resolveYear(month, day);
+				currentDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+			}
+			continue;
+		}
+
+		const tm = seq[i].match(TIME_RE);
+		if (!tm || !currentDate) continue;
+
+		const time = `${tm[1].padStart(2, '0')}:${tm[2]}`;
+		const floor = Math.max(0, i - 5);
+		const venueBlock = lookBack(i - 1, floor);
+		const titleBlock = venueBlock ? lookBack(venueBlock.j - 1, floor) : null;
+
+		let title = (titleBlock?.s || venueBlock?.s || '').replace(/^[-–\s]+/, '').trim();
+		let venue = titleBlock && venueBlock ? venueBlock.s : 'Bergen Pride';
+
+		if (DAY_HEADING.test(title) || title.length < 3) {
+			title = venue.replace(/^[-–\s]+/, '').trim();
+			venue = 'Bergen Pride';
+		}
+		if (title.length < 3) continue;
+
+		events.push({ title, venue, date: currentDate, time });
 	}
 
-	return events;
+	// Vev renders each event twice (responsive variants); collapse exact repeats.
+	const seen = new Set<string>();
+	return events.filter(e => {
+		const key = `${e.title}|${e.date}|${e.time}`;
+		if (seen.has(key)) return false;
+		seen.add(key);
+		return true;
+	});
+}
+
+/** Discover day-programme page slugs from the homepage nav (excludes -en / -ungdom). */
+async function discoverDayPages(): Promise<string[]> {
+	const html = await fetchHTML(`${BASE_URL}/`);
+	if (!html) return FALLBACK_DAY_PAGES;
+	const slugs = new Set<string>();
+	const re = /"path":"(program-(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)[a-z0-9-]*)"/gi;
+	let m: RegExpExecArray | null;
+	while ((m = re.exec(html))) slugs.add(m[1]);
+	return slugs.size > 0 ? [...slugs] : FALLBACK_DAY_PAGES;
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
@@ -141,36 +151,39 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	let found = 0;
 	let inserted = 0;
 
-	for (const pagePath of PROGRAM_PAGES) {
-		const pageUrl = `${BASE_URL}${pagePath}`;
+	const dayPages = await discoverDayPages();
+	console.log(`[${SOURCE}] ${dayPages.length} programme pages to scan`);
+
+	// Skip events already in the past — removeExpiredEvents() would prune them on the
+	// next run anyway, so inserting them only burns AI-description calls.
+	const todayOslo = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Oslo' });
+
+	for (const slug of dayPages) {
+		const pageUrl = `${BASE_URL}/${slug}/`;
 		const html = await fetchHTML(pageUrl);
 		if (!html) {
 			await delay(DELAY_MS);
 			continue;
 		}
 
-		const pageDate = getDateFromPageUrl(pagePath);
-		if (!pageDate) continue;
-
-		const events = parseVevEvents(html, pageDate);
+		const events = parseDayPage(html);
 		if (events.length === 0) {
-			// Vev SPA might return the shell page with no content — this is expected when
-			// the program hasn't been published yet
+			await delay(DELAY_MS);
 			continue;
 		}
-
-		console.log(`[${SOURCE}] ${pagePath}: ${events.length} events`);
+		console.log(`[${SOURCE}] ${slug}: ${events.length} events`);
 
 		for (const event of events) {
+			if (event.date < todayOslo) continue;
 			found++;
 
-			// Build source URL from page URL + slugified title
-			const sourceUrl = `${pageUrl}#${event.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40)}`;
+			const titleSlug = event.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40);
+			const sourceUrl = `${pageUrl}#${event.date}-${titleSlug}`;
 			if (await eventExists(sourceUrl)) continue;
 
-			// Parse time → full ISO datetime
 			const [hours, minutes] = event.time.split(':').map(Number);
-			const startDate = new Date(`${pageDate}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00+02:00`);
+			// June in Bergen is CEST (UTC+2).
+			const startDate = new Date(`${event.date}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00+02:00`);
 			if (isNaN(startDate.getTime())) continue;
 
 			const category = guessCategory(event.title, event.venue);
@@ -184,7 +197,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			});
 
 			const success = await insertEvent({
-				slug: makeSlug(event.title, pageDate),
+				slug: makeSlug(event.title, event.date),
 				title_no: event.title,
 				description_no: aiDesc.no,
 				description_en: aiDesc.en,
@@ -205,7 +218,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			});
 
 			if (success) {
-				console.log(`  + ${event.title} (${event.venue}, ${pageDate} ${event.time})`);
+				console.log(`  + ${event.title} (${event.venue}, ${event.date} ${event.time})`);
 				inserted++;
 			}
 		}
