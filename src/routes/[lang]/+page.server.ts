@@ -16,9 +16,14 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 	// and article:modified_time meta tags.
 	const dateModified = new Date().toISOString().slice(0, 10);
 
+	// Single server-side "now". Returned to the client (as data.now) so the client
+	// sort uses the EXACT same split point as this server render. Recomputing now on
+	// the client would diverge from the ISR-cached SSR (up to 1h old), reorder the
+	// upcoming/ongoing buckets, and mispair images with cards during hydration.
+	const nowUtc = new Date().toISOString();
+
 	try {
-		// Use UTC — date_start is stored as UTC (timestamptz) in Supabase
-		const nowUtc = new Date().toISOString();
+		// date_start is stored as UTC (timestamptz) in Supabase
 		const fields = 'id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status,is_sold_out';
 		const PAGE = 1000;
 
@@ -78,14 +83,14 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 				return true;
 			});
 
-			return { events, source: 'supabase' as const, lang, dateModified };
+			return { events, source: 'supabase' as const, lang, dateModified, now: nowUtc };
 		}
 
 		// Empty table — fall back to seed data
-		return { events: seedEvents, source: 'seed' as const, lang, dateModified };
+		return { events: seedEvents, source: 'seed' as const, lang, dateModified, now: nowUtc };
 	} catch (err) {
 		// Supabase unreachable — fall back to seed data
 		console.error('Supabase load failed:', err);
-		return { events: seedEvents, source: 'seed' as const, lang, dateModified };
+		return { events: seedEvents, source: 'seed' as const, lang, dateModified, now: nowUtc };
 	}
 };
