@@ -2962,42 +2962,42 @@ const collections: Collection[] = [
 		footer: { langs: ['no'], order: 16 },
 		newsletterHeading: { no: 'Bergen Pride — årets program', en: 'Bergen Pride — this year\'s programme' },
 		quickAnswer: {
-			no: 'Bergen Pride (Regnbuedagene) er Vestlandets største pridearrangement, med ni dager i juni fylt med parader, konserter, debatter og fester over hele byen.',
-			en: 'Bergen Pride (Regnbuedagene) is western Norway\'s largest pride event, with nine days in June filled with parades, concerts, debates and parties across the city.'
+			no: 'Bergen Pride (Regnbuedagene) er Vestlandets største pridearrangement, med over 80 arrangementer i starten av juni — parader, konserter, debatter og fester på ulike steder over hele byen.',
+			en: 'Bergen Pride (Regnbuedagene) is western Norway\'s largest pride event, with over 80 events in early June — parades, concerts, debates and parties at venues across the city.'
 		},
 		editorial: {
 			no: [
-				'Bergen Pride, også kjent som Regnbuedagene i Bergen, feirer mangfold og inkludering med ni dager fylt med arrangementer — fra den fargerike paraden gjennom sentrum til konserter, debatter og klubbkvelder.',
-				'Festivalen trekker tusenvis til Bergen hvert år og er en av de viktigste kulturbegivenhetene om sommeren. Programmet spenner fra politiske samtaler til familiedager i parken.',
+				'Bergen Pride, også kjent som Regnbuedagene i Bergen, feirer mangfold og inkludering med over 80 arrangementer i starten av juni — fra den fargerike paraden gjennom sentrum til konserter, debatter og klubbkvelder på ulike steder i byen.',
+				'Festivalen trekker rundt 50 000 deltakere til Bergen hvert år og er en av de viktigste kulturbegivenhetene på forsommeren. Programmet spenner fra politiske samtaler og workshops til familiedager i Pride Park.',
 				'Gåri viser det komplette Bergen Pride-programmet med tidspunkter og steder, oppdatert daglig.'
 			],
 			en: [
-				'Bergen Pride, also known as Regnbuedagene (Rainbow Days), celebrates diversity and inclusion with nine days of events — from the colourful parade through the city centre to concerts, debates and club nights.',
-				'The festival draws thousands to Bergen every year and is one of the most important cultural events of the summer. The programme ranges from political conversations to family days in the park.',
+				'Bergen Pride, also known as Regnbuedagene (Rainbow Days), celebrates diversity and inclusion with over 80 events in early June — from the colourful parade through the city centre to concerts, debates and club nights at venues across the city.',
+				'The festival draws around 50,000 participants to Bergen each year and is one of the most important cultural events of early summer. The programme ranges from political talks and workshops to family days in Pride Park.',
 				'Gåri shows the complete Bergen Pride programme with times and venues, updated daily.'
 			]
 		},
 		faq: {
 			no: [
-				{ q: 'Når er Bergen Pride?', a: 'Bergen Pride arrangeres over ni dager i juni hvert år. Paraden er vanligvis den siste lørdagen.' },
-				{ q: 'Hvor er Bergen Pride?', a: 'Arrangementene foregår på ulike steder i Bergen sentrum. Paraden går gjennom sentrum med start fra Festplassen.' },
+				{ q: 'Når er Bergen Pride?', a: 'Bergen Pride arrangeres i starten av juni hvert år, med rundt en uke fullt av arrangementer. Paraden og Pride Park avslutter festivalen på den siste lørdagen.' },
+				{ q: 'Hvor er Bergen Pride?', a: 'Arrangementene foregår på ulike steder i Bergen — fra Kvarteret og kulturhusene i sentrum til Pride Park i Nygårdsparken. Paraden går gjennom sentrum.' },
 				{ q: 'Er Bergen Pride gratis?', a: 'Mange arrangementer er gratis, inkludert paraden og Pride Park. Enkelte konserter og fester krever billett.' },
 				{ q: 'Er Bergen Pride familievennlig?', a: 'Ja — festivalen har egne familiesamlinger og ungdomsarrangementer. Paraden er åpen for alle aldre.' },
 				{ q: 'Hvordan kjøper jeg billetter til Bergen Pride?', a: 'Billetter til betalingsarrangementer selges via TicketCo og bergenpride.no.' },
-				{ q: 'Hva er Regnbuedagene i Bergen?', a: 'Regnbuedagene er det offisielle navnet på Bergen Pride-festivalen. Ni dager i juni fylt med arrangementer som feirer LHBT+-mangfold — fra paraden gjennom sentrum til konserter, debatter og familiesamlinger.' }
+				{ q: 'Hva er Regnbuedagene i Bergen?', a: 'Regnbuedagene er det offisielle navnet på Bergen Pride-festivalen, eid av FRI. Rundt en uke i starten av juni med over 80 arrangementer som feirer LHBT+-mangfold — fra paraden gjennom sentrum til konserter, debatter og familiesamlinger.' }
 			],
 			en: [
-				{ q: 'When is Bergen Pride?', a: 'Bergen Pride takes place over nine days in June each year. The parade is usually on the final Saturday.' },
-				{ q: 'Where is Bergen Pride held?', a: 'Events take place at various venues across Bergen city centre. The parade routes through the centre starting from Festplassen.' },
+				{ q: 'When is Bergen Pride?', a: 'Bergen Pride takes place in early June each year, with about a week full of events. The parade and Pride Park close the festival on its final Saturday.' },
+				{ q: 'Where is Bergen Pride held?', a: 'Events take place at venues across Bergen — from Kvarteret and the cultural houses in the centre to Pride Park in Nygårdsparken. The parade routes through the city centre.' },
 				{ q: 'Is Bergen Pride free?', a: 'Many events are free, including the parade and Pride Park. Some concerts and parties require tickets.' },
 				{ q: 'Is Bergen Pride family-friendly?', a: 'Yes — the festival has dedicated family gatherings and youth events. The parade is open to all ages.' },
 				{ q: 'How do I buy Bergen Pride tickets?', a: 'Tickets for paid events are sold via TicketCo and bergenpride.no.' },
-				{ q: 'What are the Bergen Rainbow Days (Regnbuedagene)?', a: 'Regnbuedagene (Rainbow Days) is the official name for the Bergen Pride festival — nine days of events celebrating LGBTQ+ diversity, from the main parade and debates to concerts and family gatherings.' }
+				{ q: 'What are the Bergen Rainbow Days (Regnbuedagene)?', a: 'Regnbuedagene (Rainbow Days) is the official name for the Bergen Pride festival, owned by FRI — about a week in early June with over 80 events celebrating LGBTQ+ diversity, from the main parade and debates to concerts and family gatherings.' }
 			]
 		},
 		offSeasonHint: {
-			no: 'Bergen Pride arrangeres vanligvis i juni. Programmet publiseres ca. 2 uker i forveien.',
-			en: 'Bergen Pride usually takes place in June. The programme is published about 2 weeks before.'
+			no: 'Bergen Pride arrangeres vanligvis i starten av juni. Programmet publiseres ca. 2 uker i forveien.',
+			en: 'Bergen Pride usually takes place in early June. The programme is published about 2 weeks before.'
 		},
 		filterEvents: (events) => filterBergenPride(events)
 	},
@@ -3022,33 +3022,33 @@ const collections: Collection[] = [
 		footer: { langs: ['en'], order: 16 },
 		newsletterHeading: { no: 'Bergen Pride — årets program', en: 'Bergen Pride — this year\'s programme' },
 		quickAnswer: {
-			no: 'Bergen Pride (Regnbuedagene) er Vestlandets største pridearrangement med ni dager i juni.',
-			en: 'Bergen Pride (Regnbuedagene) is western Norway\'s largest pride event, with nine days in June filled with parades, concerts, debates and parties across the city.'
+			no: 'Bergen Pride (Regnbuedagene) er Vestlandets største pridearrangement med over 80 arrangementer i starten av juni.',
+			en: 'Bergen Pride (Regnbuedagene) is western Norway\'s largest pride event, with over 80 events in early June — parades, concerts, debates and parties across the city.'
 		},
 		editorial: {
 			no: [
-				'Bergen Pride feirer mangfold og inkludering med ni dager i juni — fra paraden gjennom sentrum til konserter og debatter.',
-				'Festivalen trekker tusenvis til Bergen hvert år med et variert program for alle aldre.',
+				'Bergen Pride feirer mangfold og inkludering med over 80 arrangementer i starten av juni — fra paraden gjennom sentrum til konserter og debatter.',
+				'Festivalen trekker rundt 50 000 deltakere til Bergen hvert år med et variert program for alle aldre.',
 				'Gåri viser det komplette Bergen Pride-programmet med tidspunkter og steder.'
 			],
 			en: [
-				'Bergen Pride, also known as Regnbuedagene (Rainbow Days), celebrates diversity and inclusion with nine days of events — from the colourful parade through the city centre to concerts, debates and club nights.',
-				'The festival draws thousands to Bergen every year and is one of the most important cultural events of the summer. The programme ranges from political conversations to family days in the park.',
+				'Bergen Pride, also known as Regnbuedagene (Rainbow Days), celebrates diversity and inclusion with over 80 events in early June — from the colourful parade through the city centre to concerts, debates and club nights.',
+				'The festival draws around 50,000 participants to Bergen each year and is one of the most important cultural events of early summer. The programme ranges from political conversations to family days in the park.',
 				'Gåri shows the complete Bergen Pride programme with times and venues, updated daily.'
 			]
 		},
 		faq: {
 			no: [
-				{ q: 'Når er Bergen Pride?', a: 'I juni hvert år, over ni dager. Paraden er den siste lørdagen.' },
-				{ q: 'Hvor er Bergen Pride?', a: 'Ulike steder i Bergen sentrum. Paraden starter fra Festplassen.' },
+				{ q: 'Når er Bergen Pride?', a: 'I starten av juni hvert år, rundt en uke. Paraden og Pride Park avslutter festivalen på den siste lørdagen.' },
+				{ q: 'Hvor er Bergen Pride?', a: 'Ulike steder i Bergen — sentrum og Pride Park i Nygårdsparken. Paraden går gjennom sentrum.' },
 				{ q: 'Er Bergen Pride gratis?', a: 'Paraden og Pride Park er gratis. Enkelte konserter krever billett.' },
 				{ q: 'Er Bergen Pride familievennlig?', a: 'Ja — egne familiesamlinger og ungdomsarrangementer. Paraden er for alle.' },
 				{ q: 'Hvordan kjøper jeg billetter?', a: 'Via TicketCo og bergenpride.no.' },
 				{ q: 'Hva er Pride Park i Bergen?', a: 'Pride Park er et gratis, åpent festivalområde under Bergen Pride med scene, aktiviteter og samlingspunkt for alle — ingen billett nødvendig. Sjekk bergenpride.no for årets lokasjon.' }
 			],
 			en: [
-				{ q: 'When is Bergen Pride?', a: 'Bergen Pride takes place over nine days in June each year. The parade is usually on the final Saturday.' },
-				{ q: 'Where is Bergen Pride held?', a: 'Events take place at various venues across Bergen city centre. The parade starts from Festplassen.' },
+				{ q: 'When is Bergen Pride?', a: 'In early June each year, lasting about a week. The parade and Pride Park close the festival on its final Saturday.' },
+				{ q: 'Where is Bergen Pride held?', a: 'At venues across Bergen — the city centre and Pride Park in Nygårdsparken. The parade routes through the centre.' },
 				{ q: 'Is Bergen Pride free?', a: 'Many events are free, including the parade and Pride Park. Some concerts require tickets.' },
 				{ q: 'Is Bergen Pride family-friendly?', a: 'Yes — dedicated family and youth events. The parade is open to all ages.' },
 				{ q: 'How do I buy Bergen Pride tickets?', a: 'Tickets for paid events are sold via TicketCo and bergenpride.no.' },
@@ -3056,8 +3056,8 @@ const collections: Collection[] = [
 			]
 		},
 		offSeasonHint: {
-			no: 'Bergen Pride arrangeres vanligvis i juni. Programmet publiseres ca. 2 uker i forveien.',
-			en: 'Bergen Pride usually takes place in June. The programme is published about 2 weeks before.'
+			no: 'Bergen Pride arrangeres vanligvis i starten av juni. Programmet publiseres ca. 2 uker i forveien.',
+			en: 'Bergen Pride usually takes place in early June. The programme is published about 2 weeks before.'
 		},
 		filterEvents: (events) => filterBergenPride(events)
 	},
