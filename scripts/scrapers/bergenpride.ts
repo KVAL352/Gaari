@@ -92,6 +92,8 @@ export function parseDayPage(html: string): ParsedEvent[] {
 		return null;
 	};
 
+	let prevTidIdx = -1;
+	let lastTitle = '';
 	for (let i = 0; i < seq.length; i++) {
 		const dh = seq[i].match(DAY_HEADING);
 		if (dh) {
@@ -115,13 +117,22 @@ export function parseDayPage(html: string): ParsedEvent[] {
 		let title = (titleBlock?.s || venueBlock?.s || '').replace(/^[-–\s]+/, '').trim();
 		let venue = titleBlock && venueBlock ? venueBlock.s : 'Bergen Pride';
 
-		if (DAY_HEADING.test(title) || title.length < 3) {
+		// Multi-part event (e.g. "Piknik og filmkveld" with a second time/venue): the
+		// only title candidate sits at/before the previous event's time line, so there
+		// is no fresh title here. Reuse the previous title; this block is just a second
+		// venue/slot. Pipeline dedup (normalised title + date) collapses the slots.
+		if (titleBlock && titleBlock.j <= prevTidIdx && lastTitle) {
+			title = lastTitle;
+			venue = venueBlock!.s;
+		} else if (DAY_HEADING.test(title) || title.length < 3) {
 			title = venue.replace(/^[-–\s]+/, '').trim();
 			venue = 'Bergen Pride';
 		}
-		if (title.length < 3) continue;
+		if (title.length < 3) { prevTidIdx = i; continue; }
 
 		events.push({ title, venue, date: currentDate, time });
+		prevTidIdx = i;
+		lastTitle = title;
 	}
 
 	// Vev renders each event twice (responsive variants); collapse exact repeats.
