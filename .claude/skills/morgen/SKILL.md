@@ -17,6 +17,10 @@ Run all morning checks in parallel, then present a single unified briefing.
 ### Site health
 !`curl -s https://gaari.no/api/health/deep 2>/dev/null || echo "Site unreachable"`
 
+### Failed workflows (ALL workflows, currently red on master)
+Catches any scheduled/CI job whose LATEST run on master failed — not just the four named below. This is the safety net so a silently-failing weekly job (e.g. stale-check, dependency-audit) never sits unnoticed.
+!`gh run list --limit 200 --json workflowName,conclusion,createdAt,headBranch 2>/dev/null | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const r=JSON.parse(d).filter(x=>x.headBranch==='master');const latest={};for(const x of r){if(!latest[x.workflowName]||x.createdAt>latest[x.workflowName].createdAt)latest[x.workflowName]=x;}const red=Object.values(latest).filter(x=>x.conclusion==='failure');if(!red.length)console.log('Alle workflows gronne');else red.forEach(x=>console.log('ROD:',x.workflowName,'(siste kjoring '+x.createdAt.slice(0,10)+')'));}catch{console.log('Workflow-status utilgjengelig')}})" || echo "gh unavailable"`
+
 ### Last scraper run
 !`gh run list --workflow=scrape.yml --limit 1 --json conclusion,startedAt 2>/dev/null || echo "gh unavailable"`
 
@@ -62,6 +66,10 @@ Present everything as one compact briefing:
 
 ### Siden
 - gaari.no: [oppe/nede] (X events, sist scrapet Y timer siden)
+
+### Workflow-status
+- Hvis noen workflow er ROD: **flagg tydelig her og øverst** ("WORKFLOW-FEIL: <navn> har feilet siden <dato>") — én linje per rød jobb. Dette er ofte det viktigste i hele briefingen.
+- Hvis alle grønne: én linje "Alle workflows grønne".
 
 ### Epost
 - X ulest i innboks
@@ -144,4 +152,5 @@ Show as a "DEADLINE"-linje ovenfor "Neste steg" i briefingen.
 - This skill is read-only — never make changes during /morgen
 - Keep the briefing to one screen — details on request
 - If site is down or degraded, flag it prominently at the top
+- If any workflow is red (from the "Failed workflows" check), flag it at the very top alongside site status — a silently-failing job is exactly what this routine exists to catch
 - No emojis in output

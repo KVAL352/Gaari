@@ -1,0 +1,35 @@
+name: Dependency Audit (weekly)
+
+# Catches accumulating dependency advisories even when nothing is pushed.
+# CI already runs `npm audit --audit-level=high` on every push — but between
+# pushes a new high/critical advisory can sit unnoticed. This scheduled run
+# fails loudly if one appears; a red run then surfaces in the /morgen briefing
+# (the "Failed workflows" check), so it never lingers.
+#
+# npm audit reads package-lock.json and queries the advisory DB directly — no
+# install needed, so this is fast.
+
+on:
+  schedule:
+    # Mondays 05:00 UTC (before the morning routine) — weekly is enough for
+    # a solo project; Dependabot handles same-day security PRs separately.
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Audit app dependencies (root)
+        run: npm audit --audit-level=high
+
+      - name: Audit scraper dependencies
+        working-directory: scripts
+        run: npm audit --audit-level=high
