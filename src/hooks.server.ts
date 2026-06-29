@@ -73,7 +73,7 @@ const csp = [
 
 // Rate-limited path groups
 const FORM_PATHS = ['/submit', '/datainnsamling'];
-const API_PATHS = ['/api/newsletter', '/api/notify-submission'];
+const API_PATHS = ['/api/newsletter', '/api/notify-submission', '/api/remind'];
 const LOGIN_PATH = '/admin/login';
 
 function getRateLimitTier(pathname: string, method: string): 'form' | 'api' | 'login' | null {

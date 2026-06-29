@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
 import { notifyCorrection } from '$lib/server/email';
+import { isEditableField } from '$lib/corrections';
 import { seedEvents } from '$lib/data/seed-events';
 import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad, Actions } from './$types';
@@ -104,6 +105,12 @@ export const actions: Actions = {
 		const email = data.get('email') || null;
 
 		if (!event_id || !field || !suggested_value) {
+			return fail(400, { correctionError: true });
+		}
+
+		// Reject unknown field names at the boundary — only real, editable event
+		// columns may be the target of a correction.
+		if (!isEditableField(String(field))) {
 			return fail(400, { correctionError: true });
 		}
 

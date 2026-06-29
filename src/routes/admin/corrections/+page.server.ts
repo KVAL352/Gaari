@@ -1,13 +1,10 @@
 import { supabaseAdmin } from '$lib/server/supabase-admin';
 import { sendCorrectionAppliedEmail, sendCorrectionRejectedEmail } from '$lib/server/email';
 import { fail } from '@sveltejs/kit';
+import { EDITABLE_FIELDS } from '$lib/corrections';
 import type { PageServerLoad, Actions } from './$types';
 
-const ALLOWED_FIELDS = [
-	'title_no', 'title_en', 'description_no', 'description_en',
-	'venue_name', 'address', 'bydel', 'price', 'ticket_url',
-	'category', 'date_start', 'date_end', 'image_url', 'age_group', 'language'
-];
+const ALLOWED_FIELDS: readonly string[] = EDITABLE_FIELDS;
 
 export interface CorrectionRow {
 	id: string;
