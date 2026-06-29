@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-07-14",
+    "title": "Følg opp iBergen (Eirik Teigland) hvis ingen svar",
+    "description": "Etter kaffemøte 18. juni svarte Eirik (et@imedium.no, tlf 98864593, cc stianhj@gmail.com) 18. juni at de tar en intern runde og kommer tilbake. Mine premisser: betalt lisens-/distribusjonsmodell, gaari.no forblir primær destinasjon (alle event-klikk dit), jeg eier data/arbeid (de leier visningsrett), kalenderen beholder Gåri-identitet, Bergen først. Neste steg fra deres side: velge samlet Gåri-feed vs venue-for-venue, og iframe vs stylet innebygd. Hvis ingen respons innen ~3-4 uker — send en kort nudge. E-posten ligger i Folders/Gaari/Partnerships/Unresolved (UID 897)."
+  },
+  {
     "date": "2026-06-27",
     "title": "Vercel Pro: vurder faktisk forbruk etter første full måned",
     "description": "Oppgradert til Pro 2026-05-27 etter 300% ISR Writes-alarm. Pro gir 1M ISR Writes inkludert. Logg inn på vercel.com/kjerstis-projects/usage og noter: ISR Reads, ISR Writes, Origin Transfer, Fluid Active CPU. Hvis vi ligger godt under 50% av Pro-limits, er ISR-optimaliseringene fra 22. mai (7d event-detalj) effektive. Hvis nært/over Pro-limits — vurder ytterligere optimaliseringer (collections 1h → 4h, undersøke s-maxage vs ISR-konflikt på event-detail)."
