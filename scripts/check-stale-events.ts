@@ -63,9 +63,35 @@ const SKIP_HOSTS = new Set([
 	'10times.com',
 	'www.bandsintown.com',
 	'calendar.google.com',
+	'www.google.com', // google.com/calendar/event links hit a login wall — never verifiable
 	'meetup.com',
 	'www.meetup.com',
+	// Hosts that block our User-Agent (403/timeout). Verified as consistent
+	// false-positive sources in the weekly stale-event report — probing them
+	// only generates noise.
+	'dnt.no',
+	'www.dnt.no',
+	'kunsthall.no',
+	'www.kunsthall.no',
+	'forumscene.no',
+	'www.forumscene.no',
+	'bergenbibliotek.no',
+	'www.bergenbibliotek.no',
+	// JS-rendered — the static HTML we fetch contains no event dates (they load
+	// client-side), so every event verifies as a false date-mismatch. Can't be
+	// checked without a headless browser; skip rather than flag the whole source.
+	'hvaskjeriloddefjord.no',
+	'www.hvaskjeriloddefjord.no',
 ]);
+
+// Domain families (any subdomain) that bot-protect every URL. hoopla.no serves
+// each organiser from <org>.hoopla.no, so an exact-host set can't cover them.
+const SKIP_HOST_SUFFIXES = ['hoopla.no'];
+
+function isSkippedHost(host: string): boolean {
+	if (SKIP_HOSTS.has(host)) return true;
+	return SKIP_HOST_SUFFIXES.some(suffix => host === suffix || host.endsWith(`.${suffix}`));
+}
 
 // Ticket vendors that aggressively bot-protect every URL (401/403 even on
 // HEAD). Their links work fine for real browsers — skip the probe entirely
@@ -188,7 +214,6 @@ function findDate(html: string, dbDate: string): boolean {
 
 	const candidates = [
 		`${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`,           // 2026-06-12
-		`${day}.${String(m + 1).padStart(2, '0')}.${y}`,                                    // 12.06.2026
 		`${day}/${String(m + 1).padStart(2, '0')}/${y}`,                                    // 12/06/2026
 		`${String(day).padStart(2, '0')}${String(m + 1).padStart(2, '0')}${y}`,             // 12062026
 		`${y}${String(m + 1).padStart(2, '0')}${String(day).padStart(2, '0')}`,             // 20260612
@@ -205,7 +230,18 @@ function findDate(html: string, dbDate: string): boolean {
 		candidates.push(`${monthName} ${day}, ${y}`);
 	}
 
-	return candidates.some(c => norm.includes(c.toLowerCase()));
+	if (candidates.some(c => norm.includes(c.toLowerCase()))) return true;
+
+	// Dotted numeric day.month, tolerating padded/unpadded day and month and an
+	// optional trailing dot or year (e.g. "12.07.2026", "30.06.", "2.7", "02.7").
+	// Norwegian event pages are inconsistent here. Boundaries prevent short forms
+	// like "2.7" from matching inside "12.7" or "2.71".
+	const dd = String(day), ddp = dd.padStart(2, '0');
+	const mm = String(m + 1), mmp = mm.padStart(2, '0');
+	const dayAlt = dd === ddp ? dd : `(?:${ddp}|${dd})`;
+	const monAlt = mm === mmp ? mm : `(?:${mmp}|${mm})`;
+	const dottedNumeric = new RegExp(`(?<![\\d.])${dayAlt}\\.${monAlt}(?![\\d])`);
+	return dottedNumeric.test(norm);
 }
 
 async function fetchHtml(url: string): Promise<string | null> {
@@ -262,7 +298,7 @@ async function checkEvent(event: Event): Promise<StaleFlag | null> {
 		};
 	}
 
-	if (SKIP_HOSTS.has(host)) return null;
+	if (isSkippedHost(host)) return null;
 
 	const html = await fetchHtml(event.source_url);
 	if (html === null) {
@@ -415,7 +451,7 @@ async function main() {
 		if (event.source_url) {
 			try {
 				const host = new URL(event.source_url).hostname;
-				if (SKIP_HOSTS.has(host)) skipped++;
+				if (isSkippedHost(host)) skipped++;
 			} catch { /* ignore */ }
 		}
 		if (!jsonOutput && checked % 50 === 0) {
