@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-07-06",
+    "title": "Studio Vertikal: legg inn seniorklatring hvis de svarer ja",
+    "description": "Sendte unnskyldning 2026-06-29 (post@studiovertikal.no) for at seniorklatring-innsendingen 25. juni aldri ble publisert. Tilbød å legge inn de faste øktene manuelt (torsdager kl. 10, gjentagende, kilde studiovertikal.no/seniorklatring/). Hvis de svarer ja: legg inn som gjentagende event. Hvis ingen svar innen ~1 uke: la det ligge. Plattform-scraper (GoActiveBooking/BRP) ble vurdert og forkastet (booking-system, feil innholdstype)."
+  },
+  {
     "date": "2026-07-14",
     "title": "Følg opp iBergen (Eirik Teigland) hvis ingen svar",
     "description": "Etter kaffemøte 18. juni svarte Eirik (et@imedium.no, tlf 98864593, cc stianhj@gmail.com) 18. juni at de tar en intern runde og kommer tilbake. Mine premisser: betalt lisens-/distribusjonsmodell, gaari.no forblir primær destinasjon (alle event-klikk dit), jeg eier data/arbeid (de leier visningsrett), kalenderen beholder Gåri-identitet, Bergen først. Neste steg fra deres side: velge samlet Gåri-feed vs venue-for-venue, og iframe vs stylet innebygd. Hvis ingen respons innen ~3-4 uker — send en kort nudge. E-posten ligger i Folders/Gaari/Partnerships/Unresolved (UID 897)."
