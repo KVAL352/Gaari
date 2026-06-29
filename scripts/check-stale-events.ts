@@ -25,7 +25,10 @@
  * Env: PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  */
 
-import 'dotenv/config';
+import dotenv from 'dotenv';
+// quiet: true — dotenv@17 prints a banner to stdout by default, which would
+// corrupt the --json payload that the CI workflow pipes into jq.
+dotenv.config({ quiet: true });
 import { supabase } from './lib/supabase.js';
 
 interface Event {
