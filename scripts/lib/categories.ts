@@ -237,6 +237,8 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'damsgård hovedgård': 'Laksevåg',
 	'damsgård': 'Laksevåg',
 	'ytrebygda kultursenter': 'Ytrebygda',
+	'studio vertikal': 'Ytrebygda',
+	'kokstad': 'Ytrebygda',
 	// Tikkio venues
 	'pappa': 'Sentrum',
 	'dr. wiesener': 'Sentrum',

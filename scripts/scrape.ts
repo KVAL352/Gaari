@@ -66,6 +66,7 @@ import { scrape as scrapeBodega } from './scrapers/bodega.js';
 import { scrape as scrapeJungelfest } from './scrapers/jungelfest.js';
 import { scrape as scrapeLoddefjord } from './scrapers/loddefjord.js';
 import { scrape as scrapeGenerasjonsfestivalen } from './scrapers/generasjonsfestivalen.js';
+import { scrape as scrapeStudioVertikal } from './scrapers/studiovertikal.js';
 import { writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
 import { removeExpiredEvents, refreshStaleMultiDateEvents, removeDisabledSourceEvents, loadOptOuts, getOptOutDomains, loadExistingUrls } from './lib/utils.js';
@@ -116,6 +117,7 @@ export const scrapers: Record<string, () => Promise<{ found: number; inserted: n
 	nattjazz: scrapeNattjazz,
 	bjorgvinblues: scrapeBjorgvinBlues,
 	swingnsweetjazzclub: scrapeSwingNSweet,
+	studiovertikal: scrapeStudioVertikal,
 	bek: scrapeBEK,
 	beyondthegates: scrapeBeyondTheGates,
 	brann: scrapeBrann,

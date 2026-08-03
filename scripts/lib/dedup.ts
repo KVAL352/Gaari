@@ -63,6 +63,7 @@ const SOURCE_RANK: Record<string, number> = {
 	bergenchamber: 4,
 	dnt: 4,
 	brettspill: 4,
+	studiovertikal: 4,
 
 	// Tier 3 — city / community aggregators
 	loddefjord: 3,
