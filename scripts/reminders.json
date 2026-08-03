@@ -1,5 +1,20 @@
 [
   {
+    "date": "2026-08-04",
+    "title": "HASTER: Vercel-betaling feilet IGJEN 2026-08-03 etter pengeoverføring",
+    "description": "Kjersti overførte penger til Visa 2333 den 2026-08-03 og trodde saken var løst — men Vercel forsøkte å trekke $25 kl. 09:39:10 samme dag og MISLYKTES på nytt ('We attempted to charge your Visa ending in 2333 ... but were unsuccessful'). To nye 'Shutdown Coming Soon' fulgte ett sekund senere. Manglende dekning var altså ikke hele årsaken. Ingen avvisningskode i e-posten. Sjekk i denne rekkefølgen: (1) har overføringen faktisk landet — mellom banker tar det timer; (2) er kortet sperret for utenlandske/nettbaserte kjøp (standard på mange norske kort, slås av i bankappen) — et USD-trekk fra et amerikansk selskap treffer nettopp den sperren; (3) ble 3D Secure/BankID fullført — uten det ser betalingen ut til å gå gjennom i nettleseren, men banken slipper den aldri. Bankappen viser vanligvis avvist forsøk med årsak. Vurder annet kort hvis 2333 fortsetter å feile. ØVRIGE: Proton EUR 4.99 Mail Plus (feilvarsler 27./28./30. juli, men også 'Subscription has been renewed' 27. juli 10:24 — uavklart, sjekk dashboardet). Netlify KVAL352-team, frist ~2026-08-31, varsel gikk til kjerstivalland@gmail.com. KONTEKST: 2FA + passkey ble satt opp på Vercel 2026-08-03 kl. 09:36–09:38; gjenopprettingskoder ligger i C:\\Users\\kjers\\.secrets\\ (se api-keys.md). gaari.no var oppe og healthy hele perioden (302 + /api/health 200). Separat spor: 8 mislykkede Vercel preview-deploys 24. juli–2. aug — sjekk om de løser seg når betalingen er i orden, ellers reell byggefeil."
+  },
+  {
+    "date": "2026-08-04",
+    "title": "Bookibud: følg opp Geir hvis ingen svar på møteforespørsel",
+    "description": "SVART 2026-08-03 kl. 10:57 til geirhaavard@bookibud.com (tlf 480 62 320, grunnlegger/DL i Bookibud AS). Foreslo møte ons 5., tors 6. eller fre 7. august. Hvis ingen av dem er bekreftet innen 2026-08-07: send en kort nudge, eller ring. Ballen ligger hos ham. BAKGRUNN: han tok kontakt 2026-07-15 etter tips fra Fabio i Bergen Street Food, ubesvart i 19 dager pga flyttingen til Brussel. Bookibud er whitelabel-bookingplattform, så en feed kan gi flere arrangører enn Bergen Street Food alene. TEKNISK (verifisert 2026-08-03): arrangementssiden er klientrendret, SSR-HTML viser kun 'Loading', data hentes via TanStack Start createServerFn med bygg-genererte ID-er som endres ved deploy. Ingen Event-markup, kun @type Restaurant. Bilder er presignerte S3-URLer med X-Amz-Expires=604800 (7 døgn). Vi bygger IKKE scraper mot dette og legger IKKE inn manuelt — Kjersti har avgjort at manuell innlegging ikke er aktuelt. Ba om iCal-feed, JSON-endepunkt eller schema.org Event-markup."
+  },
+  {
+    "date": "2026-08-04",
+    "title": "Studio Vertikal: kjør backfill-descriptions + få klokkeslett for familiedag",
+    "description": "GJORT 2026-08-03: scripts/scrapers/studiovertikal.ts opprettet (generator, ingen nettverkskall — tidene er hardkodet fra Sofies e-post 2026-07-01 der hun ga skriftlig tillatelse). Registrert i scrape.ts + SOURCE_RANK tier 4. 'studio vertikal' og 'kokstad' lagt til i VENUE_BYDEL_MAP → Ytrebygda (manglet, ville ellers defaultet til Sentrum). 8 seniorklatring-økter lagt inn og verifisert: 6. aug kl. 11:00, deretter torsdager kl. 10:00 t.o.m. 24. sept. Genereres rullerende 8 uker frem ved hver pipeline-kjøring, så dette går nå av seg selv. GJENSTÅR TO TING: (1) Gemini-kvoten var oppbrukt under kjøringen, så 7 av 8 fikk malbeskrivelse ('Seniorklatring — Sport/friluft på Studio Vertikal', 48 tegn). Kjør 'cd scripts && npx tsx backfill-descriptions.ts' når kvoten er tilbake — den plukker opp alt under 80 tegn. Daglig scrape gjør IKKE dette selv, fordi eventExists() hopper over eksisterende events. (2) FAMILIEDAG er ikke lagt inn: verken Sofies e-post eller studiovertikal.no/familiedag/ oppgir klokkeslett, kun datoene (lørdager 15. aug, 12. sept, 10. okt, 28. nov) og pris 600 kr for hele familien. Datoene ligger klare i FAMILIEDAGER-arrayet i scraperen med hhmm:null — fyll inn klokkeslettet når Sofie svarer, så plukkes de opp automatisk ved neste kjøring. Spørsmålet ligger i e-postutkastet til Sofie."
+  },
+  {
     "date": "2026-07-06",
     "title": "Studio Vertikal: legg inn seniorklatring hvis de svarer ja",
     "description": "Sendte unnskyldning 2026-06-29 (post@studiovertikal.no) for at seniorklatring-innsendingen 25. juni aldri ble publisert. Tilbød å legge inn de faste øktene manuelt (torsdager kl. 10, gjentagende, kilde studiovertikal.no/seniorklatring/). Hvis de svarer ja: legg inn som gjentagende event. Hvis ingen svar innen ~1 uke: la det ligge. Plattform-scraper (GoActiveBooking/BRP) ble vurdert og forkastet (booking-system, feil innholdstype)."
@@ -43,11 +58,6 @@
     "date": "2026-05-01",
     "title": "Fase 1 datamodenhet: 14-dagers sjekkpunkt",
     "description": "Brann har nå 14+ dager med klikk-attribusjon. Rapport skal vise 'Plasseringen ga dere X ekstra klikk' (promoted − organic). Kjør: cd scripts && npx tsx generate-venue-report.ts 'Brann Stadion' --month 2026-04. Sjekk at lift-linjen er synlig og tallet er positivt. Hvis promoted = organic = 0: track-click fungerer ikke — debug."
-  },
-  {
-    "date": "2026-06-09",
-    "title": "Sjekk Bergen Street Food eventside",
-    "description": "Fabio (fabio@bergenstreetfood.no) sa eventsiden blir klar ~midten av mai, whitelabeled på bergenstreetfood.no. Sjekket 2026-05-26: /program-siden er fortsatt tom (kun header + venue-info, ingen event-listings). Spurte 19. mai om timing — ikke svar ennå. Sjekk på nytt 9. juni; hvis fortsatt tom, vurder direkte purring til Fabio."
   },
   {
     "date": "2026-06-01",
