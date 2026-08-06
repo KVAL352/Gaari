@@ -1,13 +1,13 @@
 [
   {
-    "date": "2026-08-04",
-    "title": "HASTER: Vercel-betaling feilet IGJEN 2026-08-03 etter pengeoverføring",
-    "description": "Kjersti overførte penger til Visa 2333 den 2026-08-03 og trodde saken var løst — men Vercel forsøkte å trekke $25 kl. 09:39:10 samme dag og MISLYKTES på nytt ('We attempted to charge your Visa ending in 2333 ... but were unsuccessful'). To nye 'Shutdown Coming Soon' fulgte ett sekund senere. Manglende dekning var altså ikke hele årsaken. Ingen avvisningskode i e-posten. Sjekk i denne rekkefølgen: (1) har overføringen faktisk landet — mellom banker tar det timer; (2) er kortet sperret for utenlandske/nettbaserte kjøp (standard på mange norske kort, slås av i bankappen) — et USD-trekk fra et amerikansk selskap treffer nettopp den sperren; (3) ble 3D Secure/BankID fullført — uten det ser betalingen ut til å gå gjennom i nettleseren, men banken slipper den aldri. Bankappen viser vanligvis avvist forsøk med årsak. Vurder annet kort hvis 2333 fortsetter å feile. ØVRIGE: Proton EUR 4.99 Mail Plus (feilvarsler 27./28./30. juli, men også 'Subscription has been renewed' 27. juli 10:24 — uavklart, sjekk dashboardet). Netlify KVAL352-team, frist ~2026-08-31, varsel gikk til kjerstivalland@gmail.com. KONTEKST: 2FA + passkey ble satt opp på Vercel 2026-08-03 kl. 09:36–09:38; gjenopprettingskoder ligger i C:\\Users\\kjers\\.secrets\\ (se api-keys.md). gaari.no var oppe og healthy hele perioden (302 + /api/health 200). Separat spor: 8 mislykkede Vercel preview-deploys 24. juli–2. aug — sjekk om de løser seg når betalingen er i orden, ellers reell byggefeil."
+    "date": "2026-08-14",
+    "title": "Vercel: bekreft at neste trekk gikk gjennom",
+    "description": "NEDGRADERT 2026-08-06: Kjersti har overført penger til kortet og regner med at dette løser seg selv. Ingen handling nødvendig med mindre et nytt feilvarsel kommer. VERIFISER LIKEVEL: forsøket 2026-08-03 kl. 09:39 feilet ETTER at pengene var overført, så manglende dekning var ikke hele årsaken. Hvis en ny \"payment unsuccessful\"-epost dukker opp, sjekk om kortet er sperret for utenlandske/nettbaserte kjøp (slås av i bankappen) eller om 3D Secure ikke fullføres. ØVRIGE ABONNEMENT: Proton EUR 4.99 Mail Plus (feilvarsler 27./28./30. juli, men også \"Subscription has been renewed\" 27. juli 10:24 — uavklart, sjekk dashboardet). Netlify KVAL352-team krever gyldig kort, frist ca. 2026-08-31, varsel gikk til kjerstivalland@gmail.com. KONTEKST: 2FA + passkey satt opp på Vercel 2026-08-03; gjenopprettingskoder i C:\\Users\\kjers\\.secrets\\ (se api-keys.md). gaari.no var oppe hele perioden."
   },
   {
-    "date": "2026-08-07",
-    "title": "Bookibud: få bekreftet møtetid tirsdag 11. august",
-    "description": "MØTET ER FLYTTET til tirsdag 11. august. Kjersti sendte selv e-post til Geir (geirhaavard@bookibud.com, tlf 480 62 320) den 2026-08-06 der hun sa ok til flyttingen og foreslo kl. 13. Han har IKKE bekreftet tidspunktet ennå. Ikke send noen ny bekreftelse — den er ute. Kalenderoppføring id eiuqj615hhb58oppopk31u44q8 står på 11. aug 13:00-14:00 med 'TID IKKE BEKREFTET' i tittelen — fjern det og juster tiden når han svarer. Google Meet-lenke er laget og ligger i oppføringen: https://meet.google.com/wef-urwh-sqs. Får du ikke svar innen mandag 10. august, send ham en kort e-post (ikke ring — Kjersti foretrekker e-post her). Historikk: han tok kontakt 15. juli, lå ubesvart i 19 dager, svart 3. august kl. 10:57, møte først satt til torsdag 6. august og så flyttet. BAKGRUNN: han tok kontakt 2026-07-15 etter tips fra Fabio i Bergen Street Food, ubesvart i 19 dager pga flyttingen til Brussel. Bookibud er whitelabel-bookingplattform, så en feed kan gi flere arrangører enn Bergen Street Food alene. TEKNISK (verifisert 2026-08-03): arrangementssiden er klientrendret, SSR-HTML viser kun 'Loading', data hentes via TanStack Start createServerFn med bygg-genererte ID-er som endres ved deploy. Ingen Event-markup, kun @type Restaurant. Bilder er presignerte S3-URLer med X-Amz-Expires=604800 (7 døgn). Vi bygger IKKE scraper mot dette og legger IKKE inn manuelt — Kjersti har avgjort at manuell innlegging ikke er aktuelt. Ba om iCal-feed, JSON-endepunkt eller schema.org Event-markup."
+    "date": "2026-08-10",
+    "title": "Bookibud: forbered møtet med Geir (tirsdag 11. august kl. 13)",
+    "description": "MØTET ER BEKREFTET: tirsdag 11. august kl. 13:00–14:00. Geir bekreftet i e-post 2026-08-06 kl. 12:11 (\"Jepp :)\"). Kalenderoppføring eiuqj615hhb58oppopk31u44q8 er oppdatert — tittelen har ikke lenger \"TID IKKE BEKREFTET\". Google Meet: https://meet.google.com/wef-urwh-sqs. Kontakt: Geir Håvard Kjørsvik, daglig leder i Bookibud AS, geirhaavard@bookibud.com, tlf 480 62 320. FORBERED: hovedspørsmålet er hvilken av de tre inngangene de kan tilby — (1) iCal-feed per arrangør, (2) JSON-endepunkt på fast adresse, (3) schema.org Event-markup i arrangementssiden. Én av dem holder. Ta også opp at Bookibud er whitelabel, så en avtale kan gi flere arrangører enn Bergen Street Food alene. TEKNISK (verifisert 2026-08-03): arrangementssiden er klientrendret, SSR-HTML viser kun \"Loading\", data hentes via TanStack Start createServerFn med bygg-genererte ID-er som endres ved deploy. Ingen Event-markup, kun @type Restaurant. Bilder er presignerte S3-URLer med X-Amz-Expires=604800 (7 døgn), så de kan ikke hot-linkes. Vi bygger IKKE scraper mot dette og legger IKKE inn manuelt. PRINSIPPER å holde fast ved: alle klikk går til arrangørens egen side, gaari.no forblir primær destinasjon, vi eier data og kalenderarbeidet, bilder kun som hot-link der arrangøren har sagt ja eller er varslet."
   },
   {
     "date": "2026-08-04",
@@ -40,9 +40,9 @@
     "description": "På Pro siden 2026-05-27 så akutt risk er borte. Sjekk likevel kvartalsvis: logg inn på vercel.com/kjerstis-projects/usage og noter prosent for ISR Reads, ISR Writes, Fast Origin Transfer, Fluid Active CPU mot Pro-limits (1M ISR Writes, etc.). Hvis trafikk har vokst slik at vi nærmer oss on-demand-pricing, vurder optimaliseringer. Etter sjekk: flytt reminder til 1. desember."
   },
   {
-    "date": "2026-06-09",
-    "title": "Spør Fase 1/2-venues om eksplisitt SoMe-bildebruk",
-    "description": "Hot-link/opt-out-policy gjelder kun visning på gaari.no. For å utvide Tier 1 (PROMO_APPROVED_SOURCES) — særlig nightlife og gratis-events — send en kort epost til Fase 1+2 venues (museumvest, kode, dnt, bodega, bergenfest, olebull, forumscene, generasjonsfestivalen, litthusbergen, beyondthegates, studentbergen, kulturhusetibergen, colonialen, oconnors, stenematglede, floyen, bergenkjott, bymuseet, ostre, bergenfilmklubb, carteblanche, kunsthall, usfverftet, kvarteret) og spør om de ønsker SoMe-promotering. Se [[feedback_promo_only_written_yes.md]] og [[outreach-active.md]]."
+    "date": "2026-08-10",
+    "title": "Bildesamtykke-kampanje: be alle venues om SoMe-tillatelse",
+    "description": "KONSOLIDERT 2026-08-06 fra to eldre påminnelser (2026-06-01 og 2026-06-09). Kjersti har bedt om at dette blir gjort ordentlig — en profesjonell e-post til alle venues som ber om tillatelse til å bruke bildene deres i gratis promotering på sosiale medier. Selve arbeidet ligger nå som oppgave i project_calendar. SKILLET SOM MÅ VÆRE TYDELIG I E-POSTEN: hot-link/opt-out-policyen gjelder KUN visning på gaari.no; SoMe-bruk krever eksplisitt skriftlig ja. Se feedback_image_policy_communication.md og feedback_promo_only_written_yes.md. MOTTAKERE: de 22 hot-link-godkjente venuene + de 14 eksisterende eksplisitt-ja-kildene. Fase 1/2-listen: museumvest, kode, dnt, bodega, bergenfest, olebull, forumscene, generasjonsfestivalen, litthusbergen, beyondthegates, studentbergen, kulturhusetibergen, colonialen, oconnors, stenematglede, floyen, bergenkjott, bymuseet, ostre, bergenfilmklubb, carteblanche, kunsthall, usfverftet, kvarteret. Nightlife og gratis-events er de mest verdifulle å få inn. TEKNISK NÅR SVAR KOMMER: ja til visning gir plass i IMAGE_APPROVED_SOURCES, ja til SoMe gir plass i PROMO_APPROVED_SOURCES (scripts/lib/utils.ts). NB: social-posts.yml har cron kommentert ut siden 2026-05-11 og må skrus på igjen når godkjenningslisten er klar — ellers har kampanjen ingen effekt."
   },
   {
     "date": "2026-04-20",
@@ -58,11 +58,6 @@
     "date": "2026-05-01",
     "title": "Fase 1 datamodenhet: 14-dagers sjekkpunkt",
     "description": "Brann har nå 14+ dager med klikk-attribusjon. Rapport skal vise 'Plasseringen ga dere X ekstra klikk' (promoted − organic). Kjør: cd scripts && npx tsx generate-venue-report.ts 'Brann Stadion' --month 2026-04. Sjekk at lift-linjen er synlig og tallet er positivt. Hvis promoted = organic = 0: track-click fungerer ikke — debug."
-  },
-  {
-    "date": "2026-06-01",
-    "title": "SoMe-tillatelse-batch: be venues om FB/IG-bruk",
-    "description": "14-dagers opt-out-vinduet etter hot-link-policy varsel 2026-05-11 utløper 2026-05-25. Hvis ingen kraftige opt-outs: send oppfølgings-mail til alle 22 hot-link-godkjente venues + de 14 eksisterende eksplisitt-ja-kildene som spør om vi kan bruke bildene i daglig FB/IG-posting. Få også på plass logikk for å filtrere social-posts.yml-genererte poster etter en ny SOCIAL_APPROVED_SOURCES-liste. Når liste er klar: skru på social-posts.yml-cron igjen (kommentert ut 2026-05-11)."
   },
   {
     "date": "2026-06-01",
@@ -138,5 +133,10 @@
     "date": "2026-06-02",
     "title": "Følg opp DPA-forespørsler (Supabase, Vercel, Resend)",
     "description": "Sjekk om svar har kommet på DPA-forespørsler sendt 2026-05-26: 1) Supabase PandaDoc (signer hvis kommet). 2) privacy@vercel.com (Hobby-plan DPA). 3) support@resend.com (DPA). For dem som ikke har svart: send vennlig påminnelse. Lagre signerte PDF-er i docs/legal/dpa/ og oppdater README.md-registeret. MailerLite og Stripe er ferdig (auto-aksept via ToU/SSA)."
+  },
+  {
+    "date": "2026-08-07",
+    "title": "Umami: generer ny API-nøkkel — all trafikkrapportering er død",
+    "description": "VERIFISERT 2026-08-06: kall mot https://api.umami.is/v1/websites/<id>/stats svarer HTTP 401 {\"error\":{\"message\":\"Invalid API key\"}}. UMAMI_WEBSITE_ID og UMAMI_API_KEY finnes begge i .env, så det er nøkkelen som er ugyldig — ikke manglende konfigurasjon. KONSEKVENS: morning-stats.ts rapporterer 0 besøkende / 0 sidevisninger, og daglig digest har vist null trafikk uten å flagge feilen. Tallene har altså vært falske, ikke lave. Vi vet ikke hvor lenge. FIKS: logg inn på Umami Cloud (cloud.umami.is) → Settings → API keys → generer ny nøkkel. Oppdater tre steder: (1) .env lokalt, (2) GitHub Actions secret UMAMI_API_KEY, (3) Vercel env hvis den brukes der. VERIFISER etterpå med samme kall — forvent HTTP 200 og et JSON-objekt med pageviews/visitors. VURDER OGSÅ: legg inn en eksplisitt feilsjekk i morning-stats.ts og send-daily-digest.ts så 401 rapporteres som FEIL i stedet for å bli stille konvertert til 0. Det er den egentlige bugen — en død integrasjon skal ikke se ut som dårlig trafikk."
   }
 ]
