@@ -40,8 +40,99 @@ export type Avslag = {
 	bevis: string;
 };
 
-export function load(): { kilder: Kilde[]; avslag: Avslag[] } {
+/** Hele fila, inkludert forklaringsfeltene som starter med understrek. */
+export type ConsentFile = { kilder: Kilde[]; avslag: Avslag[] } & Record<string, unknown>;
+
+export function load(): ConsentFile {
 	return JSON.parse(readFileSync(CONSENT_PATH, 'utf8'));
+}
+
+/** Toårsfrist. Folk bytter jobb, og en markedskoordinators ja følger ikke med. */
+export function standardFrist(dato: string): string {
+	const [år, md] = [Number(dato.slice(0, 4)), dato.slice(4)];
+	return `${år + 2}${md}`;
+}
+
+export type NyKildeInput = {
+	slug: string;
+	navn: string;
+	kontakt?: string | null;
+	epost?: string | null;
+	dato: string;
+	grunnlag?: Kilde['grunnlag'];
+	omfang: string[];
+	bevis: string;
+	merknad?: string | null;
+	selvhostet?: boolean;
+	viserPersoner?: boolean;
+	viserBarn?: boolean;
+	vurderesInnen?: string;
+};
+
+/**
+ * Bygger en oppføring og nekter å lage en som ikke holder mål.
+ *
+ * Validering hører hjemme her og ikke i CLI-et, både fordi den kan testes og
+ * fordi feilene den fanger er de dyre: et samtykke uten bevis, eller en
+ * SoMe-tillatelse som hviler på et hot-link-varsel i stedet for et ja.
+ */
+export function nyKilde(input: NyKildeInput): Kilde {
+	const grunnlag = input.grunnlag ?? 'skriftlig';
+	const feil: string[] = [];
+
+	if (!/^[a-z0-9-]+$/.test(input.slug)) {
+		feil.push(`Slug "${input.slug}" må være små bokstaver, tall og bindestrek, og matche source-feltet i scraperen.`);
+	}
+	if (!input.navn?.trim()) feil.push('Mangler navn på arrangøren.');
+	if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dato)) feil.push(`Dato "${input.dato}" må være på formen ÅÅÅÅ-MM-DD.`);
+	if (!input.bevis?.trim()) {
+		feil.push('Mangler bevis. Uten en henvisning til hvor tillatelsen ligger er oppføringen bare en påstand.');
+	}
+
+	const ukjent = input.omfang.filter((o) => o !== 'visning' && o !== 'some');
+	if (ukjent.length) feil.push(`Ukjent omfang: ${ukjent.join(', ')}. Gyldige er visning og some.`);
+	if (!input.omfang.includes('visning')) {
+		feil.push('Omfang må alltid inkludere visning. Vi kan ikke dele et bilde utad som vi ikke har lov å vise selv.');
+	}
+	if (input.omfang.includes('some') && grunnlag !== 'skriftlig') {
+		feil.push(
+			`Omfang some krever grunnlag skriftlig, ikke ${grunnlag}. ` +
+				'Hot-link-varsel og API-vilkår er ikke samtykke til promotering.'
+		);
+	}
+
+	if (feil.length) throw new Error(feil.join('\n'));
+
+	return {
+		slug: input.slug,
+		navn: input.navn.trim(),
+		kontakt: input.kontakt?.trim() || null,
+		epost: input.epost?.trim() || null,
+		dato: input.dato,
+		grunnlag,
+		omfang: input.omfang,
+		bevis: input.bevis.trim(),
+		...(input.selvhostet ? { selvhostet: true } : {}),
+		...(input.viserPersoner ? { viserPersoner: true } : {}),
+		...(input.viserBarn ? { viserBarn: true } : {}),
+		merknad: input.merknad?.trim() || null,
+		vurderesInnen: input.vurderesInnen ?? standardFrist(input.dato)
+	};
+}
+
+/** Setter inn eller erstatter. Erstatning krever at man ber om det. */
+export function settInn(data: ConsentFile, kilde: Kilde, oppdater = false): ConsentFile {
+	const i = data.kilder.findIndex((k) => k.slug === kilde.slug);
+	if (i >= 0 && !oppdater) {
+		throw new Error(
+			`${kilde.slug} finnes allerede, sist bekreftet ${data.kilder[i].dato}. ` +
+				'Bruk --oppdater hvis du mener å erstatte den.'
+		);
+	}
+	const kilder = [...data.kilder];
+	if (i >= 0) kilder[i] = kilde;
+	else kilder.push(kilde);
+	return { ...data, kilder };
 }
 
 /** Markdown-tabeller går i stykker av loddrette streker i fritekst. */

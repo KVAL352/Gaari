@@ -39,12 +39,13 @@ bildet arrangørens kontroll, og det krever alltid et skriftlig ja. Koden håndh
 dette: en kilde uten grunnlag `skriftlig` kommer ikke inn i promo-listen, uansett
 hva som står i omfang-feltet.
 
-## Skriftlig ja (15)
+## Skriftlig ja (16)
 
 E-posten ligger i `Avtaler`.
 
 | Kilde | Hvem | Dato | Omfang | Merknad |
 |---|---|---|---|---|
+| `julivillaveien` | Olav Stavsholt | 2026-08-11 | Visning | Krysset av for bilderettigheter i skjemaet. SoMe ikke besvart, spurt 2026-08-11. |
 | `studiovertikal` | Sofie Vervaet | 2026-08-06 | Visning + SoMe | «Disse kan brukes i alle deres kanaler.» Sendte bildene selv som vedlegg. Bredeste samtykket i registeret. ÅPENT PUNKT: familiedag-bildet viser et gjenkjennelig barn, og tillatelsen kommer fra lokalet, ikke fra foresatte. Spørsmål sendt 2026-08-11, venter på svar. |
 | `bergenpride` | post@bergenpride.no | 2026-06-01 | Visning | «Dere må gjerne ha arrangementene på deres side. Vi bruker ikke tredjepartsbilder.» Ikke spurt om sosiale medier. |
 | `visningsromusf` | Line Nord | 2026-05-07 | Visning + SoMe | Kom inn via B2B-skjemaet med bilderettigheter bekreftet. |

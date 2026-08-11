@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { load, render, DOC_PATH } from '../consent-doc.js';
+import { load, render, nyKilde, settInn, standardFrist, DOC_PATH } from '../consent-doc.js';
 
 // utils.ts importerer supabase.ts, som trenger dotenv fra scripts/package.json.
 // CI installerer bare rot-avhengighetene, så uten denne mocken feiler suiten
@@ -69,6 +69,48 @@ describe('bildesamtykke', () => {
 			utenBevis,
 			'Uten en henvisning til hvor tillatelsen ligger er oppføringen bare en påstand.'
 		).toEqual([]);
+	});
+
+	it('nekter SoMe uten skriftlig grunnlag også når noen registrerer en ny kilde', () => {
+		expect(() =>
+			nyKilde({
+				slug: 'test',
+				navn: 'Test',
+				dato: '2026-08-11',
+				grunnlag: 'hotlink',
+				omfang: ['visning', 'some'],
+				bevis: 'Avtaler'
+			})
+		).toThrow(/krever grunnlag skriftlig/);
+	});
+
+	it('nekter omfang uten visning', () => {
+		expect(() =>
+			nyKilde({ slug: 'test', navn: 'Test', dato: '2026-08-11', omfang: ['some'], bevis: 'Avtaler' })
+		).toThrow(/må alltid inkludere visning/);
+	});
+
+	it('nekter en oppføring uten bevis', () => {
+		expect(() =>
+			nyKilde({ slug: 'test', navn: 'Test', dato: '2026-08-11', omfang: ['visning'], bevis: '  ' })
+		).toThrow(/Mangler bevis/);
+	});
+
+	it('nekter å overskrive en eksisterende kilde uten at man ber om det', () => {
+		const kilde = nyKilde({
+			slug: 'akvariet',
+			navn: 'Akvariet',
+			dato: '2026-08-11',
+			omfang: ['visning'],
+			bevis: 'Avtaler'
+		});
+		expect(() => settInn(data, kilde)).toThrow(/finnes allerede/);
+		expect(settInn(data, kilde, true).kilder).toHaveLength(data.kilder.length);
+	});
+
+	it('setter toårsfrist, også over skuddår', () => {
+		expect(standardFrist('2026-08-11')).toBe('2028-08-11');
+		expect(standardFrist('2026-02-29')).toBe('2028-02-29');
 	});
 
 	it('har en dato for ny vurdering på hver kilde', () => {
