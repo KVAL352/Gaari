@@ -55,6 +55,21 @@ const FAMILIEDAG_CLOSE = '20:00';
 
 const FAMILIEDAGER: string[] = ['2026-08-15', '2026-09-12', '2026-10-10', '2026-11-28'];
 
+/**
+ * Bildene er sendt direkte fra Sofie Vervaet som vedlegg 2026-08-06, med
+ * "Disse kan brukes i alle deres kanaler". De er altså ikke skrapet, og ikke
+ * hot-linket: de ligger hos oss i static/events/ og serveres fra gaari.no.
+ * Det er den eneste kilden i registeret der vi hoster bildet selv, nettopp
+ * fordi tillatelsen er skriftlig og uten forbehold. Se docs/bildesamtykke.md.
+ *
+ * Et tredje bilde, av et gjenkjennelig barn, er holdt utenfor repoet inntil
+ * samtykke fra foresatte er avklart med Studio Vertikal.
+ */
+const IMAGES: Record<string, string> = {
+	Seniorklatring: 'https://gaari.no/events/studiovertikal-seniorklatring.jpg',
+	Familiedag: 'https://gaari.no/events/studiovertikal-familiedag.jpg',
+};
+
 /** YYYY-MM-DD i Oslo-tid for et gitt tidspunkt. */
 function osloDate(d: Date): string {
 	return d.toLocaleDateString('en-CA', { timeZone: 'Europe/Oslo' });
@@ -169,6 +184,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: `${BASE_URL}${p.path}`,
 			source: SOURCE,
 			source_url: sourceUrl,
+			image_url: IMAGES[p.title],
 			age_group: p.ageGroup,
 			language: 'no',
 			status: 'approved',
