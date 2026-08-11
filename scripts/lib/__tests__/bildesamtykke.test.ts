@@ -1,7 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+
+// utils.ts importerer supabase.ts, som trenger dotenv fra scripts/package.json.
+// CI installerer bare rot-avhengighetene, så uten denne mocken feiler suiten
+// med ERR_MODULE_NOT_FOUND i CI, men går grønt lokalt der scripts/node_modules
+// finnes. Samme mønster som scripts/lib/__tests__/utils.test.ts.
+vi.mock('../supabase.js', () => ({ supabase: {} }));
+
 import { IMAGE_APPROVED_SOURCES, PROMO_APPROVED_SOURCES } from '../utils.js';
 
 /**
