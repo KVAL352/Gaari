@@ -31,3 +31,8 @@ scripts/.weekly-report-preview.html
 reports/
 .claude/scheduled_tasks.lock
 outputs/**/*.mp4
+
+# Møteopptak, transkripter og annet materiale som hører til prosjektet, men som
+# aldri skal publiseres. Repoet er offentlig, så alt av opptak, referater og
+# korrespondanse med personinformasjon ligger her og aldri i git.
+private/
