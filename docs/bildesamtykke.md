@@ -44,7 +44,7 @@ Disse har svart skriftlig. E-posten ligger i `Avtaler`.
 
 | Kilde | Hvem | Dato | Omfang | Merknad |
 |---|---|---|---|---|
-| `studiovertikal` | Sofie Vervaet | 2026-08-06 | Visning + SoMe | «Disse kan brukes i alle deres kanaler.» Sendte bildene selv som vedlegg. Bredeste samtykket i registeret. |
+| `studiovertikal` | Sofie Vervaet | 2026-08-06 | Visning + SoMe | «Disse kan brukes i alle deres kanaler.» Sendte bildene selv som vedlegg. Bredeste samtykket i registeret. Eneste kilde vi hoster selv, se avsnittet under. |
 | `bergenpride` | post@bergenpride.no | 2026-06-01 | Visning | «Vi bruker ikke tredjepartsbilder.» Ikke spurt om SoMe. |
 | `visningsromusf` | Line Nord | 2026-05-07 | Visning + SoMe | Kom inn via B2B-skjemaet med bilderettigheter bekreftet. |
 | `loddefjord` | Marjolein Roozen, Bergen kommune | 2026-04-23 | Visning + SoMe | Bildene hostes hos kommunen. Ansvaret ligger der. |
@@ -59,6 +59,40 @@ Disse har svart skriftlig. E-posten ligger i `Avtaler`.
 | `gg-bergen` | Venue direkte | 2026-04 | Visning + SoMe | Bildene er levert til oss, ikke skrapet. |
 | `artlab-manual` | Venue direkte | 2026-04 | Visning + SoMe | Bildene er levert til oss, ikke skrapet. |
 | `brettspill` | Klubben | 2026-04 | Visning + SoMe | Fast gruppebilde fra Meetup, eid av klubben selv. |
+
+## Unntaket: bilder vi hoster selv
+
+Alt annet i registeret er hot-link. Studio Vertikal er unntaket: Sofie sendte
+bildene direkte til oss som vedlegg, med skriftlig tillatelse uten forbehold.
+De ligger derfor i `static/events/` og serveres fra gaari.no.
+
+Det er en bevisst forskjell. Hot-link betyr at bildet forsvinner fra gaari.no
+i samme øyeblikk arrangøren fjerner det, og det er nettopp den egenskapen som
+gjør opt-out reell. Når vi hoster selv, mister arrangøren den bryteren. Da må
+tillatelsen være tilsvarende tydelig, og den må ligge i `Avtaler`.
+
+**Regel: hoster vi et bilde selv, skal e-posten med tillatelsen kunne siteres
+ordrett.** Er du i tvil om ordlyden dekker det, hot-link i stedet.
+
+### Bilder av barn
+
+Familiedag-bildet består av to bilder side om side: et barn til venstre, en
+voksen til høyre. Barnet er gjenkjennelig. Kjersti besluttet 2026-08-11 at
+begge skal med.
+
+**Åpent punkt:** tillatelsen er gitt av Studio Vertikal, altså av lokalet, ikke
+av foresatte. Be Sofie bekrefte skriftlig at foresatte har samtykket til denne
+bruken, og at samtykket også dekker Facebook og Instagram hvis bildet skal dit.
+Legg svaret i `Avtaler` sammen med resten.
+
+Grunnen til at terskelen er høyere her enn for andre bilder: repoet er
+offentlig. Et bilde som først er committet, ligger permanent i git-historikken
+og kan lastes ned selv om vi senere fjerner det fra siden. Å ta det ned er
+altså ikke det samme som å gjøre det utilgjengelig.
+
+Ved en eventuell henvendelse fra foresatte: fjern bildet fra `static/events/`
+og fra `image_url` i basen umiddelbart, og si fra at git-historikken også kan
+skrives om hvis de ber om det. Ikke vent på avklaring før bildet tas ned.
 
 ## Hot-link med varsel og opt-out
 
