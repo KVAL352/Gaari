@@ -37,6 +37,18 @@ jobs:
           SUMMARY_FILE: ${{ runner.temp }}/scrape-summary.json
         run: npx tsx scrape.ts
 
+      # Egen jobb, ikke en del av scrape.ts, og med if: always() slik at en
+      # innsender får bekreftelsen sin selv om en scraper feilet eller
+      # 22-minuttersfristen løp ut. De to har ingenting med hverandre å gjøre.
+      - name: Notify event submitters
+        if: always()
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: npx tsx notify-submitters.ts
+
       - name: Generate job summary
         if: always()
         run: |
