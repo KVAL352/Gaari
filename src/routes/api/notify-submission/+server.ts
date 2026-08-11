@@ -37,7 +37,8 @@ export const POST: RequestHandler = async ({ request }) => {
 				venue,
 				dateStart: truncate(data.dateStart),
 				ticketUrl: data.ticketUrl ? truncate(data.ticketUrl) : null,
-				submitterEmail: data.submitterEmail ? truncate(data.submitterEmail) : null
+				submitterEmail: data.submitterEmail ? truncate(data.submitterEmail) : null,
+				imagePromo: typeof data.imagePromo === 'boolean' ? data.imagePromo : null
 			}).catch((err) => console.error('Failed to send submission notification:', err));
 		} else {
 			const name = truncate(data.name);

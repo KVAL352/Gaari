@@ -30,6 +30,11 @@
 	let websiteSubmitting = $state(false);
 	let websiteError = $state('');
 	let websiteImageChoice = $state<'rights' | 'no-rights' | 'unsure' | null>(null);
+	// Visning på gaari.no og bruk i SoMe er to ulike samtykker. Det første kan
+	// hvile på hot-link med opt-out; det andre må være et uttrykkelig ja, fordi
+	// bildet da forlater arrangørens kontroll. Se docs/bildesamtykke.md.
+	let websiteImagePromo = $state(false);
+	let imagePromoConfirmed = $state(false);
 
 	// Scroll back to the top of the page when either form transitions to its
 	// success state, so the user actually sees the thank-you message instead
@@ -219,6 +224,7 @@
 		uploadMime = 'image/jpeg';
 		imageWarning = '';
 		imageRightsConfirmed = false;
+		imagePromoConfirmed = false;
 		if (imagePreview) URL.revokeObjectURL(imagePreview);
 		imagePreview = '';
 	}
@@ -327,7 +333,10 @@
 				venue: fd.get('venue') as string,
 				dateStart,
 				ticketUrl: normalizeUrl(fd.get('ticket-url') as string),
-				submitterEmail
+				submitterEmail,
+				// null når det ikke er lastet opp bilde i det hele tatt, så et
+				// manglende bilde ikke forveksles med et avslag.
+				imagePromo: imageUrl ? imagePromoConfirmed : null
 			})
 		}).catch(() => {});
 
@@ -372,7 +381,15 @@
 			'no-rights': '\n\n⚠️ Ingen bilderettigheter — vis uten bilder.',
 			'unsure': '\n\n❓ Usikker på bilderettigheter — ønsker å bli kontaktet.'
 		};
-		const imageNote = imageNotes[websiteImageChoice!];
+		// Promo-samtykket noteres alltid når de har rettighetene, også når svaret
+		// er nei. Et ubesvart felt og et uttrykkelig nei ser like ut i ettertid
+		// hvis vi bare skriver ned ja-ene.
+		const promoNote = websiteImageChoice === 'rights'
+			? (websiteImagePromo
+				? '\nSosiale medier: JA, godkjent for bruk i Gåris egne kanaler.'
+				: '\nSosiale medier: ikke godkjent. Kun visning på gaari.no.')
+			: '';
+		const imageNote = imageNotes[websiteImageChoice!] + promoNote;
 		const message = note
 			? `Nettside-innsendelse\n\n${note}${imageNote}`
 			: `Nettside-innsendelse${imageNote}`;
@@ -541,6 +558,17 @@
 					/>
 					<span class="text-[var(--color-text-secondary)]">{$t('websiteImageUnsure')}</span>
 				</label>
+
+				{#if websiteImageChoice === 'rights'}
+					<label class="ml-6 flex items-start gap-2.5 border-t border-[var(--color-border)] pt-2.5 text-sm">
+						<input
+							type="checkbox"
+							bind:checked={websiteImagePromo}
+							class="mt-0.5 shrink-0 accent-[var(--color-accent)]"
+						/>
+						<span class="text-[var(--color-text-secondary)]">{$t('websiteImagePromo')}</span>
+					</label>
+				{/if}
 			</fieldset>
 
 			{#if websiteError}
@@ -762,6 +790,17 @@
 						/>
 						<span class="text-[var(--color-text-secondary)]">{$t('imageRightsConfirm')}</span>
 					</label>
+
+					{#if imageRightsConfirmed}
+						<label class="mt-2 ml-6 flex items-start gap-2.5 rounded-lg border border-[var(--color-border)] px-3 py-2.5 text-sm">
+							<input
+								type="checkbox"
+								bind:checked={imagePromoConfirmed}
+								class="mt-0.5 shrink-0 accent-[var(--color-accent)]"
+							/>
+							<span class="text-[var(--color-text-secondary)]">{$t('imagePromo')}</span>
+						</label>
+					{/if}
 				{/if}
 			</div>
 

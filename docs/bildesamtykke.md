@@ -126,6 +126,26 @@ Disse skal aldri inn i noen av listene. E-postene ligger i `Juridisk`.
 | Beyond the Gates, Torgrim Øyre | 2026-05-26 | «Bilder vi bruker kommer fra mange forskjellige opphavsmenn.» Trukket ut av listen etter å ha vært inne. |
 | Harmonien | 2026-04-17 | Kun autokvittering, aldri reelt svar. Purret 2026-05-05. Favicon brukes som fallback. |
 
+## Innsendingsskjemaet spør nå selv
+
+Fra 2026-08-11 spør `/[lang]/submit` om begge samtykkene, ikke bare det ene.
+Først om vi kan vise bildene sammen med arrangementene, og deretter, som et
+eget avkryssingsfelt, om de også kan brukes når Gåri omtaler arrangementet på
+Facebook og Instagram. Feltet vises bare når de først har bekreftet at de har
+rettighetene, siden det andre spørsmålet er meningsløst uten det første.
+
+Svaret følger med varselet du får på e-post, og skiller mellom tre tilstander:
+ja, uttrykkelig nei, og ikke spurt (ingen bilde lastet opp). Den forskjellen er
+verdt å bevare. Et tomt felt kan bety både nei og ubesvart, og da er samtykket
+ubrukelig som dokumentasjon i ettertid.
+
+Bakgrunnen: Jul i Villaveien sendte inn 11. august og hadde krysset av for
+bilderettigheter, men skjemaet spurte ikke om sosiale medier i det hele tatt.
+Det utløste en e-postrunde som skjemaet burde tatt selv.
+
+**Merk:** svaret lagres foreløpig ikke i databasen, bare i varselet. Skal det
+bli en kilde du kan spørre senere, trenger `events` en egen kolonne.
+
 ## Rutine når noen svarer ja
 
 Fire steg. Hopper du over ett, er samtykket i praksis borte når du trenger det.

@@ -133,7 +133,18 @@ export async function notifySubmission(data: {
 	dateStart: string;
 	ticketUrl: string | null;
 	submitterEmail: string | null;
+	/** true = ja til SoMe, false = uttrykkelig nei, null = ikke lastet opp bilde. */
+	imagePromo?: boolean | null;
 }): Promise<void> {
+	// Skillet mellom nei og ubesvart er verdt å bevare. Et tomt felt kan bety
+	// begge deler i ettertid, og da er samtykket ubrukelig som dokumentasjon.
+	const promoLine =
+		data.imagePromo === true
+			? 'Image, social media: YES, approved for Facebook/Instagram. Add source to PROMO_APPROVED_SOURCES and log it in docs/bildesamtykke.md.'
+			: data.imagePromo === false
+				? 'Image, social media: not approved. Display on gaari.no only.'
+				: null;
+
 	await getResend().emails.send({
 		from: 'Gåri <noreply@gaari.no>',
 		to: ADMIN_EMAIL,
@@ -147,6 +158,7 @@ export async function notifySubmission(data: {
 			`Date: ${data.dateStart}`,
 			`Ticket URL: ${data.ticketUrl || '(none)'}`,
 			`Submitter email: ${data.submitterEmail || '(not provided)'}`,
+			...(promoLine ? [promoLine] : []),
 			``,
 			`Review at /admin/submissions or in Supabase:`,
 			supabaseTableUrl('events')
