@@ -1,6 +1,7 @@
 import { writeFileSync } from 'fs';
 import { supabase } from '../lib/supabase.js';
 import { isPromoApproved, PROMO_APPROVED_SOURCES } from '../lib/utils.js';
+import { CAPPED_VENUES } from './venue-policy.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
@@ -130,13 +131,8 @@ function getCategoryHashtags(events: Array<{ category: string }>): string[] {
 const MAX_CAROUSEL_EVENTS = 8;
 const MIN_IMAGES_FOR_POST = 5;
 
-/**
- * B2B prospects that get hard-capped to 1 post per week UNLESS they become
- * paying Partner customers. High exposure potential we don't give away for free.
- */
-const CAPPED_VENUES = new Set([
-	'Akvariet i Bergen'
-]);
+// Venue-regelen bor i venue-policy.ts, slik at reels arver den samme listen.
+// Fram til 2026-08-11 lå den bare her, og reels hadde den ikke i det hele tatt.
 
 function shouldGenerateToday(schedule: CollectionSchedule, dayOfWeek: number): boolean {
 	return schedule.days.length === 0 || schedule.days.includes(dayOfWeek);

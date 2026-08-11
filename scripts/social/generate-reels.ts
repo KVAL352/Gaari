@@ -24,6 +24,7 @@ import { generateReelsFrames, generateReelsOutro, generateStories, type Carousel
 import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import { pickDiverseEvents } from './event-picker.js';
 import { getRecentlyPostedIds } from './dedup.js';
+import { vurderVenues, ukensVenueNavn, fjernBlokkerte } from './venue-policy.js';
 import { getVenueInstagram } from '../lib/venues.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
@@ -240,12 +241,25 @@ export async function generateOneCollection(opts: {
 		return null;
 	}
 
+	// Venue-regelen. Denne manglet i reels fram til 2026-08-11, så et venue som
+	// var hardt begrenset til én visning i uken kunne likevel gå i hver eneste
+	// reel. Karusellene håndhevet den, reels ikke. Se venue-policy.ts.
+	const { blokkert } = await vurderVenues((await ukensVenueNavn(slug)).keys());
+	const tillatt = fjernBlokkerte(filtered, blokkert);
+	if (blokkert.size > 0) {
+		console.log(`  ${blokkert.size} venue(s) blokkert denne uken: ${[...blokkert].join(', ')}`);
+	}
+	if (tillatt.length === 0) {
+		console.log(`  0 events igjen etter venue-regelen, skipping.\n`);
+		return null;
+	}
+
 	const recentlyPosted = await getRecentlyPostedIds(slug);
 	const combined = new Set<string>([...recentlyPosted, ...(excludedEventIds ?? [])]);
 	if (combined.size > 0) {
 		console.log(`  ${combined.size} events deprioritised (${recentlyPosted.size} from DB + ${excludedEventIds?.size ?? 0} from same-run picks)`);
 	}
-	const selected = pickDiverseEvents(filtered, 8, { recentlyPosted: combined });
+	const selected = pickDiverseEvents(tillatt, 8, { recentlyPosted: combined });
 	if (selected.length < 5) {
 		console.log(`  Only ${selected.length} events with images, need 5. Skipping.\n`);
 		return null;
