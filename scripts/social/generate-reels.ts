@@ -25,7 +25,7 @@ import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import { pickDiverseEvents } from './event-picker.js';
 import { getRecentlyPostedIds } from './dedup.js';
 import { vurderVenues, ukensVenueNavn, fjernBlokkerte } from './venue-policy.js';
-import { ENGLISH_SLUGS, MIN_EVENTS_FOR_POST } from './collection-config.js';
+import { ENGLISH_SLUGS, MIN_EVENTS_FOR_POST, byggHashtags } from './collection-config.js';
 import { getVenueInstagram } from '../lib/venues.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
@@ -36,17 +36,6 @@ const FFMPEG = process.env.FFMPEG_PATH || 'ffmpeg';
 const REPORT_EMAIL = process.env.REELS_REPORT_EMAIL || 'post@gaari.no';
 const FROM_EMAIL = 'Gåri <noreply@gaari.no>';
 const STORAGE_BUCKET = 'social-media';
-
-/** Hashtag bank per collection (mirrors generate-posts.ts schedule). */
-const HASHTAGS: Record<string, string[]> = {
-	'denne-helgen': ['#bergen', '#bergenby', '#hvaskjeribergen', '#helgibergen', '#bergenliv', '#bergensentrum', '#bergennorway', '#hvaskjer'],
-	'i-kveld': ['#bergen', '#bergenby', '#hvaskjeribergen', '#kveldibergen', '#bergenliv', '#utibergen', '#bergennorway'],
-	'gratis': ['#bergen', '#bergenby', '#gratisibergen', '#gratisarrangementer', '#hvaskjeribergen', '#bergenliv'],
-	'konserter': ['#bergen', '#bergenkonsert', '#livemusikk', '#bergenmusikk', '#hvaskjeribergen', '#konsert'],
-	'familiehelg': ['#bergen', '#barnibergen', '#familiehelg', '#bergenfamilie', '#hvaskjeribergen'],
-	'today-in-bergen': ['#bergen', '#bergennorway', '#todayinbergen', '#thingstodoinbergen', '#bergenevents'],
-	'this-weekend': ['#bergen', '#bergennorway', '#thisweekend', '#weekendinbergen', '#bergenevents']
-};
 
 
 /** Seconds each frame is shown */
@@ -381,7 +370,9 @@ export async function generateOneCollection(opts: {
 			date_start: e.date_start,
 			category: e.category
 		}));
-		const hashtags = HASHTAGS[slug] || ['#bergen', '#bergenby', '#hvaskjeribergen'];
+		// Samme tagger som karusellene får for denne samlesiden, inkludert de som
+		// velges ut fra kategoriene i utvalget.
+		const hashtags = byggHashtags(slug, selected);
 		const caption = generateCaption(title, captionEvents, collectionUrl, hashtags, lang);
 
 		const captionPath = `${dateStr}/${slug}/caption.txt`;

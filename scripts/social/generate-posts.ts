@@ -2,7 +2,7 @@ import { writeFileSync } from 'fs';
 import { supabase } from '../lib/supabase.js';
 import { isPromoApproved, PROMO_APPROVED_SOURCES } from '../lib/utils.js';
 import { CAPPED_VENUES } from './venue-policy.js';
-import { ENGLISH_SLUGS, MIN_EVENTS_FOR_POST } from './collection-config.js';
+import { ENGLISH_SLUGS, MIN_EVENTS_FOR_POST, byggHashtags } from './collection-config.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
@@ -19,115 +19,65 @@ interface CollectionSchedule {
 	/** Days of week to generate (0=Sun, 1=Mon, ..., 6=Sat). Empty = every day. */
 	days: number[];
 	postTime: string;
-	hashtags: string[];
 }
 
 const SCHEDULES: CollectionSchedule[] = [
 	{
 		slug: 'denne-helgen',
 		days: [4], // Thursday
-		postTime: '16:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#hvaskjeribergen', '#helgibergen', '#bergenliv', '#bergensentrum', '#bergennorway', '#norgebergen']
+		postTime: '16:00'
 	},
 	{
 		slug: 'i-kveld',
 		days: [], // Daily
-		postTime: '14:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#hvaskjeribergen', '#kveldibergen', '#bergenliv', '#bergensentrum', '#bergennorway', '#utibergen']
+		postTime: '14:00'
 	},
 	{
 		slug: 'gratis',
 		days: [1], // Monday
-		postTime: '09:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#hvaskjeribergen', '#gratis', '#gratisibergen', '#gratisarrangementer', '#bergenliv', '#gratisbergen']
+		postTime: '09:00'
 	},
 	{
 		slug: 'today-in-bergen',
 		days: [], // Daily
-		postTime: '09:00',
-		hashtags: ['#bergen', '#bergennorway', '#todayinbergen', '#whattodoinbergen', '#bergenevents', '#thingstodoinbergen', '#bergentoday', '#norway', '#vestland']
+		postTime: '09:00'
 	},
 	{
 		slug: 'familiehelg',
 		days: [4], // Thursday
-		postTime: '10:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#barnibergen', '#familiehelg', '#bergenfamilie', '#barninorge', '#familieliv', '#bergenbarn']
+		postTime: '10:00'
 	},
 	{
 		slug: 'konserter',
 		days: [1], // Monday
-		postTime: '10:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#bergenkonsert', '#livemusikk', '#bergenmusikk', '#musikk', '#konsert', '#liveconcert', '#hvaskjeribergen']
+		postTime: '10:00'
 	},
 	{
 		slug: 'studentkveld',
 		days: [3, 4], // Wednesday + Thursday
-		postTime: '15:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#studentbergen', '#bergenstudent', '#uib', '#hvlbergen', '#uteliv', '#bergennattliv', '#studentliv']
+		postTime: '15:00'
 	},
 	{
 		slug: 'this-weekend',
 		days: [4], // Thursday
-		postTime: '10:00',
-		hashtags: ['#bergen', '#bergennorway', '#thisweekend', '#weekendinbergen', '#bergenevents', '#whattodoinbergen', '#norway', '#bergenweekend', '#vestland']
+		postTime: '10:00'
 	},
 	{
 		slug: 'teater',
 		days: [2], // Tuesday
-		postTime: '11:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#bergenteater', '#teater', '#forestilling', '#dns', '#scenekunst', '#hvaskjeribergen']
+		postTime: '11:00'
 	},
 	{
 		slug: 'utstillinger',
 		days: [3], // Wednesday
-		postTime: '11:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#bergenkunst', '#utstilling', '#kode', '#bergenkunsthall', '#samtidskunst', '#hvaskjeribergen']
+		postTime: '11:00'
 	},
 	{
 		slug: 'mat-og-drikke',
 		days: [5], // Friday
-		postTime: '11:00',
-		hashtags: ['#bergen', '#bergenby', '#hvaskjer', '#bergenmat', '#matibergen', '#bergenfood', '#kokekurs', '#matopplevelse', '#hvaskjeribergen']
+		postTime: '11:00'
 	}
 ];
-
-// Category-specific hashtags injected dynamically (up to 3 added per post)
-const CATEGORY_HASHTAGS: Record<string, string[]> = {
-	music: ['#bergenkonsert', '#livemusikk', '#bergenmusikk'],
-	culture: ['#bergenkultur', '#kulturbergen', '#bergenutstilling'],
-	theatre: ['#bergenteater', '#teater', '#forestilling'],
-	family: ['#barnibergen', '#bergenfamilie', '#barnNorge'],
-	food: ['#bergenmat', '#matibergen', '#bergenfood'],
-	festival: ['#bergenfestival', '#festival', '#bergenby'],
-	sports: ['#bergensport', '#idrettbergen', '#bergenidrott'],
-	nightlife: ['#bergennattliv', '#uteliv', '#utpaabergen'],
-	workshop: ['#bergenkurs', '#kurs', '#workshop'],
-	student: ['#studentbergen', '#bergenstudent', '#studentliv'],
-	tours: ['#bergentur', '#bergentours', '#turibergen']
-};
-
-/** Returns up to 3 category-specific hashtags based on the dominant categories in the events. */
-function getCategoryHashtags(events: Array<{ category: string }>): string[] {
-	// Count category occurrences
-	const counts = new Map<string, number>();
-	for (const e of events) {
-		counts.set(e.category, (counts.get(e.category) ?? 0) + 1);
-	}
-	// Pick top 2 categories by frequency
-	const topCategories = [...counts.entries()]
-		.sort((a, b) => b[1] - a[1])
-		.slice(0, 2)
-		.map(([cat]) => cat);
-
-	const tags: string[] = [];
-	for (const cat of topCategories) {
-		const catTags = CATEGORY_HASHTAGS[cat];
-		if (catTags && catTags.length > 0) {
-			tags.push(catTags[0]); // take the most specific tag for each category
-		}
-	}
-	return tags;
-}
 
 const MAX_CAROUSEL_EVENTS = 8;
 const MIN_IMAGES_FOR_POST = MIN_EVENTS_FOR_POST;
@@ -493,8 +443,9 @@ async function main() {
 			const slides = await generateCarousel(title, carouselEvents);
 
 			// Build final hashtag list: base tags + category-specific, capped at 15, deduplicated
-			const categoryTags = getCategoryHashtags(topEvents);
-			const allTags = [...new Set([...schedule.hashtags, ...categoryTags])].slice(0, 15);
+			// Grunntagger og kategoritagger settes sammen i collection-config.ts,
+			// slik at reels får nøyaktig de samme.
+			const allTags = byggHashtags(schedule.slug, topEvents);
 
 			// Generate caption
 			const caption = generateCaption(
