@@ -29,6 +29,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - **New scraper? Follow the checklist**: `docs/new-scraper-checklist.md`. robots.txt MUST be checked and reported before any code is written or any new source is recommended.
 - **No traffic to aggregators**: ticket_url must point to actual venue/ticket pages.
 - **No copied descriptions (åndsverksloven)**: Always AI-generated or template. Never raw scraped text.
+- **Image permission? Document it**: `docs/bildesamtykke.md` is the register of who consented to what. Adding a source to `IMAGE_APPROVED_SOURCES` or `PROMO_APPROVED_SOURCES` without a row there fails `bildesamtykke.test.ts`. The yes-email goes to Protonmail `Folders/Gaari/Avtaler` and is never deleted.
 - **No non-public events**: Exclude barnehage, SFO, school visits, members-only.
 - **Rate limiting**: 1-1.5s delays between requests. AI descriptions: 200ms + backoff.
 - **Honest User-Agent**: `Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)`

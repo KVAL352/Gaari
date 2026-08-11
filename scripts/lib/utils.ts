@@ -147,6 +147,7 @@ export const PROMO_APPROVED_SOURCES = new Set<string>([
 	'fyllingsdalenteater', // Yasmin Kamalkhani bekreftet 2026-04-22
 	'visningsromusf', // Line Nord bekreftet 2026-05-07 via B2B-skjema
 	'loddefjord', // Marjolein Roozen (Bergen Kommune) bekreftet 2026-04-23
+	'studiovertikal', // Sofie Vervaet bekreftet 2026-08-06: "Disse kan brukes i alle deres kanaler"
 ]);
 
 export function isPromoApproved(source: string): boolean {
@@ -158,7 +159,7 @@ export function isPromoApproved(source: string): boolean {
  * ALL other sources have images stripped at insert time.
  * Add sources here only after receiving written image usage permission.
  */
-const IMAGE_APPROVED_SOURCES = new Set<string>([
+export const IMAGE_APPROVED_SOURCES = new Set<string>([
 	'gg-bergen', // Images provided directly by venue (scraper SOURCE is 'gg-bergen')
 	'artlab-manual', // Images provided directly by venue
 	'brettspill', // Fixed Meetup group photo, owned by club
@@ -198,6 +199,10 @@ const IMAGE_APPROVED_SOURCES = new Set<string>([
 	// Bergen Pride bekreftet 2026-06-01: "Dere må gjerne ha arrangementene på deres
 	// side. Vi bruker ikke tredjepartsbilder." — egne bilder, ingen tredjeparts-risiko.
 	'bergenpride',
+	// Studio Vertikal (Sofie Vervaet) bekreftet 2026-08-06: sendte bildene selv som
+	// vedlegg og skrev "Disse kan brukes i alle deres kanaler." Bredeste samtykket vi
+	// har fått. Bildene er egne lokalbilder fra klatresenteret, ingen tredjepart.
+	'studiovertikal',
 ]);
 
 /**
