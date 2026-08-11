@@ -12,6 +12,8 @@
 - `scripts/lib/__tests__/dedup.test.ts` — titlesMatch, scoreEvent
 - `scripts/lib/__tests__/scraper-health.test.ts` — classifyScrapers
 - `scripts/lib/__tests__/ticket-validation.test.ts` — validateTicketUrl
+- `scripts/lib/__tests__/bildesamtykke.test.ts` — samtykkeregisteret: dokumentet i takt med consent.json, SoMe krever dokumentert grunnlag, promo delmengde av visning, ingen dubletter, bevis og vurderingsfrist på hver kilde, nyKilde-validering
+- `scripts/social/__tests__/venue-policy.test.ts` — venue-regelen: fjernBlokkerte, mandagsberegning, og strukturell sjekk av at hver publiserende generator importerer venue-policy
 - `src/lib/__tests__/student-filter.test.ts` — parseLowestPrice (Norwegian thousands), isStudentRelevant (exclusions + scoring system), studentRelevanceScore (venue/price/category/bydel signals), location penalty
 - `src/lib/__tests__/query-timezone.test.ts` — UTC vs Oslo time regressions
 - `src/lib/__tests__/promotions.test.ts` — selectPromotedByDeficit convergence, multi-venue balancing, tier shares, newsletter rotation

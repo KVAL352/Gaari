@@ -1,7 +1,7 @@
 # GitHub Actions
 
 - **CI** (`ci.yml`): lint, type-check, test, build on push/PR to master.
-- **Scrape** (`scrape.yml`): daily 6 AM UTC, 25min timeout. Secrets: SUPABASE + GEMINI_API_KEY.
+- **Scrape** (`scrape.yml`): daily 6 AM UTC, 25min timeout. Secrets: SUPABASE + GEMINI_API_KEY. Kjører også `notify-submitters.ts` som eget steg med `if: always()`, slik at innsendere får bekreftelse med lenke selv om en scraper feilet.
 - **Newsletter** (`newsletter.yml`): Thursdays 10:00 UTC. `scripts/send-newsletter.ts`. `--dry-run` via dispatch. Sends verification copy to `post@gaari.no` via Resend. Secrets: MAILERLITE_API_KEY, NEWSLETTER_SIGNING_SECRET, RESEND_API_KEY.
 - **SEO Report** (`seo-report.yml`): 1st of month 09:00 UTC. `scripts/seo-weekly-report.ts`.
 - **Daily Digest** (`daily-digest.yml`): weekdays 08:00 UTC. `scripts/send-daily-digest.ts`. Includes scraper health, stale sources, pipeline completeness, festival reminders, active Meta ad campaigns. Auto-snapshots ad insights to `ad_insights` table. Secrets: SUPABASE, RESEND_API_KEY, UMAMI, MAILERLITE_API_KEY, META_ACCESS_TOKEN, META_APP_ID, META_APP_SECRET, META_AD_ACCOUNT_ID, FB_PAGE_ID, IG_USER_ID.
