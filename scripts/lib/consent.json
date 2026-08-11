@@ -1,9 +1,9 @@
 {
   "_om": "Fasiten for bildesamtykke. utils.ts bygger allowlistene fra denne fila, og docs/bildesamtykke.md genereres fra den. Rediger her, aldri de to andre stedene. Kjør 'npx tsx scripts/consent.ts sync' etter endring.",
   "_grunnlag": {
-    "skriftlig": "Arrangøren har svart ja skriftlig. E-posten ligger i Protonmail Folders/Gaari/Avtaler.",
-    "hotlink": "Arrangøren er varslet om at bildene vises som hot-link, med mulighet til å reservere seg. Ikke samtykke. Skal aldri brukes i sosiale medier.",
-    "plattform": "Plattformen leverer bildeadressen selv gjennom et API beregnet på videreformidling."
+    "dokumentert": "Arrangoren har sagt ja, og samtykket er dokumentert. Bevis er enten en e-post i Protonmail Folders/Gaari/Avtaler eller et lydopptak med tidspunkt. Formen er likegyldig; det som teller er at det finnes bevis for at samtykket ble gitt og hva det omfattet.",
+    "hotlink": "Arrangoren er varslet om at bildene vises som hot-link, med mulighet til a reservere seg. Ikke samtykke. Skal aldri brukes i sosiale medier.",
+    "plattform": "Plattformen leverer bildeadressen selv gjennom et API beregnet pa videreformidling."
   },
   "_omfang": {
     "visning": "Bildet kan vises sammen med arrangementet på gaari.no.",
@@ -17,7 +17,7 @@
       "epost": null,
       "dato": "2026-04-01",
       "datoUsikker": true,
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -34,7 +34,7 @@
       "epost": null,
       "dato": "2026-04-01",
       "datoUsikker": true,
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -51,7 +51,7 @@
       "epost": null,
       "dato": "2026-04-01",
       "datoUsikker": true,
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -67,7 +67,7 @@
       "kontakt": "Christopher Brandt",
       "epost": null,
       "dato": "2026-04-19",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -83,7 +83,7 @@
       "kontakt": "Millan Persdotter Persson",
       "epost": "millan@cornerteateret.no",
       "dato": "2026-04-20",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -99,7 +99,7 @@
       "kontakt": "Annette Stople",
       "epost": null,
       "dato": "2026-04-20",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -115,7 +115,7 @@
       "kontakt": "Lene Meyer Barnes",
       "epost": null,
       "dato": "2026-04-20",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -131,7 +131,7 @@
       "kontakt": "Ingvild, markedskoordinator",
       "epost": null,
       "dato": "2026-04-21",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -147,7 +147,7 @@
       "kontakt": "Ingebjørg Aarhus Braseth",
       "epost": null,
       "dato": "2026-04-21",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -163,7 +163,7 @@
       "kontakt": "İrem Müftüoğlu",
       "epost": null,
       "dato": "2026-04-22",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -179,7 +179,7 @@
       "kontakt": "Yasmin Kamalkhani",
       "epost": null,
       "dato": "2026-04-22",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -195,7 +195,7 @@
       "kontakt": "Line Nord",
       "epost": "line@usf.no",
       "dato": "2026-05-07",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -211,7 +211,7 @@
       "kontakt": "Marjolein Roozen, Bergen kommune",
       "epost": null,
       "dato": "2026-04-23",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -227,7 +227,7 @@
       "kontakt": "Sofie Vervaet",
       "epost": "sofie@studiovertikal.no",
       "dato": "2026-08-06",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning",
         "some"
@@ -245,7 +245,7 @@
       "kontakt": null,
       "epost": "post@bergenpride.no",
       "dato": "2026-06-01",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning"
       ],
@@ -665,12 +665,27 @@
       "kontakt": "Olav Stavsholt",
       "epost": "julemarked@julivillaveien.no",
       "dato": "2026-08-11",
-      "grunnlag": "skriftlig",
+      "grunnlag": "dokumentert",
       "omfang": [
         "visning"
       ],
       "bevis": "Innsendingsskjema, B2B",
       "merknad": "Krysset av for bilderettigheter i skjemaet. SoMe ikke besvart, spurt 2026-08-11.",
+      "vurderesInnen": "2028-08-11"
+    },
+    {
+      "slug": "bookibud",
+      "navn": "Bookibud",
+      "kontakt": "Geir Havard Kjorsvik",
+      "epost": "geirhaavard@bookibud.com",
+      "dato": "2026-08-11",
+      "grunnlag": "dokumentert",
+      "omfang": [
+        "visning",
+        "some"
+      ],
+      "bevis": "Opptak fra mote 2026-08-11, ca 16:55 til 17:14",
+      "merknad": "Muntlig ja i mote, med samtykke til opptak gitt innledningsvis. Sitat: Jo da, det har du. For vi har det i vare kanaler, at tredjeparten kan bruke hvis vi godkjenner. Sa det er jo kun for promotering. NB: Bookibud gir tillatelse pa vegne av arrangorene sine, ikke som opphavsmann. Gjelder events levert gjennom deres API. Kilden er ikke i drift enna; API-et er ikke bygget.",
       "vurderesInnen": "2028-08-11"
     }
   ],

@@ -138,11 +138,11 @@ function cleanCredit(raw: string, title?: string): string {
  *
  * IMAGE_APPROVED_SOURCES styrer visning på gaari.no, som kan hvile på
  * hot-link med opt-out. PROMO_APPROVED_SOURCES styrer aktiv promotering i
- * Gåris egne kanaler, og krever alltid et skriftlig ja.
+ * Gåris egne kanaler, og krever alltid et dokumentert ja.
  */
 type ConsentRecord = {
 	slug: string;
-	grunnlag: 'skriftlig' | 'hotlink' | 'plattform';
+	grunnlag: 'dokumentert' | 'hotlink' | 'plattform';
 	omfang: string[];
 };
 
@@ -157,13 +157,13 @@ export const IMAGE_APPROVED_SOURCES = new Set<string>(
 );
 
 /**
- * Aktiv promotering krever skriftlig ja. Grunnlaget sjekkes her og ikke bare
+ * Aktiv promotering krever dokumentert ja. Grunnlaget sjekkes her og ikke bare
  * i dokumentasjonen, så en kilde med hot-link-grunnlag ikke kan havne i
  * SoMe-listen ved en feil i JSON-fila.
  */
 export const PROMO_APPROVED_SOURCES = new Set<string>(
 	CONSENT_RECORDS.filter(
-		(k) => k.omfang.includes('some') && k.grunnlag === 'skriftlig'
+		(k) => k.omfang.includes('some') && k.grunnlag === 'dokumentert'
 	).map((k) => k.slug)
 );
 

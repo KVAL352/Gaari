@@ -21,7 +21,7 @@ export type Kilde = {
 	epost: string | null;
 	dato: string;
 	datoUsikker?: boolean;
-	grunnlag: 'skriftlig' | 'hotlink' | 'plattform';
+	grunnlag: 'dokumentert' | 'hotlink' | 'plattform';
 	omfang: string[];
 	bevis: string;
 	selvhostet?: boolean;
@@ -77,7 +77,7 @@ export type NyKildeInput = {
  * SoMe-tillatelse som hviler på et hot-link-varsel i stedet for et ja.
  */
 export function nyKilde(input: NyKildeInput): Kilde {
-	const grunnlag = input.grunnlag ?? 'skriftlig';
+	const grunnlag = input.grunnlag ?? 'dokumentert';
 	const feil: string[] = [];
 
 	if (!/^[a-z0-9-]+$/.test(input.slug)) {
@@ -94,9 +94,9 @@ export function nyKilde(input: NyKildeInput): Kilde {
 	if (!input.omfang.includes('visning')) {
 		feil.push('Omfang må alltid inkludere visning. Vi kan ikke dele et bilde utad som vi ikke har lov å vise selv.');
 	}
-	if (input.omfang.includes('some') && grunnlag !== 'skriftlig') {
+	if (input.omfang.includes('some') && grunnlag !== 'dokumentert') {
 		feil.push(
-			`Omfang some krever grunnlag skriftlig, ikke ${grunnlag}. ` +
+			`Omfang some krever grunnlag dokumentert, ikke ${grunnlag}. ` +
 				'Hot-link-varsel og API-vilkår er ikke samtykke til promotering.'
 		);
 	}
@@ -145,8 +145,8 @@ function omfangTekst(k: Kilde): string {
 }
 
 export function render(data: { kilder: Kilde[]; avslag: Avslag[] }): string {
-	const skriftlig = data.kilder.filter((k) => k.grunnlag === 'skriftlig');
-	const hotlink = data.kilder.filter((k) => k.grunnlag !== 'skriftlig');
+	const dokumentert = data.kilder.filter((k) => k.grunnlag === 'dokumentert');
+	const hotlink = data.kilder.filter((k) => k.grunnlag !== 'dokumentert');
 	const personbilder = data.kilder.filter((k) => k.viserPersoner || k.viserBarn);
 	const selvhostet = data.kilder.filter((k) => k.selvhostet);
 
@@ -189,17 +189,18 @@ export function render(data: { kilder: Kilde[]; avslag: Avslag[] }): string {
 	l.push('på varsel med mulighet til å reservere seg.');
 	l.push('');
 	l.push('**Aktiv promotering** betyr at bildet sendes ut i Gåris egne kanaler. Da forlater');
-	l.push('bildet arrangørens kontroll, og det krever alltid et skriftlig ja. Koden håndhever');
-	l.push('dette: en kilde uten grunnlag `skriftlig` kommer ikke inn i promo-listen, uansett');
+	l.push('bildet arrangørens kontroll, og det krever alltid et dokumentert ja. Koden håndhever');
+	l.push('dette: en kilde uten grunnlag `dokumentert` kommer ikke inn i promo-listen, uansett');
 	l.push('hva som står i omfang-feltet.');
 	l.push('');
-	l.push(`## Skriftlig ja (${skriftlig.length})`);
+	l.push(`## Dokumentert samtykke (${dokumentert.length})`);
 	l.push('');
-	l.push('E-posten ligger i `Avtaler`.');
+	l.push('Beviset er en e-post i `Avtaler` eller et lydopptak med tidspunkt. Formen er');
+	l.push('likegyldig; det som teller er at samtykket kan vises fram.');
 	l.push('');
 	l.push('| Kilde | Hvem | Dato | Omfang | Merknad |');
 	l.push('|---|---|---|---|---|');
-	for (const k of [...skriftlig].sort((a, b) => b.dato.localeCompare(a.dato))) {
+	for (const k of [...dokumentert].sort((a, b) => b.dato.localeCompare(a.dato))) {
 		const dato = k.datoUsikker ? `${k.dato} (usikker)` : k.dato;
 		l.push(
 			`| \`${k.slug}\` | ${cell(k.kontakt ?? k.epost ?? k.navn)} | ${dato} | ${omfangTekst(k)} | ${cell(k.merknad)} |`

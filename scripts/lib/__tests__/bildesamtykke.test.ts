@@ -32,14 +32,14 @@ describe('bildesamtykke', () => {
 		).toBe(true);
 	});
 
-	it('gir aldri SoMe-tillatelse uten skriftlig grunnlag', () => {
-		const utenSkriftlig = data.kilder
-			.filter((k) => k.omfang.includes('some') && k.grunnlag !== 'skriftlig')
+	it('gir aldri SoMe-tillatelse uten dokumentert grunnlag', () => {
+		const utenDokumentasjon = data.kilder
+			.filter((k) => k.omfang.includes('some') && k.grunnlag !== 'dokumentert')
 			.map((k) => k.slug);
 		expect(
-			utenSkriftlig,
-			'Aktiv promotering krever eksplisitt skriftlig ja, arkivert i Avtaler. ' +
-				'Hot-link-varsel og API-vilkår er ikke samtykke.'
+			utenDokumentasjon,
+			'Aktiv promotering krever et dokumentert ja, enten som e-post i Avtaler eller ' +
+				'som lydopptak. Hot-link-varsel og API-vilkår er ikke samtykke.'
 		).toEqual([]);
 	});
 
@@ -71,7 +71,7 @@ describe('bildesamtykke', () => {
 		).toEqual([]);
 	});
 
-	it('nekter SoMe uten skriftlig grunnlag også når noen registrerer en ny kilde', () => {
+	it('nekter SoMe uten dokumentert grunnlag også når noen registrerer en ny kilde', () => {
 		expect(() =>
 			nyKilde({
 				slug: 'test',
@@ -81,7 +81,7 @@ describe('bildesamtykke', () => {
 				omfang: ['visning', 'some'],
 				bevis: 'Avtaler'
 			})
-		).toThrow(/krever grunnlag skriftlig/);
+		).toThrow(/krever grunnlag dokumentert/);
 	});
 
 	it('nekter omfang uten visning', () => {

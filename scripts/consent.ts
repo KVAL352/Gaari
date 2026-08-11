@@ -66,7 +66,7 @@ if (cmd === 'add') {
 		// Uten --dato brukes i dag. Datoen skal være når arrangøren svarte,
 		// ikke når du rakk å registrere det, så oppgi den når de avviker.
 		dato: tekst('dato') ?? new Date().toISOString().slice(0, 10),
-		grunnlag: (tekst('grunnlag') as NyKildeInput['grunnlag']) ?? 'skriftlig',
+		grunnlag: (tekst('grunnlag') as NyKildeInput['grunnlag']) ?? 'dokumentert',
 		omfang: (tekst('omfang') ?? 'visning').split(',').map((s) => s.trim()).filter(Boolean),
 		bevis: tekst('bevis') ?? 'Avtaler',
 		merknad: tekst('merknad'),
@@ -111,7 +111,7 @@ if (cmd === 'add') {
 	console.log('  2. Commit endringen, så samtykket får et tidsstempel i git.');
 	if (kilde.viserBarn) {
 		console.log('  3. VIKTIG: bildene viser barn. Tillatelsen fra arrangøren dekker ikke');
-		console.log('     samtykke fra foresatte. Få det skriftlig før bildet brukes i SoMe.');
+		console.log('     samtykke fra foresatte. Få det dokumentert før bildet brukes i SoMe.');
 	}
 } else if (cmd === 'sync') {
 	writeFileSync(DOC_PATH, render(data), 'utf8');

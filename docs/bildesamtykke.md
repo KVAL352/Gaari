@@ -35,17 +35,19 @@ forsvinner fra gaari.no i samme øyeblikk arrangøren fjerner det. Dette kan hvi
 på varsel med mulighet til å reservere seg.
 
 **Aktiv promotering** betyr at bildet sendes ut i Gåris egne kanaler. Da forlater
-bildet arrangørens kontroll, og det krever alltid et skriftlig ja. Koden håndhever
-dette: en kilde uten grunnlag `skriftlig` kommer ikke inn i promo-listen, uansett
+bildet arrangørens kontroll, og det krever alltid et dokumentert ja. Koden håndhever
+dette: en kilde uten grunnlag `dokumentert` kommer ikke inn i promo-listen, uansett
 hva som står i omfang-feltet.
 
-## Skriftlig ja (16)
+## Dokumentert samtykke (17)
 
-E-posten ligger i `Avtaler`.
+Beviset er en e-post i `Avtaler` eller et lydopptak med tidspunkt. Formen er
+likegyldig; det som teller er at samtykket kan vises fram.
 
 | Kilde | Hvem | Dato | Omfang | Merknad |
 |---|---|---|---|---|
 | `julivillaveien` | Olav Stavsholt | 2026-08-11 | Visning | Krysset av for bilderettigheter i skjemaet. SoMe ikke besvart, spurt 2026-08-11. |
+| `bookibud` | Geir Havard Kjorsvik | 2026-08-11 | Visning + SoMe | Muntlig ja i mote, med samtykke til opptak gitt innledningsvis. Sitat: Jo da, det har du. For vi har det i vare kanaler, at tredjeparten kan bruke hvis vi godkjenner. Sa det er jo kun for promotering. NB: Bookibud gir tillatelse pa vegne av arrangorene sine, ikke som opphavsmann. Gjelder events levert gjennom deres API. Kilden er ikke i drift enna; API-et er ikke bygget. |
 | `studiovertikal` | Sofie Vervaet | 2026-08-06 | Visning + SoMe | «Disse kan brukes i alle deres kanaler.» Sendte bildene selv som vedlegg. Bredeste samtykket i registeret. ÅPENT PUNKT: familiedag-bildet viser et gjenkjennelig barn, og tillatelsen kommer fra lokalet, ikke fra foresatte. Spørsmål sendt 2026-08-11, venter på svar. |
 | `bergenpride` | post@bergenpride.no | 2026-06-01 | Visning | «Dere må gjerne ha arrangementene på deres side. Vi bruker ikke tredjepartsbilder.» Ikke spurt om sosiale medier. |
 | `visningsromusf` | Line Nord | 2026-05-07 | Visning + SoMe | Kom inn via B2B-skjemaet med bilderettigheter bekreftet. |
