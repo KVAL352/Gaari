@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { load, render, DOC_PATH } from '../consent-doc.js';
 
 // utils.ts importerer supabase.ts, som trenger dotenv fra scripts/package.json.
 // CI installerer bare rot-avhengighetene, så uten denne mocken feiler suiten
@@ -12,56 +11,35 @@ vi.mock('../supabase.js', () => ({ supabase: {} }));
 import { IMAGE_APPROVED_SOURCES, PROMO_APPROVED_SOURCES } from '../utils.js';
 
 /**
- * Bildesamtykke-registeret (docs/bildesamtykke.md) er det vi viser fram hvis
- * noen krever å vite hvorfor et bilde lå på gaari.no. Allowlistene i utils.ts
- * er det som faktisk styrer koden. Driver de to fra hverandre, har vi et
- * dokument som lyver.
+ * Bildesamtykke er tre ting som må si det samme: fasiten i consent.json,
+ * allowlistene koden faktisk bruker, og dokumentet vi ville vist fram hvis
+ * noen krevde å vite hvorfor et bilde lå på gaari.no.
  *
- * Disse testene låser dem sammen: en kilde kan ikke legges til i koden uten at
- * noen samtidig skriver ned hvem som ga tillatelse, og en kilde kan ikke stå
- * i registeret uten å finnes i koden.
+ * Etter omleggingen 2026-08-11 er de to siste avledet fra den første, så de
+ * kan ikke lenger si ulike ting ved et uhell. Det som fortsatt kan gå galt er
+ * at noen glemmer å regenerere dokumentet, eller redigerer det for hånd. Det
+ * er hovedsaken disse testene vokter.
  */
+const data = load();
 
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
-const register = readFileSync(join(repoRoot, 'docs', 'bildesamtykke.md'), 'utf8');
-
-/**
- * Kilde-slugs nevnt i registeret.
- *
- * Kun tabellrader teller, altså linjer som begynner med `|`. Første forsøk leste
- * alt som sto i backticks hvor som helst i fila, og da slo den ut på ordet
- * `events` i en helt vanlig setning om databasen. Slugs står alltid i tabellene;
- * løpende tekst forklarer og dokumenterer, men er ikke fasit.
- */
-function sourcesInRegister(): Set<string> {
-	const found = new Set<string>();
-	for (const line of register.split('\n')) {
-		if (!line.trimStart().startsWith('|')) continue;
-		for (const match of line.matchAll(/`([a-z0-9-]+)`/g)) {
-			found.add(match[1]);
-		}
-	}
-	return found;
-}
-
-describe('bildesamtykke-registeret', () => {
-	const documented = sourcesInRegister();
-
-	it('dokumenterer hver kilde som har lov til å vise bilder', () => {
-		const udokumentert = [...IMAGE_APPROVED_SOURCES].filter((s) => !documented.has(s));
+describe('bildesamtykke', () => {
+	it('har et dokument som er i takt med fasiten', () => {
+		const påDisk = readFileSync(DOC_PATH, 'utf8');
 		expect(
-			udokumentert,
-			`Disse kildene viser bilder på gaari.no uten å stå i docs/bildesamtykke.md. ` +
-				`Legg til en rad med hvem som ga tillatelse, når, og hvor e-posten ligger.`
-		).toEqual([]);
+			påDisk === render(data),
+			'docs/bildesamtykke.md er utdatert eller redigert for hånd. ' +
+				'Kjør: npx tsx scripts/consent.ts sync'
+		).toBe(true);
 	});
 
-	it('dokumenterer hver kilde som brukes i aktiv promotering', () => {
-		const udokumentert = [...PROMO_APPROVED_SOURCES].filter((s) => !documented.has(s));
+	it('gir aldri SoMe-tillatelse uten skriftlig grunnlag', () => {
+		const utenSkriftlig = data.kilder
+			.filter((k) => k.omfang.includes('some') && k.grunnlag !== 'skriftlig')
+			.map((k) => k.slug);
 		expect(
-			udokumentert,
-			`Disse kildene sendes ut i SoMe uten å stå i docs/bildesamtykke.md. ` +
-				`Aktiv promotering krever eksplisitt skriftlig ja, arkivert i Folders/Gaari/Avtaler.`
+			utenSkriftlig,
+			'Aktiv promotering krever eksplisitt skriftlig ja, arkivert i Avtaler. ' +
+				'Hot-link-varsel og API-vilkår er ikke samtykke.'
 		).toEqual([]);
 	});
 
@@ -69,21 +47,37 @@ describe('bildesamtykke-registeret', () => {
 		const kunPromo = [...PROMO_APPROVED_SOURCES].filter((s) => !IMAGE_APPROVED_SOURCES.has(s));
 		expect(
 			kunPromo,
-			`Disse kildene er godkjent for SoMe, men ikke for visning på gaari.no. ` +
-				`Det er alltid en feil: vi kan ikke dele et bilde utad som vi ikke engang har lov å vise selv.`
+			'Disse er godkjent for SoMe, men ikke for visning på gaari.no. Det er alltid ' +
+				'en feil: vi kan ikke dele et bilde utad som vi ikke engang har lov å vise selv.'
 		).toEqual([]);
 	});
 
-	it('viser ikke til kilder som ikke lenger finnes i koden', () => {
-		// Slugs registeret nevner som godkjente, men som er fjernet fra begge lister.
-		// Historiske nei-svar står med navn og ikke slug, så de treffes ikke av denne.
-		const foreldet = [...documented].filter(
-			(s) => !IMAGE_APPROVED_SOURCES.has(s) && !PROMO_APPROVED_SOURCES.has(s)
-		);
+	it('bygger allowlistene fra fasiten og ingen andre steder', () => {
+		const visning = data.kilder.filter((k) => k.omfang.includes('visning')).map((k) => k.slug);
+		expect([...IMAGE_APPROVED_SOURCES].sort()).toEqual([...visning].sort());
+	});
+
+	it('har ingen kilde oppført to ganger', () => {
+		const slugs = data.kilder.map((k) => k.slug);
+		const duplikater = slugs.filter((s, i) => slugs.indexOf(s) !== i);
+		expect(duplikater, 'Samme kilde står flere ganger i consent.json.').toEqual([]);
+	});
+
+	it('kan vise til et bevis for hver eneste kilde', () => {
+		const utenBevis = data.kilder.filter((k) => !k.bevis?.trim()).map((k) => k.slug);
 		expect(
-			foreldet,
-			`Registeret nevner disse kildene, men de finnes ikke i noen allowlist. ` +
-				`Enten er de fjernet fra koden uten at registeret ble oppdatert, eller så er slug-en feilstavet.`
+			utenBevis,
+			'Uten en henvisning til hvor tillatelsen ligger er oppføringen bare en påstand.'
+		).toEqual([]);
+	});
+
+	it('har en dato for ny vurdering på hver kilde', () => {
+		const utenFrist = data.kilder
+			.filter((k) => !/^\d{4}-\d{2}-\d{2}$/.test(k.vurderesInnen ?? ''))
+			.map((k) => k.slug);
+		expect(
+			utenFrist,
+			'Et samtykke uten utløp blir aldri sjekket på nytt, og folk bytter jobb.'
 		).toEqual([]);
 	});
 });

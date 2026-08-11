@@ -1,0 +1,476 @@
+{
+  "_om": "Fasiten for bildesamtykke. utils.ts bygger allowlistene fra denne fila, og docs/bildesamtykke.md genereres fra den. Rediger her, aldri de to andre stedene. Kjør 'npx tsx scripts/consent.ts sync' etter endring.",
+  "_grunnlag": {
+    "skriftlig": "Arrangøren har svart ja skriftlig. E-posten ligger i Protonmail Folders/Gaari/Avtaler.",
+    "hotlink": "Arrangøren er varslet om at bildene vises som hot-link, med mulighet til å reservere seg. Ikke samtykke. Skal aldri brukes i sosiale medier.",
+    "plattform": "Plattformen leverer bildeadressen selv gjennom et API beregnet på videreformidling."
+  },
+  "_omfang": {
+    "visning": "Bildet kan vises sammen med arrangementet på gaari.no.",
+    "some": "Bildet kan i tillegg brukes når Gåri omtaler arrangementet i egne kanaler. Krever alltid grunnlag skriftlig."
+  },
+  "kilder": [
+    {
+      "slug": "gg-bergen",
+      "navn": "GG Bergen",
+      "kontakt": null,
+      "epost": null,
+      "dato": "2026-04-01",
+      "datoUsikker": true,
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": true,
+      "merknad": "Bildene er levert direkte fra arrangøren, ikke skrapet. Eksakt dato ikke gjenfunnet.",
+      "vurderesInnen": "2028-04-01"
+    },
+    {
+      "slug": "artlab-manual",
+      "navn": "Art Lab Bergen",
+      "kontakt": "Konstantin",
+      "epost": null,
+      "dato": "2026-04-01",
+      "datoUsikker": true,
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": true,
+      "merknad": "Bildene er levert direkte fra arrangøren, ikke skrapet. Eksakt dato ikke gjenfunnet.",
+      "vurderesInnen": "2028-04-01"
+    },
+    {
+      "slug": "brettspill",
+      "navn": "Brettspillklubben",
+      "kontakt": null,
+      "epost": null,
+      "dato": "2026-04-01",
+      "datoUsikker": true,
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": "Fast gruppebilde fra Meetup, eid av klubben selv. Eksakt dato ikke gjenfunnet.",
+      "vurderesInnen": "2028-04-01"
+    },
+    {
+      "slug": "festspillene",
+      "navn": "Festspillene i Bergen",
+      "kontakt": "Christopher Brandt",
+      "epost": null,
+      "dato": "2026-04-19",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": "Inkluderer kjøpt NTB-rettighet og egne fotografavtaler. Bekreftet både 19. og 20. april.",
+      "vurderesInnen": "2028-04-19"
+    },
+    {
+      "slug": "cornerteateret",
+      "navn": "Cornerteateret",
+      "kontakt": "Millan Persdotter Persson",
+      "epost": "millan@cornerteateret.no",
+      "dato": "2026-04-20",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": null,
+      "vurderesInnen": "2028-04-20"
+    },
+    {
+      "slug": "dns",
+      "navn": "Den Nationale Scene",
+      "kontakt": "Annette Stople",
+      "epost": null,
+      "dato": "2026-04-20",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": null,
+      "vurderesInnen": "2028-04-20"
+    },
+    {
+      "slug": "grieghallen",
+      "navn": "Grieghallen",
+      "kontakt": "Lene Meyer Barnes",
+      "epost": null,
+      "dato": "2026-04-20",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": "Sa samtidig at vi kan ta kontakt om det blir problematisert.",
+      "vurderesInnen": "2028-04-20"
+    },
+    {
+      "slug": "akvariet",
+      "navn": "Akvariet i Bergen",
+      "kontakt": "Ingvild, markedskoordinator",
+      "epost": null,
+      "dato": "2026-04-21",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": "Har rettighetene til bildene på egne arrangementssider.",
+      "vurderesInnen": "2028-04-21"
+    },
+    {
+      "slug": "biff",
+      "navn": "BIFF",
+      "kontakt": "Ingebjørg Aarhus Braseth",
+      "epost": null,
+      "dato": "2026-04-21",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": "BEGRENSET: kun bilder hentet fra biff.no. Ikke Bergen Kino, ikke Visit Bergen.",
+      "vurderesInnen": "2028-04-21"
+    },
+    {
+      "slug": "bitteater",
+      "navn": "Bit Teatergarasjen",
+      "kontakt": "İrem Müftüoğlu",
+      "epost": null,
+      "dato": "2026-04-22",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": "Bekreftet både visningsrett og videredistribusjon.",
+      "vurderesInnen": "2028-04-22"
+    },
+    {
+      "slug": "fyllingsdalenteater",
+      "navn": "Fyllingsdalen Teater",
+      "kontakt": "Yasmin Kamalkhani",
+      "epost": null,
+      "dato": "2026-04-22",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": "Bekreftet både visningsrett og videredistribusjon.",
+      "vurderesInnen": "2028-04-22"
+    },
+    {
+      "slug": "visningsromusf",
+      "navn": "Visningsrommet USF",
+      "kontakt": "Line Nord",
+      "epost": "line@usf.no",
+      "dato": "2026-05-07",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": "Kom inn via B2B-skjemaet med bilderettigheter bekreftet.",
+      "vurderesInnen": "2028-05-07"
+    },
+    {
+      "slug": "loddefjord",
+      "navn": "Hva skjer i Loddefjord",
+      "kontakt": "Marjolein Roozen, Bergen kommune",
+      "epost": null,
+      "dato": "2026-04-23",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": "Bildene hostes hos kommunen, så ansvaret ligger der. Vi handler i god tro basert på Marjoleins henvisning til kalenderen.",
+      "vurderesInnen": "2028-04-23"
+    },
+    {
+      "slug": "studiovertikal",
+      "navn": "Studio Vertikal",
+      "kontakt": "Sofie Vervaet",
+      "epost": "sofie@studiovertikal.no",
+      "dato": "2026-08-06",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning", "some"],
+      "bevis": "Avtaler",
+      "selvhostet": true,
+      "viserPersoner": true,
+      "viserBarn": true,
+      "merknad": "«Disse kan brukes i alle deres kanaler.» Sendte bildene selv som vedlegg. Bredeste samtykket i registeret. ÅPENT PUNKT: familiedag-bildet viser et gjenkjennelig barn, og tillatelsen kommer fra lokalet, ikke fra foresatte. Spørsmål sendt 2026-08-11, venter på svar.",
+      "vurderesInnen": "2028-08-06"
+    },
+    {
+      "slug": "bergenpride",
+      "navn": "Bergen Pride / Regnbuedagene",
+      "kontakt": null,
+      "epost": "post@bergenpride.no",
+      "dato": "2026-06-01",
+      "grunnlag": "skriftlig",
+      "omfang": ["visning"],
+      "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": "«Dere må gjerne ha arrangementene på deres side. Vi bruker ikke tredjepartsbilder.» Ikke spurt om sosiale medier.",
+      "vurderesInnen": "2028-06-01"
+    },
+
+    {
+      "slug": "museumvest",
+      "navn": "Museum Vest",
+      "kontakt": null,
+      "epost": null,
+      "dato": "2026-05-11",
+      "grunnlag": "hotlink",
+      "omfang": ["visning"],
+      "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false,
+      "merknad": "Fase 1. Offentlig institusjon med egne ansatte som kuraterer bildene.",
+      "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "kode",
+      "navn": "KODE",
+      "kontakt": null,
+      "epost": null,
+      "dato": "2026-05-11",
+      "grunnlag": "hotlink",
+      "omfang": ["visning"],
+      "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false,
+      "merknad": "Fase 1. Hot-link til Sanity CDN, som er et KODE-eid prosjekt.",
+      "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "dnt",
+      "navn": "DNT Bergen og Hordaland",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "bodega",
+      "navn": "Bodega",
+      "kontakt": "Martin", "epost": "martin@part.no", "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2. Leverer via Google Calendar-feed uten bilder.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "bergenfest",
+      "navn": "Bergenfest",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "olebull",
+      "navn": "Ole Bull Scene",
+      "kontakt": "Hedda Berge", "epost": "hedda@olebullscene.no", "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "forumscene",
+      "navn": "Forum Scene",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "generasjonsfestivalen",
+      "navn": "Generasjonsfestivalen",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "nattjazz",
+      "navn": "Nattjazz",
+      "kontakt": null, "epost": null, "dato": "2026-05-28",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false,
+      "merknad": "Aktivert 2026-05-28, rett før festivalstart. Krediterer hver fotograf i eget CMS, så image_credit lagres per arrangement. verifyHotlinkable sjekker Wix CDN ved hver innlegging.",
+      "vurderesInnen": "2028-05-28"
+    },
+    {
+      "slug": "litthusbergen",
+      "navn": "Litteraturhuset i Bergen",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "studentbergen",
+      "navn": "Utdanning i Bergen / StudentBergen",
+      "kontakt": "Stina Aadland Jensen", "epost": null, "dato": "2026-04-21",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Avtaler",
+      "selvhostet": false,
+      "merknad": "DELVIS JA: skriftlig godkjent kun for løp og turer de eier selv (Ulriken Opp, 7-fjellsturen, 17. mai, Bergen Eco Trail). Resten er arrangørbilder. Ligger derfor i visningslisten og ikke i promo-listen, selv om grunnlaget er skriftlig for en del av innholdet.",
+      "vurderesInnen": "2028-04-21"
+    },
+    {
+      "slug": "kulturhusetibergen",
+      "navn": "Kulturhuset i Bergen",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "colonialen",
+      "navn": "Colonialen",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "oconnors",
+      "navn": "O'Connors",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "stenematglede",
+      "navn": "Stene Matglede",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "floyen",
+      "navn": "Fløyen",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "bergenkjott",
+      "navn": "Bergen Kjøtt",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "bymuseet",
+      "navn": "Bymuseet i Bergen",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "ostre",
+      "navn": "Østre",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "bergenfilmklubb",
+      "navn": "Bergen Filmklubb",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "carteblanche",
+      "navn": "Carte Blanche",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "kunsthall",
+      "navn": "Bergen Kunsthall",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "usfverftet",
+      "navn": "USF Verftet",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "kvarteret",
+      "navn": "Det Akademiske Kvarter",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Varsel sendt 2026-05-11",
+      "selvhostet": false, "merknad": "Fase 2.", "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "billetto",
+      "navn": "Billetto",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Plattform varslet 2026-05-11",
+      "selvhostet": false,
+      "merknad": "Fase 3, aggregator. Filtreres i tillegg av IMAGE_BLOCKED_VENUE_PATTERNS, siden arrangører som har sagt nei kan holde arrangementer som selges her.",
+      "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "ticketco",
+      "navn": "TicketCo",
+      "kontakt": null, "epost": null, "dato": "2026-05-11",
+      "grunnlag": "hotlink", "omfang": ["visning"], "bevis": "Plattform varslet 2026-05-11",
+      "selvhostet": false,
+      "merknad": "Fase 3, aggregator. Samme filtrering som billetto.",
+      "vurderesInnen": "2028-05-11"
+    },
+    {
+      "slug": "tikkio",
+      "navn": "Tikkio",
+      "kontakt": "Yngvar", "epost": null, "dato": "2026-05-19",
+      "grunnlag": "plattform", "omfang": ["visning"], "bevis": "Public Discovery API",
+      "selvhostet": false,
+      "merknad": "API-en returnerer image_url på cdn.tikkio.com og er beregnet på discovery-bruk. Implisitt godkjent gjennom bruksvilkårene for API-et, ikke gjennom et personlig ja.",
+      "vurderesInnen": "2028-05-19"
+    }
+  ],
+  "avslag": [
+    {
+      "navn": "SK Brann",
+      "kontakt": "Mads Liabø",
+      "dato": "2026-04-17",
+      "sitat": "Tredjeparter har vi ikke med i avtalene.",
+      "folge": "Klubblogo brukes som fallback.",
+      "bevis": "Juridisk"
+    },
+    {
+      "navn": "BEK",
+      "kontakt": "Siren Løkaas",
+      "dato": "2026-04-21",
+      "sitat": "Bildene kommer fra kunstnerne, altså tredjepart.",
+      "folge": "BEK-logo som placeholder.",
+      "bevis": "Juridisk"
+    },
+    {
+      "navn": "Bjørgvin Blues",
+      "kontakt": "Grethe",
+      "dato": "2026-04-24",
+      "sitat": "Blir for omfattende å følge opp tredjepartsrettigheter.",
+      "folge": "Blokkert på BÅDE venue-navn og tittel, fordi de holder arrangementer på andre venues. Se IMAGE_BLOCKED_VENUE_PATTERNS.",
+      "bevis": "Juridisk"
+    },
+    {
+      "navn": "Hulen",
+      "kontakt": "Aurora Fykse, styreleder",
+      "dato": "2026-04-23",
+      "sitat": "Ja til egne bilder med fotografkreditering, eller plakat uten kreditering.",
+      "folge": "Betinget ja vi ikke kan oppfylle ennå. Blokkert inntil kreditering er på plass.",
+      "bevis": "Juridisk"
+    },
+    {
+      "navn": "Beyond the Gates",
+      "kontakt": "Torgrim Øyre",
+      "dato": "2026-05-26",
+      "sitat": "Vi kan ikke gi deg noe entydig svar her. Bilder vi bruker kommer fra mange forskjellige opphavsmenn.",
+      "folge": "Trukket ut av listen etter å ha vært inne.",
+      "bevis": "Juridisk"
+    },
+    {
+      "navn": "Bergen Filharmoniske / Harmonien",
+      "kontakt": "marked@harmonien.no",
+      "dato": "2026-04-17",
+      "sitat": "Kun autokvittering, aldri reelt svar.",
+      "folge": "Purret 2026-05-05. Favicon brukes som fallback inntil videre.",
+      "bevis": "Juridisk"
+    }
+  ]
+}

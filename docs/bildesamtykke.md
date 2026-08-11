@@ -1,161 +1,167 @@
+<!-- GENERERT FIL. Ikke rediger her.
+     Kilden er scripts/lib/consent.json.
+     Regenerer med: npx tsx scripts/consent.ts sync -->
+
 # Bildesamtykke-register
 
-Dette er fasiten over hvem som har gitt tillatelse til hva når det gjelder bilder.
-Hvis det kommer et krav fra et bildebyrå, en fotograf eller en arrangør, er det
-denne fila som skal svare på spørsmålet «hvorfor lå det bildet der?».
+Dette er fasiten over hvem som har gitt tillatelse til hva når det gjelder
+bilder. Kommer det et krav fra et bildebyrå, en fotograf eller en arrangør, er
+det denne oversikten som skal svare på spørsmålet «hvorfor lå det bildet der?».
 
-Registeret er versjonert i git. Det betyr at hver rad har en dato og en
-commit bak seg, og at ingen kan endres uten at det står i historikken. Det er
-med vilje: en påstand om samtykke er lite verdt uten et tidsstempel som ikke
-kan flyttes i ettertid.
+Registeret er versjonert i git. Hver rad har en dato og en commit bak seg, og
+ingenting kan endres uten at det står i historikken. Det er med vilje: en
+påstand om samtykke er lite verdt uten et tidsstempel som ikke kan flyttes i
+ettertid.
 
-## Slik henger delene sammen
+## Hvordan delene henger sammen
 
-| Hvor | Hva ligger der |
+| Hvor | Hva som ligger der |
 |---|---|
-| `scripts/lib/utils.ts` | De to allowlistene som faktisk styrer koden. Autoritativ for hva systemet gjør. |
-| Denne fila | Menneskelig kontekst: hvem sa ja, til hva, og hvor beviset ligger. |
+| `scripts/lib/consent.json` | Fasiten. Det eneste stedet du redigerer. |
+| `scripts/lib/utils.ts` | Bygger de to allowlistene fra fasiten ved oppstart. |
+| Denne fila | Generert lesbar utgave. Rediger aldri direkte. |
 | Protonmail `Folders/Gaari/Avtaler` | Selve ja-e-postene. Permanent arkiv, slettes aldri. |
-| Protonmail `Folders/Gaari/Juridisk` | Nei-svar, begrensninger og juridisk korrespondanse. Slettes aldri. |
+| Protonmail `Folders/Gaari/Juridisk` | Nei-svar og juridisk korrespondanse. Slettes aldri. |
 
-`scripts/lib/__tests__/bildesamtykke.test.ts` sjekker at hver kilde i de to
-listene i koden har en rad her, og motsatt. Legger noen til en kilde uten å
-dokumentere den, feiler testen. Det er den mekanismen som hindrer at samtykke
-og kode driver fra hverandre.
+Tidligere lå kildene i koden og begrunnelsen i dette dokumentet, og de kunne
+drive fra hverandre uten at noen merket det. Nå finnes det bare ett sted å
+gjøre feil, og `bildesamtykke.test.ts` feiler hvis dokumentet er utdatert.
 
 ## To ulike nivåer
 
-Det er avgjørende å holde disse fra hverandre, både juridisk og praktisk:
+**Visning på gaari.no** betyr at bildet hot-linkes. Vi lagrer bare adressen, og
+den besøkendes nettleser henter bildet fra arrangørens egen server. Bildet
+forsvinner fra gaari.no i samme øyeblikk arrangøren fjerner det. Dette kan hvile
+på varsel med mulighet til å reservere seg.
 
-**Visning på gaari.no** (`IMAGE_APPROVED_SOURCES`) betyr at bildet hot-linkes.
-Vi lagrer bare adressen; den besøkendes nettleser henter bildet fra arrangørens
-egen server. Bildet forsvinner fra gaari.no i samme øyeblikk arrangøren fjerner
-det. Dette kan hvile på hot-link/opt-out-policyen, altså varsel med mulighet
-til å reservere seg.
+**Aktiv promotering** betyr at bildet sendes ut i Gåris egne kanaler. Da forlater
+bildet arrangørens kontroll, og det krever alltid et skriftlig ja. Koden håndhever
+dette: en kilde uten grunnlag `skriftlig` kommer ikke inn i promo-listen, uansett
+hva som står i omfang-feltet.
 
-**Aktiv promotering** (`PROMO_APPROVED_SOURCES`) betyr at bildet sendes ut i
-Gåris egne kanaler: Facebook, Instagram, nyhetsbrev-headliner. Da forlater
-bildet arrangørens kontroll. Dette krever alltid **eksplisitt skriftlig ja**.
-Hot-link-policyen dekker det ikke, og et ja til visning er ikke et ja til dette.
+## Skriftlig ja (15)
 
-## Eksplisitt skriftlig ja
-
-Disse har svart skriftlig. E-posten ligger i `Avtaler`.
+E-posten ligger i `Avtaler`.
 
 | Kilde | Hvem | Dato | Omfang | Merknad |
 |---|---|---|---|---|
-| `studiovertikal` | Sofie Vervaet | 2026-08-06 | Visning + SoMe | «Disse kan brukes i alle deres kanaler.» Sendte bildene selv som vedlegg. Bredeste samtykket i registeret. Eneste kilde vi hoster selv, se avsnittet under. |
-| `bergenpride` | post@bergenpride.no | 2026-06-01 | Visning | «Vi bruker ikke tredjepartsbilder.» Ikke spurt om SoMe. |
+| `studiovertikal` | Sofie Vervaet | 2026-08-06 | Visning + SoMe | «Disse kan brukes i alle deres kanaler.» Sendte bildene selv som vedlegg. Bredeste samtykket i registeret. ÅPENT PUNKT: familiedag-bildet viser et gjenkjennelig barn, og tillatelsen kommer fra lokalet, ikke fra foresatte. Spørsmål sendt 2026-08-11, venter på svar. |
+| `bergenpride` | post@bergenpride.no | 2026-06-01 | Visning | «Dere må gjerne ha arrangementene på deres side. Vi bruker ikke tredjepartsbilder.» Ikke spurt om sosiale medier. |
 | `visningsromusf` | Line Nord | 2026-05-07 | Visning + SoMe | Kom inn via B2B-skjemaet med bilderettigheter bekreftet. |
-| `loddefjord` | Marjolein Roozen, Bergen kommune | 2026-04-23 | Visning + SoMe | Bildene hostes hos kommunen. Ansvaret ligger der. |
-| `fyllingsdalenteater` | Yasmin Kamalkhani | 2026-04-22 | Visning + SoMe | Bekreftet både visningsrett og videredistribusjon. |
+| `loddefjord` | Marjolein Roozen, Bergen kommune | 2026-04-23 | Visning + SoMe | Bildene hostes hos kommunen, så ansvaret ligger der. Vi handler i god tro basert på Marjoleins henvisning til kalenderen. |
 | `bitteater` | İrem Müftüoğlu | 2026-04-22 | Visning + SoMe | Bekreftet både visningsrett og videredistribusjon. |
-| `akvariet` | Ingvild, markedskoordinator | 2026-04-21 | Visning + SoMe | Har rettigheter til bildene på egne arrangementssider. |
-| `biff` | Ingebjørg Aarhus Braseth | 2026-04-21 | Visning + SoMe | KUN bilder hentet fra biff.no. Ikke Bergen Kino, ikke Visit Bergen. |
-| `dns` | Annette Stople | 2026-04-20 | Visning + SoMe | |
-| `grieghallen` | Lene Meyer Barnes | 2026-04-20 | Visning + SoMe | «Kan ta kontakt om det blir problematisert.» |
-| `cornerteateret` | Millan Persdotter Persson | 2026-04-20 | Visning + SoMe | |
-| `festspillene` | Christopher Brandt | 2026-04-19 | Visning + SoMe | Inkluderer kjøpt NTB-rettighet og fotografavtaler. |
-| `gg-bergen` | Venue direkte | 2026-04 | Visning + SoMe | Bildene er levert til oss, ikke skrapet. |
-| `artlab-manual` | Venue direkte | 2026-04 | Visning + SoMe | Bildene er levert til oss, ikke skrapet. |
-| `brettspill` | Klubben | 2026-04 | Visning + SoMe | Fast gruppebilde fra Meetup, eid av klubben selv. |
+| `fyllingsdalenteater` | Yasmin Kamalkhani | 2026-04-22 | Visning + SoMe | Bekreftet både visningsrett og videredistribusjon. |
+| `akvariet` | Ingvild, markedskoordinator | 2026-04-21 | Visning + SoMe | Har rettighetene til bildene på egne arrangementssider. |
+| `biff` | Ingebjørg Aarhus Braseth | 2026-04-21 | Visning + SoMe | BEGRENSET: kun bilder hentet fra biff.no. Ikke Bergen Kino, ikke Visit Bergen. |
+| `cornerteateret` | Millan Persdotter Persson | 2026-04-20 | Visning + SoMe |  |
+| `dns` | Annette Stople | 2026-04-20 | Visning + SoMe |  |
+| `grieghallen` | Lene Meyer Barnes | 2026-04-20 | Visning + SoMe | Sa samtidig at vi kan ta kontakt om det blir problematisert. |
+| `festspillene` | Christopher Brandt | 2026-04-19 | Visning + SoMe | Inkluderer kjøpt NTB-rettighet og egne fotografavtaler. Bekreftet både 19. og 20. april. |
+| `gg-bergen` | GG Bergen | 2026-04-01 (usikker) | Visning + SoMe | Bildene er levert direkte fra arrangøren, ikke skrapet. Eksakt dato ikke gjenfunnet. |
+| `artlab-manual` | Konstantin | 2026-04-01 (usikker) | Visning + SoMe | Bildene er levert direkte fra arrangøren, ikke skrapet. Eksakt dato ikke gjenfunnet. |
+| `brettspill` | Brettspillklubben | 2026-04-01 (usikker) | Visning + SoMe | Fast gruppebilde fra Meetup, eid av klubben selv. Eksakt dato ikke gjenfunnet. |
 
-## Unntaket: bilder vi hoster selv
+## Hot-link med varsel og opt-out (27)
 
-Alt annet i registeret er hot-link. Studio Vertikal er unntaket: Sofie sendte
-bildene direkte til oss som vedlegg, med skriftlig tillatelse uten forbehold.
-De ligger derfor i `static/events/` og serveres fra gaari.no.
+Disse har ikke svart ja. De er varslet om at bildene vises, med mulighet til å
+reservere seg. Grunnlaget er bildepolicyen, ikke samtykke.
+**Ingen av disse skal brukes i sosiale medier.**
 
-Det er en bevisst forskjell. Hot-link betyr at bildet forsvinner fra gaari.no
-i samme øyeblikk arrangøren fjerner det, og det er nettopp den egenskapen som
-gjør opt-out reell. Når vi hoster selv, mister arrangøren den bryteren. Da må
-tillatelsen være tilsvarende tydelig, og den må ligge i `Avtaler`.
+| Kilde | Aktivert | Grunnlag | Merknad |
+|---|---|---|---|
+| `bergenfest` | 2026-05-11 | hotlink | Fase 2. |
+| `bergenfilmklubb` | 2026-05-11 | hotlink | Fase 2. |
+| `bergenkjott` | 2026-05-11 | hotlink | Fase 2. |
+| `billetto` | 2026-05-11 | hotlink | Fase 3, aggregator. Filtreres i tillegg av IMAGE_BLOCKED_VENUE_PATTERNS, siden arrangører som har sagt nei kan holde arrangementer som selges her. |
+| `bodega` | 2026-05-11 | hotlink | Fase 2. Leverer via Google Calendar-feed uten bilder. |
+| `bymuseet` | 2026-05-11 | hotlink | Fase 2. |
+| `carteblanche` | 2026-05-11 | hotlink | Fase 2. |
+| `colonialen` | 2026-05-11 | hotlink | Fase 2. |
+| `dnt` | 2026-05-11 | hotlink | Fase 2. |
+| `floyen` | 2026-05-11 | hotlink | Fase 2. |
+| `forumscene` | 2026-05-11 | hotlink | Fase 2. |
+| `generasjonsfestivalen` | 2026-05-11 | hotlink | Fase 2. |
+| `kode` | 2026-05-11 | hotlink | Fase 1. Hot-link til Sanity CDN, som er et KODE-eid prosjekt. |
+| `kulturhusetibergen` | 2026-05-11 | hotlink | Fase 2. |
+| `kunsthall` | 2026-05-11 | hotlink | Fase 2. |
+| `kvarteret` | 2026-05-11 | hotlink | Fase 2. |
+| `litthusbergen` | 2026-05-11 | hotlink | Fase 2. |
+| `museumvest` | 2026-05-11 | hotlink | Fase 1. Offentlig institusjon med egne ansatte som kuraterer bildene. |
+| `nattjazz` | 2026-05-28 | hotlink | Aktivert 2026-05-28, rett før festivalstart. Krediterer hver fotograf i eget CMS, så image_credit lagres per arrangement. verifyHotlinkable sjekker Wix CDN ved hver innlegging. |
+| `oconnors` | 2026-05-11 | hotlink | Fase 2. |
+| `olebull` | 2026-05-11 | hotlink | Fase 2. |
+| `ostre` | 2026-05-11 | hotlink | Fase 2. |
+| `stenematglede` | 2026-05-11 | hotlink | Fase 2. |
+| `studentbergen` | 2026-04-21 | hotlink | DELVIS JA: skriftlig godkjent kun for løp og turer de eier selv (Ulriken Opp, 7-fjellsturen, 17. mai, Bergen Eco Trail). Resten er arrangørbilder. Ligger derfor i visningslisten og ikke i promo-listen, selv om grunnlaget er skriftlig for en del av innholdet. |
+| `ticketco` | 2026-05-11 | hotlink | Fase 3, aggregator. Samme filtrering som billetto. |
+| `tikkio` | 2026-05-19 | plattform | API-en returnerer image_url på cdn.tikkio.com og er beregnet på discovery-bruk. Implisitt godkjent gjennom bruksvilkårene for API-et, ikke gjennom et personlig ja. |
+| `usfverftet` | 2026-05-11 | hotlink | Fase 2. |
+
+## Bilder vi hoster selv
+
+Alt annet er hot-link. Disse har sendt bildene direkte til oss, og de ligger
+i `static/events/` og serveres fra gaari.no.
+
+Det er en bevisst forskjell. Hot-link betyr at bildet forsvinner fra gaari.no i
+samme øyeblikk arrangøren fjerner det, og nettopp den egenskapen gjør opt-out
+reell. Når vi hoster selv, mister arrangøren den bryteren.
 
 **Regel: hoster vi et bilde selv, skal e-posten med tillatelsen kunne siteres
 ordrett.** Er du i tvil om ordlyden dekker det, hot-link i stedet.
 
-### Bilder av barn
+- `gg-bergen` (GG Bergen)
+- `artlab-manual` (Art Lab Bergen)
+- `studiovertikal` (Studio Vertikal)
 
-Familiedag-bildet består av to bilder side om side: et barn til venstre, en
-voksen til høyre. Barnet er gjenkjennelig. Kjersti besluttet 2026-08-11 at
-begge skal med.
+## Bilder av mennesker
 
-**Åpent punkt:** tillatelsen er gitt av Studio Vertikal, altså av lokalet, ikke
-av foresatte. Be Sofie bekrefte skriftlig at foresatte har samtykket til denne
-bruken, og at samtykket også dekker Facebook og Instagram hvis bildet skal dit.
-Legg svaret i `Avtaler` sammen med resten.
+Opphavsretten og retten til eget bilde er to ulike ting. Arrangøren eier det
+første. Det andre tilhører personen som er avbildet, og for et barn er det
+foresatte som råder over det. En arrangør kan ikke gi bort noe som ikke er
+deres å gi.
 
-Grunnen til at terskelen er høyere her enn for andre bilder: repoet er
-offentlig. Et bilde som først er committet, ligger permanent i git-historikken
-og kan lastes ned selv om vi senere fjerner det fra siden. Å ta det ned er
-altså ikke det samme som å gjøre det utilgjengelig.
+Repoet er offentlig. Et bilde som er committet ligger permanent i
+git-historikken og kan lastes ned selv om vi fjerner det fra siden. Å ta det
+ned er ikke det samme som å gjøre det utilgjengelig.
 
-Ved en eventuell henvendelse fra foresatte: fjern bildet fra `static/events/`
-og fra `image_url` i basen umiddelbart, og si fra at git-historikken også kan
-skrives om hvis de ber om det. Ikke vent på avklaring før bildet tas ned.
+Tar noen kontakt: fjern bildet fra `static/events/` og fra `image_url` i basen
+umiddelbart. Avklar etterpå, ikke før.
 
-## Hot-link med varsel og opt-out
-
-Disse har ikke svart ja. De er varslet skriftlig om at bildene vises som
-hot-link, med mulighet til å reservere seg. Grunnlaget er bildepolicyen, ikke
-samtykke. **Ingen av disse skal brukes i sosiale medier.**
-
-| Fase | Aktivert | Kilder | Vurdering |
-|---|---|---|---|
-| 1 | 2026-05-11 | `museumvest`, `kode` | Offentlige institusjoner med egne ansatte som kuraterer bildene. Lav risiko. |
-| 2 | 2026-05-11 | `dnt`, `bodega`, `bergenfest`, `olebull`, `forumscene`, `generasjonsfestivalen`, `litthusbergen`, `studentbergen`, `kulturhusetibergen`, `colonialen`, `oconnors`, `stenematglede`, `floyen`, `bergenkjott`, `bymuseet`, `ostre`, `bergenfilmklubb`, `carteblanche`, `kunsthall`, `usfverftet`, `kvarteret` | Venues og festivaler med egne ansatte. Varsel sendt samme dag. |
-| 2 | 2026-05-28 | `nattjazz` | Krediterer hver fotograf i sitt eget CMS, så `image_credit` lagres per arrangement. |
-| 3 | 2026-05-11 | `billetto`, `ticketco` | Aggregatorer. Plattformene er varslet. Filtreres i tillegg av `IMAGE_BLOCKED_VENUE_PATTERNS`. |
-| 3 | 2026-05-19 | `tikkio` | Tikkio Public Discovery API leverer `image_url` selv, altså implisitt godkjent for discovery-bruk. |
-
-Merk om `studentbergen`: Stina Aadland Jensen bekreftet 2026-04-21 at bilder kan
-brukes for løp og turer de eier selv (Ulriken Opp, 7-fjellsturen, 17. mai,
-Bergen Eco Trail). Resten er arrangørbilder. Kilden ligger i hot-link-listen,
-ikke i promo-listen, nettopp fordi samtykket er delvis.
-
-## Nei og begrensninger
-
-Disse skal aldri inn i noen av listene. E-postene ligger i `Juridisk`.
-
-| Hvem | Dato | Hva de sa |
+| Kilde | Viser barn | Merknad |
 |---|---|---|
-| SK Brann, Mads Liabø | 2026-04-17 | «Tredjeparter har vi ikke med i avtalene.» Klubblogo brukes som fallback. |
-| BEK, Siren Løkaas | 2026-04-21 | Bildene kommer fra kunstnerne, altså tredjepart. BEK-logo som placeholder. |
-| Bjørgvin Blues, Grethe | 2026-04-24 | Vil ikke følge opp tredjepartsrettigheter. Blokkert på venue-navn OG tittel, fordi de holder arrangementer på andre venues. |
-| Hulen, Aurora Fykse | 2026-04-23 | Betinget ja: egne bilder MED fotografkreditering, eller plakat uten. Vi har ikke kreditering på plass, så kilden er blokkert inntil videre. |
-| Beyond the Gates, Torgrim Øyre | 2026-05-26 | «Bilder vi bruker kommer fra mange forskjellige opphavsmenn.» Trukket ut av listen etter å ha vært inne. |
-| Harmonien | 2026-04-17 | Kun autokvittering, aldri reelt svar. Purret 2026-05-05. Favicon brukes som fallback. |
+| `studiovertikal` | Ja | «Disse kan brukes i alle deres kanaler.» Sendte bildene selv som vedlegg. Bredeste samtykket i registeret. ÅPENT PUNKT: familiedag-bildet viser et gjenkjennelig barn, og tillatelsen kommer fra lokalet, ikke fra foresatte. Spørsmål sendt 2026-08-11, venter på svar. |
 
-## Innsendingsskjemaet spør nå selv
+## Nei og begrensninger (6)
 
-Fra 2026-08-11 spør `/[lang]/submit` om begge samtykkene, ikke bare det ene.
-Først om vi kan vise bildene sammen med arrangementene, og deretter, som et
-eget avkryssingsfelt, om de også kan brukes når Gåri omtaler arrangementet på
-Facebook og Instagram. Feltet vises bare når de først har bekreftet at de har
-rettighetene, siden det andre spørsmålet er meningsløst uten det første.
+Disse skal aldri inn i noen liste. E-postene ligger i `Juridisk`.
 
-Svaret følger med varselet du får på e-post, og skiller mellom tre tilstander:
-ja, uttrykkelig nei, og ikke spurt (ingen bilde lastet opp). Den forskjellen er
-verdt å bevare. Et tomt felt kan bety både nei og ubesvart, og da er samtykket
-ubrukelig som dokumentasjon i ettertid.
-
-Bakgrunnen: Jul i Villaveien sendte inn 11. august og hadde krysset av for
-bilderettigheter, men skjemaet spurte ikke om sosiale medier i det hele tatt.
-Det utløste en e-postrunde som skjemaet burde tatt selv.
-
-**Merk:** svaret lagres foreløpig ikke i databasen, bare i varselet. Skal det
-bli en kilde du kan spørre senere, trenger `events` en egen kolonne.
+| Hvem | Dato | Hva de sa | Følge |
+|---|---|---|---|
+| SK Brann (Mads Liabø) | 2026-04-17 | Tredjeparter har vi ikke med i avtalene. | Klubblogo brukes som fallback. |
+| BEK (Siren Løkaas) | 2026-04-21 | Bildene kommer fra kunstnerne, altså tredjepart. | BEK-logo som placeholder. |
+| Bjørgvin Blues (Grethe) | 2026-04-24 | Blir for omfattende å følge opp tredjepartsrettigheter. | Blokkert på BÅDE venue-navn og tittel, fordi de holder arrangementer på andre venues. Se IMAGE_BLOCKED_VENUE_PATTERNS. |
+| Hulen (Aurora Fykse, styreleder) | 2026-04-23 | Ja til egne bilder med fotografkreditering, eller plakat uten kreditering. | Betinget ja vi ikke kan oppfylle ennå. Blokkert inntil kreditering er på plass. |
+| Beyond the Gates (Torgrim Øyre) | 2026-05-26 | Vi kan ikke gi deg noe entydig svar her. Bilder vi bruker kommer fra mange forskjellige opphavsmenn. | Trukket ut av listen etter å ha vært inne. |
+| Bergen Filharmoniske / Harmonien (marked@harmonien.no) | 2026-04-17 | Kun autokvittering, aldri reelt svar. | Purret 2026-05-05. Favicon brukes som fallback inntil videre. |
 
 ## Rutine når noen svarer ja
 
-Fire steg. Hopper du over ett, er samtykket i praksis borte når du trenger det.
-
 1. **Flytt e-posten til `Folders/Gaari/Avtaler`.** Ikke la den ligge i innboksen.
-2. **Legg kilden i riktig liste** i `scripts/lib/utils.ts`, med navn og dato i kommentaren.
-3. **Legg til en rad her**, med omfang og eventuelle begrensninger.
-4. **Kjør testene.** `npx vitest run bildesamtykke` sier fra hvis noe mangler.
+2. **Legg til en oppføring i `scripts/lib/consent.json`** med hvem, når, omfang og hvor beviset ligger.
+3. **Kjør `npx tsx scripts/consent.ts sync`.** Dokumentet og allowlistene følger med av seg selv.
+4. **Kjør testene.** `npx vitest run bildesamtykke` sier fra hvis noe skurrer.
 
-Ved delvis ja, for eksempel «bare våre egne arrangementer», hører kilden hjemme
-i visningslisten og ikke i promo-listen. Skriv begrensningen ordrett i
-merknadsfeltet. Et halvt ja som er dokumentert som helt ja er verre enn
-ingenting.
+Ved delvis ja, for eksempel «bare våre egne arrangementer», gi omfang `visning`
+og skriv begrensningen ordrett i merknaden. Et halvt ja som er dokumentert som
+helt ja er verre enn ingenting.
+
+## Skjemaet spør selv
+
+Fra 2026-08-11 spør innsendingsskjemaet om begge samtykkene, ikke bare det ene.
+Først om vi kan vise bildene, deretter, som et eget felt, om de også kan brukes
+på Facebook og Instagram. Det andre feltet vises bare når det første er krysset
+av, siden spørsmålet er meningsløst uten.
+
+Varselet skiller mellom ja, uttrykkelig nei og ikke spurt. Den forskjellen er
+verdt å bevare: et tomt felt kan bety både nei og ubesvart, og da er samtykket
+ubrukelig som dokumentasjon.

@@ -1,4 +1,7 @@
 import type * as cheerio from 'cheerio';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { supabase } from './supabase.js';
 import { getSourceFallbackImage } from './venues.js';
 
@@ -125,85 +128,48 @@ function cleanCredit(raw: string, title?: string): string {
 }
 
 /**
- * Sources with skriftlig ja til å bruke bildene i aktiv promotering (SoMe,
- * nyhetsbrev-headliner, FB-gruppe-posts). Subset of IMAGE_APPROVED_SOURCES —
- * krever eksplisitt e-postbekreftelse, ikke hot-link/opt-out-policy.
+ * Bildesamtykke. Begge listene bygges fra scripts/lib/consent.json, som er
+ * fasiten. Rediger aldri kildene her; rediger JSON-fila og kjør
+ * `npx tsx scripts/consent.ts sync`.
  *
- * IMAGE_APPROVED_SOURCES brukes for å vise bilder på gaari.no (legal display
- * under hot-link-policy). PROMO_APPROVED_SOURCES brukes for å sende bilder ut
- * i SoMe-feeds der vi aktivt promoterer arrangementet.
+ * Grunnen til at det er én fil og ikke to lister: tidligere lå kildene her og
+ * begrunnelsen i docs/bildesamtykke.md, og de kunne drive fra hverandre. Nå
+ * finnes det bare ett sted å gjøre feil.
+ *
+ * IMAGE_APPROVED_SOURCES styrer visning på gaari.no, som kan hvile på
+ * hot-link med opt-out. PROMO_APPROVED_SOURCES styrer aktiv promotering i
+ * Gåris egne kanaler, og krever alltid et skriftlig ja.
  */
-export const PROMO_APPROVED_SOURCES = new Set<string>([
-	'gg-bergen', // Bilder levert direkte av venue
-	'artlab-manual', // Bilder levert direkte av venue
-	'brettspill', // Fixed Meetup group photo, owned by club
-	'festspillene', // Christopher Brandt bekreftet 2026-04-19
-	'cornerteateret', // Millan Persdotter Persson bekreftet 2026-04-20
-	'dns', // Annette Stople bekreftet 2026-04-20
-	'grieghallen', // Lene Meyer Barnes bekreftet 2026-04-20
-	'akvariet', // Ingvild (Markedskoordinator) bekreftet 2026-04-21
-	'biff', // Ingebjørg Aarhus Braseth bekreftet 2026-04-21
-	'bitteater', // İrem Müftüoğlu bekreftet 2026-04-22
-	'fyllingsdalenteater', // Yasmin Kamalkhani bekreftet 2026-04-22
-	'visningsromusf', // Line Nord bekreftet 2026-05-07 via B2B-skjema
-	'loddefjord', // Marjolein Roozen (Bergen Kommune) bekreftet 2026-04-23
-	'studiovertikal', // Sofie Vervaet bekreftet 2026-08-06: "Disse kan brukes i alle deres kanaler"
-]);
+type ConsentRecord = {
+	slug: string;
+	grunnlag: 'skriftlig' | 'hotlink' | 'plattform';
+	omfang: string[];
+};
+
+const consentFile = JSON.parse(
+	readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'consent.json'), 'utf8')
+) as { kilder: ConsentRecord[] };
+
+export const CONSENT_RECORDS = consentFile.kilder;
+
+export const IMAGE_APPROVED_SOURCES = new Set<string>(
+	CONSENT_RECORDS.filter((k) => k.omfang.includes('visning')).map((k) => k.slug)
+);
+
+/**
+ * Aktiv promotering krever skriftlig ja. Grunnlaget sjekkes her og ikke bare
+ * i dokumentasjonen, så en kilde med hot-link-grunnlag ikke kan havne i
+ * SoMe-listen ved en feil i JSON-fila.
+ */
+export const PROMO_APPROVED_SOURCES = new Set<string>(
+	CONSENT_RECORDS.filter(
+		(k) => k.omfang.includes('some') && k.grunnlag === 'skriftlig'
+	).map((k) => k.slug)
+);
 
 export function isPromoApproved(source: string): boolean {
 	return PROMO_APPROVED_SOURCES.has(source);
 }
-
-/**
- * Sources with explicit permission to use their event images.
- * ALL other sources have images stripped at insert time.
- * Add sources here only after receiving written image usage permission.
- */
-export const IMAGE_APPROVED_SOURCES = new Set<string>([
-	'gg-bergen', // Images provided directly by venue (scraper SOURCE is 'gg-bergen')
-	'artlab-manual', // Images provided directly by venue
-	'brettspill', // Fixed Meetup group photo, owned by club
-	'festspillene', // Christopher Brandt bekreftet 2026-04-19
-	'cornerteateret', // Millan Persdotter Persson bekreftet 2026-04-20
-	'dns', // Annette Stople bekreftet 2026-04-20
-	'grieghallen', // Lene Meyer Barnes bekreftet 2026-04-20 — "kan ta kontakt om det blir problematisert"
-	'akvariet', // Ingvild (Markedskoordinator) bekreftet 2026-04-21
-	'biff', // Ingebjørg Aarhus Braseth bekreftet 2026-04-21 — kun bilder fra events lagt ut på biff.no
-	'bitteater', // İrem Müftüoğlu bekreftet 2026-04-22
-	'fyllingsdalenteater', // Yasmin Kamalkhani bekreftet 2026-04-22
-	'visningsromusf', // Line Nord bekreftet 2026-05-07 via B2B-skjema (Visningsrommet USF)
-	'loddefjord', // Marjolein Roozen (Bergen Kommune) bekreftet 2026-04-23: hot-link til hvaskjeriloddefjord.no/images/{id} — bildene hostes hos kommunen, ansvar ligger der. Vi handler i god tro basert på Marjoleins henvisning til kalenderen.
-	// Fase 1 hot-link-policy aktivert 2026-05-11 (lavrisiko: offentlig institusjon, egne ansatte kuraterer). Se image-policy.md.
-	'museumvest', // Hot-link til museumvest.no
-	'kode', // Hot-link til Sanity CDN (KODE-eid prosjekt)
-	// Fase 2 hot-link-policy aktivert 2026-05-11 (venues/festivaler med egne ansatte). Varsel sendt samme dag.
-	// verifyHotlinkable() filtrerer ut blokkerte bilder automatisk.
-	'dnt', 'bodega', 'bergenfest', 'olebull', 'forumscene', 'generasjonsfestivalen',
-	// Nattjazz aktivert 2026-05-28 (festivalstart 29.05). Nattjazz krediterer
-	// hver foto med konkret fotograf-navn i sin Wix CMS, så scraperen lagrer
-	// `image_credit` per event. verifyHotlinkable() sjekker Wix CDN ved hver insert.
-	'nattjazz',
-	// beyondthegates trukket tilbake 2026-05-26: Torgrim Øyre svarte "Vi kan ikke gi
-	// deg noe entydig svar her. Bilder vi bruker kommer fra mange forskjellige
-	// opphavsmenn." — ikke trygt under hot-link-policy.
-	'litthusbergen', 'studentbergen', 'kulturhusetibergen',
-	'colonialen', 'oconnors', 'stenematglede', 'floyen', 'bergenkjott',
-	'bymuseet', 'ostre', 'bergenfilmklubb', 'carteblanche', 'kunsthall',
-	'usfverftet', 'kvarteret',
-	// Fase 3 aktivert 2026-05-11 (aggregatorer). Plattformer notifisert samme dag.
-	// Filtreres ytterligere av IMAGE_BLOCKED_VENUES nedenfor (Hulen sa nei).
-	'billetto', 'ticketco',
-	// Tikkio Public Discovery API lansert 2026-05-19 (Yngvar @ Tikkio): API-en
-	// returnerer image_url på cdn.tikkio.com — implisitt godkjent for discovery-bruk.
-	'tikkio',
-	// Bergen Pride bekreftet 2026-06-01: "Dere må gjerne ha arrangementene på deres
-	// side. Vi bruker ikke tredjepartsbilder." — egne bilder, ingen tredjeparts-risiko.
-	'bergenpride',
-	// Studio Vertikal (Sofie Vervaet) bekreftet 2026-08-06: sendte bildene selv som
-	// vedlegg og skrev "Disse kan brukes i alle deres kanaler." Bredeste samtykket vi
-	// har fått. Bildene er egne lokalbilder fra klatresenteret, ingen tredjepart.
-	'studiovertikal',
-]);
 
 /**
  * Venues/arrangører som har eksplisitt sagt nei til bildebruk pga tredjeparts-rettigheter.
