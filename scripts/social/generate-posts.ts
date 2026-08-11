@@ -2,7 +2,7 @@ import { writeFileSync } from 'fs';
 import { supabase } from '../lib/supabase.js';
 import { isPromoApproved, PROMO_APPROVED_SOURCES } from '../lib/utils.js';
 import { CAPPED_VENUES } from './venue-policy.js';
-import { ENGLISH_SLUGS } from './collection-config.js';
+import { ENGLISH_SLUGS, MIN_EVENTS_FOR_POST } from './collection-config.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
@@ -130,7 +130,7 @@ function getCategoryHashtags(events: Array<{ category: string }>): string[] {
 }
 
 const MAX_CAROUSEL_EVENTS = 8;
-const MIN_IMAGES_FOR_POST = 5;
+const MIN_IMAGES_FOR_POST = MIN_EVENTS_FOR_POST;
 
 // Venue-regelen bor i venue-policy.ts, slik at reels arver den samme listen.
 // Fram til 2026-08-11 lå den bare her, og reels hadde den ikke i det hele tatt.

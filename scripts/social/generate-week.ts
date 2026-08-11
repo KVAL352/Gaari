@@ -33,6 +33,7 @@ import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import { pickDiverseEvents } from './event-picker.js';
 import { getRecentlyPostedIds } from './dedup.js';
 import { vurderVenues, ukensVenueNavn, fjernBlokkerte } from './venue-policy.js';
+import { MIN_EVENTS_FOR_POST } from './collection-config.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
 import type { GaariEvent } from '../../src/lib/types.js';
@@ -402,7 +403,7 @@ async function buildAndUploadCarouselsZip(
 		const recentlyPosted = await getRecentlyPostedIds(day.slug);
 		const selected = pickDiverseEvents(tillatt, 8, { recentlyPosted });
 
-		if (selected.length < 4) {
+		if (selected.length < MIN_EVENTS_FOR_POST) {
 			console.warn(`  ${day.dateStr} ${day.slug}: only ${selected.length} events with images, skipping carousel`);
 			continue;
 		}

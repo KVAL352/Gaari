@@ -25,7 +25,7 @@ import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import { pickDiverseEvents } from './event-picker.js';
 import { getRecentlyPostedIds } from './dedup.js';
 import { vurderVenues, ukensVenueNavn, fjernBlokkerte } from './venue-policy.js';
-import { ENGLISH_SLUGS } from './collection-config.js';
+import { ENGLISH_SLUGS, MIN_EVENTS_FOR_POST } from './collection-config.js';
 import { getVenueInstagram } from '../lib/venues.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
@@ -260,8 +260,8 @@ export async function generateOneCollection(opts: {
 		console.log(`  ${combined.size} events deprioritised (${recentlyPosted.size} from DB + ${excludedEventIds?.size ?? 0} from same-run picks)`);
 	}
 	const selected = pickDiverseEvents(tillatt, 8, { recentlyPosted: combined });
-	if (selected.length < 5) {
-		console.log(`  Only ${selected.length} events with images, need 5. Skipping.\n`);
+	if (selected.length < MIN_EVENTS_FOR_POST) {
+		console.log(`  Only ${selected.length} events with images, need ${MIN_EVENTS_FOR_POST}. Skipping.\n`);
 		return null;
 	}
 
