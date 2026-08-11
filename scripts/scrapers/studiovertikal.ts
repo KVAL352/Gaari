@@ -42,16 +42,18 @@ const SENIOR_TIMES: { from: string; until: string; hhmm: string }[] = [
 
 /**
  * Fire familiedager, bekreftet både i Sofies e-post og på
- * studiovertikal.no/familiedag/. Klokkeslett er IKKE oppgitt noen av stedene —
- * derfor står de her uten tid inntil Sofie svarer. Fyll inn `hhmm` når svaret
- * kommer; da plukkes de opp ved neste kjøring.
+ * studiovertikal.no/familiedag/. Klokkeslettet manglet begge steder og ble
+ * bekreftet av Sofie i e-post 2026-08-06: "Familiedag er i hele våre
+ * åpningstider så lørdager er det mellom 11:00-20:00".
+ *
+ * Det er altså et drop-in-tilbud over hele dagen, ikke en økt med fast oppmøte.
+ * Derfor settes både start og slutt, slik at visningen ikke gir inntrykk av at
+ * man må møte presis kl. 11.
  */
-const FAMILIEDAGER: { date: string; hhmm: string | null }[] = [
-	{ date: '2026-08-15', hhmm: null },
-	{ date: '2026-09-12', hhmm: null },
-	{ date: '2026-10-10', hhmm: null },
-	{ date: '2026-11-28', hhmm: null },
-];
+const FAMILIEDAG_OPEN = '11:00';
+const FAMILIEDAG_CLOSE = '20:00';
+
+const FAMILIEDAGER: string[] = ['2026-08-15', '2026-09-12', '2026-10-10', '2026-11-28'];
 
 /** YYYY-MM-DD i Oslo-tid for et gitt tidspunkt. */
 function osloDate(d: Date): string {
@@ -88,6 +90,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	type Planned = {
 		date: string;
 		hhmm: string;
+		/** Stengetid. Settes kun for tilbud som varer hele dagen. */
+		endHhmm?: string;
 		title: string;
 		category: string;
 		ageGroup: string;
@@ -112,16 +116,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		});
 	}
 
-	// Familiedag — fire faste lørdager.
-	for (const f of FAMILIEDAGER) {
-		if (f.date < today) continue;
-		if (!f.hhmm) {
-			console.log(`  ~ Familiedag ${f.date} hoppet over — klokkeslett ikke bekreftet av arrangør`);
-			continue;
-		}
+	// Familiedag — fire faste lørdager, åpent hele dagen.
+	for (const date of FAMILIEDAGER) {
+		if (date < today) continue;
 		planned.push({
-			date: f.date,
-			hhmm: f.hhmm,
+			date,
+			hhmm: FAMILIEDAG_OPEN,
+			endHhmm: FAMILIEDAG_CLOSE,
 			title: 'Familiedag',
 			category: 'family',
 			ageGroup: 'family',
@@ -140,6 +141,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (await eventExists(sourceUrl)) continue;
 
 		const dateStart = new Date(`${p.date}T${p.hhmm}:00${bergenOffset(p.date)}`).toISOString();
+		const dateEnd = p.endHhmm
+			? new Date(`${p.date}T${p.endHhmm}:00${bergenOffset(p.date)}`).toISOString()
+			: undefined;
 
 		const aiDesc = await generateDescription({
 			title: p.title,
@@ -157,6 +161,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			title_en: aiDesc.title_en,
 			category: p.category,
 			date_start: dateStart,
+			date_end: dateEnd,
 			venue_name: VENUE,
 			address: ADDRESS,
 			bydel: mapBydel(VENUE),
