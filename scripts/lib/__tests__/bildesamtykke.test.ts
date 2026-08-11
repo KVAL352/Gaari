@@ -25,11 +25,21 @@ import { IMAGE_APPROVED_SOURCES, PROMO_APPROVED_SOURCES } from '../utils.js';
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const register = readFileSync(join(repoRoot, 'docs', 'bildesamtykke.md'), 'utf8');
 
-/** Alle kilde-slugs nevnt i registeret, altså alt som står i `backticks`. */
+/**
+ * Kilde-slugs nevnt i registeret.
+ *
+ * Kun tabellrader teller, altså linjer som begynner med `|`. Første forsøk leste
+ * alt som sto i backticks hvor som helst i fila, og da slo den ut på ordet
+ * `events` i en helt vanlig setning om databasen. Slugs står alltid i tabellene;
+ * løpende tekst forklarer og dokumenterer, men er ikke fasit.
+ */
 function sourcesInRegister(): Set<string> {
 	const found = new Set<string>();
-	for (const match of register.matchAll(/`([a-z0-9-]+)`/g)) {
-		found.add(match[1]);
+	for (const line of register.split('\n')) {
+		if (!line.trimStart().startsWith('|')) continue;
+		for (const match of line.matchAll(/`([a-z0-9-]+)`/g)) {
+			found.add(match[1]);
+		}
 	}
 	return found;
 }
@@ -67,16 +77,8 @@ describe('bildesamtykke-registeret', () => {
 	it('viser ikke til kilder som ikke lenger finnes i koden', () => {
 		// Slugs registeret nevner som godkjente, men som er fjernet fra begge lister.
 		// Historiske nei-svar står med navn og ikke slug, så de treffes ikke av denne.
-		const kjenteIkkeKilder = new Set([
-			'scripts', 'lib', 'utils', 'ts', 'md', 'docs', 'image_url', 'image_credit',
-			'IMAGE_APPROVED_SOURCES', 'PROMO_APPROVED_SOURCES', 'IMAGE_BLOCKED_VENUE_PATTERNS',
-			'npx', 'vitest', 'run', 'bildesamtykke',
-		]);
 		const foreldet = [...documented].filter(
-			(s) =>
-				!kjenteIkkeKilder.has(s) &&
-				!IMAGE_APPROVED_SOURCES.has(s) &&
-				!PROMO_APPROVED_SOURCES.has(s)
+			(s) => !IMAGE_APPROVED_SOURCES.has(s) && !PROMO_APPROVED_SOURCES.has(s)
 		);
 		expect(
 			foreldet,
