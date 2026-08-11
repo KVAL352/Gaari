@@ -25,6 +25,7 @@ import { generateCaption, type CaptionEvent } from './caption-gen.js';
 import { pickDiverseEvents } from './event-picker.js';
 import { getRecentlyPostedIds } from './dedup.js';
 import { vurderVenues, ukensVenueNavn, fjernBlokkerte } from './venue-policy.js';
+import { ENGLISH_SLUGS } from './collection-config.js';
 import { getVenueInstagram } from '../lib/venues.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
@@ -47,7 +48,6 @@ const HASHTAGS: Record<string, string[]> = {
 	'this-weekend': ['#bergen', '#bergennorway', '#thisweekend', '#weekendinbergen', '#bergenevents']
 };
 
-const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
 /** Seconds each frame is shown */
 const FRAME_DURATION = 2;

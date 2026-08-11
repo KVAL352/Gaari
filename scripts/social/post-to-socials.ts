@@ -12,6 +12,7 @@
 import { supabase } from '../lib/supabase.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getPageToken } from '../lib/meta-api.js';
+import { ENGLISH_SLUGS } from './collection-config.js';
 
 // ── Config ──
 
@@ -28,7 +29,6 @@ const POST_FB = PLATFORM_ARG === 'all' || PLATFORM_ARG === 'fb';
 // Stories are posted manually via Meta Business Suite — disabled here.
 const POST_STORIES = false;
 
-const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
 /** Max stories per day */
 const MAX_STORIES_PER_DAY = 3;

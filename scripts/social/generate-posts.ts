@@ -2,6 +2,7 @@ import { writeFileSync } from 'fs';
 import { supabase } from '../lib/supabase.js';
 import { isPromoApproved, PROMO_APPROVED_SOURCES } from '../lib/utils.js';
 import { CAPPED_VENUES } from './venue-policy.js';
+import { ENGLISH_SLUGS } from './collection-config.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
@@ -138,7 +139,6 @@ function shouldGenerateToday(schedule: CollectionSchedule, dayOfWeek: number): b
 	return schedule.days.length === 0 || schedule.days.includes(dayOfWeek);
 }
 
-const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
 /** Collections that also generate Stories (today's events) */
 const STORY_SLUGS = new Set(['i-kveld']);

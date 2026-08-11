@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase.js';
 import { postWithImages } from '../lib/bluesky-client.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
+import { ENGLISH_SLUGS } from './collection-config.js';
 
 const BLUESKY_MAX_TEXT = 300; // Bluesky character limit
 
@@ -9,7 +10,6 @@ const BLUESKY_SLUGS = new Set([
 	'denne-helgen',   // Weekend guide (Thu)
 ]);
 
-const ENGLISH_SLUGS = new Set(['today-in-bergen', 'this-weekend']);
 
 /** Strip all emoji and zero-width joiners from text. */
 function stripEmojis(text: string): string {
