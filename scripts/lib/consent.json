@@ -289,15 +289,15 @@
       "navn": "DNT Bergen og Hordaland",
       "kontakt": null,
       "epost": null,
-      "dato": "2026-05-11",
-      "grunnlag": "hotlink",
+      "dato": "2026-05-06",
+      "grunnlag": "dokumentert",
       "omfang": [
-        "visning"
+        "visning",
+        "some"
       ],
-      "bevis": "Varsel sendt 2026-05-11",
-      "selvhostet": false,
-      "merknad": "Fase 2.",
-      "vurderesInnen": "2028-05-11"
+      "bevis": "Avtaler",
+      "merknad": null,
+      "vurderesInnen": "2028-05-06"
     },
     {
       "slug": "bodega",
@@ -658,20 +658,6 @@
       "selvhostet": false,
       "merknad": "API-en returnerer image_url på cdn.tikkio.com og er beregnet på discovery-bruk. Implisitt godkjent gjennom bruksvilkårene for API-et, ikke gjennom et personlig ja.",
       "vurderesInnen": "2028-05-19"
-    },
-    {
-      "slug": "julivillaveien",
-      "navn": "Jul i Villaveien",
-      "kontakt": "Olav Stavsholt",
-      "epost": "julemarked@julivillaveien.no",
-      "dato": "2026-08-11",
-      "grunnlag": "dokumentert",
-      "omfang": [
-        "visning"
-      ],
-      "bevis": "Innsendingsskjema, B2B",
-      "merknad": "Krysset av for bilderettigheter i skjemaet. SoMe ikke besvart, spurt 2026-08-11.",
-      "vurderesInnen": "2028-08-11"
     },
     {
       "slug": "bookibud",

@@ -46,11 +46,11 @@ likegyldig; det som teller er at samtykket kan vises fram.
 
 | Kilde | Hvem | Dato | Omfang | Merknad |
 |---|---|---|---|---|
-| `julivillaveien` | Olav Stavsholt | 2026-08-11 | Visning | Krysset av for bilderettigheter i skjemaet. SoMe ikke besvart, spurt 2026-08-11. |
 | `bookibud` | Geir Havard Kjorsvik | 2026-08-11 | Visning + SoMe | Muntlig ja i mote, med samtykke til opptak gitt innledningsvis. Sitat: Jo da, det har du. For vi har det i vare kanaler, at tredjeparten kan bruke hvis vi godkjenner. Sa det er jo kun for promotering. NB: Bookibud gir tillatelse pa vegne av arrangorene sine, ikke som opphavsmann. Gjelder events levert gjennom deres API. Kilden er ikke i drift enna; API-et er ikke bygget. |
 | `studiovertikal` | Sofie Vervaet | 2026-08-06 | Visning + SoMe | «Disse kan brukes i alle deres kanaler.» Sendte bildene selv som vedlegg. Bredeste samtykket i registeret. ÅPENT PUNKT: familiedag-bildet viser et gjenkjennelig barn, og tillatelsen kommer fra lokalet, ikke fra foresatte. Spørsmål sendt 2026-08-11, venter på svar. |
 | `bergenpride` | post@bergenpride.no | 2026-06-01 | Visning | «Dere må gjerne ha arrangementene på deres side. Vi bruker ikke tredjepartsbilder.» Ikke spurt om sosiale medier. |
 | `visningsromusf` | Line Nord | 2026-05-07 | Visning + SoMe | Kom inn via B2B-skjemaet med bilderettigheter bekreftet. |
+| `dnt` | DNT Bergen og Hordaland | 2026-05-06 | Visning + SoMe |  |
 | `loddefjord` | Marjolein Roozen, Bergen kommune | 2026-04-23 | Visning + SoMe | Bildene hostes hos kommunen, så ansvaret ligger der. Vi handler i god tro basert på Marjoleins henvisning til kalenderen. |
 | `bitteater` | İrem Müftüoğlu | 2026-04-22 | Visning + SoMe | Bekreftet både visningsrett og videredistribusjon. |
 | `fyllingsdalenteater` | Yasmin Kamalkhani | 2026-04-22 | Visning + SoMe | Bekreftet både visningsrett og videredistribusjon. |
@@ -64,7 +64,7 @@ likegyldig; det som teller er at samtykket kan vises fram.
 | `artlab-manual` | Konstantin | 2026-04-01 (usikker) | Visning + SoMe | Bildene er levert direkte fra arrangøren, ikke skrapet. Eksakt dato ikke gjenfunnet. |
 | `brettspill` | Brettspillklubben | 2026-04-01 (usikker) | Visning + SoMe | Fast gruppebilde fra Meetup, eid av klubben selv. Eksakt dato ikke gjenfunnet. |
 
-## Hot-link med varsel og opt-out (27)
+## Hot-link med varsel og opt-out (26)
 
 Disse har ikke svart ja. De er varslet om at bildene vises, med mulighet til å
 reservere seg. Grunnlaget er bildepolicyen, ikke samtykke.
@@ -80,7 +80,6 @@ reservere seg. Grunnlaget er bildepolicyen, ikke samtykke.
 | `bymuseet` | 2026-05-11 | hotlink | Fase 2. |
 | `carteblanche` | 2026-05-11 | hotlink | Fase 2. |
 | `colonialen` | 2026-05-11 | hotlink | Fase 2. |
-| `dnt` | 2026-05-11 | hotlink | Fase 2. |
 | `floyen` | 2026-05-11 | hotlink | Fase 2. |
 | `forumscene` | 2026-05-11 | hotlink | Fase 2. |
 | `generasjonsfestivalen` | 2026-05-11 | hotlink | Fase 2. |
