@@ -56,31 +56,58 @@ const SOURCE_BACKFILL = [
 // Approved per-URL — only specific events under these sources are allowed.
 const STUDENTBERGEN_PATTERNS = ['ulriken-opp', '7-fjellsturen', '17-mai-feiring-i-bergen', 'bergen-eco-trail'];
 
+/**
+ * Kommandolinja: --kilde <slug> kjører bare én kilde.
+ *
+ * Uten den kjøres hele SOURCE_BACKFILL, og det er sjelden det du vil når du
+ * rydder opp etter én arrangør. En full kjøring tar ett og et halvt sekund per
+ * arrangement og rører kilder du ikke har tenkt på.
+ */
+const kunKilde = (() => {
+	const i = process.argv.indexOf('--kilde');
+	return i >= 0 ? process.argv[i + 1] : undefined;
+})();
+
 async function main() {
 	const nowUtc = new Date().toISOString();
 
+	// Både det som pågår og det som kommer. Tidligere sto det bare
+	// date_start >= nå, og da var utstillinger og andre langtidsarrangementer
+	// usynlige for reparasjonen. Det er en dyr blindsone: nettopp de gamle
+	// oppføringene er de som ble lagt inn mens bildene var slått av, og de
+	// hentes aldri på nytt fordi eventExists hopper over dem.
+	const pågårEllerKommer = `date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`;
+
+	const kilder = kunKilde ? SOURCE_BACKFILL.filter(s => s === kunKilde) : SOURCE_BACKFILL;
+	if (kunKilde && !kilder.length) {
+		console.error(`Ukjent kilde: ${kunKilde}. Gyldige er:\n  ${SOURCE_BACKFILL.join(', ')}`);
+		process.exit(1);
+	}
+
 	const sourceResults = await Promise.all(
-		SOURCE_BACKFILL.map(async s => {
+		kilder.map(async s => {
 			const { data } = await supabase
 				.from('events')
 				.select('source_url, source, title_no')
 				.eq('source', s)
 				.is('image_url', null)
-				.gte('date_start', nowUtc);
+				.or(pågårEllerKommer);
 			return { source: s, rows: (data || []) as Row[] };
 		})
 	);
 
 	const sbResults = await Promise.all(
-		STUDENTBERGEN_PATTERNS.map(p =>
-			supabase
-				.from('events')
-				.select('source_url, source, title_no')
-				.eq('source', 'studentbergen')
-				.is('image_url', null)
-				.gte('date_start', nowUtc)
-				.ilike('source_url', `%${p}%`)
-		)
+		kunKilde && kunKilde !== 'studentbergen'
+			? []
+			: STUDENTBERGEN_PATTERNS.map(p =>
+					supabase
+						.from('events')
+						.select('source_url, source, title_no')
+						.eq('source', 'studentbergen')
+						.is('image_url', null)
+						.or(pågårEllerKommer)
+						.ilike('source_url', `%${p}%`)
+				)
 	);
 	const studentbergen: Row[] = sbResults.flatMap(r => r.data || []);
 
