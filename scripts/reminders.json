@@ -143,5 +143,15 @@
     "date": "2026-09-25",
     "title": "Forny Meta access token for det utloper 10. oktober",
     "description": "Tokenet ble fornyet 2026-08-11 og er gyldig til 2026-10-10. Datatilgangen varer til 2026-11-09. Fornyelse: cd scripts && npx tsx meta.ts token extend. Den bytter til et nytt langlevd token, skriver det til .env OG synkroniserer GitHub-secret META_ACCESS_TOKEN automatisk. Verifiser etterpa med npx tsx meta.ts token, som skal si Valid: yes. HISTORIKK: forrige token dode i stillhet. Det var sperret med feil 190 underkode 459, en checkpoint pa Facebook-kontoen, og datatilgangen var utlopt 10. juli. Ingen varsel kom, og all SoMe-posting var dod i to maneder uten at noe sa fra. Derfor star denne paminnelsen 15 dager for utlop, ikke pa selve dagen."
+  },
+  {
+    "date": "2026-08-13",
+    "title": "Behandle innsending: Retro pop opp butikk, Paradis",
+    "description": "Arrangementet er 15. august, sa dette haster. Ligger ulest i Folders/Gaari/Submissions/Unresolved fra 2026-08-11. Innsenderen har krysset av for at bildet kan brukes i sosiale medier, sa hvis den godkjennes ma kilden inn i consent.json med omfang visning,some og grunnlag dokumentert, ellers feiler bildesamtykke.test.ts. Ingen innsender-epost er oppgitt, sa det gar ikke an a sporre om noe. Ingen billettlenke heller."
+  },
+  {
+    "date": "2026-08-19",
+    "title": "Jul i Villaveien: purr pa bilde hvis Olav er stille",
+    "description": "Sendt 2026-08-12: bedt om et bilde han eier selv, og spurt om det kan brukes pa Facebook og Instagram. Bakgrunn: han opplyste selv at hovedbildet pa juletryll-siden er hentet fra avisen og bearbeidet, sitat er vel strengt tatt BT sitt. Derfor er julivillaveien fjernet fra consent.json, og de seks desember-radene ligger inne uten bilde. Kommer det et bilde han eier: legg kilden inn igjen med consent.ts add, og oppdater image_url pa alle seks radene. Juletryll som eget arrangement er ikke lagt inn, vi mangler tidspunkter."
   }
 ]
