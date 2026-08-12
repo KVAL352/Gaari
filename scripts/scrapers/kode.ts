@@ -26,6 +26,21 @@ interface KODEEvent {
 	ticketUrl: string | null;
 	permanent: boolean;
 	imageUrl: string | null;
+	eventType: string | null;
+}
+
+/**
+ * KODE har to seksjoner, og lenken bommer hvis man gjetter.
+ * Utstillinger ligger under /utstillinger/, alt annet under /arrangementer/.
+ *
+ * Fram til 2026-08-12 sto det utstillinger for alt, og da ga hver eneste
+ * omvisning, konsert og verksted 404 når noen klikket seg videre til KODE.
+ * Slugen kan dessuten inneholde mellomrom fra deres eget CMS, så den må
+ * kodes og ikke bare limes inn.
+ */
+function buildSourceUrl(slug: string, eventType: string | null): string {
+	const seksjon = eventType === 'Utstillinger' ? 'utstillinger' : 'arrangementer';
+	return `https://www.kodebergen.no/hva-skjer/${seksjon}/${encodeURIComponent(slug.trim())}`;
 }
 
 function mapCategory(title: string, startDate: string, endDate: string): string {
@@ -56,7 +71,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		"venue": location->title,
 		"slug": slug.current,
 		price, ticketUrl, permanent,
-		"imageUrl": headerMedia[0].asset->url
+		"imageUrl": headerMedia[0].asset->url,
+		"eventType": eventType->title
 	}`;
 
 	const res = await fetch(buildApiUrl(query), {
@@ -83,7 +99,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (event.permanent) continue;
 
 		const slug = event.slug || event._id;
-		const sourceUrl = `https://www.kodebergen.no/hva-skjer/utstillinger/${slug}`;
+		const sourceUrl = buildSourceUrl(slug, event.eventType);
 		if (await eventExists(sourceUrl)) continue;
 
 		const category = mapCategory(event.title, event.startDate, event.endDate);
