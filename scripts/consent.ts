@@ -5,6 +5,7 @@
  *   npx tsx scripts/consent.ts sync                 regenerer dokumentet
  *   npx tsx scripts/consent.ts check                feiler hvis dokumentet er utdatert
  *   npx tsx scripts/consent.ts due [dato]           viser samtykker som bør vurderes på nytt
+ *   npx tsx scripts/consent.ts gap                  hvem det koster mest å ikke ha spurt
  *
  * Fasiten er scripts/lib/consent.json. Dokumentet er avledet og skal aldri
  * redigeres for hånd. Allowlistene i lib/utils.ts leses fra samme fil, så de
@@ -132,7 +133,38 @@ if (cmd === 'add') {
 		console.log(`${due.length} samtykker bor vurderes pa nytt per ${today}:`);
 		for (const k of due) console.log(`  ${k.slug} (${k.navn}), sist bekreftet ${k.dato}`);
 	}
+} else if (cmd === 'gap') {
+	// Importeres først her. Kommandoen trenger Supabase, og de tre andre skal
+	// kunne kjøre i CI der bare rot-pakkene finnes.
+	const [{ supabase }, { byggRapport, formater }, { MIN_EVENTS_FOR_POST }] = await Promise.all([
+		import('./lib/supabase.js'),
+		import('./lib/consent-gap.js'),
+		import('./social/collection-config.js')
+	]);
+
+	const fra = argv[1] || new Date().toISOString().slice(0, 10);
+	const events: { source: string | null; image_url: string | null }[] = [];
+
+	// Paginert. Supabase gir maks 1000 rader per kall, og vi har flere enn det,
+	// så uten løkken her ville rapporten stille vist en tilfeldig tredjedel.
+	for (let fom = 0; ; fom += 1000) {
+		const { data: rader, error } = await supabase
+			.from('events')
+			.select('source, image_url')
+			.eq('status', 'approved')
+			.gte('date_start', fra)
+			.range(fom, fom + 999);
+		if (error) {
+			console.error(`Kunne ikke hente arrangementer: ${error.message}`);
+			process.exit(1);
+		}
+		events.push(...(rader ?? []));
+		if ((rader?.length ?? 0) < 1000) break;
+	}
+
+	console.log(`Per ${fra}.\n`);
+	console.log(formater(byggRapport(events, data), MIN_EVENTS_FOR_POST));
 } else {
-	console.log('Bruk: npx tsx scripts/consent.ts <add|sync|check|due>');
+	console.log('Bruk: npx tsx scripts/consent.ts <add|sync|check|due|gap>');
 	process.exit(1);
 }
