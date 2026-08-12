@@ -135,11 +135,6 @@
     "description": "Sjekk om svar har kommet på DPA-forespørsler sendt 2026-05-26: 1) Supabase PandaDoc (signer hvis kommet). 2) privacy@vercel.com (Hobby-plan DPA). 3) support@resend.com (DPA). For dem som ikke har svart: send vennlig påminnelse. Lagre signerte PDF-er i docs/legal/dpa/ og oppdater README.md-registeret. MailerLite og Stripe er ferdig (auto-aksept via ToU/SSA)."
   },
   {
-    "date": "2026-08-07",
-    "title": "Umami: generer ny API-nøkkel — all trafikkrapportering er død",
-    "description": "VERIFISERT 2026-08-06: kall mot https://api.umami.is/v1/websites/<id>/stats svarer HTTP 401 {\"error\":{\"message\":\"Invalid API key\"}}. UMAMI_WEBSITE_ID og UMAMI_API_KEY finnes begge i .env, så det er nøkkelen som er ugyldig — ikke manglende konfigurasjon. KONSEKVENS: morning-stats.ts rapporterer 0 besøkende / 0 sidevisninger, og daglig digest har vist null trafikk uten å flagge feilen. Tallene har altså vært falske, ikke lave. Vi vet ikke hvor lenge. FIKS: logg inn på Umami Cloud (cloud.umami.is) → Settings → API keys → generer ny nøkkel. Oppdater tre steder: (1) .env lokalt, (2) GitHub Actions secret UMAMI_API_KEY, (3) Vercel env hvis den brukes der. VERIFISER etterpå med samme kall — forvent HTTP 200 og et JSON-objekt med pageviews/visitors. VURDER OGSÅ: legg inn en eksplisitt feilsjekk i morning-stats.ts og send-daily-digest.ts så 401 rapporteres som FEIL i stedet for å bli stille konvertert til 0. Det er den egentlige bugen — en død integrasjon skal ikke se ut som dårlig trafikk."
-  },
-  {
     "date": "2026-09-25",
     "title": "Forny Meta access token for det utloper 10. oktober",
     "description": "Tokenet ble fornyet 2026-08-11 og er gyldig til 2026-10-10. Datatilgangen varer til 2026-11-09. Fornyelse: cd scripts && npx tsx meta.ts token extend. Den bytter til et nytt langlevd token, skriver det til .env OG synkroniserer GitHub-secret META_ACCESS_TOKEN automatisk. Verifiser etterpa med npx tsx meta.ts token, som skal si Valid: yes. HISTORIKK: forrige token dode i stillhet. Det var sperret med feil 190 underkode 459, en checkpoint pa Facebook-kontoen, og datatilgangen var utlopt 10. juli. Ingen varsel kom, og all SoMe-posting var dod i to maneder uten at noe sa fra. Derfor star denne paminnelsen 15 dager for utlop, ikke pa selve dagen."
