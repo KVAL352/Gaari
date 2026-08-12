@@ -148,5 +148,10 @@
     "date": "2026-08-19",
     "title": "Jul i Villaveien: purr pa bilde hvis Olav er stille",
     "description": "Sendt 2026-08-12: bedt om et bilde han eier selv, og spurt om det kan brukes pa Facebook og Instagram. Bakgrunn: han opplyste selv at hovedbildet pa juletryll-siden er hentet fra avisen og bearbeidet, sitat er vel strengt tatt BT sitt. Derfor er julivillaveien fjernet fra consent.json, og de seks desember-radene ligger inne uten bilde. Kommer det et bilde han eier: legg kilden inn igjen med consent.ts add, og oppdater image_url pa alle seks radene. Juletryll som eget arrangement er ikke lagt inn, vi mangler tidspunkter."
+  },
+  {
+    "date": "2026-08-13",
+    "title": "Del samtykkeregisteret: personopplysninger ut av det offentlige repoet",
+    "description": "Kjersti 2026-08-12: ingen privat eller personlig informasjon skal offentliggjoeres. Aatte commits ligger upushet og holdes tilbake til dette er lost. consent.json som allerede ligger offentlig inneholder 8 e-postadresser, 18 navngitte kontakter og 9 ordrette sitater fra privat korrespondanse. Plan: offentlig del beholder slug, dato, omfang, grunnlag og bevis-peker, altsaa alt bildesamtykke.test.ts haandhever. Navn, epost og sitat flyttes til private/. Krever endring i consent-doc.ts render, consent.ts add og testene. EGEN BESLUTNING som ikke er tatt: hva som skjer med det som allerede er publisert. Enten rydde bare framover, som lar historikken staa, eller skrive om historikken med git filter-repo og force-push, som endrer alle hasher og oedelegger kloner. Ikke gjoer noen av dem uten uttrykkelig ja."
   }
 ]
