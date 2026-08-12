@@ -142,6 +142,12 @@ if (cmd === 'add') {
 		import('./social/collection-config.js')
 	]);
 
+	// date_start og ikke date_end, med vilje. Rapporten skal speile hva
+	// generate-posts.ts faktisk kan plukke, og den spør på date_start >= i dag.
+	// Følgen er at pågående arrangementer, typisk utstillinger som går i
+	// måneder, ikke telles her. De kan heller ikke bli SoMe-innhold, uansett
+	// hvilket samtykke kilden gir. Skulle generatoren en dag ta dem med, må
+	// dette spørsmålet endres i samme slengen.
 	const fra = argv[1] || new Date().toISOString().slice(0, 10);
 	const events: { source: string | null; image_url: string | null }[] = [];
 

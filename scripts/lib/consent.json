@@ -275,13 +275,13 @@
       "kontakt": null,
       "epost": null,
       "dato": "2026-05-11",
-      "grunnlag": "hotlink",
+      "grunnlag": "dokumentert",
       "omfang": [
-        "visning"
+        "visning",
+        "some"
       ],
-      "bevis": "Varsel sendt 2026-05-11",
-      "selvhostet": false,
-      "merknad": "Fase 1. Hot-link til Sanity CDN, som er et KODE-eid prosjekt.",
+      "bevis": "Avtaler",
+      "merknad": null,
       "vurderesInnen": "2028-05-11"
     },
     {
