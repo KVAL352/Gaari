@@ -153,5 +153,15 @@
     "date": "2026-08-13",
     "title": "Del samtykkeregisteret: personopplysninger ut av det offentlige repoet",
     "description": "Kjersti 2026-08-12: ingen privat eller personlig informasjon skal offentliggjoeres. Aatte commits ligger upushet og holdes tilbake til dette er lost. consent.json som allerede ligger offentlig inneholder 8 e-postadresser, 18 navngitte kontakter og 9 ordrette sitater fra privat korrespondanse. Plan: offentlig del beholder slug, dato, omfang, grunnlag og bevis-peker, altsaa alt bildesamtykke.test.ts haandhever. Navn, epost og sitat flyttes til private/. Krever endring i consent-doc.ts render, consent.ts add og testene. EGEN BESLUTNING som ikke er tatt: hva som skjer med det som allerede er publisert. Enten rydde bare framover, som lar historikken staa, eller skrive om historikken med git filter-repo og force-push, som endrer alle hasher og oedelegger kloner. Ikke gjoer noen av dem uten uttrykkelig ja."
+  },
+  {
+    "date": "2026-08-14",
+    "title": "Dependabot feiler paa lockfila til mai-presentasjonen",
+    "description": "Dependabot Updates har vaert roed siden 2026-08-11. Feilen er ikke i appen. outputs/Presentations/2026-05-27-AI-workflow/package-lock.json har @slidev/cli, som laaser mermaid og monaco-editor til versjoner Dependabot vil oppgradere, og den klarer ikke aa loese konflikten. dependabot.yml dekker bare / og /scripts, men sikkerhetsoppdateringer foelger hele avhengighetsgrafen uansett konfigurasjon. Presentasjonen er ferdig og bygges ikke paa nytt, saa enkleste fiks er aa slutte aa spore den lockfila. Kjerstis beslutning: det er hennes filer."
+  },
+  {
+    "date": "2026-08-14",
+    "title": "Ta vare paa Olavs epost som bevis i Juridisk",
+    "description": "Olav Stavsholt skrev 2026-08-11 at hovedbildet paa juletryll-siden er hentet fra avisen og bearbeidet, sitat er vel strengt tatt BT sitt. Samme dag ble julivillaveien fjernet fra samtykkeregisteret og arrangementene lagt inn uten bilde. Sammen viser de at vi handlet med en gang vi fikk vite. Eposten ligger i Folders/Gaari/Inquiries/Unresolved. Juridisk er stedet der nei-svar og juridisk korrespondanse ligger permanent. Se project_image_rights_evidence."
   }
 ]

@@ -14,6 +14,11 @@ Run all morning checks in parallel, then present a single unified briefing.
 ### Git status
 !`git status --short 2>/dev/null`
 
+### Upushede commits
+Arbeid som bare finnes på denne maskinen. `git status` viser det ikke, så uten
+denne sjekken kan ferdig arbeid bli liggende i ukevis uten at noen merker det.
+!`git log --oneline origin/master..master 2>/dev/null | head -20 || echo "kan ikke naa origin"`
+
 ### Site health
 !`curl -s https://gaari.no/api/health/deep 2>/dev/null || echo "Site unreachable"`
 
@@ -102,6 +107,10 @@ Present everything as one compact briefing:
 ### Kode
 - Branch: <current>
 - Ucommittede endringer: X filer / rent
+- **Upushede commits**: hvis lista ikke er tom, vis antall og flagg det. Over 3
+  dager gammelt arbeid som bare ligger lokalt skal fram i "Neste steg". Er noen
+  av dem holdt tilbake med vilje, står grunnen i en påminnelse, så sjekk der før
+  du foreslår push.
 
 ### Paminnelser (denne uken)
 - [OVERDUE] ... (flagg tydelig)
