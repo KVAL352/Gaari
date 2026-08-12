@@ -13,6 +13,7 @@
 - `scripts/lib/__tests__/scraper-health.test.ts` — classifyScrapers
 - `scripts/lib/__tests__/ticket-validation.test.ts` — validateTicketUrl
 - `scripts/lib/__tests__/bildesamtykke.test.ts` — samtykkeregisteret: dokumentet i takt med consent.json, SoMe krever dokumentert grunnlag, promo delmengde av visning, ingen dubletter, bevis og vurderingsfrist på hver kilde, nyKilde-validering
+- `scripts/lib/__tests__/consent-gap.test.ts` — samtykke-hullet: hvilke kilder som er promotering, kun-visning, aggregator eller utenfor registeret, telling av arrangementer med og uten bilde, og rangeringen som avgjør hvem det er verdt å spørre først
 - `scripts/social/__tests__/venue-policy.test.ts` — venue-regelen: fjernBlokkerte, mandagsberegning, og strukturell sjekk av at hver publiserende generator importerer venue-policy
 - `src/lib/__tests__/student-filter.test.ts` — parseLowestPrice (Norwegian thousands), isStudentRelevant (exclusions + scoring system), studentRelevanceScore (venue/price/category/bydel signals), location penalty
 - `src/lib/__tests__/query-timezone.test.ts` — UTC vs Oslo time regressions
