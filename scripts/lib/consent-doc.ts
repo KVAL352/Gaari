@@ -6,13 +6,31 @@
  * heller ingen avhengigheter utover Node, så den kan importeres i CI der bare
  * rot-pakkene er installert.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
+const repo = join(here, '..', '..');
+
+/** Offentlig fasit. Ligger i repoet og inneholder ingen personopplysninger. */
 export const CONSENT_PATH = join(here, 'consent.json');
-export const DOC_PATH = join(here, '..', '..', 'docs', 'bildesamtykke.md');
+export const DOC_PATH = join(repo, 'docs', 'bildesamtykke.md');
+
+/**
+ * Den personlige halvdelen: hvem som svarte, fra hvilken adresse, og hva de
+ * skrev. Ligger i private/, som er gitignorert.
+ *
+ * Delingen kom 2026-08-13. Registeret var opprinnelig én fil, og den fila lå i
+ * et offentlig repo med 18 navngitte kontakter, 8 e-postadresser og 6 ordrette
+ * sitater fra privat korrespondanse. Ingen av delene trengs for å svare på
+ * spørsmålet registeret finnes for, nemlig hvorfor et bilde lå på gaari.no.
+ * Slug, dato, omfang, grunnlag og en peker til hvor beviset ligger holder.
+ *
+ * Koden må virke uten denne fila. CI har den ikke, og skal ikke ha den.
+ */
+export const PRIVAT_PATH = join(repo, 'private', 'consent-private.json');
+export const PRIVAT_DOC_PATH = join(repo, 'private', 'bildesamtykke-full.md');
 
 export type Kilde = {
 	slug: string;
@@ -43,8 +61,94 @@ export type Avslag = {
 /** Hele fila, inkludert forklaringsfeltene som starter med understrek. */
 export type ConsentFile = { kilder: Kilde[]; avslag: Avslag[] } & Record<string, unknown>;
 
-export function load(): ConsentFile {
+/**
+ * Personopplysningene, oppslagbare på slug og navn. Nøklene er de samme som i
+ * den offentlige fila, slik at sammenslåingen er en ren oppslagsoperasjon og
+ * ikke en gjetning basert på rekkefølge.
+ */
+export type PrivatFil = {
+	kilder: Record<string, { kontakt?: string | null; epost?: string | null; merknad?: string | null }>;
+	avslag: Record<string, { kontakt?: string; sitat?: string }>;
+} & Record<string, unknown>;
+
+const TOM_PRIVAT: PrivatFil = { kilder: {}, avslag: {} };
+
+/** Returnerer tomt i stedet for å kaste når fila mangler. CI har den aldri. */
+export function loadPrivat(): PrivatFil {
+	if (!existsSync(PRIVAT_PATH)) return TOM_PRIVAT;
+	const p = JSON.parse(readFileSync(PRIVAT_PATH, 'utf8')) as Partial<PrivatFil>;
+	return { ...TOM_PRIVAT, ...p, kilder: p.kilder ?? {}, avslag: p.avslag ?? {} };
+}
+
+/** Bare den offentlige halvdelen, slik den ligger på disk. */
+export function loadOffentlig(): ConsentFile {
 	return JSON.parse(readFileSync(CONSENT_PATH, 'utf8'));
+}
+
+/**
+ * Begge halvdelene satt sammen. Uten private/ er kontakt, epost og merknad
+ * null, og alt annet virker som før. Det er med vilje: en utvikler uten
+ * tilgang til korrespondansen skal kunne kjøre testene og legge til en kilde.
+ */
+export function load(): ConsentFile {
+	const off = loadOffentlig();
+	const priv = loadPrivat();
+	return {
+		...off,
+		kilder: off.kilder.map((k) => ({
+			...k,
+			kontakt: priv.kilder[k.slug]?.kontakt ?? null,
+			epost: priv.kilder[k.slug]?.epost ?? null,
+			merknad: priv.kilder[k.slug]?.merknad ?? null
+		})),
+		avslag: off.avslag.map((a) => ({
+			...a,
+			kontakt: priv.avslag[a.navn]?.kontakt ?? '',
+			sitat: priv.avslag[a.navn]?.sitat ?? ''
+		}))
+	};
+}
+
+/**
+ * Deler en sammenslått fil i de to som skal på disk.
+ *
+ * Alt som identifiserer en person eller siterer dem, havner i den private.
+ * Merknaden er med der, ikke fordi den alltid er personlig, men fordi den ofte
+ * er det: rutinen sier uttrykkelig at en delvis tillatelse skal skrives ordrett
+ * inn i merknaden. Å skille de personlige merknadene fra de tekniske ville
+ * krevd en vurdering per rad, og en slik vurdering blir før eller siden feil.
+ */
+export function splitt(data: ConsentFile): { offentlig: ConsentFile; privat: PrivatFil } {
+	const privat: PrivatFil = {
+		_om: 'Personopplysningene fra bildesamtykke-registeret. Hører aldri hjemme i det offentlige repoet. Den offentlige halvdelen ligger i scripts/lib/consent.json.',
+		kilder: {},
+		avslag: {}
+	};
+
+	const kilder = data.kilder.map((k) => {
+		if (k.kontakt || k.epost || k.merknad) {
+			privat.kilder[k.slug] = {
+				...(k.kontakt ? { kontakt: k.kontakt } : {}),
+				...(k.epost ? { epost: k.epost } : {}),
+				...(k.merknad ? { merknad: k.merknad } : {})
+			};
+		}
+		const { kontakt: _k, epost: _e, merknad: _m, ...offentlig } = k;
+		return offentlig as Kilde;
+	});
+
+	const avslag = data.avslag.map((a) => {
+		if (a.kontakt || a.sitat) {
+			privat.avslag[a.navn] = {
+				...(a.kontakt ? { kontakt: a.kontakt } : {}),
+				...(a.sitat ? { sitat: a.sitat } : {})
+			};
+		}
+		const { kontakt: _k, sitat: _s, ...offentlig } = a;
+		return offentlig as Avslag;
+	});
+
+	return { offentlig: { ...data, kilder, avslag }, privat };
 }
 
 /** Toårsfrist. Folk bytter jobb, og en markedskoordinators ja følger ikke med. */
@@ -171,11 +275,23 @@ export function render(data: { kilder: Kilde[]; avslag: Avslag[] }): string {
 	l.push('');
 	l.push('| Hvor | Hva som ligger der |');
 	l.push('|---|---|');
-	l.push('| `scripts/lib/consent.json` | Fasiten. Det eneste stedet du redigerer. |');
-	l.push('| `scripts/lib/utils.ts` | Bygger de to allowlistene fra fasiten ved oppstart. |');
+	l.push('| `scripts/lib/consent.json` | Offentlig fasit. Slug, arrangør, dato, omfang, grunnlag, bevis-peker. |');
+	l.push('| `private/consent-private.json` | Hvem som svarte, fra hvilken adresse, og hva de skrev. Gitignorert. |');
+	l.push('| `scripts/lib/utils.ts` | Bygger de to allowlistene fra den offentlige fasiten ved oppstart. |');
 	l.push('| Denne fila | Generert lesbar utgave. Rediger aldri direkte. |');
+	l.push('| `private/bildesamtykke-full.md` | Samme dokument med personopplysningene i. |');
 	l.push('| Protonmail `Folders/Gaari/Avtaler` | Selve ja-e-postene. Permanent arkiv, slettes aldri. |');
 	l.push('| Protonmail `Folders/Gaari/Juridisk` | Nei-svar og juridisk korrespondanse. Slettes aldri. |');
+	l.push('');
+	l.push('## Hvorfor registeret er delt i to');
+	l.push('');
+	l.push('Dette repoet er offentlig. Fram til 2026-08-13 lå navn, e-postadresser og');
+	l.push('ordrette sitater fra privat korrespondanse i fasiten, og dermed på nett. Ingen');
+	l.push('av delene trengs for å svare på spørsmålet registeret finnes for. Slug, dato,');
+	l.push('omfang, grunnlag og en peker til hvor beviset ligger gjør den jobben.');
+	l.push('');
+	l.push('Koden virker uten den private fila. CI har den ikke, og skal ikke ha den.');
+	l.push('Mangler den, står kontakt, e-post og merknad som tomme, og alt annet er likt.');
 	l.push('');
 	l.push('Tidligere lå kildene i koden og begrunnelsen i dette dokumentet, og de kunne');
 	l.push('drive fra hverandre uten at noen merket det. Nå finnes det bare ett sted å');
@@ -198,13 +314,11 @@ export function render(data: { kilder: Kilde[]; avslag: Avslag[] }): string {
 	l.push('Beviset er en e-post i `Avtaler` eller et lydopptak med tidspunkt. Formen er');
 	l.push('likegyldig; det som teller er at samtykket kan vises fram.');
 	l.push('');
-	l.push('| Kilde | Hvem | Dato | Omfang | Merknad |');
+	l.push('| Kilde | Arrangør | Dato | Omfang | Bevis |');
 	l.push('|---|---|---|---|---|');
 	for (const k of [...dokumentert].sort((a, b) => b.dato.localeCompare(a.dato))) {
 		const dato = k.datoUsikker ? `${k.dato} (usikker)` : k.dato;
-		l.push(
-			`| \`${k.slug}\` | ${cell(k.kontakt ?? k.epost ?? k.navn)} | ${dato} | ${omfangTekst(k)} | ${cell(k.merknad)} |`
-		);
+		l.push(`| \`${k.slug}\` | ${cell(k.navn)} | ${dato} | ${omfangTekst(k)} | ${cell(k.bevis)} |`);
 	}
 	l.push('');
 	l.push(`## Hot-link med varsel og opt-out (${hotlink.length})`);
@@ -213,10 +327,10 @@ export function render(data: { kilder: Kilde[]; avslag: Avslag[] }): string {
 	l.push('reservere seg. Grunnlaget er bildepolicyen, ikke samtykke.');
 	l.push('**Ingen av disse skal brukes i sosiale medier.**');
 	l.push('');
-	l.push('| Kilde | Aktivert | Grunnlag | Merknad |');
+	l.push('| Kilde | Arrangør | Aktivert | Grunnlag |');
 	l.push('|---|---|---|---|');
 	for (const k of [...hotlink].sort((a, b) => a.slug.localeCompare(b.slug))) {
-		l.push(`| \`${k.slug}\` | ${k.dato} | ${k.grunnlag} | ${cell(k.merknad)} |`);
+		l.push(`| \`${k.slug}\` | ${cell(k.navn)} | ${k.dato} | ${k.grunnlag} |`);
 	}
 	l.push('');
 
@@ -252,22 +366,23 @@ export function render(data: { kilder: Kilde[]; avslag: Avslag[] }): string {
 		l.push('Tar noen kontakt: fjern bildet fra `static/events/` og fra `image_url` i basen');
 		l.push('umiddelbart. Avklar etterpå, ikke før.');
 		l.push('');
-		l.push('| Kilde | Viser barn | Merknad |');
+		l.push('| Kilde | Arrangør | Viser barn |');
 		l.push('|---|---|---|');
 		for (const k of personbilder) {
-			l.push(`| \`${k.slug}\` | ${k.viserBarn ? 'Ja' : 'Nei'} | ${cell(k.merknad)} |`);
+			l.push(`| \`${k.slug}\` | ${cell(k.navn)} | ${k.viserBarn ? 'Ja' : 'Nei'} |`);
 		}
 		l.push('');
 	}
 
 	l.push(`## Nei og begrensninger (${data.avslag.length})`);
 	l.push('');
-	l.push('Disse skal aldri inn i noen liste. E-postene ligger i `Juridisk`.');
+	l.push('Disse skal aldri inn i noen liste. E-postene ligger i `Juridisk`, og hvem som');
+	l.push('svarte og hva de skrev står i den private halvdelen av registeret.');
 	l.push('');
-	l.push('| Hvem | Dato | Hva de sa | Følge |');
-	l.push('|---|---|---|---|');
+	l.push('| Hvem | Dato | Følge |');
+	l.push('|---|---|---|');
 	for (const a of data.avslag) {
-		l.push(`| ${cell(a.navn)} (${cell(a.kontakt)}) | ${a.dato} | ${cell(a.sitat)} | ${cell(a.folge)} |`);
+		l.push(`| ${cell(a.navn)} | ${a.dato} | ${cell(a.folge)} |`);
 	}
 	l.push('');
 	l.push('## Rutine når noen svarer ja');
@@ -293,5 +408,61 @@ export function render(data: { kilder: Kilde[]; avslag: Avslag[] }): string {
 	l.push('ubrukelig som dokumentasjon.');
 	l.push('');
 
+	return l.join('\n');
+}
+
+/**
+ * Den fullstendige utgaven, med navn, e-post, merknader og sitater.
+ *
+ * Skrives til private/ og skal aldri committes. Den finnes fordi det er denne
+ * du faktisk trenger hvis noen krever å vite hvem som ga tillatelsen: den
+ * offentlige utgaven peker til e-postmappen, denne sier hvem du leter etter.
+ */
+export function renderPrivat(data: { kilder: Kilde[]; avslag: Avslag[] }): string {
+	const dokumentert = data.kilder.filter((k) => k.grunnlag === 'dokumentert');
+	const hotlink = data.kilder.filter((k) => k.grunnlag !== 'dokumentert');
+
+	const l: string[] = [];
+	l.push('<!-- GENERERT FIL. Ikke rediger her.');
+	l.push('     Kilden er scripts/lib/consent.json + private/consent-private.json.');
+	l.push('     Regenerer med: npx tsx scripts/consent.ts sync -->');
+	l.push('');
+	l.push('# Bildesamtykke-register, fullstendig');
+	l.push('');
+	l.push('**Denne fila skal aldri committes.** Den ligger i `private/`, som er gitignorert.');
+	l.push('Den offentlige utgaven er `docs/bildesamtykke.md`, og den inneholder alt dette');
+	l.push('bortsett fra hvem som svarte, fra hvilken adresse, og hva de skrev.');
+	l.push('');
+	l.push(`## Dokumentert samtykke (${dokumentert.length})`);
+	l.push('');
+	l.push('| Kilde | Arrangør | Kontakt | E-post | Dato | Omfang | Merknad |');
+	l.push('|---|---|---|---|---|---|---|');
+	for (const k of [...dokumentert].sort((a, b) => b.dato.localeCompare(a.dato))) {
+		const dato = k.datoUsikker ? `${k.dato} (usikker)` : k.dato;
+		l.push(
+			`| \`${k.slug}\` | ${cell(k.navn)} | ${cell(k.kontakt)} | ${cell(k.epost)} | ${dato} | ${omfangTekst(k)} | ${cell(k.merknad)} |`
+		);
+	}
+	l.push('');
+	l.push(`## Hot-link med varsel og opt-out (${hotlink.length})`);
+	l.push('');
+	l.push('| Kilde | Arrangør | Kontakt | Aktivert | Grunnlag | Merknad |');
+	l.push('|---|---|---|---|---|---|');
+	for (const k of [...hotlink].sort((a, b) => a.slug.localeCompare(b.slug))) {
+		l.push(
+			`| \`${k.slug}\` | ${cell(k.navn)} | ${cell(k.kontakt)} | ${k.dato} | ${k.grunnlag} | ${cell(k.merknad)} |`
+		);
+	}
+	l.push('');
+	l.push(`## Nei og begrensninger (${data.avslag.length})`);
+	l.push('');
+	l.push('| Hvem | Kontakt | Dato | Hva de sa | Følge | Bevis |');
+	l.push('|---|---|---|---|---|---|');
+	for (const a of data.avslag) {
+		l.push(
+			`| ${cell(a.navn)} | ${cell(a.kontakt)} | ${a.dato} | ${cell(a.sitat)} | ${cell(a.folge)} | ${cell(a.bevis)} |`
+		);
+	}
+	l.push('');
 	return l.join('\n');
 }

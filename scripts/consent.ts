@@ -14,14 +14,19 @@
  * Logikken ligger i lib/consent-doc.ts, slik at testen kan bruke den uten å
  * starte dette programmet.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import {
 	load,
 	render,
+	renderPrivat,
+	splitt,
 	nyKilde,
 	settInn,
 	DOC_PATH,
 	CONSENT_PATH,
+	PRIVAT_PATH,
+	PRIVAT_DOC_PATH,
 	type NyKildeInput
 } from './lib/consent-doc.js';
 
@@ -42,9 +47,26 @@ function tekst(navn: string): string | undefined {
 	return typeof v === 'string' ? v : undefined;
 }
 
+/**
+ * Skriver begge halvdelene. Den offentlige alltid, den private bare når
+ * private/ finnes — på en maskin uten mappen skal kommandoen fortsatt virke,
+ * den mister bare navnene.
+ */
 function sync(data: ReturnType<typeof load>): void {
-	writeFileSync(CONSENT_PATH, JSON.stringify(data, null, 2) + '\n', 'utf8');
-	writeFileSync(DOC_PATH, render(data), 'utf8');
+	const { offentlig, privat } = splitt(data);
+
+	writeFileSync(CONSENT_PATH, JSON.stringify(offentlig, null, 2) + '\n', 'utf8');
+	writeFileSync(DOC_PATH, render(offentlig), 'utf8');
+
+	const harPersonopplysninger =
+		Object.keys(privat.kilder).length > 0 || Object.keys(privat.avslag).length > 0;
+	if (!harPersonopplysninger) return;
+
+	const privatMappe = dirname(PRIVAT_PATH);
+	if (!existsSync(privatMappe)) mkdirSync(privatMappe, { recursive: true });
+
+	writeFileSync(PRIVAT_PATH, JSON.stringify(privat, null, 2) + '\n', 'utf8');
+	writeFileSync(PRIVAT_DOC_PATH, renderPrivat(data), 'utf8');
 }
 
 const data = load();
@@ -115,10 +137,16 @@ if (cmd === 'add') {
 		console.log('     samtykke fra foresatte. Få det dokumentert før bildet brukes i SoMe.');
 	}
 } else if (cmd === 'sync') {
-	writeFileSync(DOC_PATH, render(data), 'utf8');
-	console.log(`docs/bildesamtykke.md regenerert: ${data.kilder.length} kilder, ${data.avslag.length} avslag`);
+	sync(data);
+	console.log(`Regenerert: ${data.kilder.length} kilder, ${data.avslag.length} avslag`);
+	console.log('  docs/bildesamtykke.md        offentlig, uten personopplysninger');
+	console.log('  scripts/lib/consent.json     offentlig fasit');
+	if (existsSync(PRIVAT_PATH)) {
+		console.log('  private/consent-private.json navn, e-post og merknader');
+		console.log('  private/bildesamtykke-full.md fullstendig dokument');
+	}
 } else if (cmd === 'check') {
-	if (readFileSync(DOC_PATH, 'utf8') !== render(data)) {
+	if (readFileSync(DOC_PATH, 'utf8') !== render(splitt(data).offentlig)) {
 		console.error('docs/bildesamtykke.md er utdatert. Kjor: npx tsx scripts/consent.ts sync');
 		process.exit(1);
 	}

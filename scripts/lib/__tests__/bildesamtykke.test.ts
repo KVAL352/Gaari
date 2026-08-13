@@ -1,6 +1,16 @@
 import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { load, render, nyKilde, settInn, standardFrist, DOC_PATH } from '../consent-doc.js';
+import {
+	load,
+	loadOffentlig,
+	loadPrivat,
+	render,
+	nyKilde,
+	settInn,
+	standardFrist,
+	DOC_PATH,
+	CONSENT_PATH
+} from '../consent-doc.js';
 
 // utils.ts importerer supabase.ts, som trenger dotenv fra scripts/package.json.
 // CI installerer bare rot-avhengighetene, så uten denne mocken feiler suiten
@@ -121,5 +131,64 @@ describe('bildesamtykke', () => {
 			utenFrist,
 			'Et samtykke uten utløp blir aldri sjekket på nytt, og folk bytter jobb.'
 		).toEqual([]);
+	});
+});
+
+/**
+ * Repoet er offentlig. Fram til 2026-08-13 lå 18 navngitte kontakter, 8
+ * e-postadresser og 6 ordrette sitater fra privat korrespondanse i fasiten, og
+ * dermed på nett. Delingen fjernet dem, men uten en test er det ingenting som
+ * hindrer at neste oppføring legger dem tilbake.
+ *
+ * Disse testene leser filene på disk med vilje, ikke den sammenslåtte modellen.
+ * Det er nettopp det som havner i en commit som er interessant her.
+ */
+describe('ingen personopplysninger i det som committes', () => {
+	const EPOST = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+	const råJson = readFileSync(CONSENT_PATH, 'utf8');
+	const råDok = readFileSync(DOC_PATH, 'utf8');
+	const offentlig = loadOffentlig();
+
+	it('den offentlige fasiten har ingen e-postadresser', () => {
+		expect(råJson.match(EPOST) ?? [], 'scripts/lib/consent.json lekker e-post.').toEqual([]);
+	});
+
+	it('det offentlige dokumentet har ingen e-postadresser', () => {
+		expect(råDok.match(EPOST) ?? [], 'docs/bildesamtykke.md lekker e-post.').toEqual([]);
+	});
+
+	it('den offentlige fasiten har ingen kontakt-, epost- eller merknadsfelt', () => {
+		const lekker = offentlig.kilder
+			.filter((k) => 'kontakt' in k || 'epost' in k || 'merknad' in k)
+			.map((k) => k.slug);
+		expect(
+			lekker,
+			'Personopplysninger hører i private/consent-private.json. Kjør: npx tsx scripts/consent.ts sync'
+		).toEqual([]);
+	});
+
+	it('avslagene er uten kontaktperson og uten sitat', () => {
+		const lekker = offentlig.avslag.filter((a) => 'kontakt' in a || 'sitat' in a).map((a) => a.navn);
+		expect(lekker, 'Sitater fra privat korrespondanse hører i private/.').toEqual([]);
+	});
+
+	it('ingen kontaktnavn fra den private halvdelen dukker opp i dokumentet', () => {
+		// Går bare når private/ finnes, altså på Kjerstis maskin. I CI er det
+		// ingenting å sammenligne med, og da er testen triviell.
+		const priv = loadPrivat();
+		const navn = Object.values(priv.kilder)
+			.map((p) => p.kontakt)
+			.filter((n): n is string => !!n);
+		const funnet = navn.filter((n) => råDok.includes(n) || råJson.includes(n));
+		expect(funnet, 'Et navn fra korrespondansen har havnet i en offentlig fil.').toEqual([]);
+	});
+
+	it('dokumentet er identisk med og uten den private halvdelen', () => {
+		// Kjernen i at CI kan kjøre uten private/. Ville render() lest et privat
+		// felt, ville dokumentet sett ulikt ut på de to maskinene, og
+		// «er dokumentet i takt med fasiten» ville feilet tilfeldig i CI.
+		const utenPrivat = render(offentlig);
+		const medPrivat = render(load());
+		expect(medPrivat).toBe(utenPrivat);
 	});
 });

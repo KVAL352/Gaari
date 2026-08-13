@@ -17,11 +17,23 @@ ettertid.
 
 | Hvor | Hva som ligger der |
 |---|---|
-| `scripts/lib/consent.json` | Fasiten. Det eneste stedet du redigerer. |
-| `scripts/lib/utils.ts` | Bygger de to allowlistene fra fasiten ved oppstart. |
+| `scripts/lib/consent.json` | Offentlig fasit. Slug, arrangør, dato, omfang, grunnlag, bevis-peker. |
+| `private/consent-private.json` | Hvem som svarte, fra hvilken adresse, og hva de skrev. Gitignorert. |
+| `scripts/lib/utils.ts` | Bygger de to allowlistene fra den offentlige fasiten ved oppstart. |
 | Denne fila | Generert lesbar utgave. Rediger aldri direkte. |
+| `private/bildesamtykke-full.md` | Samme dokument med personopplysningene i. |
 | Protonmail `Folders/Gaari/Avtaler` | Selve ja-e-postene. Permanent arkiv, slettes aldri. |
 | Protonmail `Folders/Gaari/Juridisk` | Nei-svar og juridisk korrespondanse. Slettes aldri. |
+
+## Hvorfor registeret er delt i to
+
+Dette repoet er offentlig. Fram til 2026-08-13 lå navn, e-postadresser og
+ordrette sitater fra privat korrespondanse i fasiten, og dermed på nett. Ingen
+av delene trengs for å svare på spørsmålet registeret finnes for. Slug, dato,
+omfang, grunnlag og en peker til hvor beviset ligger gjør den jobben.
+
+Koden virker uten den private fila. CI har den ikke, og skal ikke ha den.
+Mangler den, står kontakt, e-post og merknad som tomme, og alt annet er likt.
 
 Tidligere lå kildene i koden og begrunnelsen i dette dokumentet, og de kunne
 drive fra hverandre uten at noen merket det. Nå finnes det bare ett sted å
@@ -39,31 +51,33 @@ bildet arrangørens kontroll, og det krever alltid et dokumentert ja. Koden hån
 dette: en kilde uten grunnlag `dokumentert` kommer ikke inn i promo-listen, uansett
 hva som står i omfang-feltet.
 
-## Dokumentert samtykke (18)
+## Dokumentert samtykke (20)
 
 Beviset er en e-post i `Avtaler` eller et lydopptak med tidspunkt. Formen er
 likegyldig; det som teller er at samtykket kan vises fram.
 
-| Kilde | Hvem | Dato | Omfang | Merknad |
+| Kilde | Arrangør | Dato | Omfang | Bevis |
 |---|---|---|---|---|
-| `bookibud` | Geir Havard Kjorsvik | 2026-08-11 | Visning + SoMe | Muntlig ja i mote, med samtykke til opptak gitt innledningsvis. Sitat: Jo da, det har du. For vi har det i vare kanaler, at tredjeparten kan bruke hvis vi godkjenner. Sa det er jo kun for promotering. NB: Bookibud gir tillatelse pa vegne av arrangorene sine, ikke som opphavsmann. Gjelder events levert gjennom deres API. Kilden er ikke i drift enna; API-et er ikke bygget. |
-| `studiovertikal` | Sofie Vervaet | 2026-08-06 | Visning + SoMe | «Disse kan brukes i alle deres kanaler.» Sendte bildene selv som vedlegg. Bredeste samtykket i registeret. ÅPENT PUNKT: familiedag-bildet viser et gjenkjennelig barn, og tillatelsen kommer fra lokalet, ikke fra foresatte. Spørsmål sendt 2026-08-11, venter på svar. |
-| `bergenpride` | post@bergenpride.no | 2026-06-01 | Visning | «Dere må gjerne ha arrangementene på deres side. Vi bruker ikke tredjepartsbilder.» Ikke spurt om sosiale medier. |
-| `kode` | KODE | 2026-05-11 | Visning + SoMe |  |
-| `visningsromusf` | Line Nord | 2026-05-07 | Visning + SoMe | Kom inn via B2B-skjemaet med bilderettigheter bekreftet. |
-| `dnt` | DNT Bergen og Hordaland | 2026-05-06 | Visning + SoMe |  |
-| `loddefjord` | Marjolein Roozen, Bergen kommune | 2026-04-23 | Visning + SoMe | Bildene hostes hos kommunen, så ansvaret ligger der. Vi handler i god tro basert på Marjoleins henvisning til kalenderen. |
-| `bitteater` | İrem Müftüoğlu | 2026-04-22 | Visning + SoMe | Bekreftet både visningsrett og videredistribusjon. |
-| `fyllingsdalenteater` | Yasmin Kamalkhani | 2026-04-22 | Visning + SoMe | Bekreftet både visningsrett og videredistribusjon. |
-| `akvariet` | Ingvild, markedskoordinator | 2026-04-21 | Visning + SoMe | Har rettighetene til bildene på egne arrangementssider. |
-| `biff` | Ingebjørg Aarhus Braseth | 2026-04-21 | Visning + SoMe | BEGRENSET: kun bilder hentet fra biff.no. Ikke Bergen Kino, ikke Visit Bergen. |
-| `cornerteateret` | Millan Persdotter Persson | 2026-04-20 | Visning + SoMe |  |
-| `dns` | Annette Stople | 2026-04-20 | Visning + SoMe |  |
-| `grieghallen` | Lene Meyer Barnes | 2026-04-20 | Visning + SoMe | Sa samtidig at vi kan ta kontakt om det blir problematisert. |
-| `festspillene` | Christopher Brandt | 2026-04-19 | Visning + SoMe | Inkluderer kjøpt NTB-rettighet og egne fotografavtaler. Bekreftet både 19. og 20. april. |
-| `gg-bergen` | GG Bergen | 2026-04-01 (usikker) | Visning + SoMe | Bildene er levert direkte fra arrangøren, ikke skrapet. Eksakt dato ikke gjenfunnet. |
-| `artlab-manual` | Konstantin | 2026-04-01 (usikker) | Visning + SoMe | Bildene er levert direkte fra arrangøren, ikke skrapet. Eksakt dato ikke gjenfunnet. |
-| `brettspill` | Brettspillklubben | 2026-04-01 (usikker) | Visning + SoMe | Fast gruppebilde fra Meetup, eid av klubben selv. Eksakt dato ikke gjenfunnet. |
+| `julivillaveien` | Jul i Villaveien | 2026-08-12 | Visning + SoMe | Avtaler |
+| `highvoltage` | High Voltage Rockfest | 2026-08-12 | Visning | Avtaler |
+| `bookibud` | Bookibud | 2026-08-11 | Visning + SoMe | Opptak fra mote 2026-08-11, ca 16:55 til 17:14 |
+| `studiovertikal` | Studio Vertikal | 2026-08-06 | Visning + SoMe | Avtaler |
+| `bergenpride` | Bergen Pride / Regnbuedagene | 2026-06-01 | Visning | Avtaler |
+| `kode` | KODE | 2026-05-11 | Visning + SoMe | Avtaler |
+| `visningsromusf` | Visningsrommet USF | 2026-05-07 | Visning + SoMe | Avtaler |
+| `dnt` | DNT Bergen og Hordaland | 2026-05-06 | Visning + SoMe | Avtaler |
+| `loddefjord` | Hva skjer i Loddefjord | 2026-04-23 | Visning + SoMe | Avtaler |
+| `bitteater` | Bit Teatergarasjen | 2026-04-22 | Visning + SoMe | Avtaler |
+| `fyllingsdalenteater` | Fyllingsdalen Teater | 2026-04-22 | Visning + SoMe | Avtaler |
+| `akvariet` | Akvariet i Bergen | 2026-04-21 | Visning + SoMe | Avtaler |
+| `biff` | BIFF | 2026-04-21 | Visning + SoMe | Avtaler |
+| `cornerteateret` | Cornerteateret | 2026-04-20 | Visning + SoMe | Avtaler |
+| `dns` | Den Nationale Scene | 2026-04-20 | Visning + SoMe | Avtaler |
+| `grieghallen` | Grieghallen | 2026-04-20 | Visning + SoMe | Avtaler |
+| `festspillene` | Festspillene i Bergen | 2026-04-19 | Visning + SoMe | Avtaler |
+| `gg-bergen` | GG Bergen | 2026-04-01 (usikker) | Visning + SoMe | Avtaler |
+| `artlab-manual` | Art Lab Bergen | 2026-04-01 (usikker) | Visning + SoMe | Avtaler |
+| `brettspill` | Brettspillklubben | 2026-04-01 (usikker) | Visning + SoMe | Avtaler |
 
 ## Hot-link med varsel og opt-out (25)
 
@@ -71,33 +85,33 @@ Disse har ikke svart ja. De er varslet om at bildene vises, med mulighet til å
 reservere seg. Grunnlaget er bildepolicyen, ikke samtykke.
 **Ingen av disse skal brukes i sosiale medier.**
 
-| Kilde | Aktivert | Grunnlag | Merknad |
+| Kilde | Arrangør | Aktivert | Grunnlag |
 |---|---|---|---|
-| `bergenfest` | 2026-05-11 | hotlink | Fase 2. |
-| `bergenfilmklubb` | 2026-05-11 | hotlink | Fase 2. |
-| `bergenkjott` | 2026-05-11 | hotlink | Fase 2. |
-| `billetto` | 2026-05-11 | hotlink | Fase 3, aggregator. Filtreres i tillegg av IMAGE_BLOCKED_VENUE_PATTERNS, siden arrangører som har sagt nei kan holde arrangementer som selges her. |
-| `bodega` | 2026-05-11 | hotlink | Fase 2. Leverer via Google Calendar-feed uten bilder. |
-| `bymuseet` | 2026-05-11 | hotlink | Fase 2. |
-| `carteblanche` | 2026-05-11 | hotlink | Fase 2. |
-| `colonialen` | 2026-05-11 | hotlink | Fase 2. |
-| `floyen` | 2026-05-11 | hotlink | Fase 2. |
-| `forumscene` | 2026-05-11 | hotlink | Fase 2. |
-| `generasjonsfestivalen` | 2026-05-11 | hotlink | Fase 2. |
-| `kulturhusetibergen` | 2026-05-11 | hotlink | Fase 2. |
-| `kunsthall` | 2026-05-11 | hotlink | Fase 2. |
-| `kvarteret` | 2026-05-11 | hotlink | Fase 2. |
-| `litthusbergen` | 2026-05-11 | hotlink | Fase 2. |
-| `museumvest` | 2026-05-11 | hotlink | Fase 1. Offentlig institusjon med egne ansatte som kuraterer bildene. |
-| `nattjazz` | 2026-05-28 | hotlink | Aktivert 2026-05-28, rett før festivalstart. Krediterer hver fotograf i eget CMS, så image_credit lagres per arrangement. verifyHotlinkable sjekker Wix CDN ved hver innlegging. |
-| `oconnors` | 2026-05-11 | hotlink | Fase 2. |
-| `olebull` | 2026-05-11 | hotlink | Fase 2. |
-| `ostre` | 2026-05-11 | hotlink | Fase 2. |
-| `stenematglede` | 2026-05-11 | hotlink | Fase 2. |
-| `studentbergen` | 2026-04-21 | hotlink | DELVIS JA: skriftlig godkjent kun for løp og turer de eier selv (Ulriken Opp, 7-fjellsturen, 17. mai, Bergen Eco Trail). Resten er arrangørbilder. Ligger derfor i visningslisten og ikke i promo-listen, selv om grunnlaget er skriftlig for en del av innholdet. |
-| `ticketco` | 2026-05-11 | hotlink | Fase 3, aggregator. Samme filtrering som billetto. |
-| `tikkio` | 2026-05-19 | plattform | API-en returnerer image_url på cdn.tikkio.com og er beregnet på discovery-bruk. Implisitt godkjent gjennom bruksvilkårene for API-et, ikke gjennom et personlig ja. |
-| `usfverftet` | 2026-05-11 | hotlink | Fase 2. |
+| `bergenfest` | Bergenfest | 2026-05-11 | hotlink |
+| `bergenfilmklubb` | Bergen Filmklubb | 2026-05-11 | hotlink |
+| `bergenkjott` | Bergen Kjøtt | 2026-05-11 | hotlink |
+| `billetto` | Billetto | 2026-05-11 | hotlink |
+| `bodega` | Bodega | 2026-05-11 | hotlink |
+| `bymuseet` | Bymuseet i Bergen | 2026-05-11 | hotlink |
+| `carteblanche` | Carte Blanche | 2026-05-11 | hotlink |
+| `colonialen` | Colonialen | 2026-05-11 | hotlink |
+| `floyen` | Fløyen | 2026-05-11 | hotlink |
+| `forumscene` | Forum Scene | 2026-05-11 | hotlink |
+| `generasjonsfestivalen` | Generasjonsfestivalen | 2026-05-11 | hotlink |
+| `kulturhusetibergen` | Kulturhuset i Bergen | 2026-05-11 | hotlink |
+| `kunsthall` | Bergen Kunsthall | 2026-05-11 | hotlink |
+| `kvarteret` | Det Akademiske Kvarter | 2026-05-11 | hotlink |
+| `litthusbergen` | Litteraturhuset i Bergen | 2026-05-11 | hotlink |
+| `museumvest` | Museum Vest | 2026-05-11 | hotlink |
+| `nattjazz` | Nattjazz | 2026-05-28 | hotlink |
+| `oconnors` | O'Connors | 2026-05-11 | hotlink |
+| `olebull` | Ole Bull Scene | 2026-05-11 | hotlink |
+| `ostre` | Østre | 2026-05-11 | hotlink |
+| `stenematglede` | Stene Matglede | 2026-05-11 | hotlink |
+| `studentbergen` | Utdanning i Bergen / StudentBergen | 2026-04-21 | hotlink |
+| `ticketco` | TicketCo | 2026-05-11 | hotlink |
+| `tikkio` | Tikkio | 2026-05-19 | plattform |
+| `usfverftet` | USF Verftet | 2026-05-11 | hotlink |
 
 ## Bilder vi hoster selv
 
@@ -129,22 +143,24 @@ ned er ikke det samme som å gjøre det utilgjengelig.
 Tar noen kontakt: fjern bildet fra `static/events/` og fra `image_url` i basen
 umiddelbart. Avklar etterpå, ikke før.
 
-| Kilde | Viser barn | Merknad |
+| Kilde | Arrangør | Viser barn |
 |---|---|---|
-| `studiovertikal` | Ja | «Disse kan brukes i alle deres kanaler.» Sendte bildene selv som vedlegg. Bredeste samtykket i registeret. ÅPENT PUNKT: familiedag-bildet viser et gjenkjennelig barn, og tillatelsen kommer fra lokalet, ikke fra foresatte. Spørsmål sendt 2026-08-11, venter på svar. |
+| `studiovertikal` | Studio Vertikal | Ja |
+| `julivillaveien` | Jul i Villaveien | Nei |
 
 ## Nei og begrensninger (6)
 
-Disse skal aldri inn i noen liste. E-postene ligger i `Juridisk`.
+Disse skal aldri inn i noen liste. E-postene ligger i `Juridisk`, og hvem som
+svarte og hva de skrev står i den private halvdelen av registeret.
 
-| Hvem | Dato | Hva de sa | Følge |
-|---|---|---|---|
-| SK Brann (Mads Liabø) | 2026-04-17 | Tredjeparter har vi ikke med i avtalene. | Klubblogo brukes som fallback. |
-| BEK (Siren Løkaas) | 2026-04-21 | Bildene kommer fra kunstnerne, altså tredjepart. | BEK-logo som placeholder. |
-| Bjørgvin Blues (Grethe) | 2026-04-24 | Blir for omfattende å følge opp tredjepartsrettigheter. | Blokkert på BÅDE venue-navn og tittel, fordi de holder arrangementer på andre venues. Se IMAGE_BLOCKED_VENUE_PATTERNS. |
-| Hulen (Aurora Fykse, styreleder) | 2026-04-23 | Ja til egne bilder med fotografkreditering, eller plakat uten kreditering. | Betinget ja vi ikke kan oppfylle ennå. Blokkert inntil kreditering er på plass. |
-| Beyond the Gates (Torgrim Øyre) | 2026-05-26 | Vi kan ikke gi deg noe entydig svar her. Bilder vi bruker kommer fra mange forskjellige opphavsmenn. | Trukket ut av listen etter å ha vært inne. |
-| Bergen Filharmoniske / Harmonien (marked@harmonien.no) | 2026-04-17 | Kun autokvittering, aldri reelt svar. | Purret 2026-05-05. Favicon brukes som fallback inntil videre. |
+| Hvem | Dato | Følge |
+|---|---|---|
+| SK Brann | 2026-04-17 | Klubblogo brukes som fallback. |
+| BEK | 2026-04-21 | BEK-logo som placeholder. |
+| Bjørgvin Blues | 2026-04-24 | Blokkert på BÅDE venue-navn og tittel, fordi de holder arrangementer på andre venues. Se IMAGE_BLOCKED_VENUE_PATTERNS. |
+| Hulen | 2026-04-23 | Betinget ja vi ikke kan oppfylle ennå. Blokkert inntil kreditering er på plass. |
+| Beyond the Gates | 2026-05-26 | Trukket ut av listen etter å ha vært inne. |
+| Bergen Filharmoniske / Harmonien | 2026-04-17 | Purret 2026-05-05. Favicon brukes som fallback inntil videre. |
 
 ## Rutine når noen svarer ja
 
