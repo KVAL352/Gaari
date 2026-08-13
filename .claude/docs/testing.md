@@ -4,7 +4,7 @@
 
 ## Test files
 - `src/lib/__tests__/event-filters.test.ts` — matchesTimeOfDay, getWeekendDates, isSameDay, toOsloDateStr, getEasterDate, getISOWeekDates, getContextualHighlight, eventOverlapsRange, eventOnDay
-- `src/lib/__tests__/utils.test.ts` — isFreeEvent, formatPrice, slugify, formatEventTime
+- `src/lib/__tests__/utils.test.ts` — isFreeEvent, formatPrice, slugify, formatEventTime, toBergenIsoFromParts (begge sommertidsgrensene)
 - `src/lib/__tests__/seo.test.ts` — safeJsonLd, generateEventJsonLd, toBergenIso, generateBreadcrumbJsonLd, generateCollectionJsonLd, computeCanonical
 - `src/lib/__tests__/seo-audit.test.ts` — SEO validation rules (meta tags, JSON-LD, canonical URLs, sitemap, performance budgets, source counts)
 - `src/lib/__tests__/collections.test.ts` — all collection slugs, filters, seasonal/festival, EN counterparts
@@ -12,7 +12,8 @@
 - `scripts/lib/__tests__/dedup.test.ts` — titlesMatch, scoreEvent
 - `scripts/lib/__tests__/scraper-health.test.ts` — classifyScrapers
 - `scripts/lib/__tests__/ticket-validation.test.ts` — validateTicketUrl
-- `scripts/lib/__tests__/bildesamtykke.test.ts` — samtykkeregisteret: dokumentet i takt med consent.json, SoMe krever dokumentert grunnlag, promo delmengde av visning, ingen dubletter, bevis og vurderingsfrist på hver kilde, nyKilde-validering
+- `scripts/lib/__tests__/bildesamtykke.test.ts` — samtykkeregisteret: dokumentet i takt med consent.json, SoMe krever dokumentert grunnlag, promo delmengde av visning, ingen dubletter, bevis og vurderingsfrist på hver kilde, nyKilde-validering. Etter delingen 2026-08-13 også: ingen e-post eller kontaktfelt i de offentlige filene, ingen sitat på avslagene, og at dokumentet blir identisk med og uten `private/consent-private.json` (som CI ikke har)
+- `scripts/lib/__tests__/organizer-notice.test.ts` — bekreftelsen til B2B-arrangører: emne og lenkeliste ved ett kontra flere arrangementer, hilsen uten navn når navnet mangler, nekter å bygge brev uten arrangementer, og at bildeavsnittet følger omfanget i consent.json i stedet for en egen liste
 - `scripts/lib/__tests__/consent-gap.test.ts` — samtykke-hullet: hvilke kilder som er promotering, kun-visning, aggregator eller utenfor registeret, telling av arrangementer med og uten bilde, og rangeringen som avgjør hvem det er verdt å spørre først
 - `scripts/social/__tests__/venue-policy.test.ts` — venue-regelen: fjernBlokkerte, mandagsberegning, og strukturell sjekk av at hver publiserende generator importerer venue-policy
 - `src/lib/__tests__/student-filter.test.ts` — parseLowestPrice (Norwegian thousands), isStudentRelevant (exclusions + scoring system), studentRelevanceScore (venue/price/category/bydel signals), location penalty
