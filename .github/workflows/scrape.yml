@@ -49,6 +49,18 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: npx tsx notify-submitters.ts
 
+      # Søsteren til steget over, for arrangører som kom inn via B2B-skjemaet i
+      # stedet for /submit. Egne steg og ikke ett samlet, slik at en feil i den
+      # ene køen ikke stopper den andre.
+      - name: Notify organizers
+        if: always()
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: npx tsx notify-organizers.ts
+
       - name: Generate job summary
         if: always()
         run: |

@@ -13,10 +13,7 @@
  * e-poster: tidsstempelet settes i samme runde.
  */
 import { supabase } from './lib/supabase.js';
-
-const FROM = 'Gåri <noreply@gaari.no>';
-const REPLY_TO = 'Kjersti.Therkildsen@gaari.no';
-const SITE = 'https://gaari.no';
+import { SITE, sendEmail, wrap } from './lib/notify.js';
 
 const dryRun = process.argv.includes('--dry-run');
 
@@ -27,19 +24,6 @@ type Rad = {
 	submitter_email: string;
 };
 
-const SIGNATUR = `
-<table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #141414; line-height: 1.5;">
-  <tr>
-    <td style="vertical-align: top; padding-right: 14px; border-right: 2px solid #C82D2D;">
-      <img src="${SITE}/favicon.svg" width="56" height="56" alt="Gåri" style="display: block;" />
-    </td>
-    <td style="vertical-align: top; padding-left: 14px;">
-      <strong>Kjersti Valland Therkildsen</strong><br />
-      Grunnlegger, Gåri<br />
-      <a href="${SITE}" style="color: #C82D2D; text-decoration: none;">gaari.no</a>
-    </td>
-  </tr>
-</table>`;
 
 /**
  * Malen er godkjent av Kjersti 2026-08-11. Endres den, skal hun se den først.
@@ -52,8 +36,7 @@ function bygg(rad: Rad): { subject: string; html: string } {
 	const lenke = `${SITE}/no/events/${rad.slug}`;
 	return {
 		subject: `${rad.title_no} er lagt ut på gaari.no`,
-		html: `<div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #141414; line-height: 1.6;">
-<p>Hei,</p>
+		html: wrap(`<p>Hei,</p>
 
 <p>takk for at du sendte inn arrangementet. Det ligger nå ute:</p>
 
@@ -65,30 +48,13 @@ function bygg(rad: Rad): { subject: string; html: string } {
 
 <p>Med vennlig hilsen,<br />Kjersti</p>
 
-<p style="color:#555;font-style:italic;">Thanks for submitting your event. It is now live at the link above. Please check that the details are correct and let me know if anything needs fixing.</p>
-
-${SIGNATUR}
-</div>`
+<p style="color:#555;font-style:italic;">Thanks for submitting your event. It is now live at the link above. Please check that the details are correct and let me know if anything needs fixing.</p>`)
 	};
 }
 
 async function send(rad: Rad): Promise<boolean> {
-	const key = process.env.RESEND_API_KEY;
-	if (!key) {
-		console.error('  Mangler RESEND_API_KEY');
-		return false;
-	}
 	const { subject, html } = bygg(rad);
-	const resp = await fetch('https://api.resend.com/emails', {
-		method: 'POST',
-		headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-		body: JSON.stringify({ from: FROM, to: [rad.submitter_email], reply_to: REPLY_TO, subject, html })
-	});
-	if (!resp.ok) {
-		console.error(`  Sending feilet: ${resp.status} ${await resp.text()}`);
-		return false;
-	}
-	return true;
+	return sendEmail(rad.submitter_email, subject, html);
 }
 
 async function main() {
