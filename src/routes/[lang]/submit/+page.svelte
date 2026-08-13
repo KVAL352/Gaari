@@ -4,7 +4,7 @@
 	import { CATEGORIES, BYDELER } from '$lib/types';
 	import { getCanonicalUrl } from '$lib/seo';
 	import { supabase } from '$lib/supabase';
-	import { slugify } from '$lib/utils';
+	import { slugify, toBergenIsoFromParts } from '$lib/utils';
 	import { Upload, AlertTriangle, CalendarPlus, Globe } from 'lucide-svelte';
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/submit`));
@@ -270,8 +270,10 @@
 		const endDate = fd.get('date-end') as string;
 		const endTime = fd.get('time-end') as string;
 
-		const dateStart = startDate ? `${startDate}T${startTime}` : null;
-		const dateEnd = (endDate && endTime) ? `${endDate}T${endTime}` : null;
+		// Stamp with Bergen's offset — a naive string is read as UTC by Postgres
+		// and the event shows up two hours late in summer.
+		const dateStart = startDate ? toBergenIsoFromParts(startDate, startTime) : null;
+		const dateEnd = (endDate && endTime) ? toBergenIsoFromParts(endDate, endTime) : null;
 
 		if (!dateStart) {
 			submitError = $lang === 'no' ? 'Startdato er påkrevd.' : 'Start date is required.';

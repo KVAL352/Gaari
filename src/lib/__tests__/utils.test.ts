@@ -1,5 +1,47 @@
 import { describe, it, expect } from 'vitest';
-import { isFreeEvent, formatPrice, slugify, buildOutboundUrl, formatEventTime } from '../utils';
+import {
+	isFreeEvent,
+	formatPrice,
+	slugify,
+	buildOutboundUrl,
+	formatEventTime,
+	toBergenIsoFromParts
+} from '../utils';
+
+describe('toBergenIsoFromParts', () => {
+	// Regression: the submit form sent a naive "YYYY-MM-DDTHH:mm" with no offset.
+	// Postgres read it as UTC, so every submitted event rendered two hours late
+	// in summer. ARTED NET reported it on their Macbeth listing, 2026-08-12.
+	it('stamps summer dates with CEST', () => {
+		expect(toBergenIsoFromParts('2026-08-15', '11:00')).toBe('2026-08-15T11:00:00+02:00');
+	});
+
+	it('stamps winter dates with CET', () => {
+		expect(toBergenIsoFromParts('2026-12-05', '09:30')).toBe('2026-12-05T09:30:00+01:00');
+	});
+
+	it('survives a round trip back to the Bergen wall clock', () => {
+		const iso = toBergenIsoFromParts('2026-08-31', '18:00');
+		const shown = new Date(iso).toLocaleTimeString('nb-NO', {
+			hour: '2-digit',
+			minute: '2-digit',
+			timeZone: 'Europe/Oslo'
+		});
+		expect(shown).toBe('18:00');
+	});
+
+	it('picks the right side of the spring DST boundary', () => {
+		// DST starts Sunday 29 March 2026 at 01:00 UTC
+		expect(toBergenIsoFromParts('2026-03-28', '12:00')).toContain('+01:00');
+		expect(toBergenIsoFromParts('2026-03-30', '12:00')).toContain('+02:00');
+	});
+
+	it('picks the right side of the autumn DST boundary', () => {
+		// DST ends Sunday 25 October 2026 at 01:00 UTC
+		expect(toBergenIsoFromParts('2026-10-24', '12:00')).toContain('+02:00');
+		expect(toBergenIsoFromParts('2026-10-26', '12:00')).toContain('+01:00');
+	});
+});
 
 describe('isFreeEvent', () => {
 	it('returns true for 0 (number)', () => {

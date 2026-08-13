@@ -1,3 +1,34 @@
+// ── Timezone ──
+
+/**
+ * Returns Bergen's UTC offset for a given ISO date string.
+ * CET (+01:00) in winter, CEST (+02:00) in summer.
+ * DST: last Sunday of March 01:00 UTC → last Sunday of October 01:00 UTC.
+ */
+export function bergenOffset(isoDate: string): '+02:00' | '+01:00' {
+	const d = new Date(isoDate);
+	if (isNaN(d.getTime())) return '+01:00';
+	const year = d.getUTCFullYear();
+	const dstStart = new Date(Date.UTC(year, 2, 31 - new Date(Date.UTC(year, 2, 31)).getUTCDay(), 1));
+	const dstEnd = new Date(Date.UTC(year, 9, 31 - new Date(Date.UTC(year, 9, 31)).getUTCDay(), 1));
+	return (d >= dstStart && d < dstEnd) ? '+02:00' : '+01:00';
+}
+
+/**
+ * Stamps a naive date + time from a form with Bergen's offset.
+ * "2026-08-15" + "11:00" → "2026-08-15T11:00:00+02:00"
+ *
+ * Without the offset, Postgres reads the naive string as UTC and the event
+ * renders two hours late in summer. Every form that writes date_start must
+ * go through here.
+ */
+export function toBergenIsoFromParts(date: string, time: string): string {
+	// Midday UTC on the same calendar date — far enough from either DST
+	// boundary that the offset lookup can't land on the wrong side.
+	const offset = bergenOffset(`${date}T12:00:00Z`);
+	return `${date}T${time}:00${offset}`;
+}
+
 // ── Date formatting ──
 
 export function formatEventDate(dateStr: string, locale: 'no' | 'en' = 'no', dateEnd?: string): string {

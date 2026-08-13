@@ -1,6 +1,6 @@
 import type { GaariEvent, Lang, Category } from './types';
 import type { Collection } from './collections';
-import { isFreeEvent } from './utils';
+import { isFreeEvent, bergenOffset } from './utils';
 import { getVenueLocation } from './venue-locations';
 import { SOURCE_COUNT } from './constants';
 
@@ -16,20 +16,6 @@ const EVENT_TYPE_MAP: Partial<Record<Category, string>> = {
 
 function getEventSchemaType(category?: string): string {
 	return (category && EVENT_TYPE_MAP[category as Category]) || 'Event';
-}
-
-/**
- * Returns Bergen's UTC offset for a given ISO date string.
- * CET (+01:00) in winter, CEST (+02:00) in summer.
- * DST: last Sunday of March 01:00 UTC → last Sunday of October 01:00 UTC.
- */
-function bergenOffset(isoDate: string): '+02:00' | '+01:00' {
-	const d = new Date(isoDate);
-	if (isNaN(d.getTime())) return '+01:00';
-	const year = d.getUTCFullYear();
-	const dstStart = new Date(Date.UTC(year, 2, 31 - new Date(Date.UTC(year, 2, 31)).getUTCDay(), 1));
-	const dstEnd = new Date(Date.UTC(year, 9, 31 - new Date(Date.UTC(year, 9, 31)).getUTCDay(), 1));
-	return (d >= dstStart && d < dstEnd) ? '+02:00' : '+01:00';
 }
 
 /**
