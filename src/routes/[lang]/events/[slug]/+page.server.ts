@@ -20,9 +20,15 @@ export const config = {
 	// 7-day ISR on event detail pages: ~1900 unique URLs × 2 languages × crawl-
 	// driven revalidation drove ISR Writes 4.5× over Vercel Hobby tier (200K/mo).
 	// Event-detail content (title, date, venue, AI desc) is effectively
-	// immutable after creation — corrections come via admin edit which triggers
-	// on-demand revalidation. 7 days cuts writes per URL ~7× vs daily refresh.
+	// immutable after creation. 7 days cuts writes per URL ~7× vs daily refresh.
 	// Listings (homepage/collections) stay at 1h since they're time-sensitive.
+	//
+	// This is the outer bound, not how fast a correction reaches visitors. The
+	// s-maxage below is what actually governs: a page goes stale after an hour,
+	// and the next request serves the stale copy while regenerating behind it.
+	// So a DB fix shows up within roughly an hour of the first visit after it.
+	// There is no on-demand purge — nothing in the repo calls a revalidation
+	// endpoint, so don't reach for one when a correction feels slow.
 	isr: { expiration: 604800 }
 };
 

@@ -66,7 +66,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 ## Hosting & domains
 
-- **Vercel** (SvelteKit adapter). ISR via `export const config = { isr: { expiration: SECONDS } }` — 1h on homepage and collections (time-sensitive listings), 24h on event detail pages (rarely change after creation, dominate Vercel free-tier ISR usage).
+- **Vercel** (SvelteKit adapter). ISR via `export const config = { isr: { expiration: SECONDS } }` — 1h on homepage and collections (time-sensitive listings), 7 days on event detail pages (rarely change after creation, dominate Vercel free-tier ISR usage). Event pages also set `s-maxage=3600, stale-while-revalidate=7200`, which is what actually decides how fast a DB correction becomes visible: roughly an hour, not seven days. There is no on-demand purge.
 - `gaari.no` + `gåri.no` (IDN redirect via `hooks.server.ts`)
 - Umami Cloud analytics (proxied via `/u/`). Favicon: red "G" SVG.
 
