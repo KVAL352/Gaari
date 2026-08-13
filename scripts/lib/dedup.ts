@@ -35,6 +35,14 @@ const SOURCE_RANK: Record<string, number> = {
 	jungelfest: 5,
 	generasjonsfestivalen: 5,
 
+	// Tier 5 — organiser-supplied, entered by hand after they asked to be listed.
+	// No scraper backs these, but they rank at the top on purpose: the organiser
+	// gave us the details and confirmed image rights themselves. Left unranked
+	// they score 0, and any scraper that later picks up the same event wins the
+	// dedup and deletes the entry we have written consent for.
+	julivillaveien: 5,
+	highvoltage: 5,
+
 	// Tier 4 — venue / club sources
 	nordnessjobad: 4,
 	raabrent: 4,
