@@ -23,3 +23,24 @@
 
 ## Config
 Vitest reads from `vite.config.ts` (`test.include: ['src/**/*.test.ts', 'scripts/**/*.test.ts']`). Scraper tests mock `supabase.js` and `venues.js` via `vi.mock()`.
+
+### Fella som har tatt oss tre ganger: dotenv finnes ikke i CI
+
+`scripts/lib/supabase.ts` importerer `dotenv`, som bare ligger i
+`scripts/package.json`. CI kjører `npm ci` i rota, så pakken mangler der og
+bare der. En test som drar inn `utils.ts` (som importerer `supabase.ts`) går
+derfor grønt lokalt og feiler i CI med `ERR_MODULE_NOT_FOUND`. Feilen er
+usynlig før den er pushet.
+
+To måter å unngå det, i prioritert rekkefølge:
+
+1. **La modulen slippe avhengigheten.** Trenger koden bare samtykkeregisteret,
+   hent `CONSENT_RECORDS` fra `consent-doc.ts`, som med vilje ikke importerer
+   noe utover Node. Det var fiksen 2026-08-14 for `organizer-notice.ts`.
+2. **Mock den**, når modulen faktisk trenger databasen:
+   `vi.mock('../supabase.js', () => ({ supabase: {} }))`. Brukes i
+   `bildesamtykke.test.ts` og `utils.test.ts`.
+
+Verifiser alltid mot importgrafen, ikke mot at testen ble grønn lokalt. En
+grønn kjøring på en maskin som har `scripts/node_modules` beviser ingenting
+om CI.
