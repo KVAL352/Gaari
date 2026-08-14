@@ -1,7 +1,5 @@
 import type * as cheerio from 'cheerio';
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { CONSENT_RECORDS } from './consent-doc.js';
 import { supabase } from './supabase.js';
 import { getSourceFallbackImage } from './venues.js';
 
@@ -140,17 +138,7 @@ function cleanCredit(raw: string, title?: string): string {
  * hot-link med opt-out. PROMO_APPROVED_SOURCES styrer aktiv promotering i
  * Gåris egne kanaler, og krever alltid et dokumentert ja.
  */
-type ConsentRecord = {
-	slug: string;
-	grunnlag: 'dokumentert' | 'hotlink' | 'plattform';
-	omfang: string[];
-};
-
-const consentFile = JSON.parse(
-	readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'consent.json'), 'utf8')
-) as { kilder: ConsentRecord[] };
-
-export const CONSENT_RECORDS = consentFile.kilder;
+export { CONSENT_RECORDS };
 
 export const IMAGE_APPROVED_SOURCES = new Set<string>(
 	CONSENT_RECORDS.filter((k) => k.omfang.includes('visning')).map((k) => k.slug)

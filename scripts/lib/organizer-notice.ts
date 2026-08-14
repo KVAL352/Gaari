@@ -8,7 +8,7 @@
  * Malen er godkjent av Kjersti 2026-08-13. Endres teksten, skal hun se den først.
  */
 import { SITE, wrap } from './notify.js';
-import { CONSENT_RECORDS } from './utils.js';
+import { CONSENT_RECORDS } from './consent-doc.js';
 
 export type Henvendelse = {
 	id: string;

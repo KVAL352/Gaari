@@ -86,6 +86,15 @@ export function loadOffentlig(): ConsentFile {
 }
 
 /**
+ * Registeret lest én gang, for kode som bare skal slå opp et omfang.
+ *
+ * Ligger her og ikke i utils.ts fordi utils.ts drar inn supabase.ts, og
+ * dermed dotenv fra scripts/package.json. Alt som vil vite hva en arrangør
+ * har sagt ja til, skal kunne spørre uten å åpne en databaseklient.
+ */
+export const CONSENT_RECORDS: Kilde[] = loadOffentlig().kilder;
+
+/**
  * Begge halvdelene satt sammen. Uten private/ er kontakt, epost og merknad
  * null, og alt annet virker som før. Det er med vilje: en utvikler uten
  * tilgang til korrespondansen skal kunne kjøre testene og legge til en kilde.
