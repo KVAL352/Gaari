@@ -36,3 +36,9 @@ outputs/**/*.mp4
 # aldri skal publiseres. Repoet er offentlig, så alt av opptak, referater og
 # korrespondanse med personinformasjon ligger her og aldri i git.
 private/
+
+# Lockfila til ferdige presentasjoner spores ikke. Slidev laaser mermaid og
+# monaco-editor til versjoner Dependabot ikke klarer aa loese, og hver
+# sikkerhetsoppdatering gjorde jobben roed uten at appen var beroert.
+# Presentasjonene bygges ikke paa nytt; trengs det, lager npm install en ny.
+outputs/Presentations/*/package-lock.json
