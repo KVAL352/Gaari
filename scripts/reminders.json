@@ -60,11 +60,6 @@
     "description": "Per 2026-05-28: kaskjerbergen.no har DNS men port 443 refused — tilsynelatende defunct. Var Gåris nærmeste direkte konkurrent (samme aggregator-modell, laget av Paal Kobbeltvedt og Eskild Halvorsen). Sjekk: curl -v https://kaskjerbergen.no/. Hvis den er tilbake: legg til i scripts/canary-targets.txt under hovedlisten. Også sjekk om 10times.com og bandsintown.com fortsatt blokkerer vår User-Agent (anti-bot 403) — hvis åpne, legg dem til. Etter sjekk: flytt reminderen tre måneder frem."
   },
   {
-    "date": "2026-08-28",
-    "title": "High Voltage: purr Kaj om SoMe-samtykke hvis han er stille",
-    "description": "SENDT 2026-08-14 til kaj@highvoltage.no: svar paa at han trodde det kostet penger aa bli med i sosiale medier. E-posten sier at det er gratis, og ber om et ja til at bildet kan brukes paa Facebook og Instagram, siden bildet da lastes opp til Facebook i stedet for bare aa vises fra deres egen side. HANS UTGANGSPUNKT: skjemaet 2026-08-12 ga bilderettigheter bekreftet, men sosiale medier ikke godkjent, altsaa kun visning paa gaari.no. Kilden highvoltage har derfor ett bilde som ikke kan promoteres. KOMMER DET JA: legg inn omfang visning,some og grunnlag dokumentert i scripts/lib/consent.json, kjoer consent.ts sync, og legg e-posten i Folders/Gaari/Avtaler. Kommer det ingenting innen 28. august, send en kort purring. Ikke ring."
-  },
-  {
     "date": "2026-09-01",
     "title": "Vercel Pro: vurder faktisk forbruk etter første full måned",
     "description": "Oppgradert til Pro 2026-05-27 etter 300% ISR Writes-alarm. Pro gir 1M ISR Writes inkludert. Logg inn på vercel.com/kjerstis-projects/usage og noter: ISR Reads, ISR Writes, Origin Transfer, Fluid Active CPU. Hvis vi ligger godt under 50% av Pro-limits, er ISR-optimaliseringene fra 22. mai (7d event-detalj) effektive. Hvis nært/over Pro-limits — vurder ytterligere optimaliseringer (collections 1h → 4h, undersøke s-maxage vs ISR-konflikt på event-detail). OMDATERT 2026-08-14 fra 2026-06-27 i opprydningen av forfalte paaminnelser. Innholdet er fortsatt gyldig, bare datoen var passert."

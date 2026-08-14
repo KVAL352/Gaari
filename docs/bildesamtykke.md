@@ -58,8 +58,8 @@ likegyldig; det som teller er at samtykket kan vises fram.
 
 | Kilde | Arrangør | Dato | Omfang | Bevis |
 |---|---|---|---|---|
+| `highvoltage` | High Voltage Rockfest | 2026-08-14 | Visning + SoMe | Avtaler |
 | `julivillaveien` | Jul i Villaveien | 2026-08-12 | Visning + SoMe | Avtaler |
-| `highvoltage` | High Voltage Rockfest | 2026-08-12 | Visning | Avtaler |
 | `bookibud` | Bookibud | 2026-08-11 | Visning + SoMe | Opptak fra mote 2026-08-11, ca 16:55 til 17:14 |
 | `studiovertikal` | Studio Vertikal | 2026-08-06 | Visning + SoMe | Avtaler |
 | `bergenpride` | Bergen Pride / Regnbuedagene | 2026-06-01 | Visning | Avtaler |

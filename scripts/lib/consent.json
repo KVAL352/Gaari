@@ -561,13 +561,14 @@
     {
       "slug": "highvoltage",
       "navn": "High Voltage Rockfest",
-      "dato": "2026-08-12",
+      "dato": "2026-08-14",
       "grunnlag": "dokumentert",
       "omfang": [
-        "visning"
+        "visning",
+        "some"
       ],
       "bevis": "Avtaler",
-      "vurderesInnen": "2028-08-12"
+      "vurderesInnen": "2028-08-14"
     }
   ],
   "avslag": [
