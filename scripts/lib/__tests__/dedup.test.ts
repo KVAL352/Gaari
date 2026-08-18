@@ -17,7 +17,13 @@ vi.mock('../venues.js', () => ({
 	}
 }));
 
-import { titlesMatch, scoreEvent, type EventRow } from '../dedup.js';
+import {
+	titlesMatch,
+	scoreEvent,
+	sammeSted,
+	titlerMatcherPaaSammeSted,
+	type EventRow
+} from '../dedup.js';
 import { normalizeTitle } from '../utils.js';
 
 describe('titlesMatch', () => {
@@ -140,5 +146,81 @@ describe('scoreEvent', () => {
 		};
 		// 3 (bergenlive) + 2 (image) + 2 (ticket) + 1 (description) = 8
 		expect(scoreEvent(fullEvent)).toBe(8);
+	});
+});
+
+describe('sammeSted', () => {
+	it('godtar at to kilder skriver navnet ulikt', () => {
+		expect(sammeSted('Landmark', 'Landmark Bergen Kunsthall')).toBe(true);
+	});
+
+	it('bryr seg ikke om store bokstaver og tegnsetting', () => {
+		expect(sammeSted('Cornerteateret ', 'cornerteateret')).toBe(true);
+	});
+
+	it('lar ikke et kort navn matche inni et annet', () => {
+		// Uten startkravet ville «Bergen» truffet «Bergen Kjøtt».
+		expect(sammeSted('Kjøtt', 'Bergen Kjøtt')).toBe(false);
+	});
+
+	it('teller aldri generiske stedsnavn som treff', () => {
+		// Billettplattformene setter «Bergen» når arrangøren ikke fylte ut noe.
+		expect(sammeSted('Bergen', 'Bergen')).toBe(false);
+	});
+
+	it('returnerer false når stedet mangler', () => {
+		expect(sammeSted(null, 'Hulen')).toBe(false);
+	});
+});
+
+describe('titlerMatcherPaaSammeSted', () => {
+	it('finner samme konsert skrevet ulikt av to kilder', () => {
+		expect(
+			titlerMatcherPaaSammeSted(
+				'Perfect Sounds Forever:Ryan Davis & the Roadhouse Band',
+				'Ryan Davis & the Roadhouse Band (US) + Styrofoam Winos',
+				'kunsthall',
+				'ticketco'
+			)
+		).toBe(true);
+	});
+
+	it('nekter når begge kommer fra samme kilde', () => {
+		// To visninger av samme film samme dag. Kilden vet at de er forskjellige.
+		expect(
+			titlerMatcherPaaSammeSted(
+				'Mandagsfilmen matiné: Elskling',
+				'Mandagsfilmen: Elskling',
+				'bergenbibliotek',
+				'bergenbibliotek'
+			)
+		).toBe(false);
+	});
+
+	it('krever mer enn ett felles ord', () => {
+		expect(titlerMatcherPaaSammeSted('Konsert med Kari', 'Konsert med Ola', 'a', 'b')).toBe(false);
+	});
+
+	it('lar ikke ukedag og maaned alene utgjoere treffet', () => {
+		// Begge ender likt fordi datoen er lik. Titlene er ellers ulike.
+		expect(
+			titlerMatcherPaaSammeSted(
+				'Språktrening Loddefjord bibliotek — torsdag 3. september',
+				'Språkkafé / Language café — torsdag 3. september',
+				'loddefjord',
+				'bergenbibliotek'
+			)
+		).toBe(false);
+	});
+
+	it('lar ikke et langt program sluke et kort arrangement', () => {
+		expect(
+			titlerMatcherPaaSammeSted(
+				'Jazz',
+				'Jazz, blues, folkemusikk og viser gjennom hele helgen',
+				'a',
+				'b'
+			)
+		).toBe(false);
 	});
 });

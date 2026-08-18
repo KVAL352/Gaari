@@ -42,6 +42,7 @@ const SOURCE_RANK: Record<string, number> = {
 	// dedup and deletes the entry we have written consent for.
 	julivillaveien: 5,
 	highvoltage: 5,
+	fortellerstraedet: 5,
 
 	// Tier 4 — venue / club sources
 	nordnessjobad: 4,
@@ -96,9 +97,94 @@ export interface EventRow {
 	title_no: string;
 	date_start: string;
 	source: string;
+	venue_name: string | null;
 	image_url: string | null;
 	ticket_url: string | null;
 	description_no: string | null;
+}
+
+/**
+ * Ord som ikke skiller ett arrangement fra et annet.
+ *
+ * Ukedager og måneder står med fordi flere scrapere skriver dem inn i tittelen
+ * («Språkkafé — torsdag 3. september»). Sammenlikner vi to arrangementer som
+ * allerede har samme dato, er de ordene garantert like og sier ingenting.
+ */
+const TITTEL_STOPPORD = new Set([
+	'og', 'eller', 'til', 'fra', 'med', 'uten', 'for', 'pa', 'på', 'av', 'om', 'den', 'det', 'som',
+	'the', 'and', 'with', 'feat', 'pres', 'presents', 'vs', 'kl',
+	'mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lordag', 'lørdag', 'sondag', 'søndag',
+	'januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli',
+	'august', 'september', 'oktober', 'november', 'desember'
+]);
+
+/** Stedsnavn som ikke er et sted. Billettplattformene setter dem når arrangøren ikke fylte ut noe. */
+const GENERISKE_STEDER = new Set(['bergen', 'bergensentrum', 'norge', 'norway', 'sentrum']);
+
+function betydningsbaerendeOrd(tittel: string): Set<string> {
+	return new Set(
+		tittel
+			.toLowerCase()
+			.replace(/[^a-zæøå0-9\s]/g, ' ')
+			.split(/\s+/)
+			.filter((o) => o.length >= 3 && !TITTEL_STOPPORD.has(o) && !/^\d+$/.test(o))
+	);
+}
+
+function normaliserSted(navn?: string | null): string {
+	return (navn ?? '').toLowerCase().replace(/[^a-zæøå0-9]/g, '');
+}
+
+/**
+ * Samme sted? Tåler at to kilder skriver navnet ulikt, som «Landmark» og
+ * «Landmark Bergen Kunsthall». Krever at det korte navnet er starten på det
+ * lange, ikke bare at det finnes et sted inni, ellers ville «Bergen» matchet
+ * «Bergen Kjøtt». Generiske stedsnavn teller aldri som treff.
+ */
+export function sammeSted(a?: string | null, b?: string | null): boolean {
+	const na = normaliserSted(a);
+	const nb = normaliserSted(b);
+	if (!na || !nb) return false;
+	if (GENERISKE_STEDER.has(na) || GENERISKE_STEDER.has(nb)) return false;
+	if (na === nb) return true;
+	const [kort, lang] = na.length <= nb.length ? [na, nb] : [nb, na];
+	return kort.length >= 6 && lang.startsWith(kort);
+}
+
+/**
+ * Løsere titteltest, kun gyldig når stedet og datoen allerede er like.
+ *
+ * titlesMatch() sammenlikner tegn for tegn og bommer når to kilder skriver
+ * samme konsert ulikt. Landmark 23. august 2026 lå ute to ganger, som
+ * «Perfect Sounds Forever:Ryan Davis & the Roadhouse Band» fra kunsthall og
+ * «Ryan Davis & the Roadhouse Band (US) + Styrofoam Winos» fra ticketco. Den
+ * ene har arrangørprefiks, den andre landkode og oppvarmingsband, og ingen av
+ * dem er en delstreng av den andre.
+ *
+ * Kravet om minst to felles ord hindrer at ett tilfeldig sammenfall holder.
+ * Kravet om 60 prosent av den korteste hindrer at et langt program sluker et
+ * kort arrangement som tilfeldigvis nevner de samme ordene.
+ */
+export function titlerMatcherPaaSammeSted(a: string, b: string, kildeA?: string, kildeB?: string): boolean {
+	// Samme kilde teller aldri. Lister én scraper to arrangementer på samme sted
+	// og dato, vet den at de er forskjellige, og forskjellen ligger som regel i
+	// det ene ordet denne testen kaster bort.
+	//
+	// Tørrkjøringen 18. august 2026 gjorde poenget: «Mandagsfilmen matiné:
+	// Elskling» og «Mandagsfilmen: Elskling» er to visninger av samme film,
+	// «Pianostykker av Edvard Grieg» og «Holbergsuiten av Edvard Grieg» er to
+	// konserter i samme serie, og «Ytre Arna juniorklubb» og «Ytre Arna UNG» er
+	// to tilbud. Alle tre kom fra én kilde, og alle tre ville blitt slettet.
+	// Testen finnes for å fange samme arrangement meldt av to kilder.
+	if (kildeA && kildeB && kildeA === kildeB) return false;
+
+	const oa = betydningsbaerendeOrd(a);
+	const ob = betydningsbaerendeOrd(b);
+	if (oa.size === 0 || ob.size === 0) return false;
+	let felles = 0;
+	for (const o of oa) if (ob.has(o)) felles++;
+	if (felles < 2) return false;
+	return felles / Math.min(oa.size, ob.size) >= 0.6;
 }
 
 export function scoreEvent(e: EventRow): number {
@@ -149,7 +235,7 @@ export async function deduplicate(): Promise<number> {
 	// Fetch all events
 	const { data: events, error } = await supabase
 		.from('events')
-		.select('id, title_no, date_start, source, image_url, ticket_url, description_no')
+		.select('id, title_no, date_start, source, venue_name, image_url, ticket_url, description_no')
 		.order('date_start', { ascending: true });
 
 	if (error || !events) {
@@ -187,7 +273,16 @@ export async function deduplicate(): Promise<number> {
 
 			for (let j = i + 1; j < normalized.length; j++) {
 				if (used.has(j)) continue;
-				if (titlesMatch(normalized[i].norm, normalized[j].norm)) {
+				const treff =
+					titlesMatch(normalized[i].norm, normalized[j].norm) ||
+					(sammeSted(normalized[i].venue_name, normalized[j].venue_name) &&
+						titlerMatcherPaaSammeSted(
+							normalized[i].title_no,
+							normalized[j].title_no,
+							normalized[i].source,
+							normalized[j].source
+						));
+				if (treff) {
 					group.push(normalized[j]);
 					used.add(j);
 				}
