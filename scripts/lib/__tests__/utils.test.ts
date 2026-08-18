@@ -20,7 +20,8 @@ import {
 	makeDescription,
 	makeDescriptionEn,
 	isOptedOut,
-	detectFreeFromText
+	detectFreeFromText,
+	isImageAllowed
 } from '../utils.js';
 
 describe('parseNorwegianDate', () => {
@@ -294,5 +295,45 @@ describe('isOptedOut', () => {
 
 	it('returns false for invalid URL', () => {
 		expect(isOptedOut('not-a-url')).toBe(false);
+	});
+});
+
+describe('isImageAllowed — sperren må ikke være avhengig av navnet', () => {
+	// Bakgrunnen står i kommentaren over IMAGE_BLOCKED_URL_PATTERNS: fire
+	// Hulen-konserter lå ute med bilde 18. august 2026, to av dem fordi
+	// billettplattformen setter «Bergen» som sted og tittelen ikke nevnte scenen.
+
+	it('blokkerer når arrangøren står i venue_name', () => {
+		expect(isImageAllowed('ticketco', 'https://x.no/e/1', 'Konsert', 'Hulen', 'https://img/1.jpg')).toBe(false);
+	});
+
+	it('blokkerer når arrangøren bare står i tittelen', () => {
+		expect(
+			isImageAllowed('ticketco', 'https://x.no/e/1', 'Svalestup || Hulen', 'Bergen', 'https://img/1.jpg')
+		).toBe(false);
+	});
+
+	it('blokkerer på billettadressen når navnet ikke finnes noe sted', () => {
+		expect(
+			isImageAllowed(
+				'ticketco',
+				'https://hulen.ticketco.events/no/nb/e/rockout_2026',
+				'ROCKOUT 2026 || 40 års Jubileum',
+				'Bergen',
+				'https://img/1.jpg'
+			)
+		).toBe(false);
+	});
+
+	it('slipper gjennom en godkjent kilde som ikke er sperret', () => {
+		expect(
+			isImageAllowed('ticketco', 'https://sl.ticketco.events/no/nb/e/x', 'Tåkefyrstene', 'Statsraaden Bar', 'https://img/1.jpg')
+		).toBe(true);
+	});
+
+	it('nekter bilde når kilden mangler, slik innsendinger kommer inn', () => {
+		// Innsendinger fra skjemaet har ingen source før noen setter den. Uten
+		// den treffer verken IMAGE_APPROVED_SOURCES eller PROMO_APPROVED_SOURCES.
+		expect(isImageAllowed('', 'https://gaari.no/x', 'Et arrangement', 'Et sted', 'https://img/1.jpg')).toBe(false);
 	});
 });

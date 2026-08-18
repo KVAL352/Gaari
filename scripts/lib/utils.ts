@@ -180,6 +180,24 @@ const IMAGE_BLOCKED_VENUE_PATTERNS = [
 ];
 
 /**
+ * Sperre på adresse, ikke på navn.
+ *
+ * IMAGE_BLOCKED_VENUE_PATTERNS leter i venue_name og tittel, og det holder bare
+ * så lenge arrangørens navn faktisk står der. Billettplattformene setter ofte
+ * «Bergen» som sted, og da avgjør tittelen alene. Hulens egne konserter heter
+ * som regel «... || Hulen», men ikke alltid: «ROCKOUT 2026 || 40 års Jubileum»
+ * og «Den Store Heavy Metal Festen XXV» nevner ikke scenen med ett ord, og lå
+ * derfor ute med bilde 18. august 2026 selv om Hulen har stått sperret siden
+ * 23. april.
+ *
+ * Underdomenet lyver ikke. Alt som selges via hulen.ticketco.events er Hulens
+ * arrangement, uansett hva det heter.
+ */
+const IMAGE_BLOCKED_URL_PATTERNS = [
+	'hulen.ticketco.events' // Aurora Fykse 2026-04-23, se merknaden over 'hulen'.
+];
+
+/**
  * Per-event approvals (substring match on source_url).
  * Use when the scraper source hosts many organizers (e.g. billetto, ticketco)
  * and only specific organizers have granted permission.
@@ -284,7 +302,13 @@ const FALLBACK_URL_PREFIX = 'supabase.co/storage/v1/object/public/event-images/f
  */
 const CREDIT_UNLOCKS_BLOCKED_TITLE = /Foto\s*:|Fotograf\s*:|Illustrasjon\s*:|Illustrasjonsfoto\s*:|Ragnar\s+R(?:ø|o)rnes|Unsplash/i;
 
-function isImageAllowed(source: string, sourceUrl: string, title: string, venueName?: string, imageUrl?: string, imageCredit?: string): boolean {
+/**
+ * Eksportert fordi sperren ellers bare gjelder ved innlegging. Sier en arrangør
+ * nei i dag, blir bildene som allerede står i basen liggende, og et nei som
+ * bare gjelder framover er ikke et nei. `enforce-image-blocks.ts` bruker denne
+ * til å gå gjennom det som allerede ligger inne.
+ */
+export function isImageAllowed(source: string, sourceUrl: string, title: string, venueName?: string, imageUrl?: string, imageCredit?: string): boolean {
 	// Blokker venues/arrangører som har sagt nei — sjekker både venue_name og title.
 	// Vår egen fallback-grafikk (logo) er unntatt: den hostes hos oss og er
 	// eksplisitt godkjent for hver kilde i SOURCE_FALLBACK_IMAGES.
@@ -292,6 +316,8 @@ function isImageAllowed(source: string, sourceUrl: string, title: string, venueN
 	if (!isOurFallback) {
 		const haystack = `${venueName || ''} ${title || ''}`.toLowerCase();
 		if (IMAGE_BLOCKED_VENUE_PATTERNS.some(p => haystack.includes(p))) return false;
+		const url = (sourceUrl || '').toLowerCase();
+		if (IMAGE_BLOCKED_URL_PATTERNS.some(p => url.includes(p))) return false;
 	}
 	if (IMAGE_APPROVED_SOURCES.has(source)) return true;
 	if (IMAGE_APPROVED_URL_PATTERNS.some(p => sourceUrl.includes(p))) return true;
