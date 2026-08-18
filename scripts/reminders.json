@@ -143,5 +143,15 @@
     "date": "2026-09-08",
     "title": "Medieklyngen: Charlotte foreslo moete, aldri besvart",
     "description": "Charlotte Vindenaes (charlotte@medieklyngen.no) svarte 2026-05-18 paa bilderettighets-runden med «Kan det passe med et moete mot slutten av juni?» Det ble aldri besvart, og juni er passert. Kjersti sa 2026-08-18 at dette skal ses paa senere. Vurder om det er en ny moeteinvitasjon eller bare et svar paa bildespoersmaalet. Traaden ligger i Outreach/Unresolved (UID 7)."
+  },
+  {
+    "date": "2026-09-01",
+    "title": "Lehmkuhl: svarte Helene, og svaret er en test",
+    "description": "Sendt 2026-08-18 til helene.spurkeland@lehmkuhl.no. To ting staar aapne. (1) SoMe-samtykke for Statsraaden-arrangementene. Bildene vises allerede paa gaari.no paa ticketcos hotlink-grunnlag, men kan ikke brukes paa Facebook og Instagram uten et dokumentert ja fra dem. Kommer det ja: registrer med \"npx tsx scripts/consent.ts add\" paa egen slug, ikke paa ticketco, siden ticketco daekker plattformen og ikke arrangoeren. (2) Svaret er ogsaa en teknisk test. Helene fikk 2026-05-07 gaari.no blokkert av sikkerhetsprogrammet deres, paa baade PC, Mac, Chrome og Safari, altsaa i nettverket og ikke paa maskinen. Aapner siden seg naa, var domenealderen aarsaken (registrert 2026-02-20). Er den fortsatt sperret, er neste spor analytics-proxyen paa /u/script.js, som serverer Umami fra vaart eget domene og er et kjent moenster for sporingsfiltre. Be henne da proeve gaari.no/u/script.js direkte."
+  },
+  {
+    "date": "2026-09-15",
+    "title": "Soek paa gaari.no finner ikke steder som opptrer under et annet navn",
+    "description": "Funnet 2026-08-18: soek paa \"Lehmkuhl\" gir null treff, selv om vi har ni av arrangementene deres. De ligger under \"Statsraaden Bar & Reception\", som er navnet paa baren deres. Samme problem gjelder trolig flere: folk soeker paa organisasjonen, vi lagrer stedet. Vurder et alias-felt eller en synonymliste i soeket, for eksempel Lehmkuhl -> Statsraaden. Sjekk foerst hvor mange venues det faktisk gjelder, saa loesningen staar i forhold til problemet."
   }
 ]
