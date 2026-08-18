@@ -199,7 +199,8 @@ const VENUE_BYDEL_MAP: Record<string, string> = {
 	'landmark': 'Sentrum',
 	'frille': 'Sentrum',
 	'dyvekes': 'Sentrum',
-	'statsraaden': 'Sentrum',
+	// Statsraaden Bar ligger i Skur 7 på Bradbenken, rett ved Bryggen.
+	'statsraaden': 'Bergenhus',
 	'victoria': 'Sentrum',
 	'vic': 'Sentrum',
 	'bergen kjøtt': 'Sentrum',
