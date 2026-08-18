@@ -1,77 +1,77 @@
-﻿# GÃ¥ri â€” What's happening in Bergen?
+﻿# Gåri — What's happening in Bergen?
 
-> GÃ¥ri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. 59 independent sources â€” venues, theatres, museums, libraries, festivals and ticket platforms â€” updated daily at 06:00 UTC.
+> Gåri (gaari.no) is a free, bilingual (Norwegian/English) event aggregator for Bergen, Norway. 59 independent sources — venues, theatres, museums, libraries, festivals and ticket platforms — updated daily at 06:00 UTC.
 
-## What GÃ¥ri does
+## What Gåri does
 
-GÃ¥ri collects events from 59 local sources in Bergen and presents them in a single, filterable listing. All event descriptions are independently generated (never copied from source). The site covers concerts, theatre, exhibitions, food events, family activities, nightlife, sports and more. Events are categorised by type, audience, time of day and neighbourhood (bydel).
+Gåri collects events from 59 local sources in Bergen and presents them in a single, filterable listing. All event descriptions are independently generated (never copied from source). The site covers concerts, theatre, exhibitions, food events, family activities, nightlife, sports and more. Events are categorised by type, audience, time of day and neighbourhood (bydel).
 
 ## Key pages
 
 ### For finding events right now
-- https://gaari.no/no/denne-helgen â€” Hva skjer i Bergen denne helgen (weekend events)
-- https://gaari.no/no/i-kveld â€” Hva skjer i Bergen i kveld (tonight's events)
-- https://gaari.no/no/i-dag â€” Hva skjer i Bergen i dag (today's events)
-- https://gaari.no/en/this-weekend â€” What's On in Bergen This Weekend
-- https://gaari.no/en/today-in-bergen â€” What's On in Bergen Today
+- https://gaari.no/no/denne-helgen — Hva skjer i Bergen denne helgen (weekend events)
+- https://gaari.no/no/i-kveld — Hva skjer i Bergen i kveld (tonight's events)
+- https://gaari.no/no/i-dag — Hva skjer i Bergen i dag (today's events)
+- https://gaari.no/en/this-weekend — What's On in Bergen This Weekend
+- https://gaari.no/en/today-in-bergen — What's On in Bergen Today
 
 ### By interest
-- https://gaari.no/no/konserter â€” Concerts and live music in Bergen
-- https://gaari.no/no/teater â€” Theatre in Bergen (DNS, Det Vestnorske, BIT, Cornerteateret)
-- https://gaari.no/no/utstillinger â€” Exhibitions in Bergen (KODE, Bergen Kunsthall, Bymuseet)
-- https://gaari.no/no/gratis â€” Free things to do in Bergen
-- https://gaari.no/en/free-things-to-do-bergen â€” Free Things to Do in Bergen
-- https://gaari.no/no/mat-og-drikke â€” Food and drink events in Bergen
-- https://gaari.no/no/familiehelg â€” Family weekend activities in Bergen
-- https://gaari.no/no/studentkveld â€” Student nights in Bergen (Kvarteret, Hulen)
-- https://gaari.no/no/uteliv â€” Nightlife in Bergen (concerts, clubs, live music)
-- https://gaari.no/no/regndagsguide â€” Rainy day guide Bergen (indoor activities)
-- https://gaari.no/no/voksen â€” Events for adults in Bergen
-- https://gaari.no/no/for-ungdom â€” Events for youth (13-18) in Bergen
+- https://gaari.no/no/konserter — Concerts and live music in Bergen
+- https://gaari.no/no/teater — Theatre in Bergen (DNS, Det Vestnorske, BIT, Cornerteateret)
+- https://gaari.no/no/utstillinger — Exhibitions in Bergen (KODE, Bergen Kunsthall, Bymuseet)
+- https://gaari.no/no/gratis — Free things to do in Bergen
+- https://gaari.no/en/free-things-to-do-bergen — Free Things to Do in Bergen
+- https://gaari.no/no/mat-og-drikke — Food and drink events in Bergen
+- https://gaari.no/no/familiehelg — Family weekend activities in Bergen
+- https://gaari.no/no/studentkveld — Student nights in Bergen (Kvarteret, Hulen)
+- https://gaari.no/no/uteliv — Nightlife in Bergen (concerts, clubs, live music)
+- https://gaari.no/no/regndagsguide — Rainy day guide Bergen (indoor activities)
+- https://gaari.no/no/voksen — Events for adults in Bergen
+- https://gaari.no/no/for-ungdom — Events for youth (13-18) in Bergen
 
 ### By neighbourhood (bydel)
-- https://gaari.no/no/sentrum â€” Bergen city centre events
-- https://gaari.no/no/bergenhus â€” Bergenhus events
-- https://gaari.no/no/laksevag â€” LaksevÃ¥g events
-- https://gaari.no/no/fyllingsdalen â€” Fyllingsdalen events
-- https://gaari.no/no/asane â€” Ã…sane events
-- https://gaari.no/no/fana â€” Fana events
-- https://gaari.no/no/ytrebygda â€” Ytrebygda events
-- https://gaari.no/no/arna â€” Arna events
+- https://gaari.no/no/sentrum — Bergen city centre events
+- https://gaari.no/no/bergenhus — Bergenhus events
+- https://gaari.no/no/laksevag — Laksevåg events
+- https://gaari.no/no/fyllingsdalen — Fyllingsdalen events
+- https://gaari.no/no/asane — Åsane events
+- https://gaari.no/no/fana — Fana events
+- https://gaari.no/no/ytrebygda — Ytrebygda events
+- https://gaari.no/no/arna — Arna events
 
 ### Seasonal (year appended to title automatically)
-- https://gaari.no/no/17-mai â€” 17. mai i Bergen (Constitution Day)
-- https://gaari.no/en/17th-of-may-bergen â€” 17th of May in Bergen
-- https://gaari.no/no/paske â€” PÃ¥ske i Bergen (Easter)
-- https://gaari.no/en/easter-bergen â€” Easter in Bergen
-- https://gaari.no/no/julemarked â€” Julemarked i Bergen (Christmas)
-- https://gaari.no/en/christmas-bergen â€” Christmas in Bergen
-- https://gaari.no/no/sankthans â€” Sankthans i Bergen (Midsummer)
-- https://gaari.no/en/midsummer-bergen â€” Midsummer in Bergen
-- https://gaari.no/no/nyttarsaften â€” NyttÃ¥rsaften i Bergen
-- https://gaari.no/en/new-years-eve-bergen â€” New Year's Eve in Bergen
-- https://gaari.no/no/vinterferie â€” Vinterferie i Bergen
-- https://gaari.no/en/winter-break-bergen â€” Winter Break in Bergen
-- https://gaari.no/no/hostferie â€” HÃ¸stferie i Bergen
+- https://gaari.no/no/17-mai — 17. mai i Bergen (Constitution Day)
+- https://gaari.no/en/17th-of-may-bergen — 17th of May in Bergen
+- https://gaari.no/no/paske — Påske i Bergen (Easter)
+- https://gaari.no/en/easter-bergen — Easter in Bergen
+- https://gaari.no/no/julemarked — Julemarked i Bergen (Christmas)
+- https://gaari.no/en/christmas-bergen — Christmas in Bergen
+- https://gaari.no/no/sankthans — Sankthans i Bergen (Midsummer)
+- https://gaari.no/en/midsummer-bergen — Midsummer in Bergen
+- https://gaari.no/no/nyttarsaften — Nyttårsaften i Bergen
+- https://gaari.no/en/new-years-eve-bergen — New Year's Eve in Bergen
+- https://gaari.no/no/vinterferie — Vinterferie i Bergen
+- https://gaari.no/en/winter-break-bergen — Winter Break in Bergen
+- https://gaari.no/no/hostferie — Høstferie i Bergen
 
 ### Festivals
-- https://gaari.no/no/festspillene â€” Festspillene i Bergen / Bergen International Festival (May-June)
-- https://gaari.no/no/bergenfest â€” Bergenfest (June)
-- https://gaari.no/no/nattjazz â€” Nattjazz (May-June)
-- https://gaari.no/no/beyond-the-gates â€” Beyond the Gates (August)
-- https://gaari.no/no/bergen-pride â€” Bergen Pride (June)
-- https://gaari.no/no/biff â€” BIFF â€” Bergen International Film Festival (October)
-- https://gaari.no/no/borealis â€” Borealis (March)
+- https://gaari.no/no/festspillene — Festspillene i Bergen / Bergen International Festival (May-June)
+- https://gaari.no/no/bergenfest — Bergenfest (June)
+- https://gaari.no/no/nattjazz — Nattjazz (May-June)
+- https://gaari.no/no/beyond-the-gates — Beyond the Gates (August)
+- https://gaari.no/no/bergen-pride — Bergen Pride (June)
+- https://gaari.no/no/biff — BIFF — Bergen International Film Festival (October)
+- https://gaari.no/no/borealis — Borealis (March)
 
 ### Guide and about
-- https://gaari.no/no/guide â€” Hva skjer i Bergen? Komplett guide
-- https://gaari.no/en/guide â€” Things to Do in Bergen â€” Complete Guide
-- https://gaari.no/no/about â€” Om GÃ¥ri
-- https://gaari.no/en/about â€” About GÃ¥ri
+- https://gaari.no/no/guide — Hva skjer i Bergen? Komplett guide
+- https://gaari.no/en/guide — Things to Do in Bergen — Complete Guide
+- https://gaari.no/no/about — Om Gåri
+- https://gaari.no/en/about — About Gåri
 
 ## Data sources (59 active)
 
-Venues: Grieghallen, DNS, Ole Bull, USF Verftet, Forum Scene, Harmonien, Carte Blanche, BIT, Det Vestnorske Teateret, Cornerteateret, Bergen KjÃ¸tt, Ã˜stre, Kulturhuset i Bergen, Fyllingsdalen Teater, KODE, Bergen Kunsthall, Litteraturhuset, Media City Bergen, BEK, Bergen Filmklubb, Bergen Bibliotek, Bymuseet, Museum Vest, Akvariet, FlÃ¸yen, Colonialen, RÃ¥brent, Paint'n Sip, Brettspill-cafe, BjÃ¸rgvin Blues Club, Nordnes SjÃ¸bad, O'Connor's, GG Bergen, Stene Matglede, Swing 'n Sweet, Bodega, SK Brann, DNT Bergen, Kvarteret.
+Venues: Grieghallen, DNS, Ole Bull, USF Verftet, Forum Scene, Harmonien, Carte Blanche, BIT, Det Vestnorske Teateret, Cornerteateret, Bergen Kjøtt, Østre, Kulturhuset i Bergen, Fyllingsdalen Teater, KODE, Bergen Kunsthall, Litteraturhuset, Media City Bergen, BEK, Bergen Filmklubb, Bergen Bibliotek, Bymuseet, Museum Vest, Akvariet, Fløyen, Colonialen, Råbrent, Paint'n Sip, Brettspill-cafe, Bjørgvin Blues Club, Nordnes Sjøbad, O'Connor's, GG Bergen, Stene Matglede, Swing 'n Sweet, Bodega, SK Brann, DNT Bergen, Kvarteret.
 
 Festivals: Festspillene, Bergenfest, Beyond the Gates, Nattjazz, Bergen Pride, BIFF, Borealis, VVV, Jungelfest.
 
@@ -96,13 +96,13 @@ Aggregators: Bergen Kommune, StudentBergen, Bergen Live.
 Bergen typically has 150 to 250 events per week across 59 venues and cultural institutions. See https://gaari.no/no/denne-helgen for this weekend or https://gaari.no/no/i-dag for today.
 
 **What are the best free things to do in Bergen?**
-Bergen Kunsthall (free entry days), Bergen Bibliotek (free events daily), FlÃ¸yen (free hiking), park concerts in summer, and museum free days. Full updated list: https://gaari.no/no/gratis
+Bergen Kunsthall (free entry days), Bergen Bibliotek (free events daily), Fløyen (free hiking), park concerts in summer, and museum free days. Full updated list: https://gaari.no/no/gratis
 
 **What concerts are on in Bergen?**
-Bergen has over 20 concert venues â€” Grieghallen (classical), Ole Bull and Forum Scene (pop/rock), USF Verftet (alternative), Hulen and Kvarteret (students). Full concert schedule: https://gaari.no/no/konserter
+Bergen has over 20 concert venues — Grieghallen (classical), Ole Bull and Forum Scene (pop/rock), USF Verftet (alternative), Hulen and Kvarteret (students). Full concert schedule: https://gaari.no/no/konserter
 
 **What is there to do in Bergen tonight?**
-Bergen has cultural events on weekday evenings â€” concerts, theatre, nightlife and more. Tonight's events: https://gaari.no/no/i-kveld
+Bergen has cultural events on weekday evenings — concerts, theatre, nightlife and more. Tonight's events: https://gaari.no/no/i-kveld
 
 **What happens on 17th of May in Bergen?**
 Bergen celebrates Constitution Day with children's parades (barnetog), buekorps marching brigades (unique to Bergen), concerts and citywide festivities. Programme: https://gaari.no/en/17th-of-may-bergen
