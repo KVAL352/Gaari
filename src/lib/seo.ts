@@ -1,10 +1,21 @@
 import type { GaariEvent, Lang, Category } from './types';
+import { BYDELER } from './types';
 import type { Collection } from './collections';
 import { isFreeEvent, bergenOffset } from './utils';
 import { getVenueLocation } from './venue-locations';
 import { SOURCE_COUNT } from './constants';
 
 const BASE_URL = 'https://gaari.no';
+
+/**
+ * Bydelslista som tekst, avledet fra BYDELER i types.ts. Sto tidligere skrevet
+ * ut for hånd tre steder, og gikk ut av synk da Årstad kom til.
+ */
+export function bydelerAsProse(lang: Lang): string {
+	const list = [...BYDELER];
+	const last = list.pop()!;
+	return `${list.join(', ')} ${lang === 'no' ? 'og' : 'and'} ${last}`;
+}
 
 const EVENT_TYPE_MAP: Partial<Record<Category, string>> = {
 	music: 'MusicEvent',
@@ -408,7 +419,7 @@ const FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
 		},
 		{
 			q: 'Hvilke områder i Bergen dekker Gåri?',
-			a: 'Gåri dekker arrangementer i hele Bergen kommune — Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane og Arna.'
+			a: `Gåri dekker arrangementer i hele Bergen kommune — ${bydelerAsProse('no')}.`
 		},
 		{
 			q: 'Hvilke typer arrangementer finner jeg på Gåri?',
@@ -438,7 +449,7 @@ const FAQ_ITEMS: Record<Lang, Array<{ q: string; a: string }>> = {
 		},
 		{
 			q: 'What areas of Bergen does Gåri cover?',
-			a: 'Gåri covers events across all of Bergen municipality — Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane and Arna.'
+			a: `Gåri covers events across all of Bergen municipality — ${bydelerAsProse('en')}.`
 		},
 		{
 			q: 'What types of events does Gåri list?',

@@ -1,5 +1,6 @@
 import { supabase } from '$lib/server/supabase';
 import { SOURCE_COUNT } from '$lib/constants';
+import { BYDELER } from '$lib/types';
 
 // Static content sections — keep in sync with static/llms.txt for fallback
 const HEADER = `# Gåri
@@ -43,7 +44,7 @@ const QUESTIONS = `## Questions Gåri answers
 
 const COVERAGE = `## What Gåri covers
 
-- **Location:** Bergen municipality, Norway (all bydeler: Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna)
+- **Location:** Bergen municipality, Norway (all bydeler: ${BYDELER.join(', ')})
 - **Languages:** Norwegian (bokmål) and English
 - **Event categories:** music, culture, theatre, family, food, festival, sports, nightlife, workshop, student, tours
 - **Price range:** free and paid events

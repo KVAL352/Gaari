@@ -5,8 +5,12 @@ export const CATEGORIES = [
 
 export type Category = (typeof CATEGORIES)[number];
 
+// Bergen kommune har åtte offisielle bydeler: Arna, Bergenhus, Fana,
+// Fyllingsdalen, Laksevåg, Ytrebygda, Årstad og Åsane. «Sentrum» er ikke en
+// av dem — det er en del av Bergenhus — men vi har det med som eget valg
+// fordi det er slik folk søker og tenker om byen.
 export const BYDELER = [
-	'Sentrum', 'Bergenhus', 'Fana', 'Ytrebygda',
+	'Sentrum', 'Bergenhus', 'Årstad', 'Fana', 'Ytrebygda',
 	'Laksevåg', 'Fyllingsdalen', 'Åsane', 'Arna'
 ] as const;
 

@@ -28,7 +28,7 @@ The name comes from the Bergen dialect phrase "Ke' det går i?" meaning "What's 
 
 ## What Gåri covers
 
-- **Location:** Bergen municipality, Norway (all bydeler: Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna)
+- **Location:** Bergen municipality, Norway (all bydeler: Sentrum, Bergenhus, Årstad, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna)
 - **Languages:** Norwegian (bokmål) and English
 - **Event categories:** music, culture, theatre, family, food, festival, sports, nightlife, workshop, student, tours
 - **Price range:** free and paid events (prices always verified at source — Gåri shows "Trolig gratis" / "Likely free" rather than asserting)
@@ -54,7 +54,7 @@ Ja. Gåri har en egen side for gratis arrangementer i Bergen denne uken på gaar
 Ja, Gåri er helt gratis. Du trenger ingen konto eller registrering for å se arrangementer.
 
 **Hvilke områder i Bergen dekker Gåri?**
-Gåri dekker arrangementer i hele Bergen kommune — Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane og Arna.
+Gåri dekker arrangementer i hele Bergen kommune — Sentrum, Bergenhus, Årstad, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane og Arna.
 
 **Hvilke typer arrangementer finner jeg på Gåri?**
 Musikk og konserter, kunst og kultur, teater og scenekunst, familie og barn, mat og drikke, festivaler og markeder, sport og friluft, uteliv, kurs og workshops, studentarrangementer og turer.
@@ -77,7 +77,7 @@ Yes. Gåri has a dedicated page for free events in Bergen this week at gaari.no/
 Yes, completely free. No account or registration required to browse events.
 
 **What areas of Bergen does Gåri cover?**
-Gåri covers events across all of Bergen municipality — Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane and Arna.
+Gåri covers events across all of Bergen municipality — Sentrum, Bergenhus, Årstad, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane and Arna.
 
 **What types of events does Gåri list?**
 Music and concerts, arts and culture, theatre and performing arts, family and kids, food and drink, festivals and markets, sports and outdoors, nightlife, workshops and classes, student events, and tours.
