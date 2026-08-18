@@ -569,6 +569,18 @@
       ],
       "bevis": "Avtaler",
       "vurderesInnen": "2028-08-14"
+    },
+    {
+      "slug": "fortellerstraedet",
+      "navn": "Fortellerstrædet",
+      "dato": "2026-08-15",
+      "grunnlag": "dokumentert",
+      "omfang": [
+        "visning",
+        "some"
+      ],
+      "bevis": "Avtaler",
+      "vurderesInnen": "2028-08-15"
     }
   ],
   "avslag": [

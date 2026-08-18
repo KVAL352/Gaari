@@ -51,13 +51,14 @@ bildet arrangørens kontroll, og det krever alltid et dokumentert ja. Koden hån
 dette: en kilde uten grunnlag `dokumentert` kommer ikke inn i promo-listen, uansett
 hva som står i omfang-feltet.
 
-## Dokumentert samtykke (20)
+## Dokumentert samtykke (21)
 
 Beviset er en e-post i `Avtaler` eller et lydopptak med tidspunkt. Formen er
 likegyldig; det som teller er at samtykket kan vises fram.
 
 | Kilde | Arrangør | Dato | Omfang | Bevis |
 |---|---|---|---|---|
+| `fortellerstraedet` | Fortellerstrædet | 2026-08-15 | Visning + SoMe | Avtaler |
 | `highvoltage` | High Voltage Rockfest | 2026-08-14 | Visning + SoMe | Avtaler |
 | `julivillaveien` | Jul i Villaveien | 2026-08-12 | Visning + SoMe | Avtaler |
 | `bookibud` | Bookibud | 2026-08-11 | Visning + SoMe | Opptak fra mote 2026-08-11, ca 16:55 til 17:14 |
