@@ -97,7 +97,7 @@ music, culture, theatre, family, food, festival, sports, nightlife, workshop, st
 
 ## Bydeler (Districts)
 
-Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna
+Sentrum, Bergenhus, Årstad, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna
 
 ## License
 

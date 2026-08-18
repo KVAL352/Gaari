@@ -61,7 +61,7 @@ music, culture, theatre, family, food, festival, sports, nightlife, workshop, st
 
 ### Bydeler
 
-Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna
+Sentrum, Bergenhus, Årstad, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna
 
 ## Reporting Issues
 

@@ -8,8 +8,8 @@
 - `src/lib/__tests__/seo.test.ts` — safeJsonLd, generateEventJsonLd, toBergenIso, generateBreadcrumbJsonLd, generateCollectionJsonLd, computeCanonical
 - `src/lib/__tests__/seo-audit.test.ts` — SEO validation rules (meta tags, JSON-LD, canonical URLs, sitemap, performance budgets, source counts)
 - `src/lib/__tests__/collections.test.ts` — all collection slugs, filters, seasonal/festival, EN counterparts
-- `scripts/lib/__tests__/utils.test.ts` — parseNorwegianDate, bergenOffset, normalizeTitle, slugify, detectFreeFromText, isOptedOut
-- `scripts/lib/__tests__/dedup.test.ts` — titlesMatch, scoreEvent
+- `scripts/lib/__tests__/utils.test.ts` — parseNorwegianDate, bergenOffset, normalizeTitle, slugify, detectFreeFromText, isOptedOut, isImageAllowed (sperren må treffe på venue_name, tittel og billettadresse, og en innsending uten `source` skal aldri vise bilde)
+- `scripts/lib/__tests__/dedup.test.ts` — titlesMatch, scoreEvent, sammeSted og titlerMatcherPaaSammeSted (den løsere titteltesten som bare gjelder når sted og dato er like, og som aldri slår til når begge sider har samme kilde)
 - `scripts/lib/__tests__/scraper-health.test.ts` — classifyScrapers
 - `scripts/lib/__tests__/ticket-validation.test.ts` — validateTicketUrl
 - `scripts/lib/__tests__/bildesamtykke.test.ts` — samtykkeregisteret: dokumentet i takt med consent.json, SoMe krever dokumentert grunnlag, promo delmengde av visning, ingen dubletter, bevis og vurderingsfrist på hver kilde, nyKilde-validering. Etter delingen 2026-08-13 også: ingen e-post eller kontaktfelt i de offentlige filene, ingen sitat på avslagene, og at dokumentet blir identisk med og uten `private/consent-private.json` (som CI ikke har)

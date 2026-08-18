@@ -20,7 +20,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 - **Norwegian first**: `title_no` and `description_no` required. English optional.
 - **Categories**: music, culture, theatre, family, food, festival, sports, nightlife, workshop, student, tours
-- **Bydeler**: Sentrum, Bergenhus, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna
+- **Bydeler**: Sentrum, Bergenhus, Årstad, Fana, Ytrebygda, Laksevåg, Fyllingsdalen, Åsane, Arna
 - **Slugs**: `slugify(title)-YYYY-MM-DD` format. Norwegian chars: æ→ae, ø→o, å→a.
 - **Event status**: Scraped = `approved`. User-submitted = `pending`.
 
@@ -30,6 +30,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - **No traffic to aggregators**: ticket_url must point to actual venue/ticket pages.
 - **No copied descriptions (åndsverksloven)**: Always AI-generated or template. Never raw scraped text.
 - **Never commit private material**: the repo is public. Meeting recordings, transcripts, correspondence with personal data, and consent evidence go in `private/`, which is gitignored. See `private/README.md` for the structure. Publishing something from there cannot be undone by deleting it later.
+- **Endret sperrelisten eller samtykkeregisteret? Kjør `scripts/enforce-image-blocks.ts`**: `isImageAllowed()` gjelder bare ved innlegging, så bilder som allerede ligger i basen blir stående til dette skriptet rydder dem.
 - **Image permission? Document it**: `docs/bildesamtykke.md` is the register of who consented to what. Adding a source to `IMAGE_APPROVED_SOURCES` or `PROMO_APPROVED_SOURCES` without a row there fails `bildesamtykke.test.ts`. The yes-email goes to Protonmail `Folders/Gaari/Avtaler` and is never deleted.
 - **No non-public events**: Exclude barnehage, SFO, school visits, members-only.
 - **Rate limiting**: 1-1.5s delays between requests. AI descriptions: 200ms + backoff.
@@ -49,7 +50,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 
 - `utils.ts` — slugify, parseNorwegianDate, eventExists, insertEvent, normalizeTitle, removeExpiredEvents, fetchHTML, detectFreeFromText
 - `categories.ts` — mapCategory (50+ terms), mapBydel (100+ mappings), isFamilyTitle (safe family detection)
-- `dedup.ts` — cross-source dedup with scoring. `SOURCE_RANK` must include ALL scrapers.
+- `dedup.ts` — cross-source dedup with scoring. `SOURCE_RANK` must include ALL scrapers **and enhver manuelt innlagt kilde** (uten rangering scorer den 0 og blir slettet av en scraper som finner samme arrangement). Endrer du reglene: kjør `scripts/dedup-dryrun.ts` først, den viser hva som ville blitt slettet.
 - `venues.ts` — 190+ venue entries, aggregator domain detection, resolveTicketUrl
 - `ai-descriptions.ts` — Gemini integration, rate limiting, fallback
 - `scraper-health.ts` — Anomaly detection (broken/warning/dormant/healthy)
