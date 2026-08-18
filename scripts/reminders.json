@@ -133,5 +133,15 @@
     "date": "2027-02-01",
     "title": "Oppdater Borealis-skraper for 2027",
     "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i borealis.ts. Oppdater også send-daily-digest.ts."
+  },
+  {
+    "date": "2026-08-25",
+    "title": "Paint'n Sip: svar paa spoersmaalet fra 21. april",
+    "description": "Hei fra hei@paintnsip.no 2026-04-21, som svar paa bilderettighets-runden: «Hvilke bilder er det snakk om? Kun de som ligger i eventkalenderen vaar?» Spoersmaalet er konkret og har fortsatt et svar: det gjelder bildene som foelger arrangementene deres paa gaari.no, altsaa de som ligger paa deres egne eventsider. Kjersti bestemte 2026-08-18 at det skal sendes en ny e-post, men ikke med en gang. Traaden ligger i Outreach/Unresolved (UID 12). Husk at prisen skal staa naar vi tilbyr noe, jf. feedback_communication."
+  },
+  {
+    "date": "2026-09-08",
+    "title": "Medieklyngen: Charlotte foreslo moete, aldri besvart",
+    "description": "Charlotte Vindenaes (charlotte@medieklyngen.no) svarte 2026-05-18 paa bilderettighets-runden med «Kan det passe med et moete mot slutten av juni?» Det ble aldri besvart, og juni er passert. Kjersti sa 2026-08-18 at dette skal ses paa senere. Vurder om det er en ny moeteinvitasjon eller bare et svar paa bildespoersmaalet. Traaden ligger i Outreach/Unresolved (UID 7)."
   }
 ]
