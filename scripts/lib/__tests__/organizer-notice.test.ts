@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { bygg, fornavn, harSomeSamtykke, type Henvendelse } from '../organizer-notice.js';
+import { CONSENT_RECORDS } from '../consent-doc.js';
 
 const h = (source: string, name = 'Kaj Alver'): Henvendelse => ({
 	id: 'x',
@@ -63,17 +64,32 @@ describe('bildeomfang følger consent.json', () => {
 	// Kjernen i hele malen. Lover brevet sosiale medier til en arrangør som bare
 	// har sagt ja til visning, har vi gitt et skriftlig løfte vi ikke har dekning
 	// for. Derfor leses omfanget fra registeret og ikke fra en liste i malen.
+	//
+	// Kildene hentes ut av registeret i stedet for å navngis her. Testen sto
+	// opprinnelig med highvoltage som «kun visning»-eksempel, og begynte å feile
+	// 14. august da den arrangøren sa ja til sosiale medier. Da var det testen
+	// som var utdatert, ikke malen. Et samtykke skal kunne endres uten at en
+	// test må rettes i samme slengen.
+	const kunVisning = CONSENT_RECORDS.find(
+		(k) => k.omfang.length === 1 && k.omfang[0] === 'visning'
+	);
+	const medSome = CONSENT_RECORDS.find((k) => k.omfang.includes('some'));
 
-	it('highvoltage har kun visning, og skal få invitasjonen', () => {
-		expect(harSomeSamtykke('highvoltage')).toBe(false);
-		const { html } = bygg(h('highvoltage'), ETT);
+	it('registeret har minst én kilde av hver sort å teste mot', () => {
+		expect(kunVisning, 'ingen kilde med kun visning i consent.json').toBeDefined();
+		expect(medSome, 'ingen kilde med some-samtykke i consent.json').toBeDefined();
+	});
+
+	it('en kilde med kun visning skal få invitasjonen', () => {
+		expect(harSomeSamtykke(kunVisning!.slug)).toBe(false);
+		const { html } = bygg(h(kunVisning!.slug), ETT);
 		expect(html).toContain('kun på gaari.no og i nyhetsbrevet');
 		expect(html).toContain('er det bare å si fra');
 	});
 
-	it('julivillaveien har sagt ja til SoMe, og skal ikke få invitasjonen', () => {
-		expect(harSomeSamtykke('julivillaveien')).toBe(true);
-		const { html } = bygg(h('julivillaveien'), SEKS);
+	it('en kilde som har sagt ja til SoMe skal ikke få invitasjonen', () => {
+		expect(harSomeSamtykke(medSome!.slug)).toBe(true);
+		const { html } = bygg(h(medSome!.slug), SEKS);
 		expect(html).toContain('Facebook og Instagram, slik dere har sagt ja til');
 		expect(html).not.toContain('er det bare å si fra');
 	});
