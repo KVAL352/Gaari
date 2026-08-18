@@ -32,11 +32,21 @@ export function erEngelsk(slug: string): boolean {
  * var neppe et bevisst valg, bare et tall som ble skrevet i en annen fil en
  * annen dag. Kjersti bestemte 2026-08-11 at alle tre skal være 5.
  *
+ * Satt ned til 4 den 2026-08-14. Målingen samme dag viste at terskelen ikke
+ * traff tynt innhold, men tynt utvalg av *steder*: today-in-bergen hadde sju
+ * arrangementer med bilde, men bare fire adresser, fordi fire av dem var
+ * Akvariet og én-per-handle-regelen tok tre. Helgesamlingene klarte fem uten
+ * problem; det er ukedagene som sjelden har fem forskjellige steder.
+ *
  * Poenget med terskelen er å slippe å publisere noe tynt. En karusell med tre
  * arrangementer ser ut som at det ikke skjer noe i Bergen, og det er verre enn
- * å ikke poste den dagen.
+ * å ikke poste den dagen. Fire forskjellige steder er fortsatt en ekte bredde;
+ * det er derfor grensen gikk hit og ikke lenger ned.
+ *
+ * Merk at dette ikke rører én-per-handle-regelen i event-picker.ts. Fire slides
+ * skal fortsatt være fire ulike steder.
  */
-export const MIN_EVENTS_FOR_POST = 5;
+export const MIN_EVENTS_FOR_POST = 4;
 
 /**
  * Grunntagger per samleside.
