@@ -79,8 +79,10 @@ async function main() {
 	let alleredeRiktig = 0;
 	let ukjent = 0;
 	let døde = 0;
-	let stikkprøver = 0;
 
+	// Finn alt som skal endres først, og la stikkprøven se hele utvalget. Tas
+	// prøvene underveis, avgjør rekkefølgen i basen hvilke som blir testet.
+	const endringer: { id: string; tittel: string; ny: string }[] = [];
 	for (const rad of data ?? []) {
 		const slug = slugFra(rad.source_url);
 		const tittel = rad.title_no.replace(/\s+/g, ' ').slice(0, 45);
@@ -98,39 +100,61 @@ async function main() {
 			alleredeRiktig++;
 			continue;
 		}
+		endringer.push({ id: rad.id, tittel, ny });
+	}
 
-		if (stikkprøver < 3) {
+	// Stikkprøven er et flertallsvedtak, ikke et veto.
+	//
+	// Den var opprinnelig satt til å avbryte alt ved første 404, og det stanset
+	// kjøringen 14. og 18. august. Årsaken viste seg å være to arrangementer som
+	// ligger i KODEs API, men ikke er publisert på nettsidene deres. De svarer
+	// 404 i begge seksjoner, så det er ikke regelen som er gal.
+	//
+	// Et enkelt 404 sier altså ingenting om regelen. Det gjør et mønster av dem:
+	// blir vi strupet, eller er seksjonsregelen feil, faller alle prøvene
+	// samtidig. Derfor kreves flertall, og hver enkelt 404 skrives ut slik at et
+	// ekte problem fortsatt er synlig.
+	const PRØVER = 5;
+	const KREVES = 3;
+	if (endringer.length > 0) {
+		const steg = Math.max(1, Math.floor(endringer.length / PRØVER));
+		const utvalg = endringer.filter((_, i) => i % steg === 0).slice(0, PRØVER);
+		let ok = 0;
+		for (const e of utvalg) {
 			await delay(1500);
-			stikkprøver++;
-			let ok = false;
+			let svar = 0;
 			try {
-				ok = (await fetch(ny, { headers: { 'User-Agent': UA } })).ok;
+				svar = (await fetch(e.ny, { headers: { 'User-Agent': UA } })).status;
 			} catch {
-				ok = false;
+				svar = -1;
 			}
-			console.log(`  stikkprøve ${ok ? 'OK  ' : 'FEIL'}    ${ny}`);
-			if (!ok) {
-				console.error(
-					'\nStikkprøven slo feil. Enten er regelen gal, eller så strupes vi av\n' +
-						'kodebergen.no etter for mange kall. Vent en time og prøv igjen før du\n' +
-						'konkluderer med at noe er galt. Ingenting er skrevet.'
-				);
-				process.exit(1);
-			}
+			if (svar === 200) ok++;
+			console.log(`  stikkprøve ${String(svar).padStart(3)}    ${e.ny}`);
 		}
+		console.log(`  ${ok} av ${utvalg.length} stikkprøver svarte 200.\n`);
+		if (ok < Math.min(KREVES, utvalg.length)) {
+			console.error(
+				'For få stikkprøver gikk gjennom. Enten er seksjonsregelen gal, eller\n' +
+					'så strupes vi av kodebergen.no. Vent en time og prøv igjen før du\n' +
+					'konkluderer. Ingenting er skrevet.'
+			);
+			process.exit(1);
+		}
+	}
 
+	for (const e of endringer) {
 		if (SKRIV) {
 			const { error: feil } = await supabase
 				.from('events')
-				.update({ source_url: ny })
-				.eq('id', rad.id);
+				.update({ source_url: e.ny })
+				.eq('id', e.id);
 			if (feil) {
-				console.log(`  FEIL              ${tittel}: ${feil.message}`);
+				console.log(`  FEIL              ${e.tittel}: ${feil.message}`);
 				døde++;
 				continue;
 			}
 		}
-		console.log(`  ${SKRIV ? 'rettet' : 'ville rettet'}      ${tittel}`);
+		console.log(`  ${SKRIV ? 'rettet' : 'ville rettet'}      ${e.tittel}`);
 		rettet++;
 	}
 
