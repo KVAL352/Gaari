@@ -232,15 +232,32 @@ export function titlesMatch(a: string, b: string): boolean {
 }
 
 export async function deduplicate(): Promise<number> {
-	// Fetch all events
-	const { data: events, error } = await supabase
-		.from('events')
-		.select('id, title_no, date_start, source, venue_name, image_url, ticket_url, description_no')
-		.order('date_start', { ascending: true });
+	// Supabase gir maks 1000 rader per svar, uten feilmelding naar det er flere.
+	// Uten paginering her saa dedup bare de 1000 tidligste arrangementene, siden
+	// sorteringen var stigende paa dato, og alt bakenfor den grensen ble aldri
+	// ryddet. 20. august 2026 gikk grensen ved 7. oktober, med 1914 rader i
+	// basen. Samme paginering som credit-backfill.ts og enrich-titles.ts bruker.
+	const PAGE_SIZE = 1000;
+	const events: EventRow[] = [];
 
-	if (error || !events) {
-		console.error('  Dedup fetch error:', error?.message);
-		return 0;
+	for (let page = 0; ; page++) {
+		const { data, error } = await supabase
+			.from('events')
+			.select('id, title_no, date_start, source, venue_name, image_url, ticket_url, description_no')
+			// Sortert paa id, ikke dato: range() deler opp etter posisjon, og
+			// date_start er ikke unik, saa to rader med samme dato kan bytte plass
+			// mellom to kall og havne i hver sin pulje — eller i ingen. Dedup
+			// grupperer paa dato selv, saa rekkefoelgen inn spiller ingen rolle.
+			.order('id')
+			.range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+		if (error) {
+			console.error('  Dedup fetch error:', error.message);
+			return 0;
+		}
+		if (!data || data.length === 0) break;
+		events.push(...data);
+		if (data.length < PAGE_SIZE) break;
 	}
 
 	// Group by date (YYYY-MM-DD)

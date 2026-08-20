@@ -4,7 +4,8 @@ import { describe, it, expect, vi } from 'vitest';
 vi.mock('../supabase.js', () => ({
 	supabase: {
 		from: () => ({
-			select: () => ({ order: () => ({ data: [], error: null }) }),
+			// order().range() — deduplicate() paginerer, mocken maa ha samme kjede
+			select: () => ({ order: () => ({ data: [], error: null, range: () => ({ data: [], error: null }) }) }),
 			delete: () => ({ in: () => ({ error: null }) })
 		})
 	}
