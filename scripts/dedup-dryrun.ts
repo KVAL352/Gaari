@@ -43,7 +43,7 @@ async function main() {
 			brukt.add(i);
 			for (let j = i + 1; j < norm.length; j++) {
 				if (brukt.has(j)) continue;
-				const gammeltTreff = titlesMatch(norm[i].n, norm[j].n);
+				const gammeltTreff = titlesMatch(norm[i].n, norm[j].n, norm[i].source, norm[j].source);
 				const stedTreff =
 					sammeSted(norm[i].venue_name, norm[j].venue_name) &&
 					titlerMatcherPaaSammeSted(norm[i].title_no, norm[j].title_no, norm[i].source, norm[j].source);

@@ -74,6 +74,30 @@ describe('titlesMatch', () => {
 		expect(titlesMatch(a, b)).toBe(true);
 	});
 
+	it('lar delt prefiks matche naar kildene er forskjellige', () => {
+		// Uendret oppfoersel: to kilder som melder samme arrangement.
+		const a = normalizeTitle('Litterær lunsj på Bergen offentlige bibliotek');
+		const b = normalizeTitle('Litterær lunsj med KODE');
+		expect(titlesMatch(a, b, 'bergenbibliotek', 'ticketco')).toBe(true);
+	});
+
+	it('blokkerer delt prefiks naar begge kommer fra samme kilde', () => {
+		// «Barnas kulturhus:» er 15 tegn normalisert og baerer treffet alene, enda
+		// dette er to forskjellige verksteder samme dag. Kilden skiller dem.
+		const a = normalizeTitle('Barnas kulturhus: Skrøneverksted og Kunstpilotverksteder');
+		const b = normalizeTitle('Barnas kulturhus: Psst!');
+		expect(titlesMatch(a, b)).toBe(true); // uten kilder: gammel oppfoersel
+		expect(titlesMatch(a, b, 'bergenkommune', 'bergenkommune')).toBe(false);
+	});
+
+	it('lar samme kilde matche naar den ene tittelen er innholdt i den andre', () => {
+		// Vernet gjelder bare delt-prefiks-testen. «|| Hulen» hengt paa samme
+		// tittel er et ekte duplikat, og begge kommer fra ticketco.
+		const a = normalizeTitle('Den Store Heavy Metal Festen XXV || Hulen');
+		const b = normalizeTitle('Den Store Heavy Metal Festen XXV');
+		expect(titlesMatch(a, b, 'ticketco', 'ticketco')).toBe(true);
+	});
+
 	it('rejects different events that share a short prefix', () => {
 		// "Lørdag på museet: Dinosaurer" vs "Lørdag på museet: Sjøpirater"
 		// Different activities — should NOT match

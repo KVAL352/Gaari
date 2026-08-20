@@ -195,7 +195,7 @@ export function scoreEvent(e: EventRow): number {
 	return score;
 }
 
-export function titlesMatch(a: string, b: string): boolean {
+export function titlesMatch(a: string, b: string, kildeA?: string | null, kildeB?: string | null): boolean {
 	if (a === b) return true;
 	if (a.length < 5 || b.length < 5) return false;
 
@@ -221,8 +221,21 @@ export function titlesMatch(a: string, b: string): boolean {
 
 	// Shared prefix match — catches same event with different venue suffixes
 	// e.g. "Litterær lunsj på biblioteket" vs "Litterær lunsj med KODE"
+	//
+	// Samme kilde teller ikke her, av samme grunn som i titlerMatcherPaaSammeSted.
+	// Denne testen teller like tegn fra starten, og et serie- eller stedsnavn er
+	// ofte langt nok til aa baere treffet alene. «Barnas kulturhus:» er 15 tegn
+	// normalisert, saa «Barnas kulturhus: Psst!» og «Barnas kulturhus:
+	// Skroeneverksted og Kunstpilotverksteder» deler nok til aa passere begge
+	// kravene, enda det er to forskjellige verksteder samme dag. Tegntelling kan
+	// ikke skille et arrangementsnavn fra et serienavn; kilden kan.
+	//
+	// Vernet ligger bare her. Testene over krever at den ene tittelen er innholdt
+	// i den andre, og der er samme kilde paa begge sider som regel et ekte
+	// duplikat — «Den Store Heavy Metal Festen XXV» og samme tittel med
+	// «|| Hulen» hengt paa kommer begge fra ticketco.
 	const minLen = Math.min(a.length, b.length);
-	if (minLen >= 14) {
+	if (minLen >= 14 && !(kildeA && kildeB && kildeA === kildeB)) {
 		let shared = 0;
 		while (shared < minLen && a[shared] === b[shared]) shared++;
 		if (shared >= 14 && shared >= minLen * 0.6) return true;
@@ -291,7 +304,12 @@ export async function deduplicate(): Promise<number> {
 			for (let j = i + 1; j < normalized.length; j++) {
 				if (used.has(j)) continue;
 				const treff =
-					titlesMatch(normalized[i].norm, normalized[j].norm) ||
+					titlesMatch(
+						normalized[i].norm,
+						normalized[j].norm,
+						normalized[i].source,
+						normalized[j].source
+					) ||
 					(sammeSted(normalized[i].venue_name, normalized[j].venue_name) &&
 						titlerMatcherPaaSammeSted(
 							normalized[i].title_no,
