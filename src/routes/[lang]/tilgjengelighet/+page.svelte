@@ -32,7 +32,7 @@
 	</h1>
 
 	<p class="mb-8 text-sm text-[var(--color-text-muted)]">
-		{$lang === 'no' ? 'Sist oppdatert: februar 2026' : 'Last updated: February 2026'}
+		{$lang === 'no' ? 'Sist oppdatert: august 2026' : 'Last updated: August 2026'}
 	</p>
 
 	<section class="mb-8">
@@ -72,8 +72,8 @@
 			<li class="leading-relaxed">
 				<strong>{$lang === 'no' ? 'Fargekontrast' : 'Color contrast'}</strong> —
 				{$lang === 'no'
-					? 'All tekst oppfyller WCAG AA-krav: primærtekst 7,88:1, sekundærtekst 6,96:1, dempet tekst 7,01:1.'
-					: 'All text meets WCAG AA requirements: primary text 7.88:1, secondary text 6.96:1, muted text 7.01:1.'}
+					? 'All tekst oppfyller WCAG AA-krav. Laveste målte kontrast er 13,6:1 for primærtekst, 7,5:1 for sekundærtekst og 5,9:1 for dempet tekst. Tallene er de laveste på tvers av lys og mørk modus, målt mot flatene teksten faktisk ligger på.'
+					: 'All text meets WCAG AA requirements. The lowest measured contrast is 13.6:1 for primary text, 7.5:1 for secondary text and 5.9:1 for muted text. These are the lowest values across light and dark mode, measured against the surfaces the text actually sits on.'}
 			</li>
 			<li class="leading-relaxed">
 				<strong>{$lang === 'no' ? 'Semantisk HTML og landemerker' : 'Semantic HTML and landmarks'}</strong> —
@@ -102,8 +102,8 @@
 			<li class="leading-relaxed">
 				<strong>{$lang === 'no' ? 'Berøringspunkter' : 'Touch targets'}</strong> —
 				{$lang === 'no'
-					? 'Alle klikkbare elementer er minst 44×44 px (WCAG 2.5.8).'
-					: 'All clickable elements are at least 44×44 px (WCAG 2.5.8).'}
+					? 'Nettstedet oppfyller WCAG 2.5.8 Target Size (Minimum) på nivå AA. Kravet er 24×24 px, med unntak for lenker og knapper som står i løpende tekst. Kriteriet kontrolleres automatisk i testene våre.'
+					: 'The site meets WCAG 2.5.8 Target Size (Minimum) at level AA. The requirement is 24×24 px, with exceptions for links and buttons within a block of text. The criterion is checked automatically in our test suite.'}
 			</li>
 			<li class="leading-relaxed">
 				<strong>{$lang === 'no' ? 'Redusert bevegelse' : 'Reduced motion'}</strong> —
