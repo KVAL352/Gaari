@@ -49,6 +49,7 @@
 					name="email"
 					id="nl-inline-grid"
 					required
+					aria-required="true"
 					autocomplete="email"
 					placeholder={$t('nlPlaceholder')}
 					class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 text-sm"

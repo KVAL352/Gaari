@@ -211,6 +211,7 @@
 					name="email"
 					id="nl-{id}"
 					required
+					aria-required="true"
 					autocomplete="email"
 					placeholder={$t('nlPlaceholder')}
 					class="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 text-sm"
@@ -278,6 +279,7 @@
 				name="email"
 				id="nl-{id}"
 				required
+				aria-required="true"
 				autocomplete="email"
 				placeholder={$t('nlPlaceholder')}
 				class="flex-1 rounded-lg border border-[var(--color-border)] px-3 text-sm"

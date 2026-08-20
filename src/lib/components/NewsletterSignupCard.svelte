@@ -156,6 +156,7 @@
 						name="email"
 						id="nl-grid-email"
 						required
+						aria-required="true"
 						bind:value={email}
 						autocomplete="email"
 						placeholder={emailPlaceholder}
