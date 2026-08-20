@@ -60,7 +60,7 @@ async function main() {
 				const { e, viaSted } = gruppe[k];
 				if (viaSted) ny++;
 				else gammel++;
-				// Begge typer skrives ut. Poenget med skriptet er aa se radene foer
+				// Begge typer skrives ut. Poenget med skriptet er å se radene før
 				// de slettes, og en telling av gamle par sier ingenting om hvilke.
 				console.log(`${viaSted ? 'NY ' : 'GML'}  ${e.date_start?.slice(0, 10)}  ${e.venue_name}`);
 				console.log(`     slettes:  [${e.source}] ${e.title_no.replace(/\s+/g, ' ').slice(0, 70)}`);

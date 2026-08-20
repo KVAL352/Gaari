@@ -224,16 +224,16 @@ export function titlesMatch(a: string, b: string, kildeA?: string | null, kildeB
 	//
 	// Samme kilde teller ikke her, av samme grunn som i titlerMatcherPaaSammeSted.
 	// Denne testen teller like tegn fra starten, og et serie- eller stedsnavn er
-	// ofte langt nok til aa baere treffet alene. «Barnas kulturhus:» er 15 tegn
-	// normalisert, saa «Barnas kulturhus: Psst!» og «Barnas kulturhus:
-	// Skroeneverksted og Kunstpilotverksteder» deler nok til aa passere begge
+	// ofte langt nok til å bære treffet alene. «Barnas kulturhus:» er 15 tegn
+	// normalisert, så «Barnas kulturhus: Psst!» og «Barnas kulturhus:
+	// Skrøneverksted og Kunstpilotverksteder» deler nok til å passere begge
 	// kravene, enda det er to forskjellige verksteder samme dag. Tegntelling kan
 	// ikke skille et arrangementsnavn fra et serienavn; kilden kan.
 	//
-	// Vernet ligger bare her. Testene over krever at den ene tittelen er innholdt
-	// i den andre, og der er samme kilde paa begge sider som regel et ekte
-	// duplikat — «Den Store Heavy Metal Festen XXV» og samme tittel med
-	// «|| Hulen» hengt paa kommer begge fra ticketco.
+	// Vernet ligger bare her. Testene over krever at den ene tittelen er
+	// innholdt i den andre, og der er samme kilde på begge sider som regel et
+	// ekte duplikat — «Den Store Heavy Metal Festen XXV» og samme tittel med
+	// «|| Hulen» hengt på kommer begge fra ticketco.
 	const minLen = Math.min(a.length, b.length);
 	if (minLen >= 14 && !(kildeA && kildeB && kildeA === kildeB)) {
 		let shared = 0;
@@ -245,9 +245,9 @@ export function titlesMatch(a: string, b: string, kildeA?: string | null, kildeB
 }
 
 export async function deduplicate(): Promise<number> {
-	// Supabase gir maks 1000 rader per svar, uten feilmelding naar det er flere.
-	// Uten paginering her saa dedup bare de 1000 tidligste arrangementene, siden
-	// sorteringen var stigende paa dato, og alt bakenfor den grensen ble aldri
+	// Supabase gir maks 1000 rader per svar, uten feilmelding når det er flere.
+	// Uten paginering her så dedup bare de 1000 tidligste arrangementene, siden
+	// sorteringen er stigende på dato, og alt bakenfor den grensen ble aldri
 	// ryddet. 20. august 2026 gikk grensen ved 7. oktober, med 1914 rader i
 	// basen. Samme paginering som credit-backfill.ts og enrich-titles.ts bruker.
 	const PAGE_SIZE = 1000;
@@ -257,10 +257,10 @@ export async function deduplicate(): Promise<number> {
 		const { data, error } = await supabase
 			.from('events')
 			.select('id, title_no, date_start, source, venue_name, image_url, ticket_url, description_no')
-			// Sortert paa id, ikke dato: range() deler opp etter posisjon, og
-			// date_start er ikke unik, saa to rader med samme dato kan bytte plass
+			// Sortert på id, ikke dato: range() deler opp etter posisjon, og
+			// date_start er ikke unik, så to rader med samme dato kan bytte plass
 			// mellom to kall og havne i hver sin pulje — eller i ingen. Dedup
-			// grupperer paa dato selv, saa rekkefoelgen inn spiller ingen rolle.
+			// grupperer på dato selv, så rekkefølgen inn spiller ingen rolle.
 			.order('id')
 			.range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 

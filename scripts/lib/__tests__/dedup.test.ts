@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 vi.mock('../supabase.js', () => ({
 	supabase: {
 		from: () => ({
-			// order().range() — deduplicate() paginerer, mocken maa ha samme kjede
+			// order().range() — deduplicate() paginerer, mocken må ha samme kjede
 			select: () => ({ order: () => ({ data: [], error: null, range: () => ({ data: [], error: null }) }) }),
 			delete: () => ({ in: () => ({ error: null }) })
 		})
@@ -74,24 +74,24 @@ describe('titlesMatch', () => {
 		expect(titlesMatch(a, b)).toBe(true);
 	});
 
-	it('lar delt prefiks matche naar kildene er forskjellige', () => {
-		// Uendret oppfoersel: to kilder som melder samme arrangement.
+	it('lar delt prefiks matche når kildene er forskjellige', () => {
+		// Uendret oppførsel: to kilder som melder samme arrangement.
 		const a = normalizeTitle('Litterær lunsj på Bergen offentlige bibliotek');
 		const b = normalizeTitle('Litterær lunsj med KODE');
 		expect(titlesMatch(a, b, 'bergenbibliotek', 'ticketco')).toBe(true);
 	});
 
-	it('blokkerer delt prefiks naar begge kommer fra samme kilde', () => {
-		// «Barnas kulturhus:» er 15 tegn normalisert og baerer treffet alene, enda
+	it('blokkerer delt prefiks når begge kommer fra samme kilde', () => {
+		// «Barnas kulturhus:» er 15 tegn normalisert og bærer treffet alene, enda
 		// dette er to forskjellige verksteder samme dag. Kilden skiller dem.
 		const a = normalizeTitle('Barnas kulturhus: Skrøneverksted og Kunstpilotverksteder');
 		const b = normalizeTitle('Barnas kulturhus: Psst!');
-		expect(titlesMatch(a, b)).toBe(true); // uten kilder: gammel oppfoersel
+		expect(titlesMatch(a, b)).toBe(true); // uten kilder: gammel oppførsel
 		expect(titlesMatch(a, b, 'bergenkommune', 'bergenkommune')).toBe(false);
 	});
 
-	it('lar samme kilde matche naar den ene tittelen er innholdt i den andre', () => {
-		// Vernet gjelder bare delt-prefiks-testen. «|| Hulen» hengt paa samme
+	it('lar samme kilde matche når den ene tittelen er innholdt i den andre', () => {
+		// Vernet gjelder bare delt-prefiks-testen. «|| Hulen» hengt på samme
 		// tittel er et ekte duplikat, og begge kommer fra ticketco.
 		const a = normalizeTitle('Den Store Heavy Metal Festen XXV || Hulen');
 		const b = normalizeTitle('Den Store Heavy Metal Festen XXV');
