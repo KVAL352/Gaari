@@ -153,5 +153,15 @@
     "date": "2026-09-15",
     "title": "Soek paa gaari.no finner ikke steder som opptrer under et annet navn",
     "description": "Funnet 2026-08-18: soek paa \"Lehmkuhl\" gir null treff, selv om vi har ni av arrangementene deres. De ligger under \"Statsraaden Bar & Reception\", som er navnet paa baren deres. Samme problem gjelder trolig flere: folk soeker paa organisasjonen, vi lagrer stedet. Vurder et alias-felt eller en synonymliste i soeket, for eksempel Lehmkuhl -> Statsraaden. Sjekk foerst hvor mange venues det faktisk gjelder, saa loesningen staar i forhold til problemet."
+  },
+  {
+    "date": "2026-08-21",
+    "title": "Sjekk at dedup faktisk slettet de 8 parene",
+    "description": "Pagineringsfeilen i deduplicate() ble fikset 20. august (commit 5eb3b76). Dedup hentet uten range() og saa bare de 1000 tidligste av 1914 rader, saa alt etter 7. oktober hadde aldri vaert ryddet. Etter kjoeringen 06:00 UTC skal 8 par vaere borte: Kjoett Festival, Sa ka la Oktober, to Colonialen ost-og-vin, vill vill vest (bodega), Critical Mass (null-kilde), Heavy Metal Festen || Hulen, DNT Baaltreff. Kjoer scripts/dedup-dryrun.ts — den skal naa vaere tom eller naer tom. Er den det ikke, virker ikke pagineringen i produksjon."
+  },
+  {
+    "date": "2026-08-24",
+    "title": "Bookibud: purr Tobias hvis ny API-noekkel ikke er kommet",
+    "description": "Noekkelen han sendte 19. august ble eksponert i et utviklingsverktoey, og jeg ba om ny 20. august (Tobias, cc Geir Haavard). Uten ny noekkel kan ikke scraperen bygges. Naar den kommer: si fra FOER innboksen aapnes, saa den ikke havner i et transkript igjen. Legges i rot-.env som BOOKIBUD_API_KEY og som GHA-secret via gh secret set BOOKIBUD_API_KEY (interaktiv, aldri --body). Deretter linje i scrape.yml ved siden av BODEGA_GCAL_API_KEY. Merk ogsaa: avsenderfilteret for bookibud.com fanget ikke e-posten 19. august, sjekk Proton-filteret."
   }
 ]
