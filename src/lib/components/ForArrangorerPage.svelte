@@ -205,7 +205,7 @@
 				<h1 class="mb-4 text-3xl font-bold tracking-tight text-white font-[family-name:var(--font-display)] md:text-[44px] md:leading-tight">
 					{$lang === 'no' ? 'Arrangementet ditt fortjener' : 'Your event deserves'}
 					<br />
-					<span class="text-[var(--funkis-red)]">{$lang === 'no' ? 'å bli sett først' : 'to be seen first'}</span>
+					<span class="text-[var(--color-accent)]">{$lang === 'no' ? 'å bli sett først' : 'to be seen first'}</span>
 				</h1>
 				<p class="mb-6 text-white/70 md:text-lg" style="max-width: 420px;">
 					{$lang === 'no'
@@ -397,7 +397,7 @@
 							</p>
 						{/if}
 					{:else}
-						<a href="#contact" class="inline-flex items-center gap-2 rounded-full bg-[var(--funkis-red-subtle)] px-5 py-2.5 text-sm font-semibold text-[var(--funkis-red)] hover:underline">
+						<a href="#contact" class="inline-flex items-center gap-2 rounded-full bg-[var(--funkis-red-subtle)] px-5 py-2.5 text-sm font-semibold text-[var(--color-accent)] hover:underline">
 							{$lang === 'no' ? 'Ikke funnet? Ta kontakt.' : "Not found? Get in touch."}
 						</a>
 					{/if}
@@ -424,19 +424,19 @@
 		<!-- Key numbers strip — always visible -->
 		<div class="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
 			<div class="rounded-xl bg-[var(--color-bg-surface)] p-4 text-center" style="box-shadow: var(--shadow-sm);">
-				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-3xl">21%</p>
+				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--color-accent)] md:text-3xl">21%</p>
 				<p class="mt-1 text-xs text-[var(--color-text-muted)]">{$lang === 'no' ? 'klikker til billett' : 'click to tickets'}</p>
 			</div>
 			<div class="rounded-xl bg-[var(--color-bg-surface)] p-4 text-center" style="box-shadow: var(--shadow-sm);">
-				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-3xl">52x</p>
+				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--color-accent)] md:text-3xl">52x</p>
 				<p class="mt-1 text-xs text-[var(--color-text-muted)]">{$lang === 'no' ? 'nyhetsbrev i året' : 'newsletters per year'}</p>
 			</div>
 			<div class="rounded-xl bg-[var(--color-bg-surface)] p-4 text-center" style="box-shadow: var(--shadow-sm);">
-				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-3xl">50k+</p>
+				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--color-accent)] md:text-3xl">50k+</p>
 				<p class="mt-1 text-xs text-[var(--color-text-muted)]">{$lang === 'no' ? 'i Facebook-grupper' : 'in Facebook groups'}</p>
 			</div>
 			<div class="rounded-xl bg-[var(--color-bg-surface)] p-4 text-center" style="box-shadow: var(--shadow-sm);">
-				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)] md:text-3xl">2 000</p>
+				<p class="text-2xl font-bold leading-none font-[family-name:var(--font-display)] text-[var(--color-accent)] md:text-3xl">2 000</p>
 				<p class="mt-1 text-xs text-[var(--color-text-muted)]">{$lang === 'no' ? 'kr/mnd kampanjebudsjett' : 'NOK/mo campaign budget'}</p>
 			</div>
 		</div>
@@ -533,7 +533,7 @@
 									</div>
 								</div>
 								<div class="px-3 py-2">
-									<span class="text-[var(--funkis-red)] font-semibold" style="font-size: 11px;">{$lang === 'no' ? 'Les mer →' : 'Read more →'}</span>
+									<span class="text-[var(--color-accent)] font-semibold" style="font-size: 11px;">{$lang === 'no' ? 'Les mer →' : 'Read more →'}</span>
 								</div>
 							</div>
 							<div class="grid grid-cols-2 gap-2">
@@ -544,7 +544,7 @@
 										</div>
 										<div class="p-2">
 											<p class="font-semibold truncate" style="font-size: 10px;">{img.title}</p>
-											<p class="text-[var(--funkis-red)] font-semibold" style="font-size: 9px;">{$lang === 'no' ? 'Les mer →' : 'Read more →'}</p>
+											<p class="text-[var(--color-accent)] font-semibold" style="font-size: 9px;">{$lang === 'no' ? 'Les mer →' : 'Read more →'}</p>
 										</div>
 									</div>
 								{/each}
@@ -622,7 +622,7 @@
 		<div class="mt-8 text-center">
 			<a
 				href="#pricing"
-				class="inline-flex items-center gap-1 text-sm font-semibold text-[var(--funkis-red)] hover:underline"
+				class="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-accent)] hover:underline"
 				style="min-height: 44px;"
 			>
 				{$lang === 'no' ? 'Se priser' : 'See pricing'} →
@@ -654,7 +654,7 @@
 				<div class="mb-1 flex items-baseline justify-between">
 					<span class="text-sm text-[var(--color-text-secondary)]">{$lang === 'no' ? 'Klikk fra Gåri' : 'Clicks from Gåri'}</span>
 					<div class="flex items-baseline gap-2">
-						<span class="text-[36px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--funkis-red)]" style="font-variant-numeric: tabular-nums;">{reportCount}</span>
+						<span class="text-[36px] font-bold leading-none font-[family-name:var(--font-display)] text-[var(--color-accent)]" style="font-variant-numeric: tabular-nums;">{reportCount}</span>
 						<span class="text-sm font-semibold text-[var(--funkis-green)]">+{reportPercent}%</span>
 					</div>
 				</div>
@@ -682,7 +682,7 @@
 		<div class="mt-8 text-center md:text-left">
 			<a
 				href="#pricing"
-				class="inline-flex items-center gap-1 text-sm font-semibold text-[var(--funkis-red)] hover:underline"
+				class="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-accent)] hover:underline"
 				style="min-height: 44px;"
 			>
 				{$lang === 'no' ? 'Klar? Se hva som passer deg' : 'Ready? See what fits you'} →
@@ -786,7 +786,7 @@
 		<!-- Early bird banner -->
 		<div class="mt-8 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-5 py-4 text-center" style="box-shadow: var(--shadow-sm);">
 			<p class="text-sm text-[var(--color-text-primary)]">
-				<span class="font-semibold text-[var(--funkis-red)]">
+				<span class="font-semibold text-[var(--color-accent)]">
 					{$lang === 'no' ? 'Tidlig partner-tilbud: ' : 'Early partner offer: '}
 				</span>
 				{$lang === 'no'
@@ -992,7 +992,7 @@
 
 			<p class="mt-4 text-sm text-[var(--funkis-granite)]">
 				{$lang === 'no' ? 'Eller send en e-post til' : 'Or send an email to'}
-				<a href="mailto:post@gaari.no" class="font-medium text-[var(--funkis-red)] underline">post@gaari.no</a>
+				<a href="mailto:post@gaari.no" class="font-medium text-[var(--color-accent)] underline">post@gaari.no</a>
 			</p>
 		{/if}
 		<p class="mt-6 text-xs text-[var(--funkis-granite)]">

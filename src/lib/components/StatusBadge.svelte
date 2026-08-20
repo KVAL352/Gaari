@@ -11,7 +11,7 @@
 
 	const colorClasses: Record<BadgeType, string> = {
 		today: 'bg-[var(--color-today)] text-white',
-		free: 'bg-[var(--color-free)] text-white',
+		free: 'bg-[var(--color-free)] text-[var(--color-free-text)]',
 		soldout: 'bg-[var(--color-soldout)] text-white',
 		lasttickets: 'bg-[var(--color-lasttickets-bg)] text-[var(--color-lasttickets-text)]',
 		cancelled: 'bg-[var(--color-cancelled)] text-white',

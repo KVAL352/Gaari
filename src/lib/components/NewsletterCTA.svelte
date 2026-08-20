@@ -248,7 +248,7 @@
 			</p>
 
 			{#if status === 'error'}
-				<p class="mt-2 text-sm text-[var(--funkis-red)]" role="alert">{errorMessage}</p>
+				<p class="mt-2 text-sm text-[var(--color-accent)]" role="alert">{errorMessage}</p>
 			{/if}
 		{/if}
 	</div>
@@ -317,7 +317,7 @@
 		</p>
 
 		{#if status === 'error'}
-			<p class="mt-2 text-center text-sm text-[var(--funkis-red)]" role="alert">{errorMessage}</p>
+			<p class="mt-2 text-center text-sm text-[var(--color-accent)]" role="alert">{errorMessage}</p>
 		{/if}
 	{/if}
 {/if}

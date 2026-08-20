@@ -70,7 +70,7 @@
 			<a href="/{$lang}/personvern" class="underline hover:text-[var(--color-text-primary)]">{$t('nlPrivacyNoteLink')}</a>.
 		</p>
 		{#if status === 'error'}
-			<p class="mt-2 text-center text-sm text-[var(--funkis-red)]" role="alert">
+			<p class="mt-2 text-center text-sm text-[var(--color-accent)]" role="alert">
 				{$lang === 'no' ? 'Noe gikk galt. Pr\u00f8v igjen.' : 'Something went wrong. Please try again.'}
 			</p>
 		{/if}

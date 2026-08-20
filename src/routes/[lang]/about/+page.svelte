@@ -106,7 +106,7 @@
 		</p>
 		<a
 			href="/{$lang}/submit"
-			class="inline-block rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white hover:bg-[var(--color-accent-hover)]"
+			class="inline-block rounded-xl bg-[var(--color-accent-fill)] px-6 py-3 text-sm font-semibold text-white hover:bg-[var(--color-accent-hover)]"
 		>
 			{$t('submitEvent')}
 		</a>

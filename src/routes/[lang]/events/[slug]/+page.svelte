@@ -380,7 +380,7 @@
 				target="_blank"
 				rel="noopener noreferrer"
 				onclick={trackTicketClick}
-				class="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+				class="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent-fill)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
 			>
 				<ExternalLink size={16} />
 				{isFreeEvent(event.price) ? ($lang === 'no' ? 'Mer info' : 'More info') : event.ticket_url ? $t('buyTickets') : ($lang === 'no' ? 'Gå til arrangement' : 'Go to event')}
@@ -427,7 +427,7 @@
 				<button
 					type="submit"
 					disabled={reminderSubmitting}
-					class="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-50"
+					class="rounded-lg bg-[var(--color-accent-fill)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-50"
 				>
 					{reminderSubmitting
 						? ($lang === 'no' ? 'Lagrer...' : 'Saving...')
@@ -453,7 +453,7 @@
 				target="_blank"
 				rel="noopener noreferrer"
 				onclick={trackTicketClick}
-				class="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+				class="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-accent-fill)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
 			>
 				<ExternalLink size={16} />
 				{isFreeEvent(event.price) ? ($lang === 'no' ? 'Mer info' : 'More info') : event.ticket_url ? $t('buyTickets') : ($lang === 'no' ? 'Gå til arrangement' : 'Go to event')}

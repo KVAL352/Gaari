@@ -83,7 +83,7 @@
 			</span>
 			<a
 				href="/{$lang}/submit"
-				class="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+				class="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-accent-fill)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
 				class:hidden={searchOpen}
 			>
 				<Plus size={16} />

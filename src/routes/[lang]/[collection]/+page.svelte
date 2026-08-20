@@ -298,7 +298,7 @@
 						<ImagePlaceholder category="festival" size={64} />
 						{/if}
 						{#if item.eventCount > 0}
-						<span class="absolute left-2 top-2 rounded-full bg-[var(--color-accent)] px-2.5 py-0.5 text-xs font-semibold text-white">
+						<span class="absolute left-2 top-2 rounded-full bg-[var(--color-accent-fill)] px-2.5 py-0.5 text-xs font-semibold text-white">
 							{item.eventCount} {ssrLang === 'no' ? 'arr.' : 'events'}
 						</span>
 						{/if}
@@ -338,7 +338,7 @@
 				{/if}
 				<a
 					href="/{$lang}"
-					class="inline-block rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+					class="inline-block rounded-xl bg-[var(--color-accent-fill)] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
 				>
 					{$t('seeAllEvents')}
 				</a>

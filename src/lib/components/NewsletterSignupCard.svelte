@@ -116,7 +116,11 @@
 					{/each}
 				</div>
 				<div class="pointer-events-none absolute left-3 top-2 z-10">
-					<span class="rounded bg-white/90 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-[var(--funkis-red)] shadow-sm">
+					<!-- Ugjennomsiktig hvit med vilje. Med bg-white/90 slapp arrangements-
+					     bildet bak gjennom, og kontrasten mot den røde teksten ble
+					     bestemt av fotografiet. I mørk modus falt den til 4,45:1, like
+					     under AA. Helt hvit gir 5,43:1 uansett hva som ligger under. -->
+					<span class="rounded bg-white px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-accent-fill)] shadow-sm">
 						{$lang === 'no' ? 'Gåri-uka' : 'The Gåri week'}
 					</span>
 				</div>
@@ -126,7 +130,7 @@
 					</span>
 				</div>
 			{:else}
-				<div class="flex h-full items-center justify-center text-[var(--funkis-red)]">
+				<div class="flex h-full items-center justify-center text-[var(--color-accent)]">
 					<span class="text-sm font-semibold uppercase tracking-wider">
 						{$lang === 'no' ? 'Gåri-uka' : 'The Gåri week'}
 					</span>
@@ -190,7 +194,7 @@
 					</div>
 
 					{#if status === 'error'}
-						<p class="text-xs text-[var(--funkis-red)]" role="alert">{errorMsg}</p>
+						<p class="text-xs text-[var(--color-accent)]" role="alert">{errorMsg}</p>
 					{/if}
 				</form>
 			{/if}

@@ -103,11 +103,16 @@
 	/* Accent (Sundt vermillion red) */
 	--color-accent:        var(--funkis-red);
 	--color-accent-hover:  var(--funkis-red-hover);
+	/* Heldekkende flater med hvit tekst oppaa. Skilt fra --color-accent fordi
+	   én rødfarge ikke kan gjøre begge jobbene i mørk modus: tekst mot #121212
+	   krever luminans over 0,226, hvit tekst oppaa krever under 0,183. */
+	--color-accent-fill:   var(--funkis-red);
 	--color-accent-subtle: var(--funkis-red-subtle);
 
 	/* Status badges */
 	--color-today:         var(--funkis-red);
 	--color-free:          #1A6B35;
+	--color-free-text:     #FFFFFF;  /* 6,57:1 på #1A6B35 */
 	--color-soldout:       #8B1A1A;
 	--color-lasttickets:   var(--funkis-amber);
 	--color-cancelled:     #4A4843;  /* 6.35:1 on white — WCAG AA */
@@ -158,6 +163,13 @@
 		--color-text-secondary: #B0B0AE;
 		--color-text-muted:     #9A9A98;
 
+		/* Rød som tekst mot mørk flate. #C82D2D ga 3,45:1 mot #121212, altså
+		   under AA-kravet, og det gjaldt hver eneste røde lenke i mørk modus.
+		   #EF6B6B gir 6,23:1 mot bakgrunnen, 5,55:1 mot kortflaten og 5,10:1 mot
+		   den hevede flaten. --color-accent-fill står urørt, saa knapper med hvit
+		   tekst beholder 5,43:1. */
+		--color-accent:        #EF6B6B;
+
 		/* Accent stays visible on dark bg */
 		--funkis-red-subtle:   #2A1616;
 		--funkis-green-subtle: #162A1A;
@@ -176,8 +188,13 @@
 		--shadow-md:  0 2px 8px rgba(0, 0, 0, 0.4);
 		--shadow-lg:  0 4px 16px rgba(0, 0, 0, 0.5);
 
-		/* Status badges — adjusted for dark backgrounds */
-		--color-free:          #2EAD5A;
+		/* Status badges — adjusted for dark backgrounds.
+		   free var #2EAD5A med hvit tekst og ga 2,90:1, altså under AA-kravet på
+		   4,5:1 for 12px. Grønnfargen var lysnet for å synes mot mørk bakgrunn,
+		   men hvit tekst fulgte med fra lys modus. Løst som lasttickets allerede
+		   gjør det: mørk flate, lys tekst. */
+		--color-free:          #16351F;
+		--color-free-text:     #6FD98F;  /* 7,68:1 på #16351F */
 		--color-lasttickets-bg:   #3D3019;
 		--color-lasttickets-text: #E8C060;
 
