@@ -44,7 +44,7 @@
 	<a href="#events" class="skip-link">{$t('skipToEvents')}</a>
 	<div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
 		<!-- Logo -->
-		<a href="/{$lang}" class="text-[22px] font-bold uppercase tracking-[0.12em] text-[var(--color-accent)]" style="font-family: var(--font-display)" class:sr-only={searchOpen}>GÃ…RI</a>
+		<a href="/{$lang}" class="text-[22px] font-bold uppercase tracking-[0.12em] text-[var(--color-accent)]" style="font-family: var(--font-display)" class:sr-only={searchOpen}>GÅRI</a>
 
 		<!-- Search bar (expanded) -->
 		{#if searchOpen}
@@ -59,7 +59,7 @@
 					onkeydown={handleKeydown}
 					aria-label={$t('searchPlaceholder')}
 				/>
-				<button type="button" class="search-close" onclick={() => closeSearch()} aria-label={$lang === 'no' ? 'Lukk sÃ¸k' : 'Close search'}>
+				<button type="button" class="search-close" onclick={() => closeSearch()} aria-label={$lang === 'no' ? 'Lukk søk' : 'Close search'}>
 					<X size={18} />
 				</button>
 			</form>
@@ -73,7 +73,7 @@
 					type="button"
 					class="search-toggle"
 					onclick={openSearch}
-					aria-label={$lang === 'no' ? 'SÃ¸k' : 'Search'}
+					aria-label={$lang === 'no' ? 'Søk' : 'Search'}
 				>
 					<Search size={18} />
 				</button>
