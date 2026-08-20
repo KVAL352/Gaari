@@ -157,3 +157,37 @@ test('testene kjører mot localhost, ikke mot produksjon', async ({ page }) => {
 	await page.goto('/no');
 	expect(new URL(page.url()).hostname, 'testene forlot localhost').toBe('localhost');
 });
+
+/**
+ * Tilstander som ikke finnes naar sida staar i ro.
+ *
+ * Begge feilene under slapp gjennom en ren axe-skanning i august 2026, av
+ * samme grunn: elementet var ikke i DOM, eller ikke i den tilstanden, paa det
+ * tidspunktet skanningen kjoerte.
+ */
+
+test('tilbake-til-toppen er lesbar naar den dukker opp', async ({ page }) => {
+	await page.goto('/no');
+	await page.waitForLoadState('networkidle');
+
+	// Knappen vises foerst etter to skjermhoeyders rulling. Den hadde hvit tekst
+	// paa --color-text-primary, som er nesten hvit i moerk modus: rundt 1,1:1.
+	await page.evaluate(() => window.scrollTo(0, window.innerHeight * 3));
+	const knapp = page.getByRole('button', { name: /toppen|top/i });
+	await expect(knapp).toBeVisible();
+	await skann(page);
+});
+
+test('«Les mer» er lesbar ogsaa naar kortet er hovret', async ({ page }) => {
+	await page.goto('/no');
+	await page.waitForLoadState('networkidle');
+
+	// .read-more-btn fylles med aksentfargen paa hover. Teksten var hardkodet
+	// hvit, og da roedfargen ble lysnet for moerk modus ga det 3,27:1. axe
+	// tester ikke hover av seg selv.
+	const kort = page.locator('.card').first();
+	await kort.scrollIntoViewIfNeeded();
+	await kort.hover();
+	await page.waitForTimeout(400);
+	await skann(page);
+});
