@@ -42,3 +42,7 @@ private/
 # sikkerhetsoppdatering gjorde jobben roed uten at appen var beroert.
 # Presentasjonene bygges ikke paa nytt; trengs det, lager npm install en ny.
 outputs/Presentations/*/package-lock.json
+
+# Playwright
+test-results/
+playwright-report/
