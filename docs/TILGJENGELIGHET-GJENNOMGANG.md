@@ -90,6 +90,29 @@ luminans over 0,226, det andre under 0,183. `--color-accent` er lysnet til
 - «Alle nødvendige skjemafelt har `aria-required`» stemte ikke for fire felt.
   Feltene er rettet, ikke setningen.
 
+### Ikke gjort
+
+**1. Skjermlesergjennomgang.** NVDA og VoiceOver kan ikke kjøres i agentmiljøet,
+og resultatet er lyd ingen der kan høre. Tilgjengelighetstreet er kontrollert i
+stedet — navn, roller og tilstander slik hjelpemidler leser dem — og det var
+slik de fire manglende `aria-required` ble funnet. Men det er ikke det samme som
+å høre hva NVDA faktisk sier, og punktet er ikke avhaket.
+
+Det som gjenstår er én gjennomgang av forsiden, ett arrangementskort og
+innsendingsskjemaet, med notat om hva som leses opp. Særlig verdt å lytte etter:
+om merkene gir mening uten farge, om filterknappenes `aria-pressed` annonseres
+som av/på, og om «Legg til i kalender»-menyen oppfører seg som en meny.
+
+**2. `<code>`-taggene på erklæringssida vises som råtekst.** Avsnittene
+«Semantisk HTML og landemerker», «Dynamisk språkattributt» og «ARIA-attributter»
+skriver ut `<code>&lt;header&gt;</code>` bokstavelig i stedet for å formatere
+det. Strengene inneholder markup, men skrives ut med `{...}` i Svelte, som
+escaper HTML. Feilen er eldre enn denne gjennomgangen og er synlig i begge
+fargemoduser. Den ble oppdaget ved å ta skjermbilde, ikke ved å lese koden.
+
+Ingen av disse to ligger i `scripts/reminders.json`. Den fila tilhørte en annen
+økt da dette ble skrevet, og skulle ikke røres. De bør legges inn der.
+
 ### Verdt aa vite
 
 `hooks.server.ts` 301-omdirigerer enhver vert som ikke er `gaari.no` eller
