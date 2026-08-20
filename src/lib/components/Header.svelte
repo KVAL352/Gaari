@@ -8,6 +8,7 @@
 	let searchOpen = $state(false);
 	let searchQuery = $state('');
 	let searchInput: HTMLInputElement | undefined = $state();
+	let searchToggle: HTMLButtonElement | undefined = $state();
 
 	function openSearch() {
 		searchOpen = true;
@@ -15,9 +16,15 @@
 		requestAnimationFrame(() => searchInput?.focus());
 	}
 
-	function closeSearch() {
+	// returnerFokus: aa lukke soeket fjerner <form> med det fokuserte feltet fra
+	// DOM, og da faller fokus til <body>. En tastaturbruker som trykker Escape
+	// havner oeverst i dokumentet og maa tabbe seg ned igjen. Fokus foeres derfor
+	// tilbake til knappen som aapnet soeket, paa samme maate som openSearch gjoer.
+	// Ved innsending navigerer vi bort, og da skal fokus foelge den nye siden.
+	function closeSearch(returnerFokus = true) {
 		searchOpen = false;
 		searchQuery = '';
+		if (returnerFokus) requestAnimationFrame(() => searchToggle?.focus());
 	}
 
 	function handleSubmit(e: SubmitEvent) {
@@ -25,7 +32,7 @@
 		const q = searchQuery.trim();
 		if (!q) return;
 		goto(`/${$lang}?q=${encodeURIComponent(q)}`);
-		closeSearch();
+		closeSearch(false);
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -37,7 +44,7 @@
 	<a href="#events" class="skip-link">{$t('skipToEvents')}</a>
 	<div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
 		<!-- Logo -->
-		<a href="/{$lang}" class="text-[22px] font-bold uppercase tracking-[0.12em] text-[var(--color-accent)]" style="font-family: var(--font-display)" class:sr-only={searchOpen}>GÅRI</a>
+		<a href="/{$lang}" class="text-[22px] font-bold uppercase tracking-[0.12em] text-[var(--color-accent)]" style="font-family: var(--font-display)" class:sr-only={searchOpen}>GÃ…RI</a>
 
 		<!-- Search bar (expanded) -->
 		{#if searchOpen}
@@ -52,7 +59,7 @@
 					onkeydown={handleKeydown}
 					aria-label={$t('searchPlaceholder')}
 				/>
-				<button type="button" class="search-close" onclick={closeSearch} aria-label={$lang === 'no' ? 'Lukk søk' : 'Close search'}>
+				<button type="button" class="search-close" onclick={() => closeSearch()} aria-label={$lang === 'no' ? 'Lukk sÃ¸k' : 'Close search'}>
 					<X size={18} />
 				</button>
 			</form>
@@ -62,10 +69,11 @@
 		<nav aria-label={$lang === 'no' ? 'Navigasjon' : 'Navigation'} class="flex items-center gap-3">
 			{#if !searchOpen}
 				<button
+					bind:this={searchToggle}
 					type="button"
 					class="search-toggle"
 					onclick={openSearch}
-					aria-label={$lang === 'no' ? 'Søk' : 'Search'}
+					aria-label={$lang === 'no' ? 'SÃ¸k' : 'Search'}
 				>
 					<Search size={18} />
 				</button>

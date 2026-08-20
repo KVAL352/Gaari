@@ -58,7 +58,13 @@
 
 <div class="flex min-h-screen flex-col">
 	<Header />
-	<main id="events" class="flex-1">
+	<!-- tabindex="-1" gjoer at hopp-lenken faktisk flytter fokus hit. Uten den
+	     flytter href="#events" bare rullingen, og document.activeElement blir
+	     <body>. Chrome lar riktignok neste Tab fortsette fra fragmentet, saa det
+	     ser ut til aa virke, men fokus staar ikke noe sted: en skjermleser
+	     annonserer ingen ny posisjon, og oppfoerselen avhenger av nettleseren.
+	     Elementet er ikke tabbbart, bare fokuserbart programmatisk. -->
+	<main id="events" tabindex="-1" class="flex-1">
 		{@render children()}
 	</main>
 	<Footer />
