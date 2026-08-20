@@ -103,10 +103,14 @@
 	/* Accent (Sundt vermillion red) */
 	--color-accent:        var(--funkis-red);
 	--color-accent-hover:  var(--funkis-red-hover);
-	/* Heldekkende flater med hvit tekst oppaa. Skilt fra --color-accent fordi
-	   én rødfarge ikke kan gjøre begge jobbene i mørk modus: tekst mot #121212
-	   krever luminans over 0,226, hvit tekst oppaa krever under 0,183. */
-	--color-accent-fill:   var(--funkis-red);
+	/* Tekst som ligger OPPAA en roed flate. Hvit i lys modus (5,43:1 paa
+	   #C82D2D). I moerk modus er roedfargen lysere, og da maa teksten vaere
+	   moerk i stedet — se overstyringen nedenfor. */
+	--color-on-accent:     #FFFFFF;
+	/* Roed som skal ligge paa en flate som er lys uansett fargemodus, som
+	   «Gåri-uka»-merket oppaa arrangementsbilder. Endres aldri i moerk modus:
+	   flaten under gjoer det ikke, saa teksten kan heller ikke. 5,43:1 paa hvitt. */
+	--color-accent-on-light: #C82D2D;
 	--color-accent-subtle: var(--funkis-red-subtle);
 
 	/* Status badges */
@@ -163,12 +167,25 @@
 		--color-text-secondary: #B0B0AE;
 		--color-text-muted:     #9A9A98;
 
-		/* Rød som tekst mot mørk flate. #C82D2D ga 3,45:1 mot #121212, altså
-		   under AA-kravet, og det gjaldt hver eneste røde lenke i mørk modus.
-		   #EF6B6B gir 6,23:1 mot bakgrunnen, 5,55:1 mot kortflaten og 5,10:1 mot
-		   den hevede flaten. --color-accent-fill står urørt, saa knapper med hvit
-		   tekst beholder 5,43:1. */
-		--color-accent:        #EF6B6B;
+		/* Én rød i mørk modus, ikke to.
+		
+		   #C82D2D ga 3,45:1 som tekst mot #121212, altså under AA. Første forsøk
+		   var å lysne bare tekstfargen, men da fikk siden to røde ved siden av
+		   hverandre — logo og «Les mer» i én tone, primærknappen i en annen — og
+		   det leste som en feil.
+		
+		   #FF5028 løser begge deler. Den er ikke Sundt-rødt tilsatt hvitt, som
+		   blir rosa fordi hvitt tar metningen med seg, men samme rødfarge med mer
+		   lys i seg. Grønnkanalen veier 0,7152 mot rødkanalens 0,2126, saa litt
+		   grønt løfter luminansen uten aa vaske ut fargen.
+		
+		   5,74:1 mot sidebakgrunnen, 5,10:1 mot kortflaten, 4,69:1 mot den hevede.
+		   Prisen er at hvit tekst ikke kan ligge oppaa den (3,27:1). Derfor er
+		   --color-on-accent moerk her. Hover gaar lysere, ikke moerkere, som er
+		   riktig retning paa moerk bakgrunn. */
+		--funkis-red:          #FF5028;
+		--funkis-red-hover:    #FF6B45;
+		--color-on-accent:     #1A0606;  /* 5,99:1 paa #FF5028, 6,94:1 paa hover */
 
 		/* Accent stays visible on dark bg */
 		--funkis-red-subtle:   #2A1616;

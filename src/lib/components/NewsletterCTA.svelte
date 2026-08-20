@@ -220,7 +220,7 @@
 				<button
 					type="submit"
 					disabled={status === 'submitting'}
-					class="rounded-lg bg-[var(--funkis-red)] px-5 text-sm font-semibold text-white hover:bg-[var(--funkis-red-hover)] disabled:opacity-70"
+					class="rounded-lg bg-[var(--funkis-red)] px-5 text-sm font-semibold text-[var(--color-on-accent)] hover:bg-[var(--funkis-red-hover)] disabled:opacity-70"
 					style="height: 44px;"
 				>
 					{$t('nlSubscribe')}
@@ -288,7 +288,7 @@
 			<button
 				type="submit"
 				disabled={status === 'submitting'}
-				class="rounded-lg bg-[var(--funkis-red)] px-5 text-sm font-semibold text-white hover:bg-[var(--funkis-red-hover)] disabled:opacity-70"
+				class="rounded-lg bg-[var(--funkis-red)] px-5 text-sm font-semibold text-[var(--color-on-accent)] hover:bg-[var(--funkis-red-hover)] disabled:opacity-70"
 				style="height: 44px;"
 			>
 				{$t('nlSubscribe')}

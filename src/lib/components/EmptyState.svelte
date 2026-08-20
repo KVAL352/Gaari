@@ -29,7 +29,7 @@
 		</button>
 		<button
 			onclick={onBrowseAll}
-			class="rounded-xl bg-[var(--color-accent-fill)] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+			class="rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-sm font-medium text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-hover)]"
 		>
 			{$t('browseAll')}
 		</button>

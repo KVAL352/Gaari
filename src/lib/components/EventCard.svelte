@@ -285,8 +285,10 @@
 	}
 
 	.card:hover .read-more-btn {
+		/* Fylles med aksentfargen, saa teksten maa foelge flaten og ikke vaere
+		   hardkodet hvit. I moerk modus er flaten lys og hvit tekst ga 3,27:1. */
 		background: var(--color-accent);
-		color: white;
+		color: var(--color-on-accent);
 		text-decoration: none;
 	}
 

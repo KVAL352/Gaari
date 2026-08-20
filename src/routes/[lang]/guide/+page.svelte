@@ -425,7 +425,7 @@
 		<div class="px-6 pt-4 pb-6 md:px-8">
 			<a
 				href="/{$lang}/{ctaConfig.slug}"
-				class="flex items-center justify-between rounded-xl bg-[var(--color-accent-fill)] px-5 py-3.5 font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+				class="flex items-center justify-between rounded-xl bg-[var(--color-accent)] px-5 py-3.5 font-semibold text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-hover)]"
 			>
 				<span>{ctaConfig.label}</span>
 				<span aria-hidden="true" class="text-lg">→</span>

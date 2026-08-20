@@ -66,7 +66,7 @@
 	{/if}
 	<a
 		href={homePath}
-		class="inline-block rounded-xl bg-[var(--color-accent-fill)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+		class="inline-block rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-hover)]"
 	>
 		&larr; {homeLabel}
 	</a>

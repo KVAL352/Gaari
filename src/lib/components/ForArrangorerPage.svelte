@@ -216,7 +216,7 @@
 					href="#how-it-works"
 					data-umami-event="for-arrangorer-hero-cta"
 					onclick={() => trackEvent('for-arrangorer-hero-cta')}
-					class="inline-block rounded-xl bg-[var(--funkis-red)] px-8 py-3 text-base font-semibold text-white hover:opacity-90"
+					class="inline-block rounded-xl bg-[var(--funkis-red)] px-8 py-3 text-base font-semibold text-[var(--color-on-accent)] hover:opacity-90"
 					style="min-height: 44px; line-height: 24px;"
 				>
 					{$lang === 'no' ? 'Se hvordan det fungerer' : 'See how it works'}
@@ -515,7 +515,7 @@
 					<div class="mx-auto overflow-hidden rounded-xl bg-[var(--color-bg-surface)]" style="max-width: 500px; box-shadow: var(--shadow-lg);">
 						<div class="border-b border-[var(--color-border)] px-4 py-3">
 							<div class="flex items-center gap-2">
-								<div class="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[9px] font-bold text-white">G</div>
+								<div class="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[9px] font-bold text-[var(--color-on-accent)]">G</div>
 								<div>
 									<p class="font-semibold" style="font-size: 11px;">Gåri Bergen</p>
 									<p class="text-[var(--color-text-muted)]" style="font-size: 9px;">{$lang === 'no' ? 'Denne uken i Bergen' : 'This week in Bergen'}</p>
@@ -560,7 +560,7 @@
 							<div class="mx-auto mt-2 h-3 w-16 rounded-full bg-[var(--funkis-iron)]"></div>
 							<div class="p-3 pt-3">
 								<div class="mb-2 flex items-center gap-2">
-									<div class="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[8px] font-bold text-white">G</div>
+									<div class="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[8px] font-bold text-[var(--color-on-accent)]">G</div>
 									<span class="font-semibold" style="font-size: 11px;">gaari_bergen</span>
 								</div>
 								<div class="relative overflow-hidden rounded-lg" style="aspect-ratio: 1/1;">
@@ -590,7 +590,7 @@
 				{#if validHeroImages.length > 0}
 					<div class="mx-auto overflow-hidden rounded-xl bg-[var(--color-bg-surface)]" style="max-width: 500px; box-shadow: var(--shadow-lg);">
 						<div class="flex items-center gap-2 px-3 py-2.5">
-							<div class="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[10px] font-bold text-white">G</div>
+							<div class="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--funkis-red)] text-[10px] font-bold text-[var(--color-on-accent)]">G</div>
 							<div>
 								<p class="font-semibold" style="font-size: 11px;">Gåri Bergen</p>
 								<p class="text-[var(--color-text-muted)]" style="font-size: 9px;">{$lang === 'no' ? 'Sponset' : 'Sponsored'}</p>
@@ -772,7 +772,7 @@
 								href="#contact"
 								data-umami-event="for-arrangorer-pricing-{tier.name.toLowerCase()}"
 								onclick={() => trackEvent(`for-arrangorer-pricing-${tier.name.toLowerCase()}`)}
-								class="block rounded-xl bg-[var(--funkis-red)] px-6 py-3 text-center text-base font-semibold text-white hover:opacity-90"
+								class="block rounded-xl bg-[var(--funkis-red)] px-6 py-3 text-center text-base font-semibold text-[var(--color-on-accent)] hover:opacity-90"
 								style="min-height: 44px; line-height: 24px;"
 							>
 								{$lang === 'no' ? 'Ta kontakt' : 'Get in touch'}
@@ -979,7 +979,7 @@
 				<button
 					type="submit"
 					disabled={contactStatus === 'submitting'}
-					class="w-full rounded-xl bg-[var(--funkis-red)] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-70"
+					class="w-full rounded-xl bg-[var(--funkis-red)] px-6 py-2.5 text-sm font-semibold text-[var(--color-on-accent)] hover:opacity-90 disabled:opacity-70"
 					style="min-height: 44px;"
 				>
 					{#if contactStatus === 'submitting'}

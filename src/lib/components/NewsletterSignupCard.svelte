@@ -120,7 +120,7 @@
 					     bildet bak gjennom, og kontrasten mot den røde teksten ble
 					     bestemt av fotografiet. I mørk modus falt den til 4,45:1, like
 					     under AA. Helt hvit gir 5,43:1 uansett hva som ligger under. -->
-					<span class="rounded bg-white px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-accent-fill)] shadow-sm">
+					<span class="rounded bg-white px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-accent-on-light)] shadow-sm">
 						{$lang === 'no' ? 'Gåri-uka' : 'The Gåri week'}
 					</span>
 				</div>
@@ -173,7 +173,7 @@
 					<button
 						type="submit"
 						disabled={status === 'submitting'}
-						class="w-full rounded-lg bg-[var(--funkis-red)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--funkis-red-hover)] disabled:opacity-70"
+						class="w-full rounded-lg bg-[var(--funkis-red)] px-4 text-sm font-semibold text-[var(--color-on-accent)] transition-colors hover:bg-[var(--funkis-red-hover)] disabled:opacity-70"
 						style="height: 44px;"
 					>
 						{subscribeLabel}

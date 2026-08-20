@@ -63,7 +63,7 @@ const AA_TEKST = 4.5;
 
 /** Merkene i StatusBadge.svelte, som par av bakgrunns- og tekst-token. */
 const MERKER: Array<[string, string, string]> = [
-	['today', '--color-today', 'hvit'],
+	['today', '--color-today', '--color-on-accent'],
 	['free', '--color-free', '--color-free-text'],
 	['soldout', '--color-soldout', 'hvit'],
 	['lasttickets', '--color-lasttickets-bg', '--color-lasttickets-text'],
@@ -83,6 +83,7 @@ for (const morkModus of [false, true]) {
 				'--color-text-primary',
 				'--color-text-secondary',
 				'--color-text-muted',
+				'--color-accent-on-light',
 				...MERKER.flatMap(([, bg, fg]) => (fg === 'hvit' ? [bg] : [bg, fg]))
 			];
 			for (const k of kreves) expect(t[k], `${k} mangler`).toBeTruthy();
@@ -108,10 +109,13 @@ for (const morkModus of [false, true]) {
 			});
 		}
 
-		it('aksentfargen er lesbar som tekst på kortflaten', () => {
-			// «Gåri-uka»-merket er rød tekst på hvit flate. Flaten er ugjennomsiktig
-			// med vilje — med gjennomsiktighet bestemte bildet bak kontrasten.
-			const r = kontrast(t['--funkis-red'], '#FFFFFF');
+		it('rød på permanent lys flate er lesbar', () => {
+			// «Gåri-uka»-merket er rød tekst på en hvit flate som ikke følger
+			// fargemodus. Flaten er ugjennomsiktig med vilje — med gjennomsiktighet
+			// bestemte bildet bak kontrasten. Teksten bruker derfor et token som
+			// heller ikke endrer seg: --funkis-red er lysere i mørk modus og ville
+			// gitt 3,27:1 her.
+			const r = kontrast(t['--color-accent-on-light'], '#FFFFFF');
 			expect(r, `${r.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_TEKST);
 		});
 	});

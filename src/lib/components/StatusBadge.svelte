@@ -10,7 +10,7 @@
 	let { type }: Props = $props();
 
 	const colorClasses: Record<BadgeType, string> = {
-		today: 'bg-[var(--color-today)] text-white',
+		today: 'bg-[var(--color-today)] text-[var(--color-on-accent)]',
 		free: 'bg-[var(--color-free)] text-[var(--color-free-text)]',
 		soldout: 'bg-[var(--color-soldout)] text-white',
 		lasttickets: 'bg-[var(--color-lasttickets-bg)] text-[var(--color-lasttickets-text)]',

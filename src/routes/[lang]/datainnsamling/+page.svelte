@@ -411,7 +411,7 @@
 				<button
 					type="submit"
 					disabled={optOutStatus === 'submitting'}
-					class="rounded-xl bg-[var(--color-accent-fill)] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[var(--color-accent-hover)] disabled:opacity-70"
+					class="rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-sm font-semibold text-[var(--color-on-accent)] hover:bg-[var(--color-accent-hover)] disabled:opacity-70"
 				>
 					{#if optOutStatus === 'submitting'}
 						{$lang === 'no' ? 'Sender...' : 'Sending...'}

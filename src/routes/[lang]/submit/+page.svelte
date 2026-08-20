@@ -456,7 +456,7 @@
 				onclick={() => mode = 'event'}
 				class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-[var(--color-border)] p-8 text-center transition-all hover:border-[var(--color-accent)] hover:shadow-md"
 			>
-				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent-fill)]/10 text-[var(--color-accent)] transition-colors group-hover:bg-[var(--color-accent-fill)]/20">
+				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] transition-colors group-hover:bg-[var(--color-accent)]/20">
 					<CalendarPlus size={24} />
 				</div>
 				<span class="text-lg font-semibold">{$t('submitChoiceSingle')}</span>
@@ -467,7 +467,7 @@
 				onclick={() => mode = 'website'}
 				class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-[var(--color-border)] p-8 text-center transition-all hover:border-[var(--color-accent)] hover:shadow-md"
 			>
-				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent-fill)]/10 text-[var(--color-accent)] transition-colors group-hover:bg-[var(--color-accent-fill)]/20">
+				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] transition-colors group-hover:bg-[var(--color-accent)]/20">
 					<Globe size={24} />
 				</div>
 				<span class="text-lg font-semibold">{$t('submitChoiceWebsite')}</span>
@@ -580,7 +580,7 @@
 			<button
 				type="submit"
 				disabled={websiteSubmitting}
-				class="w-full rounded-xl bg-[var(--color-accent-fill)] py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-70"
+				class="w-full rounded-xl bg-[var(--color-accent)] py-3 text-sm font-semibold text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-70"
 			>
 				{websiteSubmitting ? ($lang === 'no' ? 'Sender inn...' : 'Submitting...') : $t('submit')}
 			</button>
@@ -588,7 +588,7 @@
 
 	{:else if websiteSubmitted}
 		<!-- Website success -->
-		<div class="rounded-2xl bg-[var(--color-accent-fill)] p-8 text-center text-white shadow-lg">
+		<div class="rounded-2xl bg-[var(--color-accent)] p-8 text-center text-[var(--color-on-accent)] shadow-lg">
 			<p class="text-2xl font-bold">
 				{$lang === 'no' ? 'Takk!' : 'Thank you!'}
 			</p>
@@ -602,7 +602,7 @@
 
 	{:else if submitted}
 		<!-- Event success -->
-		<div class="rounded-2xl bg-[var(--color-accent-fill)] p-8 text-center text-white shadow-lg">
+		<div class="rounded-2xl bg-[var(--color-accent)] p-8 text-center text-[var(--color-on-accent)] shadow-lg">
 			<p class="text-2xl font-bold">
 				{$lang === 'no' ? 'Takk!' : 'Thank you!'}
 			</p>
@@ -813,7 +813,7 @@
 			<button
 				type="submit"
 				disabled={submitting}
-				class="w-full rounded-xl bg-[var(--color-accent-fill)] py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-70"
+				class="w-full rounded-xl bg-[var(--color-accent)] py-3 text-sm font-semibold text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-70"
 			>
 				{submitting ? ($lang === 'no' ? 'Sender inn...' : 'Submitting...') : $t('submit')}
 			</button>
