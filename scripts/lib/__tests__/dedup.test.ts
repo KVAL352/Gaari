@@ -124,6 +124,7 @@ describe('scoreEvent', () => {
 		title_no: 'Test',
 		date_start: '2026-03-15T19:00:00',
 		source: 'bergenlive',
+		venue_name: null,
 		image_url: null,
 		ticket_url: null,
 		description_no: null
