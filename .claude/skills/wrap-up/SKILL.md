@@ -63,7 +63,27 @@ last_verified: YYYY-MM-DD
 
 If nothing to add, report PASS.
 
-### 4. Quick verification
+### 4. Secrets backup
+
+!`node .claude/skills/wrap-up/scripts/check-env-backup.mjs`
+
+The check above compares the key **names** in `.env` against the set recorded the last
+time `.env` was backed up to Proton Pass. It never reads values.
+
+- **PASS** — nothing to do.
+- **ACTION NEEDED** — tell the user which keys are new, and that the Proton Pass note is
+  now stale. `.env` is gitignored and exists only on this machine; GHA secrets cannot be
+  read back out. A lost disk with no current backup means requesting new keys from every
+  provider. Do not treat this as a minor nit.
+- After the user confirms they have taken a fresh backup — and only then — run
+  `node .claude/skills/wrap-up/scripts/check-env-backup.mjs --record` to close the loop.
+  Recording without an actual backup makes the check lie in every future session.
+
+The state file `.env.backup-state` holds key names and a date, no values, and is covered
+by the `.env.*` rule in `.gitignore`. It is deliberately local: it describes this machine's
+backup status, not the project's.
+
+### 5. Quick verification
 
 If code was changed during the session, run type check and tests:
 - `npx svelte-check --threshold error`
@@ -71,7 +91,7 @@ If code was changed during the session, run type check and tests:
 
 Report results. If failures, flag them as ACTION NEEDED.
 
-### 5. Session summary
+### 6. Session summary
 
 Write a brief summary:
 
