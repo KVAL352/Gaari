@@ -32,6 +32,10 @@ interface MorningStats {
 	} | null;
 	mailerlite: {
 		subscribers: number;
+		/** Active only — the real denominator for reach. `subscribers` counts
+		 *  unsubscribed and bounced addresses too, which made the two numbers
+		 *  look contradictory in the morning briefing. */
+		subscribersActive: number;
 		lastCampaign: {
 			name: string;
 			date: string;
@@ -164,13 +168,45 @@ async function fetchMailerLite(): Promise<MorningStats['mailerlite']> {
 		'Content-Type': 'application/json',
 	};
 
-	const [subsRes, campsRes] = await Promise.all([
+	// A personalized newsletter is split into one campaign per preference
+	// profile — 38 of them in week 34. The campaigns endpoint pages at 25 by
+	// default, so an unpaginated fetch silently reported a fraction of the
+	// real reach (26 recipients instead of 120). Page until the results are
+	// older than the window we report on.
+	const RECENT_DAYS = 7;
+	const recentCutoff = Date.now() - RECENT_DAYS * 24 * 60 * 60 * 1000;
+
+	async function fetchSentCampaigns(): Promise<any[]> {
+		const all: any[] = [];
+		for (let page = 1; page <= 10; page++) {
+			const res = await fetch(
+				`https://connect.mailerlite.com/api/campaigns?filter[status]=sent&limit=100&page=${page}`,
+				{ headers }
+			);
+			if (!res.ok) break;
+			const json = await res.json();
+			const rows: any[] = json.data || [];
+			all.push(...rows);
+
+			if (page >= (json.meta?.last_page ?? 1) || rows.length === 0) break;
+
+			// Results are newest-first; stop once a page ends before the window.
+			const oldest = rows[rows.length - 1];
+			const ts = oldest?.finished_at || oldest?.scheduled_for || oldest?.created_at;
+			if (ts && new Date(ts).getTime() < recentCutoff) break;
+		}
+		return all;
+	}
+
+	const [subsRes, activeRes, campaignRows] = await Promise.all([
 		fetch('https://connect.mailerlite.com/api/subscribers?limit=0', { headers }),
-		fetch('https://connect.mailerlite.com/api/campaigns?filter[status]=sent', { headers }),
+		fetch('https://connect.mailerlite.com/api/subscribers?filter[status]=active&limit=0', { headers }),
+		fetchSentCampaigns(),
 	]);
 
 	const subs = await subsRes.json();
-	const camps = await campsRes.json();
+	const activeSubs = await activeRes.json();
+	const camps = { data: campaignRows };
 
 	// Filter campaigns sent in last 48 hours for newsletter health check
 	const cutoff = Date.now() - 48 * 60 * 60 * 1000;
@@ -211,8 +247,9 @@ async function fetchMailerLite(): Promise<MorningStats['mailerlite']> {
 
 	return {
 		subscribers: subs.total ?? 0,
+		subscribersActive: activeSubs.total ?? 0,
 		lastCampaign,
-		totalSent: camps.data?.length ?? 0,
+		totalSent: recent.length,
 		newsletterHealth,
 	};
 }

@@ -89,7 +89,10 @@ Present everything as one compact briefing:
 - Snitt sider/besok: Y/X
 
 ### Nyhetsbrev
-- X abonnenter
+- X aktive abonnenter (fra `mailerlite.subscribersActive`) av Y totalt (`mailerlite.subscribers`)
+  - Bruk alltid det aktive tallet som nevner for rekkevidde. `subscribers` teller
+    med avmeldte og bouncede, så de to tallene ser motstridende ut om bare
+    totalen vises.
 - Siste utsending: kampanjenavn (dato) — apningsrate X%, klikkrate X%
 - **Helsesjekk** (fra `mailerlite.newsletterHealth`):
   - Hvis `status: ok` — en linje: "N kampanjer siste 48t — apningsrate X%, klikkrate Y%, ingen feil"
