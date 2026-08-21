@@ -15,3 +15,13 @@
 - **Canary Scan** (`canary-scan-monthly.yml`): 1st of month 07:00 UTC. `scripts/canary-scan.ts --file canary-targets.txt`. Detects database copying by scanning competitor URLs for planted canary fingerprints. On hit: saves evidence locally, archives targets to Wayback Machine, writes action checklist with lawyer-review reminder, emails post@gaari.no, uploads evidence as 365-day artifact. Secrets: SUPABASE, RESEND_API_KEY.
 - **Check Stale Events** (`check-stale-events.yml`): Mondays 06:00 UTC. `scripts/check-stale-events.ts`. Verifies that each upcoming event (within 30 days) still matches its source — title and date. Catches drift where a source updated an event but scraper short-circuited via `eventExists()`. Flagged events are reported (artifact + email), never auto-mutated. Manual resolution: delete row, let next scrape re-create. Secrets: SUPABASE, RESEND_API_KEY.
 - **Admin CLI** (`scripts/admin-ops.ts`): Local only. `cd scripts && npx tsx admin-ops.ts <list|approve|reject|status>`.
+
+## Tilgjengelighet i CI
+
+`ci.yml` kjoerer axe-core mot WCAG 2.2 AA etter `npm test`, i to steg: en
+browser-install (`npx playwright install --with-deps chromium`) og selve suiten
+(`npm run test:a11y`). Feiler den, lastes `playwright-report/` opp som artefakt
+med sju dagers levetid, slik at bruddet kan leses uten aa kjoere alt lokalt.
+
+Steget bruker ikke Supabase-secrets. Dev-serveren startes mot en ugyldig vert,
+se `.claude/docs/testing.md`.
