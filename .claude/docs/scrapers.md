@@ -75,6 +75,7 @@
 | Stene Matglede | `stenematglede.ts` | Squarespace eventlist (cooking courses, food events) |
 | Swing 'n Sweet Jazzclub | `swingnsweetjazzclub.ts` | HTML (jazz events) |
 | Bodega | `bodega.ts` | Google Calendar JSON API (public calendar, filters non-public events) |
+| Bookibud | `bookibud.ts` | Partner REST API (bearer token, paginated). Bergen Street Food + Standup Bergen. Groups day-rows by `eventId`; prefixes big-screen football/F1 with «Storskjerm: » to avoid a dedup collision with `brann.ts` |
 
 ## Sports & outdoor
 | Source | File | Method |

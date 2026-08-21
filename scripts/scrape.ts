@@ -63,6 +63,7 @@ import { scrape as scrapeBergenPride } from './scrapers/bergenpride.js';
 import { scrape as scrapeOstre } from './scrapers/ostre.js';
 import { scrape as scrapeSwingNSweet } from './scrapers/swingnsweetjazzclub.js';
 import { scrape as scrapeBodega } from './scrapers/bodega.js';
+import { scrape as scrapeBookibud } from './scrapers/bookibud.js';
 import { scrape as scrapeJungelfest } from './scrapers/jungelfest.js';
 import { scrape as scrapeLoddefjord } from './scrapers/loddefjord.js';
 import { scrape as scrapeGenerasjonsfestivalen } from './scrapers/generasjonsfestivalen.js';
@@ -131,6 +132,7 @@ export const scrapers: Record<string, () => Promise<{ found: number; inserted: n
 	biff: scrapeBIFF,
 	bergenpride: scrapeBergenPride, // PAUSET under festivalen via tidlig-retur i bergenpride.ts (se der). Beholdes i map så kildetellingen forblir 58.
 	bodega: scrapeBodega,
+	bookibud: scrapeBookibud,
 	jungelfest: scrapeJungelfest,
 	loddefjord: scrapeLoddefjord,
 	generasjonsfestivalen: scrapeGenerasjonsfestivalen,

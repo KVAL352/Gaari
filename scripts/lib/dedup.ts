@@ -74,6 +74,11 @@ const SOURCE_RANK: Record<string, number> = {
 	brettspill: 4,
 	studiovertikal: 4,
 
+	// Bookibud er arrangorens egen bookingplattform, ikke en konkurrerende
+	// oppforingsside. API-et er bygget for Gaari, feltene er strukturerte og
+	// bildelenkene permanente, saa den slaar community-kildene i tier 3.
+	bookibud: 4,
+
 	// Tier 3 — city / community aggregators
 	loddefjord: 3,
 	studentbergen: 3,
