@@ -65,6 +65,11 @@
     "description": "Hei fra hei@paintnsip.no 2026-04-21, som svar paa bilderettighets-runden: «Hvilke bilder er det snakk om? Kun de som ligger i eventkalenderen vaar?» Spoersmaalet er konkret og har fortsatt et svar: det gjelder bildene som foelger arrangementene deres paa gaari.no, altsaa de som ligger paa deres egne eventsider. Kjersti bestemte 2026-08-18 at det skal sendes en ny e-post, men ikke med en gang. Traaden ligger i Outreach/Unresolved (UID 12). Husk at prisen skal staa naar vi tilbyr noe, jf. feedback_communication."
   },
   {
+    "date": "2026-08-26",
+    "title": "Presiser tidsstempelet i Bookibud-samtykkebeviset",
+    "description": "consent.json viser til «Opptak fra mote 2026-08-11, ca 16:55 til 17:14» som bevis for bildesamtykke. Motet varte 13:30-14:10 og opptaket er 40 minutter, saa 16:55 kan ikke vaere klokkeslett — det er etter alt aa doemme posisjon i opptaket, altsaa 16 minutter og 55 sekunder inn. Kjersti maa bekrefte det, for jeg kan ikke vite det sikkert. Naar det er bekreftet: skriv «16:55 inn i opptaket» eller lignende i private/moter/2026-08-11-bookibud/README.md og i consent.json, saa det ikke er noe aa tolke. Gjelder et dokument som skal fungere som bevis hvis noen bestrider bildebruken, og da er tvetydighet en reell svakhet. Fila i private/ er gitignorert; consent.json er det ikke."
+  },
+  {
     "date": "2026-08-28",
     "title": "Sjekk om kaskjerbergen.no er aktiv igjen (kvartalsvis)",
     "description": "Per 2026-05-28: kaskjerbergen.no har DNS men port 443 refused — tilsynelatende defunct. Var Gåris nærmeste direkte konkurrent (samme aggregator-modell, laget av Paal Kobbeltvedt og Eskild Halvorsen). Sjekk: curl -v https://kaskjerbergen.no/. Hvis den er tilbake: legg til i scripts/canary-targets.txt under hovedlisten. Også sjekk om 10times.com og bandsintown.com fortsatt blokkerer vår User-Agent (anti-bot 403) — hvis åpne, legg dem til. Etter sjekk: flytt reminderen tre måneder frem."
