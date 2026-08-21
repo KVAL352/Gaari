@@ -10,11 +10,20 @@ export interface PromotedPlacement {
 	active: boolean;
 	start_date: string;
 	end_date: string | null;
-	contact_email: string | null;
-	notes: string | null;
 	logo_url: string | null;
 	created_at: string;
+	/** Admin-only. Never selected on public paths — see PUBLIC_PLACEMENT_COLUMNS. */
+	contact_email?: string | null;
+	/** Admin-only, may hold free-text about a person. */
+	notes?: string | null;
 }
+
+// The public site renders promoted placements on every collection page, so the
+// row lands in the SSR payload that ships to the browser. Selecting '*' put the
+// customer's contact_email and Stripe identifiers there. List the columns the
+// rendering actually needs instead, and leave the rest to supabaseAdmin.
+const PUBLIC_PLACEMENT_COLUMNS =
+	'id, venue_name, collection_slugs, tier, slot_share, active, start_date, end_date, logo_url, created_at';
 
 export interface ActivePartner {
 	venue_name: string;
@@ -66,7 +75,7 @@ export async function getActivePromotions(collectionSlug: string): Promise<Promo
 
 	const { data, error } = await supabase
 		.from('promoted_placements')
-		.select('*')
+		.select(PUBLIC_PLACEMENT_COLUMNS)
 		.eq('active', true)
 		.contains('collection_slugs', [collectionSlug])
 		.lte('start_date', today)
