@@ -39,7 +39,9 @@ describe('utenEpost', () => {
 	});
 
 	it('tar alle adressene, ikke bare den foerste', () => {
-		expect(utenEpost('a@b.no og c@d.com')).toBe('[e-post fjernet] og [e-post fjernet]');
+		expect(utenEpost('en@eksempel.no og to@eksempel.com')).toBe(
+			'[e-post fjernet] og [e-post fjernet]'
+		);
 	});
 
 	it('lar tekst uten adresser staa uroert', () => {
