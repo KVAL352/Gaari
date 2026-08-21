@@ -55,11 +55,6 @@
     "description": "Pagineringsfeilen i deduplicate() ble fikset 20. august (commit 5eb3b76). Dedup hentet uten range() og saa bare de 1000 tidligste av 1914 rader, saa alt etter 7. oktober hadde aldri vaert ryddet. Etter kjoeringen 06:00 UTC skal 8 par vaere borte: Kjoett Festival, Sa ka la Oktober, to Colonialen ost-og-vin, vill vill vest (bodega), Critical Mass (null-kilde), Heavy Metal Festen || Hulen, DNT Baaltreff. Kjoer scripts/dedup-dryrun.ts — den skal naa vaere tom eller naer tom. Er den det ikke, virker ikke pagineringen i produksjon."
   },
   {
-    "date": "2026-08-21",
-    "title": "CALENDAR_FEED_TOKEN staar to ganger i .env med ulike verdier",
-    "description": "Funnet 20. august: .env har 27 linjer men 26 unike noekler. CALENDAR_FEED_TOKEN er definert paa linje 9 og linje 16 med to FORSKJELLIGE verdier. Testet empirisk mot dotenv 17.3.1: siste forekomst vinner, altsaa gjelder linje 16 og linje 9 er doed. Sammenlign begge mot CALENDAR_FEED_TOKEN i Vercel, behold den som stemmer, slett den andre. Vercel har sin egen env-variabel, saa produksjon er ikke paavirket av rotet lokalt — men /api/calendar.ics oppfoerer seg ulikt lokalt og i prod saa lenge det staar. Ta ny Proton Pass-backup etterpaa, notatet fra 20. august inneholder den doede linja."
-  },
-  {
     "date": "2026-08-25",
     "title": "Oppdater Akvariet-priser tilbake til normalpriser",
     "description": "Sommerpriser utløper 31. august. Fra 1. september gjelder dagens priser igjen. Sjekk akvariet.no og oppdater ADMISSION_PRICE i akvariet.ts."
