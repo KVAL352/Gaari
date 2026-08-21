@@ -59,8 +59,19 @@ interface GroupedSubscribers {
 
 // ── MailerLite API helpers ──
 
-async function mlFetch(path: string, options: RequestInit = {}): Promise<Response> {
-	return fetch(`${MAILERLITE_BASE}${path}`, {
+// MailerLite allows 120 requests/minute. A personalized send makes roughly
+// 3 calls per group plus one per subscriber, which overran the limit on
+// 2026-08-20 and silently dropped two groups. Retry on 429 and slow down
+// before we hit the wall, so a busy week degrades in speed, not in delivery.
+const ML_MAX_RETRIES = 5;
+const ML_LOW_REMAINING = 5;
+
+async function mlFetch(
+	path: string,
+	options: RequestInit = {},
+	attempt = 0
+): Promise<Response> {
+	const res = await fetch(`${MAILERLITE_BASE}${path}`, {
 		...options,
 		headers: {
 			'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
@@ -69,6 +80,25 @@ async function mlFetch(path: string, options: RequestInit = {}): Promise<Respons
 			...options.headers
 		}
 	});
+
+	if (res.status === 429 && attempt < ML_MAX_RETRIES) {
+		const retryAfter = Number(res.headers.get('retry-after'));
+		const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
+			? retryAfter * 1000
+			: Math.min(60_000, 2 ** attempt * 2000);
+		console.warn(`  Rate limited on ${path} — waiting ${Math.round(waitMs / 1000)}s (attempt ${attempt + 1}/${ML_MAX_RETRIES})`);
+		await delay(waitMs);
+		return mlFetch(path, options, attempt + 1);
+	}
+
+	// Back off before the window is exhausted rather than after.
+	const remaining = Number(res.headers.get('x-ratelimit-remaining'));
+	if (Number.isFinite(remaining) && remaining <= ML_LOW_REMAINING) {
+		console.warn(`  Rate limit nearly spent (${remaining} left) — pausing 60s`);
+		await delay(60_000);
+	}
+
+	return res;
 }
 
 async function fetchAllSubscribers(): Promise<MailerLiteSubscriber[]> {
@@ -103,7 +133,13 @@ async function createAndSendCampaign(
 	subject: string,
 	htmlContent: string,
 	subscriberEmails: string[]
-): Promise<{ success: boolean; campaignId?: string; error?: string }> {
+): Promise<{
+	success: boolean;
+	campaignId?: string;
+	error?: string;
+	recipients?: number;
+	addFailures?: string[];
+}> {
 	// Step 1: Create a temporary group for this segment
 	const groupName = `newsletter-${Date.now()}-${name.slice(0, 30)}`;
 	const groupRes = await mlFetch('/groups', {
@@ -119,14 +155,30 @@ async function createAndSendCampaign(
 	const group = await groupRes.json();
 	const groupId = group.data.id;
 
-	// Step 2: Add subscribers to the group one by one
+	// Step 2: Add subscribers to the group one by one.
+	// A subscriber that fails to join gets no newsletter, so the failures are
+	// counted and returned — previously they were only warned about, which let
+	// the job finish green while people silently missed the send.
+	let added = 0;
+	const addFailures: string[] = [];
 	for (const email of subscriberEmails) {
 		const addRes = await mlFetch(`/subscribers/${encodeURIComponent(email)}/groups/${groupId}`, {
 			method: 'POST'
 		});
-		if (!addRes.ok) {
-			console.warn(`  Warning: could not add ${email} to group: ${await addRes.text()}`);
+		if (addRes.ok) {
+			added++;
+		} else {
+			addFailures.push(email);
+			console.warn(`  Warning: could not add subscriber to group: ${await addRes.text()}`);
 		}
+	}
+
+	if (added === 0) {
+		return {
+			success: false,
+			error: `No subscribers could be added to group (${addFailures.length} failed)`,
+			addFailures
+		};
 	}
 
 	// Step 3: Create campaign targeting the group
@@ -164,7 +216,7 @@ async function createAndSendCampaign(
 		return { success: false, error: `Failed to schedule campaign: ${err}`, campaignId };
 	}
 
-	return { success: true, campaignId };
+	return { success: true, campaignId, recipients: added, addFailures };
 }
 
 // ── Event fetching ──
@@ -431,6 +483,7 @@ async function main() {
 	const weekLabel = getWeekLabel(now, 'no');
 	let sentCount = 0;
 	let errorCount = 0;
+	let missedCount = 0;
 	let firstSubject = '';
 	let firstHtml = '';
 
@@ -555,11 +608,21 @@ async function main() {
 
 			const result = await createAndSendCampaign(campaignName, subject, html, emails);
 			if (result.success) {
-				console.log(`    ✓ Campaign ${result.campaignId} sent`);
-				sentCount += emails.length;
+				// Count who actually joined the group, not the group's size —
+				// a failed add means that subscriber gets nothing.
+				const recipients = result.recipients ?? emails.length;
+				const missed = emails.length - recipients;
+				console.log(`    ✓ Campaign ${result.campaignId} sent to ${recipients}/${emails.length}`);
+				if (missed > 0) {
+					console.error(`    ✗ ${missed} subscriber(s) could not be added — they received nothing`);
+					errorCount += missed;
+					missedCount += missed;
+				}
+				sentCount += recipients;
 			} else {
 				console.error(`    ✗ Failed: ${result.error}`);
 				errorCount++;
+				missedCount += emails.length;
 			}
 
 			// Rate limit between campaigns
@@ -569,6 +632,9 @@ async function main() {
 
 	console.log('─'.repeat(50));
 	console.log(`Done. ${sentCount} emails ${DRY_RUN ? 'previewed' : 'sent'}, ${errorCount} errors.`);
+	if (missedCount > 0) {
+		console.error(`WARNING: ${missedCount} of ${subscribers.length} active subscribers received nothing.`);
+	}
 
 	// Send verification copy to post@gaari.no (live sends only)
 	if (!DRY_RUN && firstHtml && sentCount > 0) {
@@ -581,6 +647,7 @@ async function main() {
 		groups: groups.size,
 		sent: sentCount,
 		errors: errorCount,
+		missed: missedCount,
 		dryRun: DRY_RUN
 	});
 }
