@@ -1,0 +1,131 @@
+# Ytelsesbudsjettet som krav, ikke som notis.
+#
+# lighthouse-budget.json har ligget i repoet en stund uten at noe kjørte den.
+# Denne workflowen bygger produksjonsbygget, serverer det, måler fire sidetyper
+# med Lighthouse og bryter bygget hvis medianen ligger over en grense.
+#
+# Tre valg som er lette å gjøre feil senere:
+#
+#  * Produksjonsbygg, aldri `vite dev`. Dev-serveren serverer umodulerte moduler
+#    uten minifisering og med en egen HMR-klient. Tallene derfra måler
+#    byggeverktøyet, ikke siden.
+#  * Supabase-URL-en settes til en adresse som ikke finnes. Da faller rutene
+#    tilbake på seed-dataene i src/lib/data/seed-events.ts, og sidene ser like
+#    ut hver kjøring. Mot ekte data ville tallene svingt med hva som lå i basen,
+#    og arrangementssiden ville sluttet å svare så snart arrangementet var over.
+#    Samme grep som i playwright.config.ts.
+#  * Grensene senkes ikke for å få grønt. Feiler en side, er det siden som skal
+#    rettes.
+name: Ytelsesbudsjett (Lighthouse)
+
+on:
+  push:
+    branches: [master]
+    paths-ignore: ['docs/**', 'private/**', 'outputs/**', 'reports/**', '**.md']
+  pull_request:
+    branches: [master]
+    paths-ignore: ['docs/**', 'private/**', 'outputs/**', 'reports/**', '**.md']
+  workflow_dispatch:
+
+# En måling tar rundt et kvarter. Blir det pushet på nytt til samme gren, er
+# den forrige målingen uansett foreldet.
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  budsjett:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      # Samme dummy-verdier som resten av CI, men med en Supabase-adresse i
+      # .invalid-toppdomenet. Det er reservert og kan ikke slås opp, så
+      # tilbakefallet til seed-data slår inn hver gang og ikke bare som regel.
+      - name: Miljøvariabler for målingen
+        run: |
+          cp .env.ci .env
+          sed -i 's#^PUBLIC_SUPABASE_URL=.*#PUBLIC_SUPABASE_URL=https://supabase.invalid#' .env
+          grep '^PUBLIC_SUPABASE_URL=' .env
+
+      - name: Install dependencies
+        run: npm ci
+
+      # --no-save: Lighthouse trengs bare når denne workflowen kjører, og skal
+      # ikke ligge i package.json og bli installert av alle andre jobber. Versjonen
+      # er låst i scripts/lighthouse-budget-check.mjs — en ny Lighthouse-versjon
+      # kan flytte tallene uten at siden er endret.
+      - name: Install Lighthouse
+        run: npm install --no-save lighthouse@13.4.1
+
+      - name: Build (produksjon)
+        run: npm run build
+
+      # chrome-launcher leter etter nettleseren selv, men gjetningen avhenger av
+      # hva runner-bildet har installert. Her pekes den eksplisitt på det som
+      # faktisk finnes, og jobben stopper med en lesbar melding hvis ingenting gjør det.
+      - name: Finn Chrome
+        run: |
+          for kandidat in google-chrome google-chrome-stable chromium-browser chromium; do
+            if command -v "$kandidat" >/dev/null; then
+              echo "CHROME_PATH=$(command -v "$kandidat")" >> "$GITHUB_ENV"
+              "$kandidat" --version
+              exit 0
+            fi
+          done
+          echo "Fant ingen Chrome på runneren. Lighthouse kan ikke kjøre."
+          exit 1
+
+      - name: Start produksjonsbygget
+        run: |
+          nohup npx vite preview --port 4173 --strictPort > preview.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -sf -o /dev/null http://localhost:4173/no; then
+              echo "Serveren svarte etter ${i} s."
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Produksjonsbygget svarte ikke innen 60 sekunder:"
+          cat preview.log
+          exit 1
+
+      # Verten MÅ være localhost. hooks.server.ts 301-omdirigerer alle andre
+      # verter til gaari.no, og da ville målingen stille gått mot produksjon.
+      - name: Lighthouse mot budsjettet
+        run: |
+          set -o pipefail
+          node scripts/lighthouse-budget-check.mjs \
+            --base http://localhost:4173 \
+            --runs 3 \
+            --out-dir lighthouse-rapporter | tee lighthouse-rapporter.txt
+
+      # Tallene rett i sammendraget til kjøringen, slik at et brudd kan leses
+      # uten å laste ned noe eller kjøre alt på nytt lokalt.
+      - name: Skriv tallene i sammendraget
+        if: always()
+        run: |
+          {
+            echo '## Ytelsesbudsjett'
+            echo '```'
+            cat lighthouse-rapporter.txt 2>/dev/null || echo 'Målingen kom aldri i gang.'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Lighthouse-rapporter
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-rapporter
+          path: |
+            lighthouse-rapporter/
+            lighthouse-rapporter.txt
+            preview.log
+          retention-days: 7

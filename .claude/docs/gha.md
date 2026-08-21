@@ -1,6 +1,7 @@
 # GitHub Actions
 
 - **CI** (`ci.yml`): lint, type-check, test, build on push/PR to master.
+- **Ytelsesbudsjett** (`lighthouse.yml`): push/PR til master. Bygger produksjonsbygget, serverer det med `vite preview`, og kjører `scripts/lighthouse-budget-check.mjs` mot fire sidetyper + engelsk forside. Tre kjøringer per side, median per måltall, `lighthouse-budget.json` som fasit. Feiler ved brudd. Supabase-URL settes til `.invalid` slik at sidene bruker seed-data og ser like ut hver kjøring. Bakgrunn og dagens tall: `docs/YTELSESBUDSJETT.md`.
 - **Scrape** (`scrape.yml`): daily 6 AM UTC, 25min timeout. Secrets: SUPABASE + GEMINI_API_KEY + RESEND_API_KEY. Kjører to varslingsjobber som egne steg med `if: always()`, slik at folk får bekreftelse selv om en scraper feilet:
   - `notify-submitters.ts` — arrangementer sendt inn via `/submit`, koblet på `events.submitter_email`.
   - `notify-organizers.ts` — arrangører som sendte inn nettsiden sin via B2B-skjemaet, koblet på `organizer_inquiries.event_source`. Malen leser bildeomfang fra `consent.json` og kan derfor ikke love mer SoMe-bruk enn registeret gir.
