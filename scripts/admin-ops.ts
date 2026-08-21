@@ -319,6 +319,20 @@ async function approveSubmission(partialId: string) {
 		);
 	}
 
+	// GDPR: drop submitter_email once the confirmation is out — its only purpose
+	// was to confirm or reject. The web admin does this at approval; this path
+	// did not, which left addresses in a table the public anon key can read.
+	if (event.submitter_email) {
+		const { error: scrubErr } = await supabase
+			.from('events')
+			.update({ submitter_email: null })
+			.eq('id', id);
+		if (scrubErr) {
+			console.error(`   ⚠  Kunne ikke slette submitter_email: ${scrubErr.message}`);
+			console.error('      Slett den manuelt — den er lesbar med den offentlige anon-nøkkelen.');
+		}
+	}
+
 	console.log('');
 }
 
