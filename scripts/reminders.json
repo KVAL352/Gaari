@@ -50,9 +50,24 @@
     "description": "GJENNOMGANG GJORT 2026-08-14, ingenting er endret ennå. Utløst av at Kaj Alver (High Voltage Rockfest) trodde det kostet penger å bli med i sosiale medier. DET SOM ER BRA OG IKKE SKAL RØRES: samtykket er tostegs, SoMe-avkryssingen vises først etter at bilderettigheter er bekreftet, spørsmålet kommer rett etter at bildet er lagt ved, koden nekter opplasting uten avkryssing (src/routes/[lang]/submit/+page.svelte:286), og et nei skrives ned uttrykkelig og ikke bare utelates. FEM FUNN: (1) Ordet gratis finnes ett sted på hele innsendingssiden, og der handler det om arrangementets egen pris, ikke om Gåri. Ingen får vite at det er kostnadsfritt å bli lagt inn. (2) Fire tankestreker i samtykketekstene: src/lib/i18n/translations.ts linje 156, 157, 388, 389. Mot den absolutte regelen. (3) Emojier i varselteksten som havner i henvendelses-eposten: src/routes/[lang]/submit/+page.svelte linje 381-385. I Kaj-varselet ble haken vist som tegnet a-med-cirkumfleks, altså ødelagt visning. Samme tre linjer har også en tankestrek. (4) SoMe-avkryssingen sier ikke hvorfor den er et eget spørsmål, altså at bildet da forlater arrangørens kontroll. Det var nettopp den forklaringen Kaj trengte i epost. (5) Usikker-valget lager en henvendelse merket onsker a bli kontaktet, men ingenting varsler eller setter frist. Avhenger av at innboksen leses. FORESLÅTTE TEKSTER LIGGER I ØKTEN 2026-08-14: ny SoMe-avkryssing som sier at det koster ingenting og hvorfor det spørres særskilt, to radioknapper uten tankestrek, og tre varseltekster uten emoji. Punkt 1 trenger trolig også en linje øverst i skjemaet om at det er gratis, men den teksten skal Kjersti formulere selv siden den blir det første folk leser. BESLEKTET: samme rotårsak som malendringen i scripts/lib/organizer-notice.ts:78, som også venter på godkjenning."
   },
   {
+    "date": "2026-08-21",
+    "title": "Sjekk at dedup faktisk slettet de 8 parene",
+    "description": "Pagineringsfeilen i deduplicate() ble fikset 20. august (commit 5eb3b76). Dedup hentet uten range() og saa bare de 1000 tidligste av 1914 rader, saa alt etter 7. oktober hadde aldri vaert ryddet. Etter kjoeringen 06:00 UTC skal 8 par vaere borte: Kjoett Festival, Sa ka la Oktober, to Colonialen ost-og-vin, vill vill vest (bodega), Critical Mass (null-kilde), Heavy Metal Festen || Hulen, DNT Baaltreff. Kjoer scripts/dedup-dryrun.ts — den skal naa vaere tom eller naer tom. Er den det ikke, virker ikke pagineringen i produksjon."
+  },
+  {
+    "date": "2026-08-21",
+    "title": "CALENDAR_FEED_TOKEN staar to ganger i .env med ulike verdier",
+    "description": "Funnet 20. august: .env har 27 linjer men 26 unike noekler. CALENDAR_FEED_TOKEN er definert paa linje 9 og linje 16 med to FORSKJELLIGE verdier. Testet empirisk mot dotenv 17.3.1: siste forekomst vinner, altsaa gjelder linje 16 og linje 9 er doed. Sammenlign begge mot CALENDAR_FEED_TOKEN i Vercel, behold den som stemmer, slett den andre. Vercel har sin egen env-variabel, saa produksjon er ikke paavirket av rotet lokalt — men /api/calendar.ics oppfoerer seg ulikt lokalt og i prod saa lenge det staar. Ta ny Proton Pass-backup etterpaa, notatet fra 20. august inneholder den doede linja."
+  },
+  {
     "date": "2026-08-25",
     "title": "Oppdater Akvariet-priser tilbake til normalpriser",
     "description": "Sommerpriser utløper 31. august. Fra 1. september gjelder dagens priser igjen. Sjekk akvariet.no og oppdater ADMISSION_PRICE i akvariet.ts."
+  },
+  {
+    "date": "2026-08-25",
+    "title": "Paint'n Sip: svar paa spoersmaalet fra 21. april",
+    "description": "Hei fra hei@paintnsip.no 2026-04-21, som svar paa bilderettighets-runden: «Hvilke bilder er det snakk om? Kun de som ligger i eventkalenderen vaar?» Spoersmaalet er konkret og har fortsatt et svar: det gjelder bildene som foelger arrangementene deres paa gaari.no, altsaa de som ligger paa deres egne eventsider. Kjersti bestemte 2026-08-18 at det skal sendes en ny e-post, men ikke med en gang. Traaden ligger i Outreach/Unresolved (UID 12). Husk at prisen skal staa naar vi tilbyr noe, jf. feedback_communication."
   },
   {
     "date": "2026-08-28",
@@ -90,6 +105,16 @@
     "description": "Sjekk om svar har kommet på DPA-forespørsler sendt 2026-05-26: 1) Supabase PandaDoc (signer hvis kommet). 2) privacy@vercel.com (Hobby-plan DPA). 3) support@resend.com (DPA). For dem som ikke har svart: send vennlig påminnelse. Lagre signerte PDF-er i docs/legal/dpa/ og oppdater README.md-registeret. MailerLite og Stripe er ferdig (auto-aksept via ToU/SSA). OMDATERT 2026-08-14 fra 2026-06-02 i opprydningen av forfalte paaminnelser. Innholdet er fortsatt gyldig, bare datoen var passert."
   },
   {
+    "date": "2026-09-01",
+    "title": "Lehmkuhl: svarte Helene, og svaret er en test",
+    "description": "Sendt 2026-08-18 til helene.spurkeland@lehmkuhl.no. To ting staar aapne. (1) SoMe-samtykke for Statsraaden-arrangementene. Bildene vises allerede paa gaari.no paa ticketcos hotlink-grunnlag, men kan ikke brukes paa Facebook og Instagram uten et dokumentert ja fra dem. Kommer det ja: registrer med \"npx tsx scripts/consent.ts add\" paa egen slug, ikke paa ticketco, siden ticketco daekker plattformen og ikke arrangoeren. (2) Svaret er ogsaa en teknisk test. Helene fikk 2026-05-07 gaari.no blokkert av sikkerhetsprogrammet deres, paa baade PC, Mac, Chrome og Safari, altsaa i nettverket og ikke paa maskinen. Aapner siden seg naa, var domenealderen aarsaken (registrert 2026-02-20). Er den fortsatt sperret, er neste spor analytics-proxyen paa /u/script.js, som serverer Umami fra vaart eget domene og er et kjent moenster for sporingsfiltre. Be henne da proeve gaari.no/u/script.js direkte."
+  },
+  {
+    "date": "2026-09-08",
+    "title": "Medieklyngen: Charlotte foreslo moete, aldri besvart",
+    "description": "Charlotte Vindenaes (charlotte@medieklyngen.no) svarte 2026-05-18 paa bilderettighets-runden med «Kan det passe med et moete mot slutten av juni?» Det ble aldri besvart, og juni er passert. Kjersti sa 2026-08-18 at dette skal ses paa senere. Vurder om det er en ny moeteinvitasjon eller bare et svar paa bildespoersmaalet. Traaden ligger i Outreach/Unresolved (UID 7)."
+  },
+  {
     "date": "2026-09-10",
     "title": "Bookibud: følg opp API-et hvis Geir er stille",
     "description": "MØTET ER HOLDT 2026-08-11 kl. 13:30, 40 minutter, tatt opp med Geirs muntlige samtykke. Transkript ligger utenfor repoet. RESULTAT: Geir tilbød uoppfordret å bygge et API for Bergen. Hans ord: «Vi kan lage et veldig enkelt API for Bergen, sånn at alle events som er public, vi lager en getter for til deg. Bare skriv hva du vil ha.» Avslutningsvis: «Du ender bare med en oversikt over hvilken informasjon du ønsker, så smeller vi opp API-et, og så får du en token, og så tester vi det ut.» SENDT 2026-08-11: ønskeliste med 21 felter, fem presiseringer (stabil id, ISO 8601 med offset, dyplenke med henvisningskode, alle priskategorier, alle bilder og video), spørsmål om bildeadresser som ikke utløper, og spørsmål om henvisningsmodellen. BALLEN LIGGER HOS GEIR. PILOT: Stand Up Bergen (allerede inne hos oss via skraping) og Bergen Street Food (ikke inne). Begge er Bookibud-kunder med rundt tre arrangementer i uken hver. ÅPNE PENGESPØRSMÅL: om kickbacken gjelder alle salg som krediteres gaari.no, eller bare arrangører Kjersti henviser inn. Transkriptet peker mot det siste, Kjersti forsto det som det første. Prosenten ble ikke landet; han nevnte noen prosent, men lyden var dårlig akkurat der. Kjersti har bedt om forslag. BILDER: Geir ga muntlig ja til bruk både på gaari.no og i sosiale medier. Registrert i consent.json med opptaket som bevis. Merk at han gir tillatelse på vegne av arrangørene sine, ikke som opphavsmann. TEKNISK: Bookibud bruker Next.js og laster data i småpakker, derfor ingen HTML å skrape. Bildeadressene er presignerte S3-lenker med sju døgns utløp, så de kan ikke hot-linkes slik de er i dag. GEIR SVARTE 2026-08-13 kl. 07:11: Supert, jeg skal se på dette så hører du fra meg når vi har noe som er klart til å testes. Det var hele svaret. Han besvarte ingen av de syv spørsmålene, verken bildeadressene, avlysningssignalet, attribusjonsvinduet eller prosenten. BALLEN ER HOS BOOKIBUD, og Kjersti har bestemt 2026-08-13 at saken legges til side til de leverer noe å teste. IKKE PURR 19. AUGUST, han er ikke stille. Ny purregrense: hvis det fortsatt er helt stille 10. september, send en kort e-post. Ikke ring. Når API-et kommer, ta teknikk og prosent i samme runde; å purre på penger før produktet finnes svekker forhandlingsposisjonen."
@@ -98,6 +123,11 @@
     "date": "2026-09-15",
     "title": "Bestem hva som skjer med personopplysningene som allerede er publisert",
     "description": "Kjersti valgte 2026-08-13 aa utsette denne. Delingen er gjort og pushet, saa ingenting nytt lekker: consent.json og docs/bildesamtykke.md er rene, og navn, epost og sitater ligger i private/consent-private.json som er gitignorert. Fem tester leser filene paa disk og feiler hvis noen legger dem tilbake. DET SOM STAAR IGJEN: origin/master sin historikk inneholder fortsatt 18 navngitte kontakter, 8 epostadresser og 6 ordrette sitater fra privat korrespondanse, fra commits foer 2026-08-13. To valg. ENTEN la historikken staa, altsaa rydde bare framover. Dataene forblir tilgjengelige via git-historikken og GitHubs nettgrensesnitt. For et lite repo uten forks er den reelle eksponeringen lav, men permanent. ELLER skriv om historikken med git filter-repo og force-push. Da endres alle commit-hasher, kloner brekker, GitHub beholder loese objekter tilgjengelig via direkte SHA-URL til du ber support slette dem, og noe som allerede er arkivert eller forket er utenfor rekkevidde. GJOER INGEN AV DELENE UTEN UTTRYKKELIG JA FRA KJERSTI. Den lokale taggen backup-for-deling peker paa tilstanden foer omskrivingen 13. august, i tilfelle noe maa hentes tilbake. Den kan slettes naar dette er avgjort."
+  },
+  {
+    "date": "2026-09-15",
+    "title": "Soek paa gaari.no finner ikke steder som opptrer under et annet navn",
+    "description": "Funnet 2026-08-18: soek paa \"Lehmkuhl\" gir null treff, selv om vi har ni av arrangementene deres. De ligger under \"Statsraaden Bar & Reception\", som er navnet paa baren deres. Samme problem gjelder trolig flere: folk soeker paa organisasjonen, vi lagrer stedet. Vurder et alias-felt eller en synonymliste i soeket, for eksempel Lehmkuhl -> Statsraaden. Sjekk foerst hvor mange venues det faktisk gjelder, saa loesningen staar i forhold til problemet."
   },
   {
     "date": "2026-09-25",
@@ -133,35 +163,5 @@
     "date": "2027-02-01",
     "title": "Oppdater Borealis-skraper for 2027",
     "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i borealis.ts. Oppdater også send-daily-digest.ts."
-  },
-  {
-    "date": "2026-08-25",
-    "title": "Paint'n Sip: svar paa spoersmaalet fra 21. april",
-    "description": "Hei fra hei@paintnsip.no 2026-04-21, som svar paa bilderettighets-runden: «Hvilke bilder er det snakk om? Kun de som ligger i eventkalenderen vaar?» Spoersmaalet er konkret og har fortsatt et svar: det gjelder bildene som foelger arrangementene deres paa gaari.no, altsaa de som ligger paa deres egne eventsider. Kjersti bestemte 2026-08-18 at det skal sendes en ny e-post, men ikke med en gang. Traaden ligger i Outreach/Unresolved (UID 12). Husk at prisen skal staa naar vi tilbyr noe, jf. feedback_communication."
-  },
-  {
-    "date": "2026-09-08",
-    "title": "Medieklyngen: Charlotte foreslo moete, aldri besvart",
-    "description": "Charlotte Vindenaes (charlotte@medieklyngen.no) svarte 2026-05-18 paa bilderettighets-runden med «Kan det passe med et moete mot slutten av juni?» Det ble aldri besvart, og juni er passert. Kjersti sa 2026-08-18 at dette skal ses paa senere. Vurder om det er en ny moeteinvitasjon eller bare et svar paa bildespoersmaalet. Traaden ligger i Outreach/Unresolved (UID 7)."
-  },
-  {
-    "date": "2026-09-01",
-    "title": "Lehmkuhl: svarte Helene, og svaret er en test",
-    "description": "Sendt 2026-08-18 til helene.spurkeland@lehmkuhl.no. To ting staar aapne. (1) SoMe-samtykke for Statsraaden-arrangementene. Bildene vises allerede paa gaari.no paa ticketcos hotlink-grunnlag, men kan ikke brukes paa Facebook og Instagram uten et dokumentert ja fra dem. Kommer det ja: registrer med \"npx tsx scripts/consent.ts add\" paa egen slug, ikke paa ticketco, siden ticketco daekker plattformen og ikke arrangoeren. (2) Svaret er ogsaa en teknisk test. Helene fikk 2026-05-07 gaari.no blokkert av sikkerhetsprogrammet deres, paa baade PC, Mac, Chrome og Safari, altsaa i nettverket og ikke paa maskinen. Aapner siden seg naa, var domenealderen aarsaken (registrert 2026-02-20). Er den fortsatt sperret, er neste spor analytics-proxyen paa /u/script.js, som serverer Umami fra vaart eget domene og er et kjent moenster for sporingsfiltre. Be henne da proeve gaari.no/u/script.js direkte."
-  },
-  {
-    "date": "2026-09-15",
-    "title": "Soek paa gaari.no finner ikke steder som opptrer under et annet navn",
-    "description": "Funnet 2026-08-18: soek paa \"Lehmkuhl\" gir null treff, selv om vi har ni av arrangementene deres. De ligger under \"Statsraaden Bar & Reception\", som er navnet paa baren deres. Samme problem gjelder trolig flere: folk soeker paa organisasjonen, vi lagrer stedet. Vurder et alias-felt eller en synonymliste i soeket, for eksempel Lehmkuhl -> Statsraaden. Sjekk foerst hvor mange venues det faktisk gjelder, saa loesningen staar i forhold til problemet."
-  },
-  {
-    "date": "2026-08-21",
-    "title": "Sjekk at dedup faktisk slettet de 8 parene",
-    "description": "Pagineringsfeilen i deduplicate() ble fikset 20. august (commit 5eb3b76). Dedup hentet uten range() og saa bare de 1000 tidligste av 1914 rader, saa alt etter 7. oktober hadde aldri vaert ryddet. Etter kjoeringen 06:00 UTC skal 8 par vaere borte: Kjoett Festival, Sa ka la Oktober, to Colonialen ost-og-vin, vill vill vest (bodega), Critical Mass (null-kilde), Heavy Metal Festen || Hulen, DNT Baaltreff. Kjoer scripts/dedup-dryrun.ts — den skal naa vaere tom eller naer tom. Er den det ikke, virker ikke pagineringen i produksjon."
-  },
-  {
-    "date": "2026-08-24",
-    "title": "Bookibud: purr Tobias hvis ny API-noekkel ikke er kommet",
-    "description": "Noekkelen han sendte 19. august ble eksponert i et utviklingsverktoey, og jeg ba om ny 20. august (Tobias, cc Geir Haavard). Uten ny noekkel kan ikke scraperen bygges. Naar den kommer: si fra FOER innboksen aapnes, saa den ikke havner i et transkript igjen. Legges i rot-.env som BOOKIBUD_API_KEY og som GHA-secret via gh secret set BOOKIBUD_API_KEY (interaktiv, aldri --body). Deretter linje i scrape.yml ved siden av BODEGA_GCAL_API_KEY. Merk ogsaa: avsenderfilteret for bookibud.com fanget ikke e-posten 19. august, sjekk Proton-filteret."
   }
 ]
