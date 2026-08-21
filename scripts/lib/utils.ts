@@ -168,15 +168,19 @@ export function isPromoApproved(source: string): boolean {
  * der venue_name ikke matcher arrangørens navn. Tittelen inneholder typisk arrangørens navn.
  *
  * Matchet via case-insensitive substring.
+ *
+ * Datoene viser til korrespondansen i Protonmail Folders/Gaari/Avtaler, og
+ * hvem som sa hva staar i private/bildesamtykke-full.md. Navnene hoerer ikke
+ * hjemme her; repoet er offentlig.
  */
 const IMAGE_BLOCKED_VENUE_PATTERNS = [
-	'hulen', // Aurora Fykse 2026-04-23: betinget ja (kreditering eller plakat). Vi har ikke kreditering-felt; blokker til SoMe-batchen 2026-06-01.
-	'bjørgvin blues', 'bjorgvin blues', 'bjørgvin bluesklubb', 'bjorgvin bluesklubb', // Grethe 2026-04-24: tredjeparts blir for omfattende.
-	'bergen live', 'bergenlive', // Mats Sævig 2026-04-20: pressebilder fra artist.
-	'sk brann', 'brann stadion', // Mads Liabø 2026-04-19: NTB/Bildbyrån/freelance/presse.
-	'bek ', // BEK (Siren Løkaas) 2026-04-21: kunstnerne eier bildene. Trailing space for å unngå false-match.
-	'mg event', // Pål Roppen 2026-05-06: "Er greit at arrangementene er der. Ikke ha på bilder" — events OK, bilder nei.
-	'beyond the gates', 'beyondthegates', // Torgrim Øyre 2026-05-07: bilder fra mange forskjellige opphavsmenn, ikke entydig tillatelse.
+	'hulen', // Arrangoeren 2026-04-23: betinget ja (kreditering eller plakat). Vi har ikke kreditering-felt; blokker til SoMe-batchen 2026-06-01.
+	'bjørgvin blues', 'bjorgvin blues', 'bjørgvin bluesklubb', 'bjorgvin bluesklubb', // Arrangoeren 2026-04-24: tredjeparts blir for omfattende.
+	'bergen live', 'bergenlive', // Arrangoeren 2026-04-20: pressebilder fra artist.
+	'sk brann', 'brann stadion', // Klubben 2026-04-19: NTB/Bildbyrån/freelance/presse.
+	'bek ', // BEK 2026-04-21: kunstnerne eier bildene. Trailing space for å unngå false-match.
+	'mg event', // Arrangoeren 2026-05-06: arrangementene er greit, bildene ikke. Events OK, bilder nei.
+	'beyond the gates', 'beyondthegates', // Festivalen 2026-05-07: bilder fra mange forskjellige opphavsmenn, ikke entydig tillatelse.
 ];
 
 /**
@@ -194,7 +198,7 @@ const IMAGE_BLOCKED_VENUE_PATTERNS = [
  * arrangement, uansett hva det heter.
  */
 const IMAGE_BLOCKED_URL_PATTERNS = [
-	'hulen.ticketco.events' // Aurora Fykse 2026-04-23, se merknaden over 'hulen'.
+	'hulen.ticketco.events' // Samme avslag 2026-04-23, se merknaden over 'hulen'.
 ];
 
 /**
@@ -203,8 +207,8 @@ const IMAGE_BLOCKED_URL_PATTERNS = [
  * and only specific organizers have granted permission.
  */
 const IMAGE_APPROVED_URL_PATTERNS: string[] = [
-	'billetto.no/e/pavels-juke-joint', // David Pavels bekreftet 2026-04-17
-	// Stina Aadland Jensen (Utdanning i Bergen) bekreftet 2026-04-21:
+	'billetto.no/e/pavels-juke-joint', // Arrangoeren bekreftet 2026-04-17
+	// Utdanning i Bergen bekreftet 2026-04-21:
 	// Kun løp/tur-arrangement hvor StudentBergen eier bildene selv. Resten bruker arrangørbilder.
 	'studentbergen.no/studentkalender/ulriken-opp',
 	'studentbergen.no/studentkalender/7-fjellsturen',
@@ -296,8 +300,8 @@ const FALLBACK_URL_PREFIX = 'supabase.co/storage/v1/object/public/event-images/f
 
 /**
  * Image credit som signaliserer at bildet kan brukes selv om tittelen ellers
- * ville blitt blokkert (forfatter/foredrag-keywords). Bekreftet av Camilla
- * Larsen (Bergen offentlige bibliotek) 2026-05-12: forfatterportretter fra
+ * ville blitt blokkert (forfatter/foredrag-keywords). Bekreftet av Bergen
+ * offentlige bibliotek 2026-05-12: forfatterportretter fra
  * forlag er OK når fotografen er kreditert.
  */
 const CREDIT_UNLOCKS_BLOCKED_TITLE = /Foto\s*:|Fotograf\s*:|Illustrasjon\s*:|Illustrasjonsfoto\s*:|Ragnar\s+R(?:ø|o)rnes|Unsplash/i;

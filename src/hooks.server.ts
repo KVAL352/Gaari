@@ -1,5 +1,6 @@
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
+import { ADMIN_COOKIE, isValidToken, requiresAdminAuth } from '$lib/server/admin-auth';
 
 // ── Rate limiting (in-memory, per-IP) ──
 
@@ -141,6 +142,18 @@ export const handle: Handle = async ({ event, resolve }) => {
 		url.host = 'gaari.no';
 		url.port = '';
 		redirect(301, url.toString());
+	}
+
+	// Guard every mutating request to /admin. The admin +layout.server.ts load
+	// cannot do this: SvelteKit runs `handle` → action → load, so a form action
+	// has already mutated the database by the time the layout's auth check runs
+	// and redirects. The guard belongs here, where it also covers admin pages
+	// added later without their own check.
+	if (requiresAdminAuth(event.url.pathname, event.request.method)) {
+		const token = event.cookies.get(ADMIN_COOKIE);
+		if (!token || !isValidToken(token)) {
+			return new Response('Forbidden', { status: 403 });
+		}
 	}
 
 	const tier = getRateLimitTier(event.url.pathname, event.request.method);
