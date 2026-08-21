@@ -6,28 +6,28 @@
   },
   {
     "date": "2026-04-21",
-    "title": "Følg opp Art Lab Bergen (Konstantin)",
-    "description": "Konstantin svarte 7. april: positiv, har sendt info om 3 kurs (botanisk akvarell + hyttekos publisert, barnekurs venter på datoer). Sa han skulle teste Wix Events. Sjekk: 1) Har vi fått oppstartsdatoer for barnekurset? 2) Har Wix Events-lenken kommet? 3) Har de lagt Gåri-link i footeren på artlabstudio.no? 13 barnekurs-bilder ligger i C:/Users/kjers/Pictures/artlab-barnekurs-bilder/ klar til bruk."
+    "title": "Følg opp Art Lab Bergen",
+    "description": "Arrangøren svarte 7. april: positiv, har sendt info om 3 kurs (botanisk akvarell + hyttekos publisert, barnekurs venter på datoer). Sa han skulle teste Wix Events. Sjekk: 1) Har vi fått oppstartsdatoer for barnekurset? 2) Har Wix Events-lenken kommet? 3) Har de lagt Gåri-link i footeren på artlabstudio.no? 13 barnekurs-bilder ligger i C:/Users/kjers/Pictures/artlab-barnekurs-bilder/ klar til bruk. Kontaktdetaljer staar i private/reminders.json."
   },
   {
     "date": "2026-04-23",
     "title": "Følg opp backlink-forespørsler (runde 2)",
-    "description": "Sendt 9. april: Fyllingsdalen Teater, DNT Bergen (André), Bymuseet (oppfølging #2), UiB (studentsider). Sjekk innboks for svar. Hvis stille: vurder om det er verdt en siste oppfølging eller om det bør parkeres."
+    "description": "Sendt 9. april: Fyllingsdalen Teater, DNT Bergen, Bymuseet (oppfølging #2), UiB (studentsider). Sjekk innboks for svar. Hvis stille: vurder om det er verdt en siste oppfølging eller om det bør parkeres."
   },
   {
     "date": "2026-07-06",
     "title": "Studio Vertikal: legg inn seniorklatring hvis de svarer ja",
-    "description": "Sendte unnskyldning 2026-06-29 (post@studiovertikal.no) for at seniorklatring-innsendingen 25. juni aldri ble publisert. Tilbød å legge inn de faste øktene manuelt (torsdager kl. 10, gjentagende, kilde studiovertikal.no/seniorklatring/). Hvis de svarer ja: legg inn som gjentagende event. Hvis ingen svar innen ~1 uke: la det ligge. Plattform-scraper (GoActiveBooking/BRP) ble vurdert og forkastet (booking-system, feil innholdstype)."
+    "description": "Sendte unnskyldning 2026-06-29 til kontaktadressen deres for at seniorklatring-innsendingen 25. juni aldri ble publisert. Tilbød å legge inn de faste øktene manuelt (torsdager kl. 10, gjentagende, kilde studiovertikal.no/seniorklatring/). Hvis de svarer ja: legg inn som gjentagende event. Hvis ingen svar innen ~1 uke: la det ligge. Plattform-scraper (GoActiveBooking/BRP) ble vurdert og forkastet (booking-system, feil innholdstype)."
   },
   {
     "date": "2026-07-14",
-    "title": "Følg opp iBergen (Eirik Teigland) hvis ingen svar",
-    "description": "Etter kaffemøte 18. juni svarte Eirik (et@imedium.no, tlf 98864593, cc stianhj@gmail.com) 18. juni at de tar en intern runde og kommer tilbake. Mine premisser: betalt lisens-/distribusjonsmodell, gaari.no forblir primær destinasjon (alle event-klikk dit), jeg eier data/arbeid (de leier visningsrett), kalenderen beholder Gåri-identitet, Bergen først. Neste steg fra deres side: velge samlet Gåri-feed vs venue-for-venue, og iframe vs stylet innebygd. Hvis ingen respons innen ~3-4 uker — send en kort nudge. E-posten ligger i Folders/Gaari/Partnerships/Unresolved (UID 897)."
+    "title": "Følg opp iBergen hvis ingen svar",
+    "description": "Etter kaffemøte 18. juni svarte kontaktpersonen 18. juni at de tar en intern runde og kommer tilbake. Mine premisser: betalt lisens-/distribusjonsmodell, gaari.no forblir primær destinasjon (alle event-klikk dit), jeg eier data/arbeid (de leier visningsrett), kalenderen beholder Gåri-identitet, Bergen først. Neste steg fra deres side: velge samlet Gåri-feed vs venue-for-venue, og iframe vs stylet innebygd. Hvis ingen respons innen ~3-4 uker — send en kort nudge. E-posten ligger i Folders/Gaari/Partnerships/Unresolved (UID 897). Kontaktdetaljer staar i private/reminders.json."
   },
   {
     "date": "2026-08-14",
     "title": "Vercel: bekreft at neste trekk gikk gjennom",
-    "description": "NEDGRADERT 2026-08-06: Kjersti har overført penger til kortet og regner med at dette løser seg selv. Ingen handling nødvendig med mindre et nytt feilvarsel kommer. VERIFISER LIKEVEL: forsøket 2026-08-03 kl. 09:39 feilet ETTER at pengene var overført, så manglende dekning var ikke hele årsaken. Hvis en ny \"payment unsuccessful\"-epost dukker opp, sjekk om kortet er sperret for utenlandske/nettbaserte kjøp (slås av i bankappen) eller om 3D Secure ikke fullføres. ØVRIGE ABONNEMENT: Proton EUR 4.99 Mail Plus (feilvarsler 27./28./30. juli, men også \"Subscription has been renewed\" 27. juli 10:24 — uavklart, sjekk dashboardet). Netlify KVAL352-team krever gyldig kort, frist ca. 2026-08-31, varsel gikk til kjerstivalland@gmail.com. KONTEKST: 2FA + passkey satt opp på Vercel 2026-08-03; gjenopprettingskoder i C:\\Users\\kjers\\.secrets\\ (se api-keys.md). gaari.no var oppe hele perioden."
+    "description": "NEDGRADERT 2026-08-06: Kjersti har overført penger til kortet og regner med at dette løser seg selv. Ingen handling nødvendig med mindre et nytt feilvarsel kommer. VERIFISER LIKEVEL: forsøket 2026-08-03 kl. 09:39 feilet ETTER at pengene var overført, så manglende dekning var ikke hele årsaken. Hvis en ny \"payment unsuccessful\"-epost dukker opp, sjekk om kortet er sperret for utenlandske/nettbaserte kjøp (slås av i bankappen) eller om 3D Secure ikke fullføres. ØVRIGE ABONNEMENT: Proton EUR 4.99 Mail Plus (feilvarsler 27./28./30. juli, men også \"Subscription has been renewed\" 27. juli 10:24 — uavklart, sjekk dashboardet). Netlify KVAL352-team krever gyldig kort, frist ca. 2026-08-31, varsel gikk til Kjerstis private Gmail-adresse. KONTEKST: 2FA + passkey satt opp på Vercel 2026-08-03; gjenopprettingskoder i C:\\Users\\kjers\\.secrets\\ (se api-keys.md). gaari.no var oppe hele perioden."
   },
   {
     "date": "2026-08-14",
@@ -42,12 +42,12 @@
   {
     "date": "2026-08-18",
     "title": "Studio Vertikal: venter på svar om samtykke + kjør backfill-descriptions",
-    "description": "LEVERT 2026-08-11: familiedagene ligger ute med bekreftet klokkeslett (lørdager 11:00 til 20:00, oppgitt av Sofie 2026-08-06), og alle 12 Studio Vertikal-arrangementer har fått bilde. Bildene ble sendt direkte fra Sofie som vedlegg med \"Disse kan brukes i alle deres kanaler\", og hostes derfor hos oss i static/events/ i stedet for å hot-linkes. Kilden er lagt inn i både IMAGE_APPROVED_SOURCES og PROMO_APPROVED_SOURCES, og dokumentert i docs/bildesamtykke.md. E-postene er arkivert i Folders/Gaari/Avtaler. GJENSTÅR TO TING. (1) SPØRSMÅLET ER STILT 2026-08-11: e-post sendt til post@studiovertikal.no med kopi til Sofie, med lenker til begge arrangementene og spørsmål om foresatte har samtykket til at barnebildet brukes i markedsføring, inkludert Facebook og Instagram. Tilbød samtidig å bytte bildet uten videre hvis noe er usikkert. Ballen ligger hos Sofie. Når svaret kommer: legg det i Avtaler og noter utfallet i docs/bildesamtykke.md. Kommer det ikke svar innen ca. 2026-08-25, purr én gang. Kjersti har vurdert risikoen som lav og bestemt at bildet står inntil videre. Repoet er offentlig, så bildet ligger permanent i git-historikken selv om det fjernes fra siden. Tar foresatte kontakt: fjern bildet fra static/events/ og image_url i basen umiddelbart, ikke vent på avklaring. (2) Kjør \"cd scripts && npx tsx backfill-descriptions.ts\" når Gemini-kvoten er tilbake. Seniorklatring-øktene fikk malbeskrivelse fordi kvoten var oppbrukt 3. august; skriptet plukker opp alt under 80 tegn. Daglig scrape gjør ikke dette selv, fordi eventExists() hopper over eksisterende arrangementer. Sofie meldte også at de sender inn flere arrangementer utover høsten."
+    "description": "LEVERT 2026-08-11: familiedagene ligger ute med bekreftet klokkeslett (lørdager 11:00 til 20:00, oppgitt av kontaktpersonen 2026-08-06), og alle 12 Studio Vertikal-arrangementer har fått bilde. Bildene ble sendt direkte fra kontaktpersonen som vedlegg, med skriftlig tillatelse til bruk i alle våre kanaler, og hostes derfor hos oss i static/events/ i stedet for å hot-linkes. Kilden er lagt inn i både IMAGE_APPROVED_SOURCES og PROMO_APPROVED_SOURCES, og dokumentert i docs/bildesamtykke.md. E-postene er arkivert i Folders/Gaari/Avtaler. GJENSTÅR TO TING. (1) SPØRSMÅLET ER STILT 2026-08-11: e-post sendt til kontaktadressen deres med kopi til kontaktpersonen, med lenker til begge arrangementene og spørsmål om foresatte har samtykket til at barnebildet brukes i markedsføring, inkludert Facebook og Instagram. Tilbød samtidig å bytte bildet uten videre hvis noe er usikkert. Ballen ligger hos dem. Når svaret kommer: legg det i Avtaler og noter utfallet i docs/bildesamtykke.md. Kommer det ikke svar innen ca. 2026-08-25, purr én gang. Kjersti har vurdert risikoen som lav og bestemt at bildet står inntil videre. Repoet er offentlig, så bildet ligger permanent i git-historikken selv om det fjernes fra siden. Tar foresatte kontakt: fjern bildet fra static/events/ og image_url i basen umiddelbart, ikke vent på avklaring. (2) Kjør \"cd scripts && npx tsx backfill-descriptions.ts\" når Gemini-kvoten er tilbake. Seniorklatring-øktene fikk malbeskrivelse fordi kvoten var oppbrukt 3. august; skriptet plukker opp alt under 80 tegn. Daglig scrape gjør ikke dette selv, fordi eventExists() hopper over eksisterende arrangementer. De meldte også at de sender inn flere arrangementer utover høsten."
   },
   {
     "date": "2026-08-21",
     "title": "Rydd opp i samtykketekstene i innsendingsflyten",
-    "description": "GJENNOMGANG GJORT 2026-08-14, ingenting er endret ennå. Utløst av at Kaj Alver (High Voltage Rockfest) trodde det kostet penger å bli med i sosiale medier. DET SOM ER BRA OG IKKE SKAL RØRES: samtykket er tostegs, SoMe-avkryssingen vises først etter at bilderettigheter er bekreftet, spørsmålet kommer rett etter at bildet er lagt ved, koden nekter opplasting uten avkryssing (src/routes/[lang]/submit/+page.svelte:286), og et nei skrives ned uttrykkelig og ikke bare utelates. FEM FUNN: (1) Ordet gratis finnes ett sted på hele innsendingssiden, og der handler det om arrangementets egen pris, ikke om Gåri. Ingen får vite at det er kostnadsfritt å bli lagt inn. (2) Fire tankestreker i samtykketekstene: src/lib/i18n/translations.ts linje 156, 157, 388, 389. Mot den absolutte regelen. (3) Emojier i varselteksten som havner i henvendelses-eposten: src/routes/[lang]/submit/+page.svelte linje 381-385. I Kaj-varselet ble haken vist som tegnet a-med-cirkumfleks, altså ødelagt visning. Samme tre linjer har også en tankestrek. (4) SoMe-avkryssingen sier ikke hvorfor den er et eget spørsmål, altså at bildet da forlater arrangørens kontroll. Det var nettopp den forklaringen Kaj trengte i epost. (5) Usikker-valget lager en henvendelse merket onsker a bli kontaktet, men ingenting varsler eller setter frist. Avhenger av at innboksen leses. FORESLÅTTE TEKSTER LIGGER I ØKTEN 2026-08-14: ny SoMe-avkryssing som sier at det koster ingenting og hvorfor det spørres særskilt, to radioknapper uten tankestrek, og tre varseltekster uten emoji. Punkt 1 trenger trolig også en linje øverst i skjemaet om at det er gratis, men den teksten skal Kjersti formulere selv siden den blir det første folk leser. BESLEKTET: samme rotårsak som malendringen i scripts/lib/organizer-notice.ts:78, som også venter på godkjenning."
+    "description": "GJENNOMGANG GJORT 2026-08-14, ingenting er endret ennå. Utløst av at en arrangør trodde det kostet penger å bli med i sosiale medier. DET SOM ER BRA OG IKKE SKAL RØRES: samtykket er tostegs, SoMe-avkryssingen vises først etter at bilderettigheter er bekreftet, spørsmålet kommer rett etter at bildet er lagt ved, koden nekter opplasting uten avkryssing (src/routes/[lang]/submit/+page.svelte:286), og et nei skrives ned uttrykkelig og ikke bare utelates. FEM FUNN: (1) Ordet gratis finnes ett sted på hele innsendingssiden, og der handler det om arrangementets egen pris, ikke om Gåri. Ingen får vite at det er kostnadsfritt å bli lagt inn. (2) Fire tankestreker i samtykketekstene: src/lib/i18n/translations.ts linje 156, 157, 388, 389. Mot den absolutte regelen. (3) Emojier i varselteksten som havner i henvendelses-eposten: src/routes/[lang]/submit/+page.svelte linje 381-385. I det varselet ble haken vist som tegnet a-med-cirkumfleks, altså ødelagt visning. Samme tre linjer har også en tankestrek. (4) SoMe-avkryssingen sier ikke hvorfor den er et eget spørsmål, altså at bildet da forlater arrangørens kontroll. Det var nettopp den forklaringen arrangøren trengte. (5) Usikker-valget lager en henvendelse merket onsker a bli kontaktet, men ingenting varsler eller setter frist. Avhenger av at innboksen leses. FORESLÅTTE TEKSTER LIGGER I ØKTEN 2026-08-14: ny SoMe-avkryssing som sier at det koster ingenting og hvorfor det spørres særskilt, to radioknapper uten tankestrek, og tre varseltekster uten emoji. Punkt 1 trenger trolig også en linje øverst i skjemaet om at det er gratis, men den teksten skal Kjersti formulere selv siden den blir det første folk leser. BESLEKTET: samme rotårsak som malendringen i scripts/lib/organizer-notice.ts:78, som også venter på godkjenning."
   },
   {
     "date": "2026-08-21",
@@ -62,7 +62,7 @@
   {
     "date": "2026-08-25",
     "title": "Paint'n Sip: svar paa spoersmaalet fra 21. april",
-    "description": "Hei fra hei@paintnsip.no 2026-04-21, som svar paa bilderettighets-runden: «Hvilke bilder er det snakk om? Kun de som ligger i eventkalenderen vaar?» Spoersmaalet er konkret og har fortsatt et svar: det gjelder bildene som foelger arrangementene deres paa gaari.no, altsaa de som ligger paa deres egne eventsider. Kjersti bestemte 2026-08-18 at det skal sendes en ny e-post, men ikke med en gang. Traaden ligger i Outreach/Unresolved (UID 12). Husk at prisen skal staa naar vi tilbyr noe, jf. feedback_communication."
+    "description": "Arrangoeren svarte 2026-04-21 paa bilderettighets-runden og spurte konkret hvilke bilder det gjelder, og om det bare er de som ligger i deres egen eventkalender. Spoersmaalet har fortsatt et svar: det gjelder bildene som foelger arrangementene deres paa gaari.no, altsaa de som ligger paa deres egne eventsider. Kjersti bestemte 2026-08-18 at det skal sendes en ny e-post, men ikke med en gang. Traaden ligger i Outreach/Unresolved (UID 12). Husk at prisen skal staa naar vi tilbyr noe, jf. feedback_communication."
   },
   {
     "date": "2026-08-26",
@@ -72,7 +72,7 @@
   {
     "date": "2026-08-28",
     "title": "Sjekk om kaskjerbergen.no er aktiv igjen (kvartalsvis)",
-    "description": "Per 2026-05-28: kaskjerbergen.no har DNS men port 443 refused — tilsynelatende defunct. Var Gåris nærmeste direkte konkurrent (samme aggregator-modell, laget av Paal Kobbeltvedt og Eskild Halvorsen). Sjekk: curl -v https://kaskjerbergen.no/. Hvis den er tilbake: legg til i scripts/canary-targets.txt under hovedlisten. Også sjekk om 10times.com og bandsintown.com fortsatt blokkerer vår User-Agent (anti-bot 403) — hvis åpne, legg dem til. Etter sjekk: flytt reminderen tre måneder frem."
+    "description": "Per 2026-05-28: kaskjerbergen.no har DNS men port 443 refused — tilsynelatende defunct. Var Gåris nærmeste direkte konkurrent (samme aggregator-modell, laget av to lokale utviklere). Sjekk: curl -v https://kaskjerbergen.no/. Hvis den er tilbake: legg til i scripts/canary-targets.txt under hovedlisten. Også sjekk om 10times.com og bandsintown.com fortsatt blokkerer vår User-Agent (anti-bot 403) — hvis åpne, legg dem til. Etter sjekk: flytt reminderen tre måneder frem."
   },
   {
     "date": "2026-08-28",
@@ -107,22 +107,22 @@
   {
     "date": "2026-09-01",
     "title": "Følg opp DPA-forespørsler (Supabase, Vercel, Resend)",
-    "description": "Sjekk om svar har kommet på DPA-forespørsler sendt 2026-05-26: 1) Supabase PandaDoc (signer hvis kommet). 2) privacy@vercel.com (Hobby-plan DPA). 3) support@resend.com (DPA). For dem som ikke har svart: send vennlig påminnelse. Lagre signerte PDF-er i docs/legal/dpa/ og oppdater README.md-registeret. MailerLite og Stripe er ferdig (auto-aksept via ToU/SSA). OMDATERT 2026-08-14 fra 2026-06-02 i opprydningen av forfalte paaminnelser. Innholdet er fortsatt gyldig, bare datoen var passert."
+    "description": "Sjekk om svar har kommet på DPA-forespørsler sendt 2026-05-26: 1) Supabase PandaDoc (signer hvis kommet). 2) Vercel, via personvernadressen deres (Hobby-plan DPA). 3) Resend, via supportadressen deres (DPA). For dem som ikke har svart: send vennlig påminnelse. Lagre signerte PDF-er i docs/legal/dpa/ og oppdater README.md-registeret. MailerLite og Stripe er ferdig (auto-aksept via ToU/SSA). OMDATERT 2026-08-14 fra 2026-06-02 i opprydningen av forfalte paaminnelser. Innholdet er fortsatt gyldig, bare datoen var passert."
   },
   {
     "date": "2026-09-01",
-    "title": "Lehmkuhl: svarte Helene, og svaret er en test",
-    "description": "Sendt 2026-08-18 til helene.spurkeland@lehmkuhl.no. To ting staar aapne. (1) SoMe-samtykke for Statsraaden-arrangementene. Bildene vises allerede paa gaari.no paa ticketcos hotlink-grunnlag, men kan ikke brukes paa Facebook og Instagram uten et dokumentert ja fra dem. Kommer det ja: registrer med \"npx tsx scripts/consent.ts add\" paa egen slug, ikke paa ticketco, siden ticketco daekker plattformen og ikke arrangoeren. (2) Svaret er ogsaa en teknisk test. Helene fikk 2026-05-07 gaari.no blokkert av sikkerhetsprogrammet deres, paa baade PC, Mac, Chrome og Safari, altsaa i nettverket og ikke paa maskinen. Aapner siden seg naa, var domenealderen aarsaken (registrert 2026-02-20). Er den fortsatt sperret, er neste spor analytics-proxyen paa /u/script.js, som serverer Umami fra vaart eget domene og er et kjent moenster for sporingsfiltre. Be henne da proeve gaari.no/u/script.js direkte."
+    "title": "Lehmkuhl: svar venter, og svaret er ogsaa en teknisk test",
+    "description": "Sendt 2026-08-18 til kontaktpersonen deres. To ting staar aapne. (1) SoMe-samtykke for Statsraaden-arrangementene. Bildene vises allerede paa gaari.no paa ticketcos hotlink-grunnlag, men kan ikke brukes paa Facebook og Instagram uten et dokumentert ja fra dem. Kommer det ja: registrer med \"npx tsx scripts/consent.ts add\" paa egen slug, ikke paa ticketco, siden ticketco daekker plattformen og ikke arrangoeren. (2) Svaret er ogsaa en teknisk test. Kontaktpersonen fikk 2026-05-07 gaari.no blokkert av sikkerhetsprogrammet deres, paa baade PC, Mac, Chrome og Safari, altsaa i nettverket og ikke paa maskinen. Aapner siden seg naa, var domenealderen aarsaken (registrert 2026-02-20). Er den fortsatt sperret, er neste spor analytics-proxyen paa /u/script.js, som serverer Umami fra vaart eget domene og er et kjent moenster for sporingsfiltre. Be dem da proeve gaari.no/u/script.js direkte. Kontaktdetaljer staar i private/reminders.json."
   },
   {
     "date": "2026-09-08",
-    "title": "Medieklyngen: Charlotte foreslo moete, aldri besvart",
-    "description": "Charlotte Vindenaes (charlotte@medieklyngen.no) svarte 2026-05-18 paa bilderettighets-runden med «Kan det passe med et moete mot slutten av juni?» Det ble aldri besvart, og juni er passert. Kjersti sa 2026-08-18 at dette skal ses paa senere. Vurder om det er en ny moeteinvitasjon eller bare et svar paa bildespoersmaalet. Traaden ligger i Outreach/Unresolved (UID 7)."
+    "title": "Medieklyngen: moeteforslag aldri besvart",
+    "description": "Kontaktpersonen svarte 2026-05-18 paa bilderettighets-runden og foreslo et moete mot slutten av juni. Det ble aldri besvart, og juni er passert. Kjersti sa 2026-08-18 at dette skal ses paa senere. Vurder om det er en ny moeteinvitasjon eller bare et svar paa bildespoersmaalet. Traaden ligger i Outreach/Unresolved (UID 7). Kontaktdetaljer staar i private/reminders.json."
   },
   {
     "date": "2026-09-10",
-    "title": "Bookibud: følg opp API-et hvis Geir er stille",
-    "description": "MØTET ER HOLDT 2026-08-11 kl. 13:30, 40 minutter, tatt opp med Geirs muntlige samtykke. Transkript ligger utenfor repoet. RESULTAT: Geir tilbød uoppfordret å bygge et API for Bergen. Hans ord: «Vi kan lage et veldig enkelt API for Bergen, sånn at alle events som er public, vi lager en getter for til deg. Bare skriv hva du vil ha.» Avslutningsvis: «Du ender bare med en oversikt over hvilken informasjon du ønsker, så smeller vi opp API-et, og så får du en token, og så tester vi det ut.» SENDT 2026-08-11: ønskeliste med 21 felter, fem presiseringer (stabil id, ISO 8601 med offset, dyplenke med henvisningskode, alle priskategorier, alle bilder og video), spørsmål om bildeadresser som ikke utløper, og spørsmål om henvisningsmodellen. BALLEN LIGGER HOS GEIR. PILOT: Stand Up Bergen (allerede inne hos oss via skraping) og Bergen Street Food (ikke inne). Begge er Bookibud-kunder med rundt tre arrangementer i uken hver. ÅPNE PENGESPØRSMÅL: om kickbacken gjelder alle salg som krediteres gaari.no, eller bare arrangører Kjersti henviser inn. Transkriptet peker mot det siste, Kjersti forsto det som det første. Prosenten ble ikke landet; han nevnte noen prosent, men lyden var dårlig akkurat der. Kjersti har bedt om forslag. BILDER: Geir ga muntlig ja til bruk både på gaari.no og i sosiale medier. Registrert i consent.json med opptaket som bevis. Merk at han gir tillatelse på vegne av arrangørene sine, ikke som opphavsmann. TEKNISK: Bookibud bruker Next.js og laster data i småpakker, derfor ingen HTML å skrape. Bildeadressene er presignerte S3-lenker med sju døgns utløp, så de kan ikke hot-linkes slik de er i dag. GEIR SVARTE 2026-08-13 kl. 07:11: Supert, jeg skal se på dette så hører du fra meg når vi har noe som er klart til å testes. Det var hele svaret. Han besvarte ingen av de syv spørsmålene, verken bildeadressene, avlysningssignalet, attribusjonsvinduet eller prosenten. BALLEN ER HOS BOOKIBUD, og Kjersti har bestemt 2026-08-13 at saken legges til side til de leverer noe å teste. IKKE PURR 19. AUGUST, han er ikke stille. Ny purregrense: hvis det fortsatt er helt stille 10. september, send en kort e-post. Ikke ring. Når API-et kommer, ta teknikk og prosent i samme runde; å purre på penger før produktet finnes svekker forhandlingsposisjonen."
+    "title": "Bookibud: prosentsatsen for henvisning er fortsatt ikke avtalt",
+    "description": "OPPDATERT 2026-08-21: API-et er levert og scraperen er bygget, saa selve purringen er ikke lenger aktuell. Det som staar igjen er pengesiden. To ting ble aldri landet i moetet 11. august: (1) om kickbacken gjelder alle salg som krediteres gaari.no, eller bare arrangoerer Kjersti henviser inn — opptaket peker mot det siste, Kjersti forsto det som det foerste; (2) prosentsatsen, som ble nevnt muntlig men ikke hoert tydelig paa opptaket. Kjersti har bedt om et forslag og ville vente til det er klart hva som faktisk kan telles. Henvisningskoden skulle legges paa dyplenkene «i loepet av kort tid». Naar den er paa plass og det finnes tall aa se paa, ta prosenten i samme runde. Kjersti har bedt uttrykkelig om aggregerte tall, ikke persondata, for aa slippe sporing paa gaari.no. Ikke ring; e-post."
   },
   {
     "date": "2026-09-15",
@@ -141,8 +141,8 @@
   },
   {
     "date": "2026-10-01",
-    "title": "Gjenoppta dialog Troll Museum (Petr Arziaev, bergen@trollmuseum.no)",
-    "description": "Petr svarte 2026-04-20: lavsesong nov-mars, oppdaterer nettsiden nærmere november for å gjøre events enklere å integrere. Ta kontakt igjen 1. oktober når sesongen nærmer seg — sjekk om API/JSON-LD/statisk liste er på plass, eller tilby hjelp."
+    "title": "Gjenoppta dialog med Troll Museum",
+    "description": "De svarte 2026-04-20: lavsesong nov-mars, oppdaterer nettsiden nærmere november for å gjøre events enklere å integrere. Ta kontakt igjen 1. oktober når sesongen nærmer seg — sjekk om API/JSON-LD/statisk liste er på plass, eller tilby hjelp. Kontaktdetaljer staar i private/reminders.json."
   },
   {
     "date": "2026-10-01",
@@ -157,7 +157,7 @@
   {
     "date": "2027-01-05",
     "title": "Oppdater Akvariet-priser (ny justering januar 2027)",
-    "description": "Ingvild (Akvariet) sa prisene justeres igjen tidlig januar 2027. Sjekk akvariet.no/kjop-billett og oppdater ADMISSION_PRICE i akvariet.ts."
+    "description": "Akvariet sa at prisene justeres igjen tidlig januar 2027. Sjekk akvariet.no/kjop-billett og oppdater ADMISSION_PRICE i akvariet.ts."
   },
   {
     "date": "2027-01-15",
@@ -168,5 +168,20 @@
     "date": "2027-02-01",
     "title": "Oppdater Borealis-skraper for 2027",
     "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i borealis.ts. Oppdater også send-daily-digest.ts."
+  },
+  {
+    "date": "2026-08-22",
+    "title": "Bookibud: backfill beskrivelser og sjekk foerste pipelinekjoering",
+    "description": "Scraperen scripts/scrapers/bookibud.ts ble bygget og kjoert manuelt 21. august 2026: 54 arrangementer inne av 56 i feeden (ett laa i fortid, ett var et internt duplikat i feeden som slug-sperren tok). TO TING AA GJOERE: (1) Gemini gikk tom for dagskvote midt i kjoeringen, saa 35 av 54 rader har mal-beskrivelse og mangler title_en. Kjoer `npx tsx scripts/backfill-descriptions.ts` naar kvoten er nullstilt, og verifiser at tallet gaar mot null. (2) Den manuelle kjoeringen logget ingen rad i scraper_runs, fordi den gikk frittstaaende utenom scrape.ts. Sjekk digesten etter pipelinekjoeringen 06:00 UTC: bookibud skal staa som success, og scraper-health.ts skal ikke klassifisere den som broken eller dormant. Forvent 0 nye innlegg foerste dag — alt ligger allerede inne."
+  },
+  {
+    "date": "2026-08-28",
+    "title": "Bookibud: tre kodeveier som aldri er provd mot ekte data",
+    "description": "En uke etter at bookibud-scraperen gikk live. Feeden 21. august hadde ingen avlysninger, ingen utsolgte og ingen flerdagsarrangementer, saa tre grener i scripts/scrapers/bookibud.ts er skrevet men ubevist. (1) AVLYSNING: feeden markerer med isCancelled i stedet for aa fjerne raden, og scraperen skal da slette arrangementet fra basen. Sammenlign feeden mot basen og se om noe er avlyst uten aa forsvinne fra gaari.no. (2) UTSOLGT: samme mekanisme paa isSoldOut. (3) FLERDAGERS: rader grupperes paa eventId, og date_end settes bare naar arrangementet strekker seg over flere dager. Uten gruppering ser et flerdagers arrangement ut som duplikater for dedup. Sjekk om feeden har faatt et flerdagsarrangement, og at det i saa fall ligger inne som EN rad."
+  },
+  {
+    "date": "2026-08-25",
+    "title": "46 skript kjoerer ved import — sperr de farligste",
+    "description": "Funnet 2026-08-21 under sikkerhetsgjennomgangen, og funnet paa den harde maaten: en test importerte to hjelpefunksjoner fra send-newsletter.ts, og modulen begynte en ekte utsending til 129 abonnenter. Den rakk aldri aa opprette kampanjen fordi testkjoeringen ble revet ned mens den ventet paa abonnentlista — det var flaks, ikke sikkerhet. Verifisert i MailerLite etterpaa: ingen ny kampanje, ingen loes gruppe. send-newsletter.ts er sperret med samme moenster som scrape.ts bruker: main() kjoerer bare naar process.argv[1] er fila selv. DE OEVRIGE 45 STAAR IGJEN. De fleste er ufarlige rapportskript, men disse gjoer noe utad eller destruktivt og boer sperres foerst: notify-organizers.ts, notify-submitters.ts, send-daily-digest.ts, send-quality-audit.ts, send-weekly-report.ts, social/post-to-socials.ts, social/post-to-bluesky.ts, social/publish-seed-posts.ts, enforce-image-blocks.ts, fix-kode-urls.ts, fix-festspillene-shafrin.ts, meta.ts. Fiksen er tre linjer per fil. Finn resten med: grep -lE '^main\\(\\)|^await main\\(\\)|^run\\(\\)' scripts/*.ts scripts/social/*.ts"
   }
 ]

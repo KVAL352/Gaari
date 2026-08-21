@@ -768,13 +768,38 @@ async function collectNewsletterReport(): Promise<NewsletterReport | null> {
 	}
 }
 
+/**
+ * Paaminnelsene finnes i to utgaver.
+ *
+ * private/reminders.json har full ordlyd, med navn og kontaktadresser. Den er
+ * gitignorert og finnes bare lokalt. scripts/reminders.json er den samme lista
+ * skrubbet for personopplysninger, og er den eneste GitHub Actions ser — repoet
+ * er offentlig, og 21. august 2026 laa 9 e-postadresser, et telefonnummer og et
+ * titalls navn og sitater ute der.
+ *
+ * Den private vinner naar den finnes, saa Kjersti faar full kontekst lokalt.
+ * Finnes ingen av dem, sier vi fra: en tom liste ser ut som «ingen paaminnelser
+ * i dag», og den forskjellen skal ikke vaere usynlig.
+ */
 function collectReminders(): Reminder[] {
-	try {
-		const remindersPath = path.join(import.meta.dirname, 'reminders.json');
-		if (!fs.existsSync(remindersPath)) return [];
-		const all: Reminder[] = JSON.parse(fs.readFileSync(remindersPath, 'utf-8'));
-		return all.filter(r => r.date === TODAY);
-	} catch { return []; }
+	const kandidater = [
+		path.join(import.meta.dirname, '..', 'private', 'reminders.json'),
+		path.join(import.meta.dirname, 'reminders.json')
+	];
+
+	for (const sti of kandidater) {
+		if (!fs.existsSync(sti)) continue;
+		try {
+			const alle: Reminder[] = JSON.parse(fs.readFileSync(sti, 'utf-8'));
+			return alle.filter(r => r.date === TODAY);
+		} catch (err: any) {
+			console.error(`Kunne ikke lese ${sti}: ${err.message}`);
+			return [];
+		}
+	}
+
+	console.warn('Fant ingen reminders.json, verken i private/ eller scripts/ — ingen paaminnelser i digesten.');
+	return [];
 }
 
 const EXPECTED_SCRAPERS = Object.keys(scrapers);

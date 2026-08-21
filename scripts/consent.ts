@@ -76,7 +76,7 @@ if (cmd === 'add') {
 	if (!slug || slug.startsWith('--')) {
 		console.error('Mangler slug. Eksempel:\n' +
 			'  npx tsx scripts/consent.ts add studiovertikal --navn "Studio Vertikal" \\\n' +
-			'    --kontakt "Sofie Vervaet" --epost sofie@studiovertikal.no \\\n' +
+			'    --kontakt "Fornavn Etternavn" --epost kontakt@eksempel.no \\\n' +
 			'    --omfang visning,some --bevis Avtaler --dato 2026-08-06');
 		process.exit(1);
 	}

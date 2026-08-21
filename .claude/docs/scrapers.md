@@ -82,7 +82,7 @@
 |--------|------|--------|
 | SK Brann | `brann.ts` | HTML table (match schedule) |
 | DNT Bergen | `dnt.ts` | HTML (guided tours) |
-| Studio Vertikal | `studiovertikal.ts` | **Generator, ingen nettverkskall.** Booking går via GoActiveBooking/BRP uten offentlig programside. Tidene er oppgitt skriftlig av Sofie Vervaet (sofie@studiovertikal.no) 2026-07-01, som også ga tillatelse til innlegging. Seniorklatring genereres rullerende 8 uker frem (torsdager, kl. 11:00 t.o.m. 2026-08-06 pga sommeråpningstid, deretter kl. 10:00). Familiedager er fire faste lørdager med `hhmm: null` inntil arrangøren bekrefter klokkeslett — de hoppes over til feltet er fylt. `source_url` får dato som fragment (`/seniorklatring/#2026-08-06`) siden én side dekker alle øktene. |
+| Studio Vertikal | `studiovertikal.ts` | **Generator, ingen nettverkskall.** Booking går via GoActiveBooking/BRP uten offentlig programside. Tidene er oppgitt skriftlig av arrangøren 2026-07-01, som også ga tillatelse til innlegging (korrespondansen ligger i Avtaler). Seniorklatring genereres rullerende 8 uker frem (torsdager, kl. 11:00 t.o.m. 2026-08-06 pga sommeråpningstid, deretter kl. 10:00). Familiedager er fire faste lørdager med `hhmm: null` inntil arrangøren bekrefter klokkeslett — de hoppes over til feltet er fylt. `source_url` får dato som fragment (`/seniorklatring/#2026-08-06`) siden én side dekker alle øktene. |
 
 ## Festivals
 | Source | File | Method |

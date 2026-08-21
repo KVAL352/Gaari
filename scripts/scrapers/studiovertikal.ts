@@ -7,9 +7,10 @@ import { generateDescription } from '../lib/ai-descriptions.js';
  *
  * Ingen nettverkskall. Studio Vertikal kjører booking via GoActiveBooking/BRP,
  * som er et bookingsystem uten offentlig programside å skrape (vurdert og
- * forkastet 2026-06-29). Tidene under er oppgitt skriftlig av Sofie Vervaet
- * (sofie@studiovertikal.no) i e-post 2026-07-01, der hun også ga eksplisitt
- * tillatelse til at arrangementene legges inn på gaari.no.
+ * forkastet 2026-06-29). Tidene under er oppgitt skriftlig av arrangøren i
+ * e-post 2026-07-01, der de også ga eksplisitt tillatelse til at
+ * arrangementene legges inn på gaari.no. Korrespondansen ligger i Protonmail
+ * Folders/Gaari/Avtaler; kontaktpersonen står i private/bildesamtykke-full.md.
  *
  * Seniorklatringen er et fast ukentlig tilbud uten sluttdato, så den genereres
  * rullerende HORIZON_WEEKS frem i tid ved hver kjøring. Familiedagene er fire
