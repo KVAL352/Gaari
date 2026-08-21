@@ -1,5 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
+import { PUBLIC_EVENT_COLUMNS } from '$lib/server/event-columns';
+import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -24,12 +26,15 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const { data: events } = await supabase
 		.from('events')
-		.select('*')
+		.select(PUBLIC_EVENT_COLUMNS)
 		.in('status', ['approved'])
 		.gte('date_start', startStr)
 		.lte('date_start', endStr)
 		.order('date_start', { ascending: true })
-		.limit(200);
+		.limit(200)
+		// PUBLIC_EVENT_COLUMNS is a runtime string, so the client cannot infer
+		// the row shape from it the way it does for a literal.
+		.returns<GaariEvent[]>();
 
 	return {
 		events: events || [],

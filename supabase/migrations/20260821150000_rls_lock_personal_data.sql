@@ -15,17 +15,42 @@
 -- organizer_inquiries. Verified before writing this migration.
 
 -- ============================================================
--- events — keep public read, drop the one personal column
+-- events — keep public read, drop the personal columns
 -- ============================================================
+--
+-- A column-level REVOKE does nothing here. From the PostgreSQL docs: "if a
+-- role has been granted privileges on a table, then revoking the same
+-- privileges from individual columns will have no effect." The table-level
+-- grant has to go first, then the wanted columns are granted back.
+--
+-- Verified against production on 2026-08-21: the column REVOKE this replaced
+-- ran without error and changed nothing — submitter_email stayed readable.
 
-REVOKE SELECT (submitter_email) ON events FROM anon;
+REVOKE SELECT ON events FROM anon;
+GRANT SELECT (
+  id, slug, title_no, title_en, description_no, description_en, category,
+  date_start, date_end, venue_name, address, bydel, latitude, longitude,
+  price, ticket_url, source, source_url, image_url, age_group, language,
+  status, created_at, updated_at, link_check_failures, link_checked_at,
+  is_sold_out, image_credit, is_canary
+) ON events TO anon;
+
+-- is_canary is granted deliberately, not by oversight: the public queries
+-- filter with .eq('is_canary', false), and Postgres requires SELECT on a
+-- column used in a WHERE clause. The cost is that anon can enumerate the
+-- decoys with ?is_canary=eq.true — confirmed working on 2026-08-21, all three
+-- returned. Closing that needs a view that filters canaries server-side and
+-- never exposes the flag. Tracked separately; see project_ip_protection.
 
 -- ============================================================
 -- promoted_placements — public site needs the display columns only
 -- ============================================================
 
-REVOKE SELECT (contact_email, notes, stripe_customer_id, stripe_subscription_id)
-  ON promoted_placements FROM anon;
+REVOKE SELECT ON promoted_placements FROM anon;
+GRANT SELECT (
+  id, venue_name, collection_slugs, tier, slot_share, active,
+  start_date, end_date, created_at, logo_url
+) ON promoted_placements TO anon;
 
 -- ============================================================
 -- Tables the browser never reads — no anon SELECT at all
