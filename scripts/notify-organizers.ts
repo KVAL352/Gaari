@@ -23,6 +23,7 @@
 import 'dotenv/config';
 import { supabase } from './lib/supabase.js';
 import { sendEmail } from './lib/notify.js';
+import { maskEmail } from './lib/utils.js';
 import { bygg, type Arrangement, type Henvendelse } from './lib/organizer-notice.js';
 
 const dryRun = process.argv.includes('--dry-run');
@@ -59,12 +60,12 @@ async function main() {
 		// Koblingen finnes, men ingenting er publisert ennå. Da er det ikke noe å
 		// bekrefte, og henvendelsen blir stående til neste morgen.
 		if (!arrangementer.length) {
-			console.log(`  ${h.email}: ingen godkjente arrangementer på "${h.event_source}" ennå, venter`);
+			console.log(`  ${maskEmail(h.email)}: ingen godkjente arrangementer på "${h.event_source}" ennå, venter`);
 			continue;
 		}
 
 		console.log(
-			`  ${h.email} <- ${arrangementer.length} arrangement${arrangementer.length > 1 ? 'er' : ''} (${h.event_source})`
+			`  ${maskEmail(h.email)} <- ${arrangementer.length} arrangement${arrangementer.length > 1 ? 'er' : ''} (${h.event_source})`
 		);
 		if (dryRun) continue;
 
@@ -79,7 +80,7 @@ async function main() {
 			.eq('id', h.id);
 
 		if (stampErr) {
-			console.error(`  ADVARSEL: e-post sendt, men stempling feilet for ${h.email}: ${stampErr.message}`);
+			console.error(`  ADVARSEL: e-post sendt, men stempling feilet for ${maskEmail(h.email)}: ${stampErr.message}`);
 			console.error('  Sett notified_at manuelt, ellers sendes den på nytt i morgen.');
 			continue;
 		}

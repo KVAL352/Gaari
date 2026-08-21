@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
+import { maskEmail } from './lib/utils.js';
 
 const supabase = createClient(
 	process.env.SUPABASE_URL!,
@@ -57,7 +58,7 @@ async function sendReminders() {
 		`;
 
 		if (!RESEND_API_KEY) {
-			console.log(`[dry-run] Would send to ${reminder.email}: ${subject}`);
+			console.log(`[dry-run] Would send to ${maskEmail(reminder.email)}: ${subject}`);
 			continue;
 		}
 
@@ -81,13 +82,13 @@ async function sendReminders() {
 					.from('event_reminders')
 					.update({ sent_at: new Date().toISOString() })
 					.eq('id', reminder.id);
-				console.log(`✓ Sent to ${reminder.email} for ${reminder.event_title}`);
+				console.log(`✓ Sent to ${maskEmail(reminder.email)} for ${reminder.event_title}`);
 			} else {
 				const err = await res.text();
-				console.error(`✗ Failed ${reminder.email}: ${err}`);
+				console.error(`✗ Failed ${maskEmail(reminder.email)}: ${err}`);
 			}
 		} catch (e) {
-			console.error(`✗ Error sending to ${reminder.email}:`, e);
+			console.error(`✗ Error sending to ${maskEmail(reminder.email)}:`, e);
 		}
 
 		// Rate limit: 100ms between sends

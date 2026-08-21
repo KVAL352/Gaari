@@ -14,6 +14,7 @@
  */
 import { supabase } from './lib/supabase.js';
 import { SITE, sendEmail, wrap } from './lib/notify.js';
+import { maskEmail } from './lib/utils.js';
 
 const dryRun = process.argv.includes('--dry-run');
 
@@ -80,7 +81,7 @@ async function main() {
 
 	let sendt = 0;
 	for (const rad of rader) {
-		console.log(`  ${rad.submitter_email} <- ${rad.title_no}`);
+		console.log(`  ${maskEmail(rad.submitter_email)} <- ${rad.title_no}`);
 		if (dryRun) continue;
 
 		if (!(await send(rad))) continue;

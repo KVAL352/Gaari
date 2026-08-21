@@ -1024,3 +1024,20 @@ export async function fetchHTML(url: string, options: { signal?: AbortSignal } =
 		clearTimeout(timeoutId);
 	}
 }
+
+/**
+ * Mask an email address for logging.
+ *
+ * The repo is public, so GitHub Actions logs are public too. Scripts that mail
+ * real people used to print the recipient, which published subscriber and
+ * submitter addresses to anyone who opened the run. Keep enough to tell two
+ * recipients apart when debugging, and nothing more.
+ *
+ *   maskEmail('kari.nordmann@example.com')  ->  'k***@example.com'
+ */
+export function maskEmail(email: string | null | undefined): string {
+	if (!email) return '(ingen adresse)';
+	const at = email.lastIndexOf('@');
+	if (at <= 0) return '***';
+	return `${email[0]}***${email.slice(at)}`;
+}
