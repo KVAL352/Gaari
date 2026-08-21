@@ -15,6 +15,7 @@ import { generateNewsletterHtml, generateQuietWeekHtml, generateSubject } from '
 import type { GaariEvent } from '../src/lib/types.js';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
+import { fileURLToPath } from 'url';
 import { writeFileSync, mkdirSync } from 'fs';
 
 dotenv.config({ path: resolve(import.meta.dirname, '../.env') });
@@ -66,6 +67,32 @@ interface GroupedSubscribers {
 const ML_MAX_RETRIES = 5;
 const ML_LOW_REMAINING = 5;
 
+/**
+ * Endepunktet uten identifikatorer, til logging.
+ *
+ * `/subscribers/ola%40eksempel.no/groups/123` inneholder abonnentens
+ * e-postadresse, og Actions-loggen er offentlig fordi repoet er det. Loggen
+ * trenger å vite hvilket kall som ble rate-limitet, ikke hvem det gjaldt.
+ */
+export function loggbarSti(path: string): string {
+	return path
+		.split('?')[0]
+		.split('/')
+		// Bytt ut det som er en identifikator, ikke det som er et endepunktnavn.
+		// `/campaigns/123/schedule` skal fortsatt kunne leses som schedule-kallet.
+		.map((del) => (/@|%40|^[0-9a-f]{6,}$|^\d+$/i.test(del) ? ':id' : del))
+		.join('/');
+}
+
+/**
+ * Samme grunn, men for svarkroppene vi logger videre. Vi vet ikke sikkert om
+ * MailerLite gjentar adressen i feilmeldingene sine, og det er billigere aa
+ * fjerne den enn aa finne det ut.
+ */
+export function utenEpost(tekst: string): string {
+	return tekst.replace(/[\w.+-]+@[\w-]+\.[\w.]{2,}/g, '[e-post fjernet]');
+}
+
 async function mlFetch(
 	path: string,
 	options: RequestInit = {},
@@ -86,7 +113,7 @@ async function mlFetch(
 		const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
 			? retryAfter * 1000
 			: Math.min(60_000, 2 ** attempt * 2000);
-		console.warn(`  Rate limited on ${path} — waiting ${Math.round(waitMs / 1000)}s (attempt ${attempt + 1}/${ML_MAX_RETRIES})`);
+		console.warn(`  Rate limited on ${loggbarSti(path)} — waiting ${Math.round(waitMs / 1000)}s (attempt ${attempt + 1}/${ML_MAX_RETRIES})`);
 		await delay(waitMs);
 		return mlFetch(path, options, attempt + 1);
 	}
@@ -111,7 +138,7 @@ async function fetchAllSubscribers(): Promise<MailerLiteSubscriber[]> {
 
 		const res = await mlFetch(`/subscribers?${params}`);
 		if (!res.ok) {
-			console.error('MailerLite list subscribers failed:', res.status, await res.text());
+			console.error('MailerLite list subscribers failed:', res.status, utenEpost(await res.text()));
 			break;
 		}
 
@@ -149,7 +176,7 @@ async function createAndSendCampaign(
 
 	if (!groupRes.ok) {
 		const err = await groupRes.text();
-		return { success: false, error: `Failed to create group: ${err}` };
+		return { success: false, error: `Failed to create group: ${utenEpost(err)}` };
 	}
 
 	const group = await groupRes.json();
@@ -169,7 +196,7 @@ async function createAndSendCampaign(
 			added++;
 		} else {
 			addFailures.push(email);
-			console.warn(`  Warning: could not add subscriber to group: ${await addRes.text()}`);
+			console.warn(`  Warning: could not add subscriber to group: ${utenEpost(await addRes.text())}`);
 		}
 	}
 
@@ -199,7 +226,7 @@ async function createAndSendCampaign(
 
 	if (!campaignRes.ok) {
 		const err = await campaignRes.text();
-		return { success: false, error: `Failed to create campaign: ${err}` };
+		return { success: false, error: `Failed to create campaign: ${utenEpost(err)}` };
 	}
 
 	const campaign = await campaignRes.json();
@@ -213,7 +240,7 @@ async function createAndSendCampaign(
 
 	if (!sendRes.ok) {
 		const err = await sendRes.text();
-		return { success: false, error: `Failed to schedule campaign: ${err}`, campaignId };
+		return { success: false, error: `Failed to schedule campaign: ${utenEpost(err)}`, campaignId };
 	}
 
 	return { success: true, campaignId, recipients: added, addFailures };
@@ -692,7 +719,21 @@ function writeSummary(data: Record<string, unknown>) {
 	}
 }
 
-main().catch(err => {
-	console.error('Newsletter script failed:', err);
-	process.exit(1);
-});
+/**
+ * Kjør bare når fila startes direkte.
+ *
+ * `main()` sto tidligere som et bart kall, og da sender modulen nyhetsbrevet
+ * til alle aktive abonnenter bare den blir importert — av en test, av et
+ * verktøy, av en importlinje noen skriver feil. Det ble oppdaget 21. august
+ * 2026 da en test importerte to hjelpefunksjoner herfra. Ingen utsending rakk
+ * å gå ut, men det var flaks: testkjøringen ble revet ned mens `main()`
+ * fortsatt ventet på abonnentlista.
+ *
+ * Samme sperre som scrape.ts bruker.
+ */
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+	main().catch(err => {
+		console.error('Newsletter script failed:', err);
+		process.exit(1);
+	});
+}
