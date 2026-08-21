@@ -189,7 +189,12 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			ogSubtitle: collection.ogSubtitle,
 			editorial: collection.editorial,
 			faq: collection.faq,
-			relatedSlugs: collection.relatedSlugs,
+			// Slugene slås opp her og ikke i komponenten. getCollection() i
+			// +page.svelte dro hele samlingskatalogen inn i klientpakken.
+			related: (collection.relatedSlugs ?? [])
+				.map(slug => getCollection(slug))
+				.filter((c): c is NonNullable<typeof c> => c != null)
+				.map(c => ({ slug: c.slug, title: c.title })),
 			quickAnswer: collection.quickAnswer,
 			newsletterHeading: collection.newsletterHeading,
 			seasonal: collection.seasonal,

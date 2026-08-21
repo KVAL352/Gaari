@@ -1,4 +1,5 @@
 import { supabase } from '$lib/server/supabase';
+import { getGroupedCollections } from '$lib/collections';
 import { seedEvents } from '$lib/data/seed-events';
 import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad } from './$types';
@@ -21,6 +22,12 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 	// the client would diverge from the ISR-cached SSR (up to 1h old), reorder the
 	// upcoming/ongoing buckets, and mispair images with cards during hydration.
 	const nowUtc = new Date().toISOString();
+
+	// Lenkekartet nederst paa forsiden. Settes sammen her fordi $lib/collections
+	// er hele katalogen paa 338 kB kildekode: importerte forsiden den selv,
+	// fulgte 70 kB komprimert JavaScript med til nettleseren for aa tegne noen
+	// og seksti lenker. Bare slug og etikett sendes videre.
+	const collectionGroups = getGroupedCollections(lang);
 
 	try {
 		// date_start is stored as UTC (timestamptz) in Supabase
@@ -83,14 +90,14 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 				return true;
 			});
 
-			return { events, source: 'supabase' as const, lang, dateModified, now: nowUtc };
+			return { events, source: 'supabase' as const, lang, dateModified, now: nowUtc, collectionGroups };
 		}
 
 		// Empty table — fall back to seed data
-		return { events: seedEvents, source: 'seed' as const, lang, dateModified, now: nowUtc };
+		return { events: seedEvents, source: 'seed' as const, lang, dateModified, now: nowUtc, collectionGroups };
 	} catch (err) {
 		// Supabase unreachable — fall back to seed data
 		console.error('Supabase load failed:', err);
-		return { events: seedEvents, source: 'seed' as const, lang, dateModified, now: nowUtc };
+		return { events: seedEvents, source: 'seed' as const, lang, dateModified, now: nowUtc, collectionGroups };
 	}
 };

@@ -5,8 +5,9 @@
 	import { getCanonicalUrl, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
 	import { SOURCE_COUNT } from '$lib/constants';
 	import { getEasterDate, addDays, getISOWeekDates, getContextualHighlight, getOsloNow } from '$lib/event-filters';
-	import { getAllCollectionSlugs, getCollection } from '$lib/collections';
 	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
+
+	let { data } = $props();
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/guide`));
 
@@ -28,18 +29,13 @@
 		isPartOf: { '@type': 'WebSite', name: 'Gåri', url: 'https://gaari.no' },
 		mainEntity: {
 			'@type': 'ItemList',
-			numberOfItems: getAllCollectionSlugs().length,
-			itemListElement: getAllCollectionSlugs()
-				.map((slug, i) => {
-					const col = getCollection(slug);
-					return col ? {
-						'@type': 'ListItem',
-						position: i + 1,
-						name: col.title[$lang],
-						url: getCanonicalUrl(`/${$lang}/${slug}`)
-					} : null;
-				})
-				.filter(Boolean)
+			numberOfItems: data.catalogue.length,
+			itemListElement: data.catalogue.map((col, i) => ({
+				'@type': 'ListItem',
+				position: i + 1,
+				name: col.title[$lang],
+				url: getCanonicalUrl(`/${$lang}/${col.slug}`)
+			}))
 		}
 	}));
 

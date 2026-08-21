@@ -11,7 +11,6 @@
 	import { generateWebSiteJsonLd, generateFaqJsonLd, generateOrganizationJsonLd, generateBreadcrumbJsonLd, computeCanonical, getCanonicalUrl, safeJsonLd } from '$lib/seo';
 	import { SOURCE_COUNT } from '$lib/constants';
 	import { optimizedSrc, optimizedSrcset } from '$lib/image';
-	import { getGroupedCollections } from '$lib/collections';
 	import { TOP_VENUES } from '$lib/venues';
 	import { ArrowRight } from 'lucide-svelte';
 	import HeroSection from '$lib/components/HeroSection.svelte';
@@ -488,7 +487,7 @@
 		{$lang === 'no' ? 'Utforsk Bergen' : 'Explore Bergen'}
 	</h2>
 	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-		{#each getGroupedCollections($lang) as group}
+		{#each data.collectionGroups as group (group.label.no)}
 			<div>
 				<h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
 					{group.label[$lang]}

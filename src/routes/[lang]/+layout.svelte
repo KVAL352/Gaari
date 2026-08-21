@@ -7,7 +7,13 @@
 	import BackToTop from '$lib/components/BackToTop.svelte';
 	import type { Snippet } from 'svelte';
 
-	let { data, children }: { data: { lang: Lang }; children: Snippet } = $props();
+	let {
+		data,
+		children
+	}: {
+		data: { lang: Lang; footerCollections: Array<{ slug: string; label: Record<Lang, string> }> };
+		children: Snippet;
+	} = $props();
 
 	// Set lang store synchronously so it's correct during SSR.
 	// $effect only runs client-side, so without this, $lang defaults to 'no'
@@ -67,6 +73,6 @@
 	<main id="events" tabindex="-1" class="flex-1">
 		{@render children()}
 	</main>
-	<Footer />
+	<Footer collections={data.footerCollections} />
 	<BackToTop />
 </div>

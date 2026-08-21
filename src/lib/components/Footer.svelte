@@ -1,9 +1,15 @@
 <script lang="ts">
 	import { lang, t } from '$lib/i18n';
-	import { CATEGORIES } from '$lib/types';
-	import { getFooterCollections, getSeasonalFooterCollections } from '$lib/collections';
+	import { CATEGORIES, type Lang } from '$lib/types';
 	import NewsletterCTA from './NewsletterCTA.svelte';
 	import { Instagram, Facebook } from 'lucide-svelte';
+
+	// Lenkene kommer ferdig utplukket fra +layout.server.ts. Komponenten skal
+	// ikke importere $lib/collections: den importen dro hele samlingskatalogen
+	// (70 kB komprimert) inn i klientpakken paa alle sider.
+	let {
+		collections = []
+	}: { collections?: Array<{ slug: string; label: Record<Lang, string> }> } = $props();
 </script>
 
 <footer class="mt-16 border-t border-[var(--color-border)] bg-[var(--color-surface)]">
@@ -56,23 +62,13 @@
 			<nav aria-label={$lang === 'no' ? 'Utforsk' : 'Explore'}>
 				<h4 class="mb-2 text-sm font-semibold">{$lang === 'no' ? 'Utforsk' : 'Explore'}</h4>
 				<ul class="space-y-1">
-					{#each getFooterCollections($lang) as col (col.slug)}
+					{#each collections as col (col.slug)}
 						<li>
 							<a
 								href="/{$lang}/{col.slug}"
 								class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]"
 							>
-								{(col.footerLabel ?? col.title)[$lang]}
-							</a>
-						</li>
-					{/each}
-					{#each getSeasonalFooterCollections($lang) as seasonal (seasonal.slug)}
-						<li>
-							<a
-								href="/{$lang}/{seasonal.slug}"
-								class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]"
-							>
-								{seasonal.label[$lang]}
+								{col.label[$lang]}
 							</a>
 						</li>
 					{/each}

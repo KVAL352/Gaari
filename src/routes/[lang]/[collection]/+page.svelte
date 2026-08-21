@@ -2,7 +2,6 @@
 	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
 	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
-	import { getCollection, type Collection } from '$lib/collections';
 	import { getOsloNow, getWeekendDates } from '$lib/event-filters';
 	import EventGrid from '$lib/components/EventGrid.svelte';
 	import FilterBar from '$lib/components/FilterBar.svelte';
@@ -162,11 +161,7 @@
 
 	let venueCount = $derived(new Set(filteredEvents.map(e => e.venue_name).filter(Boolean)).size);
 
-	let relatedCollections: Collection[] = $derived(
-		(data.collection.relatedSlugs ?? [])
-			.map((slug: string) => getCollection(slug))
-			.filter((c: Collection | undefined): c is Collection => c != null)
-	);
+	let relatedCollections = $derived(data.collection.related ?? []);
 
 	let nextPageHref = $derived(`?page=${pageNum + 1}`);
 
