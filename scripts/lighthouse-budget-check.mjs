@@ -59,6 +59,20 @@ const TIMING_NAVN = {
 	'speed-index': 'SI'
 };
 
+// Typene Lighthouse deler forbruket inn i. Brukes til å rapportere det som
+// ikke har en grense, slik at bildevekten er synlig uten å være portvakt.
+const ALLE_RESSURSTYPER = [
+	'total',
+	'image',
+	'script',
+	'font',
+	'document',
+	'stylesheet',
+	'media',
+	'third-party',
+	'other'
+];
+
 // Under denne marginen er resultatet grønt, men ikke trygt: det ligger innenfor
 // støyen mellom to kjøringer, og vil før eller siden slå ut tilfeldig.
 const NAER_GRENSEN = 0.1;
@@ -242,6 +256,28 @@ function maalPerSide(side, runs, regler, brudd, naer) {
 		for (const s of regel.resourceSizes || []) {
 			const verdier = runs.map((r) => (r.sizes[s.resourceType] ?? 0) / 1024);
 			vurder(`${s.resourceType} (overført)`, median(verdier), s.budget, verdier, 'kb');
+		}
+	}
+
+	/**
+	 * Typer uten grense rapporteres, men stopper ingenting. Det gjelder først og
+	 * fremst bilder: vi hot-lenker arrangørenes egne filer, så det er de som
+	 * bestemmer størrelsen, og et budsjett på noe vi ikke er avsender for ville
+	 * enten stått rødt permanent eller vært satt så løst at det ikke betydde noe.
+	 * Tidsgrensene fanger fortsatt opp om bildene gjør siden treg. Tallet står
+	 * her fordi det bør merkes om det vokser.
+	 */
+	const budsjetterte = new Set(regler.flatMap((r) => (r.resourceSizes || []).map((s) => s.resourceType)));
+	const utenGrense = ALLE_RESSURSTYPER.filter((t) => !budsjetterte.has(t))
+		.map((t) => ({ type: t, kib: median(runs.map((r) => (r.sizes[t] ?? 0) / 1024)) }))
+		.filter((x) => x.kib >= 1);
+	if (utenGrense.length) {
+		console.log(
+			'  uten grense, kun rapportert:  ' +
+				utenGrense.map((x) => `${x.type} ${Math.round(x.kib)} KiB`).join(', ')
+		);
+		for (const x of utenGrense) {
+			rad.maalinger.push({ navn: `${x.type} (uten grense)`, median: x.kib, budsjett: null, status: 'rapportert' });
 		}
 	}
 	return rad;

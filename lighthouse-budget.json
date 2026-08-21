@@ -10,7 +10,9 @@
     ],
     "resourceSizes": [
       { "resourceType": "script", "budget": 200 },
-      { "resourceType": "total", "budget": 500 }
+      { "resourceType": "font", "budget": 128 },
+      { "resourceType": "stylesheet", "budget": 24 },
+      { "resourceType": "document", "budget": 40 }
     ]
   }
 ]

@@ -71,7 +71,9 @@ Etter:
 | innsendingsskjema| 2525 | 3290 |  60 | 0.001 | 2525 |    154 |     268 |
 | forside (EN)     | 2502 | 3645 |  26 | 0.000 | 4456 |    141 | **701** |
 
-Tider i ms, størrelser i KiB overført. Uthevet = over grensen.
+Tider i ms, størrelser i KiB overført. Uthevet = over grensen som gjaldt da
+målingen ble gjort. `total`-kolonnen er tatt med for sammenligningens skyld;
+den grensen ble byttet ut samme dag, se lenger ned.
 
 **Alle tidsgrenser holder, med god margin.** Den verste enkeltmålingen av
 femten brukte 76 % av LCP-grensen, 75 % av Speed Index, 72 % av FCP, 9 % av
@@ -102,37 +104,45 @@ Ingen komponent importerer `$lib/collections` lenger. Effekt: 68 KiB mindre på
 forsiden, 69 på `/submit`, og LCP ned et halvt sekund. Bunnteksten rendrer de
 samme 32 lenkene som før, kontrollert mot katalogen.
 
-## Det som ikke er avgjort: `total: 500`
+## Grensen som ble byttet ut: `total: 500`
 
-Etter fiksen er dette det eneste bruddet, på de tre sidene som viser bilder.
-Forsiden ligger på 701 KiB, og består av:
+Etter fiksen var dette det eneste bruddet, på de tre sidene som viser bilder.
+Forsiden lå på 701 KiB, og besto av:
 
-| type            |     KiB | kommentar                        |
-| --------------- | ------: | -------------------------------- |
-| bilder          | **404** | hot-lenket, tredjepart           |
-| script          |     141 | vår kode                         |
-| fonter          |     115 | fem snitt, våre                  |
-| dokument        |      25 | vår SSR-HTML                     |
-| stilark         |      16 | vår CSS                          |
-| **sum uten bilder** | **297** | godt innenfor 500          |
+| type                |     KiB | kommentar              |
+| ------------------- | ------: | ---------------------- |
+| bilder              | **404** | hot-lenket, tredjepart |
+| script              |     141 | vår kode               |
+| fonter              |     115 | fem snitt, våre        |
+| dokument            |      25 | vår SSR-HTML           |
+| stilark             |      16 | vår CSS                |
+| **sum uten bilder** | **297** | godt innenfor 500      |
 
-Grensen brytes altså utelukkende av bilder vi ikke er avsender for. Vi
+Grensen ble altså brutt utelukkende av bilder vi ikke er avsender for. Vi
 hot-lenker originalene fra arrangørenes egne sider, som er hele bildepolicyen —
 og da er det arrangøren som bestemmer filstørrelsen. Én måling mot ekte
-gaari.no viste 566 KiB bilder på forsiden, altså verre enn seed-dataene.
+gaari.no samme dag viste 566 KiB bilder på forsiden, altså verre enn
+seed-dataene. Et budsjett på `total` ville derfor enten stått rødt permanent,
+eller vært satt så løst at det ikke betydde noe.
 
-Budsjettet er ikke rørt. Valget er ditt, og alternativene er:
+Grensen ble 21. august byttet mot grenser per type, for det koden vår faktisk
+styrer:
 
-1. **La `total` stå på 500.** Da er CI rød til bildene er løst, og portvakten
-   slutter å bety noe fordi rødt blir normalen.
-2. **Bytt `total` mot grenser per type** for det koden vår faktisk styrer
-   (script, stilark, dokument, font), og la bildevekten bli rapportert uten å
-   være portvakt. Tidsgrensene fanger fortsatt om bildene gjør siden treg.
-3. **Sett `total` til et målt tall med margin.** Ærlig, men tallet vil svinge
-   med hvilke arrangementer som ligger inne den dagen.
+| type       | grense | i dag (verste side) | margin |
+| ---------- | -----: | ------------------: | -----: |
+| script     |    200 |                 154 |   23 % |
+| font       |    128 |                 115 |   10 % |
+| stylesheet |     24 |                  16 |   33 % |
+| document   |     40 |                  25 |   38 % |
 
-Anbefaling: alternativ 2. Det er det eneste som gir en portvakt som både er
-grønn i dag og faktisk stopper noe i morgen.
+Skriptgrensen er uendret fra februar. De tre andre er satt fra målingen med
+margin, ikke fra en mal. Fontgrensen er den strammeste med vilje: 128 KiB gir
+plass til de fem snittene vi har, men ikke til et sjette uten at noen tar
+stilling til det.
+
+Bildevekt og totalvekt rapporteres fortsatt av kjøreren, merket «uten grense,
+kun rapportert», slik at det merkes om de vokser. Tidsgrensene fanger fortsatt
+opp om bildene gjør siden treg.
 
 ## Det målingen ikke ser
 
