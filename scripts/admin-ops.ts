@@ -12,6 +12,7 @@
 
 import 'dotenv/config';
 import { supabase } from './lib/supabase.js';
+import { EVENT_IMAGE_BUCKET, eventImageStoragePath } from '../src/lib/storage-path.js';
 
 const FROM_EMAIL = 'Gåri <noreply@gaari.no>';
 
@@ -450,10 +451,12 @@ async function rejectSubmission(partialId: string, feedback?: string) {
 		);
 	}
 
-	// Delete image from storage
-	if (event.image_url && event.slug) {
+	// Delete image from storage. Stien utledes fra image_url — endelsen kan
+	// vaere png eller webp, og fallback/-bilder skal aldri slettes herfra.
+	const imagePath = eventImageStoragePath(event.image_url);
+	if (imagePath) {
 		try {
-			await supabase.storage.from('event-images').remove([`events/${event.slug}.jpg`]);
+			await supabase.storage.from(EVENT_IMAGE_BUCKET).remove([imagePath]);
 		} catch { /* skip */ }
 	}
 

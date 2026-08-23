@@ -2,6 +2,7 @@ import { supabaseAdmin } from '$lib/server/supabase-admin';
 import { sendRejectionEmail } from '$lib/server/email';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
+import { EVENT_IMAGE_BUCKET, eventImageStoragePath } from '$lib/storage-path';
 
 export interface SubmissionRow {
 	id: string;
@@ -87,11 +88,13 @@ export const actions: Actions = {
 			}
 		}
 
-		if (event?.image_url) {
-			const path = `events/${event.slug}.jpg`;
+		// Stien maa utledes fra image_url, ikke bygges av slug + antatt .jpg.
+		// Helperen nekter ogsaa aa roere fallback/ — se storage-path.ts.
+		const imagePath = eventImageStoragePath(event?.image_url);
+		if (imagePath) {
 			await supabaseAdmin.storage
-				.from('event-images')
-				.remove([path]);
+				.from(EVENT_IMAGE_BUCKET)
+				.remove([imagePath]);
 		}
 
 		const { error } = await supabaseAdmin

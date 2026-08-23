@@ -21,6 +21,8 @@
 - `src/lib/__tests__/query-timezone.test.ts` — UTC vs Oslo time regressions
 - `src/lib/__tests__/promotions.test.ts` — selectPromotedByDeficit convergence, multi-venue balancing, tier shares, newsletter rotation
 - `src/lib/__tests__/promotions-roles.test.ts` — 5-role QA (business analyst, venue owner, end user, devops, legal) + mid-month join scenarios
+- `src/lib/__tests__/b2b-visibility.test.ts` — at arrangoersidene faktisk er skjult: at flagget staar av, og at kontaktskjemaet svarer 404 uten aa skrive til `organizer_inquiries` eller sende varsel-epost. SvelteKit kjoerer actions FOER load, saa redirecten i load stoppet ingen POST. Sperren ligger foran honeypot-grenen, saa den kan ikke brukes til aa faa 200 fra en skjult rute
+- `src/lib/__tests__/storage-path.test.ts` — `eventImageStoragePath`: at endelsen utledes fra `image_url` (jpg/png/webp) i stedet for aa antas `.jpg`, og — viktigst — at `fallback/` aldri returneres. Fallback-bildene er DELTE per arrangoer, saa en sletting utloest av én avvist innsending ville fjernet bildet for alle andre. Daekker ogsaa hot-linkede URL-er, feil boette, sti-traversering og query-parametre
 - `src/lib/__tests__/contrast.test.ts` — regner WCAG-kontrast ut av tokenene i `app.css` og feiler under 4,5:1 for tekst. Leser CSS-fila, saa en endret `--funkis-*`-verdi fanges uten at testen roeres. Daekker begge fargemoduser og tekst-paa-roed-flate
 
 ## E2E: tilgjengelighet (Playwright + axe-core)
