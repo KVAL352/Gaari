@@ -1,0 +1,13 @@
+[
+  {
+    "id": "homies",
+    "name": "Homies Coffee",
+    "homepage": "https://homiescoffee.com/",
+    "sitemap": "https://homiescoffee.com/sitemap.xml",
+    "baselineUrls": [
+      "https://homiescoffee.com"
+    ],
+    "reminder": "2026-10-01",
+    "note": "Kaffested i Steinkjellergaten 8, Bergen sentrum (HOMIES AS, stiftet 22. juni 2026). Markedsfører seg på pop-ups, DJ-kvelder og «coffee raves», altså riktig innholdstype for Gåri. Per 23. august 2026 er nettsiden en ettsides ventelisteside uten datoer, og robots.txt er fullt tillatende. Dukker det opp en ny adresse her, er det trolig programsiden vi venter på: sjekk den, følg docs/new-scraper-checklist.md, og oppdater baselineUrls så vakten blir stille igjen."
+  }
+]

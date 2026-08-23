@@ -54,6 +54,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - `venues.ts` — 190+ venue entries, aggregator domain detection, resolveTicketUrl
 - `ai-descriptions.ts` — Gemini integration, rate limiting, fallback
 - `scraper-health.ts` — Anomaly detection (broken/warning/dormant/healthy)
+- `source-watch.ts` — Kildevakt: overvåker steder som ennå ikke har noe å scrape. Liste i `scripts/source-watch.json`, rapporteres i den daglige digesten. Se `docs/next-scrapers.md`, «Venter på kilden».
 
 ## Detailed docs (read on-demand)
 

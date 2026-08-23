@@ -31,6 +31,12 @@ import {
 	type CampaignCheck,
 	type CheckStatus,
 } from './lib/meta-api.js';
+import {
+	checkAllSources,
+	worthReporting,
+	type WatchResult,
+	type WatchedSource,
+} from './lib/source-watch.js';
 
 const REPORT_EMAIL = 'post@gaari.no';
 const FROM_EMAIL = 'Gåri <noreply@gaari.no>';
@@ -200,6 +206,7 @@ interface DigestData {
 	newsletterReport: NewsletterReport | null;
 	socialStatus: SocialStatus | null;
 	activeCampaigns: CampaignBrief[];
+	sourceWatch: WatchResult[];
 }
 
 // ─── Data collectors ────────────────────────────────────────────────
@@ -800,6 +807,37 @@ function collectReminders(): Reminder[] {
 
 	console.warn('Fant ingen reminders.json, verken i private/ eller scripts/ — ingen paaminnelser i digesten.');
 	return [];
+}
+
+/**
+ * Kildevakt — steder som ennaa ikke har noe aa scrape.
+ *
+ * Lista i source-watch.json er kilder vi har undersoekt og funnet relevante,
+ * men som ikke hadde publisert et program da vi saa paa dem. Vakten henter
+ * sitemap for hver og sier fra naar adressene endrer seg. Se lib/source-watch.ts
+ * for hvorfor fasiten ikke oppdateres automatisk.
+ *
+ * Feiler noe her, degraderer det til tom liste. En kaffebar som ligger nede
+ * skal aldri velte den daglige digesten.
+ */
+async function collectSourceWatch(): Promise<WatchResult[]> {
+	console.log('👀 Checking watched sources...');
+	const sti = path.join(import.meta.dirname, 'source-watch.json');
+
+	if (!fs.existsSync(sti)) {
+		console.warn('Fant ingen source-watch.json — ingen kildevakt i digesten.');
+		return [];
+	}
+
+	try {
+		const kilder: WatchedSource[] = JSON.parse(fs.readFileSync(sti, 'utf-8'));
+		if (kilder.length === 0) return [];
+		const alle = await checkAllSources(kilder);
+		return worthReporting(alle);
+	} catch (err: any) {
+		console.error(`Kildevakt feilet: ${err.message}`);
+		return [];
+	}
 }
 
 const EXPECTED_SCRAPERS = Object.keys(scrapers);
@@ -1454,6 +1492,38 @@ function renderHtml(data: DigestData): string {
 		`).join('')}
 	` : '';
 
+	// Kildevakt — bare kilder som har endret seg eller ikke svarer. Er lista tom,
+	// forsvinner seksjonen helt. Uendrede kilder er ikke nyheter.
+	const sourceWatchHtml = data.sourceWatch.length > 0 ? `
+		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px">Kildevakt</h2>
+		${data.sourceWatch.map(w => {
+			const nede = w.status === 'unreachable';
+			const bg = nede ? '#FEF2F2' : '#F0FDF4';
+			const kant = nede ? '#FCA5A5' : '#86EFAC';
+			const strek = nede ? '#DC2626' : '#16A34A';
+			const overskrift = nede
+				? `${w.name} svarer ikke`
+				: `${w.name} har endret nettsiden sin`;
+
+			const detaljer = nede
+				? `<p style="margin:8px 0 0;font-size:13px;color:#333">Sitemap kunne ikke hentes: ${w.error ?? 'ukjent feil'}. Én dag betyr som regel ingenting. Gjentar det seg, sjekk om domenet fortsatt lever.</p>`
+				: `
+					${w.added.length > 0 ? `<p style="margin:8px 0 0;font-size:13px;color:#333"><strong>Nye adresser:</strong><br>${w.added.map(u => `<a href="${u}" style="color:#2563eb">${u}</a>`).join('<br>')}</p>` : ''}
+					${w.removed.length > 0 ? `<p style="margin:8px 0 0;font-size:13px;color:#333"><strong>Borte:</strong> ${w.removed.join(', ')}</p>` : ''}
+					${w.isSitemapIndex ? `<p style="margin:8px 0 0;font-size:13px;color:#333">Sitemap er blitt en sitemapindex, altså at nettstedet har vokst nok til å deles opp.</p>` : ''}
+					<p style="margin:8px 0 0;font-size:12px;color:#666">${w.baselineCount} adresse(r) da vi undersøkte, ${w.currentCount} nå.${w.lastmod ? ` Sist endret ${w.lastmod}.` : ''}</p>`;
+
+			return `
+			<div style="background:${bg};border:1px solid ${kant};border-left:4px solid ${strek};border-radius:4px;padding:12px 16px;margin-bottom:12px">
+				<strong style="font-size:15px">${overskrift}</strong>
+				${detaljer}
+				<p style="margin:8px 0 0;font-size:12px;color:#666">${w.note}</p>
+				<p style="margin:8px 0 0;font-size:12px;color:#666"><a href="${w.homepage}" style="color:#2563eb">${w.homepage}</a>${w.reminder ? ` &nbsp;|&nbsp; påminnelse står til ${w.reminder}` : ''}</p>
+				<p style="margin:8px 0 0;font-size:12px;color:#666">Har du sett på den? Oppdater <code>baselineUrls</code> i <code>scripts/source-watch.json</code>, ellers gjentas dette i morgen.</p>
+			</div>`;
+		}).join('')}
+	` : '';
+
 	// Canary section — shown when there are warnings (<3 active, or any expiring
 	// within 60 days), and as a monthly "all clear" summary on the 1st of each month.
 	const dayOfMonth = new Date(TODAY).getUTCDate();
@@ -1593,6 +1663,7 @@ function renderHtml(data: DigestData): string {
 	${socialHtml}
 	${festivalHtml}
 	${remindersHtml}
+	${sourceWatchHtml}
 	${dataAnomaliesHtml}
 	${placementsHtml}
 	${silentScrapersHtml}
@@ -1697,6 +1768,7 @@ async function main() {
 
 	const festivalReminders = collectFestivalReminders();
 	const reminders = collectReminders();
+	const sourceWatch = await collectSourceWatch();
 
 	const digestData: DigestData = {
 		date: TODAY,
@@ -1716,7 +1788,8 @@ async function main() {
 		reminders,
 		newsletterReport,
 		socialStatus,
-		activeCampaigns
+		activeCampaigns,
+		sourceWatch
 	};
 
 	const total = pending.corrections + pending.submissions + pending.optouts + pending.inquiries;
@@ -1746,6 +1819,9 @@ async function main() {
 	}
 	if (festivalReminders.length > 0) {
 		console.log(`   Festival reminders: ${festivalReminders.map(f => `${f.name} (${f.daysUntil <= 0 ? 'pågår' : f.daysUntil + 'd'})`).join(', ')}`);
+	}
+	if (sourceWatch.length > 0) {
+		console.log(`   Kildevakt: ${sourceWatch.map(w => `${w.name} (${w.status})`).join(', ')}`);
 	}
 	if (newsletterReport) {
 		console.log(`   Newsletter: ${newsletterReport.totalRecipients} sent, ${newsletterReport.totalOpens} opens (${newsletterReport.avgOpenRate}%), ${newsletterReport.totalClicks} clicks (${newsletterReport.avgClickRate}%)`);

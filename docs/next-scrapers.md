@@ -1,6 +1,6 @@
 # Next Scrapers to Build
 
-**Status:** Updated 2026-02-26. Most high-priority scrapers built. One remaining target.
+**Status:** Updated 2026-08-23. Most high-priority scrapers built. One remaining target (Hulen), plus one source we are waiting on (Homies Coffee).
 
 ---
 
@@ -48,6 +48,50 @@
 ### Lydgalleriet
 - **Blocker:** Webflow site with only 2-3 exhibitions at a time
 - **Verdict:** Too low volume to justify a scraper
+
+---
+
+## Venter på kilden (ingenting å scrape ennå)
+
+Steder som med stor sannsynlighet får arrangementer, men som ikke har publisert
+noe å hente ennå.
+
+Disse overvåkes automatisk. `scripts/source-watch.json` holder én oppføring per
+kilde, med `baselineUrls` som fasit: adressene sitemap inneholdt da vi undersøkte
+den. Den daglige digesten henter sitemap for hver kilde og sier fra når settet
+endrer seg, altså når kilden har publisert en ny side. Logikken ligger i
+`scripts/lib/source-watch.ts`.
+
+Vakten oppdaterer ikke fasiten selv. Den maser hver dag til et menneske har sett
+på endringen og rettet `baselineUrls`. Uendrede kilder gir ingen seksjon i
+digesten i det hele tatt.
+
+I tillegg bør hver kilde ha en påminnelse i `reminders.json`, som en bakstopper
+hvis kilden aldri får sitemap eller legger programmet på en plattform i stedet.
+
+### Homies Coffee (`homiescoffee.com`)
+
+- **Undersøkt:** 2026-08-23
+- **robots.txt:** Fullt tillatende (`User-agent: *`, `Allow: /`), oppgir sitemap. Ingen hindring.
+- **Status:** Ettsides ventelisteside. Sitemap inneholder bare forsiden og fem bildefiler.
+  `/events`, `/event`, `/kalender`, `/calendar`, `/program`, `/whats-on`, `/agenda`,
+  `/blog`, `/news` svarer alle 404. Null arrangementsdata.
+- **Hvorfor den er interessant:** Markedsfører seg selv på pop-ups, DJ-kvelder og
+  «coffee raves». Riktig innholdstype for Gåri, og det er ingen konkurrerende kilde
+  som dekker den.
+- **Selskap:** HOMIES AS, orgnr 938121567, Steinkjellergaten 8, 5003 Bergen, næring
+  «Drift av restauranter», stiftet 22. juni 2026. Bydel blir Bergenhus (Sentrum).
+  Merk: navn, by og bransje stemmer, men koblingen mellom selskapet og domenet er
+  ikke bekreftet mot en primærkilde.
+- **Kontakt:** Ingen adresse publisert. Den obfuskerte lenken på siden dekoder til
+  malens plassholderverdi. Eneste åpne kanal er Instagram `@homiescoffeeclub`.
+- **Domene:** Registrert 2. september 2025, utløp 2. september 2026. Sjekk at siden
+  fortsatt lever før noe annet.
+- **Overvåkes:** Ja, `id: homies` i `scripts/source-watch.json`. Fasit er den ene
+  forsideadressen. Dukker det opp en adresse til, sier digesten fra samme dag.
+- **Neste steg:** Påminnelse ligger til 2026-10-01 som bakstopper. Sannsynlig lavt
+  volum, så vurder manuell innlegging framfor scraper. Manuelle kilder må inn i
+  `SOURCE_RANK`, ellers sletter en scraper dem ved neste dedup.
 
 ---
 
