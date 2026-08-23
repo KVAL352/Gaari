@@ -1,12 +1,14 @@
 import { redirect } from '@sveltejs/kit';
+import { B2B_PAGES_PUBLIC } from '$lib/b2b-visibility';
 import { handleContactSubmit } from './contact-action';
 import { supabase } from '$lib/server/supabase';
 import { getActivePartners } from '$lib/server/promotions';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
-	// Temporarily hidden while copyright case is pending
-	throw redirect(307, `/${params.lang}`);
+	// Hidden — see B2B_PAGES_PUBLIC. 307 and not 301: the pages are coming
+	// back, and a permanent redirect would drop them from the index for good.
+	if (!B2B_PAGES_PUBLIC) redirect(307, `/${params.lang}`);
 
 	if (params.lang === 'en') {
 		throw redirect(307, '/en/for-organizers');

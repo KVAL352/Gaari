@@ -1,9 +1,16 @@
-import { fail } from '@sveltejs/kit';
+import { error as httpError, fail } from '@sveltejs/kit';
+import { B2B_PAGES_PUBLIC } from '$lib/b2b-visibility';
 import { supabase } from '$lib/server/supabase';
 import { notifyInquiry } from '$lib/server/email';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export async function handleContactSubmit({ request }: RequestEvent) {
+	// Guard here, not in the page load. SvelteKit runs actions BEFORE load, so
+	// the redirect that hides the page never gets to run first — the insert and
+	// the notification e-mail would already have happened.
+	// (aliased import: `error` is shadowed by the destructured Supabase error below)
+	if (!B2B_PAGES_PUBLIC) throw httpError(404, 'Not found');
+
 	const fd = await request.formData();
 
 	// Honeypot — bots fill this hidden field, real users don't

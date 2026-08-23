@@ -3,6 +3,9 @@
 	import { CATEGORIES, type Lang } from '$lib/types';
 	import NewsletterCTA from './NewsletterCTA.svelte';
 	import { Instagram, Facebook } from 'lucide-svelte';
+	// Ren boolsk konstant. Trygg aa importere her selv med regelen under:
+	// den drar ingenting med seg, og blokken forsvinner naar den er false.
+	import { B2B_PAGES_PUBLIC } from '$lib/b2b-visibility';
 
 	// Lenkene kommer ferdig utplukket fra +layout.server.ts. Komponenten skal
 	// ikke importere $lib/collections: den importen dro hele samlingskatalogen
@@ -79,9 +82,9 @@
 			<nav aria-label={$lang === 'no' ? 'Om Gåri' : 'About Gåri'}>
 				<h4 class="mb-2 text-sm font-semibold">Gåri</h4>
 				<ul class="space-y-1">
-					<!-- Temporarily hidden while copyright case is pending
-					<li><a href="/{$lang}/{$lang === 'no' ? 'for-arrangorer' : 'for-organizers'}" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'For arrangører' : 'For organizers'}</a></li>
-					-->
+					{#if B2B_PAGES_PUBLIC}
+						<li><a href="/{$lang}/{$lang === 'no' ? 'for-arrangorer' : 'for-organizers'}" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'For arrangører' : 'For organizers'}</a></li>
+					{/if}
 					<li><a href="/{$lang}/guide" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$lang === 'no' ? 'Guide' : 'Guide'}</a></li>
 					<li><a href="/{$lang}/about" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('about')}</a></li>
 					<li><a href="/{$lang}/datainnsamling" class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]">{$t('dataCollection')}</a></li>
