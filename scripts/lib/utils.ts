@@ -2,6 +2,7 @@ import type * as cheerio from 'cheerio';
 import { CONSENT_RECORDS } from './consent-doc.js';
 import { supabase } from './supabase.js';
 import { getSourceFallbackImage } from './venues.js';
+import { EVENT_IMAGE_BUCKET, eventImageStoragePath } from '../../src/lib/storage-path.js';
 
 /**
  * Generic photo-credit extractor for scrapers that load HTML with cheerio.
@@ -791,6 +792,53 @@ export async function findDuplicate(title: string, dateStart: string): Promise<b
 }
 
 // Remove expired events (date_end or date_start is in the past)
+/**
+ * Slett arrangementer OG bildene deres.
+ *
+ * Fantes ikke foer 2026-08-23, og det er grunnen til at 17 filer paa 31 MB laa
+ * igjen i boetta uten et arrangement som pekte paa dem: begge sletteveiene
+ * under fjernet raden i basen og lot fila staa.
+ *
+ * eventImageStoragePath() avgjoer hva som er trygt aa roere. Den nekter aa
+ * returnere noe utenfor events/, saa de delte fallback/-bildene kan ikke
+ * treffes herfra uansett hvor mange arrangementer som peker paa dem.
+ *
+ * Bildene slettes FOER radene. Feiler storage-kallet, staar arrangementet
+ * fortsatt i basen og forsoekes paa nytt neste kjoering. Motsatt rekkefoelge
+ * ville gjort en feilet sletting usynlig for alltid — raden som pekte paa fila
+ * er da borte.
+ */
+async function deleteEventsAndImages(
+	rows: Array<{ id: string; slug?: string | null; image_url?: string | null }>
+): Promise<{ deleted: number; imagesRemoved: number }> {
+	if (rows.length === 0) return { deleted: 0, imagesRemoved: 0 };
+
+	const paths = rows
+		.map(r => eventImageStoragePath(r.image_url))
+		.filter((p): p is string => p !== null);
+
+	let imagesRemoved = 0;
+	for (let i = 0; i < paths.length; i += 100) {
+		const batch = paths.slice(i, i + 100);
+		const { error } = await supabase.storage.from(EVENT_IMAGE_BUCKET).remove(batch);
+		if (error) {
+			console.warn(`  Kunne ikke slette ${batch.length} bilder: ${error.message}`);
+		} else {
+			imagesRemoved += batch.length;
+		}
+	}
+
+	const ids = rows.map(r => r.id);
+	let deleted = 0;
+	for (let i = 0; i < ids.length; i += 100) {
+		const batch = ids.slice(i, i + 100);
+		const { error } = await supabase.from('events').delete().in('id', batch);
+		if (!error) deleted += batch.length;
+	}
+
+	return { deleted, imagesRemoved };
+}
+
 export async function removeExpiredEvents(): Promise<{ deleted: number; slugs: string[] }> {
 	// Use start-of-today as cutoff — don't delete today's events even if their time has passed
 	const todayStart = new Date();
@@ -800,14 +848,14 @@ export async function removeExpiredEvents(): Promise<{ deleted: number; slugs: s
 	// Delete events where date_end is past (multi-day events that have ended)
 	const { data: endedEvents } = await supabase
 		.from('events')
-		.select('id, slug')
+		.select('id, slug, image_url')
 		.not('date_end', 'is', null)
 		.lt('date_end', cutoff);
 
 	// Delete events where date_start is before today and no date_end
 	const { data: pastEvents } = await supabase
 		.from('events')
-		.select('id, slug')
+		.select('id, slug, image_url')
 		.is('date_end', null)
 		.lt('date_start', cutoff);
 
@@ -818,19 +866,10 @@ export async function removeExpiredEvents(): Promise<{ deleted: number; slugs: s
 
 	if (allEntries.length === 0) return { deleted: 0, slugs: [] };
 
-	const allIds = allEntries.map(e => e.id);
 	const allSlugs = allEntries.map(e => e.slug).filter(Boolean);
 
-	// Delete in batches
-	let deleted = 0;
-	for (let i = 0; i < allIds.length; i += 100) {
-		const batch = allIds.slice(i, i + 100);
-		const { error } = await supabase
-			.from('events')
-			.delete()
-			.in('id', batch);
-		if (!error) deleted += batch.length;
-	}
+	const { deleted, imagesRemoved } = await deleteEventsAndImages(allEntries);
+	if (imagesRemoved > 0) console.log(`  Slettet ${imagesRemoved} tilhoerende bilder`);
 
 	return { deleted, slugs: allSlugs };
 }
@@ -844,18 +883,12 @@ export const DISABLED_SOURCES = ['bergenlive', 'oseana', 'barnasnorge', 'eventbr
 export async function removeDisabledSourceEvents(): Promise<number> {
 	const { data } = await supabase
 		.from('events')
-		.select('id')
+		.select('id, slug, image_url')
 		.in('source', DISABLED_SOURCES);
 
 	if (!data || data.length === 0) return 0;
 
-	const ids = data.map(e => e.id);
-	let deleted = 0;
-	for (let i = 0; i < ids.length; i += 100) {
-		const batch = ids.slice(i, i + 100);
-		const { error } = await supabase.from('events').delete().in('id', batch);
-		if (!error) deleted += batch.length;
-	}
+	const { deleted } = await deleteEventsAndImages(data);
 	return deleted;
 }
 
