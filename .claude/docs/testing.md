@@ -79,3 +79,11 @@ To måter å unngå det, i prioritert rekkefølge:
 Verifiser alltid mot importgrafen, ikke mot at testen ble grønn lokalt. En
 grønn kjøring på en maskin som har `scripts/node_modules` beviser ingenting
 om CI.
+
+**Fjerde gang, 2026-08-24: nå er selve fella tettet.** `ci.yml` kjører nå
+`npm ci` i `scripts/` også, slik at CI har de samme pakkene som maskinen din.
+Uten det steget sto CI rød fra 21. til 24. august — fire testfiler, åtte
+kjøringer, uten at noen så det. De to reglene over gjelder fortsatt: en ren
+modul er lettere å teste enn en mocket, og en test som ikke drar inn databasen
+kjører raskere. Men de er ikke lenger det eneste som står mellom deg og en rød
+CI.

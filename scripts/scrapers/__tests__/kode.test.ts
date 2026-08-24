@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildSourceUrl } from '../kode.js';
+import { buildSourceUrl } from '../kode-urls.js';
 
 /**
  * Seksjonene KODE faktisk bruker, hentet fra deres egne eventType-dokumenter i

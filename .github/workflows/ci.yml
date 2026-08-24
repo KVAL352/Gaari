@@ -24,6 +24,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Testene daekker ogsaa scripts/, og de modulene henter pakkene sine fra
+      # scripts/package.json. Uten dette steget faller enhver test som roerer
+      # scripts/lib/supabase.ts med ERR_MODULE_NOT_FOUND paa dotenv — groenn
+      # lokalt, roed her, og CI sto roed fra 21. til 24. august foer noen saa det.
+      - name: Install scraper dependencies
+        working-directory: scripts
+        run: npm ci
+
       - name: Security audit
         run: npm audit --audit-level=high
 
