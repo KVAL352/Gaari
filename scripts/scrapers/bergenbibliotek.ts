@@ -1,4 +1,6 @@
 import * as cheerio from 'cheerio';
+// cheerio 1.x eksporterer ikke lenger Element selv; den bor i domhandler.
+import type { Element } from 'domhandler';
 import { makeSlug, eventExists, getEventImageStatus, updateEventImage, updateEventCredit, insertEvent, fetchHTML, delay, bergenOffset, extractImageCredit } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -95,7 +97,7 @@ async function fetchDetail(url: string, title?: string): Promise<{ price: string
 }
 
 /** Extract image URL from the listing link's background-image style */
-function extractListingImage($el: cheerio.Cheerio<cheerio.Element>): string | undefined {
+function extractListingImage($el: cheerio.Cheerio<Element>): string | undefined {
 	const style = $el.attr('style') || '';
 	const m = style.match(/background-image:\s*url\(([^)]+)\)/);
 	if (!m) return undefined;

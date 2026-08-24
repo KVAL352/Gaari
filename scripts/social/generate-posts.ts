@@ -364,7 +364,8 @@ async function main() {
 		// Pick top events: guaranteed Partner slot first, then diverse fill.
 		// IG-handle cap, time/day-bucket spread, cross-day dedup, venue fairness.
 		const topEvents = pickDiverseEvents(filtered, MAX_CAROUSEL_EVENTS, {
-			recentlyPosted, weeklyBlockedVenues, deprioritizedVenues, guaranteedVenue
+			recentlyPosted, weeklyBlockedVenues, deprioritizedVenues,
+			guaranteedVenue: guaranteedVenue ?? undefined
 		});
 
 		const eventsWithImages = topEvents.filter(e => e.image_url).length;

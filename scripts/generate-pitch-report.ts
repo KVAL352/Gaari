@@ -496,7 +496,7 @@ async function main() {
 	const outDir = path.resolve(process.cwd(), '../.prospect-reports');
 	if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
-	const filename = `pitch-${venueName.toLowerCase().replace(/[^a-z0-9æøå]/g, '-')}-${TODAY}.html`;
+	const filename = `pitch-${venueName!.toLowerCase().replace(/[^a-z0-9æøå]/g, '-')}-${TODAY}.html`;
 	const filePath = path.join(outDir, filename);
 	fs.writeFileSync(filePath, html, 'utf-8');
 	console.log(`  Lagret: ${filePath}`);

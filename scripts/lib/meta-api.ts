@@ -971,8 +971,11 @@ export async function getPageToken(): Promise<string> {
 	const data = await res.json() as any;
 	if (data.error) throw new MetaApiError(`/${FB_PAGE_ID}?fields=access_token`, data.error);
 	if (!data.access_token) throw new Error('No page access token returned');
-	_cachedPageToken = data.access_token;
-	return _cachedPageToken;
+	// Via en lokal variabel: _cachedPageToken er string | null paa modulnivaa, og
+	// sjekken over smalner ikke den.
+	const token = data.access_token as string;
+	_cachedPageToken = token;
+	return token;
 }
 
 /** Exchange the current short-lived token for a long-lived (~60 day) one. */

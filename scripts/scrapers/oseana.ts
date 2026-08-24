@@ -1,4 +1,6 @@
 import * as cheerio from 'cheerio';
+// cheerio 1.x eksporterer ikke lenger Element selv; den bor i domhandler.
+import type { Element } from 'domhandler';
 import { isFamilyTitle } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay, deleteEventByUrl, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
@@ -92,7 +94,7 @@ function parseOseanaDate(text: string): { date: string; time: string; endDate?: 
 	return null;
 }
 
-function extractImage($el: cheerio.Cheerio<cheerio.Element>): string | undefined {
+function extractImage($el: cheerio.Cheerio<Element>): string | undefined {
 	const style = $el.find('.image-container').attr('style') || '';
 	const m = style.match(/background-image:\s*url\(([^)]+)\)/);
 	if (!m) return undefined;

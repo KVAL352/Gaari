@@ -1,4 +1,6 @@
 import * as cheerio from 'cheerio';
+// cheerio 1.x eksporterer ikke lenger Element selv; den bor i domhandler.
+import type { Element } from 'domhandler';
 import { mapBydel } from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
@@ -139,11 +141,17 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		}
 
 		// Find the schedule table(s) following this h2
-		const tables: cheerio.Element[] = [];
+		const tables: Element[] = [];
 		let sibling = $(header).next();
 		while (sibling.length && !sibling.is('h2')) {
 			if (sibling.is('figure.schedule') || sibling.find('table').length) {
-				sibling.find('tr').each((_, tr) => tables.push(tr));
+				// Blokk, ikke uttrykk: pilfunksjonen returnerte push()-tallet, og
+				// each() er typet til boolean | void fordi false betyr «stopp».
+				// Her var det ufarlig i praksis, men signaturen sa noe annet enn
+				// koden mente.
+				sibling.find('tr').each((_, tr) => {
+					tables.push(tr);
+				});
 			}
 			sibling = sibling.next();
 		}
