@@ -223,5 +223,10 @@
     "date": "2027-02-01",
     "title": "Oppdater Borealis-skraper for 2027",
     "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i borealis.ts. Oppdater også send-daily-digest.ts."
+  },
+  {
+    "date": "2026-08-25",
+    "title": "Tre avklaringer om typesjekken av scripts/",
+    "description": "(1) generate-reels.ts: mp4Url kan vaere null hvis videoopplastingen feilet. Skal leveransen droppes helt naar opplastingen feiler, eller skal typen bare tillate null? En tom URL i leveransen er trolig verre enn ingen leveranse. Se TODO i fila. (2) scrapers/__tests__/bookibud-pipeline.test.ts har to typefeil og tilhoerer en annen oekt - skal jeg fikse dem, eller venter vi? (3) lib/bluesky-client.ts har feil returtype mot SDK-et; Bluesky er deaktivert siden mars, saa det er kosmetisk. Naar alle tre er lukket kan scripts/-typesjekken kobles paa CI - det er hele poenget, og den ville fanget bergenlive-feilen foer produksjon."
   }
 ]
