@@ -249,7 +249,16 @@ export function titlesMatch(a: string, b: string, kildeA?: string | null, kildeB
 	return false;
 }
 
-export async function deduplicate(): Promise<number> {
+/**
+ * Radene dedup har lov til å vurdere.
+ *
+ * Ligger her og ikke i deduplicate() fordi dedup-dryrun.ts hentet sitt eget
+ * utvalg med en egen kopi av spørringen. To kopier betyr at tørrkjøringen kan
+ * vise noe annet enn kjøringen gjør, og da er den verdiløs nettopp når den
+ * trengs: rett før en regelendring får slette noe. Én funksjon, begge kaller
+ * den. Se [[pattern_single_source_of_truth]].
+ */
+export async function hentDedupKandidater(): Promise<EventRow[]> {
 	// Supabase gir maks 1000 rader per svar, uten feilmelding når det er flere.
 	// Uten paginering her så dedup bare de 1000 tidligste arrangementene, siden
 	// sorteringen er stigende på dato, og alt bakenfor den grensen ble aldri
@@ -262,6 +271,16 @@ export async function deduplicate(): Promise<number> {
 		const { data, error } = await supabase
 			.from('events')
 			.select('id, title_no, date_start, source, venue_name, image_url, ticket_url, description_no')
+			// Bare publiserte arrangementer. Innsendinger fra skjemaet ligger som
+			// pending til et menneske har sett på dem, og de har ingen source, så
+			// de scorer 0 i scoreEvent() og taper mot enhver scraper som finner
+			// det samme. 23. august 2026 sendte arrangøren av Kjøtt Festival inn
+			// festivalen; klokka 07:00 dagen etter slettet dedup innsendingen til
+			// fordel for bergenkjott-scraperens utgave, før noen hadde lest den.
+			// Loggen sa «Dup: "Kjøtt Festival " (null) → keeping ...» og det var
+			// hele varselet. Køen skal ikke tømmes av pipeline; det er nettopp
+			// pending-statusen som betyr at avgjørelsen ikke er tatt ennå.
+			.eq('status', 'approved')
 			// Sortert på id, ikke dato: range() deler opp etter posisjon, og
 			// date_start er ikke unik, så to rader med samme dato kan bytte plass
 			// mellom to kall og havne i hver sin pulje — eller i ingen. Dedup
@@ -270,12 +289,25 @@ export async function deduplicate(): Promise<number> {
 			.range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
 		if (error) {
-			console.error('  Dedup fetch error:', error.message);
-			return 0;
+			// Kaster i stedet for å returnere tom liste. En tom liste her ville
+			// sett ut som «ingen duplikater» både i kjøringen og i tørrkjøringen.
+			throw new Error(`Dedup fetch error: ${error.message}`);
 		}
 		if (!data || data.length === 0) break;
 		events.push(...data);
 		if (data.length < PAGE_SIZE) break;
+	}
+
+	return events;
+}
+
+export async function deduplicate(): Promise<number> {
+	let events: EventRow[];
+	try {
+		events = await hentDedupKandidater();
+	} catch (err) {
+		console.error(' ', err instanceof Error ? err.message : err);
+		return 0;
 	}
 
 	// Group by date (YYYY-MM-DD)

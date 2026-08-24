@@ -1,13 +1,31 @@
 import { describe, it, expect, vi } from 'vitest';
 
+// vi.hoisted fordi vi.mock heises over alt annet. En vanlig const her ville
+// vært udefinert når fabrikken kjører.
+const spor = vi.hoisted(() => ({
+	tabell: '',
+	eq: [] as Array<[string, unknown]>
+}));
+
 // Mock supabase and venues before importing dedup
 vi.mock('../supabase.js', () => ({
 	supabase: {
-		from: () => ({
-			// order().range() — deduplicate() paginerer, mocken må ha samme kjede
-			select: () => ({ order: () => ({ data: [], error: null, range: () => ({ data: [], error: null }) }) }),
-			delete: () => ({ in: () => ({ error: null }) })
-		})
+		from: (tabell: string) => {
+			spor.tabell = tabell;
+			// Kjeden returnerer seg selv, så rekkefølgen på select/eq/order ikke
+			// gjør mocken skjør. range() avslutter og gir en tom side.
+			const kjede: Record<string, unknown> = {
+				select: () => kjede,
+				eq: (kolonne: string, verdi: unknown) => {
+					spor.eq.push([kolonne, verdi]);
+					return kjede;
+				},
+				order: () => kjede,
+				range: () => ({ data: [], error: null }),
+				delete: () => ({ in: () => ({ error: null }) })
+			};
+			return kjede;
+		}
 	}
 }));
 
@@ -23,9 +41,44 @@ import {
 	scoreEvent,
 	sammeSted,
 	titlerMatcherPaaSammeSted,
+	hentDedupKandidater,
 	type EventRow
 } from '../dedup.js';
 import { normalizeTitle } from '../utils.js';
+import fs from 'fs';
+import path from 'path';
+
+describe('hentDedupKandidater', () => {
+	it('henter bare publiserte arrangementer', async () => {
+		spor.tabell = '';
+		spor.eq.length = 0;
+
+		await hentDedupKandidater();
+
+		expect(spor.tabell).toBe('events');
+		expect(
+			spor.eq,
+			'Uten status-filteret sletter dedup innsendinger som ligger til gjennomgang'
+		).toContainEqual(['status', 'approved']);
+	});
+
+	/**
+	 * Tørrkjøringen hadde sin egen kopi av spørringen fram til 24. august 2026.
+	 * Da status-filteret kom inn i dedup.ts, ville kopien fortsatt lest pending
+	 * -radene, og skriptet ville vist par som kjøringen aldri kunne slettet.
+	 * Et skript som lyver om konsekvensen er verre enn ikke å ha det.
+	 */
+	it('tørrkjøringen henter ikke rader på egen hånd', () => {
+		const sti = path.join(import.meta.dirname, '..', '..', 'dedup-dryrun.ts');
+		const kode = fs.readFileSync(sti, 'utf-8');
+
+		expect(
+			kode.includes("from('events')"),
+			'dedup-dryrun.ts må bruke hentDedupKandidater(), ikke sin egen spørring'
+		).toBe(false);
+		expect(kode).toContain('hentDedupKandidater');
+	});
+});
 
 describe('titlesMatch', () => {
 	it('matches exact same strings', () => {

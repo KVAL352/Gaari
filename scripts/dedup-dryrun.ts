@@ -5,22 +5,20 @@
  * konsekvensen før den inntreffer, og særlig hvilke par som er nye etter
  * endringen. Uten dette er alternativet å kjøre og håpe.
  */
-import { supabase } from './lib/supabase.js';
 import { normalizeTitle } from './lib/utils.js';
-import { titlesMatch, titlerMatcherPaaSammeSted, sammeSted, scoreEvent } from './lib/dedup.js';
+import {
+	titlesMatch,
+	titlerMatcherPaaSammeSted,
+	sammeSted,
+	scoreEvent,
+	hentDedupKandidater
+} from './lib/dedup.js';
 
 async function main() {
-	const rader: any[] = [];
-	for (let fra = 0; ; fra += 1000) {
-		const { data } = await supabase
-			.from('events')
-			.select('id, title_no, date_start, source, venue_name, image_url, ticket_url, description_no')
-			.order('id')
-			.range(fra, fra + 999);
-		rader.push(...(data ?? []));
-		if (!data || data.length < 1000) break;
-	}
-	console.log(`${rader.length} arrangementer gjennomgått.\n`);
+	// Samme henting som deduplicate() bruker, ikke en kopi. Skriptet skal vise
+	// hva kjøringen ville gjort, og det kan det bare hvis begge ser samme rader.
+	const rader = await hentDedupKandidater();
+	console.log(`${rader.length} arrangementer gjennomgått (kun status = approved).\n`);
 
 	const perDag = new Map<string, any[]>();
 	for (const e of rader) {
