@@ -120,6 +120,11 @@
     "description": "Kontaktpersonen svarte 2026-05-18 paa bilderettighets-runden og foreslo et moete mot slutten av juni. Det ble aldri besvart, og juni er passert. Kjersti sa 2026-08-18 at dette skal ses paa senere. Vurder om det er en ny moeteinvitasjon eller bare et svar paa bildespoersmaalet. Traaden ligger i Outreach/Unresolved (UID 7). Kontaktdetaljer staar i private/reminders.json."
   },
   {
+    "date": "2026-09-08",
+    "title": "Fontene: trengs alle fem snittene?",
+    "description": "Nettstedet laster fem fontfiler paa hver side: Inter 400/500/600 og Barlow Condensed 500/700, til sammen 115 KiB. Fontgrensen i lighthouse-budget.json er 128 KiB, saa marginen er ti prosent — et sjette snitt bryter budsjettet. To snitt faerre frigjoer rundt 46 KiB paa hver sidevisning. Dette er et typografivalg og ikke et teknisk: se paa siden og avgjoer om alle fem faktisk brukes til noe som betyr noe. Bakgrunn i docs/YTELSESBUDSJETT.md under «Ikke gjort»."
+  },
+  {
     "date": "2026-09-10",
     "title": "Bookibud: prosentsatsen for henvisning er fortsatt ikke avtalt",
     "description": "OPPDATERT 2026-08-21: API-et er levert og scraperen er bygget, saa selve purringen er ikke lenger aktuell. Det som staar igjen er pengesiden. To ting ble aldri landet i moetet 11. august: (1) om kickbacken gjelder alle salg som krediteres gaari.no, eller bare arrangoerer Kjersti henviser inn — opptaket peker mot det siste, Kjersti forsto det som det foerste; (2) prosentsatsen, som ble nevnt muntlig men ikke hoert tydelig paa opptaket. Kjersti har bedt om et forslag og ville vente til det er klart hva som faktisk kan telles. Henvisningskoden skulle legges paa dyplenkene «i loepet av kort tid». Naar den er paa plass og det finnes tall aa se paa, ta prosenten i samme runde. Kjersti har bedt uttrykkelig om aggregerte tall, ikke persondata, for aa slippe sporing paa gaari.no. Ikke ring; e-post."
@@ -133,6 +138,11 @@
     "date": "2026-09-15",
     "title": "Soek paa gaari.no finner ikke steder som opptrer under et annet navn",
     "description": "Funnet 2026-08-18: soek paa \"Lehmkuhl\" gir null treff, selv om vi har ni av arrangementene deres. De ligger under \"Statsraaden Bar & Reception\", som er navnet paa baren deres. Samme problem gjelder trolig flere: folk soeker paa organisasjonen, vi lagrer stedet. Vurder et alias-felt eller en synonymliste i soeket, for eksempel Lehmkuhl -> Statsraaden. Sjekk foerst hvor mange venues det faktisk gjelder, saa loesningen staar i forhold til problemet."
+  },
+  {
+    "date": "2026-09-15",
+    "title": "Ytelse: maal produksjon, ikke bare seed-data",
+    "description": "Portvakten i lighthouse.yml maaler mot seed-dataene (18 arrangementer), fordi CI ikke har Supabase-noekler og repoet er offentlig. Den fanger derfor regresjoner i kode, men ikke i datamengde. En maaling mot ekte gaari.no 21. august ga TBT 618 ms mot 42 i CI, og et HTML-dokument paa 210 KiB mot 25 — fordi forsiden i produksjon rendrer langt flere arrangementer. TBT-grensen paa 800 ms er altsaa i praksis ikke voktet. Forslag: en ukentlig workflow som maaler gaari.no som den er og bare RAPPORTERER i digesten, uten aa vaere portvakt. Da ser vi 618 bevege seg mot 800 foer den treffer."
   },
   {
     "date": "2026-09-25",
@@ -153,6 +163,11 @@
     "date": "2026-10-01",
     "title": "Homies Coffee: sjekk om de har publisert et program",
     "description": "Nytt kaffested i Bergen sentrum som selv reklamerer med pop-ups, DJ-kvelder og «coffee raves», altså nettopp den typen arrangementer Gåri dekker. Per 23. august 2026 finnes det ingenting å scrape: homiescoffee.com er en ettsides ventelisteside, sitemap inneholder bare forsiden og fem bildefiler, og /events, /kalender, /program, /calendar, /whats-on med flere svarer alle 404. robots.txt er fullt tillatende (User-agent: *, Allow: /) og oppgir sitemap, så det er ingen hindring den dagen de publiserer noe. Ingen kontaktadresse på siden: den Cloudflare-obfuskerte lenken dekoder til malens egen plassholderverdi, ikke en ekte adresse. Ventelisteskjemaet er for kunder, ikke for henvendelser. Eneste åpne kanal er Instagram @homiescoffeeclub. Brønnøysund: HOMIES AS, orgnr 938121567, Steinkjellergaten 8, 5003 Bergen, næring «Drift av restauranter», stiftet 22. juni 2026 og registrert 17. juli 2026. Navn, by og bransje stemmer, men koblingen mellom selskapet og domenet er ikke bekreftet. Domenet ble registrert 2. september 2025 med utløp 2. september 2026, så kontroller først at siden fortsatt lever. Å GJØRE: 1) se om Instagram har åpningsdato eller lenke til program, 2) hent sitemap på nytt og se om den har fått flere URL-er, 3) hvis de har publisert en kontaktadresse, send introduksjonen som ble skrevet 23. august (utkast i økten, ikke sendt fordi det ikke fantes noen adresse). Når de får en programside: følg docs/new-scraper-checklist.md, sannsynlig lavt volum så vurder manuell innlegging først, og husk at manuelle kilder må inn i SOURCE_RANK."
+  },
+  {
+    "date": "2026-10-01",
+    "title": "Bildevekt paa forsiden: 566 KiB i produksjon",
+    "description": "Forsiden lastet 566 KiB bilder i produksjon 21. august, fordelt paa fem filer. Vi hot-lenker originalene fra arrangoerenes egne sider, saa det er de som bestemmer filstoerrelsen. Derfor ble total-grensen i lighthouse-budget.json byttet mot grenser per ressurstype: bildevekten rapporteres av kjoereren, men stopper ingenting. Loesningen koster enten penger (bildeproxy, i strid med aa holde kostnadene nede) eller policy (be arrangoerer om mindre filer). Sjekk om tallet har vokst siden august foer du bruker tid paa det. Kjoer: node scripts/lighthouse-budget-check.mjs --no-fail."
   },
   {
     "date": "2026-12-01",
