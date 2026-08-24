@@ -63,13 +63,17 @@ export default ts.config(
 		},
 	},
 	{
+		// Med ** foran, ikke bare i rota. Flat config tolker et moenster uten
+		// ** som relativt til konfigfila, saa '.svelte-kit/' traff bare den i
+		// rota. Kjoerer du vitest fra scripts/, lager sveltekit-pluginen en
+		// scripts/.svelte-kit/ ogsaa — den er gitignorert, men ble likevel
+		// linta, og den genererte app.js gir en ekte feil som feller CI.
 		ignores: [
-			'build/',
-			'.svelte-kit/',
-			'.vercel/',
-			'dist/',
-			'node_modules/',
-			'scripts/node_modules/',
+			'**/build/',
+			'**/.svelte-kit/',
+			'**/.vercel/',
+			'**/dist/',
+			'**/node_modules/',
 		],
 	}
 );
