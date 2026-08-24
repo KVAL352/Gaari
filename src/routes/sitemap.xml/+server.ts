@@ -7,12 +7,40 @@ const BASE = 'https://gaari.no';
 const STATIC_PAGES = ['', '/about', '/guide', '/datainnsamling', '/personvern', '/opphavsrett', '/vilkar', '/tilgjengelighet'];
 
 export async function GET() {
-	const { data: events } = await supabase
-		.from('events')
-		.select('slug, date_start, created_at, description_no, image_url')
-		.in('status', ['approved'])
-		.order('date_start', { ascending: false })
-		.limit(5000);
+	// Supabase caps a response at 1000 rows and says nothing about it — .limit(5000)
+	// silently returned 1000. Sorted by date_start descending, the 1000 that came
+	// back were the furthest-future events, so every event in the next six weeks
+	// was missing from the sitemap: 858 of 1949 present, nothing before 2026-10-05.
+	// Those near-term pages are the ones with search demand.
+	//
+	// Paginate on id rather than date_start: range() splits by position, and a
+	// non-unique sort key can drop or repeat rows across page boundaries. Sort by
+	// date afterwards. Same approach as dedup.ts and credit-backfill.ts.
+	const PAGE_SIZE = 1000;
+	const events: {
+		slug: string;
+		date_start: string;
+		date_end: string | null;
+		created_at: string;
+		description_no: string | null;
+		image_url: string | null;
+	}[] = [];
+
+	for (let page = 0; ; page++) {
+		const { data, error } = await supabase
+			.from('events')
+			.select('slug, date_start, date_end, created_at, description_no, image_url')
+			.in('status', ['approved'])
+			.order('id', { ascending: true })
+			.range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
+			.returns<typeof events>();
+
+		if (error || !data || data.length === 0) break;
+		events.push(...data);
+		if (data.length < PAGE_SIZE) break;
+	}
+
+	events.sort((a, b) => (a.date_start < b.date_start ? 1 : a.date_start > b.date_start ? -1 : 0));
 
 	const today = new Date().toISOString().slice(0, 10);
 
@@ -87,10 +115,16 @@ ${hreflangLinks}
 	}
 
 	// ── Event sitemap: only events with meaningful content ──
-	// Filter to events that have description (>80 chars) OR image — skip thin pages
-	const qualityEvents = (events || []).filter(e =>
-		(e.description_no && e.description_no.length > 80) || e.image_url
-	);
+	// Filter to events that have description (>80 chars) OR image — skip thin pages.
+	// Also drop events that have already ended: a sitemap should not advertise dead
+	// pages. This filter is new — the 1000-row cap used to hide the past events by
+	// accident, since the query sorted future-first and never reached them.
+	// date_end covers exhibitions and other runs that started long ago.
+	const qualityEvents = (events || []).filter(e => {
+		const hasContent = (e.description_no && e.description_no.length > 80) || e.image_url;
+		const endsOn = (e.date_end || e.date_start).slice(0, 10);
+		return hasContent && endsOn >= today;
+	});
 
 	let eventUrls = '';
 	for (const event of qualityEvents) {
