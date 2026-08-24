@@ -228,5 +228,10 @@
     "date": "2026-08-25",
     "title": "Tre avklaringer om typesjekken av scripts/",
     "description": "(1) generate-reels.ts: mp4Url kan vaere null hvis videoopplastingen feilet. Skal leveransen droppes helt naar opplastingen feiler, eller skal typen bare tillate null? En tom URL i leveransen er trolig verre enn ingen leveranse. Se TODO i fila. (2) scrapers/__tests__/bookibud-pipeline.test.ts har to typefeil og tilhoerer en annen oekt - skal jeg fikse dem, eller venter vi? (3) lib/bluesky-client.ts har feil returtype mot SDK-et; Bluesky er deaktivert siden mars, saa det er kosmetisk. Naar alle tre er lukket kan scripts/-typesjekken kobles paa CI - det er hele poenget, og den ville fanget bergenlive-feilen foer produksjon."
+  },
+  {
+    "date": "2026-08-25",
+    "title": "Mediacity-scraperen er pauset — avgjoer hva som skal skje",
+    "description": "Pauset 24. august: 6 av 10 rader var ikke i Bergen (3 Tromsoe, 2 Oslo, 1 Amsterdam), alle med bydel Sentrum. medieklyngen.no lister arrangementer over hele landet. Alle 10 har ogsaa Cloudflares e-postskjuling i adressefeltet. Tatt ut av scrapers-registeret i scrape.ts, IKKE lagt i DISABLED_SOURCES - den ville slettet ogsaa de fire ekte Bergen-radene. De 6 utenbys ligger fortsatt synlig paa gaari.no. Tre valg: (1) skjul eller slett de 6 naa, (2) fiks scraperen til aa filtrere paa postnummer 5000-5399 og rydd adressefeltet, saa slaa den paa igjen, (3) la kilden ligge pauset. Slugene: putins-neste-trekk-2026-08-26 og slik-brukte-vi-crowdsourcing-i-boligjakten-2026-08-26 er to av dem."
   }
 ]

@@ -103,7 +103,15 @@ export const scrapers: Record<string, () => Promise<{ found: number; inserted: n
 	cornerteateret: scrapeCornerteateret,
 	kunsthall: scrapeKunsthall,
 	brettspill: scrapeBrettspill,
-	mediacity: scrapeMediaCity,
+	// PAUSET 2026-08-24 etter beslutning fra eieren. medieklyngen.no lister
+	// arrangementer over hele landet og i utlandet, men scraperen antok at alt
+	// var i Bergen: 6 av 10 rader lå i Tromsø, Oslo og Amsterdam, alle med
+	// bydel «Sentrum». Adressefeltet fikk også med seg Cloudflares
+	// e-postskjuling («[email protected]») på alle ti.
+	//
+	// Bevisst IKKE lagt i DISABLED_SOURCES — den ville slettet alle ti, også de
+	// fire som faktisk er i Bergen. De blir stående til vi har sett på dem.
+	// mediacity: scrapeMediaCity,
 	forumscene: scrapeForumScene,
 	dns: scrapeDNS,
 	olebull: scrapeOleBull,
