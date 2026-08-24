@@ -34,9 +34,10 @@ Tre valg det er verdt å kjenne til:
 
 - **Produksjonsbygg, aldri `vite dev`.** Dev-serveren serverer umodulerte
   moduler uten minifisering. Tallene derfra måler byggeverktøyet, ikke siden.
-- **Tre kjøringer, median per måltall.** Én måling i CI svinger for mye.
-  Median og ikke snitt: én treg kjøring skal ikke kunne dra et grønt resultat
-  over grensen, og heller ikke omvendt.
+- **Tre kjøringer, median per måltall, etter én forkastet oppvarming.** Én
+  måling i CI svinger for mye. Median og ikke snitt: én treg kjøring skal ikke
+  kunne dra et grønt resultat over grensen, og heller ikke omvendt.
+  Oppvarmingen kom til 24. august, se «Første måling teller ikke» nedenfor.
 - **Supabase-URL-en peker på `.invalid`.** Da faller rutene tilbake på
   seed-dataene, og sidene ser like ut hver kjøring. Samme grep som i
   `playwright.config.ts`. Konsekvensen står under «Det målingen ikke ser».
@@ -143,6 +144,32 @@ stilling til det.
 Bildevekt og totalvekt rapporteres fortsatt av kjøreren, merket «uten grense,
 kun rapportert», slik at det merkes om de vokser. Tidsgrensene fanger fortsatt
 opp om bildene gjør siden treg.
+
+## Første måling teller ikke (24. august)
+
+Portvakten kjørte fire ganger over tre dager, alle grønne. Men TBT svingte
+mistenkelig mye mellom kjøringer av samme side i samme jobb:
+
+| kjøring     | forsiden          | innsendingsskjemaet |
+| ----------- | ----------------- | ------------------- |
+| 21. aug kl 13 | `[411, 10, 2]`  | `[235, 9, 254]`     |
+| 21. aug kl 15 | `[516, 30, 30]` | `[119, 32, 35]`     |
+| 23. aug kl 10 | `[422, 30, 208]`| `[124, 25, 52]`     |
+| 23. aug kl 13 | `[520, 208, 50]`| `[132, 41, 34]`     |
+
+Første gjetning var maskinstøy på en delt to-kjerners runner. Den var feil.
+Over 20 sidemålinger var **den første av tre høyest i 13 av dem**, og snittet
+lå på 171 ms mot 61 ms for kjøring to og tre. Det er ikke støy — støy trekker
+begge veier. Det er en skjevhet som bare trekker oppover, og medianen av tre
+arvet den: verste median var 235 ms der de to varme kjøringene lå på 9 og 254.
+
+Derfor kastes nå én kjøring per side før de som telles. Merk at det ikke holder
+å be om HTML-en først: workflowen henter allerede `/no` én gang for å vente på
+serveren, og forsiden spratt likevel på første måling alle fire gangene. Noe
+annet enn ruten er kaldt, og siden vi ikke vet hva, varmer vi opp med nøyaktig
+det arbeidet som måles. Kostnaden er rundt ett minutt per kjøring.
+
+`--no-warmup` gir de rå tallene om du vil se skjevheten selv.
 
 ## Det målingen ikke ser
 

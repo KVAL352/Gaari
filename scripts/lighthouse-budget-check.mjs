@@ -13,12 +13,16 @@
  *     Derfor kjøres hver side flere ganger og medianen per måltall brukes.
  *     Median, ikke snitt: én treg kjøring skal ikke kunne dra et grønt
  *     resultat over grensen, og heller ikke omvendt.
+ *  3. Første måling av en side er systematisk høyere enn de neste, så den
+ *     kastes. Se begrunnelsen ved oppvarmingen lenger ned — den er målt, ikke
+ *     antatt.
  *
  * lighthouse-budget.json er fasit. Verdiene leses derfra, de gjentas ikke her.
  *
  * Bruk:
  *   node scripts/lighthouse-budget-check.mjs --base http://localhost:4173
  *   node scripts/lighthouse-budget-check.mjs --runs 5 --no-fail   (bare måling)
+ *   node scripts/lighthouse-budget-check.mjs --no-warmup           (rå tall)
  *
  * Avslutningskoder: 0 = innenfor, 1 = budsjettbrudd, 2 = kjøringen feilet.
  */
@@ -86,6 +90,7 @@ function parseArgs(argv) {
 		base: 'http://localhost:4173',
 		runs: 3,
 		fail: true,
+		warmup: true,
 		outDir: null
 	};
 	for (let i = 0; i < argv.length; i++) {
@@ -94,10 +99,11 @@ function parseArgs(argv) {
 		else if (a === '--runs') args.runs = Number(argv[++i]);
 		else if (a === '--out-dir') args.outDir = argv[++i];
 		else if (a === '--no-fail') args.fail = false;
+		else if (a === '--no-warmup') args.warmup = false;
 		else {
 			console.error(
 				'Bruk: node scripts/lighthouse-budget-check.mjs ' +
-					'[--base URL] [--runs N] [--out-dir KATALOG] [--no-fail]'
+					'[--base URL] [--runs N] [--out-dir KATALOG] [--no-fail] [--no-warmup]'
 			);
 			process.exit(2);
 		}
@@ -295,7 +301,10 @@ async function main() {
 	}
 
 	const cli = finnLighthouseCli();
-	console.log(`Lighthouse-budsjett — ${args.runs} kjøringer per side, median per måltall`);
+	console.log(
+		`Lighthouse-budsjett — ${args.runs} kjøringer per side, median per måltall` +
+			(args.warmup ? ', etter én forkastet oppvarming' : ', uten oppvarming')
+	);
 	console.log(`Mot: ${args.base}   (${LIGHTHOUSE_VERSJON}, ${cli})`);
 	console.log(`Rapporter: ${outDir}\n`);
 
@@ -312,6 +321,29 @@ async function main() {
 
 		const runs = [];
 		const stem = side.sti.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'rot';
+
+		/**
+		 * Én kjøring som kastes, før de som telles.
+		 *
+		 * Ikke en forsiktighetsregel, men et målt behov. Over fire CI-kjøringer
+		 * (20 sidemålinger) var den første av tre målingene den høyeste i 13 av
+		 * dem, og snittet for TBT lå på 171 ms mot 61 ms for kjøring to og tre.
+		 * Skjevheten er systematisk og trekker bare én vei, så medianen av tre
+		 * ble tre ganger for høy på det måltallet.
+		 *
+		 * Merk at det ikke holder å be om HTML-en først — workflowen henter alt
+		 * /no én gang for å vente på serveren, og forsiden spratt likevel på
+		 * første måling hver gang. Det er noe annet enn ruten som er kald, og
+		 * siden vi ikke vet hva, varmer vi opp med det samme arbeidet som
+		 * måles.
+		 */
+		if (args.warmup) {
+			process.stdout.write(`  ${side.navn}: oppvarming (forkastes) ... `);
+			const t = Date.now();
+			const res = runLighthouse(`${args.base}${side.sti}`, join(outDir, `${stem}-oppvarming.json`), cli);
+			console.log(res.ok ? `${Math.round((Date.now() - t) / 1000)} s` : 'feilet, fortsetter likevel');
+		}
+
 		for (let i = 1; i <= args.runs; i++) {
 			const outPath = join(outDir, `${stem}-${i}.json`);
 			process.stdout.write(`  ${side.navn}: kjøring ${i}/${args.runs} ... `);
