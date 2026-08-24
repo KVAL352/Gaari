@@ -55,6 +55,11 @@
     "description": "Pagineringsfeilen i deduplicate() ble fikset 20. august (commit 5eb3b76). Dedup hentet uten range() og saa bare de 1000 tidligste av 1914 rader, saa alt etter 7. oktober hadde aldri vaert ryddet. Etter kjoeringen 06:00 UTC skal 8 par vaere borte: Kjoett Festival, Sa ka la Oktober, to Colonialen ost-og-vin, vill vill vest (bodega), Critical Mass (null-kilde), Heavy Metal Festen || Hulen, DNT Baaltreff. Kjoer scripts/dedup-dryrun.ts — den skal naa vaere tom eller naer tom. Er den det ikke, virker ikke pagineringen i produksjon."
   },
   {
+    "date": "2026-08-24",
+    "title": "Tre oppslag i Supabase og MailerLite - fase 0 av sikkerhetsgjennomgangen",
+    "description": "Fra gjennomgangen 23. august mot de 30 punktene i TikTok-listene om vibe-kodede apper. Ingenting her skal endres i kode; det er tre oppslag som avgjoer omfanget paa resten av jobben. SKRIV NED SVARENE. (1) ER RLS-MIGRASJONEN KJOERT? Supabase SQL-editor: select grantee, column_name from information_schema.column_privileges where table_name = 'events' and grantee = 'anon' order by column_name; Staar submitter_email i lista, er migrasjonen IKKE kjoert, og anon-nokkelen kan lese personkolonner. Fiks: lim inn og kjoer supabase/migrations/20260821150000_rls_lock_personal_data.sql. Fila begrunner selv hvorfor den er trygg. Dette har staatt aapent siden 21. august. (2) HVEM KAN SKRIVE TIL BOETTA event-images? Supabase -> Storage -> Policies. Se etter INSERT- eller UPDATE-policy for rollen anon. Bakgrunn: /submit laster opp direkte fra nettleseren med anon-nokkelen, all typesjekk og stoerrelsesgrense ligger i klientkoden, og kallet bruker upsert: true mot stien events/<slug>.jpg. Slugs er offentlige. Er policyen aapen, kan bilder paa hvilket som helst arrangement overskrives utenfra, og da boer /submit flyttes til en server action foer opprydningsjobben. Er den begrenset til sti eller mime-type, kan det staa i koe. (3) HAR NYHETSBREVET DOUBLE OPT-IN? MailerLite -> gruppeinnstillinger. Det finnes ingen bekreftelsesflyt i koden, saa svaret ligger bare der. Er det av, er det en avkrysning."
+  },
+  {
     "date": "2026-08-25",
     "title": "Oppdater Akvariet-priser tilbake til normalpriser",
     "description": "Sommerpriser utløper 31. august. Fra 1. september gjelder dagens priser igjen. Sjekk akvariet.no og oppdater ADMISSION_PRICE i akvariet.ts."
@@ -63,6 +68,16 @@
     "date": "2026-08-25",
     "title": "Paint'n Sip: svar paa spoersmaalet fra 21. april",
     "description": "Arrangoeren svarte 2026-04-21 paa bilderettighets-runden og spurte konkret hvilke bilder det gjelder, og om det bare er de som ligger i deres egen eventkalender. Spoersmaalet har fortsatt et svar: det gjelder bildene som foelger arrangementene deres paa gaari.no, altsaa de som ligger paa deres egne eventsider. Kjersti bestemte 2026-08-18 at det skal sendes en ny e-post, men ikke med en gang. Traaden ligger i Outreach/Unresolved (UID 12). Husk at prisen skal staa naar vi tilbyr noe, jf. feedback_communication."
+  },
+  {
+    "date": "2026-08-25",
+    "title": "Bookibud: 14 rader med mal-tekst gjenstaar (kvote)",
+    "description": "DELVIS GJORT 24. august. backfill-descriptions.ts er forbedret og kjoert med `npx tsx scripts/backfill-descriptions.ts --source bookibud`: 16 rader skrevet om, 34 mal-rader nede i 14. Gemini gikk tom for dagskvote igjen, og svarte dessuten 503 «high demand» paa flere kall foer det. STAAR IGJEN: 14 bookibud-rader med mal-tekst. Kjoer samme kommando paa nytt naar kvoten er nullstilt, og gjenta til tallet er null. Ta deretter `--source studiovertikal` (8 rader, forfalt siden 3. august) og til slutt uten filter for resten - det er rundt 800 arrangementer og maa tas over flere dager. TO FORBEDRINGER I SKRIPTET: det plukker naa ogsaa rader der beskrivelsen er nøyaktig lik makeDescription(), ikke bare rader under 80 tegn - sju storskjermrader hadde mal-tekst paa 80 til 83 tegn og ble hoppet over foer. Og --source lar jobben tas én kilde om gangen, saa en avbrutt kjoering ikke etterlater tvil om hva som ble gjort. MERK: 10 bookibud-rader har god beskrivelse men mangler title_en. De fanges av ingen av reglene, siden beskrivelsen er i orden. title_en er valgfritt, saa det er ikke noen feil - bare verdt aa vite. PIPELINEN ER FRISK: kjoeringen 24. august logget 60 av 60 scrapere, bookibud found 53 inserted 1, ingen feilet."
+  },
+  {
+    "date": "2026-08-25",
+    "title": "46 skript kjoerer ved import — sperr de farligste",
+    "description": "Funnet 2026-08-21 under sikkerhetsgjennomgangen, og funnet paa den harde maaten: en test importerte to hjelpefunksjoner fra send-newsletter.ts, og modulen begynte en ekte utsending til 129 abonnenter. Den rakk aldri aa opprette kampanjen fordi testkjoeringen ble revet ned mens den ventet paa abonnentlista — det var flaks, ikke sikkerhet. Verifisert i MailerLite etterpaa: ingen ny kampanje, ingen loes gruppe. send-newsletter.ts er sperret med samme moenster som scrape.ts bruker: main() kjoerer bare naar process.argv[1] er fila selv. DE OEVRIGE 45 STAAR IGJEN. De fleste er ufarlige rapportskript, men disse gjoer noe utad eller destruktivt og boer sperres foerst: notify-organizers.ts, notify-submitters.ts, send-daily-digest.ts, send-quality-audit.ts, send-weekly-report.ts, social/post-to-socials.ts, social/post-to-bluesky.ts, social/publish-seed-posts.ts, enforce-image-blocks.ts, fix-kode-urls.ts, fix-festspillene-shafrin.ts, meta.ts. Fiksen er tre linjer per fil. Finn resten med: grep -lE '^main\\(\\)|^await main\\(\\)|^run\\(\\)' scripts/*.ts scripts/social/*.ts"
   },
   {
     "date": "2026-08-26",
@@ -78,6 +93,11 @@
     "date": "2026-08-28",
     "title": "Vercel: merk miljoevariabler som Sensitive",
     "description": "Vercel viser 'Needs Attention' paa alle produksjonsvariabler som ikke er merket Sensitive. Det er ikke ett funn per variabel — det er én innstilling som ikke er tatt i bruk, vist én gang per variabel. Ingen indikasjon paa lekkasje. En vanlig variabel kan leses tilbake i UI og CLI av alle med prosjekttilgang; en sensitiv er skrive-bare. FOERSTE SPOERSMAAL: hvem andre enn Kjersti har tilgang til Vercel-teamet? Er hun alene, er dette ryddearbeid og ikke sikkerhet. FORUTSETNING: Proton Pass-backupen av .env maa vaere ajour foer noe merkes — etter merking er den eneste lesbare kopien. IKKE ROTER CALENDAR_FEED_TOKEN: verdien ligger i URL-en til alle som abonnerer paa kalenderfeeden, og rotering brekker feeden stille for dem. Vercels standardraad om 'rotate at the source' gjelder ikke den. Usikkert om Vercel lar deg konvertere en eksisterende variabel eller om den maa slettes og opprettes paa nytt — les dialogteksten. Ta én variabel om gangen."
+  },
+  {
+    "date": "2026-08-28",
+    "title": "Bookibud: tre kodeveier som aldri er provd mot ekte data",
+    "description": "En uke etter at bookibud-scraperen gikk live. Feeden 21. august hadde ingen avlysninger, ingen utsolgte og ingen flerdagsarrangementer, saa tre grener i scripts/scrapers/bookibud.ts er skrevet men ubevist. (1) AVLYSNING: feeden markerer med isCancelled i stedet for aa fjerne raden, og scraperen skal da slette arrangementet fra basen. Sammenlign feeden mot basen og se om noe er avlyst uten aa forsvinne fra gaari.no. (2) UTSOLGT: samme mekanisme paa isSoldOut. (3) FLERDAGERS: rader grupperes paa eventId, og date_end settes bare naar arrangementet strekker seg over flere dager. Uten gruppering ser et flerdagers arrangement ut som duplikater for dedup. Sjekk om feeden har faatt et flerdagsarrangement, og at det i saa fall ligger inne som EN rad."
   },
   {
     "date": "2026-09-01",
@@ -120,6 +140,11 @@
     "description": "Oppvarmingskjoeringen ble lagt inn 24. august fordi foerste maaling av en side var systematisk for hoey: over 20 sidemaalinger var kjoering 1 hoeyest i 13, med snitt 171 ms TBT mot 61 for kjoering 2 og 3. Etter fiksen falt verste median-TBT fra 235 til 61 ms i den foerste kjoeringen — men det var ÉN kjoering, og to sider spratt paa SISTE maaling i stedet (187 og 218 ms). For lite til aa vite om det er et nytt moenster eller vanlig stoey. Se paa de siste ti kjoeringene naa: gh run list --workflow=lighthouse.yml. Er kjoering 3 systematisk hoeyest, er det noe annet enn oppvarming som spiller inn, og da boer antall kjoeringer opp fra tre til fem framfor aa gjette videre."
   },
   {
+    "date": "2026-09-07",
+    "title": "Kjott Festival: svar paa generelt SoMe-samtykke?",
+    "description": "Forespoersel sendt 24. august om at ja-et i innsendingsskjemaet skal gjelde generelt for Bergen Kjoett. Kommer det ja: oppgrader slugen bergenkjott i scripts/lib/consent.json fra hotlink/visning til dokumentert med some, kjoer 'npx tsx scripts/consent.ts sync', og legg ja-eposten i Avtaler. Et venue-ja dekker ikke gjestende artisters egne pressebilder."
+  },
+  {
     "date": "2026-09-08",
     "title": "Medieklyngen: moeteforslag aldri besvart",
     "description": "Kontaktpersonen svarte 2026-05-18 paa bilderettighets-runden og foreslo et moete mot slutten av juni. Det ble aldri besvart, og juni er passert. Kjersti sa 2026-08-18 at dette skal ses paa senere. Vurder om det er en ny moeteinvitasjon eller bare et svar paa bildespoersmaalet. Traaden ligger i Outreach/Unresolved (UID 7). Kontaktdetaljer staar i private/reminders.json."
@@ -148,6 +173,11 @@
     "date": "2026-09-15",
     "title": "Ytelse: maal produksjon, ikke bare seed-data",
     "description": "Portvakten i lighthouse.yml maaler mot seed-dataene (18 arrangementer), fordi CI ikke har Supabase-noekler og repoet er offentlig. Den fanger derfor regresjoner i kode, men ikke i datamengde. En maaling mot ekte gaari.no 21. august ga TBT 618 ms mot 42 i CI, og et HTML-dokument paa 210 KiB mot 25 — fordi forsiden i produksjon rendrer langt flere arrangementer. TBT-grensen paa 800 ms er altsaa i praksis ikke voktet. Forslag: en ukentlig workflow som maaler gaari.no som den er og bare RAPPORTERER i digesten, uten aa vaere portvakt. Da ser vi 618 bevege seg mot 800 foer den treffer."
+  },
+  {
+    "date": "2026-09-22",
+    "title": "Undersoek EU AI Act - hva gjelder for Gaari?",
+    "description": "Kjerstis oenske 23. august, og den skal tas ETTER at fase 0-3 av sikkerhetsgjennomgangen er ferdig - ikke foer. VIKTIG: alt under er sporsmaal som skal undersoekes mot primaerkilder, ikke paastander. Regelverket er nytt, det endrer seg, og modellens kunnskap er utdatert. Ingenting her skal siteres uten aa sjekkes mot lovteksten eller Datatilsynet/Digitaliseringsdirektoratet. (1) GJELDER DEN I NORGE I DET HELE TATT? Norge er EOES, ikke EU. AI Act maa innlemmes i EOES-avtalen for aa gjelde her. Er det gjort, og fra naar? Dette er det foerste spoersmaalet - er svaret nei, faller mye av resten bort forelopig. (2) HVILKEN ROLLE HAR GAARI? Gaari lager ikke modeller, men bruker Gemini til aa generere beskrivelser. Det er sannsynligvis 'deployer'/'bruker' og ikke 'provider', men skillet maa verifiseres, for pliktene er helt ulike. (3) MERKEPLIKT FOR AI-GENERERT INNHOLD. Hver beskrivelse paa gaari.no er AI-generert. Finnes det en plikt til aa merke det, og i saa fall hvordan? I dag staar det forklart paa /opphavsrett og /vilkar, men ikke ved den enkelte beskrivelsen. (4) RISIKOKATEGORI. En eventkalender som oppsummerer offentlige arrangementer virker aa vaere lav risiko, men sjekk om noe ved kategorisering eller anbefaling trekker den hoyere. (5) OVERLAPP MED PERSONVERN. Google/Gemini staar uansett ikke i databehandlertabellen paa /personvern - se fase 2. Loes den delen der, uavhengig av hva AI Act krever."
   },
   {
     "date": "2026-09-25",
@@ -193,30 +223,5 @@
     "date": "2027-02-01",
     "title": "Oppdater Borealis-skraper for 2027",
     "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i borealis.ts. Oppdater også send-daily-digest.ts."
-  },
-  {
-    "date": "2026-08-25",
-    "title": "Bookibud: 14 rader med mal-tekst gjenstaar (kvote)",
-    "description": "DELVIS GJORT 24. august. backfill-descriptions.ts er forbedret og kjoert med `npx tsx scripts/backfill-descriptions.ts --source bookibud`: 16 rader skrevet om, 34 mal-rader nede i 14. Gemini gikk tom for dagskvote igjen, og svarte dessuten 503 «high demand» paa flere kall foer det. STAAR IGJEN: 14 bookibud-rader med mal-tekst. Kjoer samme kommando paa nytt naar kvoten er nullstilt, og gjenta til tallet er null. Ta deretter `--source studiovertikal` (8 rader, forfalt siden 3. august) og til slutt uten filter for resten - det er rundt 800 arrangementer og maa tas over flere dager. TO FORBEDRINGER I SKRIPTET: det plukker naa ogsaa rader der beskrivelsen er nøyaktig lik makeDescription(), ikke bare rader under 80 tegn - sju storskjermrader hadde mal-tekst paa 80 til 83 tegn og ble hoppet over foer. Og --source lar jobben tas én kilde om gangen, saa en avbrutt kjoering ikke etterlater tvil om hva som ble gjort. MERK: 10 bookibud-rader har god beskrivelse men mangler title_en. De fanges av ingen av reglene, siden beskrivelsen er i orden. title_en er valgfritt, saa det er ikke noen feil - bare verdt aa vite. PIPELINEN ER FRISK: kjoeringen 24. august logget 60 av 60 scrapere, bookibud found 53 inserted 1, ingen feilet."
-  },
-  {
-    "date": "2026-08-28",
-    "title": "Bookibud: tre kodeveier som aldri er provd mot ekte data",
-    "description": "En uke etter at bookibud-scraperen gikk live. Feeden 21. august hadde ingen avlysninger, ingen utsolgte og ingen flerdagsarrangementer, saa tre grener i scripts/scrapers/bookibud.ts er skrevet men ubevist. (1) AVLYSNING: feeden markerer med isCancelled i stedet for aa fjerne raden, og scraperen skal da slette arrangementet fra basen. Sammenlign feeden mot basen og se om noe er avlyst uten aa forsvinne fra gaari.no. (2) UTSOLGT: samme mekanisme paa isSoldOut. (3) FLERDAGERS: rader grupperes paa eventId, og date_end settes bare naar arrangementet strekker seg over flere dager. Uten gruppering ser et flerdagers arrangement ut som duplikater for dedup. Sjekk om feeden har faatt et flerdagsarrangement, og at det i saa fall ligger inne som EN rad."
-  },
-  {
-    "date": "2026-08-25",
-    "title": "46 skript kjoerer ved import — sperr de farligste",
-    "description": "Funnet 2026-08-21 under sikkerhetsgjennomgangen, og funnet paa den harde maaten: en test importerte to hjelpefunksjoner fra send-newsletter.ts, og modulen begynte en ekte utsending til 129 abonnenter. Den rakk aldri aa opprette kampanjen fordi testkjoeringen ble revet ned mens den ventet paa abonnentlista — det var flaks, ikke sikkerhet. Verifisert i MailerLite etterpaa: ingen ny kampanje, ingen loes gruppe. send-newsletter.ts er sperret med samme moenster som scrape.ts bruker: main() kjoerer bare naar process.argv[1] er fila selv. DE OEVRIGE 45 STAAR IGJEN. De fleste er ufarlige rapportskript, men disse gjoer noe utad eller destruktivt og boer sperres foerst: notify-organizers.ts, notify-submitters.ts, send-daily-digest.ts, send-quality-audit.ts, send-weekly-report.ts, social/post-to-socials.ts, social/post-to-bluesky.ts, social/publish-seed-posts.ts, enforce-image-blocks.ts, fix-kode-urls.ts, fix-festspillene-shafrin.ts, meta.ts. Fiksen er tre linjer per fil. Finn resten med: grep -lE '^main\\(\\)|^await main\\(\\)|^run\\(\\)' scripts/*.ts scripts/social/*.ts"
-  },
-  {
-    "date": "2026-08-24",
-    "title": "Tre oppslag i Supabase og MailerLite - fase 0 av sikkerhetsgjennomgangen",
-    "description": "Fra gjennomgangen 23. august mot de 30 punktene i TikTok-listene om vibe-kodede apper. Ingenting her skal endres i kode; det er tre oppslag som avgjoer omfanget paa resten av jobben. SKRIV NED SVARENE. (1) ER RLS-MIGRASJONEN KJOERT? Supabase SQL-editor: select grantee, column_name from information_schema.column_privileges where table_name = 'events' and grantee = 'anon' order by column_name; Staar submitter_email i lista, er migrasjonen IKKE kjoert, og anon-nokkelen kan lese personkolonner. Fiks: lim inn og kjoer supabase/migrations/20260821150000_rls_lock_personal_data.sql. Fila begrunner selv hvorfor den er trygg. Dette har staatt aapent siden 21. august. (2) HVEM KAN SKRIVE TIL BOETTA event-images? Supabase -> Storage -> Policies. Se etter INSERT- eller UPDATE-policy for rollen anon. Bakgrunn: /submit laster opp direkte fra nettleseren med anon-nokkelen, all typesjekk og stoerrelsesgrense ligger i klientkoden, og kallet bruker upsert: true mot stien events/<slug>.jpg. Slugs er offentlige. Er policyen aapen, kan bilder paa hvilket som helst arrangement overskrives utenfra, og da boer /submit flyttes til en server action foer opprydningsjobben. Er den begrenset til sti eller mime-type, kan det staa i koe. (3) HAR NYHETSBREVET DOUBLE OPT-IN? MailerLite -> gruppeinnstillinger. Det finnes ingen bekreftelsesflyt i koden, saa svaret ligger bare der. Er det av, er det en avkrysning."
-  },
-  {
-    "date": "2026-09-22",
-    "title": "Undersoek EU AI Act - hva gjelder for Gaari?",
-    "description": "Kjerstis oenske 23. august, og den skal tas ETTER at fase 0-3 av sikkerhetsgjennomgangen er ferdig - ikke foer. VIKTIG: alt under er sporsmaal som skal undersoekes mot primaerkilder, ikke paastander. Regelverket er nytt, det endrer seg, og modellens kunnskap er utdatert. Ingenting her skal siteres uten aa sjekkes mot lovteksten eller Datatilsynet/Digitaliseringsdirektoratet. (1) GJELDER DEN I NORGE I DET HELE TATT? Norge er EOES, ikke EU. AI Act maa innlemmes i EOES-avtalen for aa gjelde her. Er det gjort, og fra naar? Dette er det foerste spoersmaalet - er svaret nei, faller mye av resten bort forelopig. (2) HVILKEN ROLLE HAR GAARI? Gaari lager ikke modeller, men bruker Gemini til aa generere beskrivelser. Det er sannsynligvis 'deployer'/'bruker' og ikke 'provider', men skillet maa verifiseres, for pliktene er helt ulike. (3) MERKEPLIKT FOR AI-GENERERT INNHOLD. Hver beskrivelse paa gaari.no er AI-generert. Finnes det en plikt til aa merke det, og i saa fall hvordan? I dag staar det forklart paa /opphavsrett og /vilkar, men ikke ved den enkelte beskrivelsen. (4) RISIKOKATEGORI. En eventkalender som oppsummerer offentlige arrangementer virker aa vaere lav risiko, men sjekk om noe ved kategorisering eller anbefaling trekker den hoyere. (5) OVERLAPP MED PERSONVERN. Google/Gemini staar uansett ikke i databehandlertabellen paa /personvern - se fase 2. Loes den delen der, uavhengig av hva AI Act krever."
   }
 ]
