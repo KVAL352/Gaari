@@ -1074,3 +1074,58 @@ export function maskEmail(email: string | null | undefined): string {
 	if (at <= 0) return '***';
 	return `${email[0]}***${email.slice(at)}`;
 }
+
+/**
+ * Hent alle rader fra en spørring, ikke bare de første 1000.
+ *
+ * Supabase svarer med maksimalt 1000 rader og sier ikke fra når den kutter.
+ * `.limit(5000)` gir 1000 uten feilmelding, uten advarsel, uten noe i svaret
+ * som antyder at det mangler noe. Det har gitt tre feil på fem dager:
+ * dedup ryddet bare deler av basen (20. august), nyhetsbrevtallet i
+ * morgenbriefingen viste en tredjedel av mottakerne (21. august), og
+ * sitemapen manglet alt som skjedde de neste seks ukene (24. august).
+ *
+ * Bruk denne i stedet for å paginere for hånd.
+ *
+ * **Sorter alltid på en unik kolonne** — vanligvis `id`. `.range()` deler opp
+ * etter posisjon i resultatet, så en sorteringsnøkkel med like verdier kan
+ * gi rader som hoppes over eller kommer med to ganger. Trenger du en annen
+ * rekkefølge, sorter i minnet etterpå.
+ *
+ * @example
+ * const rader = await fetchAllRows(
+ *   (fra, til) => supabase.from('events')
+ *     .select('source, date_start')
+ *     .eq('status', 'approved')
+ *     .order('id', { ascending: true })
+ *     .range(fra, til),
+ *   'kildestatistikk'
+ * );
+ */
+export async function fetchAllRows<T>(
+	build: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
+	label = 'spørring'
+): Promise<T[]> {
+	const PAGE_SIZE = 1000;
+	const MAX_PAGES = 100; // 100 000 rader — sikring mot en løkke som aldri stopper
+	const rows: T[] = [];
+
+	for (let page = 0; page < MAX_PAGES; page++) {
+		const { data, error } = await build(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+		if (error) {
+			// Delvis svar er farligere enn ingen svar, fordi det ser komplett ut.
+			throw new Error(`fetchAllRows(${label}) feilet på side ${page}: ${error.message}`);
+		}
+		if (!data || data.length === 0) break;
+
+		rows.push(...data);
+		if (data.length < PAGE_SIZE) break;
+
+		if (page === MAX_PAGES - 1) {
+			console.warn(`fetchAllRows(${label}): traff sidegrensen på ${MAX_PAGES} sider — svaret kan være ufullstendig.`);
+		}
+	}
+
+	return rows;
+}
