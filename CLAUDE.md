@@ -78,6 +78,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - `/api/health` — Lightweight liveness probe (1 Supabase query) — polled by UptimeRobot every 5 min
 - `/api/health/deep` — 8 comprehensive checks (supabase, events, scrape freshness, visibility, pipeline, image health, DB size, data quality) — hit by morgen/health skills
 - `scraper_runs` table + `scraper-health.ts` classification → daily digest
+- `link-check.yml` (daglig): `check-links.ts` sjekker lenkene *ut* til arrangørene, `check-site.ts` sjekker gaari.nos egne sider og lenkene mellom dem. **Et 200-svar er ikke bevis**: Next.js-sider svarer 200 med et tomt skall første gang noen ber om en adresse de ikke har bygd, og 404 etterpå. Sjekk aldri en slik lenke bare én gang.
 
 ## Business model
 

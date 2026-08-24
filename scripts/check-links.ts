@@ -108,6 +108,19 @@ function isBrokenStatus(status: number): boolean {
 	return false;
 }
 
+/**
+ * Next.js med `fallback: true` svarer 200 med et tomt skall foerste gang noen
+ * spoer etter en sti den ikke har bygd, og bygger siden i bakgrunnen. Er stien
+ * ugyldig, blir svaret 404 — men foerst etterpaa. Et enkelt 200 fra en slik
+ * side beviser altsaa ingenting, og det var nettopp dette som lot 61 doede
+ * KODE-lenker staa som friske gjennom flere kjoeringer i august 2026.
+ *
+ * Skallet roeper seg selv i __NEXT_DATA__. Ser vi det, spoer vi én gang til.
+ */
+function isUnbuiltNextPage(body: string): boolean {
+	return body.includes('"isFallback":true');
+}
+
 function isSoft404(body: string): boolean {
 	// Only check first 5000 chars (soft 404 text is usually near the top)
 	const snippet = body.slice(0, 5000);
@@ -115,22 +128,21 @@ function isSoft404(body: string): boolean {
 }
 
 async function checkSourceUrl(url: string): Promise<{ ok: boolean; soft404: boolean }> {
-	// Try HEAD first
-	const head = await checkUrl(url, 'HEAD');
+	// GET, ikke HEAD. En HEAD gir bare statuskoden, og statuskoden loey: baade
+	// myke 404-er og ubygde Next.js-sider svarer 200 med feil innhold.
+	let res = await checkUrl(url, 'GET');
 
-	// 405 Method Not Allowed — fall back to GET (with soft 404 check)
-	if (head.status === 405) {
-		const get = await checkUrl(url, 'GET');
-		if (isBrokenStatus(get.status)) return { ok: false, soft404: false };
-		if (get.body && isSoft404(get.body)) return { ok: false, soft404: true };
-		return { ok: true, soft404: false };
+	// Ubygd side: svaret sier ingenting ennaa. Gi den et oeyeblikk paa aa bygge
+	// seg ferdig og spoer paa nytt. Er den fortsatt ubygd, lar vi den passere
+	// framfor aa gi en strike vi ikke kan staa for.
+	if (res.body && isUnbuiltNextPage(res.body)) {
+		await delay(4000);
+		res = await checkUrl(url, 'GET');
+		if (res.body && isUnbuiltNextPage(res.body)) return { ok: true, soft404: false };
 	}
 
-	if (isBrokenStatus(head.status)) return { ok: false, soft404: false };
-
-	// HEAD succeeded with 200 — trust it, skip expensive GET
-	// Only do soft 404 GET check on 3xx-chain results (redirected to catch-all page)
-	// or when event already has prior strikes (confirm before final deletion)
+	if (isBrokenStatus(res.status)) return { ok: false, soft404: false };
+	if (res.body && isSoft404(res.body)) return { ok: false, soft404: true };
 	return { ok: true, soft404: false };
 }
 

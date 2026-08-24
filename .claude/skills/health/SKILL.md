@@ -97,6 +97,24 @@ nslookup gaari.no 2>/dev/null
 nslookup xn--gri-ula.no 2>/dev/null
 ```
 
+### Lenker og sider
+
+Egne sider og lenkene mellom dem — hele sitemapet utenom arrangementene, pluss
+en stikkprøve på dem. Tar rundt et halvt minutt.
+
+```bash
+cd scripts && npx tsx check-site.ts
+```
+
+Utgående lenker til arrangørene sjekkes av `check-links.ts`, som kjører daglig i
+`link-check.yml`. Ikke start den for hånd her — den gir striker og sletter
+arrangementer ved tredje strike.
+
+Et 200-svar er ikke bevis på at en side finnes. Next.js-sider — kodebergen.no,
+og flere av arrangørene — svarer 200 med et tomt skall første gang noen ber om
+en adresse de ikke har bygd, og 404 etterpå. `check-links.ts` kjenner igjen
+skallet og spør på nytt. Konkluderer du for hånd, gjør det samme.
+
 ### Outdated dependencies
 
 ```bash

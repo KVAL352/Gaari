@@ -63,3 +63,52 @@ jobs:
           echo "| Events deleted | ${DELETED} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Tickets cleared | ${CLEARED} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Duration | ${DURATION}s |" >> "$GITHUB_STEP_SUMMARY"
+
+  # Motsatt vei av jobben over: den foelger lenkene ut av gaari.no, denne spoer
+  # om gaari.nos egne sider svarer og om lenkene mellom dem foerer noe sted.
+  # Egen jobb slik at et problem paa vaar side ikke stopper utgaaende sjekk.
+  check-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install scraper dependencies
+        working-directory: scripts
+        run: npm ci
+        timeout-minutes: 2
+
+      - name: Check gaari.no pages
+        working-directory: scripts
+        env:
+          SUMMARY_FILE: ${{ runner.temp }}/site-check-summary.json
+        run: npx tsx check-site.ts
+
+      - name: Generate job summary
+        if: always()
+        run: |
+          SUMMARY_FILE="${{ runner.temp }}/site-check-summary.json"
+          echo "## Sidesjekk gaari.no" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ ! -f "$SUMMARY_FILE" ]; then
+            echo "> Ingen oppsummering — skriptet stoppet foer det rakk aa skrive fila." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "| Maal | Verdi |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Adresser sjekket | $(jq '.sjekket' "$SUMMARY_FILE") |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Problemer | $(jq '.problemer' "$SUMMARY_FILE") |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Varighet | $(jq '.durationSeconds' "$SUMMARY_FILE")s |" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$(jq '.problemer' "$SUMMARY_FILE")" != "0" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Status | Adresse | Grunn | Sett paa |" >> "$GITHUB_STEP_SUMMARY"
+            echo "|--------|---------|-------|----------|" >> "$GITHUB_STEP_SUMMARY"
+            jq -r '.funn[] | "| \(.status) | \(.url) | \(.grunn) | \(.fraSide) |"' "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
+          fi
