@@ -115,6 +115,11 @@
     "description": "Sendt 2026-08-18 til kontaktpersonen deres. To ting staar aapne. (1) SoMe-samtykke for Statsraaden-arrangementene. Bildene vises allerede paa gaari.no paa ticketcos hotlink-grunnlag, men kan ikke brukes paa Facebook og Instagram uten et dokumentert ja fra dem. Kommer det ja: registrer med \"npx tsx scripts/consent.ts add\" paa egen slug, ikke paa ticketco, siden ticketco daekker plattformen og ikke arrangoeren. (2) Svaret er ogsaa en teknisk test. Kontaktpersonen fikk 2026-05-07 gaari.no blokkert av sikkerhetsprogrammet deres, paa baade PC, Mac, Chrome og Safari, altsaa i nettverket og ikke paa maskinen. Aapner siden seg naa, var domenealderen aarsaken (registrert 2026-02-20). Er den fortsatt sperret, er neste spor analytics-proxyen paa /u/script.js, som serverer Umami fra vaart eget domene og er et kjent moenster for sporingsfiltre. Be dem da proeve gaari.no/u/script.js direkte. Kontaktdetaljer staar i private/reminders.json."
   },
   {
+    "date": "2026-09-07",
+    "title": "Ytelse: holdt oppvarmingen?",
+    "description": "Oppvarmingskjoeringen ble lagt inn 24. august fordi foerste maaling av en side var systematisk for hoey: over 20 sidemaalinger var kjoering 1 hoeyest i 13, med snitt 171 ms TBT mot 61 for kjoering 2 og 3. Etter fiksen falt verste median-TBT fra 235 til 61 ms i den foerste kjoeringen — men det var ÉN kjoering, og to sider spratt paa SISTE maaling i stedet (187 og 218 ms). For lite til aa vite om det er et nytt moenster eller vanlig stoey. Se paa de siste ti kjoeringene naa: gh run list --workflow=lighthouse.yml. Er kjoering 3 systematisk hoeyest, er det noe annet enn oppvarming som spiller inn, og da boer antall kjoeringer opp fra tre til fem framfor aa gjette videre."
+  },
+  {
     "date": "2026-09-08",
     "title": "Medieklyngen: moeteforslag aldri besvart",
     "description": "Kontaktpersonen svarte 2026-05-18 paa bilderettighets-runden og foreslo et moete mot slutten av juni. Det ble aldri besvart, og juni er passert. Kjersti sa 2026-08-18 at dette skal ses paa senere. Vurder om det er en ny moeteinvitasjon eller bare et svar paa bildespoersmaalet. Traaden ligger i Outreach/Unresolved (UID 7). Kontaktdetaljer staar i private/reminders.json."

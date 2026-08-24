@@ -21,13 +21,13 @@ name: Ytelsesbudsjett (Lighthouse)
 on:
   push:
     branches: [master]
-    paths-ignore: ['docs/**', 'private/**', 'outputs/**', 'reports/**', '**.md']
+    paths-ignore: ['docs/**', 'private/**', 'outputs/**', 'reports/**', '**.md', 'scripts/reminders.json']
   pull_request:
     branches: [master]
-    paths-ignore: ['docs/**', 'private/**', 'outputs/**', 'reports/**', '**.md']
+    paths-ignore: ['docs/**', 'private/**', 'outputs/**', 'reports/**', '**.md', 'scripts/reminders.json']
   workflow_dispatch:
 
-# En måling tar rundt et kvarter. Blir det pushet på nytt til samme gren, er
+# En måling tar rundt fem minutter. Blir det pushet på nytt til samme gren, er
 # den forrige målingen uansett foreldet.
 concurrency:
   group: lighthouse-${{ github.ref }}
