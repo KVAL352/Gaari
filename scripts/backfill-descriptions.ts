@@ -5,8 +5,35 @@
 import 'dotenv/config';
 import { supabase } from './lib/supabase.js';
 import { generateDescription } from './lib/ai-descriptions.js';
+import { makeDescription } from './lib/utils.js';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
 
 const MIN_DESC_LEN = 80;
+
+/**
+ * Bare én kilde. `npx tsx backfill-descriptions.ts --source bookibud`
+ *
+ * Gemini har en dagskvote, og et fullt gjennomløp er 800+ kall. Uten et filter
+ * blir jobben avbrutt et tilfeldig sted, og man vet ikke hvilke rader som ble
+ * tatt. Med filter kan man ta én kilde om gangen og se at den ble ferdig.
+ */
+const kildeArg = process.argv.indexOf('--source');
+const KILDE = kildeArg >= 0 ? process.argv[kildeArg + 1] : null;
+
+/**
+ * Er beskrivelsen mal-tekst?
+ *
+ * Lengdegrensen alene er en tilnærming, og den bommer. Bookibuds
+ * storskjermrader fikk «Storskjerm: »-prefiks, og malen deres landet paa 80 til
+ * 83 tegn — sju rader med ren mal-tekst og uten title_en ble hoppet over fordi
+ * de saa lange nok ut. makeDescription() er fasiten for hva malen produserer,
+ * saa vi kan spoerre direkte i stedet for aa gjette paa lengde.
+ */
+function erMalTekst(e: { description_no: string | null; title_no: string; venue_name: string | null; category: string }): boolean {
+	if (!e.description_no) return true;
+	return e.description_no === makeDescription(e.title_no, e.venue_name || 'Bergen', e.category);
+}
 
 async function main() {
 	const nowUtc = new Date().toISOString();
@@ -15,7 +42,7 @@ async function main() {
 	while (true) {
 		const { data } = await supabase
 			.from('events')
-			.select('id, title_no, description_no, description_en, title_en, venue_name, category, date_start, price')
+			.select('id, source, title_no, description_no, description_en, title_en, venue_name, category, date_start, price')
 			.gte('date_start', nowUtc)
 			.order('id')
 			.range(from, from + 999);
@@ -25,8 +52,19 @@ async function main() {
 		from += 1000;
 	}
 
-	const thin = all.filter(e => (e.description_no || '').length < MIN_DESC_LEN);
-	console.log(`Found ${thin.length} events with description <${MIN_DESC_LEN} chars (out of ${all.length} future events)\n`);
+	const kandidater = all.filter(
+		e => (e.description_no || '').length < MIN_DESC_LEN || erMalTekst(e)
+	);
+	const thin = KILDE ? kandidater.filter(e => e.source === KILDE) : kandidater;
+	const barePaaMal = kandidater.filter(e => (e.description_no || '').length >= MIN_DESC_LEN).length;
+
+	console.log(
+		`Found ${thin.length} events to rewrite` +
+			(KILDE ? ` for source "${KILDE}"` : '') +
+			` (out of ${all.length} future events).` +
+			` ${barePaaMal} caught by the template check, not by length.\n`
+	);
+	if (thin.length === 0) return;
 
 	let updated = 0;
 	let unchanged = 0;
@@ -70,7 +108,10 @@ async function main() {
 	console.log(`\nDone. updated=${updated}  unchanged=${unchanged}  failed=${failed}`);
 }
 
-main().catch(err => {
-	console.error(err);
-	process.exit(1);
-});
+// Kjoerer bare naar fila startes direkte — se merknaden i send-newsletter.ts.
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+	main().catch(err => {
+		console.error(err);
+		process.exit(1);
+	});
+}

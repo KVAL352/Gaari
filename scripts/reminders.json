@@ -190,9 +190,9 @@
     "description": "Oppdater FESTIVAL_YEAR, FESTIVAL_DATES og LISTING_PATH i borealis.ts. Oppdater også send-daily-digest.ts."
   },
   {
-    "date": "2026-08-22",
-    "title": "Bookibud: backfill beskrivelser og sjekk foerste pipelinekjoering",
-    "description": "Scraperen scripts/scrapers/bookibud.ts ble bygget og kjoert manuelt 21. august 2026: 54 arrangementer inne av 56 i feeden (ett laa i fortid, ett var et internt duplikat i feeden som slug-sperren tok). TO TING AA GJOERE: (1) Gemini gikk tom for dagskvote midt i kjoeringen, saa 35 av 54 rader har mal-beskrivelse og mangler title_en. Kjoer `npx tsx scripts/backfill-descriptions.ts` naar kvoten er nullstilt, og verifiser at tallet gaar mot null. (2) Den manuelle kjoeringen logget ingen rad i scraper_runs, fordi den gikk frittstaaende utenom scrape.ts. Sjekk digesten etter pipelinekjoeringen 06:00 UTC: bookibud skal staa som success, og scraper-health.ts skal ikke klassifisere den som broken eller dormant. Forvent 0 nye innlegg foerste dag — alt ligger allerede inne."
+    "date": "2026-08-25",
+    "title": "Bookibud: 14 rader med mal-tekst gjenstaar (kvote)",
+    "description": "DELVIS GJORT 24. august. backfill-descriptions.ts er forbedret og kjoert med `npx tsx scripts/backfill-descriptions.ts --source bookibud`: 16 rader skrevet om, 34 mal-rader nede i 14. Gemini gikk tom for dagskvote igjen, og svarte dessuten 503 «high demand» paa flere kall foer det. STAAR IGJEN: 14 bookibud-rader med mal-tekst. Kjoer samme kommando paa nytt naar kvoten er nullstilt, og gjenta til tallet er null. Ta deretter `--source studiovertikal` (8 rader, forfalt siden 3. august) og til slutt uten filter for resten - det er rundt 800 arrangementer og maa tas over flere dager. TO FORBEDRINGER I SKRIPTET: det plukker naa ogsaa rader der beskrivelsen er nøyaktig lik makeDescription(), ikke bare rader under 80 tegn - sju storskjermrader hadde mal-tekst paa 80 til 83 tegn og ble hoppet over foer. Og --source lar jobben tas én kilde om gangen, saa en avbrutt kjoering ikke etterlater tvil om hva som ble gjort. MERK: 10 bookibud-rader har god beskrivelse men mangler title_en. De fanges av ingen av reglene, siden beskrivelsen er i orden. title_en er valgfritt, saa det er ikke noen feil - bare verdt aa vite. PIPELINEN ER FRISK: kjoeringen 24. august logget 60 av 60 scrapere, bookibud found 53 inserted 1, ingen feilet."
   },
   {
     "date": "2026-08-28",
