@@ -1,11 +1,5 @@
-import 'dotenv/config';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from './lib/supabase.js';
 import { maskEmail } from './lib/utils.js';
-
-const supabase = createClient(
-	process.env.SUPABASE_URL!,
-	process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const FROM_EMAIL = 'Gåri <post@gaari.no>';
