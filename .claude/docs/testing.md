@@ -44,7 +44,7 @@
 
 **Hvorfor tilstandene har egne tester.** To kontrastbrudd slapp gjennom en ren
 skanning i august 2026 fordi elementet ikke var i DOM eller ikke i den
-tilstanden da axe kjoerte. Begge ble funnet av Kjersti med oeynene. Legger du
+tilstanden da axe kjoerte. Begge ble funnet av eieren med oeynene. Legger du
 til en komponent som bare vises etter en handling, legg til en test som utfoerer
 handlingen foerst.
 
