@@ -30,7 +30,7 @@ export function erEngelsk(slug: string): boolean {
  *
  * Var 5 i generate-posts, 5 i generate-reels og 4 i generate-week. Den siste
  * var neppe et bevisst valg, bare et tall som ble skrevet i en annen fil en
- * annen dag. Kjersti bestemte 2026-08-11 at alle tre skal være 5.
+ * annen dag. Eieren bestemte 2026-08-11 at alle tre skal være 5.
  *
  * Satt ned til 4 den 2026-08-14. Målingen samme dag viste at terskelen ikke
  * traff tynt innhold, men tynt utvalg av *steder*: today-in-bergen hadde sju

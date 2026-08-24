@@ -18,6 +18,7 @@ import 'dotenv/config';
 import * as fs from 'fs';
 import * as path from 'path';
 import { supabase } from './lib/supabase.js';
+import { fetchAllRows } from './lib/utils.js';
 import { scrapers } from './scrape.js';
 import { analyzeScraperHealth, type ScraperHealthStatus } from './lib/scraper-health.js';
 import {
@@ -553,13 +554,22 @@ async function collectStaleSources(): Promise<SourceFreshness[]> {
 	try {
 		const nowUtc = new Date().toISOString();
 
-		// Get all approved events with source info
-		const { data, error } = await supabase
-			.from('events')
-			.select('source, date_start')
-			.eq('status', 'approved');
+		// Must be every approved event, not the first 1000. This function is what
+		// notices a dead scraper, and a source whose rows all fell outside the cap
+		// was absent from the map entirely — so it could never be flagged. Measured
+		// 2026-08-24: 41 of 49 sources visible, 8 with no death alarm at all.
+		const data = await fetchAllRows<{ source: string; date_start: string }>(
+			(fra, til) =>
+				supabase
+					.from('events')
+					.select('source, date_start')
+					.eq('status', 'approved')
+					.order('id', { ascending: true })
+					.range(fra, til),
+			'kildeferskhet'
+		);
 
-		if (error || !data) return [];
+		if (!data.length) return [];
 
 		// Group by source: count total and upcoming
 		const sources = new Map<string, { total: number; upcoming: number; latest: string }>();
@@ -784,7 +794,7 @@ async function collectNewsletterReport(): Promise<NewsletterReport | null> {
  * er offentlig, og 21. august 2026 laa 9 e-postadresser, et telefonnummer og et
  * titalls navn og sitater ute der.
  *
- * Den private vinner naar den finnes, saa Kjersti faar full kontekst lokalt.
+ * Den private vinner naar den finnes, saa eieren faar full kontekst lokalt.
  * Finnes ingen av dem, sier vi fra: en tom liste ser ut som «ingen paaminnelser
  * i dag», og den forskjellen skal ikke vaere usynlig.
  */

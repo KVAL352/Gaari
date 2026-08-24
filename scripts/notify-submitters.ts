@@ -27,7 +27,7 @@ type Rad = {
 
 
 /**
- * Malen er godkjent av Kjersti 2026-08-11. Endres den, skal hun se den først.
+ * Malen er godkjent av eieren 2026-08-11. Endres den, skal hun se den først.
  *
  * Det engelske avsnittet står der fordi vi ikke lagrer innsenderens språk, bare
  * e-postadressen. Macbeth-innsendingen kom fra en tysk billettside, så norsk

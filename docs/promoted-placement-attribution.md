@@ -3,7 +3,7 @@
 **Status:** Design-dokument — ingen kode skrevet, klar for gjennomgang
 **Opprettet:** 2026-04-16
 **Oppdatert:** 2026-04-16 (forenklet — all data skal være målt, ikke estimert)
-**Forfatter:** Kjersti + Claude
+**Forfatter:** prosjekteier + Claude
 **Driver:** SK Brann aktivert som første gratis-test 2026-04-16 → 2026-07-16. Før videre utrulling av promotert plassering og rapport-bygg, gjør vi en dyp kartlegging slik at fundamentet er riktig og vi unngår rework.
 
 ## Fundamentalt prinsipp
@@ -80,7 +80,7 @@ Generere troverdig månedsrapport per venue med:
 
 ### 2.4 Skip-logikk
 
-`SKIP_LOG_IPS` (env var) ekskluderer Kjerstis IP fra `placement_log` og `collection_impressions`, men **IKKE fra `venue_clicks`**. Dette er et gap.
+`SKIP_LOG_IPS` (env var) ekskluderer eierens IP fra `placement_log` og `collection_impressions`, men **IKKE fra `venue_clicks`**. Dette er et gap.
 
 ---
 
@@ -109,9 +109,9 @@ Rapporten kan i dag si: "Brann fikk 87 klikk i april." Den kan **ikke** si: "hvo
 
 | Gap | Konsekvens | Prioritet |
 |---|---|---|
-| SKIP_LOG_IPS ekskluderer ikke track-click | Kjerstis testklikk forurenser venue_clicks | Høy — må fikses |
+| SKIP_LOG_IPS ekskluderer ikke track-click | eierens testklikk forurenser venue_clicks | Høy — må fikses |
 | Sosiale captions mangler UTM | Social traffic ikke attribuerbar per venue | Lav — native insights fra Meta dekker behovet for nå |
-| Ingen admin-dashboard for lift | Må kjøre CLI-script for rapport | Lav — CLI er OK så lenge bare Kjersti er admin |
+| Ingen admin-dashboard for lift | Må kjøre CLI-script for rapport | Lav — CLI er OK så lenge bare én person er admin |
 | Ingen A/B baseline for CTR-forventning | Vi vet ikke om 4.7% CTR er bra eller dårlig | Medium — løses over tid med historiske data |
 
 ---

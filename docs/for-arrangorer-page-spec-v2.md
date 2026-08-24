@@ -6,7 +6,7 @@
 **Purpose:** B2B marketing page. Drives venue contact inquiries. Leads with network effect + AI search.
 **CTA:** "Ta kontakt" / "Get in touch" → email or contact form
 **Tone:** Data-led, novel, values-forward. No hype, no pricing on page.
-**Voice:** "Gåri" as product subject, "vi" for collective actions. Never "jeg/meg" (first person) — except "Hvem står bak" section (Kjersti's personal story).
+**Voice:** "Gåri" as product subject, "vi" for collective actions. Never "jeg/meg" (first person) — except "Hvem står bak" section (the owner's personal story).
 **Status:** Under construction — temporarily hidden from footer and sitemap. Accessible via direct URL.
 **Copy note:** Uses "utvalgte" (not "kuraterte") for collection pages throughout.
 
@@ -19,7 +19,7 @@
 2. HVORDAN FUNGERER DETTE — "Gåri henter arrangementene — automatisk" + StreamingAnimation
 3. HVORFOR DETTE FUNGERER — Network effect text + AI search pitch (54% stat + animated phone mockup + mid-page CTA)
 4. HVA FÅR JEG — Feature cards (4 blocks) + product mockup + report mockup
-5. HVEM STÅR BAK — Personal photo + bio (Kjersti's story, first person voice)
+5. HVEM STÅR BAK — Personal photo + bio (the owner's story, first person voice)
 6. HVA NÅ — Transparency callout + Early bird + CTA form + testimonial placeholder
 + Sticky mobile CTA bar (visible between hero and contact)
 ```

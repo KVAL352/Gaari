@@ -5,7 +5,7 @@
  * Ligger her og ikke i notify-organizers.ts av samme grunn som consent-doc.ts:
  * testen skal kunne bygge et brev uten å starte jobben, og uten å røre Supabase.
  *
- * Malen er godkjent av Kjersti 2026-08-13. Endres teksten, skal hun se den først.
+ * Malen er godkjent av eieren 2026-08-13. Endres teksten, skal hun se den først.
  */
 import { SITE, wrap } from './notify.js';
 import { CONSENT_RECORDS } from './consent-doc.js';

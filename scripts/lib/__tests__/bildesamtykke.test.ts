@@ -173,7 +173,7 @@ describe('ingen personopplysninger i det som committes', () => {
 	});
 
 	it('ingen kontaktnavn fra den private halvdelen dukker opp i dokumentet', () => {
-		// Går bare når private/ finnes, altså på Kjerstis maskin. I CI er det
+		// Går bare når private/ finnes, altså på eierens maskin. I CI er det
 		// ingenting å sammenligne med, og da er testen triviell.
 		const priv = loadPrivat();
 		const navn = Object.values(priv.kilder)
