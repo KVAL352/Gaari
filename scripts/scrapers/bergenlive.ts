@@ -5,7 +5,10 @@ import { makeSlug, eventExists, insertEvent, fetchHTML, parseNorwegianDate, berg
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenlive';
-const URL = 'https://www.bergenlive.no/konsertkalender';
+// Het tidligere URL, som skygget for den innebygde URL-konstruktoeren. `new
+// URL(...)` lenger nede kastet derfor alltid, og fordi kallet staar i en
+// try/catch som svelger feilen, kjoerte fallbacken til detaljsiden aldri.
+const LISTING_URL = 'https://www.bergenlive.no/konsertkalender';
 
 /**
  * Fetch the detail page and extract the start time from
@@ -23,9 +26,9 @@ async function fetchDetailTime(detailUrl: string): Promise<string | null> {
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
-	console.log(`\n[${SOURCE}] Fetching ${URL}...`);
+	console.log(`\n[${SOURCE}] Fetching ${LISTING_URL}...`);
 
-	const html = await fetchHTML(URL);
+	const html = await fetchHTML(LISTING_URL);
 	if (!html) return { found: 0, inserted: 0 };
 
 	const $ = cheerio.load(html);
@@ -83,11 +86,13 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 		// Use ticket URL if specific, otherwise fall back to detail page
 		let resolvedTicketUrl = resolveTicketUrl(venue, ticketUrl);
-		try {
-			const parsed = new URL(resolvedTicketUrl);
-			const path = parsed.pathname.replace(/\/+$/, '');
-			if (!path) resolvedTicketUrl = detailUrl; // Generic homepage — use detail page
-		} catch { /* keep as-is */ }
+		if (resolvedTicketUrl) {
+			try {
+				const parsed = new URL(resolvedTicketUrl);
+				const path = parsed.pathname.replace(/\/+$/, '');
+				if (!path) resolvedTicketUrl = detailUrl; // Generic homepage — use detail page
+			} catch { /* keep as-is */ }
+		}
 
 		const success = await insertEvent({
 			slug: makeSlug(title, dateStart),

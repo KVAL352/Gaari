@@ -75,13 +75,20 @@ async function scrapeShowPage(url: string): Promise<{ found: number; inserted: n
 	// /uploads/2026/.... We prefer the largest image so we get the hero banner, not a thumbnail.
 	const recentYear = new Date().getFullYear();
 	const yearPattern = new RegExp(`/wp-content/uploads/${recentYear - 1}/|/wp-content/uploads/${recentYear}/`);
-	let bestImg: { src: string; width: number } | null = null;
+	// Samler kandidatene og velger etterpå. Tidligere ble bestImg tilordnet inne
+	// i tilbakekallet, og da regnet TypeScript den som null utenfor — bestImg?.src
+	// fikk typen never, så feltet var i praksis usjekket.
+	const candidates: { src: string; width: number }[] = [];
 	$('img[src*="/wp-content/uploads/"]').each((_, el) => {
 		const src = $(el).attr('src');
 		if (!src || !yearPattern.test(src)) return;
 		const width = parseInt($(el).attr('width') || '0', 10);
-		if (!bestImg || width > bestImg.width) bestImg = { src, width };
+		candidates.push({ src, width });
 	});
+	const bestImg = candidates.reduce<{ src: string; width: number } | null>(
+		(best, c) => (!best || c.width > best.width ? c : best),
+		null
+	);
 	const imageUrl: string | undefined = bestImg?.src;
 
 	for (const opt of options) {

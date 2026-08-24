@@ -439,6 +439,8 @@ export async function generateOneCollection(opts: {
 			dateStr,
 			collectionTitle: title,
 			collectionUrl,
+			// TODO(2026-08-25): publicUrl er null hvis opplastingen feilet. En tom
+			// URL i leveransen er verre enn ingen leveranse — avklares med Kjersti.
 			mp4Url: publicUrl,
 			landingUrl: `https://gaari.no/r/${dateStr}/${slug}`,
 			caption,
@@ -490,7 +492,9 @@ export async function fetchActiveEvents(): Promise<GaariEvent[]> {
 	const all = (data as any).filter((e: any) => e.status !== 'cancelled') as GaariEvent[];
 	// SoMe-content kun fra kilder med skriftlig ja til bildebruk.
 	// Hot-link-policy (Fase 1+2+3) gjelder visning på gaari.no, ikke aktiv promo.
-	const promo = all.filter(e => isPromoApproved(e.source));
+	// source er valgfritt paa GaariEvent. Uten kilde kan vi ikke vite at det
+	// finnes skriftlig ja til bildebruk, saa den skal ut.
+	const promo = all.filter(e => e.source !== undefined && isPromoApproved(e.source));
 	console.log(`  Fetched ${all.length} active events, ${promo.length} promo-eligible (${PROMO_APPROVED_SOURCES.size} kilder med skriftlig ja)`);
 	return promo;
 }

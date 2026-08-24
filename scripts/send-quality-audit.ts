@@ -421,8 +421,8 @@ function renderHtml(data: AuditData): string {
 	const scraperSummary = data.scraperHealth.length > 0
 		? `<h2 style="font-size:16px;margin:24px 0 12px">Scraper-helse</h2>
 		   <p style="margin:0 0 12px;font-size:14px;color:#4D4D4D">${broken.length} nede, ${warnings.length} advarsler, ${data.scraperHealth.filter(s => s.status === 'healthy').length} friske</p>
-		   ${broken.length > 0 ? `<p style="font-size:13px;color:#991B1B"><strong>Nede:</strong> ${broken.map(s => s.scraper).join(', ')}</p>` : ''}
-		   ${warnings.length > 0 ? `<p style="font-size:13px;color:#92400E"><strong>Advarsler:</strong> ${warnings.map(s => s.scraper).join(', ')}</p>` : ''}`
+		   ${broken.length > 0 ? `<p style="font-size:13px;color:#991B1B"><strong>Nede:</strong> ${broken.map(s => s.name).join(', ')}</p>` : ''}
+		   ${warnings.length > 0 ? `<p style="font-size:13px;color:#92400E"><strong>Advarsler:</strong> ${warnings.map(s => s.name).join(', ')}</p>` : ''}`
 		: '';
 
 	// Content freshness

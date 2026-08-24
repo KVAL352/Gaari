@@ -1,13 +1,23 @@
 {
   "compilerOptions": {
     "target": "ES2022",
+    // Skriptene kjører i Node med tsx og bruker både Node-API-er (fs, path) og
+    // web-standarder Node har hatt lenge (URL, fetch, AbortSignal). Uten begge
+    // deler melder sjekken feil på kode som virker helt fint.
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
-    "outDir": "dist",
-    "rootDir": "."
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
-  "include": ["**/*.ts"]
+  // Ingen rootDir og ingen outDir: vi bygger ikke herfra, vi typesjekker.
+  // Skriptene kjøres med tsx rett fra .ts, og flere av dem importerer fra
+  // ../src/lib/, som rootDir ville avvist.
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

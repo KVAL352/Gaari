@@ -120,10 +120,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const success = await insertEvent({
 			slug: makeSlug(titleNo, datePart),
 			title_no: titleNo,
-			title_en: titleEn,
+			// Kvarteret oversetter titlene sine selv. Deres egen ordlyd går foran
+			// vår genererte. Sto tidligere som to title_en-nøkler i samme objekt,
+			// der den andre vant og kildens tittel ble kastet uten at noe sa fra.
+			title_en: titleEn ?? aiDesc.title_en,
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
-			title_en: aiDesc.title_en,
 			category,
 			date_start: new Date(event.event_start).toISOString(),
 			date_end: event.event_end ? new Date(event.event_end).toISOString() : undefined,
@@ -136,7 +138,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			source_url: sourceUrl,
 			image_url: getImageUrl(event.top_image),
 			age_group: 'students',
-			language: titleEn ? 'both' : 'no',
+			language: (titleEn ?? aiDesc.title_en) ? 'both' : 'no',
 			status: 'approved',
 		});
 
