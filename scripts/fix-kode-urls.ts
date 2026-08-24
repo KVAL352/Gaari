@@ -1,28 +1,25 @@
 /**
- * Engangsretting: KODE-kildelenker pekte til feil seksjon.
+ * Engangsretting: KODE-kildelenker pekte til en seksjon som ikke finnes.
  *
- * Scraperen bygde alle lenker som /hva-skjer/utstillinger/<slug>. Bare
- * utstillinger ligger der. Omvisninger, konserter, verksteder og foredrag
- * ligger under /hva-skjer/arrangementer/, så hver eneste av dem ga 404 når
- * noen klikket seg videre fra gaari.no til KODE.
+ * Historikken er to runder med samme feil. Først lå alt under
+ * /hva-skjer/utstillinger/, og bare utstillinger fungerte. 12. august flyttet
+ * denne fila alt annet til /hva-skjer/arrangementer/ — og den seksjonen finnes
+ * ikke i det hele tatt. Etter «rettingen» ga 61 av 68 KODE-arrangementer 404.
  *
- * Selve feilen er rettet i scrapers/kode.ts. Denne fila retter radene som
- * allerede står i basen. Uten den ville neste scrape ikke kjent dem igjen,
- * lagt dem inn på nytt under riktig adresse, og latt dedup avgjøre hvilken av
- * de to som overlevde. Halvparten av tiden ville det blitt 404-en.
+ * Begge gangene ble seksjonen gjettet ut fra navnet på arrangementstypen.
+ * KODE har den liggende som slug på eventType-dokumentet i Sanity, og den
+ * slugen er ikke utledbar: «Kurs og verksted» blir /verksted/,
+ * «Familieaktiviteter» blir /familie/ og «Arrangement» står i entall. Nå
+ * spørres det om slugen i stedet.
  *
  *   npx tsx scripts/fix-kode-urls.ts          viser hva som ville skjedd
  *   npx tsx scripts/fix-kode-urls.ts --skriv  gjør endringen
  *
- * Fasiten hentes fra KODEs eget API. Seksjonen følger av eventType, så regelen
- * er kjent og trenger ikke bekreftes rad for rad. Første utgave slo opp hver
- * enkelt adresse med et sidekall, og etter rundt hundre forespørsel begynte
- * kodebergen.no å svare 404 på alt. Da måler man sin egen strupning og ikke om
- * lenken finnes. Nå tas det en stikkprøve, og resten hviler på regelen.
- *
- * Merk at et 200-svar fra kodebergen.no ikke beviser noe uansett: siden
- * returnerer 200 for ukjente adresser i de fleste seksjoner. Bare
- * /arrangementer/ og /utstillinger/ har ekte ruting.
+ * Grunnen til at feilen overlevde en stikkprøve: kodebergen.no er Next.js med
+ * `fallback: true`. Første kall til en sti som ikke er bygd svarer 200 med et
+ * tomt skall og bygger siden i bakgrunnen. Er stien ugyldig, blir den 404 —
+ * etterpå. Stikkprøven målte altså sitt eget første besøk. Derfor ser den nå
+ * etter ekte innhold i svaret, ikke etter statuskoden.
  */
 import { supabase } from './lib/supabase.js';
 import { delay } from './lib/utils.js';
@@ -31,12 +28,17 @@ const SANITY = 'https://zv9pm4dt.apicdn.sanity.io/v2021-10-21/data/query/product
 const UA = 'Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)';
 const SKRIV = process.argv.includes('--skriv');
 
-function seksjon(eventType: string | null): string {
-	return eventType === 'Utstillinger' ? 'utstillinger' : 'arrangementer';
+function byggUrl(slug: string, typeSlug: string): string {
+	return `https://www.kodebergen.no/hva-skjer/${encodeURIComponent(typeSlug.trim())}/${encodeURIComponent(slug.trim())}`;
 }
 
-function byggUrl(slug: string, eventType: string | null): string {
-	return `https://www.kodebergen.no/hva-skjer/${seksjon(eventType)}/${encodeURIComponent(slug.trim())}`;
+/**
+ * Et 200-svar er ikke nok. Next.js svarer 200 med et tomt skall for stier den
+ * ennå ikke har bygd, og markerer det i __NEXT_DATA__. Vi krever at svaret er
+ * en ferdig bygd side på ruten for arrangementssider.
+ */
+function erEkteSide(kropp: string): boolean {
+	return kropp.includes('"page":"/hva-skjer/[type]/[slug]"') && kropp.includes('"isFallback":false');
 }
 
 /** Slugen kan inneholde mellomrom fra KODEs CMS, og ligger rå i basen. */
@@ -51,23 +53,49 @@ function slugFra(url: string): string {
 
 async function main() {
 	const query = encodeURIComponent(
-		'*[_type=="event" && __i18n_lang=="no"]{"slug": slug.current, "type": eventType->title}'
+		'*[_type=="event" && __i18n_lang=="no"]{title, startDate, "slug": slug.current, "typeSlug": eventType->slug.current}'
 	);
 	const res = await fetch(`${SANITY}?query=${query}`, { headers: { 'User-Agent': UA } });
 	if (!res.ok) {
 		console.error(`KODEs API svarte HTTP ${res.status}. Avbryter uten å røre noe.`);
 		process.exit(1);
 	}
-	const fasit = new Map<string, string | null>();
-	for (const e of (await res.json()).result as { slug: string; type: string | null }[]) {
-		if (e.slug) fasit.set(e.slug.trim(), e.type);
+	type KodeRad = { title: string | null; startDate: string | null; slug: string; typeSlug: string | null };
+	const rå = (await res.json()).result as KodeRad[];
+
+	const fasit = new Map<string, string>();
+	for (const e of rå) {
+		// Uten seksjon har vi ingen adresse. Da er det bedre å la raden stå urørt
+		// og telle den som ukjent enn å bygge en ny gjetning.
+		if (e.slug && e.typeSlug) fasit.set(e.slug.trim(), e.typeSlug);
 	}
+
+	// KODE gir samme arrangement ny slug fra tid til annen, og resirkulerer den
+	// gamle til en annen dato. Da peker vår lagrede adresse enten på ingenting
+	// eller på feil dag, og slugen er ikke lenger noe å kjenne raden igjen på.
+	// Derfor slår vi opp på dato og tittel når slugen ikke lenger finnes.
+	const påDato = new Map<string, KodeRad[]>();
+	for (const e of rå) {
+		if (!e.slug || !e.typeSlug || !e.startDate || !e.title) continue;
+		const bøtte = påDato.get(e.startDate) ?? [];
+		bøtte.push(e);
+		påDato.set(e.startDate, bøtte);
+	}
+
+	/** Entydig treff på samme dag der KODEs tittel innleder vår. Ellers ingenting. */
+	function finnPåDato(dato: string, tittel: string): KodeRad | null {
+		const kandidater = (påDato.get(dato) ?? []).filter((e) =>
+			tittel.toLowerCase().startsWith(e.title!.trim().toLowerCase())
+		);
+		return kandidater.length === 1 ? kandidater[0] : null;
+	}
+
 	console.log(`Fasit fra KODE: ${fasit.size} arrangementer.\n`);
 
 	const nå = new Date().toISOString();
 	const { data, error } = await supabase
 		.from('events')
-		.select('id, title_no, source_url')
+		.select('id, title_no, source_url, date_start')
 		.eq('source', 'kode')
 		.or(`date_end.gte.${nå},and(date_end.is.null,date_start.gte.${nå})`);
 	if (error) {
@@ -87,15 +115,29 @@ async function main() {
 		const slug = slugFra(rad.source_url);
 		const tittel = rad.title_no.replace(/\s+/g, ' ').slice(0, 45);
 
-		if (!fasit.has(slug)) {
-			// Fjernet fra KODEs program siden vi hentet det. Da vet vi ikke hvilken
-			// seksjon det hørte til, og å gjette ville bare bytte én 404 mot en annen.
+		// Datoen er den paalitelige noekkelen, ikke slugen. KODE gir arrangementer
+		// ny slug og resirkulerer den gamle til en annen dag, saa en lagret adresse
+		// kan baade forsvinne og — verre — peke paa feil arrangement uten aa gaa i
+		// stykker. Derfor slaar vi opp paa dato og tittel foerst, og faller tilbake
+		// paa slugen bare naar dagen ikke gir et entydig treff.
+		const dato = String(rad.date_start ?? '').slice(0, 10);
+		const treff = dato ? finnPåDato(dato, rad.title_no) : null;
+
+		let ny: string;
+		if (treff) {
+			ny = byggUrl(treff.slug, treff.typeSlug!);
+		} else if (fasit.has(slug)) {
+			ny = byggUrl(slug, fasit.get(slug)!);
+		} else {
+			// Fjernet fra KODEs program siden vi hentet det, eller uten seksjon i
+			// deres CMS. Da vet vi ikke hvilken seksjon det hoerer til, og aa gjette
+			// ville bare bytte én 404 mot en annen.
 			console.log(`  ukjent hos KODE   ${tittel}`);
 			ukjent++;
 			continue;
 		}
 
-		const ny = byggUrl(slug, fasit.get(slug) ?? null);
+
 		if (ny === rad.source_url) {
 			alleredeRiktig++;
 			continue;
@@ -108,12 +150,15 @@ async function main() {
 	// Den var opprinnelig satt til å avbryte alt ved første 404, og det stanset
 	// kjøringen 14. og 18. august. Årsaken viste seg å være to arrangementer som
 	// ligger i KODEs API, men ikke er publisert på nettsidene deres. De svarer
-	// 404 i begge seksjoner, så det er ikke regelen som er gal.
+	// 404 uansett seksjon, så det er ikke regelen som er gal.
 	//
-	// Et enkelt 404 sier altså ingenting om regelen. Det gjør et mønster av dem:
-	// blir vi strupet, eller er seksjonsregelen feil, faller alle prøvene
-	// samtidig. Derfor kreves flertall, og hver enkelt 404 skrives ut slik at et
-	// ekte problem fortsatt er synlig.
+	// Et enkelt avslag sier altså ingenting om regelen. Det gjør et mønster av
+	// dem: blir vi strupet, eller er seksjonsregelen feil, faller alle prøvene
+	// samtidig. Derfor kreves flertall, og hver enkelt prøve skrives ut slik at
+	// et ekte problem fortsatt er synlig.
+	//
+	// Prøven ser etter ferdig bygd innhold, ikke etter 200. Det var nettopp et
+	// 200 fra en uferdig fallback-side som slapp /arrangementer/ gjennom.
 	const PRØVER = 5;
 	const KREVES = 3;
 	if (endringer.length > 0) {
@@ -122,16 +167,22 @@ async function main() {
 		let ok = 0;
 		for (const e of utvalg) {
 			await delay(1500);
-			let svar = 0;
+			let dom = 'nettverksfeil';
 			try {
-				svar = (await fetch(e.ny, { headers: { 'User-Agent': UA } })).status;
+				const svar = await fetch(e.ny, { headers: { 'User-Agent': UA } });
+				const kropp = await svar.text();
+				if (svar.status !== 200) dom = `HTTP ${svar.status}`;
+				else if (!erEkteSide(kropp)) dom = '200 men uferdig side';
+				else {
+					dom = 'ekte side';
+					ok++;
+				}
 			} catch {
-				svar = -1;
+				/* beholder nettverksfeil */
 			}
-			if (svar === 200) ok++;
-			console.log(`  stikkprøve ${String(svar).padStart(3)}    ${e.ny}`);
+			console.log(`  stikkprøve ${dom.padEnd(20)} ${e.ny}`);
 		}
-		console.log(`  ${ok} av ${utvalg.length} stikkprøver svarte 200.\n`);
+		console.log(`  ${ok} av ${utvalg.length} stikkprøver traff en ekte side.\n`);
 		if (ok < Math.min(KREVES, utvalg.length)) {
 			console.error(
 				'For få stikkprøver gikk gjennom. Enten er seksjonsregelen gal, eller\n' +
@@ -142,21 +193,34 @@ async function main() {
 		}
 	}
 
-	for (const e of endringer) {
-		if (SKRIV) {
-			const { error: feil } = await supabase
-				.from('events')
-				.update({ source_url: e.ny })
-				.eq('id', e.id);
-			if (feil) {
-				console.log(`  FEIL              ${e.tittel}: ${feil.message}`);
-				døde++;
-				continue;
+	// To rader kan bytte adresse med hverandre naar KODE resirkulerer en slug.
+	// Da smeller unik-indeksen paa den foerste, og gaar gjennom naar den andre
+	// har sluppet adressen. Derfor én ekstra runde paa det som feilet.
+	let igjen = endringer;
+	for (let runde = 0; runde < 2 && igjen.length > 0; runde++) {
+		const feilet: typeof igjen = [];
+		for (const e of igjen) {
+			if (SKRIV) {
+				const { error: feil } = await supabase
+					.from('events')
+					.update({ source_url: e.ny })
+					.eq('id', e.id);
+				if (feil) {
+					if (runde === 0) {
+						feilet.push(e);
+					} else {
+						console.log(`  FEIL              ${e.tittel}: ${feil.message}`);
+						døde++;
+					}
+					continue;
+				}
 			}
+			console.log(`  ${SKRIV ? 'rettet' : 'ville rettet'}      ${e.tittel}`);
+			rettet++;
 		}
-		console.log(`  ${SKRIV ? 'rettet' : 'ville rettet'}      ${e.tittel}`);
-		rettet++;
+		igjen = feilet;
 	}
+
 
 	console.log(
 		`\n${SKRIV ? 'Ferdig' : 'Tørrkjøring'}. rettet=${rettet}  allerede riktig=${alleredeRiktig}` +

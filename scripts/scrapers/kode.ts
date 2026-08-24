@@ -27,20 +27,32 @@ interface KODEEvent {
 	permanent: boolean;
 	imageUrl: string | null;
 	eventType: string | null;
+	typeSlug: string | null; // slug paa eventType-dokumentet = seksjonen i URL-en
 }
 
 /**
- * KODE har to seksjoner, og lenken bommer hvis man gjetter.
- * Utstillinger ligger under /utstillinger/, alt annet under /arrangementer/.
+ * KODE bygger sine egne URL-er som /hva-skjer/<seksjon>/<arrangement>.
  *
- * Fram til 2026-08-12 sto det utstillinger for alt, og da ga hver eneste
- * omvisning, konsert og verksted 404 når noen klikket seg videre til KODE.
- * Slugen kan dessuten inneholde mellomrom fra deres eget CMS, så den må
- * kodes og ikke bare limes inn.
+ * Seksjonen er ikke utledbar fra navnet paa arrangementstypen. «Kurs og
+ * verksted» ligger under /verksted/, «Familieaktiviteter» under /familie/ og
+ * «Arrangement» under /arrangement/ i entall. Seksjonen /arrangementer/, som
+ * denne filen gjettet paa fram til 2026-08-24, finnes ikke i det hele tatt —
+ * 61 av 68 KODE-arrangementer pekte dermed paa en 404.
+ *
+ * Feilen var vanskelig aa se fordi kodebergen.no kjoerer Next.js med
+ * `fallback: true`: foerste kall til en ukjent sti svarer 200 med et tomt skall
+ * og bygger siden i bakgrunnen, saa lenkesjekken fikk gronn status foerste gang
+ * og 404 etterpaa. Sjekk aldri en slik lenke bare én gang.
+ *
+ * Sanity har seksjonen liggende som slug paa eventType-dokumentet. Vi spoer om
+ * den i stedet for aa utlede den. Mangler den, har vi ingen lenke — da hopper vi
+ * over arrangementet framfor aa sende folk til en feilside.
  */
-function buildSourceUrl(slug: string, eventType: string | null): string {
-	const seksjon = eventType === 'Utstillinger' ? 'utstillinger' : 'arrangementer';
-	return `https://www.kodebergen.no/hva-skjer/${seksjon}/${encodeURIComponent(slug.trim())}`;
+export function buildSourceUrl(eventSlug: string, typeSlug: string | null): string | null {
+	const seksjon = (typeSlug ?? '').trim();
+	const arrangement = (eventSlug ?? '').trim();
+	if (!seksjon || !arrangement) return null;
+	return `https://www.kodebergen.no/hva-skjer/${encodeURIComponent(seksjon)}/${encodeURIComponent(arrangement)}`;
 }
 
 function mapCategory(title: string, startDate: string, endDate: string): string {
@@ -72,7 +84,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		"slug": slug.current,
 		price, ticketUrl, permanent,
 		"imageUrl": headerMedia[0].asset->url,
-		"eventType": eventType->title
+		"eventType": eventType->title,
+		"typeSlug": eventType->slug.current
 	}`;
 
 	const res = await fetch(buildApiUrl(query), {
@@ -99,7 +112,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (event.permanent) continue;
 
 		const slug = event.slug || event._id;
-		const sourceUrl = buildSourceUrl(slug, event.eventType);
+		const sourceUrl = buildSourceUrl(slug, event.typeSlug);
+		if (!sourceUrl) {
+			console.log(`  - Hopper over «${event.title}»: mangler seksjon, ville gitt en doed lenke`);
+			continue;
+		}
 		if (await eventExists(sourceUrl)) continue;
 
 		const category = mapCategory(event.title, event.startDate, event.endDate);
