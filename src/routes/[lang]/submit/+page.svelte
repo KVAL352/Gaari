@@ -318,6 +318,19 @@
 			// registeret og fjerner bildet. Begge deler skjer stille.
 			// Rangeringen ligger i SOURCE_RANK i scripts/lib/dedup.ts.
 			source: 'innsending',
+			// Samtykket skrives ned, ikke bare handlet på. Avkryssingen styrte
+			// opplastingen og var deretter borte, og SoMe-svaret lå bare i
+			// varselet på e-post. docs/bildesamtykke.md skal kunne svare på
+			// «hvorfor lå det bildet der?», og til nå kunne vi bare vise at porten
+			// fantes, ikke at denne avsenderen gikk gjennom den.
+			//
+			// image_rights_confirmed er riktignok alltid true når imageUrl finnes,
+			// siden opplastingen ikke skjer uten. Verdien ligger i at raden sier
+			// det selv i stedet for at noen må utlede det fra koden slik den var
+			// den dagen. image_promo_consent bærer ny informasjon: den kan være
+			// false, og et uttrykkelig nei skal ikke se ut som et ubesvart felt.
+			image_rights_confirmed: imageUrl ? imageRightsConfirmed : null,
+			image_promo_consent: imageUrl ? imagePromoConfirmed : null,
 			age_group: 'all',
 			language: 'both',
 			status: 'pending'

@@ -64,12 +64,23 @@ gitt per innsending og ikke per arrangør, og derfor står de ikke i registeret.
 Sperrelisten står over dette. Har en arrangør sagt nei, hjelper det ikke at noen
 andre laster opp bildet gjennom skjemaet.
 
-**Svakheten, notert 2026-08-25:** avkryssingen lagres ingen steder. Den styrer om
-fila lastes opp, og så er den borte. Kommer det et krav på et innsendt bilde, kan
-vi vise at porten fantes (koden og git-historikken), men ikke at nettopp denne
-avsenderen gikk gjennom den. Varselet i Protonmail `Folders/Gaari/Submissions`
-noterer bare SoMe-samtykket, ikke rettighetsbekreftelsen. Å lagre den på raden er
-en liten endring og bør gjøres.
+**Hvor beviset ligger.** Fram til 2026-08-25 lå det ingen steder: avkryssingen
+styrte om fila ble lastet opp, og så var den borte. Vi kunne vise at porten
+fantes, gjennom koden og git-historikken, men ikke at nettopp denne avsenderen
+gikk gjennom den. Nå skrives svaret på raden:
+
+| Kolonne i `events` | Hva den sier |
+|---|---|
+| `image_rights_confirmed` | Avsenderen bekreftet å ha rettighetene. NULL = ikke en innsending. |
+| `image_promo_consent` | Svaret på om bildet kan brukes på Facebook og Instagram. FALSE er et uttrykkelig nei, ikke et ubesvart felt. |
+| `submitter_email` | Hvem som sendte inn. |
+| `created_at` | Når. |
+
+Ingen av de to samtykkekolonnene er lesbare for anon; de står med vilje utenfor
+kolonnegrantet i `20260821150000_rls_lock_personal_data.sql`.
+
+Rader som ble lagt inn før 2026-08-25 har NULL i begge, og for dem gjelder
+fortsatt den svakere begrunnelsen over.
 
 ## Dokumentert samtykke (22)
 
@@ -78,7 +89,6 @@ likegyldig; det som teller er at samtykket kan vises fram.
 
 | Kilde | Arrangør | Dato | Omfang | Bevis |
 |---|---|---|---|---|
-| `bergenkjott` | Bergen Kjøtt | 2026-08-24 | Visning + SoMe | Avtaler |
 | `fortellerstraedet` | Fortellerstrædet | 2026-08-15 | Visning + SoMe | Avtaler |
 | `highvoltage` | High Voltage Rockfest | 2026-08-14 | Visning + SoMe | Avtaler |
 | `julivillaveien` | Jul i Villaveien | 2026-08-12 | Visning + SoMe | Avtaler |
@@ -86,6 +96,7 @@ likegyldig; det som teller er at samtykket kan vises fram.
 | `studiovertikal` | Studio Vertikal | 2026-08-06 | Visning + SoMe | Avtaler |
 | `bergenpride` | Bergen Pride / Regnbuedagene | 2026-06-01 | Visning | Avtaler |
 | `kode` | KODE | 2026-05-11 | Visning + SoMe | Avtaler |
+| `bergenkjott` | Bergen Kjøtt | 2026-05-08 | Visning + SoMe | Avtaler |
 | `visningsromusf` | Visningsrommet USF | 2026-05-07 | Visning + SoMe | Avtaler |
 | `dnt` | DNT Bergen og Hordaland | 2026-05-06 | Visning + SoMe | Avtaler |
 | `loddefjord` | Hva skjer i Loddefjord | 2026-04-23 | Visning + SoMe | Avtaler |
