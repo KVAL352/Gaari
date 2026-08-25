@@ -13,13 +13,14 @@
 
 import * as cheerio from 'cheerio';
 import { supabase } from './lib/supabase.js';
-import { fetchHTML, delay } from './lib/utils.js';
+import { fetchHTML, delay, isImageAllowed, verifyHotlinkable } from './lib/utils.js';
 
 interface EventRow {
 	id: string;
 	title_no: string;
 	source: string | null;
 	source_url: string;
+	venue_name: string | null;
 }
 
 // Mirrors the logic in scripts/scrapers/bergenbibliotek.ts:77-80 (Plone twitter:image is stable).
@@ -67,7 +68,7 @@ async function main() {
 	const nowIso = new Date().toISOString();
 	let query = supabase
 		.from('events')
-		.select('id, title_no, source, source_url')
+		.select('id, title_no, source, source_url, venue_name')
 		.is('image_url', null)
 		.gte('date_start', nowIso)
 		.not('source_url', 'is', null)
@@ -89,7 +90,7 @@ async function main() {
 	console.log(`Found ${data.length} events to backfill${sourceFilter ? ` (source=${sourceFilter})` : ''}${dryRun ? ' [dry-run]' : ''}\n`);
 
 	const perHostDelay: Record<string, number> = { bergenbibliotek: 3000 };
-	let updated = 0, noImage = 0, failed = 0;
+	let updated = 0, noImage = 0, failed = 0, blocked = 0;
 
 	for (const row of data as EventRow[]) {
 		const source = row.source ?? '';
@@ -107,6 +108,29 @@ async function main() {
 		if (!imageUrl) {
 			console.log(`  – ${row.title_no}: no og:image in source`);
 			noImage++;
+			await delay(pause);
+			continue;
+		}
+
+		// Samtykkeporten. Denne jobben skrev tidligere image_url rett inn uten
+		// aa spoerre om vi hadde lov, mens insertEvent() har spurt hele tiden.
+		// isImageAllowed() svarer nei som standard, saa forskjellen var ikke
+		// teoretisk: 171 av 490 rader uten bilde 25. august kommer fra kilder
+		// uten visningssamtykke. De ville blitt hentet inn her og nullet ut
+		// igjen av enforce-image-blocks.ts — med hot-linking uten grunnlag i
+		// mellomtiden. Se docs/bildesamtykke.md.
+		if (!isImageAllowed(row.source ?? '', row.source_url, row.title_no, row.venue_name ?? undefined, imageUrl)) {
+			console.log(`  ⊘ ${row.title_no}: ingen visningssamtykke for «${row.source}»`);
+			blocked++;
+			await delay(pause);
+			continue;
+		}
+
+		// Et bilde som svarer 403 paa hot-link er verre enn ingen bilde:
+		// arrangementskortet staar med et knust ikon.
+		if (!(await verifyHotlinkable(imageUrl))) {
+			console.log(`  ⊘ ${row.title_no}: bildet lar seg ikke hot-linke`);
+			blocked++;
 			await delay(pause);
 			continue;
 		}
@@ -131,7 +155,7 @@ async function main() {
 		await delay(pause);
 	}
 
-	console.log(`\nDone — ${updated} updated, ${noImage} had no image in source, ${failed} failed`);
+	console.log(`\nDone — ${updated} updated, ${noImage} had no image in source, ${blocked} blocked by consent/hotlink, ${failed} failed`);
 }
 
 main().catch(err => {
