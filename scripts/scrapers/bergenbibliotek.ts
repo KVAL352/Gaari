@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio';
 // cheerio 1.x eksporterer ikke lenger Element selv; den bor i domhandler.
 import type { Element } from 'domhandler';
 import { makeSlug, eventExists, getEventImageStatus, updateEventImage, updateEventCredit, insertEvent, fetchHTML, delay, bergenOffset, extractImageCredit } from '../lib/utils.js';
-import { generateDescription } from '../lib/ai-descriptions.js';
+import { generateDescription, hentFakta } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenbibliotek';
 const BASE_URL = 'https://bergenbibliotek.no/arrangement';
@@ -236,7 +236,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const imageUrl = detail.imageUrl || listingImage;
 		const imageCredit = detail.imageCredit;
 
-		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, sourceText: detail.sourceText });
+		// To steg. hentFakta() ser bibliotekets omtale og gir bare atomaere
+		// verdier tilbake; skrivesteget ser aldri prosaen. Se
+		// docs/beskrivelser-og-opphavsrett.md.
+		const fakta = detail.sourceText ? await hentFakta(detail.sourceText) : undefined;
+		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, facts: fakta });
 
 		const success = await insertEvent({
 			slug: makeSlug(title, parsed.date),

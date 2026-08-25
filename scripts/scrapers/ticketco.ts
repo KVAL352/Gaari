@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
-import { generateDescription } from '../lib/ai-descriptions.js';
+import { generateDescription, hentFakta } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'ticketco';
 
@@ -227,13 +227,18 @@ async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inse
 		// Teksten skal aldri gjengis. Prompten sier fra, og
 		// harVerbatimOverlapp() i ai-descriptions.ts forkaster svar som deler
 		// aatte ord paa rad med kilden.
+		// To steg, ikke ett. hentFakta() ser arrangoerens omtale og leverer bare
+		// atomaere verdier — «Chloé Zhao», «19.00», «0-2 aar». Skrivesteget
+		// under ser aldri prosaen, saa det finnes ingen formulering aa
+		// gjenbruke. Se docs/beskrivelser-og-opphavsrett.md.
+		const fakta = description ? await hentFakta(description) : undefined;
 		const aiDesc = await generateDescription({
 			title: event.name,
 			venue: venueName,
 			category,
 			date: new Date(event.startDate),
 			bydel,
-			sourceText: description || undefined,
+			facts: fakta,
 		});
 
 		const success = await insertEvent({
