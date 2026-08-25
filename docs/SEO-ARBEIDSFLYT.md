@@ -60,6 +60,38 @@ Alle 1 242 tester passerer etter endringene, og `npm run check` gir null feil.
 
 ---
 
+## Fase 0b — beskrivelsene, 25. august kveld
+
+Beskrivelsene lå på 115 tegn. Det var ikke prompten som var dårlig — det er
+taket for hva tittel, sted, kategori og dato ærlig bærer. Alt lengre ble
+oppdiktet, og et første forsøk beviste det.
+
+Arrangørens egen omtale lå på kildesida hele tiden. **64 scrapere henter den
+ut. Null av dem sendte den videre.** `ticketco.ts` hentet 500 tegn, brukte
+dem til å gjette kategori, og kastet dem.
+
+Løsningen går i to steg, etter Kjerstis forslag:
+
+1. `hentFakta()` ser kildesida, leverer bare atomære verdier
+2. `generateDescription()` skriver fra faktaene og ser aldri prosaen
+
+`erAtomaertFaktum()` håndhever formen i kode. Får en formulering ikke plass
+i et faktafelt, kan den ikke bæres videre. Se
+`docs/beskrivelser-og-opphavsrett.md` for hele begrunnelsen, inkludert de
+fire punktene som fortsatt er usikre.
+
+Målt: **104 → 178 tegn**, med regissør, medvirkende, varighet, aldersgruppe
+og bekreftet klokkeslett.
+
+**Batching ble vurdert og forkastet.** Grunnen den så nødvendig ut — 20 kall
+i døgnet — forsvant da betalingen ble slått på. Med 30–115 nye arrangementer
+per dag ville den spart 3–4 minutter av en jobb på 16–22, og deadline treffes
+2 av 102 kjøringer. Verre: batching krever at genereringen flyttes vekk fra
+scrape-øyeblikket, og da er kildeteksten borte. De to trekker mot hverandre,
+og kildeteksten er den vi har målt gevinsten av.
+
+---
+
 ## Fase 1 — datagrunnlaget (høyest verdi)
 
 Dette er veien inn i Googles arrangementsboks. Schema-generatoren i
@@ -71,10 +103,11 @@ Målt på 1 979 kommende arrangementer 25. august:
 
 | Mangler | Antall | Følge |
 |---|---:|---|
-| `image_url` | 410 (21 %) | Svakest mulige kandidat til rich result |
+| `image_url` | 369 (19 %) | 121 hentet inn 25. aug. Av resten mangler 171 samtykke, 198 har ikke bilde i kilden |
 | `price` | 1 128 (57 %) | `offers.price` utelates |
 | ~~`title_en`~~ | ~~1 720 (87 %)~~ **GJORT** | Se under |
 | `ticket_url` | 246 (12 %) | Ingen `offers.url` |
+| ~~kategori~~ | ~~59 konserter som `culture`~~ **GJORT** | Madam Felle, Hulen og kirkeautunnale. Ole Bull Scene er blandet og ble ikke rørt |
 
 1. ~~**Kjør `backfill-title-en.ts` til køen er tom.**~~ **Gjort 25. august.**
    Dekningen gikk fra 13 % til **88 %** — 1 460 titler oversatt over to
