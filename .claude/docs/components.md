@@ -18,6 +18,11 @@
 - `StatusBadge.svelte` — Today, Trolig gratis, Sold Out, Last Tickets, Cancelled, Studentpris
 - `EmptyState.svelte`, `BackToTop.svelte`, `LanguageSwitch.svelte`, `ImagePlaceholder.svelte`
 
+## Utgående lenker (`outboundRel()` i `src/lib/utils.ts`)
+Billettlenkene på arrangementssiden får `rel` fra `outboundRel()`, ikke fra en fast streng. `noopener` står alltid. `noreferrer` faller bort kun for verter i `REFERRER_ALLOWED_HOSTS`, som er en unntaksliste: et navn kommer inn først når mottakeren selv har bedt om å se at klikket kom fra gaari.no. Bookibud spurte 2026-08-25 fordi de har en egen telling som trenger Referer-toppen.
+
+`Referrer-Policy` i `hooks.server.ts` er `strict-origin-when-cross-origin`, så det som faktisk sendes er `https://gaari.no/` og ikke hvilken arrangementsside den besøkende kom fra. Låst av seks tester i `src/lib/__tests__/utils.test.ts`, inkludert at `notbookibud.com` ikke slipper gjennom.
+
 ## CSS theming (`src/app.css`)
 Funkis design system. Custom properties: `--color-primary` (#C82D2D), `--color-text-primary` (#141414), `--color-text-secondary` (#4D4D4D), `--color-text-muted` (#595959). All WCAG AA.
 Typography: Barlow Condensed (display), Inter (body). Self-hosted woff2 in `static/fonts/`.
