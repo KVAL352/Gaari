@@ -1,6 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
-import { getCollection, getHreflangSlugs } from '$lib/collections';
+import { getCollection, getHreflangSlugs, getSeasonYear } from '$lib/collections';
 import { getOsloNow } from '$lib/event-filters';
 import { seedEvents } from '$lib/data/seed-events';
 import { getActivePromotions, pickPromotedVenues, logImpression, logCollectionImpression } from '$lib/server/promotions';
@@ -198,6 +198,10 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			quickAnswer: collection.quickAnswer,
 			newsletterHeading: collection.newsletterHeading,
 			seasonal: collection.seasonal,
+			// Regnes paa serveren, ikke i komponenten. new Date() i +page.svelte
+			// gir ett svar under SSR og et annet i nettleseren, og ISR-svaret
+			// maa vaere det samme hver gang for samme dag.
+			seasonYear: getSeasonYear(collection, now),
 			offSeasonHint: collection.offSeasonHint,
 			hubCollections: collection.hubCollections
 		},

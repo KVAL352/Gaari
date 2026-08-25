@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCollection, getAllCollectionSlugs, getFooterCollections } from '../collections';
+import { getCollection, getAllCollectionSlugs, getFooterCollections, getSeasonYear } from '../collections';
 import type { GaariEvent } from '../types';
 
 function makeEvent(overrides: Partial<GaariEvent> = {}): GaariEvent {
@@ -1106,3 +1106,69 @@ describe('festival collections EN counterparts', () => {
 		});
 	}
 });
+
+describe('getSeasonYear', () => {
+	const oslo = (iso: string) => new Date(iso);
+
+	it('lar aarstallet staa naar sesongen ikke er over', () => {
+		const c = { seasonal: true, seasonEndMonth: 6 };
+		expect(getSeasonYear(c, oslo('2026-03-01T12:00:00Z'))).toBe(2026);
+	});
+
+	it('lar aarstallet staa i selve sesongmaaneden', () => {
+		// Bergenfest gaar 10.-13. juni. Hele juni skal fortsatt vise 2026.
+		const c = { seasonal: true, seasonEndMonth: 6 };
+		expect(getSeasonYear(c, oslo('2026-06-30T12:00:00Z'))).toBe(2026);
+	});
+
+	it('ruller til neste aar naar sesongen er over', () => {
+		// Dette er feilen: 25. august 2026 het /no/bergenfest «Program
+		// 10.-13. juni 2026» — om en festival som var ferdig, med null
+		// arrangementer paa sida.
+		const c = { seasonal: true, seasonEndMonth: 6 };
+		expect(getSeasonYear(c, oslo('2026-08-25T12:00:00Z'))).toBe(2027);
+	});
+
+	it('ruller ikke for desember-sesonger foer aaret er omme', () => {
+		const c = { seasonal: true, seasonEndMonth: 12 };
+		expect(getSeasonYear(c, oslo('2026-12-24T12:00:00Z'))).toBe(2026);
+	});
+
+	it('lar samlinger uten seasonEndMonth staa uroert', () => {
+		expect(getSeasonYear({ seasonal: true }, oslo('2026-08-25T12:00:00Z'))).toBe(2026);
+	});
+
+	it('roerer ikke samlinger som ikke er sesongbaserte', () => {
+		const c = { seasonal: false, seasonEndMonth: 1 };
+		expect(getSeasonYear(c, oslo('2026-08-25T12:00:00Z'))).toBe(2026);
+	});
+
+	it('alle sesongsamlinger har seasonEndMonth', () => {
+		// Uten den ruller ikke aarstallet, og sida selger en festival som
+		// alt har vaert. hostferie er unntatt fra EN-paritet, ikke fra dette.
+		for (const slug of getAllCollectionSlugs()) {
+			const c = getCollection(slug);
+			if (!c?.seasonal) continue;
+			expect(c.seasonEndMonth, `${slug} mangler seasonEndMonth`).toBeGreaterThanOrEqual(1);
+			expect(c.seasonEndMonth, `${slug} har ugyldig seasonEndMonth`).toBeLessThanOrEqual(12);
+		}
+	});
+});
+
+describe('sesongsamlinger hardkoder ikke aarstall', () => {
+	// Aarstallet legges paa automatisk i +page.svelte. Staar det ogsaa i
+	// tittelen, blir det doblet. 25. august 2026 var fire sider ute i drift
+	// med «Nattjazz 2026 — Program og billetter 2026 — Gaari» og
+	// «Fadderuke i Bergen 2026 2026 — Gaari».
+	it('title og description er fri for aarstall', () => {
+		for (const slug of getAllCollectionSlugs()) {
+			const c = getCollection(slug);
+			if (!c?.seasonal) continue;
+			for (const lang of ['no', 'en'] as const) {
+				expect(c.title[lang], `${slug}.title.${lang} hardkoder aarstall`).not.toMatch(/20\d\d/);
+				expect(c.description[lang], `${slug}.description.${lang} hardkoder aarstall`).not.toMatch(/20\d\d/);
+			}
+		}
+	});
+});
+

@@ -107,6 +107,11 @@ export interface Collection {
 	footer?: { langs: Lang[]; order: number };
 	newsletterHeading?: Record<Lang, string>;
 	seasonal?: boolean;
+	/**
+	 * Måneden (1–12) sesongen normalt er over. Etter den ruller årstallet i
+	 * tittelen til neste år. Se getSeasonYear().
+	 */
+	seasonEndMonth?: number;
 	offSeasonHint?: Record<Lang, string>;
 	maxPerVenue?: number;
 	/** Hub layout: shows linked sub-collections grouped by month */
@@ -1700,6 +1705,7 @@ const collections: Collection[] = [
 		id: '17mai',
 		slug: '17-mai',
 		seasonal: true,
+		seasonEndMonth: 5,
 		title: {
 			no: '17. mai i Bergen',
 			en: '17th of May in Bergen'
@@ -1762,6 +1768,7 @@ const collections: Collection[] = [
 		id: 'julemarked',
 		slug: 'julemarked',
 		seasonal: true,
+		seasonEndMonth: 12,
 		title: {
 			no: 'Julemarked og jul i Bergen',
 			en: 'Christmas Markets and Christmas in Bergen'
@@ -1820,13 +1827,14 @@ const collections: Collection[] = [
 		id: 'paske',
 		slug: 'paske',
 		seasonal: true,
+		seasonEndMonth: 4,
 		title: {
 			no: 'Påske i Bergen',
 			en: 'Easter in Bergen'
 		},
 		description: {
-			no: 'Påske i Bergen 2026: konserter, gudstjenester, familieaktiviteter og utstillinger. Komplett oversikt, oppdatert daglig.',
-			en: 'Easter in Bergen 2026: concerts, services, family activities and exhibitions. Complete guide, updated daily.'
+			no: 'Påske i Bergen: konserter, gudstjenester, familieaktiviteter og utstillinger. Komplett oversikt, oppdatert daglig.',
+			en: 'Easter in Bergen: concerts, services, family activities and exhibitions. Complete guide, updated daily.'
 		},
 		ogSubtitle: {
 			no: 'Konserter, aktiviteter og påskeferie',
@@ -1878,6 +1886,7 @@ const collections: Collection[] = [
 		id: 'sankthans',
 		slug: 'sankthans',
 		seasonal: true,
+		seasonEndMonth: 6,
 		title: {
 			no: 'Sankthans i Bergen',
 			en: 'Midsummer in Bergen'
@@ -1936,6 +1945,7 @@ const collections: Collection[] = [
 		id: 'nyttarsaften',
 		slug: 'nyttarsaften',
 		seasonal: true,
+		seasonEndMonth: 12,
 		title: {
 			no: 'Nyttårsaften i Bergen',
 			en: "New Year's Eve in Bergen"
@@ -1994,6 +2004,7 @@ const collections: Collection[] = [
 		id: 'vinterferie',
 		slug: 'vinterferie',
 		seasonal: true,
+		seasonEndMonth: 3,
 		title: {
 			no: 'Vinterferie i Bergen',
 			en: 'Winter Break in Bergen'
@@ -2052,6 +2063,7 @@ const collections: Collection[] = [
 		id: 'hostferie',
 		slug: 'hostferie',
 		seasonal: true,
+		seasonEndMonth: 10,
 		title: {
 			no: 'Høstferie i Bergen',
 			en: 'Autumn Break in Bergen'
@@ -2113,6 +2125,7 @@ const collections: Collection[] = [
 		id: '17mai-en',
 		slug: '17th-of-may-bergen',
 		seasonal: true,
+		seasonEndMonth: 5,
 		title: {
 			no: '17. mai i Bergen',
 			en: '17th of May in Bergen'
@@ -2171,6 +2184,7 @@ const collections: Collection[] = [
 		id: 'julemarked-en',
 		slug: 'christmas-bergen',
 		seasonal: true,
+		seasonEndMonth: 12,
 		title: {
 			no: 'Jul i Bergen',
 			en: 'Christmas in Bergen'
@@ -2229,13 +2243,14 @@ const collections: Collection[] = [
 		id: 'paske-en',
 		slug: 'easter-bergen',
 		seasonal: true,
+		seasonEndMonth: 4,
 		title: {
 			no: 'Påske i Bergen',
 			en: 'Easter in Bergen'
 		},
 		description: {
-			no: 'Påske i Bergen 2026: konserter, gudstjenester, familieaktiviteter og utstillinger. Komplett oversikt, oppdatert daglig.',
-			en: 'Easter in Bergen 2026: concerts, services, family activities and exhibitions. Complete guide, updated daily.'
+			no: 'Påske i Bergen: konserter, gudstjenester, familieaktiviteter og utstillinger. Komplett oversikt, oppdatert daglig.',
+			en: 'Easter in Bergen: concerts, services, family activities and exhibitions. Complete guide, updated daily.'
 		},
 		ogSubtitle: {
 			no: 'Konserter og påskeaktiviteter',
@@ -2287,6 +2302,7 @@ const collections: Collection[] = [
 		id: 'sankthans-en',
 		slug: 'midsummer-bergen',
 		seasonal: true,
+		seasonEndMonth: 6,
 		title: {
 			no: 'Sankthans i Bergen',
 			en: 'Midsummer in Bergen'
@@ -2345,6 +2361,7 @@ const collections: Collection[] = [
 		id: 'nyttarsaften-en',
 		slug: 'new-years-eve-bergen',
 		seasonal: true,
+		seasonEndMonth: 12,
 		title: {
 			no: 'Nyttårsaften i Bergen',
 			en: "New Year's Eve in Bergen"
@@ -2403,6 +2420,7 @@ const collections: Collection[] = [
 		id: 'vinterferie-en',
 		slug: 'winter-break-bergen',
 		seasonal: true,
+		seasonEndMonth: 3,
 		title: {
 			no: 'Vinterferie i Bergen',
 			en: 'Winter Break in Bergen'
@@ -2462,6 +2480,7 @@ const collections: Collection[] = [
 		id: 'festspillene',
 		slug: 'festspillene',
 		seasonal: true,
+		seasonEndMonth: 6,
 		title: {
 			no: 'Festspillene i Bergen',
 			en: 'Bergen International Festival'
@@ -2522,6 +2541,7 @@ const collections: Collection[] = [
 		id: 'festspillene-en',
 		slug: 'bergen-international-festival',
 		seasonal: true,
+		seasonEndMonth: 6,
 		title: {
 			no: 'Festspillene i Bergen',
 			en: 'Bergen International Festival'
@@ -2582,10 +2602,11 @@ const collections: Collection[] = [
 		id: 'bergenfest',
 		slug: 'bergenfest',
 		seasonal: true,
+		seasonEndMonth: 6,
 		maxPerVenue: 50,
 		title: {
-			no: 'Bergenfest — Program 10.–13. juni',
-			en: 'Bergenfest — Lineup 10–13 June'
+			no: 'Bergenfest — Program og billetter',
+			en: 'Bergenfest — Line-up and Tickets'
 		},
 		description: {
 			no: '10.–13. juni på Bergenhus Festning. Lewis Capaldi, The Hives, Of Monsters and Men og flere — program og billettlenker.',
@@ -2600,8 +2621,8 @@ const collections: Collection[] = [
 		footer: { langs: ['no'], order: 13 },
 		newsletterHeading: { no: 'Bergenfest — årets artister', en: 'Bergenfest — this year\'s lineup' },
 		quickAnswer: {
-			no: 'Bergenfest 2026 arrangeres 10.–13. juni på Koengen ved Bergenhus Festning i Bergen sentrum. Headlinere inkluderer Lewis Capaldi, The Hives, Nothing But Thieves, Of Monsters and Men, Kings of Convenience og Dermot Kennedy. Festivalen kombinerer pop, rock, indie og hip-hop med utsikt over Vågen og Bryggen.',
-			en: 'Bergenfest 2026 takes place 10–13 June at Koengen by Bergenhus Fortress in central Bergen. Headliners include Lewis Capaldi, The Hives, Nothing But Thieves, Of Monsters and Men, Kings of Convenience and Dermot Kennedy. The festival combines pop, rock, indie and hip-hop with views over the harbour (Vågen) and Bryggen.'
+			no: 'Bergenfest arrangeres hvert år i juni på Koengen ved Bergenhus Festning i Bergen sentrum — fire dager med pop, rock, indie og hip-hop, med utsikt over Vågen og Bryggen. Programmet slippes gradvis fra vinteren, og Gåri viser hele programmet med billettlenker så snart artistene er klare.',
+			en: 'Bergenfest takes place every June at Koengen by Bergenhus Fortress in central Bergen — four days of pop, rock, indie and hip-hop with views over the harbour (Vågen) and Bryggen. The line-up is released gradually from winter, and Gåri shows the full programme with ticket links as soon as artists are confirmed.'
 		},
 		editorial: {
 			no: [
@@ -2617,7 +2638,7 @@ const collections: Collection[] = [
 		},
 		faq: {
 			no: [
-				{ q: 'Når er Bergenfest 2026?', a: 'Bergenfest 2026 arrangeres onsdag 10. til lørdag 13. juni på Koengen ved Bergenhus Festning. Festivalen holdes hvert år i juni.' },
+				{ q: 'Når er Bergenfest?', a: 'Bergenfest arrangeres hvert år i juni på Koengen ved Bergenhus Festning. Datoene for neste utgave annonseres som regel i løpet av vinteren.' },
 				{ q: 'Hvor holdes Bergenfest?', a: 'Koengen ved Bergenhus Festning i Bergen sentrum. Nær Bryggen og lett tilgjengelig med buss og bybane.' },
 				{ q: 'Hvordan kjøper jeg billetter til Bergenfest?', a: 'Billetter selges via bergenfest.no. Du kan kjøpe dagspass eller festivalpass for alle fire dager.' },
 				{ q: 'Er det aldersgrense på Bergenfest?', a: 'Festivalen er åpen for alle aldre, men det kan være 18-årsgrense på visse soner etter kl. 23.' },
@@ -2625,7 +2646,7 @@ const collections: Collection[] = [
 				{ q: 'Hva er Koengen?', a: 'Koengen er utendørsarenaen ved Bergenhus Festning i Bergen sentrum, brukt til Norges største konserter og festivaler. Bergenfest bruker Koengen som sin hovedscene med utsikt over Vågen og Bryggen.' }
 			],
 			en: [
-				{ q: 'When is Bergenfest 2026?', a: 'Bergenfest 2026 takes place Wednesday 10 to Saturday 13 June at Koengen by Bergenhus Fortress. The festival runs each year in June.' },
+				{ q: 'When is Bergenfest?', a: 'Bergenfest takes place every June at Koengen by Bergenhus Fortress. Dates for the next edition are usually announced during the winter.' },
 				{ q: 'Where is Bergenfest held?', a: 'At Koengen, outside Bergenhus Fortress in central Bergen. Near Bryggen and easily accessible by bus and light rail.' },
 				{ q: 'How do I buy Bergenfest tickets?', a: 'Tickets are sold through bergenfest.no. You can buy single-day passes or full festival passes for all four days.' },
 				{ q: 'Is there an age limit at Bergenfest?', a: 'The festival is open to all ages, but certain zones may have 18+ restrictions after 23:00.' },
@@ -2643,9 +2664,10 @@ const collections: Collection[] = [
 		id: 'bergenfest-en',
 		slug: 'bergenfest-bergen',
 		seasonal: true,
+		seasonEndMonth: 6,
 		maxPerVenue: 50,
 		title: {
-			no: 'Bergenfest — Program 10.–13. juni',
+			no: 'Bergenfest — Program og billetter',
 			en: 'Bergenfest Bergen — Lineup 10–13 June'
 		},
 		description: {
@@ -2661,8 +2683,8 @@ const collections: Collection[] = [
 		footer: { langs: ['en'], order: 13 },
 		newsletterHeading: { no: 'Bergenfest — årets artister', en: 'Bergenfest — this year\'s lineup' },
 		quickAnswer: {
-			no: 'Bergenfest 2026 arrangeres 10.–13. juni på Koengen ved Bergenhus Festning i Bergen sentrum.',
-			en: 'Bergenfest 2026 takes place 10–13 June at Koengen by Bergenhus Fortress in central Bergen. Headliners include Lewis Capaldi, The Hives, Nothing But Thieves, Of Monsters and Men, Kings of Convenience and Dermot Kennedy. The festival combines pop, rock, indie and hip-hop with views over the harbour (Vågen) and Bryggen.'
+			no: 'Bergenfest arrangeres hvert år i juni på Koengen ved Bergenhus Festning i Bergen sentrum.',
+			en: 'Bergenfest takes place every June at Koengen by Bergenhus Fortress in central Bergen — four days of pop, rock, indie and hip-hop with views over the harbour (Vågen) and Bryggen. The line-up is released gradually from winter, and Gåri shows the full programme with ticket links as soon as artists are confirmed.'
 		},
 		editorial: {
 			no: [
@@ -2678,7 +2700,7 @@ const collections: Collection[] = [
 		},
 		faq: {
 			no: [
-				{ q: 'Når er Bergenfest 2026?', a: 'Bergenfest 2026 arrangeres 10.–13. juni på Koengen ved Bergenhus Festning.' },
+				{ q: 'Når er Bergenfest?', a: 'Bergenfest arrangeres hvert år i juni på Koengen ved Bergenhus Festning.' },
 				{ q: 'Hvor holdes Bergenfest?', a: 'Koengen ved Bergenhus Festning i Bergen sentrum.' },
 				{ q: 'Hvordan kjøper jeg billetter til Bergenfest?', a: 'Via bergenfest.no. Dagspass eller festivalpass for alle dager.' },
 				{ q: 'Er det aldersgrense på Bergenfest?', a: 'Åpen for alle aldre, men 18-årsgrense på visse soner etter kl. 23.' },
@@ -2686,7 +2708,7 @@ const collections: Collection[] = [
 				{ q: 'Hvem har opptrådt på Bergenfest?', a: 'Bergenfest har hatt internasjonale artister som Beyoncé, Bob Dylan, Elton John og Kylie Minogue. Festivalen er kjent for sin blanding av globale stjerner og spennende oppdagelser. Sjekk bergenfest.no for årets program.' }
 			],
 			en: [
-				{ q: 'When is Bergenfest 2026?', a: 'Bergenfest 2026 takes place 10–13 June at Koengen by Bergenhus Fortress. Exact dates vary by year — check this page for the updated lineup.' },
+				{ q: 'When is Bergenfest?', a: 'Bergenfest takes place every June at Koengen by Bergenhus Fortress. Exact dates vary by year — check this page for the updated line-up.' },
 				{ q: 'Where is Bergenfest held?', a: 'At Koengen, outside Bergenhus Fortress in central Bergen. Near Bryggen and easily accessible by bus and light rail.' },
 				{ q: 'How do I buy Bergenfest tickets?', a: 'Tickets are sold through bergenfest.no. You can buy single-day passes or full festival passes for all four days.' },
 				{ q: 'Is there an age limit at Bergenfest?', a: 'The festival is open to all ages, but certain zones may have 18+ restrictions after 23:00.' },
@@ -2704,6 +2726,7 @@ const collections: Collection[] = [
 		id: 'beyond-the-gates',
 		slug: 'beyond-the-gates',
 		seasonal: true,
+		seasonEndMonth: 8,
 		title: {
 			no: 'Beyond the Gates',
 			en: 'Beyond the Gates Bergen'
@@ -2764,6 +2787,7 @@ const collections: Collection[] = [
 		id: 'beyond-the-gates-en',
 		slug: 'beyond-the-gates-bergen',
 		seasonal: true,
+		seasonEndMonth: 8,
 		title: {
 			no: 'Beyond the Gates',
 			en: 'Beyond the Gates Bergen'
@@ -2824,9 +2848,10 @@ const collections: Collection[] = [
 		id: 'nattjazz',
 		slug: 'nattjazz',
 		seasonal: true,
+		seasonEndMonth: 6,
 		title: {
-			no: 'Nattjazz 2026 — Program og billetter',
-			en: 'Nattjazz Bergen 2026 — Programme and Tickets'
+			no: 'Nattjazz — Program og billetter',
+			en: 'Nattjazz Bergen — Programme and Tickets'
 		},
 		description: {
 			no: 'Nattjazz-programmet — jazz, improvisasjon og verdensmusikk i Bergen. Artister, billetter og info.',
@@ -2884,6 +2909,7 @@ const collections: Collection[] = [
 		id: 'nattjazz-en',
 		slug: 'nattjazz-bergen',
 		seasonal: true,
+		seasonEndMonth: 6,
 		title: {
 			no: 'Nattjazz Bergen',
 			en: 'Nattjazz Bergen'
@@ -2945,9 +2971,10 @@ const collections: Collection[] = [
 		id: 'bergen-pride',
 		slug: 'bergen-pride',
 		seasonal: true,
+		seasonEndMonth: 6,
 		title: {
-			no: 'Bergen Pride 2026 — Regnbuedagene',
-			en: 'Bergen Pride 2026 — Programme and Events'
+			no: 'Bergen Pride — Regnbuedagene',
+			en: 'Bergen Pride — Programme and Events'
 		},
 		description: {
 			no: 'Bergen Pride-programmet — parader, konserter, fester og kulturarrangementer under Regnbuedagene i Bergen.',
@@ -3005,6 +3032,7 @@ const collections: Collection[] = [
 		id: 'bergen-pride-en',
 		slug: 'bergen-pride-festival',
 		seasonal: true,
+		seasonEndMonth: 6,
 		title: {
 			no: 'Bergen Pride Festival',
 			en: 'Bergen Pride Festival'
@@ -3066,9 +3094,10 @@ const collections: Collection[] = [
 		id: 'biff',
 		slug: 'biff',
 		seasonal: true,
+		seasonEndMonth: 10,
 		title: {
-			no: 'BIFF 2026 — Bergen Internasjonale Filmfestival',
-			en: 'BIFF 2026 — Bergen International Film Festival'
+			no: 'BIFF — Bergen Internasjonale Filmfestival',
+			en: 'BIFF — Bergen International Film Festival'
 		},
 		description: {
 			no: 'BIFF-programmet — filmer, visninger, samtaler og festivalfester. Bergen Internasjonale Filmfestival.',
@@ -3126,6 +3155,7 @@ const collections: Collection[] = [
 		id: 'biff-en',
 		slug: 'biff-bergen',
 		seasonal: true,
+		seasonEndMonth: 10,
 		title: {
 			no: 'BIFF Bergen',
 			en: 'BIFF — Bergen International Film Festival'
@@ -3186,6 +3216,7 @@ const collections: Collection[] = [
 		id: 'borealis',
 		slug: 'borealis',
 		seasonal: true,
+		seasonEndMonth: 3,
 		title: {
 			no: 'Borealis — festival for eksperimentell musikk',
 			en: 'Borealis — Festival for Experimental Music'
@@ -3246,6 +3277,7 @@ const collections: Collection[] = [
 		id: 'borealis-en',
 		slug: 'borealis-bergen',
 		seasonal: true,
+		seasonEndMonth: 3,
 		title: {
 			no: 'Borealis Bergen',
 			en: 'Borealis Bergen — Experimental Music Festival'
@@ -3306,9 +3338,10 @@ const collections: Collection[] = [
 		id: 'fadderuke',
 		slug: 'fadderuke-bergen',
 		seasonal: true,
+		seasonEndMonth: 9,
 		title: {
-			no: 'Fadderuke i Bergen 2026',
-			en: 'Freshers\u2019 Week Bergen 2026'
+			no: 'Fadderuke i Bergen',
+			en: 'Freshers\u2019 Week Bergen'
 		},
 		description: {
 			no: 'Fadderuken i Bergen: alle arrangementer for nye studenter ved UiB, HVL, NHH og BI. Konserter, fester, omvisninger og sosiale arrangementer.',
@@ -3807,6 +3840,26 @@ const HREFLANG_PAIRS: Record<string, Record<'no' | 'en', string>> = {
 	// SEO aliases — redirect alternate search terms to canonical collections
 	'live-musikk': { no: 'konserter', en: 'konserter' },
 };
+
+/**
+ * Årstallet en sesongsamling skal vise i tittel og meta-beskrivelse.
+ *
+ * Sesongsider fikk foer alltid inneværende aar. Det gjorde at
+ * /no/bergenfest den 25. august 2026 het «Bergenfest — Program 10.–13. juni
+ * 2026» — om en festival som var ferdig i juni, med null arrangementer paa
+ * sida. Sida laa paa plass 9,3 for «bergenfest program» med 0,15 % CTR.
+ *
+ * Naar sesongen er over for i aar, er det neste aars utgave folk leter
+ * etter. Da skal tittelen si det.
+ *
+ * Samlinger uten seasonEndMonth beholder inneværende aar, saa dette er
+ * trygt aa la staa udefinert.
+ */
+export function getSeasonYear(collection: Pick<Collection, 'seasonal' | 'seasonEndMonth'>, now: Date): number {
+	const year = now.getFullYear();
+	if (!collection.seasonal || !collection.seasonEndMonth) return year;
+	return now.getMonth() + 1 > collection.seasonEndMonth ? year + 1 : year;
+}
 
 /** Returns hreflang slugs for a collection. Unpaired collections use the same slug for both. */
 export function getHreflangSlugs(slug: string): Record<'no' | 'en', string> {

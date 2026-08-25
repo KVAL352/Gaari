@@ -62,7 +62,9 @@
 	// $lang store only syncs via $effect (client-only), so it defaults to 'no' during SSR.
 	let ssrLang = $derived(data.lang);
 	let baseTitle = $derived(data.collection.title[ssrLang]);
-	let year = new Date().getFullYear();
+	// Serveren regner dette ut. Er sesongen over for i aar, peker aarstallet
+	// paa neste utgave — det er den folk leter etter i august.
+	let year = $derived(data.collection.seasonYear ?? new Date().getFullYear());
 	let title = $derived(data.collection.seasonal ? `${baseTitle} ${year}` : baseTitle);
 	let descriptionBase = $derived(data.collection.description[ssrLang]);
 	// Dynamic meta description with event count for freshness signal
