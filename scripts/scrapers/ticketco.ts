@@ -69,14 +69,43 @@ function hasCompound(text: string, suffix: string): boolean {
 	return new RegExp(`\\w${suffix}\\b`).test(text);
 }
 
-function mapCategory(title: string, description: string, organizer: string): string {
+/**
+ * Steder der sjangeren foelger av huset.
+ *
+ * Madam Felle er en musikkpub. Alle 45 arrangementene derfra som laa som
+ * «culture» 25. august var konserter — Bjoergvin Bluesklubb, tributeband,
+ * viseaftener, Lillebjoern Nilsen. Ikke ett unntak. De falt gjennom fordi
+ * ordlista under leter etter «konsert» og «musikk», og en tittel som
+ * «Bjoergvin Bluesklubb - Alfonzo Band» inneholder ingen av delene.
+ *
+ * Konsekvensen var ikke bare schema: /no/konserter filtrerer paa
+ * category === 'music', saa 45 konserter manglet fra konsertsiden vaar.
+ *
+ * Lista skal vaere kort og bare inneholde steder der SAMTLIGE arrangementer
+ * er musikk. Ole Bull Scene hoerer ikke hjemme her — der er halvparten
+ * scenekunst og stand-up, og en stedsregel ville gjort vondt verre.
+ *
+ * Hulen staar med venue_name «Bergen» og huset i tittelen («TULUS + Visegard
+ * || Hulen»), saa lista maa proeves mot tittelen ogsaa — ikke bare stedet.
+ */
+const MUSIKKSTEDER = ['madam felle', 'hulen', 'kirkeautunnale'];
+
+function mapCategory(title: string, description: string, organizer: string, venue = ''): string {
 	const text = `${title} ${description} ${organizer}`.toLowerCase();
 	const org = organizer.toLowerCase();
+	// Ordgrense og ikke includes: «hulen» er ogsaa et vanlig norsk ord, og
+	// substrengsoek ville tatt «Eventyrstund i grottehulen» med paa kjoepet.
+	const stedTekst = `${venue} ${organizer} ${title}`.toLowerCase();
 	// Organizer-based overrides first (most reliable signal)
 	if (org.includes('7 fjell') || org.includes('vinfest') || org.includes('colonialen') || org.includes('fetevare')) return 'food';
 	if (org.includes('kvarteret')) return 'student';
+	if (MUSIKKSTEDER.some(s => new RegExp(`\\b${s}\\b`).test(stedTekst))) return 'music';
 	// Keyword matching with word boundaries + compound words
-	if (hasWord(text, 'konsert') || hasWord(text, 'musikk') || hasWord(text, 'jazz') || hasWord(text, 'rock') || hasWord(text, 'dj') || hasCompound(text, 'konsert')) return 'music';
+	// blues/band/trio/vise/tribute/akustisk kom til 25. august: uten dem falt
+	// hele Madam Felle-programmet og en del av USF-programmet til 'culture'.
+	if (hasWord(text, 'konsert') || hasWord(text, 'musikk') || hasWord(text, 'jazz') || hasWord(text, 'rock') || hasWord(text, 'dj') || hasCompound(text, 'konsert')
+		|| hasWord(text, 'blues') || hasWord(text, 'band') || hasWord(text, 'trio') || hasWord(text, 'kvartett')
+		|| hasWord(text, 'viser') || hasWord(text, 'vise') || hasWord(text, 'tribute') || hasWord(text, 'akustisk')) return 'music';
 	if (hasWord(text, 'øl') || hasWord(text, 'vin') || hasCompound(text, 'smaking') || hasWord(text, 'brygg') || text.includes('mat og drikke') || hasCompound(text, 'matkurs') || hasCompound(text, 'matopplevelse')) return 'food';
 	if (hasWord(text, 'kurs') || hasWord(text, 'workshop')) return 'workshop';
 	if (hasWord(text, 'teater') || hasWord(text, 'show') || hasWord(text, 'revy') || hasCompound(text, 'standup') || hasWord(text, 'stand-up')) return 'theatre';
@@ -176,7 +205,7 @@ async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inse
 
 		const venueName = event.location?.name || event.organizer?.name || subdomain;
 		const description = stripHtml(event.description || '').slice(0, 500);
-		const category = mapCategory(event.name, description, event.organizer?.name || '');
+		const category = mapCategory(event.name, description, event.organizer?.name || '', venueName);
 		const bydel = mapBydel(venueName);
 		const datePart = event.startDate.slice(0, 10);
 		const imageUrl = event.landing_image || event.image || undefined;
