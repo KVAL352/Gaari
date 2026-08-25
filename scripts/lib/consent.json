@@ -404,14 +404,14 @@
     {
       "slug": "bergenkjott",
       "navn": "Bergen Kjøtt",
-      "dato": "2026-05-11",
-      "grunnlag": "hotlink",
+      "dato": "2026-08-24",
+      "grunnlag": "dokumentert",
       "omfang": [
-        "visning"
+        "visning",
+        "some"
       ],
-      "bevis": "Varsel sendt 2026-05-11",
-      "selvhostet": false,
-      "vurderesInnen": "2028-05-11"
+      "bevis": "Avtaler",
+      "vurderesInnen": "2028-08-24"
     },
     {
       "slug": "bymuseet",

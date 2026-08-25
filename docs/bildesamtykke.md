@@ -51,13 +51,14 @@ bildet arrangørens kontroll, og det krever alltid et dokumentert ja. Koden hån
 dette: en kilde uten grunnlag `dokumentert` kommer ikke inn i promo-listen, uansett
 hva som står i omfang-feltet.
 
-## Dokumentert samtykke (21)
+## Dokumentert samtykke (22)
 
 Beviset er en e-post i `Avtaler` eller et lydopptak med tidspunkt. Formen er
 likegyldig; det som teller er at samtykket kan vises fram.
 
 | Kilde | Arrangør | Dato | Omfang | Bevis |
 |---|---|---|---|---|
+| `bergenkjott` | Bergen Kjøtt | 2026-08-24 | Visning + SoMe | Avtaler |
 | `fortellerstraedet` | Fortellerstrædet | 2026-08-15 | Visning + SoMe | Avtaler |
 | `highvoltage` | High Voltage Rockfest | 2026-08-14 | Visning + SoMe | Avtaler |
 | `julivillaveien` | Jul i Villaveien | 2026-08-12 | Visning + SoMe | Avtaler |
@@ -80,7 +81,7 @@ likegyldig; det som teller er at samtykket kan vises fram.
 | `artlab-manual` | Art Lab Bergen | 2026-04-01 (usikker) | Visning + SoMe | Avtaler |
 | `brettspill` | Brettspillklubben | 2026-04-01 (usikker) | Visning + SoMe | Avtaler |
 
-## Hot-link med varsel og opt-out (25)
+## Hot-link med varsel og opt-out (24)
 
 Disse har ikke svart ja. De er varslet om at bildene vises, med mulighet til å
 reservere seg. Grunnlaget er bildepolicyen, ikke samtykke.
@@ -90,7 +91,6 @@ reservere seg. Grunnlaget er bildepolicyen, ikke samtykke.
 |---|---|---|---|
 | `bergenfest` | Bergenfest | 2026-05-11 | hotlink |
 | `bergenfilmklubb` | Bergen Filmklubb | 2026-05-11 | hotlink |
-| `bergenkjott` | Bergen Kjøtt | 2026-05-11 | hotlink |
 | `billetto` | Billetto | 2026-05-11 | hotlink |
 | `bodega` | Bodega | 2026-05-11 | hotlink |
 | `bymuseet` | Bymuseet i Bergen | 2026-05-11 | hotlink |
