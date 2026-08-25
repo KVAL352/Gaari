@@ -97,4 +97,19 @@ async function main() {
 	console.log(`\n${ok} av ${skalFjernes.length} bilder fjernet.`);
 }
 
-main();
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
+
+/**
+ * Sperre mot at modulen gjoer jobben sin bare fordi noen importerer den.
+ *
+ * 21. august 2026 importerte en test to hjelpefunksjoner fra
+ * send-newsletter.ts, og modulen begynte en ekte utsending til 129
+ * abonnenter. Den rakk aldri aa opprette kampanjen, men det var flaks:
+ * testkjoeringen ble revet ned mens main() ventet paa abonnentlista.
+ *
+ * Samme sperre som scrape.ts og send-newsletter.ts bruker.
+ */
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+	main();
+}
