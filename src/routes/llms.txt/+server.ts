@@ -165,9 +165,14 @@ export async function GET() {
 	let sampleEvents = '';
 	try {
 		const nowUtc = new Date().toISOString();
+		// select('id') og ikke '*': anon har SELECT paa 29 navngitte kolonner i
+		// events, og Postgres avviser hele spoerringen naar en kolonne mangler i
+		// grantet. Med '*' feilet denne stille fra 21. august, og llms.txt sa
+		// «check gaari.no for current count» til hver eneste AI-crawler i stedet
+		// for tallet. Se src/lib/server/event-columns.ts.
 		const { count } = await supabase
 			.from('events')
-			.select('*', { count: 'exact', head: true })
+			.select('id', { count: 'exact', head: true })
 			.eq('status', 'approved')
 			.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`);
 		eventCount = count ?? 0;

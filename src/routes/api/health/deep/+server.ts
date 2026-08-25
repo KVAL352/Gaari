@@ -1,6 +1,30 @@
 import { json } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
+import { supabaseAdmin } from '$lib/server/supabase-admin';
+import { PUBLIC_EVENT_COLUMNS } from '$lib/server/event-columns';
 import type { RequestHandler } from './$types';
+
+/**
+ * Operatørsjekken. Hentes av morgen- og health-skillene, og av ingen andre.
+ *
+ * To klienter, med vilje.
+ *
+ * `supabaseAdmin` gjør tellingene. RLS-migrasjonen 21. august ga anon lesetilgang
+ * til 29 navngitte kolonner i `events` og ingenting i `opt_out_requests`,
+ * `edit_suggestions` og `organizer_inquiries`. Denne fila fortsatte å spørre med
+ * `select('*')` mot anon-klienten, og Postgres avviser hele spørringen når én
+ * kolonne mangler i grantet. Resultatet var at alle åtte sjekkene meldte «fail»
+ * fra 21. til 25. august mens siden gikk helt fint. Overvåkningen var altså den
+ * eneste som var syk, og fordi UptimeRobot bare poller `/api/health`, sa
+ * ingenting fra. To røde cron-jobber fikk stå i tre og fire dager.
+ *
+ * `supabase` (anon) brukes bare i `public_read`, og det er hele poenget med den
+ * sjekken: den går den veien de besøkende går. Uten den ville en fremtidig
+ * innstramming av grantet gjort siden tom uten at noe her lyste rødt.
+ *
+ * Endepunktet er åpent, så svaret oppgir ikke radtall for tabellene med
+ * henvendelser og opt-outs. Summen holder til kvotevarsling.
+ */
 
 interface HealthCheck {
 	name: string;
@@ -13,17 +37,19 @@ export const GET: RequestHandler = async () => {
 	const checks: HealthCheck[] = [];
 
 	// Check 1: Supabase connection + event count
+	let connected = false;
 	let eventCount = 0;
 	try {
-		const { count, error } = await supabase
+		const { count, error } = await supabaseAdmin
 			.from('events')
-			.select('*', { count: 'exact', head: true })
+			.select('id', { count: 'exact', head: true })
 			.eq('status', 'approved');
 
 		if (error) {
 			checks.push({ name: 'supabase_connection', status: 'fail', detail: error.message });
 		} else {
 			checks.push({ name: 'supabase_connection', status: 'pass' });
+			connected = true;
 			eventCount = count ?? 0;
 		}
 	} catch (err) {
@@ -35,7 +61,7 @@ export const GET: RequestHandler = async () => {
 	}
 
 	// Check 2: Events exist
-	if (checks[0]?.status === 'pass') {
+	if (connected) {
 		checks.push({
 			name: 'events_exist',
 			status: eventCount > 0 ? 'pass' : 'fail',
@@ -45,13 +71,45 @@ export const GET: RequestHandler = async () => {
 		checks.push({ name: 'events_exist', status: 'fail', detail: 'Skipped (no connection)' });
 	}
 
-	// Check 3: Recent scrape activity (events created in last 24h)
-	if (checks[0]?.status === 'pass') {
+	// Check 3: Kan en besøkende faktisk lese arrangementene?
+	// Går med anon-nøkkelen og ber om nøyaktig de kolonnene grantet skal dekke.
+	// Driver PUBLIC_EVENT_COLUMNS fra migrasjonen, feiler dette med 42501, og da
+	// er forsiden tom for alle andre enn oss.
+	try {
+		const { data, error } = await supabase
+			.from('events')
+			.select(PUBLIC_EVENT_COLUMNS)
+			.eq('status', 'approved')
+			.limit(1);
+
+		if (error) {
+			checks.push({
+				name: 'public_read',
+				status: 'fail',
+				detail: `anon kan ikke lese events: ${error.message}`
+			});
+		} else {
+			checks.push({
+				name: 'public_read',
+				status: data && data.length > 0 ? 'pass' : 'fail',
+				detail: data && data.length > 0 ? 'anon leser de offentlige kolonnene' : 'anon fikk 0 rader'
+			});
+		}
+	} catch (err) {
+		checks.push({
+			name: 'public_read',
+			status: 'fail',
+			detail: err instanceof Error ? err.message : 'Unknown error'
+		});
+	}
+
+	// Check 4: Recent scrape activity (events created in last 24h)
+	if (connected) {
 		try {
 			const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-			const { count, error } = await supabase
+			const { count, error } = await supabaseAdmin
 				.from('events')
-				.select('*', { count: 'exact', head: true })
+				.select('id', { count: 'exact', head: true })
 				.gte('created_at', yesterday);
 
 			if (error) {
@@ -75,19 +133,19 @@ export const GET: RequestHandler = async () => {
 		checks.push({ name: 'recent_scrape', status: 'fail', detail: 'Skipped (no connection)' });
 	}
 
-	// Check 4: Event visibility — compares total approved upcoming vs what
+	// Check 5: Event visibility — compares total approved upcoming vs what
 	// the homepage query would return (using UTC). A large gap means a
 	// query-level bug (like the timezone mismatch we caught earlier).
-	if (checks[0]?.status === 'pass') {
+	if (connected) {
 		try {
 			const nowUtc = new Date().toISOString();
 			const [rawResult, queryResult] = await Promise.all([
-				supabase
+				supabaseAdmin
 					.from('events')
-					.select('*', { count: 'exact', head: true })
+					.select('id', { count: 'exact', head: true })
 					.in('status', ['approved'])
 					.gte('date_start', nowUtc),
-				supabase
+				supabaseAdmin
 					.from('events')
 					.select('id,date_start', { count: 'exact', head: true })
 					.in('status', ['approved', 'cancelled'])
@@ -112,7 +170,7 @@ export const GET: RequestHandler = async () => {
 				checks.push({
 					name: 'event_visibility',
 					status: isSuspicious ? 'fail' : 'pass',
-					detail: `${queryCount} visible of ${rawCount} approved upcoming${isSuspicious ? ` (${Math.round(gapPct)}% gap — possible query bug)` : ''}`
+					detail: `${queryCount} visible of ${rawCount} approved upcoming${isSuspicious ? ` (${Math.round(gapPct)}% gap, possible query bug)` : ''}`
 				});
 			}
 		} catch (err) {
@@ -126,12 +184,12 @@ export const GET: RequestHandler = async () => {
 		checks.push({ name: 'event_visibility', status: 'fail', detail: 'Skipped (no connection)' });
 	}
 
-	// Check 5: Pipeline freshness — did the scraper cron actually run?
+	// Check 6: Pipeline freshness — did the scraper cron actually run?
 	// Different from recent_scrape: a run that inserts 0 new events still
 	// writes to scraper_runs. If there's no entry in 14h, the cron is broken.
-	if (checks[0]?.status === 'pass') {
+	if (connected) {
 		try {
-			const { data, error } = await supabase
+			const { data, error } = await supabaseAdmin
 				.from('scraper_runs')
 				.select('run_at')
 				.order('run_at', { ascending: false })
@@ -141,7 +199,11 @@ export const GET: RequestHandler = async () => {
 				checks.push({ name: 'pipeline_freshness', status: 'fail', detail: error.message });
 			} else if (!data || data.length === 0) {
 				// No scraper_runs data yet — table is new, not a failure
-				checks.push({ name: 'pipeline_freshness', status: 'pass', detail: 'No scraper_runs data yet (table is new)' });
+				checks.push({
+					name: 'pipeline_freshness',
+					status: 'pass',
+					detail: 'No scraper_runs data yet (table is new)'
+				});
 			} else {
 				const lastRunAt = new Date(data[0].run_at);
 				const hoursAgo = (Date.now() - lastRunAt.getTime()) / (1000 * 60 * 60);
@@ -150,7 +212,7 @@ export const GET: RequestHandler = async () => {
 				checks.push({
 					name: 'pipeline_freshness',
 					status: isStale ? 'fail' : 'pass',
-					detail: `Last pipeline run ${hoursAgo.toFixed(1)}h ago${isStale ? ' — cron may have failed' : ''}`
+					detail: `Last pipeline run ${hoursAgo.toFixed(1)}h ago${isStale ? ', cron may have failed' : ''}`
 				});
 			}
 		} catch (err) {
@@ -164,10 +226,10 @@ export const GET: RequestHandler = async () => {
 		checks.push({ name: 'pipeline_freshness', status: 'fail', detail: 'Skipped (no connection)' });
 	}
 
-	// Check 6: Image URL health — sample 20 events with image_url, HEAD-check for 404s
-	if (checks[0]?.status === 'pass') {
+	// Check 7: Image URL health — sample 20 events with image_url, HEAD-check for 404s
+	if (connected) {
 		try {
-			const { data: sample, error: imgError } = await supabase
+			const { data: sample, error: imgError } = await supabaseAdmin
 				.from('events')
 				.select('image_url')
 				.eq('status', 'approved')
@@ -208,7 +270,7 @@ export const GET: RequestHandler = async () => {
 				checks.push({
 					name: 'image_health',
 					status: brokenPct > 25 ? 'fail' : 'pass',
-					detail: `${broken}/${sample.length} broken image URLs${brokenPct > 25 ? ` (${Math.round(brokenPct)}% — too many broken)` : ''}`
+					detail: `${broken}/${sample.length} broken image URLs${brokenPct > 25 ? ` (${Math.round(brokenPct)}%, too many broken)` : ''}`
 				});
 			}
 		} catch (err) {
@@ -222,35 +284,38 @@ export const GET: RequestHandler = async () => {
 		checks.push({ name: 'image_health', status: 'fail', detail: 'Skipped (no connection)' });
 	}
 
-	// Check 7: Database size — row counts for key tables to spot quota issues
-	if (checks[0]?.status === 'pass') {
+	// Check 8: Database size — row counts for key tables to spot quota issues.
+	// Endepunktet er åpent, så bare totalen og arrangementstallet står i svaret.
+	// Hvor mange henvendelser og opt-outs som ligger inne er forretningsdata og
+	// hører ikke hjemme i et svar hvem som helst kan hente.
+	if (connected) {
 		try {
 			const [events, optOuts, editSugs, promotions, inquiries] = await Promise.all([
-				supabase.from('events').select('*', { count: 'exact', head: true }),
-				supabase.from('opt_out_requests').select('*', { count: 'exact', head: true }),
-				supabase.from('edit_suggestions').select('*', { count: 'exact', head: true }),
-				supabase.from('promoted_placements').select('*', { count: 'exact', head: true }),
-				supabase.from('organizer_inquiries').select('*', { count: 'exact', head: true })
+				supabaseAdmin.from('events').select('id', { count: 'exact', head: true }),
+				supabaseAdmin.from('opt_out_requests').select('id', { count: 'exact', head: true }),
+				supabaseAdmin.from('edit_suggestions').select('id', { count: 'exact', head: true }),
+				supabaseAdmin.from('promoted_placements').select('id', { count: 'exact', head: true }),
+				supabaseAdmin.from('organizer_inquiries').select('id', { count: 'exact', head: true })
 			]);
 
-			const counts: Record<string, number> = {
-				events: events.count ?? 0,
-				opt_outs: optOuts.count ?? 0,
-				edit_suggestions: editSugs.count ?? 0,
-				promotions: promotions.count ?? 0,
-				inquiries: inquiries.count ?? 0
-			};
-			const totalRows = Object.values(counts).reduce((a, b) => a + b, 0);
-			const summary = Object.entries(counts)
-				.map(([k, v]) => `${k}: ${v}`)
-				.join(', ');
+			const feilet = [events, optOuts, editSugs, promotions, inquiries].find((r) => r.error);
+			if (feilet?.error) {
+				checks.push({ name: 'database_size', status: 'fail', detail: feilet.error.message });
+			} else {
+				const totalRows =
+					(events.count ?? 0) +
+					(optOuts.count ?? 0) +
+					(editSugs.count ?? 0) +
+					(promotions.count ?? 0) +
+					(inquiries.count ?? 0);
 
-			// Supabase free tier: 500MB / ~500k rows is a sensible early warning
-			checks.push({
-				name: 'database_size',
-				status: totalRows > 500_000 ? 'fail' : 'pass',
-				detail: `${totalRows} total rows (${summary})`
-			});
+				// Supabase free tier: 500MB / ~500k rows is a sensible early warning
+				checks.push({
+					name: 'database_size',
+					status: totalRows > 500_000 ? 'fail' : 'pass',
+					detail: `${totalRows} total rows (events: ${events.count ?? 0})`
+				});
+			}
 		} catch (err) {
 			checks.push({
 				name: 'database_size',
@@ -262,8 +327,8 @@ export const GET: RequestHandler = async () => {
 		checks.push({ name: 'database_size', status: 'fail', detail: 'Skipped (no connection)' });
 	}
 
-	// Check 8: Data quality — detect orphaned past events and date parsing bugs
-	if (checks[0]?.status === 'pass') {
+	// Check 9: Data quality — detect orphaned past events and date parsing bugs
+	if (connected) {
 		try {
 			const nowUtc = new Date().toISOString();
 			// 2 years — venues like Grieghallen legitimately sell tickets 1+ year ahead
@@ -271,15 +336,15 @@ export const GET: RequestHandler = async () => {
 
 			const [pastApproved, farFuture] = await Promise.all([
 				// Events that should have been cleaned up by removeExpiredEvents()
-				supabase
+				supabaseAdmin
 					.from('events')
-					.select('*', { count: 'exact', head: true })
+					.select('id', { count: 'exact', head: true })
 					.eq('status', 'approved')
 					.lt('date_end', nowUtc),
 				// Events >2 years out suggest a date parsing bug in a scraper
-				supabase
+				supabaseAdmin
 					.from('events')
-					.select('*', { count: 'exact', head: true })
+					.select('id', { count: 'exact', head: true })
 					.eq('status', 'approved')
 					.gt('date_start', twoYearsFromNow)
 			]);
