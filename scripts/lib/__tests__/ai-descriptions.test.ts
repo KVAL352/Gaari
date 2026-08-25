@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { harVerbatimOverlapp } from '../ai-descriptions.js';
+import { harVerbatimOverlapp, erAtomaertFaktum, renskFakta } from '../ai-descriptions.js';
 
 /**
  * Opphavsrettssperra.
@@ -87,5 +87,77 @@ describe('harVerbatimOverlapp', () => {
 		const generert =
 			'Masåva er et band som kjennetegnes av sitt organiske og drivende sound med ettertenksomme tekster.';
 		expect(harVerbatimOverlapp(generert, kilde)).toBe(true);
+	});
+});
+
+/**
+ * Faktasperra.
+ *
+ * Den trygge veien inn: modellen får kildesida i steg én, men leverer bare
+ * atomære verdier tilbake. Skrivesteget ser aldri prosaen, så det finnes
+ * ingen formulering å gjenbruke. Sperren følger av formen, ikke av en
+ * terskel noen har gjettet.
+ */
+describe('erAtomaertFaktum', () => {
+	it('godtar korte verdier', () => {
+		for (const v of ['Chloé Zhao', 'film', '0-2 år', '19.00', 'Auditoriet', '90 minutter']) {
+			expect(erAtomaertFaktum(v), v).toBe(true);
+		}
+	});
+
+	it('avviser setninger', () => {
+		expect(erAtomaertFaktum('En gripende fortelling om sorg og kjærlighet i en liten by')).toBe(false);
+	});
+
+	it('avviser tekst med punktum — det er prosa, ikke en verdi', () => {
+		expect(erAtomaertFaktum('Filmen er regissert av Chloé Zhao.')).toBe(false);
+	});
+
+	it('avviser tomt og altfor langt', () => {
+		expect(erAtomaertFaktum('   ')).toBe(false);
+		expect(erAtomaertFaktum('a'.repeat(80))).toBe(false);
+	});
+});
+
+describe('renskFakta', () => {
+	it('beholder gyldige felt og kaster ukjente', () => {
+		const ut = renskFakta({ form: 'film', regissør: 'Chloé Zhao', tulleFelt: 'noe', beskrivelse: 'En lang tekst her' });
+		expect(ut).toEqual({ form: 'film', regissør: 'Chloé Zhao' });
+	});
+
+	it('siler lister slik at bare de atomære overlever', () => {
+		const ut = renskFakta({
+			medvirkende: ['Paul Mescal', 'Jessie Buckley', 'et ensemble av dyktige skuespillere fra hele landet'],
+		});
+		expect(ut).toEqual({ medvirkende: ['Paul Mescal', 'Jessie Buckley'] });
+	});
+
+	it('stopper en hel setning smuglet inn som et faktum', () => {
+		// Dette er angrepet sperra finnes for: modellen leverer arrangørens
+		// formulering under et faktafeltnavn.
+		expect(renskFakta({ tema: ['en uforglemmelig kveld med musikk og magi'] })).toBeUndefined();
+	});
+
+	it('svarer undefined naar ingenting overlever', () => {
+		expect(renskFakta({ form: 'Dette er en altfor lang verdi til å være et faktum' })).toBeUndefined();
+		expect(renskFakta(null)).toBeUndefined();
+		expect(renskFakta('tekst')).toBeUndefined();
+	});
+});
+
+describe('erAtomaertFaktum — klokkeslett', () => {
+	/**
+	 * Denne fanget en ekte feil. Første utgave forkastet alt med punktum,
+	 * og norsk klokkeslett skrives «19.00» — sperra ville stoppet hvert
+	 * eneste tidspunkt uten å si fra.
+	 */
+	it('godtar norsk klokkeslettformat', () => {
+		for (const v of ['19.00', '09.30', '18.00–20.30']) {
+			expect(erAtomaertFaktum(v), v).toBe(true);
+		}
+	});
+
+	it('avviser fortsatt en setning som slutter med punktum', () => {
+		expect(erAtomaertFaktum('Dørene åpner klokken sju.')).toBe(false);
 	});
 });

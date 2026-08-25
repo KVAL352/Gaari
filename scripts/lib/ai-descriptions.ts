@@ -13,6 +13,24 @@ interface EventMeta {
 	bydel?: string;
 	address?: string;
 	/**
+	 * Vaare egne felt. Null opphavsrettsrisiko — vi har satt dem selv, og de
+	 * ble aldri brukt til aa skrive beskrivelsen.
+	 *
+	 * ageGroup: 'all' | 'family' | '18+' | 'students' | 'youth'
+	 * language: 'no' | 'en' | 'both' — verdt aa si naar arrangementet gaar paa
+	 *   engelsk, siden turister er den gruppa som konverterer best.
+	 */
+	ageGroup?: string;
+	language?: string;
+	/**
+	 * Fakta trukket ut av kildesida — se hentFakta().
+	 *
+	 * Dette er den trygge veien inn. Verdiene er atomaere («Chloé Zhao»,
+	 * «0-2 aar», «film»), ikke setninger, saa arrangoerens formuleringer kan
+	 * ikke baeres videre gjennom dem. Foretrekkes framfor sourceText.
+	 */
+	facts?: Record<string, string | string[]>;
+	/**
 	 * Arrangoerens egen omtale, som FAKTAGRUNNLAG — aldri til gjenbruk.
 	 *
 	 * 64 scrapere henter ut slik tekst i dag, og ingen av dem sender den hit.
@@ -25,6 +43,68 @@ interface EventMeta {
 	 * alene ikke er en sperre.
 	 */
 	sourceText?: string;
+}
+
+/** Felt vi ber om. Alt annet fra modellen forkastes. */
+const FAKTAFELT = [
+	'form', 'serie', 'regissør', 'medvirkende', 'arrangør',
+	'aldersgruppe', 'språk', 'varighet', 'tema', 'sted_detalj',
+	// Klokkeslett er et faktum — men bare naar det staar paa sida.
+	//
+	// date_start i basen duger ikke: 11 % av kommende arrangementer starter
+	// 18:00 UTC, som roeper at flere scrapere setter et standardklokkeslett.
+	// Da kan vi ikke skille ekte tid fra gjettet tid. Staar tida i
+	// arrangoerens egen omtale, er den derimot bekreftet, og kan sies.
+	'klokkeslett',
+] as const;
+
+/** Et faktum er atomaert. Er det lengre, er det en setning. */
+const MAKS_ORD_PER_FAKTUM = 6;
+
+/**
+ * Er verdien et faktum og ikke en formulering?
+ *
+ * Dette er selve sperra i den faktabaserte veien. «Chloé Zhao» er et faktum.
+ * «en gripende fortelling om sorg og kjaerlighet» er arrangoerens uttrykk, og
+ * skal ikke passere uansett hvor godt den ville kledd beskrivelsen.
+ *
+ * Grensa haandheves i kode og ikke i prompten, fordi en prompt er en
+ * oppfordring. Faar uttrykk ikke plass, kan det ikke baeres videre.
+ */
+export function erAtomaertFaktum(verdi: string): boolean {
+	const v = verdi.trim();
+	if (!v || v.length > 60) return false;
+	if (v.split(/\s+/).length > MAKS_ORD_PER_FAKTUM) return false;
+	// Setningstegn roeper prosa. Men et punktum midt i et tall gjoer det ikke:
+	// norsk klokkeslett skrives «19.00», og en regel mot alle punktum ville
+	// stoppet hvert eneste klokkeslett i stillhet. Testen fanget nettopp det.
+	// Derfor: bare punktum som avslutter et ord teller.
+	if (/[!?]/.test(v)) return false;
+	if (/\.(\s|$)/.test(v)) return false;
+	return true;
+}
+
+/**
+ * Behold bare det som faktisk er fakta.
+ *
+ * Returnerer et rent objekt, eller undefined om ingenting overlevde.
+ */
+export function renskFakta(raa: unknown): Record<string, string | string[]> | undefined {
+	if (!raa || typeof raa !== 'object') return undefined;
+	const ut: Record<string, string | string[]> = {};
+	for (const felt of FAKTAFELT) {
+		const v = (raa as Record<string, unknown>)[felt];
+		if (typeof v === 'string') {
+			if (erAtomaertFaktum(v)) ut[felt] = v.trim();
+			// Norsk klokkeslett skrives med punktum. Modellen leverer «18:00» og
+			// «17.00» om hverandre, og forskjellen synes paa arrangementssida.
+			if (felt === 'klokkeslett' && ut[felt]) ut[felt] = (ut[felt] as string).replace(/:/g, '.');
+		} else if (Array.isArray(v)) {
+			const rene = v.filter((x): x is string => typeof x === 'string' && erAtomaertFaktum(x)).map(x => x.trim());
+			if (rene.length) ut[felt] = rene.slice(0, 8);
+		}
+	}
+	return Object.keys(ut).length ? ut : undefined;
 }
 
 /**
@@ -97,6 +177,63 @@ function getClient(): GoogleGenAI | null {
 	return ai;
 }
 
+/**
+ * Trekk fakta ut av kildesida.
+ *
+ * Foerste steg av to. Modellen faar arrangoerens tekst her, men leverer bare
+ * atomaere verdier tilbake — og renskFakta() haandhever det. Steg to skriver
+ * beskrivelsen fra faktaene alene og ser aldri prosaen.
+ *
+ * Grunnen til at det er delt: opphavsretten verner uttrykk, ikke fakta. Naar
+ * bare fakta kommer ut av steg én, finnes det ingen formulering aa gjenbruke
+ * i steg to. Sperra foelger av formen, ikke av en terskel jeg har gjettet.
+ */
+export async function hentFakta(sideTekst: string): Promise<Record<string, string | string[]> | undefined> {
+	const client = getClient();
+	if (!client || dailyQuotaExhausted) return undefined;
+	const tekst = sideTekst.replace(/\s+/g, ' ').trim().slice(0, 4000);
+	if (tekst.length < 60) return undefined;
+
+	const prompt = [
+		'Extract factual attributes from this Norwegian event page. Return JSON only.',
+		'',
+		'Return SHORT ATOMIC VALUES, never sentences or phrases from the text.',
+		`Every value must be at most ${MAKS_ORD_PER_FAKTUM} words. Longer values are discarded.`,
+		'Omit any field you cannot fill from the page. Never guess.',
+		'',
+		'Fields:',
+		'  form          what kind of thing it is, 1-2 words: "film", "konsert", "lesesirkel", "kurs"',
+		'  serie         name of a recurring series it belongs to, if any',
+		'  regissør      director name, for films',
+		'  medvirkende   array of performer, author, artist or speaker names',
+		'  arrangør      the organising body, if named and different from the venue',
+		'  aldersgruppe  e.g. "0-2 år", "fra 12 år"',
+		'  språk         only if stated, e.g. "engelsk"',
+		'  varighet      e.g. "90 minutter"',
+		'  tema          array of 1-3 word topic words',
+		'  sted_detalj   room or hall within the venue, e.g. "Auditoriet"',
+		'  klokkeslett   start time ONLY if the page states one, e.g. "19.00"',
+		'',
+		'Do NOT return descriptions, summaries, taglines or marketing copy.',
+		'',
+		'PAGE TEXT:',
+		'---',
+		tekst,
+		'---',
+	].join('\n');
+
+	try {
+		const response = await client.models.generateContent({ model: GEMINI_MODEL, contents: prompt });
+		const m = response.text?.match(/\{[\s\S]*\}/);
+		if (!m) return undefined;
+		return renskFakta(JSON.parse(m[0]));
+	} catch {
+		// Uttrekket er en forbedring, ikke en forutsetning. Feiler det, skriver
+		// vi beskrivelsen fra metadataen slik vi gjorde foer.
+		return undefined;
+	}
+}
+
 function buildPrompt(event: EventMeta, skjerpet = false): string {
 	const lines = [
 		'You write event descriptions for Gåri, an event listings site for Bergen, Norway.',
@@ -113,9 +250,13 @@ function buildPrompt(event: EventMeta, skjerpet = false): string {
 		'- Do not restate the title as a subordinate clause to fill space. "Naturskole - UNG',
 		'  er en familieaktivitet ... som er en naturskole rettet mot unge" says the same',
 		'  thing twice.',
-		'- Never state a clock time, and never describe practical arrangements such as where',
-		'  to meet, what to bring or how to get there. Start times in our data are sometimes',
-		'  a scraper default rather than the real time, and the page shows the time already.',
+		'- State a clock time ONLY if one appears under VERIFIED FACTS below. The Date',
+		'  field is not a source for it: several of our scrapers fill in a default time,',
+		'  so a time taken from there may be invented. A time under VERIFIED FACTS came',
+		'  off the event page and is safe. Write it Norwegian style — "kl. 19.00" —',
+		'  with a full stop, never a colon, in both languages.',
+		'- Never describe practical arrangements — where to meet, what to bring, how to',
+		'  get there — unless given as a fact.',
 		'',
 		'FACTUAL DISCIPLINE — this outranks every other rule, including length',
 		'- Use ONLY the metadata below. You know nothing else about this event.',
@@ -170,6 +311,24 @@ function buildPrompt(event: EventMeta, skjerpet = false): string {
 	if (event.address) lines.push(`Address: ${event.address}`);
 	if (event.room) lines.push(`Room: ${event.room}`);
 	if (event.date) lines.push(`Date: ${event.date}`);
+	if (event.ageGroup && event.ageGroup !== 'all') lines.push(`Audience: ${event.ageGroup}`);
+	if (event.language === 'en') lines.push('Event language: English');
+	if (event.language === 'both') lines.push('Event language: Norwegian and English');
+
+	if (event.facts && Object.keys(event.facts).length > 0) {
+		// Den trygge veien. Verdiene er atomaere fakta hentet fra kildesida —
+		// navn, form, aldersgrense, klokkeslett — aldri arrangoerens setninger.
+		// Se hentFakta() og erAtomaertFaktum().
+		lines.push('', 'VERIFIED FACTS from the event page (use these, they are why the description can be specific):');
+		for (const [k, v] of Object.entries(event.facts)) {
+			lines.push(`  ${k}: ${Array.isArray(v) ? v.join(', ') : v}`);
+		}
+		lines.push(
+			'A time given here is confirmed by the page and may be stated.',
+			'Facts you were not given do not exist. Do not fill the gaps.'
+		);
+	}
+
 	if (event.sourceText) {
 		// Avgrenset med markoerer slik at modellen ser hvor fakta slutter og
 		// instruksjonene begynner. 1 200 tegn holder til aa faa med besetning
