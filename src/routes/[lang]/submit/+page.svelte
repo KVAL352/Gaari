@@ -312,6 +312,12 @@
 			ticket_url: normalizeUrl(fd.get('ticket-url') as string),
 			image_url: imageUrl,
 			submitter_email: submitterEmail,
+			// Uten en source faller innsendingen mellom stolene i to systemer som
+			// begge slår opp på den. dedup gir den 0 poeng og lar enhver scraper
+			// vinne, og enforce-image-blocks.ts finner den ikke i samtykke-
+			// registeret og fjerner bildet. Begge deler skjer stille.
+			// Rangeringen ligger i SOURCE_RANK i scripts/lib/dedup.ts.
+			source: 'innsending',
 			age_group: 'all',
 			language: 'both',
 			status: 'pending'

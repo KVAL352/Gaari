@@ -51,6 +51,26 @@ bildet arrangørens kontroll, og det krever alltid et dokumentert ja. Koden hån
 dette: en kilde uten grunnlag `dokumentert` kommer ikke inn i promo-listen, uansett
 hva som står i omfang-feltet.
 
+## Bilder arrangøren har lastet opp selv
+
+Ikke alle bilder på gaari.no kommer fra en kilde i tabellene under. Sender en
+arrangør inn et arrangement gjennom `/submit` og laster opp et bilde, ligger fila
+hos oss og ikke hos dem, og det finnes ingen rad å slå opp i her.
+
+Grunnlaget er et annet: skjemaet laster bare opp fila når avsenderen har krysset
+av for at de har rettighetene. Uten avkryssingen sendes ingen fil. Samtykket er
+gitt per innsending og ikke per arrangør, og derfor står de ikke i registeret.
+
+Sperrelisten står over dette. Har en arrangør sagt nei, hjelper det ikke at noen
+andre laster opp bildet gjennom skjemaet.
+
+**Svakheten, notert 2026-08-25:** avkryssingen lagres ingen steder. Den styrer om
+fila lastes opp, og så er den borte. Kommer det et krav på et innsendt bilde, kan
+vi vise at porten fantes (koden og git-historikken), men ikke at nettopp denne
+avsenderen gikk gjennom den. Varselet i Protonmail `Folders/Gaari/Submissions`
+noterer bare SoMe-samtykket, ikke rettighetsbekreftelsen. Å lagre den på raden er
+en liten endring og bør gjøres.
+
 ## Dokumentert samtykke (22)
 
 Beviset er en e-post i `Avtaler` eller et lydopptak med tidspunkt. Formen er

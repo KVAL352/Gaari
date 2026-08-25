@@ -324,6 +324,25 @@ export function isImageAllowed(source: string, sourceUrl: string, title: string,
 		const url = (sourceUrl || '').toLowerCase();
 		if (IMAGE_BLOCKED_URL_PATTERNS.some(p => url.includes(p))) return false;
 	}
+	// Bildet er lastet opp gjennom /submit av arrangøren selv.
+	//
+	// Opplastingen skjer bare når avsenderen har krysset av for at de har
+	// rettighetene; uten den avkryssingen sendes ingen fil. Porten er altså
+	// allerede passert, og listen over godkjente kilder svarer på et annet
+	// spørsmål: om VI kan hente et bilde fra noen andres side.
+	//
+	// Uten dette unntaket falt innsendinger mellom stolene. `source` er ikke
+	// satt for dem, og tom streng finnes ikke i IMAGE_APPROVED_SOURCES, så
+	// `enforce-image-blocks.ts` nullet `image_url` neste gang den kjørte. Fila
+	// ble liggende i bøtta. Resultatet var det verst tenkelige av to verdener:
+	// vi lagret bildet uten å vise det. Macbeth-innsendingen fra 9. august
+	// mistet bildet sitt 11. august på denne måten, og fila lå igjen til den ble
+	// ryddet 25. august.
+	//
+	// Sperrelisten over står fortsatt over dette. Har en arrangør sagt nei,
+	// hjelper det ikke at noen andre laster opp bildet gjennom skjemaet.
+	if (eventImageStoragePath(imageUrl) !== null) return true;
+
 	if (IMAGE_APPROVED_SOURCES.has(source)) return true;
 	if (IMAGE_APPROVED_URL_PATTERNS.some(p => sourceUrl.includes(p))) return true;
 	if (source === 'bergenbibliotek') {

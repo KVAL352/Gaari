@@ -44,6 +44,18 @@ const SOURCE_RANK: Record<string, number> = {
 	highvoltage: 5,
 	fortellerstraedet: 5,
 
+	// Innsendt av arrangøren selv gjennom /submit, og godkjent av et menneske
+	// før den kom hit — pending-rader er utenfor dedup, se hentDedupKandidater().
+	//
+	// Tier 4 og ikke 5: de håndinnlagte kildene over er arrangører Kjersti har
+	// hatt kontakt med, mens en skjemainnsending er uverifisert utover selve
+	// godkjenningen. Har en scene sin egen scraper, er den utgaven som regel
+	// bedre vedlikeholdt — Kjøtt Festival kom inn 23. august med tittelen «Kjøtt
+	// Festival » og én dato, mens bergenkjott-scraperen hadde riktig tittel og
+	// begge dagene. Tier 4 lar likevel innsendingen slå billettplattformene, som
+	// er tilfellet der arrangøren faktisk vet best.
+	innsending: 4,
+
 	// Tier 4 — venue / club sources
 	nordnessjobad: 4,
 	raabrent: 4,

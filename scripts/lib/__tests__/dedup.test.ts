@@ -322,6 +322,19 @@ describe('scoreEvent', () => {
 		expect(scoreEvent({ ...baseEvent, source: 'unknownsource' })).toBe(0);
 	});
 
+	/**
+	 * Innsendinger fra /submit hadde ingen source i det hele tatt fram til
+	 * 25. august, og scoret dermed 0. Kjoett Festival kom inn 23. august og var
+	 * slettet klokka 07:00 dagen etter, foer noen hadde lest den.
+	 */
+	it('rangerer en innsending over billettplattformene, men under scenens egen kilde', () => {
+		const innsending = scoreEvent({ ...baseEvent, source: 'innsending' });
+
+		expect(innsending).toBeGreaterThan(0);
+		expect(innsending).toBeGreaterThan(scoreEvent({ ...baseEvent, source: 'ticketco' }));
+		expect(innsending).toBeLessThan(scoreEvent({ ...baseEvent, source: 'dns' }));
+	});
+
 	it('accumulates all bonuses', () => {
 		const fullEvent: EventRow = {
 			...baseEvent,

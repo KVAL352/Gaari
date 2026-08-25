@@ -331,9 +331,47 @@ describe('isImageAllowed — sperren må ikke være avhengig av navnet', () => {
 		).toBe(true);
 	});
 
-	it('nekter bilde når kilden mangler, slik innsendinger kommer inn', () => {
-		// Innsendinger fra skjemaet har ingen source før noen setter den. Uten
-		// den treffer verken IMAGE_APPROVED_SOURCES eller PROMO_APPROVED_SOURCES.
+	it('nekter et fremmed bilde når kilden mangler', () => {
+		// Et bilde vi ville hentet fra en annen sides server, uten en kilde som
+		// står i samtykkeregisteret. Da er det ingenting som sier at vi har lov.
 		expect(isImageAllowed('', 'https://gaari.no/x', 'Et arrangement', 'Et sted', 'https://img/1.jpg')).toBe(false);
+	});
+});
+
+describe('isImageAllowed — bilder arrangøren har lastet opp selv', () => {
+	const OPPLASTET =
+		'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/events/macbeth-mslrmzbg.jpg';
+
+	/**
+	 * /submit laster bare opp fila når avsenderen har krysset av for at de har
+	 * rettighetene. Porten er passert i det fila finnes, og listen over
+	 * godkjente kilder svarer på et annet spørsmål: om VI kan hente et bilde fra
+	 * noen andres side.
+	 *
+	 * Uten unntaket nullet enforce-image-blocks.ts image_url mens fila ble
+	 * liggende i bøtta. Vi lagret altså bildet uten å vise det.
+	 */
+	it('godtar egen opplasting selv uten kilde', () => {
+		expect(isImageAllowed('', '', 'Macbeth', 'Bergenhus Festning', OPPLASTET)).toBe(true);
+	});
+
+	it('godtar egen opplasting med innsending som kilde', () => {
+		expect(isImageAllowed('innsending', '', 'Macbeth', 'Bergenhus Festning', OPPLASTET)).toBe(true);
+	});
+
+	it('lar sperrelisten stå over unntaket', () => {
+		// Hulen har sagt nei. At noen andre laster opp bildet gjennom skjemaet
+		// gjør det ikke lovlig.
+		const hulen =
+			'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/events/konsert-paa-hulen-abc.jpg';
+		expect(isImageAllowed('innsending', '', 'Svalestup || Hulen', 'Bergen', hulen)).toBe(false);
+	});
+
+	it('gjelder ikke fellesbildene under fallback/', () => {
+		// De er delte per arrangør og har sin egen behandling lenger opp. Unntaket
+		// her skal bare treffe arrangementets egen opplasting.
+		const felles =
+			'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/fallback/ukjent.jpg';
+		expect(isImageAllowed('', '', 'Et arrangement', 'Et sted', felles)).toBe(false);
 	});
 });
