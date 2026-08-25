@@ -12,6 +12,65 @@ interface EventMeta {
 	 *  dem sender dem ikke, og prompten hopper da over dem. */
 	bydel?: string;
 	address?: string;
+	/**
+	 * Arrangoerens egen omtale, som FAKTAGRUNNLAG — aldri til gjenbruk.
+	 *
+	 * 64 scrapere henter ut slik tekst i dag, og ingen av dem sender den hit.
+	 * ticketco.ts henter 500 tegn paa linje 207, bruker dem til aa gjette
+	 * kategori, og kaster dem. Resultatet er at modellen bare vet tittel,
+	 * sted, kategori og dato — og derfor blir beskrivelsene 115 tegn.
+	 *
+	 * aandsverksloven: teksten skal aldri gjengis. Prompten forbyr det, og
+	 * harVerbatimOverlapp() under haandhever det i kode, fordi en promptregel
+	 * alene ikke er en sperre.
+	 */
+	sourceText?: string;
+}
+
+/**
+ * Deler beskrivelsen en sammenhengende ordrekke med kildeteksten?
+ *
+ * En promptregel om aa «skrive originalt» er en oppfordring, ikke en sperre.
+ * Denne er sperren: aatte ord paa rad er ikke lenger en omskriving, det er et
+ * sitat. Da forkastes svaret framfor aa lagre noe vi ikke har rett til.
+ */
+export function harVerbatimOverlapp(generert: string, kilde: string, minOrd = 8, minVanlige = 4): boolean {
+	// Casen beholdes: egennavn skal telles for seg. Se under.
+	const ord = (s: string) =>
+		s.replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/).filter(Boolean);
+	const g = ord(generert);
+	const k = ord(kilde);
+	if (g.length < minOrd || k.length < minOrd) return false;
+
+	const erEgennavn = (o: string) => /^\p{Lu}/u.test(o);
+	const lav = (a: string[]) => a.map(o => o.toLowerCase());
+
+	const kLav = lav(k);
+	const kFraser = new Set<string>();
+	for (let i = 0; i + minOrd <= kLav.length; i++) {
+		kFraser.add(kLav.slice(i, i + minOrd).join(' '));
+	}
+
+	const gLav = lav(g);
+	for (let i = 0; i + minOrd <= gLav.length; i++) {
+		if (!kFraser.has(gLav.slice(i, i + minOrd).join(' '))) continue;
+
+		// Treff paa ordrekka alene er ikke nok.
+		//
+		// «Selma French Bolstad, Øystein Aarnes Vik, Solveig Wang og Martin
+		// Morland» er elleve ord paa rad, og en omskriving kan umulig unngaa
+		// dem — fire personers navn er fakta, ikke formulering, og
+		// aandsverksloven verner ikke en navneliste. Foerste utgave av denne
+		// funksjonen forkastet nettopp de beskrivelsene som hadde faatt med
+		// besetningen, altsaa det verdifulle.
+		//
+		// Et sitat kjennes paa bindeteksten mellom navnene. Krever vi at
+		// rekka ogsaa inneholder noen vanlige ord, fanger vi «kjennetegnes av
+		// sitt organiske og drivende sound» og slipper navnelista gjennom.
+		const vanlige = g.slice(i, i + minOrd).filter(o => !erEgennavn(o)).length;
+		if (vanlige >= minVanlige) return true;
+	}
+	return false;
 }
 
 interface BilingualDescription {
@@ -38,7 +97,7 @@ function getClient(): GoogleGenAI | null {
 	return ai;
 }
 
-function buildPrompt(event: EventMeta): string {
+function buildPrompt(event: EventMeta, skjerpet = false): string {
 	const lines = [
 		'You write event descriptions for Gåri, an event listings site for Bergen, Norway.',
 		'Write an original description in both Norwegian (bokmål) and English, and translate the title to English.',
@@ -60,6 +119,15 @@ function buildPrompt(event: EventMeta): string {
 		'',
 		'FACTUAL DISCIPLINE — this outranks every other rule, including length',
 		'- Use ONLY the metadata below. You know nothing else about this event.',
+		'- Where an ORGANISER TEXT is supplied, it is your factual source. Take the',
+		'  facts from it — who performs, what the work is, what happens — and write',
+		'  them in your own words. You must NOT reuse its sentences, its phrasing or',
+		'  its adjectives, and you must not translate it sentence by sentence. If you',
+		'  find yourself following its structure, stop and start from the facts alone.',
+		'  Norwegian copyright law applies to that text; we may state its facts, never',
+		'  reproduce its expression.',
+		'- The organiser text is marketing. Strip the sell: "en magisk kveld du sent',
+		'  vil glemme" is not a fact. Keep names, works, line-ups, genres and format.',
 		'- A short, wholly factual description is a SUCCESS. Running out of things you',
 		'  actually know is the normal case, not a failure. Stop writing at that point.',
 		'  Two accurate sentences beat four with one invented clause.',
@@ -102,6 +170,26 @@ function buildPrompt(event: EventMeta): string {
 	if (event.address) lines.push(`Address: ${event.address}`);
 	if (event.room) lines.push(`Room: ${event.room}`);
 	if (event.date) lines.push(`Date: ${event.date}`);
+	if (event.sourceText) {
+		// Avgrenset med markoerer slik at modellen ser hvor fakta slutter og
+		// instruksjonene begynner. 1 200 tegn holder til aa faa med besetning
+		// og verk uten aa drukne prompten i markedsfoeringstekst.
+		lines.push(
+			'',
+			'ORGANISER TEXT (facts only — never reuse its wording):',
+			'---',
+			event.sourceText.replace(/\s+/g, ' ').trim().slice(0, 1200),
+			'---'
+		);
+	}
+	if (skjerpet) {
+		lines.push(
+			'',
+			'YOUR PREVIOUS ANSWER REUSED THE ORGANISER TEXT VERBATIM AND WAS REJECTED.',
+			'Write from the facts alone. Do not look at how the organiser phrased them.',
+			'Change the sentence order and the vocabulary. Shorter is fine.'
+		);
+	}
 	lines.push('', 'Respond in JSON only: {"no": "...", "en": "...", "title_en": "..."}');
 	return lines.join('\n');
 }
@@ -130,11 +218,15 @@ export async function generateDescription(event: EventMeta): Promise<BilingualDe
 	const client = getClient();
 	if (!client || dailyQuotaExhausted) return fallback(event);
 
+	// Settes naar et svar laa for taett paa kildeteksten, og skjerper prompten
+	// i neste forsoek.
+	let skjerpet = false;
+
 	for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
 		try {
 			const response = await client.models.generateContent({
 				model: GEMINI_MODEL,
-				contents: buildPrompt(event),
+				contents: buildPrompt(event, skjerpet),
 			});
 
 			const text = response.text?.trim();
@@ -168,6 +260,25 @@ export async function generateDescription(event: EventMeta): Promise<BilingualDe
 			const MAKS = 500;
 			if (parsed.no.length > MAKS) parsed.no = parsed.no.slice(0, MAKS - 3) + '...';
 			if (parsed.en.length > MAKS) parsed.en = parsed.en.slice(0, MAKS - 3) + '...';
+
+			// Opphavsrettssperra. En promptregel er en oppfordring; dette er
+			// sperra. Deler svaret aatte ord paa rad med arrangoerens tekst, er
+			// det et sitat og ikke en omskriving — da forkaster vi det heller enn
+			// aa lagre noe vi ikke har rett til aa publisere.
+			if (event.sourceText) {
+				const forTett = (['no', 'en'] as const).find(f => harVerbatimOverlapp(parsed[f], event.sourceText!));
+				if (forTett) {
+					// Ett forsoek til med skjerpet instruks foer vi gir opp. Aa falle
+					// rett til mal er aa bytte et for godt svar mot et ubrukelig et.
+					if (!skjerpet) {
+						console.warn(`[ai-descriptions] "${event.title}" (${forTett}) laa for taett paa kildeteksten — proever igjen`);
+						skjerpet = true;
+						continue;
+					}
+					console.warn(`[ai-descriptions] "${event.title}" laa for taett to ganger — bruker mal`);
+					return fallback(event);
+				}
+			}
 
 			// title_en is optional — keep if present and non-empty
 			if (!parsed.title_en || parsed.title_en.trim().length === 0) {

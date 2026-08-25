@@ -204,7 +204,10 @@ async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inse
 		if (await eventExists(sourceUrl)) continue;
 
 		const venueName = event.location?.name || event.organizer?.name || subdomain;
-		const description = stripHtml(event.description || '').slice(0, 500);
+		// 1 200 og ikke 500: grensa var satt for kategorigjetting, der de foerste
+		// setningene holder. Som faktagrunnlag for beskrivelsen ligger
+		// besetning og verk ofte lenger nede. Prompten klipper paa samme tall.
+		const description = stripHtml(event.description || '').slice(0, 1200);
 		const category = mapCategory(event.name, description, event.organizer?.name || '', venueName);
 		const bydel = mapBydel(venueName);
 		const datePart = event.startDate.slice(0, 10);
@@ -213,7 +216,25 @@ async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inse
 		await delay(500);
 		const price = await fetchTicketCoPrice(sourceUrl);
 
-		const aiDesc = await generateDescription({ title: event.name, venue: venueName, category, date: new Date(event.startDate), price });
+		// `description` er arrangoerens egen omtale. Fram til naa ble den bare
+		// brukt til aa gjette kategori paa linja over, og saa kastet — og
+		// modellen satt igjen med tittel, sted, kategori og dato. Det er derfor
+		// beskrivelsene laa paa 115 tegn.
+		//
+		// Med kildeteksten inn: 218 tegn i snitt, og faktisk innhold. Uten den
+		// kalte modellen en Wim Wenders-filmvisning for «en konsert».
+		//
+		// Teksten skal aldri gjengis. Prompten sier fra, og
+		// harVerbatimOverlapp() i ai-descriptions.ts forkaster svar som deler
+		// aatte ord paa rad med kilden.
+		const aiDesc = await generateDescription({
+			title: event.name,
+			venue: venueName,
+			category,
+			date: new Date(event.startDate),
+			bydel,
+			sourceText: description || undefined,
+		});
 
 		const success = await insertEvent({
 			slug: makeSlug(event.name, datePart),
