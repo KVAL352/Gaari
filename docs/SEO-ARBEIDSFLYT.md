@@ -56,7 +56,7 @@ endrer utformingen av søkeresultatene.
 | `db1d81e` | `scripts/backfill-title-en.ts` — satsvis backfill av engelske titler. |
 | `a9028fb` | Sesongsider viste alltid inneværende år, og fire av dem hadde årstallet hardkodet i tittelen i tillegg — «Nattjazz 2026 — Program og billetter 2026» lå ute i drift. `getSeasonYear()` ruller nå til neste utgave når sesongen er over. |
 
-Alle 1 232 tester passerer etter endringene.
+Alle 1 242 tester passerer etter endringene, og `npm run check` gir null feil.
 
 ---
 
@@ -73,11 +73,20 @@ Målt på 1 979 kommende arrangementer 25. august:
 |---|---:|---|
 | `image_url` | 410 (21 %) | Svakest mulige kandidat til rich result |
 | `price` | 1 128 (57 %) | `offers.price` utelates |
-| `title_en` | 1 720 (87 %) | Engelske sider viser norske titler |
+| ~~`title_en`~~ | ~~1 720 (87 %)~~ **GJORT** | Se under |
 | `ticket_url` | 246 (12 %) | Ingen `offers.url` |
 
-1. **Kjør `backfill-title-en.ts` til køen er tom.** Idempotent, så den kan
-   kjøres om igjen. Se sperrelisten om kvote.
+1. ~~**Kjør `backfill-title-en.ts` til køen er tom.**~~ **Gjort 25. august.**
+   Dekningen gikk fra 13 % til **88 %** — 1 460 titler oversatt over to
+   kjøringer. De 235 som står igjen skal stå igjen: bandnavn (*Kalandra*,
+   *Tåkefyrstene*, *EMMELUTH'S AMOEBA*), egennavn (*Max Raabe & Palast
+   Orchester*) og titler som alt er engelske (*The Book of Mormon*, *Poetry
+   Night*). Modellen fikk lov til å si nei, og sa nei på riktig sted.
+
+   Første kjøring mistet én sats på en forbigående 503 fra Gemini. Jobben er
+   idempotent, så kjøring nummer to tok dem. **Kjør den om igjen etter hver
+   scrape** til scrapen selv lager `title_en` — nye arrangementer kommer inn
+   uten.
 2. **Kategorisering.** `culture` har 477 kommende arrangementer mot `music`
    146. Otis Gibbs på Ole Bull Scene ligger som `culture`, får generisk
    `Event` i stedet for `MusicEvent`, og mister `performer` samtidig. Ta en
