@@ -374,8 +374,8 @@
 
 		if (isFacebookUrl(url)) {
 			websiteError = $lang === 'no'
-				? 'Vi kan dessverre ikke hente arrangementer fra Facebook. Du kan i stedet legge inn arrangementer enkeltvis — gå tilbake og velg «Enkeltarrangement».'
-				: 'Unfortunately we cannot import events from Facebook. You can add events individually instead — go back and choose "Single event".';
+				? 'Vi kan dessverre ikke hente arrangementer fra Facebook. Du kan i stedet legge inn arrangementer enkeltvis. Gå tilbake og velg «Enkeltarrangement».'
+				: 'Unfortunately we cannot import events from Facebook. You can add events individually instead. Go back and choose "Single event".';
 			websiteSubmitting = false;
 			return;
 		}
@@ -385,9 +385,9 @@
 		const note = (fd.get('website-note') as string)?.trim() || '';
 
 		const imageNotes: Record<string, string> = {
-			'rights': '\n\n✅ Bilderettigheter bekreftet.',
-			'no-rights': '\n\n⚠️ Ingen bilderettigheter — vis uten bilder.',
-			'unsure': '\n\n❓ Usikker på bilderettigheter — ønsker å bli kontaktet.'
+			'rights': '\n\nBilderettigheter bekreftet.',
+			'no-rights': '\n\nIngen bilderettigheter. Vis uten bilder.',
+			'unsure': '\n\nUsikker på bilderettigheter. Ønsker å bli kontaktet.'
 		};
 		// Promo-samtykket noteres alltid når de har rettighetene, også når svaret
 		// er nei. Et ubesvart felt og et uttrykkelig nei ser like ut i ettertid
@@ -778,7 +778,7 @@
 						<span class="text-sm text-[var(--color-text-secondary)]">
 							{$lang === 'no' ? 'Klikk for å laste opp bilde' : 'Click to upload image'}
 						</span>
-						<span class="text-xs text-[var(--color-text-muted)]">JPG, PNG, WebP — maks 10 MB</span>
+						<span class="text-xs text-[var(--color-text-muted)]">JPG, PNG, WebP (maks 10 MB)</span>
 						<input
 							type="file"
 							accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp,.heic,.heif"
@@ -828,10 +828,10 @@
 
 	<div class="mt-10 border-t border-[var(--color-border)] pt-6 text-center text-sm text-[var(--color-text-secondary)]">
 		{#if $lang === 'no'}
-			Problemer med å sende inn? Vi hjelper deg —
+			Problemer med å sende inn? Vi hjelper deg:
 			<a href="mailto:post@gaari.no" class="font-medium text-[var(--color-text-primary)] underline hover:text-[var(--color-accent)]">post@gaari.no</a>
 		{:else}
-			Having trouble submitting? We're happy to help —
+			Having trouble submitting? We're happy to help:
 			<a href="mailto:post@gaari.no" class="font-medium text-[var(--color-text-primary)] underline hover:text-[var(--color-accent)]">post@gaari.no</a>
 		{/if}
 	</div>
