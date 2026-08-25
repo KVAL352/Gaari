@@ -70,7 +70,7 @@ function libraryBydel(location: string): string {
  *  kreditering står "under bildet i kalenderen" når den finnes, men "glipper innimellom".
  *  Trygge kategorier her er Ragnar Rørnes-illustrasjoner, Unsplash, forfatterportretter
  *  med fotografkreditering, og bibliotekets egne bilder. */
-async function fetchDetail(url: string, title?: string): Promise<{ price: string; nonPublic: boolean; imageUrl?: string; imageCredit?: string }> {
+async function fetchDetail(url: string, title?: string): Promise<{ price: string; nonPublic: boolean; imageUrl?: string; imageCredit?: string; sourceText?: string }> {
 	const html = await fetchHTML(url);
 	if (!html) return { price: 'Gratis', nonPublic: false };
 	const $ = cheerio.load(html);
@@ -90,10 +90,23 @@ async function fetchDetail(url: string, title?: string): Promise<{ price: string
 	// the caller may pass through to backfill credit for a previously stored image.
 	const imageCredit = extractImageCredit($, imageUrl, title);
 
+	// Bibliotekets egen omtale, som faktagrunnlag for beskrivelsen — aldri til
+	// gjenbruk. Detaljsida er alt lastet her, saa teksten koster ingen ekstra
+	// forespoersel. Plone legger ingressen i documentDescription og broedteksten
+	// i parent-fieldname-text; sammen gir de rundt 800 tegn ekte innhold der
+	// modellen tidligere bare hadde tittel, sted og dato.
+	//
+	// harVerbatimOverlapp() i ai-descriptions.ts forkaster svar som legger seg
+	// for taett paa denne teksten.
+	const sourceText = [
+		$('div.documentDescription').first().text(),
+		$('#parent-fieldname-text').first().text(),
+	].join(' ').replace(/\s+/g, ' ').trim() || undefined;
+
 	const priceText = $('div.exclude').first().text().trim();
-	if (!priceText) return { price: 'Gratis', nonPublic, imageUrl, imageCredit };
-	if (/gratis|free/i.test(priceText)) return { price: 'Gratis', nonPublic, imageUrl, imageCredit };
-	return { price: priceText, nonPublic, imageUrl, imageCredit };
+	if (!priceText) return { price: 'Gratis', nonPublic, imageUrl, imageCredit, sourceText };
+	if (/gratis|free/i.test(priceText)) return { price: 'Gratis', nonPublic, imageUrl, imageCredit, sourceText };
+	return { price: priceText, nonPublic, imageUrl, imageCredit, sourceText };
 }
 
 /** Extract image URL from the listing link's background-image style */
@@ -223,7 +236,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const imageUrl = detail.imageUrl || listingImage;
 		const imageCredit = detail.imageCredit;
 
-		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, price });
+		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, sourceText: detail.sourceText });
 
 		const success = await insertEvent({
 			slug: makeSlug(title, parsed.date),
