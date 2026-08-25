@@ -3,7 +3,8 @@
 	import { enhance } from '$app/forms';
 	import { lang, t } from '$lib/i18n';
 	import {
-		formatEventDate, formatEventTime, formatMetaDate, formatPrice, isFreeEvent, buildOutboundUrl
+		formatEventDate, formatEventTime, formatMetaDate, formatPrice, isFreeEvent, buildOutboundUrl,
+		outboundRel
 	} from '$lib/utils';
 	import type { GaariEvent } from '$lib/types';
 	import { generateEventJsonLd, generateBreadcrumbJsonLd, getCanonicalUrl } from '$lib/seo';
@@ -378,7 +379,7 @@
 			<a
 				href={buildOutboundUrl(event.ticket_url || event.source_url!, 'event_detail', event.venue_name, event.slug)}
 				target="_blank"
-				rel="noopener noreferrer"
+				rel={outboundRel(event.ticket_url || event.source_url!)}
 				onclick={trackTicketClick}
 				class="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-hover)]"
 			>
@@ -451,7 +452,7 @@
 			<a
 				href={buildOutboundUrl(event.ticket_url || event.source_url!, 'event_detail', event.venue_name, event.slug)}
 				target="_blank"
-				rel="noopener noreferrer"
+				rel={outboundRel(event.ticket_url || event.source_url!)}
 				onclick={trackTicketClick}
 				class="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-hover)]"
 			>

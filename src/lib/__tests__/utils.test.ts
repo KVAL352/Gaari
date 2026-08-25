@@ -4,6 +4,7 @@ import {
 	formatPrice,
 	slugify,
 	buildOutboundUrl,
+	outboundRel,
 	formatEventTime,
 	toBergenIsoFromParts
 } from '../utils';
@@ -263,5 +264,37 @@ describe('buildOutboundUrl', () => {
 
 	it('returns original URL for invalid input', () => {
 		expect(buildOutboundUrl('not-a-url', 'event_detail')).toBe('not-a-url');
+	});
+});
+
+describe('outboundRel', () => {
+	it('holder på noreferrer for en vanlig arrangør', () => {
+		expect(outboundRel('https://www.grieghallen.no/program')).toBe('noopener noreferrer');
+	});
+
+	it('slipper referreren gjennom til bookibud, som har bedt om det', () => {
+		expect(outboundRel('https://bookibud.com/bergen-street-food/event/quiz-2026-09-10')).toBe('noopener');
+	});
+
+	it('dekker www og underdomener hos en vert i listen', () => {
+		expect(outboundRel('https://www.bookibud.com/x')).toBe('noopener');
+		expect(outboundRel('https://kasse.bookibud.com/x')).toBe('noopener');
+	});
+
+	// Uten dette ville «minbookibud.com.evil.no» og «notbookibud.com» sluppet
+	// unna på en ren substring-sjekk.
+	it('lar seg ikke lure av en vert som bare inneholder navnet', () => {
+		expect(outboundRel('https://notbookibud.com/x')).toBe('noopener noreferrer');
+		expect(outboundRel('https://bookibud.com.evil.no/x')).toBe('noopener noreferrer');
+	});
+
+	it('faller tilbake til det strengeste når adressen ikke lar seg lese', () => {
+		expect(outboundRel('not-a-url')).toBe('noopener noreferrer');
+	});
+
+	it('noopener står uansett', () => {
+		for (const u of ['https://bookibud.com/x', 'https://grieghallen.no/x', 'not-a-url']) {
+			expect(outboundRel(u).split(' ')).toContain('noopener');
+		}
 	});
 });

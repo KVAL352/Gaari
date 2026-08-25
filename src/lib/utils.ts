@@ -542,6 +542,41 @@ export function buildOutboundUrl(
 	}
 }
 
+/**
+ * Verter som selv har bedt om å få se at besøket kom fra gaari.no.
+ *
+ * Bookibud spurte 2026-08-25: henvisningskoden deres ligger i selve adressen og
+ * påvirkes ikke, men de har en egen telling som trenger Referer-toppen for å
+ * kunne kontrollere tallene sine uavhengig. `noreferrer` slår den av.
+ *
+ * Listen er en unntaksliste med vilje. Standarden er fortsatt at ingen får vite
+ * hvor klikket kom fra, og et navn kommer bare inn når mottakeren har spurt.
+ */
+const REFERRER_ALLOWED_HOSTS = ['bookibud.com'];
+
+/**
+ * `rel` for en utgående lenke.
+ *
+ * `noopener` står alltid. Det er sikkerhetsdelen, og den er uendret uansett hva
+ * denne funksjonen svarer. `noreferrer` er personverndelen, og den faller bare
+ * bort for verter i listen over.
+ *
+ * Referrer-Policy i hooks.server.ts er `strict-origin-when-cross-origin`, så det
+ * som faktisk sendes er `https://gaari.no/`, ikke hvilken arrangementsside
+ * besøkende kom fra.
+ */
+export function outboundRel(url: string): string {
+	try {
+		const host = new URL(url).hostname.replace(/^www\./, '');
+		const tillatt = REFERRER_ALLOWED_HOSTS.some(
+			(h) => host === h || host.endsWith(`.${h}`)
+		);
+		return tillatt ? 'noopener' : 'noopener noreferrer';
+	} catch {
+		return 'noopener noreferrer';
+	}
+}
+
 export function downloadICS(event: CalendarEventData) {
 	const ics = generateICS(event);
 	const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
