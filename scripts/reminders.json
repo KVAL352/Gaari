@@ -233,5 +233,10 @@
     "date": "2026-08-25",
     "title": "Mediacity-scraperen er pauset — avgjoer hva som skal skje",
     "description": "Pauset 24. august: 6 av 10 rader var ikke i Bergen (3 Tromsoe, 2 Oslo, 1 Amsterdam), alle med bydel Sentrum. medieklyngen.no lister arrangementer over hele landet. Alle 10 har ogsaa Cloudflares e-postskjuling i adressefeltet. Tatt ut av scrapers-registeret i scrape.ts, IKKE lagt i DISABLED_SOURCES - den ville slettet ogsaa de fire ekte Bergen-radene. De 6 utenbys ligger fortsatt synlig paa gaari.no. Tre valg: (1) skjul eller slett de 6 naa, (2) fiks scraperen til aa filtrere paa postnummer 5000-5399 og rydd adressefeltet, saa slaa den paa igjen, (3) la kilden ligge pauset. Slugene: putins-neste-trekk-2026-08-26 og slik-brukte-vi-crowdsourcing-i-boligjakten-2026-08-26 er to av dem."
+  },
+  {
+    "date": "2026-09-01",
+    "title": "Bergen Kjøtt: mangler klokkeslett for Svart Marked 25. oktober",
+    "description": "Sendt 25. august: spurte arrangøren når Svart Marked åpner og stenger søndag 25. oktober. Dagen mangler helt på gaari.no. Bergen Kjøtt har ingen egen side for den (kjottfestival25okt gir 404), og TicketCo omtaler den uten klokkeslett, så den kan ikke legges inn før tidspunktet er bekreftet. Når svaret kommer: source bergenkjott (rank 4, slår ticketco på 2), gratis, fri aldersgrense, kategori festival. Uten svar: purr en gang til, festivalen er 23.-25. oktober. Merk også at 23. oktober nå står uten aldersopplysning hos oss, mens TicketCo fortsatt selger fredagsbilletten med 'Obs: ID 18aar'. Bevisst valg 25. august."
   }
 ]
