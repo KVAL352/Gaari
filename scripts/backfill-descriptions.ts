@@ -32,7 +32,19 @@ const KILDE = kildeArg >= 0 ? process.argv[kildeArg + 1] : null;
  */
 function erMalTekst(e: { description_no: string | null; title_no: string; venue_name: string | null; category: string }): boolean {
 	if (!e.description_no) return true;
-	return e.description_no === makeDescription(e.title_no, e.venue_name || 'Bergen', e.category);
+	if (e.description_no === makeDescription(e.title_no, e.venue_name || 'Bergen', e.category)) return true;
+
+	// Eksakt sammenligning holder bare saa lenge venue_name er den samme naa som
+	// da malen ble skrevet. Endrer en scraper stedsnavnet — «Bergen Naeringsraad»
+	// blir «Bergen Naeringsraad, Olav Kyrres gate 11» — slutter raden aa matche
+	// fasiten og ser ut som ekte tekst. 34 rader stod slik 25. august, blant dem
+	// hele Det Vestnorske Teateret.
+	//
+	// Formen er den samme uansett sted: «tittel — Kategori paa Sted», uten
+	// punktum til slutt. Ekte beskrivelser er hele setninger.
+	const d = e.description_no.trim();
+	const t = e.title_no.trim();
+	return d.startsWith(`${t} — `) && / på /.test(d) && !/[.!?]$/.test(d);
 }
 
 async function main() {
@@ -42,7 +54,7 @@ async function main() {
 	while (true) {
 		const { data } = await supabase
 			.from('events')
-			.select('id, source, title_no, description_no, description_en, title_en, venue_name, category, date_start, price')
+			.select('id, source, title_no, description_no, description_en, title_en, venue_name, category, date_start, price, bydel, address')
 			.gte('date_start', nowUtc)
 			.order('id')
 			.range(from, from + 999);
@@ -77,7 +89,11 @@ async function main() {
 				venue: e.venue_name || 'Bergen',
 				category: e.category,
 				date: e.date_start,
-				price: e.price || '',
+				// Bydel og adresse er lokale signaler prompten kan bruke.
+				// Prisen sendes ikke lenger inn: beskrivelsen skal aldri paastaa
+				// noe om pris, og da er det tryggest aa ikke gi modellen tallet.
+				bydel: e.bydel || undefined,
+				address: e.address || undefined,
 			});
 
 			// Only update if AI actually produced something better

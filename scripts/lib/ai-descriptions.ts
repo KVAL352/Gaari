@@ -8,6 +8,10 @@ interface EventMeta {
 	date?: string | Date;
 	price?: string;
 	room?: string;
+	/** Bydel og adresse er lokale signaler. Valgfrie — scraperne som ikke har
+	 *  dem sender dem ikke, og prompten hopper da over dem. */
+	bydel?: string;
+	address?: string;
 }
 
 interface BilingualDescription {
@@ -36,22 +40,68 @@ function getClient(): GoogleGenAI | null {
 
 function buildPrompt(event: EventMeta): string {
 	const lines = [
-		'You write short event descriptions for a Bergen, Norway event website.',
-		'Given the event metadata below, write an original 1-2 sentence description in both Norwegian (bokmål) and English.',
-		'Also translate the event title to English. Keep proper nouns, band names, and artwork titles unchanged.',
-		'If the title is already in English or is a proper noun, use it as-is.',
-		'Be factual — only use the information provided. Do not invent details.',
-		'Keep each description under 160 characters (for SEO meta descriptions).',
-		'IMPORTANT: Describe what the EVENT is about, not what the venue offers. Never write generic phrases like "Mat og drikke på [venue]" or "Konsert på [venue]" — these add no value. Instead, describe the specific event content (e.g. what film, what band, what topic).',
-		'When space allows, naturally include the venue name and a readable date reference (e.g. "på Grieghallen i mars" / "at Grieghallen in March"). Do not force it — skip venue/date if including them would make the description feel cramped or unnatural.',
+		'You write event descriptions for Gåri, an event listings site for Bergen, Norway.',
+		'Write an original description in both Norwegian (bokmål) and English, and translate the title to English.',
 		'',
+		'LENGTH AND SHAPE',
+		'- Write as much as the metadata honestly supports and not one clause more.',
+		'  For most events that is two sentences and 120-250 characters. Only go longer',
+		'  when there are real specifics to carry it. A description is never padded to',
+		'  reach a length.',
+		'- The FIRST sentence must stand alone and be quotable: it says what the event is,',
+		'  where it is, and that it is in Bergen. Search engines cut the description short,',
+		'  and AI assistants lift that first sentence — everything essential goes there.',
+		'- Do not restate the title as a subordinate clause to fill space. "Naturskole - UNG',
+		'  er en familieaktivitet ... som er en naturskole rettet mot unge" says the same',
+		'  thing twice.',
+		'- Never state a clock time, and never describe practical arrangements such as where',
+		'  to meet, what to bring or how to get there. Start times in our data are sometimes',
+		'  a scraper default rather than the real time, and the page shows the time already.',
+		'',
+		'FACTUAL DISCIPLINE — this outranks every other rule, including length',
+		'- Use ONLY the metadata below. You know nothing else about this event.',
+		'- A short, wholly factual description is a SUCCESS. Running out of things you',
+		'  actually know is the normal case, not a failure. Stop writing at that point.',
+		'  Two accurate sentences beat four with one invented clause.',
+		'- You are FORBIDDEN to write any of the following unless it is stated in the',
+		'  metadata: what visitors will see, learn, feel or experience; the atmosphere,',
+		'  scenery, season or weather; who the event suits or is aimed at; the programme,',
+		'  performers, running time or history; the chance to network, discover or explore.',
+		'  These are the phrases that make a description sound full while saying nothing',
+		'  true. "Her kan du nyte høstfargene" and "explore new ideas and connect with',
+		'  peers" are exactly the failure being described.',
+		'- Never state or imply a price, and never say something is free.',
+		'- If the title is opaque (an unfamiliar band name, an artwork title), describe the',
+		'  event TYPE, the venue and the date, and stop. Do not guess what it contains.',
+		'',
+		'LOCAL SIGNALS',
+		'- Name the venue, and use the word "Bergen" naturally at least once.',
+		'- Mention the bydel only where it genuinely helps someone place the venue —',
+		'  typically outside the centre. Never add a clause whose only purpose is to fit',
+		'  the bydel in. "som er en del av utelivstilbudet i Bergenhus" is padding: cut it.',
+		'- Refer to the date readably. Norwegian: "lørdag 3. oktober". English:',
+		'  "Saturday 3 October" — no comma after the weekday, no ordinal suffix, and do not',
+		'  append the year unless the event is more than a year away.',
+		'',
+		'STYLE',
+		'- Describe what the EVENT is, never what the venue generally offers. Phrases like',
+		'  "Konsert på Grieghallen" or "Mat og drikke på X" carry no information.',
+		'- Plain, warm and concrete. No marketing language, no exclamation marks, no',
+		'  "opplev", "bli med på", "en uforglemmelig kveld", "don\'t miss".',
+		'- The English version is a real English description, not a word-for-word rendering',
+		'  of the Norwegian.',
+		'- Keep proper nouns, band names and artwork titles unchanged in title_en. If the',
+		'  title is already English or purely a proper noun, use it as-is.',
+		'',
+		'METADATA',
 		`Title: ${event.title}`,
 		`Venue: ${event.venue}`,
 		`Category: ${CATEGORY_LABELS_NO[event.category] || event.category}`,
 	];
+	if (event.bydel) lines.push(`Bydel (city district): ${event.bydel}`);
+	if (event.address) lines.push(`Address: ${event.address}`);
 	if (event.room) lines.push(`Room: ${event.room}`);
 	if (event.date) lines.push(`Date: ${event.date}`);
-	if (event.price) lines.push(`Price: ${event.price}`);
 	lines.push('', 'Respond in JSON only: {"no": "...", "en": "...", "title_en": "..."}');
 	return lines.join('\n');
 }
@@ -106,9 +156,18 @@ export async function generateDescription(event: EventMeta): Promise<BilingualDe
 				return fallback(event);
 			}
 
-			// Enforce 160 char limit
-			if (parsed.no.length > 160) parsed.no = parsed.no.slice(0, 157) + '...';
-			if (parsed.en.length > 160) parsed.en = parsed.en.slice(0, 157) + '...';
+			// Taket var 160 tegn «for SEO meta descriptions». Det var feil sted aa
+			// haandheve det: metaDescription i +page.svelte klipper allerede sin
+			// egen 160-tegns utgave og legger paa dato og sted, og broedteksten
+			// har en vis mer-knapp fra samme grense. Taket ga oss altsaa ingen
+			// SEO-gevinst — det ga oss arrangementssider uten broedtekst, og
+			// nesten ingenting for svarmotorene aa sitere.
+			//
+			// 500 er en sikkerhetsventil mot en modell som loeper loepsk, ikke et
+			// maal. Prompten ber om 250-450.
+			const MAKS = 500;
+			if (parsed.no.length > MAKS) parsed.no = parsed.no.slice(0, MAKS - 3) + '...';
+			if (parsed.en.length > MAKS) parsed.en = parsed.en.slice(0, MAKS - 3) + '...';
 
 			// title_en is optional — keep if present and non-empty
 			if (!parsed.title_en || parsed.title_en.trim().length === 0) {
