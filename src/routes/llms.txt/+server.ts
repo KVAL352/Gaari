@@ -177,19 +177,35 @@ export async function GET() {
 			.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`);
 		eventCount = count ?? 0;
 
-		// Grab 5 upcoming events as sample
+		// Smakebiten skal vise at Gåri er ferskt. Da maa den filtrere paa
+		// date_start, ikke date_end.
+		//
+		// Den gamle spoerringen gjenbrukte «pågår eller kommer»-filteret og
+		// sorterte paa date_start stigende. Faste serier (juniorklubbene i
+		// Aasane, Arna og Flaktveit) har date_start i mai 2025 og date_end i
+		// desember 2026, saa de fem eldste startdatoene paa hele nettstedet
+		// havnet oeverst — merket «live data» og datert 2025. Nettopp den
+		// fila skal overbevise svarmotorene om at vi er dagsferske.
 		const { data: samples } = await supabase
 			.from('events')
 			.select('title_no,title_en,venue_name,date_start,category')
 			.eq('status', 'approved')
-			.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
+			.gte('date_start', nowUtc)
 			.order('date_start', { ascending: true })
-			.limit(5);
+			.limit(40);
 
 		if (samples && samples.length > 0) {
-			const lines = samples.map(e => {
+			// Én per kategori foerst. Fem strekk paa rad fra samme kategori
+			// selger bredden i katalogen daarlig.
+			const seen = new Set<string>();
+			const spredt = samples.filter(e => !seen.has(e.category) && seen.add(e.category));
+			const utvalg = [...spredt, ...samples.filter(e => !spredt.includes(e))].slice(0, 5);
+
+			const lines = utvalg.map(e => {
 				const date = e.date_start.slice(0, 10);
-				const title = e.title_en || e.title_no;
+				// Noen kilder legger linjeskift midt i tittelen (Troldhaugen).
+				// Uten dette brekker punktlisten i markdown.
+				const title = (e.title_en || e.title_no).replace(/\s+/g, ' ').trim();
 				return `- ${title} — ${e.venue_name}, ${date} (${e.category})`;
 			});
 			sampleEvents = `## Sample upcoming events (live data)\n\n${lines.join('\n')}`;
