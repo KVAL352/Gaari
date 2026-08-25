@@ -54,6 +54,7 @@ endrer utformingen av søkeresultatene.
 | `2aca61c` | robots.txt sa `ai-train=no` og slapp samtidig inn hver eneste trenings-crawler. Nå sier signalet ja, i tråd med beslutningen om å bli kjent av modellene. |
 | `f0ad010` | Umami fikk aldri riktig land. Nå sendes `x-umami-client-*` fra Vercels geo-headere. |
 | `db1d81e` | `scripts/backfill-title-en.ts` — satsvis backfill av engelske titler. |
+| `a9028fb` | Sesongsider viste alltid inneværende år, og fire av dem hadde årstallet hardkodet i tittelen i tillegg — «Nattjazz 2026 — Program og billetter 2026» lå ute i drift. `getSeasonYear()` ruller nå til neste utgave når sesongen er over. |
 
 Alle 1 232 tester passerer etter endringene.
 
@@ -132,6 +133,14 @@ Problemet er at sidene er tomme. `/no/bergenfest` svarer i dag med
 `"numberOfItems":0`. Telling i basen: Hallaien 0, Bergenfest 0, Nattjazz 0,
 Borealis 0, Pride 0, Bergen Ølfestival 0, BIFF 2.
 
+**Årstallet var i tillegg feil.** Fire sider lå ute med doblet årstall i
+tittelen, og alle sesongsider viste inneværende år uansett om sesongen var
+over. Rettet i `a9028fb` — men det avdekket en gjeld til: `quickAnswer`,
+`editorial` og `faq` på festivalsidene låser fortsatt fjorårets datoer og
+artister i teksten. Bergenfest er skrevet om som mønster. **Nattjazz,
+Bergen Pride, BIFF, Borealis, Beyond the Gates og Festspillene står igjen**
+og bør tas med `copywriter`-skillen, én om gangen.
+
 En evigvarende URL som er tom ti måneder i året kan ikke rangere. Derfor:
 
 1. **Gi festivalsidene innhold som virker med null arrangementer.** Historie,
@@ -175,7 +184,7 @@ tømmes i stillhet: et punkt fjernes bare når det faktisk er gjort.
 
 | # | Sak | Hvorfor jeg ikke kan | Tid |
 |---|---|---|---|
-| S1 | **Gemini-kvoten er 20 kall i døgnet. Ta stilling til betalt nivå.** Se eget avsnitt under — dette er trolig den største enkeltsaken i hele gjennomgangen. | Krever et betalingskort på Google-prosjektet. | 15 min |
+| ~~S1~~ | ~~**Gemini-kvoten er 20 kall i døgnet.**~~ **LUKKET 25. august** — betaling aktivert, kvoten verifisert. Bakgrunnen står fortsatt under, fordi den forklarer hvorfor 76 % av katalogen hadde maltekst. | — | Gjort |
 | S2 | **Bing-feil.** 46–135 feil per dag, 1 714 sider indeksert mot 3 656 i sitemap. Hent de faktiske feil-URL-ene i Bing Webmaster Tools. | API-et gir bare aggregerte tall, ikke URL-lista. | 20 min |
 | S3 | **Core Web Vitals.** Ikke målt. Kjør PageSpeed Insights i nettleseren på `/no`, `/en` og en samlingsside. | API-et svarte `Quota exceeded` på det delte prosjektet. | 10 min |
 | S4 | **Verifiser Umami-geo etter deploy.** Sjekk at land viser Norge og ikke USA. | Fiksen virker først i drift, og historikken retter seg ikke bakover. | 5 min |
