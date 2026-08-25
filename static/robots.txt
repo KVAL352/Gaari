@@ -14,8 +14,25 @@ Disallow: /api/
 Disallow: /no/submit/
 Disallow: /en/submit/
 
-# Cloudflare Content Signals — allow AI search citation, disallow training
-Content-Signal: search=yes, ai-input=yes, ai-train=no
+# Cloudflare Content Signals.
+#
+# Bevisst valg 25. august 2026: vi sier ja til trening ogsaa.
+#
+# Fram til naa sa denne linjen ai-train=no, mens agentlisten under slapp inn
+# hver eneste trenings-crawler som finnes — GPTBot, Google-Extended,
+# Applebot-Extended, anthropic-ai, cohere-ai, Bytespider, Amazonbot. Flere av
+# de navnene finnes bare som avmelding fra trening: Google-Extended styrer
+# Gemini-trening og har null aa si for Google-indeksering. Fila motsa altsaa
+# seg selv, og hvilken halvdel som gjaldt var opp til den enkelte crawleren.
+#
+# Vi loeser motsigelsen ved aa mene det agentlisten allerede gjorde. Maalet er
+# at modellene kjenner Gaari og anbefaler oss uoppfordret, ikke bare siterer
+# oss naar noen soeker. Det krever at vi er i treningsgrunnlaget.
+#
+# Merk at dette IKKE aapner for masseuttrekk: vilkaarene oeverst gjelder
+# fortsatt, og systematisk innhoesting til konkurrerende tjenester krever
+# skriftlig avtale.
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # AI crawlers — explicitly allowed for indexing and knowledge base inclusion
 User-agent: GPTBot
