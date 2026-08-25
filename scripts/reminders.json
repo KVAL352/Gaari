@@ -263,5 +263,10 @@
     "date": "2026-11-25",
     "title": "Regn ut CTR-kurven paa nytt",
     "description": "Kurven i docs/SEO-ARBEIDSFLYT.md er maalt 25. august 2026 og styrer hele prioriteringen: fallet fra plass 2 til 3 er brattere enn hele strekket fra 3 til 15, saa rangeringsarbeid i 7-til-4-sjiktet loenner seg daarlig. Den flytter seg naar Google endrer utformingen av soekeresultatene. Hent queries fra GSC med 90 dagers vindu og grupper CTR per posisjonsbaand."
+  },
+  {
+    "date": "2026-08-26",
+    "title": "DNT svarer 500 — 119 arrangementer kan bli slettet",
+    "description": "Alle arrangementssidene til dnt.no svarer HTTP 500. Bekreftet 25. aug at det er deres feil og ikke vaar: samme 500 med vanlig nettleser-UA, mens forsida deres svarer 200. Vi lenker 119 arrangementer dit, og brukere som klikker faar feilside. Verre: check-links.ts teller 500 som brutt, og sletter etter 3 strikes. 7 rader har alt 1. Er dette midlertidig nedetid hos DNT, mister vi 119 gyldige arrangementer i loepet av noen dager. Sjekk om sidene er tilbake. Er de fortsatt nede: vurder aa sende DNT Bergen en kort e-post om at arrangementssidene deres feiler — det er nyttig for dem ogsaa. Vurder samtidig om lenkesjekken boer skille 5xx (serverfeil, ofte forbigaaende) fra 404/410 (borte for godt) foer den sletter."
   }
 ]
