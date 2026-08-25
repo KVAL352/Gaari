@@ -238,5 +238,30 @@
     "date": "2026-09-01",
     "title": "Bergen Kjøtt: mangler klokkeslett for Svart Marked 25. oktober",
     "description": "Sendt 25. august: spurte arrangøren når Svart Marked åpner og stenger søndag 25. oktober. Dagen mangler helt på gaari.no. Bergen Kjøtt har ingen egen side for den (kjottfestival25okt gir 404), og TicketCo omtaler den uten klokkeslett, så den kan ikke legges inn før tidspunktet er bekreftet. Når svaret kommer: source bergenkjott (rank 4, slår ticketco på 2), gratis, fri aldersgrense, kategori festival. Uten svar: purr en gang til, festivalen er 23.-25. oktober. Merk også at 23. oktober nå står uten aldersopplysning hos oss, mens TicketCo fortsatt selger fredagsbilletten med 'Obs: ID 18aar'. Bevisst valg 25. august."
+  },
+  {
+    "date": "2026-08-26",
+    "title": "Tre SEO-sjekker som krever innlogging",
+    "description": "Fra sperrelista i docs/SEO-ARBEIDSFLYT.md, til sammen under en time. 1) Bing Webmaster Tools: hent de faktiske feil-URL-ene. 46-135 feil i doegnet og 1 714 sider indeksert mot 3 656 i sitemap. Bing grunner ChatGPTs soek, saa dette er ogsaa en AI-synlighetssak. 2) Kjoer PageSpeed Insights i nettleseren paa /no, /en og en samlingsside - API-kvoten er delt og oppbrukt, saa Core Web Vitals er umaalt. 3) Bekreft i Search Console-UI-et at indekseringen er frisk; seo-report.ts skriver 0 indexed, som jeg mener er et utgaatt API-felt og ikke en ekte feil."
+  },
+  {
+    "date": "2026-08-28",
+    "title": "Kjoer de to backfill-jobbene etter scrape",
+    "description": "Nye arrangementer kommer inn uten title_en og med maltekst, fordi scrapen kaller Gemini én gang per arrangement. Kjoer: cd scripts && npx tsx backfill-title-en.ts && npx tsx backfill-descriptions.ts. Begge er idempotente. Dette er en midlertidig loesning - den varige er aa la scrape.ts sende flere arrangementer per kall, slik backfill-title-en.ts gjoer. Se docs/SEO-ARBEIDSFLYT.md, valg B under S1."
+  },
+  {
+    "date": "2026-09-08",
+    "title": "Be om bildesamtykke fra seks kilder - 171 bilder",
+    "description": "171 kommende arrangementer mangler bilde bare fordi kilden ikke har gitt visningssamtykke. Sortert etter gevinst: ticketco 33, bergenbibliotek 32 (av dem er de fleste risikotitler som skal staa), raabrent 19, bergenchamber 17, dvrtvest 14, brann 13, hoopla 13. Bilde er den siste store blokkeringen for Googles arrangementsboks. Foelg malen i outreach-strategy og skill mellom hot-link paa gaari.no og SoMe-samtykke."
+  },
+  {
+    "date": "2026-09-15",
+    "title": "Festivalsidene selger fjoraaret",
+    "description": "quickAnswer, editorial og faq paa festivalsamlingene laaser fortsatt fjoraarets datoer og artister. Bergenfest er skrevet om som moenster (commit 7752313-omraadet). Staar igjen: Nattjazz, Bergen Pride, BIFF, Borealis, Beyond the Gates, Festspillene. Bruk copywriter-skillen, én om gangen. Maalet er tekst som virker med null arrangementer paa sida, saa den kan rangere hele aaret."
+  },
+  {
+    "date": "2026-11-25",
+    "title": "Regn ut CTR-kurven paa nytt",
+    "description": "Kurven i docs/SEO-ARBEIDSFLYT.md er maalt 25. august 2026 og styrer hele prioriteringen: fallet fra plass 2 til 3 er brattere enn hele strekket fra 3 til 15, saa rangeringsarbeid i 7-til-4-sjiktet loenner seg daarlig. Den flytter seg naar Google endrer utformingen av soekeresultatene. Hent queries fra GSC med 90 dagers vindu og grupper CTR per posisjonsbaand."
   }
 ]
