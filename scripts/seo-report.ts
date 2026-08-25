@@ -100,15 +100,21 @@ async function umamiReport() {
 		}
 	} catch { /* skip */ }
 
-	// Top countries
-	try {
-		const countries = await fetch(`${base}/metrics?startAt=${startAt}&endAt=${endAt}&type=country&limit=5`, { headers: hdrs });
-		if (countries.ok) {
-			const data = await countries.json() as Array<{ x: string; y: number }>;
-			console.log('  Top countries:');
-			table(data.map(r => ({ country: r.x, visitors: r.y })));
-		}
-	} catch { /* skip */ }
+	// Land rapporteres IKKE herfra. Se GOOGLE SEARCH CONSOLE-seksjonen.
+	//
+	// Umami meldte «US 3 781» av 3 781 besoekende 25. august, mens Search
+	// Console samtidig viste 7 207 av 7 997 klikk fra Norge. Aarsaken er at
+	// Umami Cloud ligger bak Cloudflare, som setter cf-ipcountry ut fra hvem
+	// som aapnet TCP-forbindelsen — Vercels edge i USA, ikke den besoekende.
+	//
+	// Vi forsoekte aa sende x-umami-client-country fra Vercels geo-headere
+	// (src/routes/u/api/send/+server.ts). Det virket ikke, og vi vet ikke om
+	// headeren aldri kommer fram eller om Umamis gateway stripper den.
+	//
+	// Beslutning 25. august: Search Console er eneste fasit for geografi.
+	// Tabellen er fjernet her framfor aa staa og lyve — et tall ingen stoler
+	// paa, men som likevel skrives ut, blir trodd av neste oekt.
+	console.log('\n  Land: se Search Console-seksjonen (Umamis land-tall er ikke til aa stole paa).');
 
 	// AI referral custom event
 	try {
@@ -228,6 +234,37 @@ async function gscReport() {
 					impressions: r.impressions,
 					ctr: pct(r.ctr),
 					avgPos: r.position.toFixed(1)
+				})));
+			}
+		}
+	} catch { /* skip */ }
+
+	// Land — fasiten. Umami kan ikke svare paa dette, se kommentaren i
+	// umamiReport(). Search Console slaar opp landet selv, uavhengig av
+	// hvilken infrastruktur forespoerselen gikk gjennom.
+	try {
+		const resp = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(GSC_SITE)}/searchAnalytics/query`, {
+			method: 'POST',
+			headers: gscHeaders,
+			body: JSON.stringify({
+				startDate: fmt(startDate),
+				endDate: fmt(endDate),
+				dimensions: ['country'],
+				rowLimit: 10
+			})
+		});
+
+		if (resp.ok) {
+			const data = await resp.json() as { rows?: Array<{ keys: string[]; clicks: number; impressions: number; ctr: number; position: number }> };
+			if (data.rows && data.rows.length > 0) {
+				const total = data.rows.reduce((s, r) => s + r.clicks, 0);
+				console.log('\n  Countries (by clicks) — the authoritative source for geography:');
+				table(data.rows.map(r => ({
+					country: r.keys[0].toUpperCase(),
+					clicks: r.clicks,
+					share: total > 0 ? pct(r.clicks / total) : '—',
+					impressions: r.impressions,
+					ctr: pct(r.ctr)
 				})));
 			}
 		}

@@ -25,6 +25,28 @@ export const POST: RequestHandler = async (event) => {
 	const referer = event.request.headers.get('referer');
 	if (referer) headers.set('Referer', referer);
 
+	// VIRKER IKKE. Beholdt, men stol ikke paa geografien fra Umami.
+	//
+	// Etterproevd i drift 25. august, flere timer etter deploy: fortsatt 100 %
+	// US i alle tidsvinduer. Umamis kildekode sier at x-umami-client-country
+	// ligger foerst i PROVIDER_HEADERS naar CLOUD_MODE er satt, og at loekka
+	// returnerer paa foerste treff — headeren burde altsaa slaatt Cloudflare.
+	//
+	// To forklaringer staar igjen, og vi kan ikke skille dem uten aa maale
+	// hvilke headere funksjonen faktisk mottar:
+	//   1. Headerne kommer aldri fram. Enten setter ikke Vercel
+	//      x-vercel-ip-country paa denne ruta, eller den faller bort
+	//      underveis. Koden hopper stille over en header som mangler.
+	//   2. Umamis gateway stripper akkurat den headeren som anti-spoofing.
+	//      Svekkes av at sporingsskriptet sender x-umami-website-id og
+	//      x-umami-hostname som aapenbart kommer fram.
+	//
+	// Beslutning 25. august: geografi leses fra Search Console, ikke herfra.
+	// Koden staar fordi den er gratis og kan begynne aa virke hvis Umami
+	// endrer seg — ikke fordi den loeser noe i dag.
+	//
+	// Under foelger den opprinnelige begrunnelsen.
+	//
 	// Geografi maa sendes eksplisitt, ellers blir ALT USA.
 	//
 	// X-Forwarded-For over gir Umami riktig bes0ks-IP, og den brukes til aa

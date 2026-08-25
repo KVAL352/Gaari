@@ -79,10 +79,13 @@ async function main() {
 	const [s30, e30] = periods['Siste 30 dager']!;
 	const qs = `startAt=${s30}&endAt=${e30}`;
 
-	const [urls, referrers, countries, devices, browsers, oses, events, langs] = await Promise.all([
+	// Land hentes ikke. Umami Cloud ligger bak Cloudflare, som slaar opp landet
+	// fra Vercels edge i USA og ikke fra den besoekende — 25. august meldte den
+	// «US» paa 3 781 av 3 781, mens Search Console viste 90 % Norge. Bruk
+	// `npx tsx seo-report.ts` for geografi.
+	const [urls, referrers, devices, browsers, oses, events, langs] = await Promise.all([
 		get(`metrics?${qs}&type=url&limit=20`),
 		get(`metrics?${qs}&type=referrer&limit=20`),
-		get(`metrics?${qs}&type=country&limit=15`),
 		get(`metrics?${qs}&type=device&limit=10`),
 		get(`metrics?${qs}&type=browser&limit=10`),
 		get(`metrics?${qs}&type=os&limit=10`),
@@ -109,7 +112,9 @@ async function main() {
 	console.log('\n---\n# Detaljer — siste 30 dager');
 	section('Topp sider', urls, 'URL', 20);
 	section('Topp referrers', referrers, 'Kilde', 20);
-	section('Land', countries, 'Land');
+	console.log('\n## Land\n');
+	console.log('Ikke tilgjengelig her — Umami ser Vercels edge, ikke den besøkende.');
+	console.log('Kjør `npx tsx seo-report.ts` for land fra Search Console.\n');
 	section('Enheter', devices, 'Enhet');
 	section('Nettlesere', browsers, 'Nettleser');
 	section('OS', oses, 'OS');
