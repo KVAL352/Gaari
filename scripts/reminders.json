@@ -65,9 +65,9 @@
     "description": "Sommerpriser utløper 31. august. Fra 1. september gjelder dagens priser igjen. Sjekk akvariet.no og oppdater ADMISSION_PRICE i akvariet.ts."
   },
   {
-    "date": "2026-08-25",
-    "title": "Paint'n Sip: svar paa spoersmaalet fra 21. april",
-    "description": "Arrangoeren svarte 2026-04-21 paa bilderettighets-runden og spurte konkret hvilke bilder det gjelder, og om det bare er de som ligger i deres egen eventkalender. Spoersmaalet har fortsatt et svar: det gjelder bildene som foelger arrangementene deres paa gaari.no, altsaa de som ligger paa deres egne eventsider. Eieren bestemte 2026-08-18 at det skal sendes en ny e-post, men ikke med en gang. Traaden ligger i Outreach/Unresolved (UID 12). Husk at prisen skal staa naar vi tilbyr noe, jf. feedback_communication."
+    "date": "2026-09-08",
+    "title": "Paint'n Sip: purr hvis ingen svar om bildesamtykke",
+    "description": "Svart 25. august paa spoersmaalet fra 21. april. Svaret var konkret: det gjelder bildene som ligger paa deres egne eventsider, vi hot-linker dem, og alt er gratis. Sjekket foerst at de ikke har noen oppfoering i consent.json og at begge septemberarrangementene ligger ute uten bilde, saa svaret stemte med virkeligheten. Traaden ligger i Outreach/Unresolved. Kommer et ja: kjoer `npx tsx scripts/consent.ts add paintnsip --navn \"Paint'n Sip\" --omfang visning,some --bevis Avtaler --dato <svardato>`, flytt e-posten til Avtaler og commit. Kommer ingen svar innen 8. september: purr en gang, og legg den deretter doed - de har da hatt spoersmaalet i fire maaneder og et svar i to uker."
   },
   {
     "date": "2026-08-25",
