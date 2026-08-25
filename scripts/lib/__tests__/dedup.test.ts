@@ -4,7 +4,13 @@ import { describe, it, expect, vi } from 'vitest';
 // vært udefinert når fabrikken kjører.
 const spor = vi.hoisted(() => ({
 	tabell: '',
-	eq: [] as Array<[string, unknown]>
+	eq: [] as Array<[string, unknown]>,
+	/** Radene range() serverer på første side. Tom liste gir tom base. */
+	rader: [] as Array<Record<string, unknown>>,
+	/** Stier sendt til storage.remove(). */
+	fjernet: [] as string[],
+	/** Id-er sendt til .delete().in(). */
+	slettet: [] as string[]
 }));
 
 // Mock supabase and venues before importing dedup
@@ -13,7 +19,8 @@ vi.mock('../supabase.js', () => ({
 		from: (tabell: string) => {
 			spor.tabell = tabell;
 			// Kjeden returnerer seg selv, så rekkefølgen på select/eq/order ikke
-			// gjør mocken skjør. range() avslutter og gir en tom side.
+			// gjør mocken skjør. range() serverer første side og så ingenting,
+			// slik at pagineringen i hentDedupKandidater() avslutter.
 			const kjede: Record<string, unknown> = {
 				select: () => kjede,
 				eq: (kolonne: string, verdi: unknown) => {
@@ -21,10 +28,23 @@ vi.mock('../supabase.js', () => ({
 					return kjede;
 				},
 				order: () => kjede,
-				range: () => ({ data: [], error: null }),
-				delete: () => ({ in: () => ({ error: null }) })
+				range: (fra: number) => ({ data: fra === 0 ? spor.rader : [], error: null }),
+				delete: () => ({
+					in: (_kolonne: string, ider: string[]) => {
+						spor.slettet.push(...ider);
+						return { error: null };
+					}
+				})
 			};
 			return kjede;
+		},
+		storage: {
+			from: () => ({
+				remove: (stier: string[]) => {
+					spor.fjernet.push(...stier);
+					return { error: null };
+				}
+			})
 		}
 	}
 }));
@@ -42,6 +62,7 @@ import {
 	sammeSted,
 	titlerMatcherPaaSammeSted,
 	hentDedupKandidater,
+	deduplicate,
 	type EventRow
 } from '../dedup.js';
 import { normalizeTitle } from '../utils.js';
@@ -77,6 +98,91 @@ describe('hentDedupKandidater', () => {
 			'dedup-dryrun.ts må bruke hentDedupKandidater(), ikke sin egen spørring'
 		).toBe(false);
 		expect(kode).toContain('hentDedupKandidater');
+	});
+});
+
+describe('deduplicate rydder bildene', () => {
+	const BOETTE = 'https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/event-images/';
+
+	function nullstill(rader: Array<Record<string, unknown>>) {
+		spor.rader = rader;
+		spor.fjernet = [];
+		spor.slettet = [];
+		spor.eq = [];
+	}
+
+	/**
+	 * Dedup var den tredje sletteveien som fjernet raden og lot fila staa igjen.
+	 * Bildefiksen 23. august tettet /admin og innsendingsflyten, og dagen etter
+	 * lagde dedup et nytt foreldreloest bilde av Kjoett Festival-innsendingen.
+	 */
+	it('sletter det opplastede bildet til taperen', async () => {
+		nullstill([
+			{
+				id: 'beholdes',
+				title_no: 'Kjøtt Festival (18+) — Bergen Kjøtt',
+				date_start: '2026-10-23T17:00:00+00:00',
+				source: 'bergenkjott',
+				venue_name: 'Bergen Kjøtt',
+				image_url: 'https://static1.squarespace.com/kjott.jpg',
+				ticket_url: 'https://www.bergenkjott.org/kalendar/kjottfestival23okt',
+				description_no: null
+			},
+			{
+				id: 'slettes',
+				title_no: 'Kjøtt Festival',
+				date_start: '2026-10-23T16:00:00+00:00',
+				source: 'ticketco',
+				venue_name: 'Bergen Kjøtt',
+				image_url: BOETTE + 'events/kjott-festival-mt646a0j.png',
+				ticket_url: 'https://stiftelsenbergenkjott.ticketco.events/no/nb/e/kjott_festival',
+				description_no: null
+			}
+		]);
+
+		const antall = await deduplicate();
+
+		expect(antall).toBe(1);
+		expect(spor.slettet).toEqual(['slettes']);
+		expect(
+			spor.fjernet,
+			'uten dette blir fila liggende i boetta uten et arrangement som peker paa den'
+		).toEqual(['events/kjott-festival-mt646a0j.png']);
+	});
+
+	/**
+	 * fallback/ er DELTE reservebilder per arrangoer. Ett slettet fellesbilde
+	 * ville fjernet bildet for alle andre arrangementer som peker paa det.
+	 */
+	it('roerer ikke fallback-bilder eller hot-linkede bilder', async () => {
+		nullstill([
+			{
+				id: 'beholdes',
+				title_no: 'Kjøtt Festival (18+) — Bergen Kjøtt',
+				date_start: '2026-10-23T17:00:00+00:00',
+				source: 'bergenkjott',
+				venue_name: 'Bergen Kjøtt',
+				image_url: BOETTE + 'fellesbilde.jpg',
+				ticket_url: 'https://www.bergenkjott.org/kalendar/kjottfestival23okt',
+				description_no: null
+			},
+			{
+				id: 'slettes',
+				title_no: 'Kjøtt Festival',
+				date_start: '2026-10-23T16:00:00+00:00',
+				source: 'ticketco',
+				venue_name: 'Bergen Kjøtt',
+				image_url: BOETTE + 'fallback/bergenkjott.jpg',
+				ticket_url: 'https://stiftelsenbergenkjott.ticketco.events/no/nb/e/kjott_festival',
+				description_no: null
+			}
+		]);
+
+		const antall = await deduplicate();
+
+		expect(antall).toBe(1);
+		expect(spor.slettet).toEqual(['slettes']);
+		expect(spor.fjernet).toEqual([]);
 	});
 });
 

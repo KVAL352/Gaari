@@ -576,8 +576,16 @@ export async function updateEventCredit(sourceUrl: string, credit: string): Prom
 
 // Delete a sold-out event by source_url (returns true if an event was deleted)
 export async function deleteEventByUrl(sourceUrl: string): Promise<boolean> {
-	const { data } = await supabase.from('events').delete().eq('source_url', sourceUrl).select('id');
-	return (data && data.length > 0) || false;
+	// Henter foerst, sletter etterpaa. Raden maa leses mens den finnes, ellers
+	// er image_url borte naar bildet skal ryddes.
+	const { data } = await supabase
+		.from('events')
+		.select('id, image_url')
+		.eq('source_url', sourceUrl);
+	if (!data || data.length === 0) return false;
+
+	const { deleted } = await deleteEventsAndImages(data);
+	return deleted > 0;
 }
 
 // Opt-out filtering — domains that have requested removal
@@ -799,6 +807,18 @@ export async function findDuplicate(title: string, dateStart: string): Promise<b
  * igjen i boetta uten et arrangement som pekte paa dem: begge sletteveiene
  * under fjernet raden i basen og lot fila staa.
  *
+ * Eksportert 2026-08-25 fordi det fantes flere sletteveier enn de to. Da
+ * deduplicate() i dedup.ts lagde et nytt foreldreloest bilde 24. august,
+ * dagen etter at de to foerste ble tettet, viste et soek fire til:
+ * deleteEventByUrl(), refreshStaleMultiDateEvents() og opt-out-ryddingen i
+ * scrape.ts gikk alle rett paa .delete(). Alle fire gaar naa gjennom denne.
+ *
+ * De to som IKKE gjoer det, og hvorfor det er greit: admin-ops.ts og
+ * /admin/submissions kaller eventImageStoragePath() selv rett foer sletting,
+ * og canary-manage.ts sletter bare vaare egne planta canary-rader, som ikke
+ * har opplastede bilder. Regelen aa holde er ikke «kall denne funksjonen»,
+ * men «ingen slettevei skal etterlate en fil i boetta».
+ *
  * eventImageStoragePath() avgjoer hva som er trygt aa roere. Den nekter aa
  * returnere noe utenfor events/, saa de delte fallback/-bildene kan ikke
  * treffes herfra uansett hvor mange arrangementer som peker paa dem.
@@ -808,7 +828,7 @@ export async function findDuplicate(title: string, dateStart: string): Promise<b
  * ville gjort en feilet sletting usynlig for alltid — raden som pekte paa fila
  * er da borte.
  */
-async function deleteEventsAndImages(
+export async function deleteEventsAndImages(
 	rows: Array<{ id: string; slug?: string | null; image_url?: string | null }>
 ): Promise<{ deleted: number; imagesRemoved: number }> {
 	if (rows.length === 0) return { deleted: 0, imagesRemoved: 0 };
@@ -905,21 +925,14 @@ export async function refreshStaleMultiDateEvents(): Promise<number> {
 
 	const { data } = await supabase
 		.from('events')
-		.select('id, title_no, source')
+		.select('id, title_no, source, image_url')
 		.in('source', DISCRETE_DATE_SOURCES)
 		.lt('date_start', cutoff)
 		.gt('date_end', now);
 
 	if (!data || data.length === 0) return 0;
 
-	const ids = data.map(e => e.id);
-	let deleted = 0;
-	for (let i = 0; i < ids.length; i += 100) {
-		const batch = ids.slice(i, i + 100);
-		const { error } = await supabase.from('events').delete().in('id', batch);
-		if (!error) deleted += batch.length;
-	}
-
+	const { deleted } = await deleteEventsAndImages(data);
 	return deleted;
 }
 

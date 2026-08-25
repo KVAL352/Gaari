@@ -1,5 +1,5 @@
 import { supabase } from './supabase.js';
-import { normalizeTitle } from './utils.js';
+import { normalizeTitle, deleteEventsAndImages } from './utils.js';
 import { isAggregatorUrl } from './venues.js';
 
 // Source quality ranking — higher = prefer to keep
@@ -281,6 +281,15 @@ export async function hentDedupKandidater(): Promise<EventRow[]> {
 			// hele varselet. Køen skal ikke tømmes av pipeline; det er nettopp
 			// pending-statusen som betyr at avgjørelsen ikke er tatt ennå.
 			.eq('status', 'approved')
+			// Canaries holdes utenfor. De er oppdiktede arrangementer plantet for
+			// å avsløre kopiering, og source 'canary' står ikke i SOURCE_RANK, så
+			// de scorer 0 og ville tapt mot enhver scraper som fant samme tittel
+			// på samme dato. Da forsvinner beviset uten et ord i loggen, og
+			// canary-scan ville lett etter en felle som ikke lenger fantes.
+			// Å deduplisere syntetiske rader gir uansett ingen mening.
+			// Kolonnen er NOT NULL DEFAULT false, så filteret slipper gjennom alt
+			// annet — se 20260528120000_canary_events.sql.
+			.eq('is_canary', false)
 			// Sortert på id, ikke dato: range() deler opp etter posisjon, og
 			// date_start er ikke unik, så to rader med samme dato kan bytte plass
 			// mellom to kall og havne i hver sin pulje — eller i ingen. Dedup
@@ -318,7 +327,9 @@ export async function deduplicate(): Promise<number> {
 		byDate.get(day)!.push(e);
 	}
 
-	const idsToDelete: string[] = [];
+	// Hele raden og ikke bare id-en: deleteEventsAndImages() trenger image_url
+	// for aa finne fila som hoerer til.
+	const radenSomSlettes: EventRow[] = [];
 
 	for (const [, dayEvents] of byDate) {
 		if (dayEvents.length < 2) continue;
@@ -367,22 +378,21 @@ export async function deduplicate(): Promise<number> {
 			const keeper = group[0];
 			for (let k = 1; k < group.length; k++) {
 				console.log(`  Dup: "${group[k].title_no}" (${group[k].source}) → keeping "${keeper.title_no}" (${keeper.source})`);
-				idsToDelete.push(group[k].id);
+				radenSomSlettes.push(group[k]);
 			}
 		}
 	}
 
-	if (idsToDelete.length === 0) return 0;
+	if (radenSomSlettes.length === 0) return 0;
 
-	// Delete in batches
-	let deleted = 0;
-	for (let i = 0; i < idsToDelete.length; i += 100) {
-		const batch = idsToDelete.slice(i, i + 100);
-		const { error: delErr } = await supabase
-			.from('events')
-			.delete()
-			.in('id', batch);
-		if (!delErr) deleted += batch.length;
+	// Gaar gjennom deleteEventsAndImages, ikke rett paa .delete(). Dedup var den
+	// tredje sletteveien som fjernet raden og lot fila staa igjen i boetta, og
+	// den lagde et nytt foreldreloest bilde 24. august, dagen etter at de to
+	// andre veiene ble tettet. Helperen sletter bildene foerst og roerer aldri
+	// noe utenfor events/, saa de delte fallback-bildene er trygge.
+	const { deleted, imagesRemoved } = await deleteEventsAndImages(radenSomSlettes);
+	if (imagesRemoved > 0) {
+		console.log(`  Slettet ${imagesRemoved} opplastede bilder sammen med duplikatene`);
 	}
 
 	return deleted;

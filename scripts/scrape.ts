@@ -70,7 +70,7 @@ import { scrape as scrapeGenerasjonsfestivalen } from './scrapers/generasjonsfes
 import { scrape as scrapeStudioVertikal } from './scrapers/studiovertikal.js';
 import { writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
-import { removeExpiredEvents, refreshStaleMultiDateEvents, removeDisabledSourceEvents, loadOptOuts, getOptOutDomains, loadExistingUrls } from './lib/utils.js';
+import { removeExpiredEvents, refreshStaleMultiDateEvents, removeDisabledSourceEvents, loadOptOuts, getOptOutDomains, loadExistingUrls, deleteEventsAndImages } from './lib/utils.js';
 import { deduplicate } from './lib/dedup.js';
 import { enrichRecurringTitles } from './lib/enrich-titles.js';
 import { backfillImageCredits } from './lib/credit-backfill.js';
@@ -281,12 +281,14 @@ async function main() {
 			const escapedDomain = domain.replace(/%/g, '\\%').replace(/_/g, '\\_');
 			const { data: matching } = await supabase
 				.from('events')
-				.select('id, source_url')
+				.select('id, source_url, image_url')
 				.ilike('source_url', `%${escapedDomain}%`);
 			if (matching && matching.length > 0) {
-				const ids = matching.map(e => e.id);
-				const { error } = await supabase.from('events').delete().in('id', ids);
-				if (!error) optOutRemoved += ids.length;
+				// Via deleteEventsAndImages, ikke rett paa .delete(). Har arrangoeren
+				// bedt om aa bli fjernet, skal bildet deres ogsaa vaere borte, ikke
+				// bli liggende i boetta uten en rad som peker paa det.
+				const { deleted } = await deleteEventsAndImages(matching);
+				optOutRemoved += deleted;
 			}
 		}
 		if (optOutRemoved > 0) console.log(`Removed ${optOutRemoved} events from opted-out domains`);
