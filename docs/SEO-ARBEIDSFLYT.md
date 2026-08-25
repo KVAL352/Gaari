@@ -175,12 +175,69 @@ tømmes i stillhet: et punkt fjernes bare når det faktisk er gjort.
 
 | # | Sak | Hvorfor jeg ikke kan | Tid |
 |---|---|---|---|
-| S1 | **Gemini-kvote.** Backfillen stoppet på dagskvoten etter første sats. Den daglige scrapen bruker opp gratiskvoten før jeg får kjørt noe. Se AI Studio for faktiske grenser, og vurder betalt nivå. | Rategrensene er kontospesifikke og vises bare i AI Studio. Dokumentasjonen oppgir ingen tall. | 10 min |
+| S1 | **Gemini-kvoten er 20 kall i døgnet. Ta stilling til betalt nivå.** Se eget avsnitt under — dette er trolig den største enkeltsaken i hele gjennomgangen. | Krever et betalingskort på Google-prosjektet. | 15 min |
 | S2 | **Bing-feil.** 46–135 feil per dag, 1 714 sider indeksert mot 3 656 i sitemap. Hent de faktiske feil-URL-ene i Bing Webmaster Tools. | API-et gir bare aggregerte tall, ikke URL-lista. | 20 min |
 | S3 | **Core Web Vitals.** Ikke målt. Kjør PageSpeed Insights i nettleseren på `/no`, `/en` og en samlingsside. | API-et svarte `Quota exceeded` på det delte prosjektet. | 10 min |
 | S4 | **Verifiser Umami-geo etter deploy.** Sjekk at land viser Norge og ikke USA. | Fiksen virker først i drift, og historikken retter seg ikke bakover. | 5 min |
 | S5 | **Bekreft indeksering i Search Console-UI-et.** `seo-report.ts` skriver «0 indexed / 3532 submitted». Jeg mener feltet er utgått i API-et og alltid er null. | API-et gir ingen dekningsrapport. | 5 min |
 | S6 | **MailerLite double opt-in** — finnes ikke i koden. Fra før. | Innstilling i MailerLite. | 5 min |
+
+### S1 utdypet — Gemini-kvoten er trolig rotårsaken til hele innholdsgapet
+
+API-et svarte selv med tallet 25. august:
+
+```
+Quota exceeded for metric: generate_content_free_tier_requests
+limit: 20, model: gemini-2.5-flash
+quotaId: GenerateRequestsPerDayPerProjectPerModel-FreeTier
+quotaValue: "20"
+```
+
+**Tjue kall i døgnet, for hele prosjektet.** Det er ikke bare en sperre for
+backfillen. Den daglige scrapen kaller `generateDescription()` én gang per
+nytt arrangement, og bruker opp kvoten på de første tjue. Alt etter det faller
+tilbake på maltekst.
+
+Det stemmer med tallene: bare **469 av 1 979** kommende arrangementer har en
+ekte AI-beskrivelse. De øvrige 76 % har mal. Og mal gir ingen `title_en`,
+som er nettopp funn 4.
+
+Vi har altså trodd at vi hadde AI-genererte beskrivelser på hele katalogen.
+Det har vi ikke hatt på lenge.
+
+*Forbehold: jeg vet ikke når grensen ble 20. Hvis Google kuttet gratisnivået
+i sommer, forklarer det både at 469 eldre rader har beskrivelse og at det har
+stoppet opp siden. Det er en rimelig slutning, ikke noe jeg har målt.*
+
+**To veier ut. De utelukker ikke hverandre.**
+
+**A — betal for Gemini.** Pris bekreftet fra Googles prisside: 0,30 USD per
+million inn-tokens, 2,50 USD per million ut-tokens for `gemini-2.5-flash`.
+Batch-modus koster halvparten.
+
+| | Anslag |
+|---|---|
+| Hele tittel-backfillen, 86 kall | ~0,45 USD, altså under fem kroner, én gang |
+| Løpende drift, anslagsvis 50 nye arrangementer per dag | ~2–4 USD i måneden |
+
+Anslagene er usikre i én retning: `gemini-2.5-flash` bruker *thinking
+tokens*, som faktureres som ut-tokens, og jeg vet ikke hvor mange den bruker
+per kall. Regn med at driftstallet kan bli dobbelt så høyt. Det er fortsatt
+under femti kroner i måneden.
+
+Dette bryter ikke med regelen om ingen betalte verktøy for inntekt — det er
+infrastruktur til kaffepenger, og den betaler for datagrunnlaget hele fase 1
+hviler på.
+
+**B — la scrapen sende flere arrangementer per kall.** Det er nøyaktig
+grepet `backfill-title-en.ts` gjør: tjue titler i ett kall i stedet for tjue
+kall. Femti nye arrangementer blir tre kall i stedet for femti, og da holder
+til og med gratisnivået. Krever en ombygging av `generateDescription()` og
+kallstedet i `scrape.ts`, og bør gjøres uansett om vi betaler — det er
+raskere og mer robust.
+
+**Anbefaling: gjør A nå og B etterpå.** A låser opp fase 1 i dag for under
+fem kroner. B gjør oss uavhengige av kvoten på sikt.
 
 ### Krever verktøy vi ikke har
 
