@@ -1165,8 +1165,8 @@ describe('sesongsamlinger hardkoder ikke aarstall', () => {
 			const c = getCollection(slug);
 			if (!c?.seasonal) continue;
 			for (const lang of ['no', 'en'] as const) {
-				expect(c.title[lang], `${slug}.title.${lang} hardkoder aarstall`).not.toMatch(/20\d\d/);
-				expect(c.description[lang], `${slug}.description.${lang} hardkoder aarstall`).not.toMatch(/20\d\d/);
+				expect(c.title[lang], `${slug}.title.${lang} hardkoder aarstall`).not.toMatch(/\b20\d\d\b/);
+				expect(c.description[lang], `${slug}.description.${lang} hardkoder aarstall`).not.toMatch(/\b20\d\d\b/);
 			}
 		}
 	});

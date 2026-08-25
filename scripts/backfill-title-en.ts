@@ -150,7 +150,7 @@ async function translateBatch(client: GoogleGenAI, batch: Rad[]): Promise<Map<nu
 			if (rateLimited && isDailyQuota(err)) {
 				// Dagskvoten er brukt opp. Aa fortsette gir bare feil paa feil,
 				// og jobben er idempotent — resten tas i morgen.
-				throw new Error('DAGSKVOTE_BRUKT_OPP');
+				throw new Error('DAGSKVOTE_BRUKT_OPP', { cause: err });
 			}
 			if (rateLimited && attempt < MAX_RETRIES) {
 				const ventMs = parseRetryDelayMs(err) ?? 15000 * (attempt + 1);
