@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-08-26",
+    "title": "Bookibud: svar paa kickback-forslaget",
+    "description": "Kjersti sa 25. august at hun tar denne dagen etter. Forslaget deres, ordrett gjengitt i innhold: kickback paa 2-10 NOK per billett avhengig av billettpris, paa alt salg fra arrangoerer Gaari henviser INN til dem som nye kunder. Altsaa ikke paa klikk til arrangementer som alt ligger der. Paa sikt ogsaa en loesning der Gaari kan selge reklameplasser gjennom dem basert paa faktisk salg, i nyhetsbrev eller paa siden. De spoerte om vi har andre forslag, saa prosentsatsen er aapen. AVKLART SAMME DAG, trengs ikke tas opp igjen: henvisningskoden ligger naa paa partnernoekkelen og kommer i feeden av seg selv; de teller ikke utm, saa vaare utm-tall vil aldri stemme med deres; ingen formelt attribusjonsvindu, telling skjer server-side uten cookies og underrapporterer aldri motsatt vei; gruppenavn kommer inn i API-et. Lenkene er alt endret til rel=noopener slik de ba om, se b4a19da. MERK: tall fra foer uke 35 er ikke til aa stole paa, de rettet en feil hos seg samtidig. Traaden ligger i Folders/Gaari/Bookibud."
+  },
+  {
     "date": "2026-04-20",
     "title": "Ukentlig: post i FB-grupper (Hva skjer i Bergen)",
     "description": "FB-grupper er Gåris #1 trafikkilde (~30% av all trafikk pr. april 2026). Post denne ukens høydepunkter i 'Hva skjer i Bergen' og lignende lokale grupper. Pek til relevant collection (denne-helgen / i-kveld / familiehelg). Etter posting: oppdater denne reminderen til neste søndag."
