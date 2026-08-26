@@ -112,3 +112,17 @@ jobs:
             echo "|--------|---------|-------|----------|" >> "$GITHUB_STEP_SUMMARY"
             jq -r '.funn[] | "| \(.status) | \(.url) | \(.grunn) | \(.fraSide) |"' "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      # Dokumentstoerrelse i drift.
+      #
+      # Ytelsesbudsjettet (lighthouse.yml) kjoerer mot seed-data med 25
+      # arrangementer, saa tallene blir like hver kjoering. Bevisst valg, men
+      # det gir en blindsone: produksjon har 1 967 arrangementer, og forsiden
+      # er 1,7 MB der budsjettet maaler 25 KiB. Portvakten var groenn mens den
+      # stoerste ytelsesposten paa nettstedet vokste fritt.
+      #
+      # Denne maaler den ekte sida. Grensene laaser dagens nivaa og hindrer at
+      # det blir verre — de er ikke et maal.
+      - name: Dokumentstoerrelse i drift
+        if: always()
+        run: node scripts/dokumentstoerrelse-check.mjs
