@@ -29,3 +29,20 @@ med sju dagers levetid, slik at bruddet kan leses uten aa kjoere alt lokalt.
 
 Steget bruker ikke Supabase-secrets. Dev-serveren startes mot en ugyldig vert,
 se `.claude/docs/testing.md`.
+
+## descriptions.yml — berikelse av beskrivelser
+
+Kjører 07:00 UTC, en time etter scrapen, med 50 minutters tak.
+
+Skilt fra `scrape.yml` med vilje. Den 26. august ble scrapen drept av
+tidsavbruddet på 25 minutter fordi beskrivelsene ble beriket inne i den —
+dagen før tok den 20m22s. Innhentingen skal være rask og komplett;
+berikelsen tåler å ta tid.
+
+Henter kildesida på nytt og gjør tostegs faktauttrekk der
+(`backfill-descriptions-from-source.ts`), så kildeteksten går ikke tapt selv
+om genereringen er flyttet ut av scrapen. Tar også
+`backfill-title-en.ts`, som er satsvis og går på under et minutt.
+
+Idempotent: plukker bare rader med beskrivelse under 170 tegn, så en
+avbrutt kjøring tar resten neste døgn.
