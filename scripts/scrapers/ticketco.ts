@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio';
 import { mapBydel } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay, bergenOffset } from '../lib/utils.js';
-import { generateDescription, hentFakta } from '../lib/ai-descriptions.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'ticketco';
 
@@ -227,18 +227,23 @@ async function scrapeSubdomain(subdomain: string): Promise<{ found: number; inse
 		// Teksten skal aldri gjengis. Prompten sier fra, og
 		// harVerbatimOverlapp() i ai-descriptions.ts forkaster svar som deler
 		// aatte ord paa rad med kilden.
-		// To steg, ikke ett. hentFakta() ser arrangoerens omtale og leverer bare
-		// atomaere verdier — «Chloé Zhao», «19.00», «0-2 aar». Skrivesteget
-		// under ser aldri prosaen, saa det finnes ingen formulering aa
-		// gjenbruke. Se docs/beskrivelser-og-opphavsrett.md.
-		const fakta = description ? await hentFakta(description) : undefined;
+		// Scraperen beriker ikke lenger beskrivelsen selv.
+		//
+		// 26. august ble scrapen drept av tidsavbrudd paa 25 minutter. Dagen
+		// foer tok den 20m22s. Forskjellen var at vi begynte aa sende
+		// arrangoerens omtale inn i prompten herfra: opptil 1 200 tegn ekstra
+		// per kall, paa de to kildene med flest arrangementer.
+		//
+		// Beskrivelser hoerer ikke hjemme i en jobb med 25 minutters tak.
+		// Innhentingen skal vaere rask og komplett; berikelsen taaler aa ta tid.
+		// backfill-descriptions-from-source.ts henter sida paa nytt og gjoer
+		// faktauttrekket der, uten aa konkurrere om de 25 minuttene.
 		const aiDesc = await generateDescription({
 			title: event.name,
 			venue: venueName,
 			category,
 			date: new Date(event.startDate),
 			bydel,
-			facts: fakta,
 		});
 
 		const success = await insertEvent({

@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio';
 // cheerio 1.x eksporterer ikke lenger Element selv; den bor i domhandler.
 import type { Element } from 'domhandler';
 import { makeSlug, eventExists, getEventImageStatus, updateEventImage, updateEventCredit, insertEvent, fetchHTML, delay, bergenOffset, extractImageCredit } from '../lib/utils.js';
-import { generateDescription, hentFakta } from '../lib/ai-descriptions.js';
+import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'bergenbibliotek';
 const BASE_URL = 'https://bergenbibliotek.no/arrangement';
@@ -236,11 +236,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const imageUrl = detail.imageUrl || listingImage;
 		const imageCredit = detail.imageCredit;
 
-		// To steg. hentFakta() ser bibliotekets omtale og gir bare atomaere
-		// verdier tilbake; skrivesteget ser aldri prosaen. Se
-		// docs/beskrivelser-og-opphavsrett.md.
-		const fakta = detail.sourceText ? await hentFakta(detail.sourceText) : undefined;
-		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart, facts: fakta });
+		// Berikelsen er flyttet ut av scrapen — se kommentaren i ticketco.ts.
+		// Scrapen ble drept av tidsavbrudd 26. august fordi vi la
+		// arrangoerens omtale inn i prompten her. backfill-descriptions-from-
+		// source.ts henter sida paa nytt og gjoer faktauttrekket der.
+		const aiDesc = await generateDescription({ title, venue: location, category, date: dateStart });
 
 		const success = await insertEvent({
 			slug: makeSlug(title, parsed.date),
