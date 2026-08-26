@@ -31,7 +31,14 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 
 	try {
 		// date_start is stored as UTC (timestamptz) in Supabase
-		const fields = 'id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status,is_sold_out';
+		// description_en var ikke med. EventCard leser event.description_en, saa
+		// /en viste norsk beskrivelse paa hvert eneste kort — ogsaa etter at 99 %
+		// av arrangementene fikk engelsk tekst. Det rammet det segmentet som
+		// konverterer best: engelske soek ligger paa 12-17 % CTR mot 4,9 % norske.
+		//
+		// ticket_url er tatt ut. Kortet bruker den ikke — arrangementssida henter
+		// den selv — og den fulgte med til nettleseren for alle 1 967 rader.
+		const fields = 'id,slug,title_no,title_en,description_no,description_en,category,date_start,date_end,venue_name,address,bydel,price,image_url,age_group,language,status,is_sold_out';
 		const PAGE = 1000;
 
 		// Floor for date_start: reject events that started more than 60 days ago.
@@ -67,8 +74,19 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 
 		if (allData.length > 0) {
 			// Map price from string back to number where possible
+			// Bare tekst i det spraaket sida faktisk er paa.
+			//
+			// Foer gikk begge titlene til nettleseren, og etter at
+			// description_en kom med ville begge beskrivelsene ogsaa gjort det —
+			// dobbelt tekst for 1 967 rader i en HTML som alt er 1,7 MB.
+			//
+			// Trygt fordi spraakbytte er en ekte navigasjon: LanguageSwitch
+			// kaller goto('/en'...), som kjoerer denne lasteren paa nytt.
+			const erEngelsk = lang === 'en';
 			const mapped: GaariEvent[] = allData.map(e => ({
 				...e,
+				title_en: erEngelsk ? e.title_en : undefined,
+				description_en: erEngelsk ? e.description_en : undefined,
 				price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
 			}));
 
