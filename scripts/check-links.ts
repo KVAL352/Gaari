@@ -14,7 +14,32 @@ const USER_AGENT = 'Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)';
 const SKIP_DOMAINS = new Set([
 	'www.ticketmaster.no',
 	'ticketmaster.no',
-	'www.dnt.no',   // Returns errors to automated requests
+	// FEILDIAGNOSE, rettet 26. august 2026. Kommentaren her sa «Returns
+	// errors to automated requests». Det stemte ikke: www.dnt.no svarer 500
+	// paa arrangementssidene sine ogsaa i vanlig nettleser. Ingen challenge,
+	// cf-cache-status DYNAMIC, EpiServer-cookies i svaret, og deres egen
+	// feilside «Noe gikk galt» — forespoerselen naadde applikasjonen, og
+	// applikasjonen feilet.
+	//
+	// Antagelsen om botblokkering gjorde at 119 doede lenker fikk staa som
+	// friske gjennom maaneder, fordi de var unntatt fra sjekken som skulle
+	// fange dem. Et unntak er en beslutning om aa slutte aa se etter.
+	//
+	// Lenkene peker naa paa aktiviteter.dnt.no i stedet, som virker. Unntaket
+	// staar likevel: sjekk om det fortsatt trengs neste gang noen er her.
+	'www.dnt.no',
+
+	// Denne derimot er ekte botblokkering, og verifisert som det:
+	//   vaar aerlige User-Agent  -> 403
+	//   nettleser-UA + Accept    -> 200, 33 kB innhold, Event-JSON-LD
+	// Sida virker for brukere. Vi spoofer ikke nettleser for aa komme rundt
+	// det — aerlig User-Agent er en regel her — saa vi hopper over den.
+	//
+	// Uten dette unntaket ville de 30 turene vi nettopp flyttet hit faatt tre
+	// strikes paa tre doegn og blitt slettet. Vi ville altsaa flyttet dem fra
+	// en oedelagt lenke som var unntatt, til en fungerende lenke som ble
+	// straffet.
+	'aktiviteter.dnt.no',
 ]);
 
 // Hoopla uses queue-it anti-bot — URLs work in browsers but fail for bots

@@ -113,8 +113,44 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			found++;
 			const vm = activity.activityViewModel;
 
+			// aktiviteter.dnt.no og ikke www.dnt.no.
+			//
+			// 25.-26. august svarte alle arrangementssidene under
+			// www.dnt.no/aktiviteter-fra-deltager/ med HTTP 500 og deres egen
+			// feilside «Noe gikk galt». Ikke botblokkering: ingen challenge,
+			// cf-cache-status DYNAMIC, og EpiServer-cookies i svaret — altsaa
+			// naadde forespoerselen applikasjonen deres, og applikasjonen
+			// feilet. Vanlige brukere ser det samme.
+			//
+			// API-et paa samme domene virker fint, saa vi henter fortsatt
+			// derfra. Men `activity.url` peker paa den oedelagte sida, og vi
+			// sendte 119 brukere dit.
+			//
+			// aktiviteter.dnt.no/event/{id} er DNTs egen paameldingsportal:
+			// svarer 200, 33 kB ekte innhold, selvrefererende canonical og
+			// Event-JSON-LD. Verifisert mot tre arrangementer.
+			//
+			// /register/{id} — den gamle ticketUrl — svarer 403. Portalens
+			// event-side har paameldingsknappen, saa vi peker begge dit.
+			// source_url beholdes som www.dnt.no. Den er identiteten vaar:
+			// eventExists(sourceUrl) avgjoer om en aktivitet alt er lagt inn.
+			// Byttet vi skjema her, ville hver eneste DNT-tur sett ny ut og
+			// blitt lagt inn paa nytt ved siden av den gamle.
 			const sourceUrl = `https://www.dnt.no${activity.url}`;
-			const ticketUrl = `https://aktiviteter.dnt.no/register/${activity.id}`;
+
+			// ticket_url er derimot det brukeren klikker: arrangementssida
+			// bruker `ticket_url || source_url`.
+			//
+			// /register/{id} svarte 403. Og www.dnt.no-sida svarte 500 med
+			// deres egen feilside «Noe gikk galt» — ikke botblokkering, men en
+			// ekte applikasjonsfeil: ingen challenge, cf-cache-status DYNAMIC,
+			// EpiServer-cookies i svaret. Vanlige brukere saa det samme, og vi
+			// sendte 119 av dem dit.
+			//
+			// aktiviteter.dnt.no/event/{id} er DNTs egen portal: 200, 33 kB
+			// innhold, selvrefererende canonical og Event-JSON-LD. Verifisert
+			// mot tre aktiviteter.
+			const ticketUrl = `https://aktiviteter.dnt.no/event/${activity.id}`;
 
 			// Skip cancelled/overdue, delete full (sold-out) activities
 			if (vm.isCancelled || vm.isOverdue) continue;
