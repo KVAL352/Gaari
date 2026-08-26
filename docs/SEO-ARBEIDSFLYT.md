@@ -232,7 +232,7 @@ tømmes i stillhet: et punkt fjernes bare når det faktisk er gjort.
 |---|---|---|---|
 | ~~S1~~ | ~~**Gemini-kvoten er 20 kall i døgnet.**~~ **LUKKET 25. august** — betaling aktivert, kvoten verifisert. Bakgrunnen står fortsatt under, fordi den forklarer hvorfor 76 % av katalogen hadde maltekst. | — | Gjort |
 | ~~S2~~ | ~~**Bing-feil.**~~ **AVKLART — og det var det alt 28. mai.** `GetCrawlIssues` gir 0 rader. «Crawl errors» i `GetCrawlStats` teller alle non-200-svar, inkludert de 410 Gone vi selv sender for utløpte arrangementer. Tallet vokser fordi flere arrangementer utløper — ønsket oppførsel, ikke en feil. Står i minnet som `bing_crawl_errors_misleading`. Jeg satte den på lista uten å sjekke det. | — | Ingenting |
-| S3 | **Core Web Vitals.** Ikke målt. Kjør PageSpeed Insights i nettleseren på `/no`, `/en` og en samlingsside. | API-et svarte `Quota exceeded` på det delte prosjektet. | 10 min |
+| ~~S3~~ | ~~**Core Web Vitals.**~~ **MÅLT 26. august — bestått.** LCP 1,9 s, CLS 0, FCP 1,5 s, TTFB 0,3 s, alle grønne på feltdata. Ytelse er ikke en flaskehals. Notatet i `seo`-skillen sa «LCP 2.6s (borderline)»; det var utdatert. | — | Gjort |
 | S4 | **Verifiser Umami-geo etter deploy.** Sjekk at land viser Norge og ikke USA. | Fiksen virker først i drift, og historikken retter seg ikke bakover. | 5 min |
 | S5 | **Bekreft indeksering i Search Console-UI-et.** `seo-report.ts` skriver «0 indexed / 3532 submitted». Jeg mener feltet er utgått i API-et og alltid er null. | API-et gir ingen dekningsrapport. | 5 min |
 | S6 | **MailerLite double opt-in** — finnes ikke i koden. Fra før. | Innstilling i MailerLite. | 5 min |

@@ -241,8 +241,8 @@
   },
   {
     "date": "2026-08-26",
-    "title": "To SEO-sjekker som krever innlogging",
-    "description": "Fra sperrelista i docs/SEO-ARBEIDSFLYT.md, til sammen et kvarter.\n\n1) Kjoer PageSpeed Insights i nettleseren paa /no, /en og en samlingsside — pagespeed.web.dev. API-kvoten er delt og oppbrukt, saa Core Web Vitals er umaalt hos oss.\n\n2) Bekreft i Search Console-UI-et at indekseringen er frisk. seo-report.ts skriver «0 indexed / 3532 submitted», som jeg mener er et utgaatt API-felt og ikke en ekte feil. Bekreft én gang, saa kan linja fjernes fra rapporten.\n\nFJERNET FRA DENNE LISTA: Bing-feilene. GetCrawlIssues gir 0 rader — «crawl errors» teller alle non-200-svar, inkludert de 410 Gone vi selv sender for utloepte arrangementer. Det var alt undersoekt og dokumentert 28. mai i minnenotatet bing_crawl_errors_misleading. Jeg satte det paa lista uten aa sjekke."
+    "title": "Bekreft indekseringen i Search Console-UI-et",
+    "description": "Fem minutter. Search Console -> Indeksering -> Sider. Noter «Indeksert» og «Ikke indeksert». seo-report.ts skriver «0 indexed / 3532 submitted», som jeg mener er et utgaatt API-felt og ikke en ekte feil — bekreft én gang, saa kan den villedende linja fjernes.\n\nFJERNET HERFRA: Bing-feilene (var alt avklart 28. mai — 410 Gone fra utloepte arrangementer, se bing_crawl_errors_misleading) og Core Web Vitals (maalt 26. aug: bestaatt, LCP 1,9 s, CLS 0, TTFB 0,3 s)."
   },
   {
     "date": "2026-08-28",

@@ -105,7 +105,13 @@ AI search engines (ChatGPT, Perplexity, Gemini) need well-structured, quotable c
 
 ### 6. Performance (SEO impact)
 
-1. **Core Web Vitals** — LCP <2.5s, CLS <0.1, INP <200ms? Known: LCP 2.6s (borderline)
+1. **Core Web Vitals** — LCP <2.5s, CLS <0.1, INP <200ms.
+   **Målt 26. august 2026: bestått.** Feltdata fra Chrome UX Report, origin-nivå:
+   LCP 1,9 s (god, 88 %), CLS 0 (god, 97 %), FCP 1,5 s (god, 84 %), TTFB 0,3 s (god, 95 %).
+   INP mangler data. En tidligere utgave av denne linja sa «Known: LCP 2.6s (borderline)» —
+   det stemte ikke lenger, og påstanden ble båret videre uten å måles.
+   Merk: tallene er for origin `gaari.no`, ikke for enkelt-URL-er — CrUX har ikke nok
+   trafikk per side. Ytelse er altså ikke en flaskehals for SEO nå.
 2. **Server-side rendering** — content in HTML source, not client-rendered?
 3. **Caching** — ISR headers correct? (s-maxage=3600, stale-while-revalidate=7200 for dynamic pages)
 4. **Self-hosted fonts** — no external Google Fonts requests?
