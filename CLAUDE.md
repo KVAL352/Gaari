@@ -40,6 +40,14 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
   suksess. Verdikten står på siste linje (`VERDIKT: OK` / `VERDIKT: FEIL`)
   så den overlever `tail`. Slås på med
   `git config core.hooksPath .githooks` — én gang per arbeidskopi.
+- **Søk før du legger til**: `node scripts/finnes-det-alt.mjs <ord>` søker
+  kode, `docs/`, `.claude/`, påminnelser og minnenotater på én gang. Kjør den
+  før du foreslår en ny oppgave, en ny påminnelse eller en ny måling. Den 26.
+  august ble det sju ganger laget arbeid av noe som alt fantes — en påminnelse
+  om festivaltekst som var skrevet om, en alarm om DNT-sletting der domenet
+  alt var unntatt, en Bing-undersøkelse besvart i mai, og en
+  sporingshendelse som duplisert `filter-used`. Alle sju ville dukket opp i
+  dette søket.
 - **Rate limiting**: 1-1.5s delays between requests. AI descriptions: 200ms + backoff.
 - **Honest User-Agent**: `Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)`
 - **Price disclaimer**: Always "Trolig gratis" / "Likely free", never assert "Gratis".
