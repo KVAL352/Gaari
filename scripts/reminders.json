@@ -268,5 +268,40 @@
     "date": "2026-08-26",
     "title": "DNT svarer 500 — 119 arrangementer kan bli slettet",
     "description": "Alle arrangementssidene til dnt.no svarer HTTP 500. Bekreftet 25. aug at det er deres feil og ikke vaar: samme 500 med vanlig nettleser-UA, mens forsida deres svarer 200. Vi lenker 119 arrangementer dit, og brukere som klikker faar feilside. Verre: check-links.ts teller 500 som brutt, og sletter etter 3 strikes. 7 rader har alt 1. Er dette midlertidig nedetid hos DNT, mister vi 119 gyldige arrangementer i loepet av noen dager. Sjekk om sidene er tilbake. Er de fortsatt nede: vurder aa sende DNT Bergen en kort e-post om at arrangementssidene deres feiler — det er nyttig for dem ogsaa. Vurder samtidig om lenkesjekken boer skille 5xx (serverfeil, ofte forbigaaende) fra 404/410 (borte for godt) foer den sletter."
+  },
+  {
+    "date": "2026-12-01",
+    "title": "Slippkalender: sjekk om Borealis har publisert programmet",
+    "description": "Borealis arrangeres mars. Programmet slippes som regel i desember/januar.\n\nHvorfor denne finnes: festivalsamlingene vaare staar tomme ti maaneder i aaret og rangerer paa plass 7-9,5. Sidene er der og teksten er god, men uten arrangementer har de ingenting aa rangere paa. Det er naar programmet slippes vi maa faa det inn, ikke naar festivalen gaar av stabelen.\n\nGjoer: sjekk arrangoerens side. Er programmet ute, se om scraperen vaar plukker det opp. Gjoer den ikke det, sjekk robots.txt foer noe bygges, jf. docs/new-scraper-checklist.md. Legg saa inn en ny paaminnelse for neste aar."
+  },
+  {
+    "date": "2027-01-20",
+    "title": "Slippkalender: sjekk om BIFF har publisert programmet",
+    "description": "BIFF arrangeres oktober. Programmet kommer i september, men datoene og de foerste filmene annonseres tidlig.\n\nHvorfor denne finnes: festivalsamlingene vaare staar tomme ti maaneder i aaret og rangerer paa plass 7-9,5. Sidene er der og teksten er god, men uten arrangementer har de ingenting aa rangere paa. Det er naar programmet slippes vi maa faa det inn, ikke naar festivalen gaar av stabelen.\n\nGjoer: sjekk arrangoerens side. Er programmet ute, se om scraperen vaar plukker det opp. Gjoer den ikke det, sjekk robots.txt foer noe bygges, jf. docs/new-scraper-checklist.md. Legg saa inn en ny paaminnelse for neste aar."
+  },
+  {
+    "date": "2027-02-01",
+    "title": "Slippkalender: sjekk om Festspillene i Bergen har publisert programmet",
+    "description": "Festspillene i Bergen arrangeres 27. mai - 10. juni. Programmet publiseres normalt i februar. Norges stoerste kulturfestival, over 200 arrangementer.\n\nHvorfor denne finnes: festivalsamlingene vaare staar tomme ti maaneder i aaret og rangerer paa plass 7-9,5. Sidene er der og teksten er god, men uten arrangementer har de ingenting aa rangere paa. Det er naar programmet slippes vi maa faa det inn, ikke naar festivalen gaar av stabelen.\n\nGjoer: sjekk arrangoerens side. Er programmet ute, se om scraperen vaar plukker det opp. Gjoer den ikke det, sjekk robots.txt foer noe bygges, jf. docs/new-scraper-checklist.md. Legg saa inn en ny paaminnelse for neste aar."
+  },
+  {
+    "date": "2027-02-10",
+    "title": "Slippkalender: sjekk om Bergenfest har publisert programmet",
+    "description": "Bergenfest arrangeres 10.-13. juni. Programmet slippes gradvis fra vinteren. Soeket «bergenfest program» hadde 5 202 visninger i kvartalet og 8 klikk.\n\nHvorfor denne finnes: festivalsamlingene vaare staar tomme ti maaneder i aaret og rangerer paa plass 7-9,5. Sidene er der og teksten er god, men uten arrangementer har de ingenting aa rangere paa. Det er naar programmet slippes vi maa faa det inn, ikke naar festivalen gaar av stabelen.\n\nGjoer: sjekk arrangoerens side. Er programmet ute, se om scraperen vaar plukker det opp. Gjoer den ikke det, sjekk robots.txt foer noe bygges, jf. docs/new-scraper-checklist.md. Legg saa inn en ny paaminnelse for neste aar."
+  },
+  {
+    "date": "2027-03-01",
+    "title": "Slippkalender: sjekk om Nattjazz har publisert programmet",
+    "description": "Nattjazz arrangeres 29. mai - 6. juni. Programmet slippes noen uker i forveien, konserter hver kveld paa USF Verftet.\n\nHvorfor denne finnes: festivalsamlingene vaare staar tomme ti maaneder i aaret og rangerer paa plass 7-9,5. Sidene er der og teksten er god, men uten arrangementer har de ingenting aa rangere paa. Det er naar programmet slippes vi maa faa det inn, ikke naar festivalen gaar av stabelen.\n\nGjoer: sjekk arrangoerens side. Er programmet ute, se om scraperen vaar plukker det opp. Gjoer den ikke det, sjekk robots.txt foer noe bygges, jf. docs/new-scraper-checklist.md. Legg saa inn en ny paaminnelse for neste aar."
+  },
+  {
+    "date": "2027-04-01",
+    "title": "Slippkalender: sjekk om Beyond the Gates har publisert programmet",
+    "description": "Beyond the Gates arrangeres slutten av juli. Programmet slippes gradvis fra vaaren.\n\nHvorfor denne finnes: festivalsamlingene vaare staar tomme ti maaneder i aaret og rangerer paa plass 7-9,5. Sidene er der og teksten er god, men uten arrangementer har de ingenting aa rangere paa. Det er naar programmet slippes vi maa faa det inn, ikke naar festivalen gaar av stabelen.\n\nGjoer: sjekk arrangoerens side. Er programmet ute, se om scraperen vaar plukker det opp. Gjoer den ikke det, sjekk robots.txt foer noe bygges, jf. docs/new-scraper-checklist.md. Legg saa inn en ny paaminnelse for neste aar."
+  },
+  {
+    "date": "2027-05-01",
+    "title": "Slippkalender: sjekk om Bergen Pride har publisert programmet",
+    "description": "Bergen Pride arrangeres juni. Programmet publiseres ca. to uker i forveien, over 80 arrangementer.\n\nHvorfor denne finnes: festivalsamlingene vaare staar tomme ti maaneder i aaret og rangerer paa plass 7-9,5. Sidene er der og teksten er god, men uten arrangementer har de ingenting aa rangere paa. Det er naar programmet slippes vi maa faa det inn, ikke naar festivalen gaar av stabelen.\n\nGjoer: sjekk arrangoerens side. Er programmet ute, se om scraperen vaar plukker det opp. Gjoer den ikke det, sjekk robots.txt foer noe bygges, jf. docs/new-scraper-checklist.md. Legg saa inn en ny paaminnelse for neste aar."
   }
 ]
