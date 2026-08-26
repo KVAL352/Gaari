@@ -101,10 +101,30 @@ function isSkippedDomain(url: string): boolean {
 	}
 }
 
+/**
+ * En serverfeil hos arrangoeren betyr ikke at arrangementet er borte.
+ *
+ * 26. august svarte alle arrangementssidene paa dnt.no HTTP 500 mens forsida
+ * deres svarte 200 — deres feil, ikke vaar, og verifisert med vanlig
+ * nettleser-UA. Vi lenker 119 arrangementer dit. Med 5xx talt som brutt ville
+ * de faatt tre strikes paa tre doegn og blitt slettet, helt stille, fordi
+ * noen andres server hadde en daarlig uke.
+ *
+ * 404 og 410 betyr at sida er borte for godt. 5xx betyr at den er syk naa.
+ * De to skal ikke behandles likt naar konsekvensen er sletting.
+ *
+ * Vedvarende 5xx skal likevel fanges — de rapporteres for seg i sammendraget,
+ * saa en kilde som er nede i ukevis ikke bare forsvinner i stillhet.
+ */
+function isServerError(status: number): boolean {
+	return status >= 500 && status < 600;
+}
+
 function isBrokenStatus(status: number): boolean {
 	if (status === 0) return true;       // Network error / timeout
 	if (status === 429) return false;    // Rate limited — treat as OK
-	if (status >= 400) return true;      // Client/server errors
+	if (isServerError(status)) return false; // Deres server, ikke vaar lenke
+	if (status >= 400) return true;      // Client errors — sida er borte
 	return false;
 }
 
@@ -127,7 +147,7 @@ function isSoft404(body: string): boolean {
 	return SOFT_404_PATTERNS.some(pattern => pattern.test(snippet));
 }
 
-async function checkSourceUrl(url: string): Promise<{ ok: boolean; soft404: boolean }> {
+async function checkSourceUrl(url: string): Promise<{ ok: boolean; soft404: boolean; serverError?: number }> {
 	// GET, ikke HEAD. En HEAD gir bare statuskoden, og statuskoden loey: baade
 	// myke 404-er og ubygde Next.js-sider svarer 200 med feil innhold.
 	let res = await checkUrl(url, 'GET');
@@ -141,6 +161,7 @@ async function checkSourceUrl(url: string): Promise<{ ok: boolean; soft404: bool
 		if (res.body && isUnbuiltNextPage(res.body)) return { ok: true, soft404: false };
 	}
 
+	if (isServerError(res.status)) return { ok: true, soft404: false, serverError: res.status };
 	if (isBrokenStatus(res.status)) return { ok: false, soft404: false };
 	if (res.body && isSoft404(res.body)) return { ok: false, soft404: true };
 	return { ok: true, soft404: false };
@@ -238,6 +259,8 @@ async function main() {
 	let checked = 0;
 	let healthy = 0;
 	let strikes = 0;
+	// Verter som svarer 5xx. Ikke strikes, men skal ikke forsvinne i stillhet.
+	const serverfeil = new Map<string, number>();
 	let deleted = 0;
 	let ticketsCleared = 0;
 	let skipped = 0;
@@ -289,6 +312,16 @@ async function main() {
 			const result = await checkSourceUrl(sourceUrl);
 			sourceOk = result.ok;
 			softDetected = result.soft404;
+
+			// Ikke en strike, men skal telles. En vert som staar her dag etter
+			// dag er et ekte problem — for brukerne som klikker, og for
+			// arrangoeren som kanskje ikke vet om det.
+			if (result.serverError) {
+				try {
+					const vert = new URL(sourceUrl).hostname;
+					serverfeil.set(vert, (serverfeil.get(vert) ?? 0) + 1);
+				} catch { /* ugyldig URL — telles ikke */ }
+			}
 
 			try {
 				lastRequestTime.set(new URL(sourceUrl).hostname, Date.now());
@@ -452,6 +485,12 @@ async function main() {
 	console.log(`  Tickets cleared: ${ticketsCleared}`);
 	console.log(`  Images cleared:  ${imagesBroken}`);
 	console.log(`  Duration:        ${durationSeconds}s`);
+	if (serverfeil.size > 0) {
+		console.log('\n  Verter med serverfeil (5xx) — ikke strikes, men sjekk dem:');
+		for (const [vert, n] of [...serverfeil.entries()].sort((a, b) => b[1] - a[1])) {
+			console.log(`    ${vert}: ${n} lenker`);
+		}
+	}
 
 	const summary = {
 		checked,
@@ -459,6 +498,7 @@ async function main() {
 		skipped,
 		strikes,
 		deleted,
+		serverErrors: Object.fromEntries(serverfeil),
 		ticketsCleared,
 		imagesBroken,
 		durationSeconds,
