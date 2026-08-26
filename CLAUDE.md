@@ -33,6 +33,13 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - **Endret sperrelisten eller samtykkeregisteret? Kjør `scripts/enforce-image-blocks.ts`**: `isImageAllowed()` gjelder bare ved innlegging, så bilder som allerede ligger i basen blir stående til dette skriptet rydder dem.
 - **Image permission? Document it**: `docs/bildesamtykke.md` is the register of who consented to what. Adding a source to `IMAGE_APPROVED_SOURCES` or `PROMO_APPROVED_SOURCES` without a row there fails `bildesamtykke.test.ts`. The yes-email goes to Protonmail `Folders/Gaari/Avtaler` and is never deleted.
 - **No non-public events**: Exclude barnehage, SFO, school visits, members-only.
+- **Push kjører testene automatisk**: `.githooks/pre-push` kaller
+  `scripts/verify-tests.mjs`, som stopper pushen hvis testene feiler — eller
+  hvis *null* tester kjørte. Det siste er poenget: kjøres vitest fra feil
+  katalog finner den ingen testfiler, og «ingenting å gjøre» ser ut som
+  suksess. Verdikten står på siste linje (`VERDIKT: OK` / `VERDIKT: FEIL`)
+  så den overlever `tail`. Slås på med
+  `git config core.hooksPath .githooks` — én gang per arbeidskopi.
 - **Rate limiting**: 1-1.5s delays between requests. AI descriptions: 200ms + backoff.
 - **Honest User-Agent**: `Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)`
 - **Price disclaimer**: Always "Trolig gratis" / "Likely free", never assert "Gratis".

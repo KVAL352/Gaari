@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# Stopp pushen hvis testene ikke er grønne — eller ikke kjørte i det hele tatt.
+#
+# 26. august 2026 ble det pushet to ganger på et testresultat som ikke fantes.
+# `vitest run | tail -3` klippet bort oppsummeringslinja, fraværet av ordet
+# «failed» ble lest som suksess, og pushen gikk. Det gikk bra begge ganger.
+# Det var flaks, ikke prosess.
+#
+# En regel ingen håndhever er ikke en regel. Derfor står den her og ikke i et
+# dokument noen skal huske å lese.
+#
+# Hopp over i en nødssituasjon:  git push --no-verify
+# Slå av permanent:              git config --unset core.hooksPath
+
+echo "[pre-push] kjører testene…"
+node "$(git rev-parse --show-toplevel)/scripts/verify-tests.mjs" || {
+	echo ""
+	echo "[pre-push] PUSH STOPPET. Rett testene, eller bruk --no-verify hvis du vet hva du gjør."
+	exit 1
+}
