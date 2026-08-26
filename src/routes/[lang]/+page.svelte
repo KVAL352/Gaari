@@ -209,7 +209,37 @@
 		goto(`?${qs}`, { replaceState: true, noScroll: true, keepFocus: true });
 	}
 
+	/**
+	 * Tell filterbruk.
+	 *
+	 * Forsiden sender alle 1 967 arrangementer til nettleseren — 1,5 MB, altsaa
+	 * 89,7 % av sida — utelukkende for at filtreringen skal skje uten
+	 * rundtur. Det koster 1 810 ms «forsinkelse for gjengivelse» i Lighthouse.
+	 *
+	 * Om den avveiningen loenner seg avhenger av hvor mange som faktisk
+	 * filtrerer, og det VET VI IKKE. Umami fjerner spoerringsparametre: null av
+	 * 500 sporede URL-er inneholder «?», saa 1 826 forsidevisninger uten filter
+	 * betyr ingenting. En maaling som ikke kan se det den teller.
+	 *
+	 * Derfor en egen hendelse. Etter en uke kan vi svare paa spoerringen med
+	 * tall i stedet for aa gjette — og aa bytte bort oeyeblikkelig filtrering er
+	 * i praksis irreversibelt.
+	 *
+	 * Bare navnet paa filteret sendes, aldri fritekstsoek. `q` kan inneholde
+	 * hva som helst en bruker har skrevet.
+	 */
+	function sporFilterbruk(key: string, value: string) {
+		if (key === 'q') return;
+		try {
+			(window as unknown as { umami?: { track: (n: string, d?: unknown) => void } })
+				.umami?.track('filter-brukt', { filter: key, verdi: value.slice(0, 40) });
+		} catch {
+			// Sporing skal aldri kunne velte filtreringen.
+		}
+	}
+
 	function handleFilterChange(key: string, value: string) {
+		if (value) sporFilterbruk(key, value);
 		updateParam(key, value);
 		pageNum = 1;
 	}
