@@ -177,11 +177,15 @@ Borealis 0, Pride 0, Bergen Ølfestival 0, BIFF 2.
 
 **Årstallet var i tillegg feil.** Fire sider lå ute med doblet årstall i
 tittelen, og alle sesongsider viste inneværende år uansett om sesongen var
-over. Rettet i `a9028fb` — men det avdekket en gjeld til: `quickAnswer`,
-`editorial` og `faq` på festivalsidene låser fortsatt fjorårets datoer og
-artister i teksten. Bergenfest er skrevet om som mønster. **Nattjazz,
-Bergen Pride, BIFF, Borealis, Beyond the Gates og Festspillene står igjen**
-og bør tas med `copywriter`-skillen, én om gangen.
+over. Rettet i `a9028fb`.
+
+*Rettelse 26. august:* en tidligere utgave av dette avsnittet påsto at seks
+festivalsider også låste fjorårets datoer og artister i teksten. Det stemte
+ikke. **Bergenfest var den eneste.** Festspillene, Nattjazz, Bergen Pride,
+BIFF, Borealis og Beyond the Gates har null hardkodede årstall — de er
+skrevet med typiske tidspunkt («arrangeres vanligvis i mars») og historiske
+fakta («grunnlagt i 1953»), som er nøyaktig riktig form. Jeg generaliserte
+fra ett tilfelle til seks uten å sjekke de fem andre.
 
 En evigvarende URL som er tom ti måneder i året kan ikke rangere. Derfor:
 

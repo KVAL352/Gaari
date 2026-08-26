@@ -256,8 +256,8 @@
   },
   {
     "date": "2026-09-15",
-    "title": "Festivalsidene selger fjoraaret",
-    "description": "quickAnswer, editorial og faq paa festivalsamlingene laaser fortsatt fjoraarets datoer og artister. Bergenfest er skrevet om som moenster (commit 7752313-omraadet). Staar igjen: Nattjazz, Bergen Pride, BIFF, Borealis, Beyond the Gates, Festspillene. Bruk copywriter-skillen, én om gangen. Maalet er tekst som virker med null arrangementer paa sida, saa den kan rangere hele aaret."
+    "title": "Festivalsidene er tomme utenfor sesong",
+    "description": "RETTELSE: en tidligere utgave av denne paaminnelsen sa at seks festivalsider laaser fjoraarets datoer og artister. Det var feil — Bergenfest var den eneste, og den er rettet. De seks andre har null hardkodede aarstall.\n\nDet som ER igjen: sidene er tomme utenfor sesong. /no/bergenfest svarer med \"numberOfItems\":0 og har rundt 1 100 ord mot 4 000 paa /no/denne-helgen. En evigvarende URL som er tom ti maaneder i aaret rangerer daarlig — de ligger paa plass 7-9,5 med til sammen over 26 000 visninger i kvartalet.\n\nTiltak: gi sidene innhold som virker med null arrangementer (historie, normale datoer, hvor den holder til, naar programmet slippes, hvor billettene selges), og lag en slippkalender saa arrangementene kommer inn naar programmet annonseres, ikke naar festivalen gaar av stabelen. Hallaien (5 424 visninger) og Bergen Oelfestival (1 585) mangler helt — robots.txt maa sjekkes foer noen scraper vurderes."
   },
   {
     "date": "2026-11-25",
