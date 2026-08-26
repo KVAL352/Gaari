@@ -90,7 +90,17 @@ interface Rad {
  * som gir ren brødtekst; og:description er en kortere ingress som finnes nesten
  * overalt; JSON-LD er siste utvei fordi den ofte er identisk med og:description.
  */
-function hentKildetekst(html: string): string | undefined {
+function hentKildetekst(html: string, sourceUrl = ''): string | undefined {
+	// Fragmentlenker betyr ettsides nettsted, og da er sida vi henter IKKE
+	// arrangementsspesifikk.
+	//
+	// hvaskjeriloddefjord.no lenker hvert arrangement som «/#22092026-
+	// bruktbutikk-for-ungdom». Alle 143 radene derfra gir samme HTML. Uten
+	// denne sperra ville reservefangsten under lest hele kalenderen og hengt
+	// FEIL arrangements fakta paa hver eneste rad — verre enn ingen
+	// beskrivelse, fordi det ser riktig ut.
+	const erFragmentlenke = sourceUrl.includes('#');
+
 	const $ = cheerio.load(html);
 
 	const plone = [
@@ -118,7 +128,23 @@ function hentKildetekst(html: string): string | undefined {
 			}
 		} catch { /* ugyldig JSON-LD */ }
 	});
-	return fraJsonLd;
+	if (fraJsonLd) return fraJsonLd;
+
+	// Reservefangst: hovedinnholdet med menyer og bunntekst fjernet.
+	//
+	// Grieghallen og Ole Bull Scene har ingen av feltene over — teksten ligger
+	// i <main> sammen med navigasjon. Det gjorde at 3 av 89 og 0 av 73 rader
+	// fikk noe som helst.
+	//
+	// Stoeyen gjoer ikke noe her, fordi neste steg bare henter ut atomaere
+	// fakta: regissoer, medvirkende, klokkeslett. En meny inneholder ingen av
+	// delene, saa den blir liggende igjen.
+	if (erFragmentlenke) return undefined;
+	const $rein = cheerio.load(html);
+	$rein('script, style, nav, header, footer, form, aside, noscript').remove();
+	const hoved = ($rein('main').first().text() || $rein('article').first().text() || $rein('body').text())
+		.replace(/\s+/g, ' ').trim();
+	return hoved.length > 200 ? hoved : undefined;
 }
 
 async function main() {
@@ -159,7 +185,7 @@ async function main() {
 			const html = await fetchHTML(e.source_url);
 			if (!html) { console.log(`  ✗ ${e.title_no.slice(0, 50)}: kunne ikke hente sida`); feilet++; await delay(pause); continue; }
 
-			const kilde = hentKildetekst(html);
+			const kilde = hentKildetekst(html, e.source_url);
 			if (!kilde) { console.log(`  – ${e.title_no.slice(0, 50)}: ingen omtale paa sida`); ingenKilde++; await delay(pause); continue; }
 
 			// To steg. hentFakta() ser arrangoerens tekst og leverer bare
