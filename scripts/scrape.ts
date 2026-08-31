@@ -98,7 +98,7 @@ const PIPELINE_DEADLINE_MS = 22 * 60 * 1000;
 // Utad ser dagen ut som om den aldri skjedde. Fem døgn på rad fra 26. august
 // 2026 endte slik. Taket er det som gjør fristen mulig å håndheve.
 //
-// HVORFOR 5 MINUTTER OG IKKE 3
+// HVORFOR 6 MINUTTER OG IKKE 3
 //
 // Foerste utgave sto paa 3 minutter. Det var for stramt for to scrapere som
 // gjoer ekte arbeid: bergenbibliotek brukte 432 s og bergenkommune 293 s den
@@ -112,10 +112,12 @@ const PIPELINE_DEADLINE_MS = 22 * 60 * 1000;
 // 240 s mer enn 180 s gjorde, og lander rundt 1145 s. Marginen er fortsatt
 // der.
 //
-// bergenbibliotek paa 432 s vil fortsatt bli kuttet. Den finner 440
-// arrangementer per kjoering, og det er mengden som maa ned, ikke taket som
-// skal opp igjen. Staar som egen sak.
-const SCRAPER_TIMEOUT_MS = 5 * 60 * 1000;
+// Justert opp igjen fra 5 til 6 minutter etter maaling: bergenbibliotek kom
+// gjennom paa 300 s, men bergenkommune ble kuttet der. Den brukte 293 s den
+// 25. august og ligger altsaa rett paa grensa, saa den ville slaatt ut som
+// oedelagt i scraper-health omtrent annenhver dag. Kjoeringen brukte 1034 s
+// av 1320, saa de 60 ekstra sekundene ligger godt innenfor.
+const SCRAPER_TIMEOUT_MS = 6 * 60 * 1000;
 
 export const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
 	// --- Fast scrapers first (single page, no detail fetches) ---
