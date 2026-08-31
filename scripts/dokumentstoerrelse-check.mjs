@@ -50,9 +50,34 @@ const INGEN_DOM = args.includes('--no-fail');
  * satte grensa fra PSI-tallet og feilet umiddelbart mot sin egen måling.
  * Sammenlign aldri de to.
  */
+/**
+ * /en HAR SIN EGEN GRENSE, OG DEN ER HOEYERE ENN /no
+ *
+ * Foerste utgave ga /en samme tall som /no. Det var en antagelse, ikke en
+ * maaling: bare /no ble maalt 26. august. /en laa allerede paa 407 KiB da
+ * grensa ble satt til 360, saa sjekken var roed fra det oeyeblikket den kom
+ * inn og har aldri passert en eneste gang. En portvakt som roper hver dag er
+ * ingen portvakt — den laerer folk aa se bort fra roedt.
+ *
+ * Forskjellen er ekte og skal vare. /en sender BEGGE spraakene: `title_no` og
+ * `description_no` maa vaere med selv paa den engelske sida, fordi filtrene og
+ * fritekstsoeket i EventDiscovery og +page.svelte er bygget paa norske ord
+ * (ungdom, klubb, familie, «hulen»). Droppes de norske feltene paa /en, gaar
+ * ikke sida i stykker — den slutter bare stille aa filtrere riktig. Det er en
+ * verre feil enn 114 KiB.
+ *
+ * Maalt 31. august 2026: /no 293 gzip / 1503 raa, /en 407 gzip / 1898 raa.
+ * Hoeyeste observerte /en i CI var 412 / 1961 (30. august). Grensene under er
+ * satt over toppmaalingen, ikke over dagsmaalingen.
+ *
+ * Dette er fortsatt et sperrehaandtak, ikke et maal. Den store posten — 1,5 MB
+ * arrangementsdata sendt til nettleseren for at filtrene skal vaere
+ * oeyeblikkelige — staar aapen i docs/SEO-ARBEIDSFLYT.md. Loeses den, skal
+ * begge tallene ned, ikke opp.
+ */
 const GRENSER = [
 	{ sti: '/no', gzipKiB: 360, raaKiB: 1800 },
-	{ sti: '/en', gzipKiB: 360, raaKiB: 1800 },
+	{ sti: '/en', gzipKiB: 430, raaKiB: 2050 },
 	{ sti: '/no/denne-helgen', gzipKiB: 60, raaKiB: 320 },
 ];
 
