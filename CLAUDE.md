@@ -93,6 +93,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 - `/api/health` — Lightweight liveness probe (1 Supabase query) — polled by UptimeRobot every 5 min
 - `/api/health/deep` — comprehensive checks (supabase, events, public read, scrape freshness, visibility, pipeline, image health, DB size, data quality) — hit by morgen/health skills. Teller med `supabaseAdmin`, fordi RLS-migrasjonen la de private tabellene utenfor anon. `public_read` er unntaket: den går med anon-nøkkelen og ber om `PUBLIC_EVENT_COLUMNS`, så en fremtidig innstramming av grantet lyser rødt her før forsiden blir tom
 - `scraper_runs` table + `scraper-health.ts` classification → daily digest
+- `datakonsistens-sjekk.ts` (daglig, i `link-check.yml`): sammenligner strukturerte felter med radens egen tekst. Fanger feilklassen der `age_group` sier «alle» mens beskrivelsen sier «aldersgrense 18 år» — usynlig for alle de andre lagene, fordi ingenting blir rødt. **Sperrende** sjekker skal alltid være null. **Målte** sjekker låser dagens nivå slik dokumentstørrelsen gjør, fordi en portvakt som er rød hver dag lærer folk å se bort fra rødt. Hever du en grense, skal det være en beslutning
 - `link-check.yml` (daglig): `check-links.ts` sjekker lenkene *ut* til arrangørene, `check-site.ts` sjekker gaari.nos egne sider og lenkene mellom dem. **Et 200-svar er ikke bevis**: Next.js-sider svarer 200 med et tomt skall første gang noen ber om en adresse de ikke har bygd, og 404 etterpå. Sjekk aldri en slik lenke bare én gang.
 
 ## Business model

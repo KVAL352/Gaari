@@ -126,3 +126,25 @@ jobs:
       - name: Dokumentstoerrelse i drift
         if: always()
         run: node scripts/dokumentstoerrelse-check.mjs
+
+      # Datakonsistens i drift.
+      #
+      # De tre andre lagene ser ikke denne feilklassen: CI tester koden,
+      # `data_quality` i helsesjekken ser bare paa datoer, og den maanedlige
+      # quality-audit ser paa llms.txt, FAQ og metabeskrivelser. Ingen av dem
+      # sammenligner et strukturert felt med radens egen tekst.
+      #
+      # 31. august 2026 sto 38 kommende arrangementer med «aldersgrense 18
+      # aar» i beskrivelsen mens age_group var 'all', og laa dermed synlige i
+      # /for-ungdom. Ingenting var roedt noe sted.
+      #
+      # Hoerer hjemme her fordi jobben alt kjoerer daglig og alt har to
+      # portvakter av samme slag. Egen `if: always()` slik at en roed
+      # lenkesjekk ikke skjuler et datafunn.
+      - name: Datakonsistens i drift
+        if: always()
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npx tsx datakonsistens-sjekk.ts
