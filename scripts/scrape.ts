@@ -76,6 +76,7 @@ import { enrichRecurringTitles } from './lib/enrich-titles.js';
 import { backfillImageCredits } from './lib/credit-backfill.js';
 import { supabase } from './lib/supabase.js';
 import { withTimeout, ScraperTimeoutError } from './lib/scraper-timeout.js';
+import { settInnhentingsmodus } from './lib/ai-descriptions.js';
 
 interface ScraperResult {
 	found: number;
@@ -254,7 +255,13 @@ async function main() {
 	const args = process.argv.slice(2);
 	const selected = args.length > 0 ? args : Object.keys(scrapers);
 
+	// Innhentingen skriver maltekst og lar descriptions.yml ta teksten en time
+	// senere. Se settInnhentingsmodus for hvorfor. Settes her, ikke i
+	// scrape.yml, slik at det gjelder ogsaa naar skriptet kjoeres for haand.
+	settInnhentingsmodus(true);
+
 	console.log('=== Gåri Event Scraper ===');
+	console.log('Beskrivelser: maltekst nå, berikelse i descriptions.yml');
 	console.log(`${new Date().toISOString()}\n`);
 
 	// Step 1: Remove expired events + refresh stale multi-date events

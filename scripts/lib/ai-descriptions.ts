@@ -373,7 +373,42 @@ function isDailyQuotaError(err: any): boolean {
 	return msg.includes('PerDay') || msg.includes('per_day');
 }
 
+/**
+ * Innhentingsmodus: hopp over AI-kallet og legg inn maltekst med én gang.
+ *
+ * DETTE ER ANDRE HALVDEL AV DELINGEN FRA 26. AUGUST 2026
+ *
+ * Den dagen ble berikelsen flyttet ut av scrapen til descriptions.yml, fordi
+ * scrapen ble drept av tidsavbruddet paa 25 minutter. Men bare berikelsen ble
+ * flyttet. Det foerste AI-kallet per nytt arrangement ble staaende igjen inne
+ * i innhentingen, i 63 av 65 scrapere, og delingen var dermed halvveis.
+ *
+ * Arbeidsdelingen er nå den som var ment: innhentingen skal vaere rask og
+ * komplett og skriver maltekst, mens descriptions.yml tar teksten etterpaa med
+ * 50 minutter til raadighet og en jobb som taaler aa bli avbrutt.
+ *
+ * Maltekst er alltid under 160 tegn (makeDescription kutter der), og
+ * berikelsen plukker alt under 170. Overleveringen kan derfor ikke gaa tapt:
+ * hver rad innhentingen legger igjen, havner i koeen til berikelsen.
+ *
+ * Flagget settes av scrape.ts og gjelder bare den prosessen. Backfill-jobbene
+ * kjoerer for seg og roeres ikke.
+ */
+let innhentingsmodus = false;
+
+export function settInnhentingsmodus(paa: boolean): void {
+	innhentingsmodus = paa;
+}
+
+/** Finnes for at testen skal kunne feste at flagget er av som standard og ikke
+ *  blir klebrig, uten aa maatte kalle generateDescription og gaa paa nett. */
+export function erIInnhentingsmodus(): boolean {
+	return innhentingsmodus;
+}
+
 export async function generateDescription(event: EventMeta): Promise<BilingualDescription> {
+	if (innhentingsmodus) return fallback(event);
+
 	const client = getClient();
 	if (!client || dailyQuotaExhausted) return fallback(event);
 
