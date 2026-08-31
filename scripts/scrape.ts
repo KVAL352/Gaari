@@ -75,6 +75,7 @@ import { deduplicate } from './lib/dedup.js';
 import { enrichRecurringTitles } from './lib/enrich-titles.js';
 import { backfillImageCredits } from './lib/credit-backfill.js';
 import { supabase } from './lib/supabase.js';
+import { withTimeout, ScraperTimeoutError } from './lib/scraper-timeout.js';
 
 interface ScraperResult {
 	found: number;
@@ -83,10 +84,19 @@ interface ScraperResult {
 	errorMessage?: string;
 	durationMs: number;
 	skipped: boolean;
+	timedOut?: boolean;
 }
 
 // Pipeline deadline — stop starting new scrapers after 22 minutes (3 min buffer for dedup + summary)
 const PIPELINE_DEADLINE_MS = 22 * 60 * 1000;
+
+// Per-scraper tak. Fristen over sjekkes bare *mellom* scrapere, så uten dette
+// kan én treg kilde bruke hele resten av budsjettet. Da rekker ikke løkka
+// tilbake til fristsjekken, GitHub dreper jobben på timeout-minutes, og dedup,
+// loggingen til scraper_runs, JSON-sammendraget og helsesjekken kjører aldri.
+// Utad ser dagen ut som om den aldri skjedde. Fem døgn på rad fra 26. august
+// 2026 endte slik. Taket er det som gjør fristen mulig å håndheve.
+const SCRAPER_TIMEOUT_MS = 3 * 60 * 1000;
 
 export const scrapers: Record<string, () => Promise<{ found: number; inserted: number }>> = {
 	// --- Fast scrapers first (single page, no detail fetches) ---
@@ -328,13 +338,17 @@ async function main() {
 		}
 
 		const scraperStart = Date.now();
+		// Aldri mer enn det som er igjen av fristen: sent i kjøringen er et fast
+		// tremminutterstak i seg selv nok til å sprenge budsjettet.
+		const budget = Math.min(SCRAPER_TIMEOUT_MS, PIPELINE_DEADLINE_MS - (scraperStart - startTime));
 		try {
-			const { found, inserted } = await scraper();
+			const { found, inserted } = await withTimeout(scraper(), budget, name);
 			results[name] = { found, inserted, errored: false, durationMs: Date.now() - scraperStart, skipped: false };
 		} catch (err: any) {
-			console.error(`\n[${name}] Failed: ${err.message}`);
+			const timedOut = err instanceof ScraperTimeoutError;
+			console.error(`\n[${name}] ${timedOut ? 'Tidsavbrudd' : 'Failed'}: ${err.message}`);
 			results[name] = {
-				found: 0, inserted: 0, errored: true,
+				found: 0, inserted: 0, errored: true, timedOut,
 				errorMessage: (err.message || String(err)).slice(0, 500),
 				durationMs: Date.now() - scraperStart, skipped: false
 			};
@@ -424,6 +438,8 @@ async function main() {
 	for (const [name, result] of Object.entries(results)) {
 		if (result.skipped) {
 			console.log(`  ${name}: skipped (deadline)`);
+		} else if (result.timedOut) {
+			console.log(`  ${name}: TIDSAVBRUDD etter ${Math.round(result.durationMs / 1000)}s — forlatt`);
 		} else if (result.errored) {
 			console.log(`  ${name}: ERROR — ${result.errorMessage?.slice(0, 80)}`);
 		} else {
@@ -490,5 +506,15 @@ async function main() {
 
 import { fileURLToPath } from 'node:url';
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-	main().catch(console.error);
+	// Eksplisitt avslutning: en scraper som fikk tidsavbrudd kjører videre i
+	// bakgrunnen, og et utestående nettverkskall holder hendelsesløkka i live.
+	// Uten dette ville jobben stå og se ferdig ut helt til GitHub drepte den —
+	// nøyaktig den feilen taket over skal fjerne. Alt som skriver til basen er
+	// ventet på før dette punktet, og de siste stegene er synkrone.
+	main()
+		.then(() => process.exit(0))
+		.catch((err) => {
+			console.error(err);
+			process.exit(1);
+		});
 }
