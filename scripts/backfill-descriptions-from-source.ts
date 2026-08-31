@@ -54,6 +54,8 @@ import * as cheerio from 'cheerio';
 import { supabase } from './lib/supabase.js';
 import { fetchAllRows, fetchHTML, delay } from './lib/utils.js';
 import { generateDescription, hentFakta } from './lib/ai-descriptions.js';
+import { hasAdultAgeLimit } from './lib/categories.js';
+import { sorterBerikelseskoe } from './lib/berikelseskoe.js';
 
 const argv = process.argv;
 const DRY_RUN = argv.includes('--dry-run');
@@ -81,6 +83,8 @@ interface Rad {
 	age_group: string | null;
 	language: string | null;
 	description_no: string | null;
+	description_attempts: number | null;
+	description_tried_at: string | null;
 }
 
 /**
@@ -154,7 +158,7 @@ async function main() {
 		(fra, til) =>
 			supabase
 				.from('events')
-				.select('id, source, source_url, title_no, venue_name, category, date_start, bydel, age_group, language, description_no')
+				.select('id, source, source_url, title_no, venue_name, category, date_start, bydel, age_group, language, description_no, description_attempts, description_tried_at')
 				.eq('status', 'approved')
 				.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
 				.not('source_url', 'is', null)
@@ -163,21 +167,44 @@ async function main() {
 		'kildetekst-backfill'
 	);
 
-	let koe = alle.filter(e => (e.description_no ?? '').length < KORT_NOK_TIL_AA_BYTTES);
-	if (SOURCE) koe = koe.filter(e => e.source === SOURCE);
-	if (LIMIT) koe = koe.slice(0, LIMIT);
+	let koeFull = alle.filter(e => (e.description_no ?? '').length < KORT_NOK_TIL_AA_BYTTES);
+	if (SOURCE) koeFull = koeFull.filter(e => e.source === SOURCE);
 
+	// Aldri forsoekt foerst, deretter de som ble forsoekt for lengst siden.
+	// Se lib/berikelseskoe.ts for hvorfor rekkefoelgen er som den er.
+	const aldriForsoekt = koeFull.filter(e => !e.description_tried_at).length;
+	koeFull = sorterBerikelseskoe(koeFull);
+
+	const koe = LIMIT ? koeFull.slice(0, LIMIT) : koeFull;
+
+	// Hele koeen, ikke bare det som tas i dag. Foer skrev jobben ut tallet
+	// etter kuttet, saa «300 har beskrivelse under 170 tegn» sto der uansett om
+	// koeen var 300 eller 3 000. Da kan man ikke se at den vokser.
 	console.log(
 		`${alle.length} kommende arrangementer med kildelenke. ` +
-			`${koe.length} har beskrivelse under ${KORT_NOK_TIL_AA_BYTTES} tegn` +
+			`${koeFull.length} har beskrivelse under ${KORT_NOK_TIL_AA_BYTTES} tegn` +
 			(SOURCE ? ` fra "${SOURCE}"` : '') + '.'
 	);
+	console.log(`Av dem er ${aldriForsoekt} aldri forsoekt foer. Tar ${koe.length} i denne kjoeringen.`);
 	if (DRY_RUN) console.log('TØRRKJØRING — ingenting skrives.');
 	if (koe.length === 0) return;
 	console.log('');
 
 	let bedre = 0, ingenKilde = 0, ikkeBedre = 0, feilet = 0;
 	let foerSum = 0, etterSum = 0;
+
+	// Markerer forsoeket uansett hvordan raden endte. Ligger i finally nettopp
+	// fordi loekka har seks utganger: uten sida, uten omtale, uten fakta, ikke
+	// bedre, skrivefeil og krasj. Glemmer én av dem markeringen, er raden
+	// tilbake foerst i koeen i morgen, og feilen ser ut som ingenting.
+	const merkForsoekt = async (e: Rad) => {
+		if (DRY_RUN) return;
+		const { error } = await supabase.from('events').update({
+			description_attempts: (e.description_attempts ?? 0) + 1,
+			description_tried_at: new Date().toISOString(),
+		}).eq('id', e.id);
+		if (error) console.log(`  ! kunne ikke markere forsoek paa ${e.id}: ${error.message}`);
+	};
 
 	for (const e of koe) {
 		const pause = PAUSE_MS[e.source ?? ''] ?? 1500;
@@ -215,8 +242,23 @@ async function main() {
 			if (DRY_RUN) {
 				console.log(`  [tørr] ${foer} → ${d.no.length}  ${d.no.slice(0, 96)}`);
 			} else {
+				// Berikelsen SKRIVER OM beskrivelsen, og kan dermed innfoere en
+				// aldersgrense raden ikke hadde foer. Sperra i insertEvent gjelder
+				// bare ved innlegging, saa uten dette ville en nyskrevet tekst med
+				// «aldersgrense 18 aar» blitt staaende med age_group 'all' — og
+				// arrangementet ville ligget synlig i /for-ungdom og familiefiltrene.
+				// Samme feilklasse som de 38 radene som ble rettet 31. august.
+				const nyAldersgrense = e.age_group !== '18+' && hasAdultAgeLimit(d.no, d.en);
+				if (nyAldersgrense) {
+					console.log(`  ! ${e.title_no.slice(0, 40)}: ny tekst oppgir aldersgrense, setter 18+`);
+				}
 				const { error } = await supabase.from('events')
-					.update({ description_no: d.no, description_en: d.en, ...(d.title_en ? { title_en: d.title_en } : {}) })
+					.update({
+						description_no: d.no,
+						description_en: d.en,
+						...(d.title_en ? { title_en: d.title_en } : {}),
+						...(nyAldersgrense ? { age_group: '18+' } : {}),
+					})
 					.eq('id', e.id);
 				if (error) { console.log(`  ✗ ${e.title_no.slice(0, 50)}: ${error.message}`); feilet++; await delay(pause); continue; }
 				console.log(`  ✓ ${foer} → ${d.no.length}  ${e.title_no.slice(0, 56)}`);
@@ -225,6 +267,8 @@ async function main() {
 		} catch (err: any) {
 			console.log(`  ✗ ${e.title_no.slice(0, 50)}: ${err?.message?.slice(0, 70)}`);
 			feilet++;
+		} finally {
+			await merkForsoekt(e);
 		}
 		await delay(pause);
 	}
