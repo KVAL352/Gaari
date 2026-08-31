@@ -6,6 +6,21 @@ import { writeFileSync } from 'fs';
 const REQUEST_TIMEOUT_MS = 15_000;
 const DELAY_BETWEEN_REQUESTS_MS = 1500;
 const MAX_EVENTS_PER_RUN = 500;
+// Tidsfrist for kjoeringen, mot jobbtaket paa 20 minutter i link-check.yml.
+//
+// Antallstaket over er ikke en tidsgrense. 500 arrangementer med opptil tre
+// lenker hver og 1 500 ms mellom forespoerslene kan ta over 35 minutter, og da
+// blir jobben drept av GitHub i stedet for aa bli ferdig. Oppsummeringen og
+// strike-loggingen kjoerer aldri, og doegnet ser ut som om det ikke skjedde.
+//
+// Skjedde 31. august kl. 16:44: drept paa 20 m 19 s. To timer tidligere gikk
+// den groent, saa den laa rett paa grensa og ville feilet annenhver gang.
+// Samme feilklasse som scrape.ts hadde, rettet samme dag.
+//
+// Uferdige rader beholder sin gamle link_checked_at og ligger derfor foerst i
+// koeen neste kjoering — spoerringen sorterer paa nettopp den. Ingenting gaar
+// tapt ved aa stoppe tidlig.
+const RUN_DEADLINE_MS = 17 * 60 * 1000;
 const SOURCE_URL_STRIKE_LIMIT = 3;
 const TICKET_URL_STRIKE_LIMIT = 2;
 const USER_AGENT = 'Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)';
@@ -294,7 +309,20 @@ async function main() {
 	// Track last request time per domain for rate limiting
 	const lastRequestTime = new Map<string, number>();
 
+	let naaddeFrist = false;
+	let ikkeRukket = 0;
+
 	for (const event of orderedEvents) {
+		if (Date.now() - startTime > RUN_DEADLINE_MS) {
+			naaddeFrist = true;
+			ikkeRukket = orderedEvents.length - checked;
+			console.warn(
+				`\n[link-check] Tidsfrist naadd (${Math.round(RUN_DEADLINE_MS / 60000)} min) — ` +
+					`${ikkeRukket} arrangementer staar igjen til neste kjoering`
+			);
+			break;
+		}
+
 		const sourceUrl = event.source_url;
 		const ticketUrl = event.ticket_url;
 
@@ -502,6 +530,9 @@ async function main() {
 	const durationSeconds = Math.round((Date.now() - startTime) / 1000);
 
 	console.log('\n--- Link Check Summary ---');
+	if (naaddeFrist) {
+		console.log(`  Tidsfrist naadd: ${ikkeRukket} igjen til neste kjoering`);
+	}
 	console.log(`  Checked:         ${checked}`);
 	console.log(`  Healthy:         ${healthy}`);
 	console.log(`  Skipped (bots):  ${skipped}`);
