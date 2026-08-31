@@ -2,6 +2,7 @@ import type * as cheerio from 'cheerio';
 import { CONSENT_RECORDS } from './consent-doc.js';
 import { supabase } from './supabase.js';
 import { getSourceFallbackImage } from './venues.js';
+import { hasAdultAgeLimit } from './categories.js';
 import { EVENT_IMAGE_BUCKET, eventImageStoragePath } from '../../src/lib/storage-path.js';
 
 /**
@@ -728,6 +729,19 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 	if (event.image_url && !(await verifyHotlinkable(event.image_url))) {
 		event.image_url = undefined;
 		event.image_credit = undefined;
+	}
+
+	// Aldersgrensen står ofte bare i teksten, mens age_group blir stående på
+	// scraperens hardkodede 'all'. Det er age_group filtrene leser, så et
+	// 18+-arrangement havner da i /for-ungdom og i familiefiltrene uten at noe
+	// ser galt ut. Se hasAdultAgeLimit for målingen bak.
+	//
+	// En uttrykt aldersgrense slår enhver utledet verdi, også 'family'. Sier
+	// kilden 18 år og scraperen sier familie, er det scraperen som tar feil, og
+	// de to feilene er ikke like store: å skjule et arrangement for familier er
+	// en irritasjon, å vise et 18+-arrangement til barn er det ikke.
+	if (event.age_group !== '18+' && hasAdultAgeLimit(event.title_no, event.description_no)) {
+		event.age_group = '18+';
 	}
 
 	if (isOptedOut(event.source_url)) {

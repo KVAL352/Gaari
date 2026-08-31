@@ -125,6 +125,37 @@ export function isFamilyTitle(text: string): boolean {
 	return FAMILY_RE.test(text);
 }
 
+/**
+ * Finn en aldersgrense på 18/20/21 år i tittel eller beskrivelse.
+ *
+ * HVORFOR DENNE FINNES
+ *
+ * Aldersgrensen var kjent, og ble skrevet ned to steder som ikke snakket
+ * sammen. Beskrivelsen fikk den med seg — «Arrangementet har aldersgrense 18
+ * år» — mens `age_group` ble stående på den hardkodede standardverdien 'all',
+ * fordi de fleste scraperne aldri har satt feltet i det hele tatt. 31. august
+ * 2026 gjaldt det 20 kommende arrangementer fordelt på fem kilder (olebull,
+ * usfverftet, forumscene, kunsthall, ticketco), pluss fredagen i Kjøtt
+ * Festival. Alle sto som åpne for alle.
+ *
+ * Det er `age_group` og ikke beskrivelsen filtrene leser. Et 18+-arrangement
+ * merket 'all' er dermed synlig i /for-ungdom og i familiefiltrene, og
+ * feilen er stille: sida ser helt normal ut.
+ *
+ * Derfor utledes verdien nå fra teksten i insertEvent, ett sted for alle
+ * scraperne, i stedet for at hver scraper skal huske å sette den.
+ *
+ * SNEVER MED VILJE. Den skal treffe uttrykt aldersgrense, ikke ethvert tall.
+ * «18 år siden», «18. september» og «fra 18 år og oppover som medlem» skal
+ * ikke slå ut. Målt mot 1 880 kommende arrangementer ga mønsteret 20 treff og
+ * null falske positive. Utvides det, må det måles på nytt på samme måte.
+ */
+const AGE_LIMIT_RE = /aldersgrense\s*(?:på\s*|fra\s*)?(?:18|20|21)\s*(?:år|aar)?|\b(?:18|20|21)\s*(?:år|aar)\s*(?:og\s*oppover|grense)|\b(?:18|20|21)\+|(?:for\s*)?publikum\s*over\s*(?:18|20|21)\s*(?:år|aar)|over\s*(?:18|20|21)\s*(?:år|aar)|age\s*limit\s*(?:of\s*)?(?:18|20|21)/i;
+
+export function hasAdultAgeLimit(...texts: (string | null | undefined)[]): boolean {
+	return texts.some(t => !!t && AGE_LIMIT_RE.test(t));
+}
+
 // Map known venues → bydel
 const VENUE_BYDEL_MAP: Record<string, string> = {
 	'grieghallen': 'Sentrum',
