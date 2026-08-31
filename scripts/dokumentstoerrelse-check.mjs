@@ -9,19 +9,33 @@
  * riktig valg: målingene blir like hver kjøring, og svinger ikke med hva som
  * tilfeldigvis lå i basen.
  *
- * Men det gir en blindsone. Seed har 25 arrangementer. Produksjon har 1 967.
- * Budsjettet måler dokumentet til 25 KiB mens forsiden i drift er 1,7 MB —
- * 89,7 % av den er arrangementsdata serialisert inn i HTML-en for at filtrene
- * skal virke i nettleseren.
+ * Men det gir en blindsone. Seed har 25 arrangementer, produksjon har over
+ * 2 000. Budsjettet måler dokumentet til 25 KiB mens forsiden i drift er
+ * 1,7 MB, og rundt 90 % av den er arrangementsdata serialisert inn i HTML-en
+ * for at filtrene skal virke i nettleseren. Portvakten var grønn mens den
+ * største ytelsesposten på nettstedet vokste fritt, fordi den aldri så den.
  *
- * Portvakten var altså grønn mens den største ytelsesposten på nettstedet
- * vokste fritt, fordi den aldri så den.
+ * HVORFOR PER ARRANGEMENT OG IKKE ET ABSOLUTT TALL
  *
- * Denne måler produksjon i stedet. Den er ikke deterministisk — tallet svinger
- * med hvor mange arrangementer som ligger inne — og derfor er grensene satt
- * som et SPERREHÅNDTAK: de låser dagens nivå og hindrer at det blir verre.
- * De er ikke et mål. Dagens nivå er for høyt, og står som åpen sak i
- * docs/SEO-ARBEIDSFLYT.md.
+ * Første utgave låste absolutte tall. Den holdt i fem dager. 31. august sto
+ * innhentingen stille i seks døgn, ble reparert, og la inn rundt 150
+ * arrangementer på én dag. Da sprakk grensa — ikke fordi vi hadde begynt å
+ * sende mer per arrangement, men fordi det var flere av dem.
+ *
+ * En grense som må skrus opp hver gang katalogen vokser, måler ingenting. Den
+ * lærer bare den som skrur å skru. Derfor er den sperrende målingen nå
+ * **bytes per serialisert arrangement**. Den fanger det vi faktisk kan gjøre
+ * noe med: at hver rad drar med seg mer til nettleseren, for eksempel når et
+ * nytt felt legges til i `fields` i +page.server.ts.
+ *
+ * De absolutte takene står igjen som en sikring for brukeropplevelsen, satt
+ * romslig. De skal fange en side som løper løpsk, ikke vanlig vekst.
+ *
+ * GZIP, IKKE BROTLI. Vercel serverer brotli til nettlesere, og PageSpeed
+ * rapporterte 304 KiB for den samme sida vi her målte til 346. Det er ikke en
+ * motsigelse, det er to komprimeringer. Første utgave av dette skriptet satte
+ * grensa fra PSI-tallet og feilet umiddelbart mot sin egen måling.
+ * Sammenlign aldri de to.
  *
  * Bruk:
  *   node scripts/dokumentstoerrelse-check.mjs
@@ -38,52 +52,48 @@ const BASE = flagg('--base', 'https://gaari.no');
 const INGEN_DOM = args.includes('--no-fail');
 
 /**
- * Grensene er dagens nivå rundet opp, ikke et mål.
+ * Målt 31. august 2026 med 2 000 serialiserte arrangementer på forsiden:
  *
- * Målt 26. august 2026 med 1 967 arrangementer i basen: /no lå på 346 KiB
- * gzip og 1 694 KiB rå. Vokser katalogen mye, må tallene justeres — men da
- * skal noen ta stilling til det, ikke bare skru dem opp for å få grønt.
+ *   /no  312 KiB gzip / 1 695 KiB rå  →  0,156 og 0,847 per arrangement
+ *   /en  428 KiB gzip / 2 100 KiB rå  →  0,214 og 1,050 per arrangement
  *
- * GZIP, IKKE BROTLI. Vercel serverer brotli til nettlesere, og PageSpeed
- * rapporterte 304 KiB for den samme sida vi her måler til 346. Det er ikke
- * en motsigelse — det er to komprimeringer. Første utgave av dette skriptet
- * satte grensa fra PSI-tallet og feilet umiddelbart mot sin egen måling.
- * Sammenlign aldri de to.
- */
-/**
- * /en HAR SIN EGEN GRENSE, OG DEN ER HOEYERE ENN /no
+ * Grensene under ligger rundt 12 % over det. De låser dagens nivå, de er ikke
+ * et mål.
  *
- * Foerste utgave ga /en samme tall som /no. Det var en antagelse, ikke en
- * maaling: bare /no ble maalt 26. august. /en laa allerede paa 407 KiB da
- * grensa ble satt til 360, saa sjekken var roed fra det oeyeblikket den kom
- * inn og har aldri passert en eneste gang. En portvakt som roper hver dag er
- * ingen portvakt — den laerer folk aa se bort fra roedt.
+ * /en ER LEGITIMT STØRRE ENN /no. Den sender begge språkene: `title_no` og
+ * `description_no` må være med også på den engelske sida, fordi filtrene og
+ * fritekstsøket i EventDiscovery og +page.svelte er bygget på norske ord
+ * (ungdom, klubb, familie, «hulen»). Droppes de norske feltene på /en, går
+ * ikke sida i stykker — den slutter bare stille å filtrere riktig. Det er en
+ * verre feil enn 200 KiB.
  *
- * Forskjellen er ekte og skal vare. /en sender BEGGE spraakene: `title_no` og
- * `description_no` maa vaere med selv paa den engelske sida, fordi filtrene og
- * fritekstsoeket i EventDiscovery og +page.svelte er bygget paa norske ord
- * (ungdom, klubb, familie, «hulen»). Droppes de norske feltene paa /en, gaar
- * ikke sida i stykker — den slutter bare stille aa filtrere riktig. Det er en
- * verre feil enn 114 KiB.
- *
- * Maalt 31. august 2026: /no 293 gzip / 1503 raa, /en 407 gzip / 1898 raa.
- * Hoeyeste observerte /en i CI var 412 / 1961 (30. august). Grensene under er
- * satt over toppmaalingen, ikke over dagsmaalingen.
- *
- * Dette er fortsatt et sperrehaandtak, ikke et maal. Den store posten — 1,5 MB
- * arrangementsdata sendt til nettleseren for at filtrene skal vaere
- * oeyeblikkelige — staar aapen i docs/SEO-ARBEIDSFLYT.md. Loeses den, skal
- * begge tallene ned, ikke opp.
+ * Den store posten, at hele katalogen sendes til nettleseren for at filtrene
+ * skal være øyeblikkelige, står åpen i docs/SEO-ARBEIDSFLYT.md. Løses den,
+ * skal tallene ned, ikke opp.
  */
 const GRENSER = [
-	{ sti: '/no', gzipKiB: 360, raaKiB: 1800 },
-	{ sti: '/en', gzipKiB: 430, raaKiB: 2050 },
-	{ sti: '/no/denne-helgen', gzipKiB: 60, raaKiB: 320 },
+	{ sti: '/no', perGz: 0.18, perRaa: 0.95, gzipKiB: 600, raaKiB: 3000 },
+	{ sti: '/en', perGz: 0.24, perRaa: 1.18, gzipKiB: 700, raaKiB: 3500 },
+	{ sti: '/no/denne-helgen', perGz: 0.45, perRaa: 2.9, gzipKiB: 120, raaKiB: 700 },
 ];
+
+/**
+ * Antall serialiserte arrangementer i HTML-en.
+ *
+ * `date_start` står én gang per arrangement i nyttelasten. Kontrollert 31.
+ * august 2026: date_start, title_no og venue_name ga alle nøyaktig samme tall
+ * på /no. `slug` ble vraket — den teller også samlingslenkene i bunnteksten.
+ *
+ * Finner den ingen, er noe grunnleggende endret i serialiseringen. Da skal
+ * sjekken si feil, ikke dele på null og melde grønt.
+ */
+function tellArrangementer(html) {
+	return (html.match(/date_start/g) ?? []).length;
+}
 
 let brudd = 0;
 console.log(`Dokumentstørrelse mot ${BASE}\n`);
-console.log('sti                    gzip KiB  (grense)     rå KiB  (grense)');
+console.log('sti                    arr.   gzip/arr (grense)    rå/arr (grense)      totalt');
 
 for (const g of GRENSER) {
 	let html;
@@ -103,21 +113,39 @@ for (const g of GRENSER) {
 		continue;
 	}
 
-	const raa = Math.round(Buffer.byteLength(html) / 1024);
-	const gz = Math.round(gzipSync(Buffer.from(html)).length / 1024);
-	const overGz = gz > g.gzipKiB;
-	const overRaa = raa > g.raaKiB;
-	if (overGz || overRaa) brudd++;
+	const raa = Buffer.byteLength(html) / 1024;
+	const gz = gzipSync(Buffer.from(html)).length / 1024;
+	const antall = tellArrangementer(html);
+
+	if (antall === 0) {
+		console.log(
+			`${g.sti.padEnd(22)} fant ingen arrangementer i HTML-en — er serialiseringen endret?`
+		);
+		brudd++;
+		continue;
+	}
+
+	const perGz = gz / antall;
+	const perRaa = raa / antall;
+	const over = perGz > g.perGz || perRaa > g.perRaa || gz > g.gzipKiB || raa > g.raaKiB;
+	if (over) brudd++;
 
 	console.log(
-		`${g.sti.padEnd(22)} ${String(gz).padStart(8)}${overGz ? ' OVER' : '    '} (${String(g.gzipKiB).padStart(4)})` +
-			` ${String(raa).padStart(10)}${overRaa ? ' OVER' : '    '} (${String(g.raaKiB).padStart(4)})`
+		`${g.sti.padEnd(22)} ${String(antall).padStart(4)}   ` +
+			`${perGz.toFixed(3)}${perGz > g.perGz ? ' OVER' : '    '} (${g.perGz.toFixed(2)})   ` +
+			`${perRaa.toFixed(3)}${perRaa > g.perRaa ? ' OVER' : '    '} (${g.perRaa.toFixed(2)})   ` +
+			`${Math.round(gz)}/${Math.round(raa)} KiB${gz > g.gzipKiB || raa > g.raaKiB ? ' OVER TAK' : ''}`
 	);
 }
 
-if (brudd > 0 && !INGEN_DOM) {
-	console.error(`\nVERDIKT: FEIL — ${brudd} side(r) over grensen.`);
-	console.error('Grensene låser dagens nivå. Er økningen ønsket, må tallene endres bevisst.');
-	process.exit(1);
+// Verdikten skal alltid si sannheten. --no-fail slår av exit-koden, ikke
+// dommen: tidligere hoppet flagget over hele FEIL-grenen, slik at skriptet
+// skrev «VERDIKT: OK — ingen sider over grensen» rett under en linje som sa
+// OVER. Det er nøyaktig den feilklassen resten av sperrene her finnes for.
+if (brudd > 0) {
+	console.log(`\nVERDIKT: FEIL — ${brudd} side(r) over grensen.`);
+	console.log('Grensene måler bytes per arrangement. Vokser tallet, sender vi mer per rad.');
+	if (!INGEN_DOM) process.exit(1);
+} else {
+	console.log('\nVERDIKT: OK — ingen sider over grensen.');
 }
-console.log(`\nVERDIKT: OK — ingen sider over grensen.`);
