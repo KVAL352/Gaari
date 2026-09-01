@@ -1,6 +1,7 @@
 ---
 name: scraper-status
 description: Show overview of all scrapers — active, disabled, and orphaned files
+disable-model-invocation: true
 context: fork
 agent: Explore
 ---

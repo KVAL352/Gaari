@@ -1,6 +1,7 @@
 ---
 name: test
 description: Run tests quickly — optionally filtered by pattern. Lighter than /verify (no lint, no build).
+disable-model-invocation: true
 user_invocable: true
 argument-hint: "[pattern]"
 ---

@@ -1,6 +1,7 @@
 ---
 name: fb-post
 description: Generate Facebook group post captions for Gåri collection pages. Follows per-group content rules and caption style guidelines.
+disable-model-invocation: true
 user_invocable: true
 ---
 

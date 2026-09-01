@@ -1,6 +1,7 @@
 ---
 name: commit
 description: Create a git commit following Gåri project conventions — selective staging, separate commits for unrelated changes.
+disable-model-invocation: true
 user_invocable: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: lint-memory
-description: Health-check the memory and docs system — find broken references, stale data, derivable info that drifted from code. Run periodically to keep the knowledge base honest.
+description: Health-check the memory and docs system — find broken references, stale data, derivable info that drifted from code. Run periodically to keep the knowledge base honest. Utloeses av "lint minne", "sjekk minnet", "er dokumentasjonen utdatert", "rydd i minnet".
 user-invocable: true
 argument-hint: "[quick | full]"
 ---
