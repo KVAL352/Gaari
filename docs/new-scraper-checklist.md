@@ -13,6 +13,8 @@ Rammeverket bak sjekklisten:
 
 Alle disse må være sjekket og rapportert eksplisitt til brukeren før vi skriver kode.
 
+- [ ] **Ligger stedet faktisk i Bergen?** Se etter postnummer i 5000-serien, og slå opp i Brønnøysundregistrene hvis du er i tvil. Sjekk også om kilden lister arrangementer *andre steder enn hos seg selv*: turneer, gjestespill, nasjonale programmer. Gjør den det, må scraperen kunne skille dem ut før den registreres.
+  **Lagt til 2026-09-01 fordi dette har bitt oss to ganger.** `mediacity` la inn seks av ti rader fra Tromsø, Oslo og Amsterdam, alle med bydel «Sentrum». `harmonien` la inn tre av tre turnékonserter i Merano, Verona og Besançon, alle oppført som Grieghallen i Bergen. Ingen av dem ble fanget av noen av punktene under. Kjør `kildegransker`-agenten, som gjør hele denne seksjonen i egen kontekst.
 - [ ] **robots.txt sjekket** — `curl -sL https://<domain>/robots.txt`. Verifiser at path-en vi vil hente er `Allow:` (eller ikke `Disallow:`). Hvis blokkert: stopp, foreslå alternativ kilde eller skriftlig avtale.
 - [ ] **Public events only** — siden krever ikke innlogging, betalvegg eller CAPTCHA. Ingen barnehage/SFO/skole-events.
 - [ ] **ToS-rask-skanning** — kilden er ikke en aggregator/billettplattform med eksplisitt scraping-forbud (TicketCo, Hoopla, Eventbrite har det — behandles separat i scraping-strategi).
