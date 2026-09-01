@@ -214,13 +214,13 @@ export async function logImpression(
 	collectionSlug: string,
 	venueName: string
 ): Promise<void> {
-	const today = getOsloToday();
-
+	// Datoen sendes ikke lenger inn. Den regnes ut som Oslo-dato inne i
+	// funksjonen, fordi et datoparameter lot hvem som helst skrive bakover i
+	// tid. Se migrasjonen 20260901150000.
 	const { error } = await supabase.rpc('log_placement_impression', {
 		p_placement_id: placementId,
 		p_collection_slug: collectionSlug,
-		p_venue_name: venueName,
-		p_log_date: today
+		p_venue_name: venueName
 	});
 
 	if (error) {
@@ -233,11 +233,8 @@ export async function logImpression(
  * Called on every collection page load — the denominator for impression-share calculations.
  */
 export async function logCollectionImpression(collectionSlug: string): Promise<void> {
-	const today = getOsloToday();
-
 	const { error } = await supabase.rpc('log_collection_impression', {
-		p_collection_slug: collectionSlug,
-		p_log_date: today
+		p_collection_slug: collectionSlug
 	});
 
 	if (error) {
