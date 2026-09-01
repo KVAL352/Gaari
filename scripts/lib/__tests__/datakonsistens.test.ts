@@ -133,3 +133,54 @@ describe('kjoerSjekker', () => {
 		expect(kjoerSjekker(r).filter(x => x.brudd)).toHaveLength(0);
 	});
 });
+
+/**
+ * Andelsgrenser, lagt til 1. september 2026.
+ *
+ * Foerste utgave laaste `klokkeslett-spriker` paa 291 stykker. Sju dager senere
+ * var det 304 av 2 048, altsaa 14,8 % mot 14,2 % — nesten uendret andel, men
+ * jobben ble roed. Da maa noen skru grensa opp hver uke, og en portvakt som
+ * skrus opp hver uke maaler ingenting.
+ *
+ * Testen fester begge retninger. En andelsgrense som ikke slaar ut naar
+ * andelen faktisk vokser, er like ubrukelig som en som slaar ut hele tiden.
+ */
+describe('andelsgrense', () => {
+	const rad = (o: Partial<KonsistensRad>): KonsistensRad => ({
+		id: 'x', source: 'test', title_no: 'Tittel', description_no: '',
+		age_group: 'all', date_start: '2026-10-01T18:00:00+00:00', ...o,
+	});
+
+	// Ti rader, der to har feil: 20 %.
+	const rader = [
+		...Array.from({ length: 2 }, () =>
+			rad({ date_start: '2026-10-23T17:00:00+00:00', description_no: 'starter kl. 18.00.' })),
+		...Array.from({ length: 8 }, () =>
+			rad({ date_start: '2026-10-23T17:00:00+00:00', description_no: 'starter kl. 19.00.' })),
+	];
+
+	const sjekk = (andelsgrense: number) => ({
+		navn: 'test', hva: '', sperrende: false, andelsgrense,
+		finn: SJEKKER.find((s) => s.navn === 'klokkeslett-spriker')!.finn,
+	});
+
+	it('slaar ut naar andelen er over grensa', () => {
+		expect(kjoerSjekker(rader, [sjekk(0.15)])[0].brudd).toBe(true);
+	});
+
+	it('lar den vaere naar andelen er under grensa', () => {
+		expect(kjoerSjekker(rader, [sjekk(0.25)])[0].brudd).toBe(false);
+	});
+
+	it('teller andel, ikke antall: dobbelt saa mange rader med samme andel gaar fortsatt', () => {
+		// Kjernen i hele endringen. Katalogen dobles, feilene dobles, andelen er
+		// den samme, og jobben skal fortsatt vaere groenn.
+		const dobbelt = [...rader, ...rader];
+		expect(kjoerSjekker(dobbelt, [sjekk(0.25)])[0].brudd).toBe(false);
+		expect(kjoerSjekker(dobbelt, [sjekk(0.15)])[0].brudd).toBe(true);
+	});
+
+	it('deler ikke paa null paa en tom liste', () => {
+		expect(kjoerSjekker([], [sjekk(0.15)])[0].brudd).toBe(false);
+	});
+});

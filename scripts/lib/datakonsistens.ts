@@ -59,8 +59,24 @@ export interface Sjekk {
 	hva: string;
 	/** Sperrende sjekker skal alltid gi null funn. Maalte har en kjent grense. */
 	sperrende: boolean;
-	/** Kjent nivaa 31. august 2026. Bare for maalte sjekker. */
+	/**
+	 * Kjent nivaa som absolutt antall. Brukes for maalte sjekker der tallet
+	 * IKKE vokser med katalogen, typisk et etterslep som skal ned mot null.
+	 */
 	grense?: number;
+	/**
+	 * Kjent nivaa som ANDEL av alle rader, mellom 0 og 1.
+	 *
+	 * Brukes der feilen foelger katalogen: kommer det tusen nye arrangementer,
+	 * kommer det ogsaa flere med samme feil, uten at noe er blitt verre.
+	 *
+	 * Foerste utgave laaste `klokkeslett-spriker` paa 291 stykker. Sju dager
+	 * senere var det 304 av 2 048, altsaa 14,8 % mot 14,2 % — nesten uendret
+	 * andel, men jobben ble roed. Da maa noen skru grensa opp hver uke, og det
+	 * er akkurat den ratsjen som gjoer en portvakt meningsloes. Samme
+	 * laerdommen som dokumentstoerrelse-check.mjs fikk samme dag.
+	 */
+	andelsgrense?: number;
 	finn: (rader: KonsistensRad[]) => Funn[];
 }
 
@@ -136,13 +152,13 @@ export const SJEKKER: Sjekk[] = [
 		navn: 'klokkeslett-spriker',
 		hva: 'Beskrivelsen oppgir et annet klokkeslett enn date_start',
 		sperrende: false,
-		// Kjent nivaa 31. august 2026: 291. Kontrollert mot to kildesider, og det
+		// Kjent nivaa: 14,8 % (304 av 2 048) 1. september 2026. Kontrollert mot to kildesider, og det
 		// gaar begge veier — for Wallmans paa Grieghallen sier sida 18:00 som
 		// beskrivelsen, mens date_start staar 19:00; for Mezzoforte paa TicketCo
 		// sier sida 21:00 som date_start, mens beskrivelsen sier 19:00. Sjekken
 		// kan derfor ikke rette selv, bare melde fra. Opprydningen staar som egen
 		// sak.
-		grense: 291,
+		andelsgrense: 0.16,
 		finn: (rader) =>
 			rader
 				.map((rad) => {
@@ -181,9 +197,10 @@ export const SJEKKER: Sjekk[] = [
 		navn: 'paastaar-gratis',
 		hva: 'Beskrivelsen sier «gratis» uten forbeholdet husreglene krever',
 		sperrende: false,
-		// Kjent nivaa 31. august 2026: 26. Husregelen er «Trolig gratis», aldri en
-		// paastand om at noe er gratis, fordi vi ikke kan vite det sikkert.
-		grense: 26,
+		// Kjent nivaa: 1,2 % (24 av 2 048) 1. september 2026. Husregelen er
+		// «Trolig gratis», aldri en paastand om at noe er gratis, fordi vi ikke kan
+		// vite det sikkert. Maalt som andel, siden tallet foelger katalogen.
+		andelsgrense: 0.015,
 		finn: (rader) =>
 			rader
 				.filter(
@@ -204,7 +221,15 @@ export interface SjekkResultat {
 export function kjoerSjekker(rader: KonsistensRad[], sjekker: Sjekk[] = SJEKKER): SjekkResultat[] {
 	return sjekker.map((sjekk) => {
 		const funn = sjekk.finn(rader);
-		const brudd = sjekk.sperrende ? funn.length > 0 : funn.length > (sjekk.grense ?? 0);
+		let brudd: boolean;
+		if (sjekk.sperrende) {
+			brudd = funn.length > 0;
+		} else if (sjekk.andelsgrense !== undefined) {
+			// Tom liste kan ikke brekke en andelsgrense, og skal ikke dele paa null.
+			brudd = rader.length > 0 && funn.length / rader.length > sjekk.andelsgrense;
+		} else {
+			brudd = funn.length > (sjekk.grense ?? 0);
+		}
 		return { sjekk, funn, brudd };
 	});
 }

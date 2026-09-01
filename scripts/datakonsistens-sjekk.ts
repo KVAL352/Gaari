@@ -47,11 +47,24 @@ async function main() {
 	let brudd = 0;
 
 	for (const { sjekk, funn, brudd: erBrudd } of resultater) {
-		const grense = sjekk.sperrende ? 0 : (sjekk.grense ?? 0);
 		const merke = erBrudd ? 'BRUDD' : '     ';
 		const type = sjekk.sperrende ? 'sperrende' : 'maalt   ';
+
+		// Andelsgrenser skrives som prosent, med det absolutte tallet i parentes.
+		// Uten begge blir en linje ubrukelig: prosenten alene skjuler hvor mange
+		// rader det gjelder, tallet alene skjuler at katalogen har vokst.
+		let grenseTekst: string;
+		if (sjekk.sperrende) {
+			grenseTekst = 'grense 0';
+		} else if (sjekk.andelsgrense !== undefined) {
+			const andel = rader.length ? (funn.length / rader.length) * 100 : 0;
+			grenseTekst = `${andel.toFixed(1)} % av grense ${(sjekk.andelsgrense * 100).toFixed(1)} %`;
+		} else {
+			grenseTekst = `grense ${sjekk.grense ?? 0}`;
+		}
+
 		console.log(
-			`${merke} [${type}] ${sjekk.navn.padEnd(24)} ${String(funn.length).padStart(4)} (grense ${grense})`
+			`${merke} [${type}] ${sjekk.navn.padEnd(24)} ${String(funn.length).padStart(4)} (${grenseTekst})`
 		);
 
 		if (erBrudd) {
