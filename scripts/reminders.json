@@ -45,9 +45,9 @@
     "description": "Dependabot Updates har vaert roed siden 2026-08-11. Feilen er ikke i appen. outputs/Presentations/2026-05-27-AI-workflow/package-lock.json har @slidev/cli, som laaser mermaid og monaco-editor til versjoner Dependabot vil oppgradere, og den klarer ikke aa loese konflikten. dependabot.yml dekker bare / og /scripts, men sikkerhetsoppdateringer foelger hele avhengighetsgrafen uansett konfigurasjon. Presentasjonen er ferdig og bygges ikke paa nytt, saa enkleste fiks er aa slutte aa spore den lockfila. Eierens beslutning: det er hennes filer."
   },
   {
-    "date": "2026-08-18",
-    "title": "Studio Vertikal: venter på svar om samtykke + kjør backfill-descriptions",
-    "description": "LEVERT 2026-08-11: familiedagene ligger ute med bekreftet klokkeslett (lørdager 11:00 til 20:00, oppgitt av kontaktpersonen 2026-08-06), og alle 12 Studio Vertikal-arrangementer har fått bilde. Bildene ble sendt direkte fra kontaktpersonen som vedlegg, med skriftlig tillatelse til bruk i alle våre kanaler, og hostes derfor hos oss i static/events/ i stedet for å hot-linkes. Kilden er lagt inn i både IMAGE_APPROVED_SOURCES og PROMO_APPROVED_SOURCES, og dokumentert i docs/bildesamtykke.md. E-postene er arkivert i Folders/Gaari/Avtaler. GJENSTÅR TO TING. (1) SPØRSMÅLET ER STILT 2026-08-11: e-post sendt til kontaktadressen deres med kopi til kontaktpersonen, med lenker til begge arrangementene og spørsmål om foresatte har samtykket til at barnebildet brukes i markedsføring, inkludert Facebook og Instagram. Tilbød samtidig å bytte bildet uten videre hvis noe er usikkert. Ballen ligger hos dem. Når svaret kommer: legg det i Avtaler og noter utfallet i docs/bildesamtykke.md. Kommer det ikke svar innen ca. 2026-08-25, purr én gang. Eieren har vurdert risikoen som lav og bestemt at bildet står inntil videre. Repoet er offentlig, så bildet ligger permanent i git-historikken selv om det fjernes fra siden. Tar foresatte kontakt: fjern bildet fra static/events/ og image_url i basen umiddelbart, ikke vent på avklaring. (2) Kjør \"cd scripts && npx tsx backfill-descriptions.ts\" når Gemini-kvoten er tilbake. Seniorklatring-øktene fikk malbeskrivelse fordi kvoten var oppbrukt 3. august; skriptet plukker opp alt under 80 tegn. Daglig scrape gjør ikke dette selv, fordi eventExists() hopper over eksisterende arrangementer. De meldte også at de sender inn flere arrangementer utover høsten."
+    "date": "2026-09-01",
+    "title": "Studio Vertikal: purr paa samtykket for barnebildet",
+    "description": "LEVERT 2026-08-11: familiedagene ligger ute med bekreftet klokkeslett (lørdager 11:00 til 20:00, oppgitt av kontaktpersonen 2026-08-06), og alle 12 Studio Vertikal-arrangementer har fått bilde. Bildene ble sendt direkte fra kontaktpersonen som vedlegg, med skriftlig tillatelse til bruk i alle våre kanaler, og hostes derfor hos oss i static/events/ i stedet for å hot-linkes. Kilden er lagt inn i både IMAGE_APPROVED_SOURCES og PROMO_APPROVED_SOURCES, og dokumentert i docs/bildesamtykke.md. E-postene er arkivert i Folders/Gaari/Avtaler. GJENSTÅR ETT. SPØRSMÅLET ER STILT 2026-08-11: e-post sendt til kontaktadressen deres med kopi til kontaktpersonen, med lenker til begge arrangementene og spørsmål om foresatte har samtykket til at barnebildet brukes i markedsføring, inkludert Facebook og Instagram. Tilbød samtidig å bytte bildet uten videre hvis noe er usikkert. Ballen ligger hos dem. Når svaret kommer: legg det i Avtaler og noter utfallet i docs/bildesamtykke.md. Kommer det ikke svar innen ca. 2026-08-25, purr én gang. Eieren har vurdert risikoen som lav og bestemt at bildet står inntil videre. Repoet er offentlig, så bildet ligger permanent i git-historikken selv om det fjernes fra siden. Tar foresatte kontakt: fjern bildet fra static/events/ og image_url i basen umiddelbart, ikke vent på avklaring. BACKFILL-DELEN ER UTGÅTT 2026-09-01: beskrivelsene tas naa automatisk av descriptions.yml. Alle 11 studiovertikal-radene har ekte beskrivelse og title_en, og de 8 som er under 170 tegn ligger i berikelseskoeen. Ingenting aa kjoere for haand. PURRINGEN ER FORFALT: fristen i teksten var ca. 25. august."
   },
   {
     "date": "2026-08-21",
@@ -73,11 +73,6 @@
     "date": "2026-09-08",
     "title": "Paint'n Sip: purr hvis ingen svar om bildesamtykke",
     "description": "Svart 25. august paa spoersmaalet fra 21. april. Svaret var konkret: det gjelder bildene som ligger paa deres egne eventsider, vi hot-linker dem, og alt er gratis. Sjekket foerst at de ikke har noen oppfoering i consent.json og at begge septemberarrangementene ligger ute uten bilde, saa svaret stemte med virkeligheten. Traaden ligger i Outreach/Unresolved. Kommer et ja: kjoer `npx tsx scripts/consent.ts add paintnsip --navn \"Paint'n Sip\" --omfang visning,some --bevis Avtaler --dato <svardato>`, flytt e-posten til Avtaler og commit. Kommer ingen svar innen 8. september: purr en gang, og legg den deretter doed - de har da hatt spoersmaalet i fire maaneder og et svar i to uker."
-  },
-  {
-    "date": "2026-08-27",
-    "title": "Backfill av beskrivelser: bookibud er ferdig, studiovertikal og resten staar igjen",
-    "description": "BOOKIBUD ER FERDIG. Verifisert 25. august: alle 49 bookibud-rader har ekte beskrivelse paa norsk og engelsk, og alle 49 har title_en. Ingen mal-tekst igjen i den kilden. STAAR IGJEN: `npx tsx scripts/backfill-descriptions.ts --source studiovertikal` (8 rader, forfalt siden 3. august), og deretter uten filter for resten, rundt 800 arrangementer som maa tas over flere dager fordi Gemini-gratisnivaaet er 20 kall i doegnet. TO FORBEDRINGER I SKRIPTET (fra 24. august): det plukker ogsaa rader der beskrivelsen er noeyaktig lik makeDescription(), ikke bare rader under 80 tegn, og --source lar jobben tas en kilde om gangen."
   },
   {
     "date": "2026-08-25",
@@ -243,11 +238,6 @@
     "date": "2026-08-26",
     "title": "Bekreft indekseringen i Search Console-UI-et",
     "description": "Fem minutter. Search Console -> Indeksering -> Sider. Noter «Indeksert» og «Ikke indeksert». seo-report.ts skriver «0 indexed / 3532 submitted», som jeg mener er et utgaatt API-felt og ikke en ekte feil — bekreft én gang, saa kan den villedende linja fjernes.\n\nFJERNET HERFRA: Bing-feilene (var alt avklart 28. mai — 410 Gone fra utloepte arrangementer, se bing_crawl_errors_misleading) og Core Web Vitals (maalt 26. aug: bestaatt, LCP 1,9 s, CLS 0, TTFB 0,3 s)."
-  },
-  {
-    "date": "2026-08-28",
-    "title": "Kjoer de to backfill-jobbene etter scrape",
-    "description": "Nye arrangementer kommer inn uten title_en og med maltekst, fordi scrapen kaller Gemini én gang per arrangement. Kjoer: cd scripts && npx tsx backfill-title-en.ts && npx tsx backfill-descriptions.ts. Begge er idempotente. Dette er en midlertidig loesning - den varige er aa la scrape.ts sende flere arrangementer per kall, slik backfill-title-en.ts gjoer. Se docs/SEO-ARBEIDSFLYT.md, valg B under S1."
   },
   {
     "date": "2026-09-08",
