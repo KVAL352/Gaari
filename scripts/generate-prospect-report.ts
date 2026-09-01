@@ -567,7 +567,7 @@ async function collectVenueData(name: string, subscriberCategories: Record<strin
 		relevantSlugs.delete('free-things-to-do-bergen');
 	}
 
-	// Fetch traffic for all relevant collections from Plausible
+	// Hent trafikk for alle relevante samlingssider fra Umami
 	const collectionTraffic = await collectCollectionTraffic([...relevantSlugs]);
 
 	const relevantCollections: CollectionInfo[] = collectionTraffic

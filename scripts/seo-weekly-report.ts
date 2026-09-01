@@ -188,7 +188,7 @@ async function fetchUmamiEventData(eventName: string, propertyName: string, star
 	} catch { return []; }
 }
 
-async function collectPlausible(): Promise<Pick<ReportData, 'traffic' | 'topPages' | 'topSources' | 'aiReferrals'>> {
+async function collectUmami(): Promise<Pick<ReportData, 'traffic' | 'topPages' | 'topSources' | 'aiReferrals'>> {
 	const key = process.env.UMAMI_API_KEY;
 	if (!key) {
 		console.log('⏭  Umami: skipped (no UMAMI_API_KEY)');
@@ -979,8 +979,8 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel where possible
-	const [plausibleData, gscData, bingData, freshness, technicalHealth] = await Promise.all([
-		collectPlausible(),
+	const [umamiData, gscData, bingData, freshness, technicalHealth] = await Promise.all([
+		collectUmami(),
 		collectGsc(),
 		collectBing(),
 		collectFreshness(),
@@ -989,7 +989,7 @@ async function main() {
 
 	const reportData: ReportData = {
 		date: TODAY,
-		...plausibleData,
+		...umamiData,
 		...gscData,
 		...bingData,
 		alerts: [],
