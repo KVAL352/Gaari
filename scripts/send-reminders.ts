@@ -11,11 +11,16 @@ async function sendReminders() {
 	tomorrow.setDate(tomorrow.getDate() + 1);
 	const tomorrowStr = tomorrow.toISOString().slice(0, 10);
 
+	// Bare bekreftede paameldinger. Uten dette filteret ville dobbel opt-in
+	// vaert uten virkning: raden legges inn ubekreftet av /api/remind, og det er
+	// HER den enten blir sendt eller ikke. En sperre ved paamelding som ikke
+	// haandheves ved utsending, er ingen sperre.
 	const { data: reminders, error } = await supabase
 		.from('event_reminders')
 		.select('*')
 		.eq('event_date', tomorrowStr)
-		.is('sent_at', null);
+		.is('sent_at', null)
+		.not('confirmed_at', 'is', null);
 
 	if (error) {
 		console.error('Failed to fetch reminders:', error.message);

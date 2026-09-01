@@ -264,3 +264,41 @@ export async function notifyCorrection(data: {
 		].join('\n')
 	});
 }
+
+/**
+ * Bekreftelseslenke for arrangementspåminnelse (dobbel opt-in).
+ *
+ * Lagt til 1. september 2026. `POST /api/remind` skrev tidligere en hvilken
+ * som helst adresse rett inn i basen, så Gåri kunne brukes til å plage noen
+ * med e-post de aldri hadde bedt om. Etter denne endringen er ingen påmeldt
+ * før eieren av adressen har klikket lenka i sin egen innboks.
+ *
+ * Merk at teksten er skrevet uten «vi» og uten tankestrek, i tråd med
+ * skrivereglene. De eldre funksjonene i denne fila bruker begge deler, og bør
+ * ryddes i en egen omgang.
+ */
+export async function sendReminderConfirmation(
+	to: string,
+	eventTitle: string,
+	confirmUrl: string
+): Promise<void> {
+	await getResend().emails.send({
+		from: 'Gåri <noreply@gaari.no>',
+		to,
+		subject: `Bekreft påminnelsen for «${eventTitle}»`,
+		text: [
+			`Hei,`,
+			``,
+			`Noen har bedt om en påminnelse for «${eventTitle}» på gaari.no, og oppgitt denne adressen.`,
+			``,
+			`Var det deg? Klikk lenka under, så kommer påminnelsen dagen før arrangementet:`,
+			``,
+			confirmUrl,
+			``,
+			`Var det ikke deg, trenger du ikke gjøre noe. Uten et klikk blir ingen påminnelse sendt, og adressen blir ikke brukt til noe annet.`,
+			``,
+			`Vennlig hilsen`,
+			`Gåri, gaari.no`
+		].join('\n')
+	});
+}
