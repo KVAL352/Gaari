@@ -1,4 +1,7 @@
 import { makeSlug, eventExists, insertEvent, delay, deleteEventByUrl, bergenOffset } from '../lib/utils.js';
+import { supabase } from '../lib/supabase.js';
+import { utenSporing } from '../lib/sporingsparameter.js';
+
 import { generateDescription } from '../lib/ai-descriptions.js';
 import { mapCategory, mapBydel } from '../lib/categories.js';
 
@@ -220,7 +223,35 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			continue;
 		}
 
+		// Oppdater lenka hvis feeden har endret den, i stedet for bare aa hoppe
+		// over raden.
+		//
+		// eventExists() slaar opp paa noeyaktig source_url. Da Bookibud la
+		// henvisningskoden (marketing=gaari) paa partnernoekkelen 25. august
+		// 2026, endret lenkene i feeden seg — og for arrangementer som alt laa
+		// inne fant oppslaget ingenting. Scraperen hoppet ikke over dem heller;
+		// den ville lagt dem inn paa nytt, og dedup maatte rydde etterpaa.
+		//
+		// 1. september pekte 43 av 82 bookibud-rader fortsatt paa lenken uten
+		// henvisningskode. De sender klikk til Bookibud uten at salget krediteres
+		// oss, og under kickback-avtalen er det direkte tapte penger.
 		if (await eventExists(sourceUrl)) continue;
+
+		// Bommet oppslaget, kan raden likevel ligge inne med den gamle lenka.
+		// Begge oppslagene gaar gjennom eventExists, som leser
+		// existingUrlsCache — den finnes nettopp for aa slippe databasekall per
+		// arrangement, og et raatt select her ville gjeninnfoert dem. Skriving
+		// skjer bare naar en rad faktisk skal oppdateres.
+		const barLenke = utenSporing(sourceUrl);
+		if (barLenke !== sourceUrl && (await eventExists(barLenke))) {
+			const { error } = await supabase
+				.from('events')
+				.update({ source_url: sourceUrl })
+				.eq('source_url', barLenke);
+			if (error) console.warn(`  ! kunne ikke oppdatere lenke: ${error.message}`);
+			else console.log(`  ~ Oppdatert lenke med henvisningskode: ${forste.title}`);
+			continue;
+		}
 
 		const siste = aktive[aktive.length - 1];
 		const tittel = byggTittel(forste);

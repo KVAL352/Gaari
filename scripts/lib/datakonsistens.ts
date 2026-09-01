@@ -41,6 +41,7 @@ export interface KonsistensRad {
 	title_en?: string | null;
 	description_no?: string | null;
 	description_en?: string | null;
+	source_url?: string | null;
 	age_group?: string | null;
 	category?: string | null;
 	date_start?: string | null;
@@ -151,6 +152,30 @@ export const SJEKKER: Sjekk[] = [
 					return { rad, forklaring: `teksten sier ${sagt}, date_start er ${felt}` };
 				})
 				.filter((f): f is Funn => f !== null),
+	},
+	{
+		navn: 'henvisningskode-mangler',
+		hva: 'bookibud-rad uten henvisningskoden som feeden leverer',
+		sperrende: false,
+		// Kjent nivaa 1. september 2026: 43 av 82. Bookibud la marketing=gaari paa
+		// partnernoekkelen 25. august, men eventExists() slaar opp paa noeyaktig
+		// source_url, saa rader som alt laa inne beholdt den gamle lenken. De
+		// sender klikk uten at salget krediteres oss.
+		//
+		// Scraperen oppdaterer naa lenka i stedet for aa hoppe over raden, saa
+		// tallet skal falle av seg selv. Naar det er nede i null, gjoer sjekken
+		// sperrende — den er maalt bare fordi opprydningen skjer ved neste
+		// kjoering, ikke fordi 43 er greit.
+		grense: 43,
+		finn: (rader) =>
+			rader
+				.filter(
+					(e) =>
+						e.source === 'bookibud' &&
+						!!e.source_url &&
+						!/[?&]marketing=/i.test(e.source_url)
+				)
+				.map((rad) => ({ rad, forklaring: 'lenka mangler marketing-parameteren' })),
 	},
 	{
 		navn: 'paastaar-gratis',
