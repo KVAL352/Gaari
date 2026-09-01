@@ -46,3 +46,11 @@ outputs/Presentations/*/package-lock.json
 # Playwright
 test-results/
 playwright-report/
+
+# Agent skills installert med `npx skills add`.
+#
+# Innholdet i .agents/ og skills-lock.json ER sporet, saa repoet er
+# selvstendig. Symlinkene under .claude/skills/ er derimot absolutte stier paa
+# denne maskinen, og ville pekt feil overalt ellers. De gjenskapes med
+# `npx skills add` naar laasefila finnes.
+.claude/skills/supabase
