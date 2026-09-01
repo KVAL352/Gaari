@@ -14,6 +14,8 @@ import { getRateLimitTier } from '../../hooks.server';
 describe('getRateLimitTier', () => {
 	describe('teller muterende kall mot API-kvoten', () => {
 		const skalTelles: [string, string][] = [
+			// DELETE er fjernet fra endepunktet, men regelen skal fortsatt dekke
+			// metoden. Kommer den tilbake, er den begrenset fra foerste dag.
 			['/api/posting-status', 'DELETE'],
 			['/api/posting-status', 'POST'],
 			['/api/csp-report', 'POST'],

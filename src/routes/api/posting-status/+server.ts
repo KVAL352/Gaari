@@ -38,15 +38,19 @@ export const POST: RequestHandler = async ({ request }) => {
 	return json({ ok: true });
 };
 
-/** DELETE /api/posting-status?week=2026-04-14 — reset entire week */
-export const DELETE: RequestHandler = async ({ url }) => {
-	const week = url.searchParams.get('week');
-	if (!week) return json({ ok: false }, { status: 400 });
-
-	await supabase
-		.from('social_posting_status')
-		.delete()
-		.eq('week_start', week);
-
-	return json({ ok: true });
-};
+/*
+ * DELETE er fjernet 2026-09-01 etter sikkerhetsrevisjonen.
+ *
+ * Endepunktet var uautentisert, saa `DELETE /api/posting-status?week=…`
+ * slettet en hel uke med SoMe-avkryssing for hvem som helst som kjente
+ * adressen. Ingen persondata og ingen penger, men den korrumperte en logg
+ * Kjersti stoler paa, og den gjorde det stille.
+ *
+ * «Nullstill alt»-knappen i /r/week/ er fjernet i samme slengen. Uten
+ * endepunktet ville den toemt skjermen mens basen beholdt hakene, som ville
+ * kommet tilbake ved neste lasting.
+ *
+ * GET og POST staar igjen, og er fortsatt uautentiserte. De er
+ * ratebegrenset fra samme dato, men det gjoer misbruk tregere, ikke umulig.
+ * Kjersti vurderer om selve /r/week/-sida skal loeses paa en annen maate.
+ */

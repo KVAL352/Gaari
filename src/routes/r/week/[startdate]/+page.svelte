@@ -31,21 +31,12 @@
 		}).catch(() => {});
 	}
 
-	let resetConfirmPending = $state(false);
-	let resetTimeout: ReturnType<typeof setTimeout> | null = null;
-
-	function resetWeek() {
-		if (!resetConfirmPending) {
-			resetConfirmPending = true;
-			resetTimeout = setTimeout(() => { resetConfirmPending = false; }, 3000);
-			return;
-		}
-		// Second click within 3s — actually reset
-		if (resetTimeout) clearTimeout(resetTimeout);
-		resetConfirmPending = false;
-		for (const k of Object.keys(posted)) delete posted[k];
-		fetch(`/api/posting-status?week=${weekId}`, { method: 'DELETE' }).catch(() => {});
-	}
+	// «Nullstill alt» er fjernet 2026-09-01. Knappen kalte
+	// DELETE /api/posting-status, et uautentisert endepunkt der hvem som helst
+	// kunne slette en hel uke med avkryssing. Endepunktet er borte, og da måtte
+	// knappen gå med: den ville tømt skjermen mens basen beholdt hakene, som
+	// ville kommet tilbake ved neste lasting. En knapp som lyver er verre enn
+	// ingen knapp. Enkeltpunkter kan fortsatt hakes av og på.
 
 	async function copyCaption(slug: string, caption: string) {
 		try {
@@ -133,12 +124,6 @@
 
 		<div class="progress-bar">
 			<div class="progress-fill" style="width: {totalTasks > 0 ? (doneTasks / totalTasks * 100) : 0}%"></div>
-		</div>
-
-		<div class="top-actions">
-			<button type="button" class="reset-btn" class:confirm-pending={resetConfirmPending} onclick={resetWeek}>
-				{resetConfirmPending ? 'Trykk igjen for å bekrefte' : 'Nullstill alt'}
-			</button>
 		</div>
 
 		{#each data.manifest.days as day (day.dateStr + day.slug)}
@@ -342,11 +327,6 @@
 		transition: width 200ms ease;
 	}
 
-	.top-actions {
-		display: flex;
-		justify-content: flex-end;
-		margin-bottom: 24px;
-	}
 
 	.day-section {
 		background: #fff;
@@ -484,26 +464,8 @@
 		color: #4D4D4D;
 	}
 
-	.reset-btn {
-		background: transparent;
-		border: 1px solid #e6e3da;
-		color: #4D4D4D;
-		padding: 8px 14px;
-		border-radius: 8px;
-		font-size: 13px;
-		cursor: pointer;
-	}
 
-	.reset-btn:hover {
-		border-color: #C82D2D;
-		color: #C82D2D;
-	}
 
-	.reset-btn.confirm-pending {
-		border-color: #C82D2D;
-		background: #C82D2D;
-		color: #fff;
-	}
 
 	.checklist-day-count {
 		font-size: 13px;
