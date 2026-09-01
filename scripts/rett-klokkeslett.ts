@@ -36,15 +36,21 @@ const SKRIV = process.argv.includes('--skriv');
  * FELTET lå to timer feil mens beskrivelsen var riktig. Det ble rettet for seg,
  * i scraperen og i basen, med Grieghallens egen liste som fasit.
  *
- * `usfverftet` og `brettspill` bruker ikke bergenOffset, og brettspill har i
- * tillegg naken `new Date()` og systematisk +60 minutter — samme signatur som
- * Grieghallen hadde. Å rette beskrivelsen deres ville sementert et galt felt.
- * De to står igjen som egen sak, og gjelder ni rader til sammen.
+ * `usfverftet` ble kontrollert 1. september og er IKKE en feil. Kilden sender
+ * «2026-11-19T18:00:00.000Z» med eksplisitt Z, og 18:00 UTC er 19:00 i Bergen
+ * om vinteren, altså nøyaktig det feltet sier. Sida nevner «Dører», så de åtte
+ * avvikene er dørene mot konsertstart. To ulike tidspunkter som begge er
+ * riktige, og som et skript ikke skal blande seg i.
+ *
+ * `brettspill` ble kontrollert samme dag og er trygg: kilden sender også Z, så
+ * feltet er riktig, og radene hadde bare UTC-feilen i teksten. Den ble først
+ * holdt utenfor fordi den manglet bergenOffset, men det viste seg unødvendig:
+ * bergenOffset trengs bare når kilden IKKE oppgir tidssone.
  *
  * De store kildene er kontrollert mot kilden: litthusbergen oppgir 20:15 på
  * sida, som er feltets tid, mens beskrivelsen sa 18:15. Der er feltet fasit.
  */
-const HOLDES_UTENFOR = new Set(['usfverftet', 'brettspill', 'grieghallen']);
+const HOLDES_UTENFOR = new Set(['usfverftet', 'grieghallen']);
 
 /** Minutter siden midnatt. */
 const min = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));

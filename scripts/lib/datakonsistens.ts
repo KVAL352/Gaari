@@ -165,9 +165,15 @@ export const SJEKKER: Sjekk[] = [
 		//      viste konsertene for sent. Rettet i scraperen, og 94 rader er
 		//      ryddet mot Grieghallens egen liste.
 		//
-		// De 57 som staar igjen er ekte uenigheter mellom arrangoerens side og
-		// scraperen, og kan ikke rettes av et skript. `usfverftet` og
-		// `brettspill` bruker ikke bergenOffset og boer kontrolleres neste gang.
+		// De 55 som staar igjen er ekte uenigheter, og flere av dem er ikke feil
+		// i det hele tatt. `usfverftet` ble kontrollert 1. september: kilden
+		// sender eksplisitt UTC med Z, feltet er riktig, og sida nevner «Doerer».
+		// Avviket der er doerene mot konsertstart, altsaa to riktige tidspunkter.
+		//
+		// LAERDOMMEN OM bergenOffset: den trengs bare naar kilden IKKE oppgir
+		// tidssone. Jeg holdt foerst brettspill utenfor fordi den manglet den,
+		// men kilden sender Z, saa feltet var riktig hele tiden. Fravaer av
+		// bergenOffset er altsaa ikke i seg selv et faresignal.
 		andelsgrense: 0.04,
 		finn: (rader) =>
 			rader
