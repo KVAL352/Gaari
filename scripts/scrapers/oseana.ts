@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 // cheerio 1.x eksporterer ikke lenger Element selv; den bor i domhandler.
 import type { Element } from 'domhandler';
-import { isFamilyTitle } from '../lib/categories.js';
+import { isFamilyTitle, mapBydel} from '../lib/categories.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay, deleteEventByUrl, bergenOffset } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
@@ -218,7 +218,18 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const imageUrl = extractImage($el);
 
 		// Fetch detail page for price, ticket URL, and sold-out confirmation
-		await delay(1000);
+		// Oseana ber om ti sekunder i robots.txt (`Crawl-delay: 10`). Vaar vanlige
+		// 1,5 sekunder ville vaert ti ganger raskere enn de har bedt om, og en
+		// hoeflig User-Agent betyr lite hvis vi ignorerer det de faktisk skriver.
+		//
+		// FOELGEN, saa ingen tror scraperen er oedelagt: med rundt 146
+		// arrangementer paa programsida rekker den ikke alt innenfor taket paa
+		// seks minutter. De foerste kjoeringene blir derfor kuttet og rapporterer
+		// null, mens radene faktisk legges inn underveis. Det retter seg selv:
+		// eventExists() over sjekkes FOER detaljhentingen, saa hver kjoering tar
+		// bare de som mangler. Etter noen doegn er etterslepet borte, og daglig
+		// drift koster ti sekunder per nytt arrangement.
+		await delay(10_000);
 		const detail = await fetchDetailInfo(sourceUrl);
 		if (detail.soldOut) {
 			console.log(`  [sold-out] Skipped: ${title}`);
@@ -237,7 +248,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			date_end: dateEnd,
 			venue_name: VENUE,
 			address: ADDRESS,
-			bydel: 'Ytrebygda',
+			// IKKE en Bergen-bydel. Foerste utgave hardkodet «Ytrebygda», som er feil:
+			// Oseana ligger i Os. Samme feil som gjorde at mediacity la inn rader fra
+			// Oslo og Amsterdam med bydel «Sentrum». mapBydel gir «Os», og da havner
+			// arrangementet ikke under noen Bergen-bydel, som er riktig.
+			bydel: mapBydel(VENUE),
 			price: detail.price,
 			ticket_url: detail.ticketUrl || sourceUrl,
 			source: SOURCE,

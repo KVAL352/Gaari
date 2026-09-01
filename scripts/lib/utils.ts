@@ -931,7 +931,12 @@ export async function removeExpiredEvents(): Promise<{ deleted: number; slugs: s
 // sources are stale — drop them at the start of every pipeline run so they don't
 // linger on collection pages. Note: scraper-health.ts has its own narrower list
 // for filtering historical scraper_runs rows.
-export const DISABLED_SOURCES = ['bergenlive', 'oseana', 'barnasnorge', 'eventbrite', 'kulturikveld'];
+// oseana ble tatt ut av lista 1. september 2026. Den ble slaatt av 12. mai med
+// begrunnelsen «outside Bergen coverage area», og det stemmer geografisk: Oseana
+// ligger i Os, i Bjoernafjorden. Eieren har besluttet aa aapne for dem likevel,
+// fordi tunnelen gjoer reisen rundt 25 minutter fra Bergen, og fordi de selv tok
+// kontakt. Bydel settes til «Os», ikke til en Bergen-bydel.
+export const DISABLED_SOURCES = ['bergenlive', 'barnasnorge', 'eventbrite', 'kulturikveld'];
 
 export async function removeDisabledSourceEvents(): Promise<number> {
 	const { data } = await supabase

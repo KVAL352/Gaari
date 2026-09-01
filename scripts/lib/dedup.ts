@@ -17,6 +17,9 @@ const SOURCE_RANK: Record<string, number> = {
 	forumscene: 5,
 	dvrtvest: 5,
 	bitteater: 5,
+	// Kanonisk kilde for sitt eget hus, som de andre paa tier 5. At det ligger i
+	// Os endrer ikke at Oseana er den som vet hva som skjer paa Oseana.
+	oseana: 5,
 	harmonien: 5,
 	kode: 5,
 	carteblanche: 5,

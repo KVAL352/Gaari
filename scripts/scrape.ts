@@ -40,6 +40,7 @@ import { scrape as scrapeFloyen } from './scrapers/floyen.js';
 import { scrape as scrapeBITTeater } from './scrapers/bitteater.js';
 import { scrape as scrapeHarmonien } from './scrapers/harmonien.js';
 import { scrape as scrapeCarteBlanche } from './scrapers/carteblanche.js';
+import { scrape as scrapeOseana } from './scrapers/oseana.js';
 import { scrape as scrapeFestspillene } from './scrapers/festspillene.js';
 import { scrape as scrapeBergenfest } from './scrapers/bergenfest.js';
 import { scrape as scrapeNattjazz } from './scrapers/nattjazz.js';
@@ -152,6 +153,13 @@ export const scrapers: Record<string, () => Promise<{ found: number; inserted: n
 	bitteater: scrapeBITTeater,
 	harmonien: scrapeHarmonien,
 	carteblanche: scrapeCarteBlanche,
+	// Oseana ligger i Os, ikke i Bergen. Aapnet igjen 1. september 2026 etter
+	// eierens beslutning: tunnelen gjoer reisen rundt 25 minutter, og de tok
+	// selv kontakt. Bydel blir «Os», ikke en Bergen-bydel.
+	//
+	// Treg med vilje: robots.txt ber om `Crawl-delay: 10`, saa scraperen venter
+	// ti sekunder mellom detaljsider. Den hoerer derfor hjemme sent i loepet.
+	oseana: scrapeOseana,
 	festspillene: scrapeFestspillene,
 	bergenfest: scrapeBergenfest,
 	nattjazz: scrapeNattjazz,
