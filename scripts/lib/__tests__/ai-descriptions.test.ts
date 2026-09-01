@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { harVerbatimOverlapp, erAtomaertFaktum, renskFakta } from '../ai-descriptions.js';
+import { harVerbatimOverlapp, erAtomaertFaktum, renskFakta, datoForPrompt } from '../ai-descriptions.js';
 
 /**
  * Opphavsrettssperra.
@@ -159,5 +159,45 @@ describe('erAtomaertFaktum — klokkeslett', () => {
 
 	it('avviser fortsatt en setning som slutter med punktum', () => {
 		expect(erAtomaertFaktum('Dørene åpner klokken sju.')).toBe(false);
+	});
+});
+
+describe('datoForPrompt', () => {
+	/**
+	 * Foer 1. september 2026 gikk den raa ISO-strengen rett inn i prompten:
+	 * `Date: 2026-12-04T18:00:00+00:00`. Modellen leste sifrene og skrev
+	 * «kl. 18.00», altsaa UTC-tiden, mens sida viser Oslo-tid.
+	 *
+	 * Maalt samme dag: 303 kommende arrangementer hadde sprik mellom
+	 * beskrivelsen og date_start, og 250 av dem var akkurat +60 eller +120
+	 * minutter. Det er vinter- og sommertid i Norge, altsaa signaturen paa
+	 * nettopp denne feilen.
+	 *
+	 * En leser som stoler paa beskrivelsen moeter opp én eller to timer for
+	 * tidlig. Derfor er dette en brukerfeil, ikke en skjoennhetsfeil.
+	 */
+	it('gir Oslo-tid om sommeren, ikke UTC', () => {
+		// 17:00 UTC i juli er 19:00 i Bergen.
+		expect(datoForPrompt('2026-07-15T17:00:00+00:00')).toContain('19:00');
+		expect(datoForPrompt('2026-07-15T17:00:00+00:00')).not.toContain('17:00');
+	});
+
+	it('gir Oslo-tid om vinteren, ikke UTC', () => {
+		// 18:00 UTC i desember er 19:00 i Bergen.
+		expect(datoForPrompt('2026-12-04T18:00:00+00:00')).toContain('19:00');
+	});
+
+	it('haandterer skiftet til vintertid', () => {
+		// 25. oktober 2026 gaar klokka tilbake. 12:00 UTC er da 13:00, ikke 14:00.
+		expect(datoForPrompt('2026-10-25T12:00:00+00:00')).toContain('13:00');
+	});
+
+	it('tar imot Date-objekt like godt som streng', () => {
+		expect(datoForPrompt(new Date('2026-07-15T17:00:00Z'))).toContain('19:00');
+	});
+
+	it('kaster ikke paa soppel, men gir det tilbake', () => {
+		// En scraper skal ikke stoppe fordi en dato er raar.
+		expect(datoForPrompt('ikke en dato')).toBe('ikke en dato');
 	});
 });

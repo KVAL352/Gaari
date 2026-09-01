@@ -234,6 +234,36 @@ export async function hentFakta(sideTekst: string): Promise<Record<string, strin
 	}
 }
 
+/**
+ * Datoen slik den skal staa i prompten: som veggklokke i Bergen.
+ *
+ * FEILEN DENNE RETTER
+ *
+ * Foer 1. september 2026 ble den raa ISO-strengen sendt rett inn:
+ * `Date: 2026-12-04T18:00:00+00:00`. Modellen leste sifrene og skrev
+ * «kl. 18.00», som er UTC-tiden. Sida viser Oslo-tid, altsaa 19.00, og
+ * beskrivelsen sa dermed noe annet enn det som stod rett ved siden av.
+ *
+ * Maalt samme dag: 303 kommende arrangementer hadde et sprik mellom
+ * beskrivelsen og date_start, og 250 av dem var akkurat +60 eller +120
+ * minutter. De to verdiene er vinter- og sommertid i Norge, og det er
+ * signaturen paa nettopp denne feilen.
+ *
+ * Feilen rammer leseren direkte: en som stoler paa beskrivelsen moeter opp
+ * én eller to timer for tidlig.
+ */
+export function datoForPrompt(dato: string | Date): string {
+	const d = dato instanceof Date ? dato : new Date(dato);
+	if (isNaN(d.getTime())) return String(dato);
+	// nb-NO gir «04.12.2026, 19:00». Modellen skal aldri se en UTC-forskyvning.
+	return d.toLocaleString('nb-NO', {
+		timeZone: 'Europe/Oslo',
+		year: 'numeric', month: '2-digit', day: '2-digit',
+		hour: '2-digit', minute: '2-digit',
+	});
+}
+
+
 function buildPrompt(event: EventMeta, skjerpet = false): string {
 	const lines = [
 		'You write event descriptions for Gåri, an event listings site for Bergen, Norway.',
@@ -310,7 +340,7 @@ function buildPrompt(event: EventMeta, skjerpet = false): string {
 	if (event.bydel) lines.push(`Bydel (city district): ${event.bydel}`);
 	if (event.address) lines.push(`Address: ${event.address}`);
 	if (event.room) lines.push(`Room: ${event.room}`);
-	if (event.date) lines.push(`Date: ${event.date}`);
+	if (event.date) lines.push(`Date: ${datoForPrompt(event.date)}`);
 	if (event.ageGroup && event.ageGroup !== 'all') lines.push(`Audience: ${event.ageGroup}`);
 	if (event.language === 'en') lines.push('Event language: English');
 	if (event.language === 'both') lines.push('Event language: Norwegian and English');
