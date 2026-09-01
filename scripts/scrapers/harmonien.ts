@@ -13,6 +13,29 @@ const NORWEGIAN_MONTHS: Record<string, number> = {
 	jan: 1, feb: 2, mar: 3, apr: 4, jun: 6, jul: 7, aug: 8, sep: 9, okt: 10, nov: 11, des: 12,
 };
 
+/**
+ * «Turnékonsert i Besançon» spilles i Besançon, ikke i Grieghallen.
+ *
+ * Scraperen setter `venue: 'Grieghallen'` på alt fra Harmonien, fordi det er
+ * riktig for nesten alt de gjør. Turnékonsertene er unntaket, og de kom inn
+ * med Bergen som sted og bydel Sentrum.
+ *
+ * Regelen er smal med vilje: den krever ordet «turné» eller «turne» etterfulgt
+ * av «i» og et stedsnavn. «Turnéstart i Grieghallen» eller en konsert som bare
+ * nevner en turné i beskrivelsen skal ikke fanges. Nevnes Bergen som stedet,
+ * beholdes arrangementet.
+ *
+ * Returnerer stedsnavnet når arrangementet hører hjemme et annet sted, ellers
+ * null.
+ */
+export function erTurneUtenforBergen(tittel: string): string | null {
+	const m = tittel.match(/\bturn[eé]\w*\s+i\s+([^,.:;–-]+)/i);
+	if (!m) return null;
+	const sted = m[1].trim();
+	if (/bergen|grieghallen/i.test(sted)) return null;
+	return sted;
+}
+
 function guessCategory(title: string): string {
 	const lower = title.toLowerCase();
 	if (isFamilyTitle(lower) || lower.includes('kids')) return 'family';
@@ -181,6 +204,17 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (!imageUrl) {
 			const $d = cheerio.load(detailHtml);
 			imageUrl = $d('meta[property="og:image"]').attr('content') || undefined;
+		}
+
+		// Turnékonserter spilles et annet sted, men scraperen setter Grieghallen
+		// på alt. 1. september 2026 var alle tre kommende Harmonien-oppføringer
+		// turnékonserter i Merano, Verona og Besançon, alle presentert som
+		// Grieghallen i Bergen. Noen kunne møtt opp i Grieghallen til en konsert
+		// som skjer i Frankrike.
+		const annetSted = erTurneUtenforBergen(card.title);
+		if (annetSted) {
+			console.log(`[${SOURCE}]   Hopper over turnékonsert i ${annetSted}: ${card.title}`);
+			continue;
 		}
 
 		if (await eventExists(sourceUrl)) {
