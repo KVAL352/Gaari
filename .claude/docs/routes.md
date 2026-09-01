@@ -39,7 +39,9 @@
 - `/api/stripe-webhook` — Stripe webhook (checkout.session.completed, subscription.deleted)
 - `/api/csp-report` — CSP violation reports
 - `/api/track-click` — POST venue click tracking (→ venue_clicks table). Body: `{venue_name, event_slug, source_page?, placement_context?, placement_id?}`. Context enum: `promoted|organic|direct|newsletter|social`. Skips SKIP_LOG_IPS, rate-limited 30/min per IP.
-- `/api/remind` — POST event reminder signup (→ event_reminders table)
+- `/api/remind` — POST event reminder signup. **Dobbel opt-in siden 2026-09-01**: raden skrives ubekreftet med et token, og adressen brukes bare til å sende bekreftelseslenka
+- `/api/remind/confirm` — GET, bekreftelseslenka fra e-posten. Setter `confirmed_at`, nuller tokenet, og omdirigerer til `/[lang]/paminnelse`. Virker én gang
+- `/[lang]/paminnelse` — landingsside for bekreftelsen, `noindex`
 - `/api/posting-status` — GET/POST/DELETE SoMe posting checklist state (→ social_posting_status table)
 - `/u/api/send` — Umami beacon proxy with correct IP forwarding
 - `/qr` — Dynamic QR redirect for sticker campaigns

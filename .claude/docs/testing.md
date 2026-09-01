@@ -81,6 +81,12 @@ To måter å unngå det, i prioritert rekkefølge:
 2. **Mock den**, når modulen faktisk trenger databasen:
    `vi.mock('../supabase.js', () => ({ supabase: {} }))`. Brukes i
    `bildesamtykke.test.ts` og `utils.test.ts`.
+- `src/lib/__tests__/ratebegrensning.test.ts` — getRateLimitTier: hvilke stier og metoder som telles mot API-kvoten. Fester begge veier, siden en for bred regel ville gjort sida ubrukelig etter tre sidelast
+- `scripts/lib/__tests__/sperre-har-invariant.test.ts` — krever at hver sperre i insertEvent også har en invariant i datakonsistens. Mekanisk håndhevelse av «en regel som bare gjelder framover rydder ikke det som ligger der»
+- `scripts/lib/__tests__/sporingsparameter.test.ts` — utenSporing: kjenner igjen samme lenke med og uten henvisningskode, men slår ikke sammen to datoer av samme show
+- `scripts/lib/__tests__/paminnelse-optin.test.ts` — dobbel opt-in henger sammen i tre filer. Den viktigste sjekker at send-reminders filtrerer på confirmed_at
+- `scripts/scrapers/__tests__/grieghallen-tid.test.ts` — naken lokal tid fra kilden skal tolkes som Bergen-tid, ikke UTC
+- `scripts/scrapers/__tests__/harmonien-turne.test.ts` — turnékonserter i utlandet skilles ut, uten å fjerne ekte Bergen-konserter
 
 Verifiser alltid mot importgrafen, ikke mot at testen ble grønn lokalt. En
 grønn kjøring på en maskin som har `scripts/node_modules` beviser ingenting
