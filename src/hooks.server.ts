@@ -74,12 +74,40 @@ const csp = [
 
 // Rate-limited path groups
 const FORM_PATHS = ['/submit', '/datainnsamling'];
-const API_PATHS = ['/api/newsletter', '/api/notify-submission', '/api/remind'];
+const API_PATHS = [
+	'/api/newsletter',
+	'/api/notify-submission',
+	'/api/remind',
+	// Lagt til 2026-09-01 etter sikkerhetsrevisjonen.
+	//
+	// posting-status skriver og sletter i social_posting_status uten
+	// innlogging, og DELETE ville aldri truffet POST-regelen under.
+	// csp-report skriver en linje til Vercel-loggen ved hvert kall, og kunne
+	// dermed brukes til aa fylle loggen.
+	//
+	// AVVEIINGEN PAA csp-report, sagt tydelig: den er CSPs egen report-uri, og
+	// en ekte nettleser kan sende flere rapporter paa ett sidelast. Med tre i
+	// minuttet forkaster vi noen ekte rapporter. Det er akseptert fordi
+	// endepunktet bare logger til diagnostikk, mens en aapen loggkanal koster
+	// baade kvote og penger. Trenger vi full innsikt i en konkret feil, tas
+	// grensa midlertidig bort.
+	'/api/posting-status',
+	'/api/csp-report',
+];
 const LOGIN_PATH = '/admin/login';
 
-function getRateLimitTier(pathname: string, method: string): 'form' | 'api' | 'login' | null {
+/**
+ * Metoder som endrer noe, og derfor skal telles mot API-kvoten.
+ *
+ * Foerste utgave sjekket bare POST. Da falt DELETE utenfor, og
+ * `DELETE /api/posting-status?week=…` sletter en hel uke med avkryssing.
+ * En regel som bare dekker den vanligste metoden dekker ikke den farligste.
+ */
+const MUTERENDE = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+export function getRateLimitTier(pathname: string, method: string): 'form' | 'api' | 'login' | null {
 	if (pathname.endsWith(LOGIN_PATH) && method === 'POST') return 'login';
-	if (API_PATHS.some((p) => pathname === p) && method === 'POST') return 'api';
+	if (API_PATHS.some((p) => pathname === p) && MUTERENDE.has(method.toUpperCase())) return 'api';
 	if (FORM_PATHS.some((p) => pathname.endsWith(p))) return 'form';
 	return null;
 }
