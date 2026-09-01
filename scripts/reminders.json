@@ -293,5 +293,10 @@
     "date": "2027-05-01",
     "title": "Slippkalender: sjekk om Bergen Pride har publisert programmet",
     "description": "Bergen Pride arrangeres juni. Programmet publiseres ca. to uker i forveien, over 80 arrangementer.\n\nHvorfor denne finnes: festivalsamlingene vaare staar tomme ti maaneder i aaret og rangerer paa plass 7-9,5. Sidene er der og teksten er god, men uten arrangementer har de ingenting aa rangere paa. Det er naar programmet slippes vi maa faa det inn, ikke naar festivalen gaar av stabelen.\n\nGjoer: sjekk arrangoerens side. Er programmet ute, se om scraperen vaar plukker det opp. Gjoer den ikke det, sjekk robots.txt foer noe bygges, jf. docs/new-scraper-checklist.md. Legg saa inn en ny paaminnelse for neste aar."
+  },
+  {
+    "date": "2026-09-08",
+    "title": "Oseana: venter paa ja til bildebruk",
+    "description": "Kine Skage Kjellstad (Oseana, Os) tok kontakt 31. august. Scraperen er aapnet igjen 1. september, 41 arrangementer inne, resten kommer over noen doegn. E-post sendt 1. september med to spoersmaal: (1) ja til aa VISE bildene deres paa gaari.no, (2) frivillig ja til bruk utenfor nettsida, som aapner for nyhetsbrev og SoMe. Uten (1) ligger arrangementene ute UTEN bilde. Kommer ja: foer inn i scripts/lib/consent.json med omfang visning og eventuelt some, kjoer consent-sync, og dokumenter i docs/bildesamtykke.md. Traaden ligger i Folders/Gaari/Outreach/Unresolved. Ikke svar innen 8. september: purr én gang."
   }
 ]
