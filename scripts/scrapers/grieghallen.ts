@@ -1,5 +1,5 @@
 import { mapBydel, isFamilyTitle } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent, fetchHTML, deleteEventByUrl } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, deleteEventByUrl, bergenOffset} from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'grieghallen';
@@ -68,6 +68,27 @@ function mapCategory(catIds: number[], categories: GHCategory[], title: string):
 	return 'music';
 }
 
+/**
+ * Grieghallen oppgir tidspunktet som naken lokal tid: «2026-09-02 19:30:00».
+ *
+ * `new Date()` tolker en slik streng som kjoeretidens lokale tid. GitHub
+ * Actions kjoerer i UTC, saa konserten ble lagret som 19:30 UTC og vist som
+ * 21:30 i Bergen. Nettsida viste altsaa Grieghallen-konserter to timer for
+ * sent hele sommeren, og én time for sent om vinteren.
+ *
+ * Funnet 1. september 2026 da 58 grieghallen-rader hadde sprik mellom
+ * beskrivelsen og date_start, alle paa noeyaktig 60 eller 120 minutter.
+ *
+ * bergenOffset() gir riktig forskyvning for datoen, saa sommertid og
+ * vintertid haandteres hver for seg.
+ */
+function tilBergenTid(naken: string): Date {
+	// «2026-09-02 19:30:00» -> «2026-09-02T19:30:00+02:00»
+	const t = naken.trim().replace(' ', 'T');
+	const dato = t.slice(0, 10);
+	return new Date(`${t}${bergenOffset(dato)}`);
+}
+
 export async function scrape(): Promise<{ found: number; inserted: number }> {
 	console.log(`\n[${SOURCE}] Fetching Grieghallen events...`);
 
@@ -94,8 +115,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 	for (const event of events) {
 		// Skip past events
-		const firstDate = new Date(event.firstEventDate);
-		const lastDate = event.lastEventDate ? new Date(event.lastEventDate) : firstDate;
+		const firstDate = tilBergenTid(event.firstEventDate);
+		const lastDate = event.lastEventDate ? tilBergenTid(event.lastEventDate) : firstDate;
 		if (lastDate < now) continue;
 
 		const sourceUrl = `https://www.grieghallen.no${event.url}`;

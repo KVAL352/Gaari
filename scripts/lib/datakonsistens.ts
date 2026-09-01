@@ -152,13 +152,23 @@ export const SJEKKER: Sjekk[] = [
 		navn: 'klokkeslett-spriker',
 		hva: 'Beskrivelsen oppgir et annet klokkeslett enn date_start',
 		sperrende: false,
-		// Kjent nivaa: 14,8 % (304 av 2 048) 1. september 2026. Kontrollert mot to kildesider, og det
-		// gaar begge veier — for Wallmans paa Grieghallen sier sida 18:00 som
-		// beskrivelsen, mens date_start staar 19:00; for Mezzoforte paa TicketCo
-		// sier sida 21:00 som date_start, mens beskrivelsen sier 19:00. Sjekken
-		// kan derfor ikke rette selv, bare melde fra. Opprydningen staar som egen
-		// sak.
-		andelsgrense: 0.16,
+		// Kjent nivaa: 2,8 % (57 av 2 058) etter opprydningen 1. september 2026.
+		// Var 14,4 % samme morgen.
+		//
+		// TO ULIKE FEIL LAA UNDER, og de peker motsatt vei:
+		//
+		//   1. Prompten fikk den raa ISO-strengen, saa modellen skrev UTC-tiden i
+		//      beskrivelsen mens sida viste Oslo-tid. Her var FELTET riktig.
+		//      Rettet i lib/ai-descriptions.ts, og 187 rader er ryddet.
+		//   2. Grieghallen oppgir naken lokal tid, og scraperen tolket den som
+		//      UTC. Her var BESKRIVELSEN riktig og feltet to timer feil, saa sida
+		//      viste konsertene for sent. Rettet i scraperen, og 94 rader er
+		//      ryddet mot Grieghallens egen liste.
+		//
+		// De 57 som staar igjen er ekte uenigheter mellom arrangoerens side og
+		// scraperen, og kan ikke rettes av et skript. `usfverftet` og
+		// `brettspill` bruker ikke bergenOffset og boer kontrolleres neste gang.
+		andelsgrense: 0.04,
 		finn: (rader) =>
 			rader
 				.map((rad) => {
