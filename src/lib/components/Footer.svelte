@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, t } from '$lib/i18n';
-	import { collectionHref } from '$lib/collections';
+	import { collectionHref } from '$lib/collection-urls';
 	import { CATEGORIES, type Lang } from '$lib/types';
 	import NewsletterCTA from './NewsletterCTA.svelte';
 	import { Instagram, Facebook } from 'lucide-svelte';

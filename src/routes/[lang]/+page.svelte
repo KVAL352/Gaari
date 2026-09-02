@@ -4,7 +4,7 @@
 	import { tick } from 'svelte';
 	import { browser } from '$app/environment';
 	import { lang, t } from '$lib/i18n';
-	import { collectionHref } from '$lib/collections';
+	import { collectionHref } from '$lib/collection-urls';
 	import { isFreeEvent, isTouristFriendly, isStudentRelevant } from '$lib/utils';
 	import { hideEvent, hideVenue, hideCategory, isHidden, unhideAll, hiddenCount, hiddenSummary } from '$lib/hidden-events.svelte';
 	import { getOsloNow, toOsloDateStr, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString, eventOnDay, eventOverlapsRange } from '$lib/event-filters';

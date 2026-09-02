@@ -2,6 +2,12 @@ import type { GaariEvent, Lang } from './types';
 import { isFreeEvent, isStudentRelevant } from './utils';
 import { getWeekendDates, matchesTimeOfDay, toOsloDateStr, getEndOfWeekDateStr, addDays, getEasterDate, getISOWeekDates, eventOverlapsRange, eventOnDay } from './event-filters';
 import { SOURCE_COUNT } from './constants';
+// Adresselogikken bor i en egen fil uten katalogen bak seg. Klientkomponenter
+// skal importere derfra og ikke herfra — se kommentaren oeverst i
+// collection-urls.ts. Re-eksporten her er for serverkode som alt bruker
+// katalogen.
+import { getHreflangSlugs, isCollectionLang, collectionHref } from './collection-urls';
+export { getHreflangSlugs, isCollectionLang, collectionHref, COLLECTION_LANGS } from './collection-urls';
 
 // Shared filter functions for seasonal collections (NO + EN pairs share the same logic)
 const filter17Mai = (events: GaariEvent[], now: Date) => {
@@ -106,24 +112,6 @@ export interface Collection {
 	footerLabel?: Record<Lang, string>;
 	footer?: { langs: Lang[]; order: number };
 	newsletterHeading?: Record<Lang, string>;
-	/**
-	 * Spraakene samlingen er en landingsside paa. Utelatt betyr begge.
-	 *
-	 * HVORFOR DENNE FINNES
-	 *
-	 * Besluttet 2. september 2026: paa norsk skal tidssoekene samles paa
-	 * forsiden. `/no/i-kveld` laa paa snittposisjon 32,2 og `/no/i-dag` paa
-	 * 22,8, mens `/no` tok de samme soekene paa 5–6 — Google valgte forsiden
-	 * uansett, og de to sidene delte signalet uten aa vinne noe.
-	 *
-	 * Paa engelsk er bildet motsatt. `/en/i-kveld` er vaar beste samleside
-	 * med 268 klikk paa 90 dager paa plass 6,2, og 151 av dem kom de siste 28
-	 * dagene mot 58 i perioden foer. Der rangerer ikke forsiden paa de
-	 * soekene, saa aa fjerne sida ville gitt bort trafikken, ikke flyttet den.
-	 *
-	 * Derfor er dette per spraak og ikke per samling.
-	 */
-	langs?: Lang[];
 	seasonal?: boolean;
 	/**
 	 * Måneden (1–12) sesongen normalt er over. Etter den ruller årstallet i
@@ -205,8 +193,6 @@ const collections: Collection[] = [
 	{
 		id: 'tonight',
 		slug: 'i-kveld',
-		// Bare engelsk. /no/i-kveld 301-er til forsiden; se `langs` i Collection.
-		langs: ['en'],
 		title: {
 			no: 'Hva skjer i Bergen i kveld',
 			en: 'What\u2019s On in Bergen Tonight'
@@ -709,10 +695,6 @@ const collections: Collection[] = [
 	{
 		id: 'today-no',
 		slug: 'i-dag',
-		// Ingen spraak: /no/i-dag 301-er til forsiden, og den engelske utgaven er
-		// den egne samlingen `today-in-bergen`. Objektet blir staaende fordi
-		// HREFLANG_PAIRS og filterfunksjonen fortsatt brukes av /en/today-in-bergen.
-		langs: [],
 		title: {
 			no: 'Hva skjer i Bergen i dag',
 			en: 'What\u2019s On in Bergen Today'
@@ -3812,59 +3794,6 @@ export function getSeasonalFooterCollections(lang: Lang): Array<{ slug: string; 
 		}));
 }
 
-/** Paired collection slugs: NO slug ↔ EN slug for hreflang */
-const HREFLANG_PAIRS: Record<string, Record<'no' | 'en', string>> = {
-	'denne-helgen': { no: 'denne-helgen', en: 'this-weekend' },
-	'this-weekend': { no: 'denne-helgen', en: 'this-weekend' },
-	'i-dag': { no: 'i-dag', en: 'today-in-bergen' },
-	'today-in-bergen': { no: 'i-dag', en: 'today-in-bergen' },
-	'gratis': { no: 'gratis', en: 'free-things-to-do-bergen' },
-	'free-things-to-do-bergen': { no: 'gratis', en: 'free-things-to-do-bergen' },
-	'17-mai': { no: '17-mai', en: '17th-of-may-bergen' },
-	'17th-of-may-bergen': { no: '17-mai', en: '17th-of-may-bergen' },
-	'julemarked': { no: 'julemarked', en: 'christmas-bergen' },
-	'christmas-bergen': { no: 'julemarked', en: 'christmas-bergen' },
-	'paske': { no: 'paske', en: 'easter-bergen' },
-	'easter-bergen': { no: 'paske', en: 'easter-bergen' },
-	'sankthans': { no: 'sankthans', en: 'midsummer-bergen' },
-	'midsummer-bergen': { no: 'sankthans', en: 'midsummer-bergen' },
-	'nyttarsaften': { no: 'nyttarsaften', en: 'new-years-eve-bergen' },
-	'new-years-eve-bergen': { no: 'nyttarsaften', en: 'new-years-eve-bergen' },
-	'vinterferie': { no: 'vinterferie', en: 'winter-break-bergen' },
-	'winter-break-bergen': { no: 'vinterferie', en: 'winter-break-bergen' },
-	// Festival collections (Fase 2)
-	'festspillene': { no: 'festspillene', en: 'bergen-international-festival' },
-	'bergen-international-festival': { no: 'festspillene', en: 'bergen-international-festival' },
-	'bergenfest': { no: 'bergenfest', en: 'bergenfest-bergen' },
-	'bergenfest-bergen': { no: 'bergenfest', en: 'bergenfest-bergen' },
-	'beyond-the-gates': { no: 'beyond-the-gates', en: 'beyond-the-gates-bergen' },
-	'beyond-the-gates-bergen': { no: 'beyond-the-gates', en: 'beyond-the-gates-bergen' },
-	'nattjazz': { no: 'nattjazz', en: 'nattjazz-bergen' },
-	'nattjazz-bergen': { no: 'nattjazz', en: 'nattjazz-bergen' },
-	// Fase 2b
-	'bergen-pride': { no: 'bergen-pride', en: 'bergen-pride-festival' },
-	'bergen-pride-festival': { no: 'bergen-pride', en: 'bergen-pride-festival' },
-	'biff': { no: 'biff', en: 'biff-bergen' },
-	'biff-bergen': { no: 'biff', en: 'biff-bergen' },
-	'borealis': { no: 'borealis', en: 'borealis-bergen' },
-	'borealis-bergen': { no: 'borealis', en: 'borealis-bergen' },
-	// Phase 2 new collections
-	'festivaler': { no: 'festivaler', en: 'festivals-in-bergen' },
-	'festivals-in-bergen': { no: 'festivaler', en: 'festivals-in-bergen' },
-	'i-morgen': { no: 'i-morgen', en: 'tomorrow-in-bergen' },
-	'tomorrow-in-bergen': { no: 'i-morgen', en: 'tomorrow-in-bergen' },
-	// Phase 3: EN tourist slugs for existing bilingual collections
-	'regndagsguide': { no: 'regndagsguide', en: 'rainy-day-bergen' },
-	'rainy-day-bergen': { no: 'regndagsguide', en: 'rainy-day-bergen' },
-	'familiehelg': { no: 'familiehelg', en: 'family-bergen' },
-	'family-bergen': { no: 'familiehelg', en: 'family-bergen' },
-	'uteliv': { no: 'uteliv', en: 'nightlife-bergen' },
-	'nightlife-bergen': { no: 'uteliv', en: 'nightlife-bergen' },
-	'ting-a-gjore': { no: 'ting-a-gjore', en: 'things-to-do-bergen' },
-	'things-to-do-bergen': { no: 'ting-a-gjore', en: 'things-to-do-bergen' },
-	// SEO aliases — redirect alternate search terms to canonical collections
-	'live-musikk': { no: 'konserter', en: 'konserter' },
-};
 
 /**
  * Årstallet en sesongsamling skal vise i tittel og meta-beskrivelse.
@@ -3886,48 +3815,8 @@ export function getSeasonYear(collection: Pick<Collection, 'seasonal' | 'seasonE
 	return now.getMonth() + 1 > collection.seasonEndMonth ? year + 1 : year;
 }
 
-/** Returns hreflang slugs for a collection. Unpaired collections use the same slug for both. */
-export function getHreflangSlugs(slug: string): Record<'no' | 'en', string> {
-	return HREFLANG_PAIRS[slug] ?? { no: slug, en: slug };
-}
 
-/**
- * Er samlingen en landingsside paa dette spraaket?
- *
- * Slaar opp paa sluggen slik den staar i adressen, ikke paa samlingen vi
- * itererer over. `/en/today-in-bergen` og `/no/i-dag` er to ulike samlinger
- * som deler hreflang-par, og bare den ene lever.
- */
-export function isCollectionLang(slug: string, lang: Lang): boolean {
-	const c = getCollection(slug);
-	if (!c) return false;
-	return (c.langs ?? ['no', 'en']).includes(lang);
-}
 
-/**
- * Adressen en samling har paa et gitt spraak.
- *
- * HVORFOR DENNE FINNES
- *
- * Interne lenker ble bygget som `/${lang}/${col.slug}` med den kanoniske
- * sluggen. Paa norsk stemmer det. Paa engelsk gjoer det ikke: ruta
- * 301-redirecter /en/regndagsguide → /en/rainy-day-bergen, /en/uteliv →
- * /en/nightlife-bergen og fire til.
- *
- * Konsekvensen var at de seks engelske aliassidene ikke hadde en eneste
- * intern lenke som pekte rett paa dem — alt gikk via en omdirigering, eller
- * til den norske sluggen. De var indeksert, men uten tyngde, og rangerte
- * deretter: fire av seks hadde null visninger i Google paa 90 dager.
- *
- * Bruk denne i stedet for aa sette sammen stien for haand.
- */
-export function collectionHref(slug: string, lang: Lang): string {
-	const maal = getHreflangSlugs(slug)[lang];
-	// Lever ikke sida paa dette spraaket, er forsiden riktig sted aa peke.
-	// Ellers ville lenka gaatt til en 301.
-	if (!isCollectionLang(maal, lang)) return `/${lang}`;
-	return `/${lang}/${maal}`;
-}
 
 /**
  * Hver samlingsadresse som skal staa i sitemapen, én gang.

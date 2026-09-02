@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { lang } from '$lib/i18n';
-	import { collectionHref } from '$lib/collections';
+	import { collectionHref } from '$lib/collection-urls';
 	import { getCanonicalUrl, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
 	import { SOURCE_COUNT } from '$lib/constants';
 	import { getEasterDate, addDays, getISOWeekDates, getContextualHighlight, getOsloNow } from '$lib/event-filters';

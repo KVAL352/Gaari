@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { enhance } from '$app/forms';
 	import { lang, t } from '$lib/i18n';
-	import { collectionHref } from '$lib/collections';
+	import { collectionHref } from '$lib/collection-urls';
 	import {
 		formatEventDate, formatEventTime, formatMetaDate, formatPrice, isFreeEvent, buildOutboundUrl,
 		outboundRel

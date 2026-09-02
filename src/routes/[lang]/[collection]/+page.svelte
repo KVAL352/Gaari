@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
-	import { collectionHref } from '$lib/collections';
+	import { collectionHref } from '$lib/collection-urls';
 	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
 	import { getOsloNow, getWeekendDates } from '$lib/event-filters';
 	import EventGrid from '$lib/components/EventGrid.svelte';
