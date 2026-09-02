@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
+import { sanitizeDestination, sanitizeSourcePage } from '$lib/server/klikksporing';
 import { SKIP_LOG_IPS } from '$env/static/private';
 import type { RequestHandler } from './$types';
 
@@ -25,33 +26,6 @@ function allowRate(ip: string): boolean {
 	bucket.push(now);
 	rateBuckets.set(ip, bucket);
 	return true;
-}
-
-/**
- * Vertsnavnet en utgaaende lenke peker paa, uten `www.`.
- *
- * Bare domenet lagres. Sti og spoerrestreng kastes, fordi rapporteringen bare
- * grupperer paa domene og en full adresse kan baere sporingsparametre.
- */
-export function sanitizeDestination(raw: unknown): string | null {
-	if (typeof raw !== 'string' || raw.length === 0 || raw.length > 2000) return null;
-	try {
-		const u = new URL(raw);
-		if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
-		const host = u.hostname.replace(/^www\./, '').toLowerCase();
-		return host.length > 0 && host.length <= 255 ? host : null;
-	} catch {
-		return null;
-	}
-}
-
-export function sanitizeSourcePage(raw: unknown): string | null {
-	if (typeof raw !== 'string' || raw.length === 0) return null;
-	if (raw.length > 200) return null;
-	// Strip query string and hash — we only want the path for aggregation.
-	const pathOnly = raw.split('?')[0].split('#')[0];
-	if (!pathOnly.startsWith('/')) return null;
-	return pathOnly;
 }
 
 export const POST: RequestHandler = async ({ request, getClientAddress }) => {

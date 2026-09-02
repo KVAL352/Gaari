@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeDestination, sanitizeSourcePage } from '../../routes/api/track-click/+server';
+import { sanitizeDestination, sanitizeSourcePage } from '../server/klikksporing';
 
 /**
  * `/api/track-click` er et aapent endepunkt. Kroppen kommer fra nettleseren og
