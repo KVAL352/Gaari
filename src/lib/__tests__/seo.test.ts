@@ -355,9 +355,17 @@ describe('computeCanonical', () => {
 		expect(noindex).toBe(false);
 	});
 
-	it('canonicals ?when=today to /no/i-dag', () => {
-		const { canonical } = computeCanonical(url('?when=today'), 'no', 20);
-		expect(canonical).toBe('https://gaari.no/no/i-dag');
+	it('canonicals ?when=today to /no — ikke lenger til /no/i-dag', () => {
+		// Endret 2. september 2026. /no/i-dag 301-er til forsiden, og en kanonisk
+		// som peker paa en omdirigering er en feil. Soeket samles paa /no, som
+		// alt rangerte paa plass 5–6 for «hva skjer i bergen i dag» mens
+		// samlesida laa paa 22,8. Se `tidssider-paa-forsiden.test.ts`.
+		//
+		// Engelsk er uendret: /en/today-in-bergen lever, og testen under
+		// haandhever det.
+		const { canonical, noindex } = computeCanonical(url('?when=today'), 'no', 20);
+		expect(canonical).toBe('https://gaari.no/no');
+		expect(noindex).toBe(true);
 	});
 
 	it('canonicals ?when=weekend to /en/this-weekend for English', () => {

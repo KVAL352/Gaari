@@ -54,9 +54,7 @@ const PAGES = `## Key pages
 
 ### Evergreen collections (Norwegian)
 - [Homepage — all Bergen events](https://gaari.no/no/) (Norwegian)
-- [Hva skjer i Bergen i kveld](https://gaari.no/no/i-kveld) — tonight's events
 - [Denne helgen i Bergen](https://gaari.no/no/denne-helgen) — this weekend's events
-- [I dag i Bergen](https://gaari.no/no/i-dag) — today's events
 - [Gratis i Bergen](https://gaari.no/no/gratis) — free events next two weeks
 - [Konserter i Bergen](https://gaari.no/no/konserter) — concerts and live music next two weeks
 - [Teater i Bergen](https://gaari.no/no/teater) — theatre performances next two weeks
@@ -72,6 +70,12 @@ const PAGES = `## Key pages
 ### Evergreen collections (English)
 - [Homepage — all Bergen events](https://gaari.no/en/) (English)
 - [Today in Bergen](https://gaari.no/en/today-in-bergen) — today's events
+- [Tonight in Bergen](https://gaari.no/en/i-kveld) — this evening's events
+- [Things to Do in Bergen](https://gaari.no/en/things-to-do-bergen) — what to do in the city
+- [Bergen Nightlife](https://gaari.no/en/nightlife-bergen) — bars, clubs and late events
+- [Rainy Day in Bergen](https://gaari.no/en/rainy-day-bergen) — indoor activities
+- [Family Events in Bergen](https://gaari.no/en/family-bergen) — events for families
+- [Festivals in Bergen](https://gaari.no/en/festivals-in-bergen) — festival calendar
 - [This Weekend in Bergen](https://gaari.no/en/this-weekend) — this weekend
 - [Free Things to Do in Bergen](https://gaari.no/en/free-things-to-do-bergen) — free events
 

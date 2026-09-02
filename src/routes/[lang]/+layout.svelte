@@ -24,9 +24,23 @@
 	let pathWithoutLang = $derived($page.url.pathname.replace(/^\/(no|en)/, ''));
 	const baseUrl = 'https://gaari.no';
 
-	// Collection pages with paired slugs (e.g. denne-helgen ↔ this-weekend) provide hreflangPaths
-	let hreflangNb = $derived(($page.data as any).hreflangPaths?.no ? `${baseUrl}${($page.data as any).hreflangPaths.no}` : `${baseUrl}/no${pathWithoutLang}`);
-	let hreflangEn = $derived(($page.data as any).hreflangPaths?.en ? `${baseUrl}${($page.data as any).hreflangPaths.en}` : `${baseUrl}/en${pathWithoutLang}`);
+	// Collection pages with paired slugs (e.g. denne-helgen ↔ this-weekend) provide hreflangPaths.
+	//
+	// Finnes objektet, er det fasit — ogsaa naar det mangler et spraak. Fra
+	// 2. september 2026 lever /en/i-kveld uten en norsk motpart, og da skal det
+	// IKKE staa en nb-alternate. Fallbacken under ville satt inn
+	// `/no/i-kveld`, som 301-er til forsiden: et alternate som peker paa en
+	// omdirigering er verre enn ingen, fordi det lover Google en utgave som
+	// ikke finnes.
+	let hreflangPaths = $derived(($page.data as any).hreflangPaths as { no?: string; en?: string } | undefined);
+	let hreflangNb = $derived(
+		hreflangPaths ? (hreflangPaths.no ? `${baseUrl}${hreflangPaths.no}` : null) : `${baseUrl}/no${pathWithoutLang}`
+	);
+	let hreflangEn = $derived(
+		hreflangPaths ? (hreflangPaths.en ? `${baseUrl}${hreflangPaths.en}` : null) : `${baseUrl}/en${pathWithoutLang}`
+	);
+	// x-default peker paa den norske utgaven naar den finnes, ellers den engelske.
+	let hreflangDefault = $derived(hreflangNb ?? hreflangEn);
 
 	// Keep $effect for client-side navigation (SPA-style route changes)
 	$effect(() => {
@@ -51,9 +65,9 @@
 	<meta property="og:url" content={`${baseUrl}/${$lang}${pathWithoutLang}`} />
 
 	<!-- hreflang for bilingual SEO -->
-	<link rel="alternate" hreflang="nb" href={hreflangNb} />
-	<link rel="alternate" hreflang="en" href={hreflangEn} />
-	<link rel="alternate" hreflang="x-default" href={hreflangNb} />
+	{#if hreflangNb}<link rel="alternate" hreflang="nb" href={hreflangNb} />{/if}
+	{#if hreflangEn}<link rel="alternate" hreflang="en" href={hreflangEn} />{/if}
+	{#if hreflangDefault}<link rel="alternate" hreflang="x-default" href={hreflangDefault} />{/if}
 
 	<!-- RSS autodiscovery -->
 	<link rel="alternate" type="application/rss+xml" title={$lang === 'no' ? 'Hva skjer i Bergen' : "What's on in Bergen"} href={`https://gaari.no/feed?lang=${$lang}`} />

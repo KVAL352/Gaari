@@ -1,6 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
-import { getCollection, getHreflangSlugs, getSeasonYear } from '$lib/collections';
+import { getCollection, getHreflangSlugs, getSeasonYear, isCollectionLang } from '$lib/collections';
 import { getOsloNow } from '$lib/event-filters';
 import { seedEvents } from '$lib/data/seed-events';
 import { getActivePromotions, pickPromotedVenues, logImpression, logCollectionImpression } from '$lib/server/promotions';
@@ -26,6 +26,19 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 	const canonicalSlug = slugs[params.lang as 'no' | 'en'];
 	if (canonicalSlug && canonicalSlug !== params.collection) {
 		throw redirect(301, `/${params.lang}/${canonicalSlug}`);
+	}
+
+	// Samlinger som ikke er landingsside paa dette spraaket sendes til forsiden.
+	//
+	// Besluttet 2. september 2026 for /no/i-dag og /no/i-kveld: forsiden tok de
+	// samme soekene paa plass 5–6 mens samlesidene laa paa 22,8 og 32,2, saa de
+	// delte signalet uten aa vinne noe. /en/i-kveld og /en/today-in-bergen
+	// staar, for der rangerer ikke forsiden paa de soekene.
+	//
+	// Maa staa ETTER omskrivingen over: /en/i-dag skal foerst bli
+	// /en/today-in-bergen, ikke sendes rett til forsiden.
+	if (!isCollectionLang(collection.slug, params.lang as 'no' | 'en')) {
+		throw redirect(301, `/${params.lang}`);
 	}
 
 	setHeaders({ 'cache-control': 's-maxage=3600, stale-while-revalidate=7200' });
@@ -194,6 +207,10 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			related: (collection.relatedSlugs ?? [])
 				.map(slug => getCollection(slug))
 				.filter((c): c is NonNullable<typeof c> => c != null)
+				// Bare samlinger som lever paa dette spraaket. `i-kveld` staar i
+				// tretten relatedSlugs-lister; paa norsk ville hver av dem gitt en
+				// «utforsk videre»-lenke rett tilbake til forsiden.
+				.filter(c => isCollectionLang(getHreflangSlugs(c.slug)[params.lang as 'no' | 'en'], params.lang as 'no' | 'en'))
 				.map(c => ({ slug: c.slug, title: c.title })),
 			quickAnswer: collection.quickAnswer,
 			newsletterHeading: collection.newsletterHeading,
@@ -215,7 +232,14 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 		dateModified: new Date().toISOString().slice(0, 10),
 		hreflangPaths: (() => {
 			const slugs = getHreflangSlugs(collection.slug);
-			return { no: `/no/${slugs.no}`, en: `/en/${slugs.en}` };
+			// Bare spraak der sida faktisk lever. Et alternate som peker paa en
+			// 301 er verre enn ingen alternate: den forteller Google at det
+			// finnes en utgave paa det spraaket, og sender den til en annen side.
+			const ut: Partial<Record<'no' | 'en', string>> = {};
+			for (const l of ['no', 'en'] as const) {
+				if (isCollectionLang(slugs[l], l)) ut[l] = `/${l}/${slugs[l]}`;
+			}
+			return ut;
 		})()
 	};
 };

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { lang, t } from '$lib/i18n';
+	import { collectionHref } from '$lib/collections';
 	import { CATEGORIES, type Lang } from '$lib/types';
 	import NewsletterCTA from './NewsletterCTA.svelte';
 	import { Instagram, Facebook } from 'lucide-svelte';
@@ -68,7 +69,7 @@
 					{#each collections as col (col.slug)}
 						<li>
 							<a
-								href="/{$lang}/{col.slug}"
+								href={collectionHref(col.slug, $lang)}
 								class="text-sm text-[var(--color-text-secondary)] underline hover:text-[var(--color-text-primary)]"
 							>
 								{col.label[$lang]}

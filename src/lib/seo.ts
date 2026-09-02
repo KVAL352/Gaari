@@ -51,7 +51,10 @@ export function getCanonicalUrl(path: string): string {
 // Maps ?when= values to their collection page slug, per language.
 // Only 'weekend' and 'today' have collection equivalents.
 const WHEN_COLLECTION: Record<string, Record<string, string>> = {
-	no: { weekend: 'denne-helgen', today: 'i-dag' },
+	// `today` er bevisst utelatt for norsk: /no/i-dag 301-er til forsiden fra
+	// 2. september 2026, og en kanonisk som peker paa en omdirigering er en feil.
+	// /no?when=today faller dermed til regel 6b — kanonisk /no, noindex.
+	no: { weekend: 'denne-helgen' },
 	en: { weekend: 'this-weekend', today: 'today-in-bergen' }
 };
 

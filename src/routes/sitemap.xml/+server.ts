@@ -1,5 +1,5 @@
 import { supabase } from '$lib/server/supabase';
-import { getAllCollectionSlugs, getHreflangSlugs } from '$lib/collections';
+import { getCollectionSitemapPaths } from '$lib/collections';
 import { getAllVenueSlugs } from '$lib/venues';
 
 const BASE = 'https://gaari.no';
@@ -71,31 +71,40 @@ export async function GET() {
 	// </url>\n`;
 
 	// Collection pages
-	for (const slug of getAllCollectionSlugs()) {
-		const hreflang = getHreflangSlugs(slug);
-		const languages: ('no' | 'en')[] = [];
-		if (hreflang.no === slug) languages.push('no');
-		if (hreflang.en === slug) languages.push('en');
-		if (languages.length === 0) languages.push('no', 'en');
-
+	//
+	// Vi gaar veien om hreflang-paret, ikke om sluggen vi itererer paa.
+	//
+	// Den forrige utgaven la bare inn sider der slug var *sin egen* kanoniske
+	// adresse paa et sprak. For `denne-helgen` gikk det bra, fordi motparten
+	// `this-weekend` selv er en samling og kom med i sin egen runde. For
+	// `regndagsguide` gikk det ikke: motparten `rainy-day-bergen` er et alias i
+	// HREFLANG_PAIRS og finnes ikke i getAllCollectionSlugs(), saa den ble
+	// aldri skrevet.
+	//
+	// Seks engelske sider falt ut slik — things-to-do-bergen, rainy-day-bergen,
+	// family-bergen, nightlife-bergen, festivals-in-bergen og
+	// tomorrow-in-bergen. De er ekte sider som svarer 200 og er indeksert
+	// (maalt med URL Inspection 2. september 2026), men de stod utenfor
+	// sitemapen.
+	//
+	// Listen bygges i getCollectionSitemapPaths(), som `sitemap-samlinger.test.ts`
+	// haandhever mot HREFLANG_PAIRS.
+	for (const { lang, slug, hreflang } of getCollectionSitemapPaths()) {
 		const hasPair = hreflang.no !== hreflang.en;
-
-		for (const lang of languages) {
-			const altLang = lang === 'no' ? 'en' : 'no';
-			const hreflangLinks = hasPair
-				? `    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${hreflang[lang]}" />
+		const altLang = lang === 'no' ? 'en' : 'no';
+		const hreflangLinks = hasPair
+			? `    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${hreflang[lang]}" />
     <xhtml:link rel="alternate" hreflang="${altLang === 'no' ? 'nb' : 'en'}" href="${BASE}/${altLang}/${hreflang[altLang]}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/no/${hreflang.no}" />`
-				: `    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${slug}" />
+			: `    <xhtml:link rel="alternate" hreflang="${lang === 'no' ? 'nb' : 'en'}" href="${BASE}/${lang}/${slug}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/${lang}/${slug}" />`;
-			priorityUrls += `  <url>
+		priorityUrls += `  <url>
     <loc>${BASE}/${lang}/${slug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
 ${hreflangLinks}
   </url>\n`;
-		}
 	}
 
 	// ── Venue pages ──

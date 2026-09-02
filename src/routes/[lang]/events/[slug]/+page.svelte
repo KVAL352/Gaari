@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { enhance } from '$app/forms';
 	import { lang, t } from '$lib/i18n';
+	import { collectionHref } from '$lib/collections';
 	import {
 		formatEventDate, formatEventTime, formatMetaDate, formatPrice, isFreeEvent, buildOutboundUrl,
 		outboundRel
@@ -55,18 +56,30 @@
 	let isCancelled = $derived(event.status === 'cancelled');
 
 	// Contextual collection link based on event category
-	const CATEGORY_COLLECTIONS: Record<string, { slug: Record<string, string>; label: Record<string, string> }> = {
-		music: { slug: { no: 'konserter', en: 'konserter' }, label: { no: 'Se alle konserter i Bergen', en: 'See all concerts in Bergen' } },
-		family: { slug: { no: 'familiehelg', en: 'familiehelg' }, label: { no: 'Se alle familieaktiviteter', en: 'See all family activities' } },
-		student: { slug: { no: 'studentkveld', en: 'studentkveld' }, label: { no: 'Se alle studentarrangementer', en: 'See all student events' } },
-		nightlife: { slug: { no: 'i-kveld', en: 'i-kveld' }, label: { no: 'Se alt som skjer i kveld', en: 'See what\'s on tonight' } },
-		food: { slug: { no: 'mat-og-drikke', en: 'mat-og-drikke' }, label: { no: 'Se alle matopplevelser', en: 'See all food events' } },
-		workshop: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
-		festival: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
-		culture: { slug: { no: 'utstillinger', en: 'utstillinger' }, label: { no: 'Se alle utstillinger i Bergen', en: 'See all exhibitions in Bergen' } },
-		theatre: { slug: { no: 'teater', en: 'teater' }, label: { no: 'Se alle forestillinger i Bergen', en: 'See all theatre in Bergen' } },
-		sports: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
-		tours: { slug: { no: 'denne-helgen', en: 'this-weekend' }, label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+	// Én kanonisk slug per kategori. Adressen per spraak utledes med
+	// collectionHref(), som leser HREFLANG_PAIRS.
+	//
+	// Tabellen hadde foer en `slug: { no, en }` skrevet for haand, og den hadde
+	// alt glidd fra fasit: `family` pekte paa `familiehelg` ogsaa paa engelsk,
+	// der den kanoniske adressen er `family-bergen`. Lenka traff en 301 i
+	// stedet for sida. Samme feilklasse som
+	// [[pattern_single_source_of_truth]] — to lister som skal si det samme,
+	// og bare den ene blir vedlikeholdt.
+	const CATEGORY_COLLECTIONS: Record<string, { slug: string; label: Record<string, string> }> = {
+		music: { slug: 'konserter', label: { no: 'Se alle konserter i Bergen', en: 'See all concerts in Bergen' } },
+		family: { slug: 'familiehelg', label: { no: 'Se alle familieaktiviteter', en: 'See all family activities' } },
+		student: { slug: 'studentkveld', label: { no: 'Se alle studentarrangementer', en: 'See all student events' } },
+		// Var 'i-kveld', men den lever bare paa engelsk fra 2. september 2026.
+		// 'uteliv' gir /no/uteliv og /en/nightlife-bergen — to sider som finnes
+		// paa hvert sitt spraak, i stedet for én som 301-er paa norsk.
+		nightlife: { slug: 'uteliv', label: { no: 'Se alt uteliv i Bergen', en: 'See all nightlife in Bergen' } },
+		food: { slug: 'mat-og-drikke', label: { no: 'Se alle matopplevelser', en: 'See all food events' } },
+		workshop: { slug: 'denne-helgen', label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+		festival: { slug: 'denne-helgen', label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+		culture: { slug: 'utstillinger', label: { no: 'Se alle utstillinger i Bergen', en: 'See all exhibitions in Bergen' } },
+		theatre: { slug: 'teater', label: { no: 'Se alle forestillinger i Bergen', en: 'See all theatre in Bergen' } },
+		sports: { slug: 'denne-helgen', label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
+		tours: { slug: 'denne-helgen', label: { no: 'Se alt som skjer denne helgen', en: 'See everything this weekend' } },
 	};
 	let collectionLink = $derived(CATEGORY_COLLECTIONS[event.category]);
 
@@ -144,7 +157,12 @@
 				venue_name: event.venue_name,
 				event_slug: event.slug,
 				source_page: window.location.pathname,
-				placement_context: detectClickContext()
+				placement_context: detectClickContext(),
+				// Samme uttrykk som lenka i knappen. Serveren plukker ut vertsnavnet
+				// og kaster resten. Uten dette kan et klikk bare knyttes til et
+				// maaldomene saa lenge arrangementet ligger inne — og de slettes
+				// naar de er over, saa 89 % av historikken var uten domene.
+				destination_url: event.ticket_url || event.source_url
 			})
 		}).catch(() => {}); // fire-and-forget
 	}
@@ -212,9 +230,9 @@
 			{ name: 'Gåri', url: getCanonicalUrl(`/${$lang}`) }
 		];
 		const catLabel = CATEGORY_BREADCRUMB[event.category];
-		const catSlug = collectionLink?.slug[$lang];
+		const catSlug = collectionLink?.slug;
 		if (catLabel && catSlug) {
-			items.push({ name: catLabel[$lang], url: getCanonicalUrl(`/${$lang}/${catSlug}`) });
+			items.push({ name: catLabel[$lang], url: getCanonicalUrl(collectionHref(catSlug, $lang)) });
 		}
 		items.push({ name: title });
 		return items;
@@ -483,7 +501,7 @@
 	<div class="mb-6 flex flex-wrap gap-2">
 		{#if collectionLink}
 			<a
-				href="/{$lang}/{collectionLink.slug[$lang]}"
+				href={collectionHref(collectionLink.slug, $lang)}
 				class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
 			>
 				{collectionLink.label[$lang]}
@@ -499,7 +517,7 @@
 				<ArrowRight size={16} />
 			</a>
 		{/if}
-		{#if !collectionLink || (collectionLink.slug[$lang] !== 'denne-helgen' && collectionLink.slug[$lang] !== 'this-weekend')}
+		{#if collectionLink?.slug !== 'denne-helgen'}
 			<a
 				href="/{$lang}/{$lang === 'no' ? 'denne-helgen' : 'this-weekend'}"
 				class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { lang, t } from '$lib/i18n';
+	import { collectionHref } from '$lib/collections';
 	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
 	import { getOsloNow, getWeekendDates } from '$lib/event-filters';
 	import EventGrid from '$lib/components/EventGrid.svelte';
@@ -349,7 +350,7 @@
 					{#each relatedCollections as related (related.slug)}
 					<li>
 						<a
-							href="/{ssrLang}/{related.slug}"
+							href={collectionHref(related.slug, ssrLang)}
 							class="inline-block rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
 						>
 							{related.title[ssrLang]}
@@ -415,7 +416,7 @@
 				{#each relatedCollections as related (related.slug)}
 				<li>
 					<a
-						href="/{ssrLang}/{related.slug}"
+						href={collectionHref(related.slug, ssrLang)}
 						class="inline-block rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
 					>
 						{related.title[ssrLang]}

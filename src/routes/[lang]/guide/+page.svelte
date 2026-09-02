@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { lang } from '$lib/i18n';
+	import { collectionHref } from '$lib/collections';
 	import { getCanonicalUrl, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
 	import { SOURCE_COUNT } from '$lib/constants';
 	import { getEasterDate, addDays, getISOWeekDates, getContextualHighlight, getOsloNow } from '$lib/event-filters';
@@ -34,7 +35,7 @@
 				'@type': 'ListItem',
 				position: i + 1,
 				name: col.title[$lang],
-				url: getCanonicalUrl(`/${$lang}/${col.slug}`)
+				url: getCanonicalUrl(collectionHref(col.slug, $lang))
 			}))
 		}
 	}));
@@ -52,8 +53,8 @@
 		{
 			label: 'Når',
 			items: [
-				{ slug: 'i-dag', label: 'I dag' },
-				{ slug: 'i-kveld', label: 'I kveld' },
+				// i-dag og i-kveld 301-er til forsiden fra 2. september 2026.
+				// Forsiden har filtrene, og lenkene her ville bare vaert omveier.
 				{ slug: 'denne-helgen', label: 'Denne helgen' }
 			]
 		},
@@ -273,7 +274,7 @@
 		},
 		{
 			q: 'Hvor finner jeg konserter i Bergen?',
-			a: 'Gåri samler konserter fra over 15 konsertscener i Bergen, inkludert Grieghallen, USF Verftet, Ole Bull og Forum Scene. Se <a href="/no/konserter" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">konserter i Bergen</a> for ukens program, eller <a href="/no/i-kveld" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">i kveld-siden</a> for kveldens arrangementer.'
+			a: 'Gåri samler konserter fra over 15 konsertscener i Bergen, inkludert Grieghallen, USF Verftet, Ole Bull og Forum Scene. Se <a href="/no/konserter" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">konserter i Bergen</a> for ukens program, eller <a href="/no?when=today" class="underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">dagens program på forsiden</a> for det som skjer nå.'
 		},
 		{
 			q: 'Hva skjer i Bergen i påsken?',
@@ -357,7 +358,12 @@
 		if (!browser) return { slug: $lang === 'no' ? 'denne-helgen' : 'this-weekend', label: $lang === 'no' ? 'Se hva som skjer denne helgen' : "See what's on this weekend" };
 		const highlight = getContextualHighlight(getOsloNow());
 		if (highlight === 'today') {
-			return { slug: $lang === 'no' ? 'i-kveld' : 'i-kveld', label: $lang === 'no' ? 'Se hva som skjer i kveld' : "See what's on tonight" };
+			// Engelsk har fortsatt /en/i-kveld. Norsk sender til forsiden med
+			// dagsfilteret paa, saa lenka holder det den lover uten aa gaa via
+			// en 301.
+			return $lang === 'no'
+				? { slug: 'i-kveld', href: '/no?when=today', label: 'Se hva som skjer i dag' }
+				: { slug: 'i-kveld', label: "See what's on tonight" };
 		}
 		if (highlight === 'weekend') {
 			return { slug: $lang === 'no' ? 'denne-helgen' : 'this-weekend', label: $lang === 'no' ? 'Se hva som skjer denne helgen' : "See what's on this weekend" };
@@ -420,7 +426,7 @@
 		<!-- CTA — contextual: tonight after 16:00, weekend on Fri PM/Sat/Sun -->
 		<div class="px-6 pt-4 pb-6 md:px-8">
 			<a
-				href="/{$lang}/{ctaConfig.slug}"
+				href={ctaConfig.href ?? collectionHref(ctaConfig.slug, $lang)}
 				class="flex items-center justify-between rounded-xl bg-[var(--color-accent)] px-5 py-3.5 font-semibold text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-hover)]"
 			>
 				<span>{ctaConfig.label}</span>
@@ -442,7 +448,7 @@
 						<div class="flex flex-wrap gap-2">
 							{#each group.items as col (col.slug)}
 								<a
-									href={col.href ?? `/${$lang}/${col.slug}`}
+									href={col.href ?? collectionHref(col.slug, $lang)}
 									class="inline-block rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)]"
 								>
 									{col.label}
@@ -471,7 +477,7 @@
 					{@const status = getStatusBySlug(col.slug)}
 					<li>
 						<a
-							href="/{$lang}/{col.slug}"
+							href={collectionHref(col.slug, $lang)}
 							class="flex items-center justify-between rounded-lg border border-[var(--color-border)] px-4 py-2.5 transition-colors hover:border-[var(--color-accent)] hover:bg-[var(--color-surface)]"
 							class:opacity-60={status === 'off'}
 						>
@@ -511,7 +517,7 @@
 					{@const status = getStatusBySlug(col.slug)}
 					<li>
 						<a
-							href="/{$lang}/{col.slug}"
+							href={collectionHref(col.slug, $lang)}
 							class="flex items-center justify-between rounded-lg border border-[var(--color-border)] border-l-[3px] border-l-[var(--color-accent)] px-4 py-2.5 transition-colors hover:border-[var(--color-accent)] hover:bg-[var(--color-surface)]"
 							class:opacity-60={status === 'off'}
 						>

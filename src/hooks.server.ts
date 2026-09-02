@@ -148,13 +148,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 		let collection: string;
 		if (day === 0 || day === 5 || day === 6) {
 			collection = 'denne-helgen';
-		} else if (hour >= 16) {
-			collection = 'i-kveld';
 		} else {
-			collection = 'i-dag';
+			// /no/i-kveld og /no/i-dag 301-er til forsiden fra 2. september 2026.
+			// Klistremerket sender derfor rett til forsiden paa hverdager, i
+			// stedet for gjennom en omdirigering.
+			collection = '';
 		}
 
-		redirect(302, `https://gaari.no/no/${collection}?utm_source=sticker&utm_medium=qr`);
+		const sti = collection ? `/no/${collection}` : '/no';
+		redirect(302, `https://gaari.no${sti}?utm_source=sticker&utm_medium=qr`);
 	}
 
 	// Root URL: 302 redirect based on Accept-Language (not 301 — destination varies per user)

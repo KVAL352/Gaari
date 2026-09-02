@@ -106,6 +106,24 @@ export interface Collection {
 	footerLabel?: Record<Lang, string>;
 	footer?: { langs: Lang[]; order: number };
 	newsletterHeading?: Record<Lang, string>;
+	/**
+	 * Spraakene samlingen er en landingsside paa. Utelatt betyr begge.
+	 *
+	 * HVORFOR DENNE FINNES
+	 *
+	 * Besluttet 2. september 2026: paa norsk skal tidssoekene samles paa
+	 * forsiden. `/no/i-kveld` laa paa snittposisjon 32,2 og `/no/i-dag` paa
+	 * 22,8, mens `/no` tok de samme soekene paa 5–6 — Google valgte forsiden
+	 * uansett, og de to sidene delte signalet uten aa vinne noe.
+	 *
+	 * Paa engelsk er bildet motsatt. `/en/i-kveld` er vaar beste samleside
+	 * med 268 klikk paa 90 dager paa plass 6,2, og 151 av dem kom de siste 28
+	 * dagene mot 58 i perioden foer. Der rangerer ikke forsiden paa de
+	 * soekene, saa aa fjerne sida ville gitt bort trafikken, ikke flyttet den.
+	 *
+	 * Derfor er dette per spraak og ikke per samling.
+	 */
+	langs?: Lang[];
 	seasonal?: boolean;
 	/**
 	 * Måneden (1–12) sesongen normalt er over. Etter den ruller årstallet i
@@ -187,6 +205,8 @@ const collections: Collection[] = [
 	{
 		id: 'tonight',
 		slug: 'i-kveld',
+		// Bare engelsk. /no/i-kveld 301-er til forsiden; se `langs` i Collection.
+		langs: ['en'],
 		title: {
 			no: 'Hva skjer i Bergen i kveld',
 			en: 'What\u2019s On in Bergen Tonight'
@@ -201,7 +221,9 @@ const collections: Collection[] = [
 		},
 		relatedSlugs: ['denne-helgen', 'konserter', 'studentkveld', 'utstillinger'],
 		footerLabel: { no: 'I kveld', en: 'Tonight' },
-		footer: { langs: ['no'], order: 2 },
+		// Flyttet fra den norske til den engelske footeren 2. september 2026.
+		// Sida er vaar beste samleside paa engelsk og hadde ingen footerlenke der.
+		footer: { langs: ['en'], order: 4 },
 		newsletterHeading: { no: 'Gå aldri tom for kveldsplaner', en: 'Never run out of evening plans' },
 		quickAnswer: {
 			no: `Bergen har kulturliv på hverdagskvelder, ikke bare i helgene. Konserter på Ole Bull og Forum Scene, teater på DNS og Cornerteateret, uteliv på Hulen og Madam Felle. Samlet fra ${SOURCE_COUNT} lokale kilder.`,
@@ -687,6 +709,10 @@ const collections: Collection[] = [
 	{
 		id: 'today-no',
 		slug: 'i-dag',
+		// Ingen spraak: /no/i-dag 301-er til forsiden, og den engelske utgaven er
+		// den egne samlingen `today-in-bergen`. Objektet blir staaende fordi
+		// HREFLANG_PAIRS og filterfunksjonen fortsatt brukes av /en/today-in-bergen.
+		langs: [],
 		title: {
 			no: 'Hva skjer i Bergen i dag',
 			en: 'What\u2019s On in Bergen Today'
@@ -701,7 +727,6 @@ const collections: Collection[] = [
 		},
 		relatedSlugs: ['i-kveld', 'denne-helgen', 'gratis'],
 		footerLabel: { no: 'I dag', en: 'Today' },
-		footer: { langs: ['no'], order: 3 },
 		newsletterHeading: { no: 'Få daglige tips rett i innboksen', en: 'Get daily picks in your inbox' },
 		quickAnswer: {
 			no: `Alle arrangementer i Bergen i dag — konserter, utstillinger, turer og mer. Gåri samler dagens program fra ${SOURCE_COUNT} lokale kilder, oppdatert daglig.`,
@@ -3866,6 +3891,78 @@ export function getHreflangSlugs(slug: string): Record<'no' | 'en', string> {
 	return HREFLANG_PAIRS[slug] ?? { no: slug, en: slug };
 }
 
+/**
+ * Er samlingen en landingsside paa dette spraaket?
+ *
+ * Slaar opp paa sluggen slik den staar i adressen, ikke paa samlingen vi
+ * itererer over. `/en/today-in-bergen` og `/no/i-dag` er to ulike samlinger
+ * som deler hreflang-par, og bare den ene lever.
+ */
+export function isCollectionLang(slug: string, lang: Lang): boolean {
+	const c = getCollection(slug);
+	if (!c) return false;
+	return (c.langs ?? ['no', 'en']).includes(lang);
+}
+
+/**
+ * Adressen en samling har paa et gitt spraak.
+ *
+ * HVORFOR DENNE FINNES
+ *
+ * Interne lenker ble bygget som `/${lang}/${col.slug}` med den kanoniske
+ * sluggen. Paa norsk stemmer det. Paa engelsk gjoer det ikke: ruta
+ * 301-redirecter /en/regndagsguide → /en/rainy-day-bergen, /en/uteliv →
+ * /en/nightlife-bergen og fire til.
+ *
+ * Konsekvensen var at de seks engelske aliassidene ikke hadde en eneste
+ * intern lenke som pekte rett paa dem — alt gikk via en omdirigering, eller
+ * til den norske sluggen. De var indeksert, men uten tyngde, og rangerte
+ * deretter: fire av seks hadde null visninger i Google paa 90 dager.
+ *
+ * Bruk denne i stedet for aa sette sammen stien for haand.
+ */
+export function collectionHref(slug: string, lang: Lang): string {
+	const maal = getHreflangSlugs(slug)[lang];
+	// Lever ikke sida paa dette spraaket, er forsiden riktig sted aa peke.
+	// Ellers ville lenka gaatt til en 301.
+	if (!isCollectionLang(maal, lang)) return `/${lang}`;
+	return `/${lang}/${maal}`;
+}
+
+/**
+ * Hver samlingsadresse som skal staa i sitemapen, én gang.
+ *
+ * HVORFOR DENNE FINNES
+ *
+ * Sitemapen gikk foer over `getAllCollectionSlugs()` og skrev bare de spraakene
+ * der sluggen var sin egen kanoniske adresse. For `denne-helgen` gikk det bra,
+ * fordi motparten `this-weekend` selv er en samling og kom med i sin egen
+ * runde. For `regndagsguide` gikk det ikke: motparten `rainy-day-bergen` finnes
+ * bare som alias i HREFLANG_PAIRS, aldri i `getAllCollectionSlugs()`.
+ *
+ * Seks engelske sider falt ut slik, uten at noe ble roedt — de svarer 200, og
+ * to av dem tjente klikk likevel fordi Google fant dem via hreflang.
+ * `sitemap-samlinger.test.ts` haandhever at hver hreflang-adresse er med.
+ */
+export function getCollectionSitemapPaths(): Array<{
+	lang: 'no' | 'en';
+	slug: string;
+	hreflang: Record<'no' | 'en', string>;
+}> {
+	const sider = new Map<string, { lang: 'no' | 'en'; slug: string; hreflang: Record<'no' | 'en', string> }>();
+	for (const slug of getAllCollectionSlugs()) {
+		const hreflang = getHreflangSlugs(slug);
+		for (const lang of ['no', 'en'] as const) {
+			// Sjekk sluggen slik den vil staa i adressen. /no/i-dag skrives ellers
+			// inn igjen naar vi itererer over `today-in-bergen`, som deler par med
+			// den, selv om den norske sida 301-er til forsiden.
+			if (!isCollectionLang(hreflang[lang], lang)) continue;
+			sider.set(`${lang}/${hreflang[lang]}`, { lang, slug: hreflang[lang], hreflang });
+		}
+	}
+	return [...sider.values()];
+}
+
 /** Group collections by type for the "Utforsk Bergen" section on the homepage. */
 export interface CollectionGroup {
 	label: Record<Lang, string>;
@@ -3877,9 +3974,11 @@ export function getGroupedCollections(lang: Lang): CollectionGroup[] {
 		slugs.map(s => collectionMap.get(s)).filter((c): c is Collection => !!c)
 			.map(c => ({ slug: c.slug, label: c.footerLabel ?? c.title }));
 
+	// Norsk har bare helgesida igjen her: i-kveld og i-dag 301-er til forsiden
+	// fra 2. september 2026, saa forsiden er allerede det de peker paa.
 	const timeSlugs = lang === 'no'
-		? ['denne-helgen', 'i-kveld', 'i-dag']
-		: ['this-weekend', 'today-in-bergen'];
+		? ['denne-helgen']
+		: ['this-weekend', 'today-in-bergen', 'i-kveld'];
 
 	const categorySlugs = ['konserter', 'teater', 'utstillinger', 'mat-og-drikke', 'uteliv'];
 
