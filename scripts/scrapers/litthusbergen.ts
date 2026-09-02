@@ -7,6 +7,38 @@ const SOURCE = 'litthusbergen';
 const BASE_URL = 'https://www.litthusbergen.no/program';
 const PAGE_PARAM = '90422230_page';
 
+/**
+ * Starttidspunktet slik programsidens h3-tekst oppgir det.
+ *
+ * Hver bit ligger i sitt eget h3-element, saa `.text()` limer sammen
+ * dag + dato + maaned + tid HELT uten skilletegn:
+ *
+ *     "Tirs.08.0918:30–21:00Petrichor skrivegruppe"
+ *
+ * FEILEN SOM VAR HER (rettet 2. september 2026): uttrykket krevde et
+ * ikke-siffer foran timetallet, for aa unngaa treff som «38:30». Men
+ * maanedstallet limer seg rett foran starttiden — «...08.0918:30» — saa
+ * starten hadde alltid et siffer foran seg og ble hoppet over. Det foerste
+ * lovlige treffet ble SLUTT-tiden, som staar rett etter tankestreken.
+ *
+ * Alle 25 arrangementene paa programsiden ble rammet, og leseren fikk beskjed
+ * om aa moete opp naar arrangementet var slutt: «Oster og sidere» 4. september
+ * sto 22:00 mot reelle 19:00. 97 rader maatte rettes i basen.
+ *
+ * LOESNINGEN: fjern datoprefikset foerst. Da kan ingen sifre lime seg foran
+ * klokkeslettet, og det foerste treffet er starten.
+ *
+ * Eksportert med vilje: bade `rett-litthusbergen-klokkeslett.ts` og testen
+ * bruker den. Ligger regelen tre steder, kan de tre drifte fra hverandre —
+ * og da kan testen vaere groenn mens scraperen tar feil.
+ */
+export function startTidFraH3(h3Text: string): string {
+	const utenDatoprefiks = h3Text.replace(/^\D*\d{1,2}\.\d{2}/, '');
+	const m = utenDatoprefiks.match(/([01]?\d|2[0-3]):([0-5]\d)/);
+	// Timetallet kan mangle ledende null («8:30»), og ISO krever to sifre.
+	return m ? `${m[1].padStart(2, '0')}:${m[2]}` : '19:00';
+}
+
 /** Fetch detail page for price and ticket URL */
 async function fetchDetailPrice(url: string): Promise<{ price: string; ticketUrl?: string }> {
 	const html = await fetchHTML(url);
@@ -110,12 +142,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			if (!dateStart) return;
 			const dateEnd = parseEnglishDate(endRaw) || undefined;
 
-			// Extract time from h3 text (e.g. "Fre.20.0219:00–20:15Title")
-			// The h3 concatenates day+date+month+time without spaces.
-			// Match HH:MM where HH is 00-23 to avoid false matches like "38:30"
-			const h3Text = item.find('h3').text();
-			const timeMatch = h3Text.match(/(?:^|[^\d])([01]\d|2[0-3]):([0-5]\d)/);
-			const time = timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : '19:00';
+			const time = startTidFraH3(item.find('h3').text());
 
 			// Room from .heading-3 element
 			const room = item.find('[class*="heading-3"]').first().text().trim() ||
@@ -158,7 +185,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			}
 			const dateStart = startDate.toISOString();
 			let dateEnd: string | undefined;
-			if (ev.dateEnd && ev.dateEnd !== ev.dateStart) {
+			// Sluttdato som ligger FOER startdatoen er alltid feil, og kilden har
+			// levert den: 2. september 2026 hadde «Petrichor skrivegruppe» 22.
+			// september sluttdato 15. september. Da er feltet ubrukelig, og en
+			// tom sluttdato er riktigere enn en umulig. Uten denne vakten laa
+			// raden og roedet den sperrende `slutt-foer-start`-sjekken.
+			if (ev.dateEnd && ev.dateEnd !== ev.dateStart && ev.dateEnd > ev.dateStart) {
 				const end = new Date(`${ev.dateEnd}T22:00:00${bergenOffset(ev.dateEnd)}`);
 				dateEnd = isNaN(end.getTime()) ? undefined : end.toISOString();
 			}
