@@ -4,6 +4,18 @@
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" type="image/png" sizes="32x32" />
+		<!-- .ico for eldre nettlesere og for oppsamlere som ber om /favicon.ico
+		     paa roten uansett hva som staar her. Svarte 404 fram til 2. september 2026. -->
+		<link rel="icon" href="%sveltekit.assets%/favicon.ico" sizes="16x16 32x32 48x48" />
+		<!-- iOS bruker denne paa hjemskjermen. Den er flat og uten
+		     gjennomsiktighet med vilje: iOS klipper hjoernene selv, og det som
+		     er gjennomsiktig blir svart. -->
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" sizes="180x180" />
+		<link rel="manifest" href="%sveltekit.assets%/site.webmanifest" />
+		<!-- Farger nettleserens egen ramme rundt sida. Foelger fargemodus, saa
+		     ramma smelter sammen med bakgrunnen i stedet for aa lyse mot den. -->
+		<meta name="theme-color" content="#F2F2F0" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="robots" content="max-image-preview:large" />
 		<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
