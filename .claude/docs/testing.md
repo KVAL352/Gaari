@@ -87,6 +87,7 @@ To måter å unngå det, i prioritert rekkefølge:
 - `scripts/lib/__tests__/paminnelse-optin.test.ts` — dobbel opt-in henger sammen i tre filer. Den viktigste sjekker at send-reminders filtrerer på confirmed_at
 - `scripts/scrapers/__tests__/grieghallen-tid.test.ts` — naken lokal tid fra kilden skal tolkes som Bergen-tid, ikke UTC
 - `scripts/scrapers/__tests__/harmonien-turne.test.ts` — turnékonserter i utlandet skilles ut, uten å fjerne ekte Bergen-konserter
+- `scripts/scrapers/__tests__/litthusbergen-tid.test.ts` — starttiden leses fra programsidens `h3`, som limer sammen dag+dato+maaned+tid uten skilletegn. Maanedstallet skjoev treffet over paa SLUTT-tiden, saa 25 av 25 arrangementer fikk sluttidspunktet som starttid og 97 rader maatte rettes. Testen importerer scraperens egen `startTidFraH3()`, ikke en kopi av regelen, og dekker ogsaa timetall uten ledende null («8:30»), som falt til standardverdien 19:00 og gjorde et frukostmoete til et kveldsarrangement. Siste test dokumenterer den gamle regelen, saa ingen gjeninnfoerer «ikke-siffer foran»
 
 Verifiser alltid mot importgrafen, ikke mot at testen ble grønn lokalt. En
 grønn kjøring på en maskin som har `scripts/node_modules` beviser ingenting
