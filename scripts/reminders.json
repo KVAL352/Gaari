@@ -247,7 +247,7 @@
   {
     "date": "2026-09-15",
     "title": "Festivalsidene er tomme utenfor sesong",
-    "description": "RETTELSE: en tidligere utgave av denne paaminnelsen sa at seks festivalsider laaser fjoraarets datoer og artister. Det var feil — Bergenfest var den eneste, og den er rettet. De seks andre har null hardkodede aarstall.\n\nDet som ER igjen: sidene er tomme utenfor sesong. /no/bergenfest svarer med \"numberOfItems\":0 og har rundt 1 100 ord mot 4 000 paa /no/denne-helgen. En evigvarende URL som er tom ti maaneder i aaret rangerer daarlig — de ligger paa plass 7-9,5 med til sammen over 26 000 visninger i kvartalet.\n\nTiltak: gi sidene innhold som virker med null arrangementer (historie, normale datoer, hvor den holder til, naar programmet slippes, hvor billettene selges), og lag en slippkalender saa arrangementene kommer inn naar programmet annonseres, ikke naar festivalen gaar av stabelen. Hallaien (5 424 visninger) og Bergen Oelfestival (1 585) mangler helt — robots.txt maa sjekkes foer noen scraper vurderes."
+    "description": "RETTELSE: en tidligere utgave av denne paaminnelsen sa at seks festivalsider laaser fjoraarets datoer og artister. Det var delvis feil, og RETTET 2. september 2026. Bergenfest var den eneste med fjoraarets lineup i beskrivelsen, men aarsspesifikke datoer laa ogsaa i dateHint paa hub-lista for FIRE festivaler: festspillene, nattjazz, bergenfest og beyond-the-gates. Tre andre oppga allerede bare maaned. Alt er naa maanedsnivaa, Bergenfest-teksten er skrevet om uten datoer og artistnavn, og den engelske tittelen «Lineup 10-13 June» er fjernet. Laast med src/lib/__tests__/samlinger-aarsuavhengig.test.ts, som forbyr aarstall i tittel/beskrivelse og tall i dateHint. De seks andre har null hardkodede aarstall.\n\nDet som ER igjen: sidene er tomme utenfor sesong. /no/bergenfest svarer med \"numberOfItems\":0 og har rundt 1 100 ord mot 4 000 paa /no/denne-helgen. En evigvarende URL som er tom ti maaneder i aaret rangerer daarlig — de ligger paa plass 7-9,5 med til sammen over 26 000 visninger i kvartalet.\n\nTiltak: gi sidene innhold som virker med null arrangementer (historie, normale datoer, hvor den holder til, naar programmet slippes, hvor billettene selges), og lag en slippkalender saa arrangementene kommer inn naar programmet annonseres, ikke naar festivalen gaar av stabelen. Hallaien (5 424 visninger) og Bergen Oelfestival (1 585) mangler helt — robots.txt maa sjekkes foer noen scraper vurderes."
   },
   {
     "date": "2026-11-25",
@@ -298,5 +298,25 @@
     "date": "2026-09-08",
     "title": "Oseana: venter paa ja til bildebruk",
     "description": "Kine Skage Kjellstad (Oseana, Os) tok kontakt 31. august. Scraperen er aapnet igjen 1. september, 41 arrangementer inne, resten kommer over noen doegn. E-post sendt 1. september med to spoersmaal: (1) ja til aa VISE bildene deres paa gaari.no, (2) frivillig ja til bruk utenfor nettsida, som aapner for nyhetsbrev og SoMe. Uten (1) ligger arrangementene ute UTEN bilde. Kommer ja: foer inn i scripts/lib/consent.json med omfang visning og eventuelt some, kjoer consent-sync, og dokumenter i docs/bildesamtykke.md. Traaden ligger i Folders/Gaari/Outreach/Unresolved. Ikke svar innen 8. september: purr én gang."
+  },
+  {
+    "date": "2026-10-06",
+    "title": "Maal om aarstall-rullingen hjalp paa Bergenfest",
+    "description": "Da /no/bergenfest begynte aa rulle aarstallet til neste utgave, gikk CTR fra 0,57 % (1.-14. aug) til 1,25 % (15.-24.) til 2,00 % (25.-29.). Visningene falt samtidig fra 1 048 til 150, saa vinduet er for kort og sesongen for sterk til at dette er bevis. Analysen 1. september noterte det som «ikke bevist».\n\nGjoer dette: hent GSC-tall for https://gaari.no/no/bergenfest for september maalt mot august, og se paa CTR ved sammenlignbar posisjon. Holder loeftet, er samme grep verdt aa gjenta paa de andre festivalsamlingene. Holder det ikke, er problemet tittelen og ikke aarstallet."
+  },
+  {
+    "date": "2026-09-16",
+    "title": "Sjekk om /no/denne-helgen tok igjen posisjonsfallet",
+    "description": "Sida falt fra snittposisjon 7,5 (1.-14. aug) til 17,7 (25.-29. aug), og visningene fra 1 051 til 82. Kan vaere sesong — helgesoek flyttet seg ved skolestart — men det kan ogsaa vaere et fall som blir staaende. Sida er en av de ti viktigste vi har.\n\nGjoer dette: hent GSC-tall for https://gaari.no/no/denne-helgen for de siste 14 dagene. Er posisjonen fortsatt over 12, se paa om forsiden har overtatt helgesoekene helt — /no laa paa 5,9 for «hva skjer i bergen i helgen» mens samlesida laa paa 2,9 med en tjuendedel av visningene."
+  },
+  {
+    "date": "2026-09-09",
+    "title": "To Litteraturhuset-rader trenger ny beskrivelse, ikke nye sifre",
+    "description": "Klokkeslettrettingen 2. september flyttet 97 litthusbergen-rader fra sluttid til starttid, og 33 beskrivelser fikk klokkeslettet rettet i teksten. To rader ble holdt igjen med vilje, fordi rettelsen krysser en doegngrense og ordene i teksten da blir gale:\n\n- «Fra rikmanns- og kjendisliv til konkurs» 30. september: 15:00 -> 13:00\n- «Samsnakk om spraak»: 16:00 -> 13:00\n\nFeltet date_start er RIKTIG paa begge. Det er teksten som fortsatt oppgir gammelt klokkeslett, og teksten er det leseren leser. Gjoer dette: kjoer generateDescription() paa nytt for de to (husk Gemini-kvoten paa 20 kall i doegnet), eller skriv dem om for haand. `scripts/rett-litthusbergen-beskrivelsestid.ts` lister dem naar den kjoeres toert."
+  },
+  {
+    "date": "2026-09-11",
+    "title": "Gjentagende arrangementer deler lenke, og da bommer oppslaget",
+    "description": "To litthusbergen-rader har en annen dato enn kilden oppgir for samme lenke: «Poetry Night» (basen 12. september, kilden 19. september) og «Lillelørdag: Lansering av Det regner dinosaurer» (basen 26. september, kilden 5. desember). Litteraturhuset bruker altsaa ÉN lenke for et arrangement som gaar flere ganger, og oppdaterer datoen paa den.\n\nDette er samme klasse som bookibud-dubletten: eventExists() slaar opp paa noeyaktig source_url, saa en lenke som betyr «neste forekomst» gir enten dublett eller feil dato. `rett-litthusbergen-klokkeslett.ts` roerer dem ikke, med vilje — en klokkeslettretting skal ikke kunne flytte en dato.\n\nGjoer dette: avgjoer om radene i basen er utgaatte forekomster som skal slettes, eller om datoen er feil. Sjekk kilden foer du retter, jf. pattern_sjekk_kilden_for_du_retter. Vurder samtidig om litthusbergen trenger en noekkel som er lenke + dato, slik bookibud viste at den trengte."
   }
 ]
