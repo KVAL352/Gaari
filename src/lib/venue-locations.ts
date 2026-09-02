@@ -57,10 +57,38 @@ const LOCATIONS: Record<string, VenueLocation> = {
 	'bergen domkirke': { street: 'Domkirkeplassen 1', postalCode: '5003', lat: 60.3958, lng: 5.3268 },
 	'bodega': { street: 'Neumanns gate 22', postalCode: '5015', lat: 60.3870, lng: 5.3253 },
 	'gg bergen': { street: 'Lagunen storsenter', postalCode: '5239', lat: 60.3118, lng: 5.3375 },
+	// ── Lagt til 2. september 2026 ────────────────────────────────────────
+	//
+	// Koordinatdekningen var 53 % av kommende arrangementer, saa nesten
+	// halvparten fikk Event-schema uten GeoCoordinates.
+	//
+	// Koordinatene er slaatt opp mot OpenStreetMap (Nominatim) og godtatt
+	// bare naar stedets EGET NAVN sto igjen i svaret — ikke bare en gate i
+	// naerheten. Tolv andre steder ble avvist av den regelen, blant dem
+	// «Sentralbadet Scenekunsthus» og alle DNT-turene, og de venter paa
+	// manuell kontroll. Et feil koordinat i strukturerte data er verre enn
+	// ingen.
+	//
+	// `street` staar tomt med vilje: Nominatim ga veinavn uten husnummer, og
+	// seo.ts faller tilbake paa arrangementets eget `address`-felt naar street
+	// er tomt. Kildens adresse er mer presis enn et bart veinavn.
+	'bergen street food': { street: '', postalCode: '5015', lat: 60.3891, lng: 5.3231 },
+	'loddefjord bibliotek': { street: '', postalCode: '5171', lat: 60.3630, lng: 5.2352 },
+	'åsane bibliotek': { street: '', postalCode: '5130', lat: 60.4677, lng: 5.3215 },
+	'fyllingsdalen bibliotek': { street: '', postalCode: '5143', lat: 60.3483, lng: 5.2915 },
+	'ny-krohnborg fellesbibliotek': { street: '', postalCode: '5055', lat: 60.3749, lng: 5.3346 },
+	'nordnes bydelshus': { street: '', postalCode: '5011', lat: 60.3947, lng: 5.3156 },
+	'laksevåg bibliotek': { street: '', postalCode: '5160', lat: 60.3867, lng: 5.2989 },
+	'landås bibliotek': { street: '', postalCode: '5097', lat: 60.3615, lng: 5.3682 },
+	'råbrent keramikkverksted': { street: '', postalCode: '5017', lat: 60.3954, lng: 5.3296 },
 };
 
 /**
  * Look up a venue's physical location by name (case-insensitive, partial match).
+ *
+ * MERK at oppslaget er delvis: `lower.includes(key)`. En kort noekkel treffer
+ * derfor alt som inneholder den. Legg aldri inn en noekkel som 'bergen' —
+ * den ville matchet naermest hvert eneste sted vi har.
  */
 export function getVenueLocation(venueName: string): VenueLocation | null {
 	const lower = venueName.toLowerCase().replace(/\s+/g, ' ').trim();
