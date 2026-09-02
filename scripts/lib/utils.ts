@@ -706,6 +706,37 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 		return false;
 	}
 
+	// En sluttdato foer starten er aldri meningsfull. Da er feltet feil, ikke
+	// arrangementet, saa vi kaster feltet og beholder raden som endagsarrangement.
+	//
+	// 2. september 2026 kom «Petrichor skrivegruppe — tirsdag 22. september» inn
+	// med date_start 22. september og date_end 15. september, mens de aatte
+	// andre gangene i samme serie hadde date_end null. Litteraturhuset lister
+	// serien med et skjult `input.event-end-date` per rad, og for den ene raden
+	// holdt det forrige ukes dato.
+	//
+	// Konsekvensen er ikke bare en rar dato: removeExpiredEvents() rydder paa
+	// date_end naar feltet finnes, saa raden ville blitt slettet som utloept en
+	// uke foer arrangementet gikk av stabelen.
+	//
+	// MAA STAA FOER sperra for utloepte arrangementer under: den slipper gjennom
+	// et arrangement i fortiden naar date_end finnes, for aa ta vare paa
+	// flerdagsarrangementer som alt er i gang. Med en ugyldig date_end ville den
+	// holdt liv i en rad paa grunnlag av et felt vi vet er feil.
+	//
+	// Sperra hoerer her og ikke i litthusbergen.ts, fordi feilklassen kan komme
+	// fra hvilken som helst kilde. Invarianten `slutt-foer-start` i
+	// lib/datakonsistens.ts fanger de radene som alt ligger inne.
+	if (event.date_end) {
+		const slutt = new Date(event.date_end);
+		if (isNaN(slutt.getTime()) || slutt < new Date(event.date_start)) {
+			console.warn(
+				`  date_end (${event.date_end}) ligger foer date_start (${event.date_start}) — feltet droppes: ${event.title_no}`
+			);
+			event.date_end = undefined;
+		}
+	}
+
 	// Reject past events (before start of today UTC)
 	const todayStart = new Date();
 	todayStart.setUTCHours(0, 0, 0, 0);
