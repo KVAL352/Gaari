@@ -242,13 +242,27 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		// existingUrlsCache — den finnes nettopp for aa slippe databasekall per
 		// arrangement, og et raatt select her ville gjeninnfoert dem. Skriving
 		// skjer bare naar en rad faktisk skal oppdateres.
+		// Begge lenkekolonnene maa oppdateres, ikke bare source_url.
+		//
+		// Frontend bruker `ticket_url || source_url` (event-siden, +page.svelte).
+		// En foerste utgave av denne blokken skrev bare source_url, og da satt
+		// koden i kolonnen som ikke blir brukt: 1. september hadde alle elleve
+		// betalte bookibud-rader en ticket_url uten henvisningskode, mens
+		// source_url ved siden av hadde den. Det er nettopp de betalte radene
+		// kickbacken gjelder, saa feilen traff bare pengene.
 		const barLenke = utenSporing(sourceUrl);
 		if (barLenke !== sourceUrl && (await eventExists(barLenke))) {
 			const { error } = await supabase
 				.from('events')
+				.update({ source_url: sourceUrl, ticket_url: sourceUrl })
+				.eq('source_url', barLenke)
+				.not('ticket_url', 'is', null);
+			const { error: error2 } = await supabase
+				.from('events')
 				.update({ source_url: sourceUrl })
-				.eq('source_url', barLenke);
-			if (error) console.warn(`  ! kunne ikke oppdatere lenke: ${error.message}`);
+				.eq('source_url', barLenke)
+				.is('ticket_url', null);
+			if (error || error2) console.warn(`  ! kunne ikke oppdatere lenke: ${(error ?? error2)!.message}`);
 			else console.log(`  ~ Oppdatert lenke med henvisningskode: ${forste.title}`);
 			continue;
 		}

@@ -42,6 +42,8 @@ export interface KonsistensRad {
 	description_no?: string | null;
 	description_en?: string | null;
 	source_url?: string | null;
+	/** Lenka event-siden foretrekker: den bruker `ticket_url || source_url`. */
+	ticket_url?: string | null;
 	age_group?: string | null;
 	category?: string | null;
 	date_start?: string | null;
@@ -187,27 +189,54 @@ export const SJEKKER: Sjekk[] = [
 	},
 	{
 		navn: 'henvisningskode-mangler',
-		hva: 'bookibud-rad uten henvisningskoden som feeden leverer',
-		sperrende: false,
+		hva: 'bookibud-rad der lenka leseren faktisk klikker mangler henvisningskoden',
+		sperrende: true,
 		// Kjent nivaa 1. september 2026: 43 av 82. Bookibud la marketing=gaari paa
 		// partnernoekkelen 25. august, men eventExists() slaar opp paa noeyaktig
 		// source_url, saa rader som alt laa inne beholdt den gamle lenken. De
 		// sender klikk uten at salget krediteres oss.
 		//
-		// Scraperen oppdaterer naa lenka i stedet for aa hoppe over raden, saa
-		// tallet skal falle av seg selv. Naar det er nede i null, gjoer sjekken
-		// sperrende — den er maalt bare fordi opprydningen skjer ved neste
-		// kjoering, ikke fordi 43 er greit.
-		grense: 43,
+		// RETTET 1. september: sjekken saa foer bare paa source_url. Frontend
+		// bruker `ticket_url || source_url`, saa den maalte kolonnen som ble
+		// ryddet og ignorerte den som blir brukt. Resultatet var at sjekken sto
+		// paa 11 av 82 og saa ut til aa bedre seg, mens *alle* elleve betalte
+		// rader sendte klikk uten kode — nettopp de radene kickbacken gjelder.
+		// En sjekk som ser paa feil kolonne finner ingenting og ser grønn ut,
+		// jf. [[pattern_maal_det_du_paastaar]].
+		//
+		// Scraperen oppdaterer naa begge kolonnene, og
+		// `rett-bookibud-henvisningskode.ts` ryddet de elleve betalte radene
+		// 2. september. Grensa er strammet 43 → 9.
+		//
+		// De ni som sto igjen var ikke lenkefeil, men DUBLETTER: samme
+		// arrangement laa inne to ganger fordi Bookibud doepte det om
+		// («Nattklubb» → «Kveldstid») samtidig som lenka fikk koden, saa
+		// eventExists() bommet og raden ble lagt inn paa nytt. Unik-sperren paa
+		// source_url hindret at den gamle raden kunne faa koden, saa de forsvant
+		// foerst da dubletten ble slettet: `rydd-bookibud-dubletter.ts` fjernet
+		// ti par 2. september. Ett av dem viste «Konsert: Duvèt» ved siden av
+		// «Kansellert: Duvèt» for samme kveld — leseren saa en avlyst konsert
+		// som paagaaende, dagen foer den skulle gaa av stabelen.
+		//
+		// SPERRENDE fra 2. september 2026: tallet er null, og skal forbli null.
+		// Hver rad over null er et klikk vi sender Bookibud uten aa bli
+		// kreditert, altsaa direkte tapt inntekt. Blir den roed, se etter en
+		// omdoeping i feeden foer du hever grensa — grensa skal ikke heves.
+		grense: 0,
 		finn: (rader) =>
 			rader
-				.filter(
-					(e) =>
-						e.source === 'bookibud' &&
-						!!e.source_url &&
-						!/[?&]marketing=/i.test(e.source_url)
-				)
-				.map((rad) => ({ rad, forklaring: 'lenka mangler marketing-parameteren' })),
+				.filter((e) => {
+					if (e.source !== 'bookibud') return false;
+					// Samme uttrykk som event-siden: ticket_url vinner naar den finnes.
+					const brukt = e.ticket_url || e.source_url;
+					return !!brukt && !/[?&]marketing=/i.test(brukt);
+				})
+				.map((rad) => ({
+					rad,
+					forklaring: rad.ticket_url
+						? 'ticket_url mangler marketing-parameteren (den er lenka som brukes)'
+						: 'source_url mangler marketing-parameteren',
+				})),
 	},
 	{
 		navn: 'paastaar-gratis',
