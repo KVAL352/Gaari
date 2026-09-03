@@ -3,11 +3,21 @@
 59 collections total: 24 evergreen + 7 bydel + 14 seasonal + 14 festival.
 Config in `$lib/collections.ts`, single dynamic `[lang]/[collection]/` route.
 
+**Adressene ligger i `$lib/collection-urls.ts`, ikke i katalogen.** `HREFLANG_PAIRS`,
+`COLLECTION_LANGS`, `getHreflangSlugs()`, `isCollectionLang()` og `collectionHref()` bor
+der fordi komponenter må kunne slå opp en adresse uten å dra de 4 000 linjene med
+redaksjonell tekst inn i klientpakken. `collections.ts` re-eksporterer dem for serverkode.
+Bygg aldri en samlingsadresse for hånd — på engelsk 301-er `/en/regndagsguide` til
+`/en/rainy-day-bergen` og fem til.
+
+`COLLECTION_LANGS` sier hvilke språk en samling er landingsside på. Utelatt betyr begge.
+Er språket ikke med, 301-er ruta til forsiden.
+
 ## Evergreen (24)
 | Slug | Description | Window |
 |------|-------------|--------|
 | `denne-helgen` | Weekend events | weekend |
-| `i-kveld` | Tonight | tonight |
+| `i-kveld` | Tonight — **kun EN**, `/no/i-kveld` 301-er til forsiden | tonight |
 | `gratis` | Free events | 2 weeks |
 | `today-in-bergen` | Today (EN) | today |
 | `familiehelg` | Family activities | weekend |
@@ -15,7 +25,7 @@ Config in `$lib/collections.ts`, single dynamic `[lang]/[collection]/` route.
 | `studentkveld` | Student nights | this week |
 | `uteliv` | Adult nightlife/music evenings | this week |
 | `this-weekend` | Weekend (EN) | weekend |
-| `i-dag` | Today (NO) | today |
+| `i-dag` | Today — **ingen språk**, `/no/i-dag` 301-er til forsiden; EN bor på `today-in-bergen` | today |
 | `free-things-to-do-bergen` | Free (EN) | 2 weeks |
 | `regndagsguide` | Indoor/rainy day | 2 weeks |
 | `sentrum` | Bergen sentrum+Bergenhus | 2 weeks |
