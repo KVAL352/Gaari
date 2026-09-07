@@ -581,6 +581,18 @@
       ],
       "bevis": "Avtaler",
       "vurderesInnen": "2028-08-15"
+    },
+    {
+      "slug": "oseana",
+      "navn": "Oseana kunst- og kultursenter",
+      "dato": "2026-09-02",
+      "grunnlag": "dokumentert",
+      "omfang": [
+        "visning",
+        "some"
+      ],
+      "bevis": "Avtaler",
+      "vurderesInnen": "2028-09-02"
     }
   ],
   "avslag": [
