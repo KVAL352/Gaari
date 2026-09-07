@@ -57,6 +57,26 @@ const FAMILIEDAG_CLOSE = '20:00';
 const FAMILIEDAGER: string[] = ['2026-08-15', '2026-09-12', '2026-10-10', '2026-11-28'];
 
 /**
+ * Studentdag, fredag 11. september 2026. Bekreftet to steder: Sofie Vervaet i
+ * e-post 2026-09-03 ("gratis klatring hele dagen og live jazzmusikk fra kl 16
+ * og utover"), og studiovertikal.no/studentdag/, som oppgir gratis inngang og
+ * gratis utstyrsleie for alle med gyldig studentbevis.
+ *
+ * Klokkeslettene er senterets ordinaere fredagsaapningstid, hentet fra
+ * studiovertikal.no/apningstider/. Studentdag-sida sier bare "hele dagen i
+ * senterets ordinaere aapningstid" uten aa tallfeste den, saa tidene staar her
+ * og er ikke gjettet.
+ *
+ * MERK at jazzen kl. 16 IKKE er starttidspunktet. Tilbudet varer hele dagen,
+ * og konserten er en del av det. Den ligger derfor i facts og ikke i
+ * date_start. Motsatt vei kostet det 97 rader paa Litteraturhuset 2.
+ * september, der et klokkeslett i teksten ble lest som starttid.
+ */
+const STUDENTDAG = '2026-09-11';
+const STUDENTDAG_OPEN = '08:00';
+const STUDENTDAG_CLOSE = '20:00';
+
+/**
  * Bildene er sendt direkte fra Sofie Vervaet som vedlegg 2026-08-06, med
  * "Disse kan brukes i alle deres kanaler". De er altså ikke skrapet, og ikke
  * hot-linket: de ligger hos oss i static/events/ og serveres fra gaari.no.
@@ -113,6 +133,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		ageGroup: string;
 		price: string;
 		path: string;
+		/** Atomaere fakta vi selv har satt. Aldri arrangoerens setninger. */
+		facts?: Record<string, string | string[]>;
 	};
 
 	const planned: Planned[] = [];
@@ -147,6 +169,25 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		});
 	}
 
+	// Studentdag — én dato, aapent hele dagen.
+	if (STUDENTDAG >= today) {
+		planned.push({
+			date: STUDENTDAG,
+			hhmm: STUDENTDAG_OPEN,
+			endHhmm: STUDENTDAG_CLOSE,
+			title: 'Studentdag',
+			category: 'student',
+			ageGroup: 'students',
+			price: 'Gratis med gyldig studentbevis',
+			path: '/studentdag/',
+			facts: {
+				inkludert: ['buldring', 'tauklatring', 'treningsomraade', 'utstyrsleie'],
+				krav: 'gyldig studentbevis',
+				konsert: 'live jazz fra kl. 16',
+			},
+		});
+	}
+
 	const found = planned.length;
 	let inserted = 0;
 
@@ -167,6 +208,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			category: p.category,
 			date: dateStart,
 			price: p.price,
+			ageGroup: p.ageGroup,
+			facts: p.facts,
 		});
 
 		const success = await insertEvent({
