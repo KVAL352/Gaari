@@ -38,6 +38,7 @@ import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
 import type { GaariEvent } from '../../src/lib/types.js';
 
+import { SCHEDULE_BY_DOW, EN_COUNTERPART, type DaySchedule } from './ukeplan.js';
 interface FbGroup {
 	id: string;
 	name: string;
@@ -61,13 +62,6 @@ function isGroupEligible(group: FbGroup, slug: string): boolean {
 const HASHTAGS_NO = ['#bergen', '#bergenby', '#hvaskjeribergen', '#bergenliv', '#bergensentrum'];
 const HASHTAGS_EN = ['#bergen', '#bergennorway', '#thingstodoinbergen', '#bergenevents', '#visitbergen'];
 
-/** Map NO collection slug to its EN-routable counterpart (when one exists). */
-const EN_COUNTERPART: Record<string, string> = {
-	'denne-helgen': 'this-weekend',
-	'i-dag': 'today-in-bergen',
-	'gratis': 'free-things-to-do-bergen'
-	// teater / utstillinger / uteliv / mat-og-drikke have no EN route — fall back to /no/ URL
-};
 
 const SEND_EMAIL = process.argv.includes('--email');
 const START_ARG = process.argv.find(a => a.startsWith('--start='))?.split('=')[1];
@@ -75,21 +69,7 @@ const STORAGE_BUCKET = 'social-media';
 const REPORT_EMAIL = process.env.REELS_REPORT_EMAIL || 'post@gaari.no';
 const FROM_EMAIL = 'Gåri <noreply@gaari.no>';
 
-interface DaySchedule {
-	dayOfWeek: number; // 1=Mon, 6=Sat
-	dayName: { no: string; en: string };
-	slug: string;
-	label: string;
-}
 
-const SCHEDULE_BY_DOW = new Map<number, DaySchedule>([
-	[1, { dayOfWeek: 1, dayName: { no: 'Mandag', en: 'Monday' }, slug: 'gratis', label: 'Gratis denne uka' }],
-	[2, { dayOfWeek: 2, dayName: { no: 'Tirsdag', en: 'Tuesday' }, slug: 'utstillinger', label: 'Utstillinger denne uka' }],
-	[3, { dayOfWeek: 3, dayName: { no: 'Onsdag', en: 'Wednesday' }, slug: 'teater', label: 'Teater denne uka' }],
-	[4, { dayOfWeek: 4, dayName: { no: 'Torsdag', en: 'Thursday' }, slug: 'denne-helgen', label: 'Helgens høydepunkter' }],
-	[5, { dayOfWeek: 5, dayName: { no: 'Fredag', en: 'Friday' }, slug: 'denne-helgen', label: 'Helgen begynner' }],
-	[6, { dayOfWeek: 6, dayName: { no: 'Lørdag', en: 'Saturday' }, slug: 'i-dag', label: 'Lørdagens program' }]
-]);
 
 interface DayManifest {
 	dayOfWeek: number;
