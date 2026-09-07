@@ -77,15 +77,23 @@
 			</li>
 			<li class="leading-relaxed">
 				<strong>{$lang === 'no' ? 'Semantisk HTML og landemerker' : 'Semantic HTML and landmarks'}</strong> —
-				{@html $lang === 'no'
-					? 'Sidene bruker semantiske elementer som <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code> og <code>&lt;footer&gt;</code>.'
-					: 'Pages use semantic elements including <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code> and <code>&lt;footer&gt;</code>.'}
+				{#if $lang === 'no'}
+					Sidene bruker semantiske elementer som <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>,
+					<code>&lt;main&gt;</code> og <code>&lt;footer&gt;</code>.
+				{:else}
+					Pages use semantic elements including <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>,
+					<code>&lt;main&gt;</code> and <code>&lt;footer&gt;</code>.
+				{/if}
 			</li>
 			<li class="leading-relaxed">
 				<strong>{$lang === 'no' ? 'Dynamisk språkattributt' : 'Dynamic language attribute'}</strong> —
-				{@html $lang === 'no'
-					? '<code>lang</code>-attributtet på <code>&lt;html&gt;</code> oppdateres automatisk basert på valgt språk (nb/en).'
-					: 'The <code>lang</code> attribute on <code>&lt;html&gt;</code> is updated automatically based on the selected language (nb/en).'}
+				{#if $lang === 'no'}
+					<code>lang</code>-attributtet på <code>&lt;html&gt;</code> oppdateres automatisk basert på
+					valgt språk (nb/en).
+				{:else}
+					The <code>lang</code> attribute on <code>&lt;html&gt;</code> is updated automatically based
+					on the selected language (nb/en).
+				{/if}
 			</li>
 			<li class="leading-relaxed">
 				<strong>{$lang === 'no' ? 'Tastaturnavigasjon' : 'Keyboard navigation'}</strong> —
@@ -95,9 +103,15 @@
 			</li>
 			<li class="leading-relaxed">
 				<strong>{$lang === 'no' ? 'ARIA-attributter' : 'ARIA attributes'}</strong> —
-				{@html $lang === 'no'
-					? 'Filterknapper bruker <code>aria-pressed</code>. Dynamisk innhold bruker <code>aria-live="polite"</code>. Alle nødvendige skjemafelt har <code>aria-required="true"</code>.'
-					: 'Filter buttons use <code>aria-pressed</code>. Dynamic content uses <code>aria-live="polite"</code>. All required form fields have <code>aria-required="true"</code>.'}
+				{#if $lang === 'no'}
+					Filterknapper bruker <code>aria-pressed</code>. Dynamisk innhold bruker
+					<code>aria-live="polite"</code>. Alle nødvendige skjemafelt har
+					<code>aria-required="true"</code>.
+				{:else}
+					Filter buttons use <code>aria-pressed</code>. Dynamic content uses
+					<code>aria-live="polite"</code>. All required form fields have
+					<code>aria-required="true"</code>.
+				{/if}
 			</li>
 			<li class="leading-relaxed">
 				<strong>{$lang === 'no' ? 'Berøringspunkter' : 'Touch targets'}</strong> —
@@ -107,9 +121,11 @@
 			</li>
 			<li class="leading-relaxed">
 				<strong>{$lang === 'no' ? 'Redusert bevegelse' : 'Reduced motion'}</strong> —
-				{@html $lang === 'no'
-					? 'Animasjoner respekterer <code>prefers-reduced-motion</code>.'
-					: 'Animations respect <code>prefers-reduced-motion</code>.'}
+				{#if $lang === 'no'}
+					Animasjoner respekterer <code>prefers-reduced-motion</code>.
+				{:else}
+					Animations respect <code>prefers-reduced-motion</code>.
+				{/if}
 			</li>
 			<li class="leading-relaxed">
 				<strong>{$lang === 'no' ? 'Lenker' : 'Links'}</strong> —
