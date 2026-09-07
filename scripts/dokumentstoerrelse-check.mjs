@@ -71,10 +71,43 @@ const INGEN_DOM = args.includes('--no-fail');
  * skal være øyeblikkelige, står åpen i docs/SEO-ARBEIDSFLYT.md. Løses den,
  * skal tallene ned, ikke opp.
  */
+/**
+ * perGz og perRaa er VALGFRIE. Uten dem maales sida bare mot de absolutte
+ * takene.
+ *
+ * HVORFOR HELGESIDA IKKE HAR DEM. Forholdstallet forutsetter at nevneren er
+ * stor nok til at sidas faste kostnad drukner i den. Det stemmer for forsida
+ * med 2 000 arrangementer. Helgesida svinger mellom rundt 20 og rundt 90, og
+ * skallet krymper ikke naar lista tommes.
+ *
+ * Regnet paa to maalinger, 5. september (21 arr., 21 KiB) og 7. september
+ * (85 arr., 34 KiB): det faste skallet er rundt 16,7 KiB, og den variable
+ * delen rundt 0,20 KiB per arrangement. Den variable delen ligger altsaa godt
+ * under grensa paa 0,45 hele tiden. Det som sprakk var de faste kilobytene
+ * delt paa et lite tall, og grensa holdt foerst over rundt 68 arrangementer.
+ *
+ * Sjekken kjorer 12:01 UTC, ogsaa loerdag og sondag, altsaa naar helgelista er
+ * paa sitt minste. Den var derfor roed 5. og 6. september uten at noe var
+ * galt, og ville vaert det hver helg. En portvakt man venner seg til aa
+ * overse er ingen portvakt.
+ *
+ * HVORFOR DET IKKE ER ET TAP. Maalingen finnes for aa fange at hver rad drar
+ * med seg mer til nettleseren, typisk naar et nytt felt legges i `fields` i
+ * +page.server.ts. Den feilen slaar ut paa /no og /en med 2 000 rader
+ * oyeblikkelig og langt tydeligere. Helgesida ga ingen egen informasjon om
+ * den, bare stoy.
+ *
+ * ET GULV BLE VURDERT OG FORKASTET. Med gulv paa 60 passerte sida saa vidt
+ * ved 85 (0,399 mot 0,45), saa den minste vekst i skallet ville gjort den roed
+ * igjen paa mandager. Det er tallet-som-maa-skrues-igjen, som er nettopp det
+ * denne fila advarer mot lenger oppe.
+ *
+ * TAKENE STAAR. 120 KiB gzip og 700 KiB raatt fanger en side som loper loepsk.
+ */
 const GRENSER = [
 	{ sti: '/no', perGz: 0.18, perRaa: 0.95, gzipKiB: 600, raaKiB: 3000 },
 	{ sti: '/en', perGz: 0.24, perRaa: 1.18, gzipKiB: 700, raaKiB: 3500 },
-	{ sti: '/no/denne-helgen', perGz: 0.45, perRaa: 2.9, gzipKiB: 120, raaKiB: 700 },
+	{ sti: '/no/denne-helgen', gzipKiB: 120, raaKiB: 700 },
 ];
 
 /**
@@ -127,14 +160,28 @@ for (const g of GRENSER) {
 
 	const perGz = gz / antall;
 	const perRaa = raa / antall;
-	const over = perGz > g.perGz || perRaa > g.perRaa || gz > g.gzipKiB || raa > g.raaKiB;
-	if (over) brudd++;
+
+	// Sider uten perGz/perRaa maales bare mot takene. Se GRENSER over.
+	const maalesPerArr = g.perGz !== undefined && g.perRaa !== undefined;
+
+	const overTak = gz > g.gzipKiB || raa > g.raaKiB;
+	const overPerArr = maalesPerArr && (perGz > g.perGz || perRaa > g.perRaa);
+	if (overTak || overPerArr) brudd++;
+
+	// En sti som ikke maales per arrangement skal ALDRI se ut som en som besto.
+	// Skriver vi tallet uten merkelapp, leses «0.399 (0.45)» som groenn av den
+	// som skummer loggen. Derfor staar «bare tak» der grensa ellers ville
+	// staatt, saa det synes i CI-loggen hva som faktisk ble haandhevet.
+	const kolonne = (verdi, grense) =>
+		!maalesPerArr
+			? `${verdi.toFixed(3)}  (bare tak)`
+			: `${verdi.toFixed(3)}${verdi > grense ? ' OVER' : '     '} (${grense.toFixed(2)})`;
 
 	console.log(
 		`${g.sti.padEnd(22)} ${String(antall).padStart(4)}   ` +
-			`${perGz.toFixed(3)}${perGz > g.perGz ? ' OVER' : '    '} (${g.perGz.toFixed(2)})   ` +
-			`${perRaa.toFixed(3)}${perRaa > g.perRaa ? ' OVER' : '    '} (${g.perRaa.toFixed(2)})   ` +
-			`${Math.round(gz)}/${Math.round(raa)} KiB${gz > g.gzipKiB || raa > g.raaKiB ? ' OVER TAK' : ''}`
+			`${kolonne(perGz, g.perGz)}   ` +
+			`${kolonne(perRaa, g.perRaa)}   ` +
+			`${Math.round(gz)}/${Math.round(raa)} KiB${overTak ? ' OVER TAK' : ''}`
 	);
 }
 
