@@ -33,7 +33,7 @@
  */
 
 import { hasAdultAgeLimit } from './categories.js';
-import { normaliserStedsnavn } from './utils.js';
+import { normaliserStedsnavn, isImageAllowed } from './utils.js';
 
 export interface KonsistensRad {
 	id?: string;
@@ -48,6 +48,8 @@ export interface KonsistensRad {
 	age_group?: string | null;
 	category?: string | null;
 	venue_name?: string | null;
+	image_url?: string | null;
+	image_credit?: string | null;
 	date_start?: string | null;
 	date_end?: string | null;
 	source?: string | null;
@@ -177,6 +179,45 @@ export const SJEKKER: Sjekk[] = [
 				.map((rad) => ({
 					rad,
 					forklaring: `«${rad.venue_name}» skulle vaert «${normaliserStedsnavn(rad.venue_name)}»`
+				}))
+	},
+	{
+		navn: 'bilde-uten-samtykke',
+		hva: 'raden viser et bilde isImageAllowed() ville ha stanset',
+		sperrende: true,
+		/**
+		 * Invarianten til bildesperra, og den siste av de tre som manglet en.
+		 *
+		 * HVORFOR DEN ER DEN VIKTIGSTE. De andre sjekkene fanger data som ser
+		 * rart ut. Denne fanger bilder vi ikke har lov til aa vise, og
+		 * konsekvensen er et krav fra et byraa eller en fotograf, ikke en stygg
+		 * side. Jf. NTB-saken i project_copyright_case.
+		 *
+		 * 8. september 2026 laa ni rader ute med bilder uten samtykke, fem fra
+		 * paintnsip og fire fra brann. De ble bare oppdaget fordi en hook slo ut
+		 * paa en helt urelatert endring i utils.ts. Uten den ville de blitt
+		 * staaende, og ingenting ville vaert roedt.
+		 *
+		 * SAMME FUNKSJON som insertEvent bruker, jf. husregelen. En sjekk med sin
+		 * egen kopi av regelen kan vaere groenn mens innleggingen gjoer noe annet.
+		 */
+		finn: (rader) =>
+			rader
+				.filter(
+					(e) =>
+						e.image_url &&
+						!isImageAllowed(
+							e.source ?? '',
+							e.source_url ?? '',
+							e.title_no ?? '',
+							e.venue_name ?? undefined,
+							e.image_url ?? undefined,
+							e.image_credit ?? undefined
+						)
+				)
+				.map((rad) => ({
+					rad,
+					forklaring: `kilde «${rad.source}» har ikke samtykke til bildebruk`
 				}))
 	},
 	{

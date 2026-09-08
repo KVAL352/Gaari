@@ -241,3 +241,55 @@ describe('sjekkene faar feltene de leser', () => {
 		}
 	});
 });
+
+describe('bilde-uten-samtykke', () => {
+	const finn = (rader: KonsistensRad[]) =>
+		SJEKKER.find((s) => s.navn === 'bilde-uten-samtykke')!.finn(rader);
+
+	/**
+	 * Ni rader fra paintnsip og brann laa ute med bilder uten samtykke
+	 * 8. september 2026, og ble bare oppdaget fordi en hook slo ut paa en
+	 * urelatert endring. Denne sjekken er invarianten som gjoer at det ikke
+	 * kan skje igjen uten at den daglige jobben blir roed.
+	 */
+	it('fanger en rad med bilde fra en kilde uten samtykke', () => {
+		const funn = finn([
+			{
+				slug: 'brann-agf',
+				source: 'brann',
+				source_url: 'https://brann.no/kamp',
+				title_no: 'Brann – AGF',
+				venue_name: 'Brann Stadion',
+				image_url: 'https://brann.no/bilde.jpg'
+			}
+		]);
+		expect(funn).toHaveLength(1);
+		expect(funn[0].forklaring).toContain('brann');
+	});
+
+	it('lar rader uten bilde vaere', () => {
+		expect(
+			finn([
+				{ slug: 'a', source: 'brann', source_url: 'https://brann.no/', title_no: 'Brann – AGF' },
+				{ slug: 'b', source: 'brann', source_url: 'https://brann.no/', title_no: 'x', image_url: null }
+			])
+		).toHaveLength(0);
+	});
+
+	it('slipper gjennom en kilde som HAR samtykke', () => {
+		// Uten denne ville en sperre som stanser alt ogsaa vaert «groenn» i
+		// den forstand at den fanger bruddet, mens den i praksis tok bildene
+		// fra alle. Jf. [[pattern_sperre_maa_testes_begge_veier]].
+		const funn = finn([
+			{
+				slug: 'c',
+				source: 'studiovertikal',
+				source_url: 'https://studiovertikal.no/familiedag/',
+				title_no: 'Familiedag',
+				venue_name: 'Studio Vertikal',
+				image_url: 'https://gaari.no/events/studiovertikal-familiedag.jpg'
+			}
+		]);
+		expect(funn).toHaveLength(0);
+	});
+});

@@ -31,7 +31,7 @@ async function main() {
 			supabase
 				.from('events')
 				.select(
-					'id, slug, source, source_url, ticket_url, title_no, title_en, description_no, description_en, age_group, category, venue_name, date_start, date_end'
+					'id, slug, source, source_url, ticket_url, title_no, title_en, description_no, description_en, age_group, category, venue_name, image_url, image_credit, date_start, date_end'
 				)
 				.eq('status', 'approved')
 				.eq('is_canary', false)
