@@ -1,7 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { SCHEDULE_BY_DOW, EN_COUNTERPART, enSlugFor, urlPathFor } from '../ukeplan.js';
+import {
+	SCHEDULE_BY_DOW,
+	EN_COUNTERPART,
+	enSlugFor,
+	urlPathFor,
+	loverFeilTidsvindu
+} from '../ukeplan.js';
 
 /**
  * Ukeplanen skal finnes ett sted.
@@ -106,5 +112,32 @@ describe('engelske ruter', () => {
 	it('bruker den engelske ruta der den finnes', () => {
 		expect(enSlugFor('denne-helgen')).toBe('this-weekend');
 		expect(urlPathFor('denne-helgen')).toBe('en/this-weekend');
+	});
+});
+
+describe('etiketter lover ikke tid samlingen ikke har', () => {
+	/**
+	 * Captionen 7. september sa «Gratis denne uka» og listet arrangementer
+	 * 14. og 18. september. Fredagsposten sa «Konserter i helgen» og listet
+	 * 14., 17. og 21. Samlingene spenner over to uker; det var etiketten som
+	 * loy, ikke utvalget.
+	 */
+	for (const [dow, d] of SCHEDULE_BY_DOW) {
+		it(`dag ${dow}: «${d.label}» passer til ${d.slug}`, () => {
+			expect(
+				loverFeilTidsvindu(d.slug, d.label),
+				`«${d.label}» lover et tidsvindu, men ${d.slug} filtrerer ikke paa dato`
+			).toBe(false);
+		});
+	}
+
+	it('fanger et tidsord paa en samling uten datofilter', () => {
+		expect(loverFeilTidsvindu('gratis', 'Gratis denne uka')).toBe(true);
+		expect(loverFeilTidsvindu('konserter', 'Konserter i helgen')).toBe(true);
+	});
+
+	it('tillater tidsord der samlingen er datoavgrenset', () => {
+		expect(loverFeilTidsvindu('denne-helgen', 'Helgens høydepunkter')).toBe(false);
+		expect(loverFeilTidsvindu('i-dag', 'Lørdagens program')).toBe(false);
 	});
 });

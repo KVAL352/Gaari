@@ -51,12 +51,33 @@ export interface DaySchedule {
  * nok senere, er uteliv fortsatt et godt fredagstema, men det skal måles på
  * steder med promo-samtykke før noen bytter tilbake.
  */
+/**
+ * ETIKETTENE LOVER IKKE ET TIDSVINDU SAMLINGEN IKKE HAR.
+ *
+ * Fram til 8. september 2026 het mandag «Gratis denne uka» og fredag
+ * «Konserter i helgen». Ingen av de to samlingene er avgrenset slik.
+ * `gratis` er definert som de neste to ukene, og captionen 7. september
+ * listet arrangementer 14. og 18. september under «denne uka».
+ * Fredagsposten lovet «i helgen» og listet 14., 17. og 21. september.
+ *
+ * Det ble vurdert aa stramme UTVALGET til etikettens vindu i stedet. Maalt
+ * 8. september ville det tatt fredag fra sju til tre steder, altsaa under
+ * kravet paa fire, og dagen ville falt bort helt. Etiketten var det som var
+ * galt, ikke utvalget.
+ *
+ * `denne-helgen` (torsdag) og `i-dag` (loerdag) BEHOLDER sine tidsetiketter.
+ * De to samlingene er ekte datoavgrenset, og maalingen bekreftet det: 16 av
+ * 16 steder innenfor helgen, og 12 av 13 samme dag.
+ *
+ * Regelen: en etikett med tidsord krever at samlingen faktisk filtrerer paa
+ * den tiden. Ellers skal tidsordet ut.
+ */
 export const SCHEDULE_BY_DOW = new Map<number, DaySchedule>([
-	[1, { dayOfWeek: 1, dayName: { no: 'Mandag', en: 'Monday' }, slug: 'gratis', label: 'Gratis denne uka' }],
-	[2, { dayOfWeek: 2, dayName: { no: 'Tirsdag', en: 'Tuesday' }, slug: 'utstillinger', label: 'Utstillinger denne uka' }],
-	[3, { dayOfWeek: 3, dayName: { no: 'Onsdag', en: 'Wednesday' }, slug: 'teater', label: 'Teater denne uka' }],
+	[1, { dayOfWeek: 1, dayName: { no: 'Mandag', en: 'Monday' }, slug: 'gratis', label: 'Gratis i Bergen' }],
+	[2, { dayOfWeek: 2, dayName: { no: 'Tirsdag', en: 'Tuesday' }, slug: 'utstillinger', label: 'Utstillinger i Bergen' }],
+	[3, { dayOfWeek: 3, dayName: { no: 'Onsdag', en: 'Wednesday' }, slug: 'teater', label: 'Teater i Bergen' }],
 	[4, { dayOfWeek: 4, dayName: { no: 'Torsdag', en: 'Thursday' }, slug: 'denne-helgen', label: 'Helgens høydepunkter' }],
-	[5, { dayOfWeek: 5, dayName: { no: 'Fredag', en: 'Friday' }, slug: 'konserter', label: 'Konserter i helgen' }],
+	[5, { dayOfWeek: 5, dayName: { no: 'Fredag', en: 'Friday' }, slug: 'konserter', label: 'Konserter i Bergen' }],
 	[6, { dayOfWeek: 6, dayName: { no: 'Lørdag', en: 'Saturday' }, slug: 'i-dag', label: 'Lørdagens program' }]
 ]);
 
@@ -82,4 +103,32 @@ export function enSlugFor(slug: string): string {
 /** Ruta på gaari.no: engelsk der den finnes, ellers den norske. */
 export function urlPathFor(slug: string): string {
 	return EN_COUNTERPART[slug] ? `en/${EN_COUNTERPART[slug]}` : `no/${slug}`;
+}
+
+/**
+ * Samlinger som FAKTISK filtrerer paa dato.
+ *
+ * Bare disse kan ha et tidsord i etiketten. `ukeplan.test.ts` haandhever det.
+ * Alle andre samlinger spenner over flere uker, og et tidsord i etiketten
+ * ville lovet leseren noe innholdet ikke holder.
+ */
+export const DATOAVGRENSEDE_SAMLINGER = new Set<string>([
+	'denne-helgen',
+	'this-weekend',
+	'i-dag',
+	'today-in-bergen',
+	'i-kveld'
+]);
+
+/**
+ * Tidsord som gjoer en etikett til et loefte om naar noe skjer.
+ *
+ * «Helgens hoeydepunkter» og «Loerdagens program» er greie, fordi samlingene
+ * deres er datoavgrenset. «Gratis denne uka» var det ikke.
+ */
+const TIDSORD = /\b(i dag|i kveld|denne uk[ae]n?|i helgen|helgens|l\u00f8rdagens|s\u00f8ndagens|i morgen)\b/i;
+
+/** Lover etiketten et tidsvindu samlingen ikke har? */
+export function loverFeilTidsvindu(slug: string, label: string): boolean {
+	return TIDSORD.test(label) && !DATOAVGRENSEDE_SAMLINGER.has(slug);
 }

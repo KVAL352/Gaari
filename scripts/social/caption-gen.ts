@@ -36,11 +36,21 @@ export function generateCaption(
 	for (const event of listed) {
 		const time = formatEventTime(event.date_start, lang);
 		const timePart = time ? (lang === 'en' ? `, ${time}` : `, kl. ${time}`) : '';
-		const igHandle = getVenueInstagram(event.venue);
+		// Stedet leses FOER oppslaget. getVenueInstagram() gaar gjennom hele
+		// VENUE_INSTAGRAM og kaster paa undefined, saa et arrangement uten sted
+		// vil velte hele captionen hvis den kalles foerst.
+		const sted = (event.venue ?? '').trim();
+		const igHandle = sted ? getVenueInstagram(sted) : null;
 		if (igHandle) {
 			lines.push(`${event.title}, @${igHandle}${timePart}`);
+		} else if (sted) {
+			lines.push(`${event.title} @ ${sted}${timePart}`);
 		} else {
-			lines.push(`${event.title} @ ${event.venue}${timePart}`);
+			// Uten stedsnavn skal «@» ikke skrives. Sto det tomt, ble linjen
+			// «Koroevelse — mandag 14. september @ , kl. 19:00», altsaa en
+			// krukke som ser oedelagt ut i et offentlig innlegg. Funnet i
+			// fredagsposten 7. september 2026.
+			lines.push(`${event.title}${timePart}`);
 		}
 	}
 
