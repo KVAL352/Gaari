@@ -33,6 +33,7 @@
  */
 
 import { hasAdultAgeLimit } from './categories.js';
+import { normaliserStedsnavn } from './utils.js';
 
 export interface KonsistensRad {
 	id?: string;
@@ -46,6 +47,7 @@ export interface KonsistensRad {
 	ticket_url?: string | null;
 	age_group?: string | null;
 	category?: string | null;
+	venue_name?: string | null;
 	date_start?: string | null;
 	date_end?: string | null;
 	source?: string | null;
@@ -149,6 +151,33 @@ export const SJEKKER: Sjekk[] = [
 			rader
 				.filter((e) => e.description_en && e.description_no && e.description_en === e.description_no)
 				.map((rad) => ({ rad, forklaring: 'engelsk beskrivelse er ikke oversatt' })),
+	},
+	{
+		navn: 'stedsnavn-uryddet',
+		hva: 'venue_name er ikke normalisert (adresse i parentes, eller punktum til slutt)',
+		sperrende: true,
+		/**
+		 * Invarianten til normaliserStedsnavn() i insertEvent.
+		 *
+		 * SAMME FUNKSJON brukes begge steder, med vilje. En sjekk som hadde sin
+		 * egen kopi av regelen ville kunne vaere groenn mens innleggingen gjorde
+		 * noe annet, og det er nettopp den feilen paringen finnes for.
+		 *
+		 * Sperren ved innlegging beskytter bare nye rader. Da denne ble skrevet
+		 * laa 38 rader med adresse i parentes og 44 med avsluttende punktum
+		 * allerede i basen, og de ble ryddet med
+		 * scripts/rydd-stedsnavn.ts foer sjekken ble satt sperrende.
+		 */
+		finn: (rader) =>
+			rader
+				.filter(
+					(e) =>
+						e.venue_name && e.venue_name !== normaliserStedsnavn(e.venue_name)
+				)
+				.map((rad) => ({
+					rad,
+					forklaring: `«${rad.venue_name}» skulle vaert «${normaliserStedsnavn(rad.venue_name)}»`
+				}))
 	},
 	{
 		navn: 'klokkeslett-spriker',

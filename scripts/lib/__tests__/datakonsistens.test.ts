@@ -184,3 +184,60 @@ describe('andelsgrense', () => {
 		expect(kjoerSjekker([], [sjekk(0.15)])[0].brudd).toBe(false);
 	});
 });
+
+describe('stedsnavn-uryddet', () => {
+	const finn = (navn: string, rader: KonsistensRad[]) =>
+		SJEKKER.find((s) => s.navn === navn)!.finn(rader);
+
+	it('fanger adresse i parentes og avsluttende punktum', () => {
+		const funn = finn('stedsnavn-uryddet', [
+			{ slug: 'a', venue_name: 'Loddefjord menighetshus (Vadmyrveien 91).' },
+			{ slug: 'b', venue_name: 'Hovedbiblioteket, Auditoriet.' },
+			{ slug: 'c', venue_name: 'Rasmus\nMeyer ' }
+		]);
+		expect(funn).toHaveLength(3);
+		expect(funn[0].forklaring).toContain('Loddefjord menighetshus');
+	});
+
+	it('lar riktige navn vaere', () => {
+		expect(
+			finn('stedsnavn-uryddet', [
+				{ slug: 'a', venue_name: 'Grieghallen' },
+				{ slug: 'b', venue_name: 'Kvarteret: Storelogen (3.etg)' },
+				{ slug: 'c', venue_name: 'Bergen kino, m.fl.' },
+				{ slug: 'd', venue_name: null }
+			])
+		).toHaveLength(0);
+	});
+});
+
+describe('sjekkene faar feltene de leser', () => {
+	/**
+	 * FELLA DETTE LUKKER. `venue_name` sto ikke i select-lista da
+	 * stedsnavn-sjekken ble skrevet. Den ville lest undefined paa hver rad,
+	 * meldt null funn, og vaert groenn mens den maalte ingenting.
+	 *
+	 * Det er samme form som resten av
+	 * [[pattern_ingenting_ser_ut_som_suksess]]: fravaeret av daarlige nyheter
+	 * er ikke gode nyheter.
+	 */
+	it('spoerringen henter hvert felt en sjekk bruker', async () => {
+		const { readFileSync } = await import('node:fs');
+		const { resolve } = await import('node:path');
+		const skript = readFileSync(
+			resolve(import.meta.dirname, '../../datakonsistens-sjekk.ts'),
+			'utf8'
+		);
+		const select = skript.match(/\.select\(\s*'([^']+)'/)?.[1] ?? '';
+		const hentede = new Set(select.split(',').map((f) => f.trim()));
+
+		const kilde = readFileSync(resolve(import.meta.dirname, '../datakonsistens.ts'), 'utf8');
+		const brukte = new Set([...kilde.matchAll(/\be\.([a-z_]+)\b/g)].map((m) => m[1]));
+
+		for (const felt of brukte) {
+			expect(hentede.has(felt), `sjekkene leser e.${felt}, men spoerringen henter den ikke`).toBe(
+				true
+			);
+		}
+	});
+});

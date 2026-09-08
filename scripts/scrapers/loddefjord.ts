@@ -29,6 +29,15 @@ function guessCategory(event: LoddefjordEvent): string {
 	// Activity-based
 	if (/trening|fottur|tur\b|yoga|dans|seniordans|linedans|utetrening/i.test(text)) return 'sports';
 	if (/kurs|workshop|verksted|datahjelp|språktrening|håndarbeid/i.test(text)) return 'workshop';
+	// Babysang er ikke en konsert. Den fanges av /sang/ under, og laa derfor
+	// som music paa 15 rader, med malbeskrivelsen «Babysang — Konsert paa
+	// Loddefjord menighetshus». Sjekken maa staa FOER musikkregelen.
+	if (/babysang|babyrytmikk/i.test(text)) return 'family';
+
+	// Koroevelse er en oevelse man deltar paa, ikke en forestilling man ser.
+	// «kor» under traff den og gjorde fire rader til konserter.
+	if (/(kor|band|orkester)\s*[-\s]?(oevelse|øvelse|trening)|øvelse for kor/i.test(text)) return 'workshop';
+
 	if (/konsert|musikk|kor|sang/i.test(text)) return 'music';
 	if (/teater|forestilling/i.test(text)) return 'theatre';
 	if (/quiz|fest|lansering/i.test(text)) return 'nightlife';

@@ -687,6 +687,54 @@ function isValidUrl(str: string): boolean {
 	}
 }
 
+/**
+ * Rydder et stedsnavn slik at samme sted alltid heter det samme.
+ *
+ * HVORFOR DET IKKE ER KOSMETIKK. Loddefjord menighetshus laa inne under to
+ * navn samtidig: «Loddefjord menighetshus» og «Loddefjord menighetshus
+ * (Vadmyrveien 91).». For koden er det to steder. Det slaar ut tre steder:
+ * Instagram-taggingen finner ikke handtaket, dedup ser ikke at det er samme
+ * sted, og rettferdighetsregelen i SoMe teller det som to ulike steder og gir
+ * dermed Loddefjord dobbelt plass paa bekostning av andre.
+ *
+ * TO TING FJERNES, OG BARE TO:
+ *
+ *   1. En avsluttende parentes som inneholder et tall, altsaa en adresse.
+ *      Adressen hoerer hjemme i `address`, ikke i navnet.
+ *   2. Avsluttende punktum og komma.
+ *
+ * ETASJER BEHOLDES. «Kvarteret: Storelogen (3.etg)» og «Bergen Camping
+ * (1. etasje)» inneholder ogsaa tall, men sier hvor i bygget man skal, og det
+ * er en del av navnet. Uten dette unntaket ville regelen oedelagt to riktige
+ * navn for aa rette 36 gale.
+ *
+ * Maalt 8. september 2026: 38 rader hadde adresse i parentes, 44 sluttet paa
+ * punktum.
+ */
+export function normaliserStedsnavn(navn: string | null | undefined): string {
+	// All whitespace slaas sammen foerst. KODEs «Rasmus Meyer» kom inn med et
+	// ekte linjeskift mellom fornavn og etternavn fra kildens markup, paa
+	// aatte rader. Et linjeskift i et stedsnavn brekker baade captionen og
+	// sliden, og gjoer at samme sted teller som to.
+	let ut = (navn ?? '').replace(/\s+/g, ' ').trim();
+	if (!ut) return ut;
+
+	// Avsluttende parentes med tall, men ikke etasjeangivelser.
+	ut = ut.replace(/\s*\(([^)]*\d[^)]*)\)\s*[.,]?\s*$/, (helt, inni: string) =>
+		/etasje|etg/i.test(inni) ? helt : ''
+	);
+
+	// FORKORTELSER SKAL IKKE MISTE PUNKTUMET SITT. «Bergen kino, m.fl.» ble
+	// «Bergen kino, m.fl» i foerste utgave. Toerrkjoeringen fanget det; regelen
+	// hadde ellers oedelagt en riktig rad for aa rette 43 gale.
+	//
+	// Moensteret er punktum, en til fire bokstaver, punktum: «m.fl.», «o.l.».
+	// «Loevaasen.....» har ingen bokstaver mellom punktumene og ryddes.
+	if (/\.\w{1,4}\.\s*$/.test(ut)) return ut.trim();
+
+	return ut.replace(/[.,\s]+$/, '').trim();
+}
+
 export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 	// Validate required fields
 	if (!event.title_no || event.title_no.trim().length < 2) {
@@ -705,6 +753,11 @@ export async function insertEvent(event: ScrapedEvent): Promise<boolean> {
 		console.warn(`  Skipping event with invalid source_url: "${event.source_url}" (${event.title_no})`);
 		return false;
 	}
+
+	// Samme sted skal alltid hete det samme. Uten dette ligger Loddefjord
+	// menighetshus inne under to navn, og alt som teller steder teller feil.
+	// Invarianten staar i datakonsistens.ts og bruker SAMME funksjon.
+	if (event.venue_name) event.venue_name = normaliserStedsnavn(event.venue_name);
 
 	// En sluttdato foer starten er aldri meningsfull. Da er feltet feil, ikke
 	// arrangementet, saa vi kaster feltet og beholder raden som endagsarrangement.
