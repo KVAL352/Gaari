@@ -936,7 +936,16 @@ async function main() {
 
 	const weekUrl = `https://gaari.no/r/week/${startDate}`;
 	await uploadWeekManifest(startDate, manifest);
-	console.log(`\nWeek manifest uploaded. Aggregate page: ${weekUrl}`);
+	// TALLENE HER ER FORELOEPIGE. De kommer fra minnet under genereringen, og
+	// stemmer ikke alltid med det som faktisk ble lastet opp: 8. september sto
+	// loerdag med 0 stories i manifestet mens lageret hadde 8, og onsdag og
+	// fredag ble meldt med 3 karuseller mot faktiske 4 og 6.
+	//
+	// assemble-week.ts teller filene i lageret og retter det. Arbeidsflyten
+	// kjorer den rett etterpaa, saa i drift stemmer det. Kjorer du generatoren
+	// alene, maa du kjore assemble selv, ellers viser sida feil antall.
+	console.log(`\nWeek manifest uploaded (foreloepige tall). Aggregate page: ${weekUrl}`);
+	console.log('Kjor social/assemble-week.ts etterpaa, den teller filene i lageret.');
 
 	if (SEND_EMAIL) {
 		await emailWeekDelivery(startDate, manifest, weekUrl);

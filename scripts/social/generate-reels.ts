@@ -16,7 +16,7 @@ import { writeFileSync, mkdirSync, existsSync, unlinkSync, readFileSync } from '
 import { resolve } from 'path';
 import { execSync } from 'child_process';
 import { supabase } from '../lib/supabase.js';
-import { isPromoApproved, PROMO_APPROVED_SOURCES } from '../lib/utils.js';
+import { isPromoApproved, PROMO_APPROVED_SOURCES, fetchAllRows } from '../lib/utils.js';
 import { getOsloNow, toOsloDateStr } from '../../src/lib/event-filters.js';
 import { getCollection } from '../../src/lib/collections.js';
 import { formatEventTime, isFreeEvent } from '../../src/lib/utils.js';
@@ -479,17 +479,31 @@ export async function generateOneCollection(opts: {
  * so we don't hit Supabase repeatedly when generating a whole week of reels.
  */
 export async function fetchActiveEvents(): Promise<GaariEvent[]> {
-	const { data, error } = await supabase
-		.from('events')
-		.select('*')
-		.eq('status', 'approved')
-		.gte('date_start', new Date().toISOString())
-		.order('date_start', { ascending: true })
-		.limit(500);
-	if (error || !data) {
-		throw new Error(`Failed to fetch events: ${error?.message}`);
-	}
-	const all = (data as any).filter((e: any) => e.status !== 'cancelled') as GaariEvent[];
+	// HELE katalogen, ikke de 500 naermeste.
+	//
+	// Sto tidligere som .limit(500) uten paginering. Med 2 178 kommende
+	// arrangementer saa pipelinen 500, og av dem var 157 brukbare i SoMe, mens
+	// 563 fantes. Tre fjerdedeler av det brukbare innholdet var usynlig, og
+	// ingenting sa fra: loggen skrev «Fetched 500 active events», som ser ut som
+	// et svar og ikke som en avkorting.
+	//
+	// Det rammer nettopp de samlingene som spenner over uker. utstillinger og
+	// konserter hentet bare fra den naermeste enden av katalogen, og dager som
+	// hadde nok innhold lenger fram ble meldt som «for faa steder».
+	//
+	// Samme familie som Supabase-taket paa 1000 rader. Bruk fetchAllRows().
+	const rader = await fetchAllRows<GaariEvent>(
+		(fra, til) =>
+			supabase
+				.from('events')
+				.select('*')
+				.eq('status', 'approved')
+				.gte('date_start', new Date().toISOString())
+				.order('id', { ascending: true })
+				.range(fra, til) as any,
+		'some-innhold'
+	);
+	const all = rader.filter((e) => e.status !== 'cancelled');
 	// SoMe-content kun fra kilder med skriftlig ja til bildebruk.
 	// Hot-link-policy (Fase 1+2+3) gjelder visning på gaari.no, ikke aktiv promo.
 	// source er valgfritt paa GaariEvent. Uten kilde kan vi ikke vite at det
