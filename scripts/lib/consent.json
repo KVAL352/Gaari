@@ -621,6 +621,12 @@
       "bevis": "Juridisk"
     },
     {
+      "navn": "MG Event",
+      "dato": "2026-05-06",
+      "folge": "Arrangementene er greie, bildene ikke. Blokkert på venue-navn. Se IMAGE_BLOCKED_VENUE_PATTERNS.",
+      "bevis": "Juridisk"
+    },
+    {
       "navn": "Beyond the Gates",
       "dato": "2026-05-26",
       "folge": "Trukket ut av listen etter å ha vært inne.",

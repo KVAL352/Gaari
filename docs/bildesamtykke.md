@@ -181,7 +181,7 @@ umiddelbart. Avklar etterpå, ikke før.
 | `studiovertikal` | Studio Vertikal | Ja |
 | `julivillaveien` | Jul i Villaveien | Nei |
 
-## Nei og begrensninger (6)
+## Nei og begrensninger (7)
 
 Disse skal aldri inn i noen liste. E-postene ligger i `Juridisk`, og hvem som
 svarte og hva de skrev står i den private halvdelen av registeret.
@@ -192,6 +192,7 @@ svarte og hva de skrev står i den private halvdelen av registeret.
 | BEK | 2026-04-21 | BEK-logo som placeholder. |
 | Bjørgvin Blues | 2026-04-24 | Blokkert på BÅDE venue-navn og tittel, fordi de holder arrangementer på andre venues. Se IMAGE_BLOCKED_VENUE_PATTERNS. |
 | Hulen | 2026-04-23 | Betinget ja vi ikke kan oppfylle ennå. Blokkert inntil kreditering er på plass. |
+| MG Event | 2026-05-06 | Arrangementene er greie, bildene ikke. Blokkert på venue-navn. Se IMAGE_BLOCKED_VENUE_PATTERNS. |
 | Beyond the Gates | 2026-05-26 | Trukket ut av listen etter å ha vært inne. |
 | Bergen Filharmoniske / Harmonien | 2026-04-17 | Purret 2026-05-05. Favicon brukes som fallback inntil videre. |
 
