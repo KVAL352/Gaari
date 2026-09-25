@@ -55,5 +55,8 @@
 		"stripe": "^22.0.0",
 		"tailwind-merge": "^3.5.0"
 	},
-	"type": "module"
+	"type": "module",
+	"overrides": {
+		"cookie": "^0.7.2"
+	}
 }
