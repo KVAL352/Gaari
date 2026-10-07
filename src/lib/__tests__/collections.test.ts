@@ -682,25 +682,51 @@ describe('17. mai filter (17-mai)', () => {
 describe('julemarked filter', () => {
 	const collection = getCollection('julemarked')!;
 
-	it('includes events Nov 15 – Dec 23', () => {
+	it('includes Christmas events Nov 15 – Dec 23', () => {
 		const now = new Date('2026-11-01T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-11-15T10:00:00Z' }), // Nov 15 ✓
-			makeEvent({ id: '2', date_start: '2026-12-01T18:00:00Z' }), // Dec 1 ✓
-			makeEvent({ id: '3', date_start: '2026-12-23T10:00:00Z' }), // Dec 23 ✓
-			makeEvent({ id: '4', date_start: '2026-11-14T10:00:00Z' }), // Nov 14 — excluded
-			makeEvent({ id: '5', date_start: '2026-12-24T10:00:00Z' })  // Dec 24 — excluded
+			makeEvent({ id: '1', title_no: 'Julekonsert', date_start: '2026-11-15T10:00:00Z' }), // Nov 15 ✓
+			makeEvent({ id: '2', title_no: 'Julemarkedet 2026', date_start: '2026-12-01T18:00:00Z' }), // Dec 1 ✓
+			makeEvent({ id: '3', title_no: 'Julebord', date_start: '2026-12-23T10:00:00Z' }), // Dec 23 ✓
+			makeEvent({ id: '4', title_no: 'Julekonsert', date_start: '2026-11-14T10:00:00Z' }), // Nov 14 — excluded
+			makeEvent({ id: '5', title_no: 'Julekonsert', date_start: '2026-12-24T10:00:00Z' })  // Dec 24 — excluded
 		];
 		const result = collection.filterEvents(events, now);
 		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
+	});
+
+	it('excludes events in the window that are not about Christmas', () => {
+		const now = new Date('2026-11-01T12:00:00');
+		const events = [
+			makeEvent({ id: '1', title_no: 'Enkel fottur på Fløyen', date_start: '2026-11-17T10:00:00Z' }),
+			makeEvent({ id: '2', title_no: 'Macy Gray', date_start: '2026-11-15T19:00:00Z' }),
+			makeEvent({ id: '3', title_no: 'Pepperkakebyen 2026', date_start: '2026-11-16T10:00:00Z' }),
+			makeEvent({ id: '4', title_no: '1. søndag i advent', date_start: '2026-11-29T10:00:00Z' }),
+			makeEvent({ id: '5', title_no: 'Christmas with Nordic Tenors', date_start: '2026-12-15T19:00:00Z' })
+		];
+		const result = collection.filterEvents(events, now);
+		expect(result.map(e => e.id)).toEqual(['3', '4', '5']);
+	});
+
+	it('does not match names that start with «Jul»', () => {
+		const now = new Date('2026-11-01T12:00:00');
+		const events = [
+			makeEvent({ id: '1', title_no: 'JULIA HÜLSMANN QUARTET', date_start: '2026-11-20T19:00:00Z' }),
+			makeEvent({ id: '2', title_no: 'Julie og Julius', date_start: '2026-11-21T19:00:00Z' }),
+			makeEvent({ id: '3', title_no: 'Adventure Club', date_start: '2026-11-22T19:00:00Z' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
 	});
 
 	it('EN counterpart works', () => {
 		const en = getCollection('christmas-bergen')!;
 		expect(en).toBeDefined();
 		const now = new Date('2026-11-01T12:00:00');
-		const events = [makeEvent({ id: '1', date_start: '2026-12-01T18:00:00Z' })];
-		expect(en.filterEvents(events, now)).toHaveLength(1);
+		const events = [
+			makeEvent({ id: '1', title_no: 'Julekonsert', date_start: '2026-12-01T18:00:00Z' }),
+			makeEvent({ id: '2', title_no: 'Quiz', date_start: '2026-12-01T18:00:00Z' })
+		];
+		expect(en.filterEvents(events, now).map(e => e.id)).toEqual(['1']);
 	});
 });
 

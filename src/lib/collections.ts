@@ -16,12 +16,17 @@ const filter17Mai = (events: GaariEvent[], now: Date) => {
 	return events.filter(e => eventOnDay(e, dayStr));
 };
 
+// Fem uker er for langt til å vise alt som skjer: uten tema ga siden 641
+// arrangementer (DNT-turer, språkkafé, filmvisninger) under tittelen «jul».
+// «jul» står foran (?!i) så Julia, Julie og Julius ikke treffer.
+const JULE_TITLE_RE = /\bjul(?!i)\w*|pepperkake|\badvent(?:s\w*)?\b|gløgg|\bnisse\w*|lysfest|christmas|xmas/i;
+
 const filterJulemarked = (events: GaariEvent[], now: Date) => {
 	const year = now.getFullYear();
 	const startStr = `${year}-11-15`;
 	const endStr = `${year}-12-23`;
 	return events.filter(e => {
-		return eventOverlapsRange(e, startStr, endStr);
+		return eventOverlapsRange(e, startStr, endStr) && JULE_TITLE_RE.test(e.title_no);
 	});
 };
 
