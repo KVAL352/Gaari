@@ -54,3 +54,7 @@ playwright-report/
 # denne maskinen, og ville pekt feil overalt ellers. De gjenskapes med
 # `npx skills add` naar laasefila finnes.
 .claude/skills/supabase
+
+# Overleveringen mellom oekter (skillen ny-okt). Den inneholder retning for
+# forretningsmodellen og status paa paagaaende samtaler, og repoet er offentlig.
+OVERLEVERING.md

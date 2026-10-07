@@ -100,3 +100,7 @@ A bilingual (NO/EN) event aggregator for Bergen, Norway. SvelteKit 2 + Svelte 5 
 ## Business model
 
 Promoted placement subscriptions: Basis 1,500 / Standard 3,500 / Partner 9,000 NOK/month. À la carte: 750 NOK/event. All labeled "Fremhevet" (markedsføringsloven § 3). Prospect reports via `scripts/generate-prospect-report.ts`.
+
+## Handover
+
+Status og neste oppgave: `OVERLEVERING.md` (skrives med skillen `ny-okt`).
