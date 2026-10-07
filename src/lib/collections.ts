@@ -1796,17 +1796,17 @@ const collections: Collection[] = [
 		relatedSlugs: ['nyttarsaften', 'gratis', 'familiehelg', 'denne-helgen'],
 		newsletterHeading: { no: 'Få julekalenderen rett i innboksen', en: 'Get the Christmas calendar in your inbox' },
 		quickAnswer: {
-			no: 'Bergen har over 90 markedsboder på Festplassen fra slutten av november til 22. desember, Pepperkakebyen — verdens største pepperkakeby — på Sentralbadet, Lysfest med fyrverkeri over Lille Lungegårdsvann, og hundrevis av julekonserter og arrangementer. Gratis inngang til julemarkedet.',
-			en: 'Bergen hosts 90+ market stalls at Festplassen from late November through December 22, the Gingerbread City (Pepperkakebyen) — the world\'s largest — at Sentralbadet, a Light Festival (Lysfest) with fireworks over Lille Lungegårdsvann, and hundreds of Christmas concerts and events. Free entry to the main market.'
+			no: 'Bergen har over 90 markedsboder på Festplassen fra slutten av november til 22. desember, Pepperkakebyen — verdens største pepperkakeby — på byROMMET i Kong Oscars gate, Lysfest med fyrverkeri over Lille Lungegårdsvann, og hundrevis av julekonserter og arrangementer. Gratis inngang til julemarkedet.',
+			en: 'Bergen hosts 90+ market stalls at Festplassen from late November through December 22, the Gingerbread City (Pepperkakebyen) — the world\'s largest — at byROMMET in Kong Oscars gate, a Light Festival (Lysfest) with fireworks over Lille Lungegårdsvann, and hundreds of Christmas concerts and events. Free entry to the main market.'
 		},
 		editorial: {
 			no: [
-				'Bergen er en av Norges mest stemningsfulle julebyer. Julemarkedet på Festplassen har over 90 boder med håndverk, lokal mat og gløgg, med pariserhjul og gratis inngang. Pepperkakebyen — verdens største pepperkakeby — åpner midt i november på Sentralbadet, der skoler og barnehager fra hele Bergen bidrar med pepperkakehus.',
+				'Bergen er en av Norges mest stemningsfulle julebyer. Julemarkedet på Festplassen har over 90 boder med håndverk, lokal mat og gløgg, med pariserhjul og gratis inngang. Pepperkakebyen — verdens største pepperkakeby — åpner midt i november på byROMMET i Kong Oscars gate, der skoler og barnehager fra hele Bergen bidrar med pepperkakehus.',
 				'Julesesongen i Bergen sparkes i gang med Lysfesten i november, arrangert av Bergens Tidende i over 30 år: offisiell juletretenning, livemusikk og fyrverkeri over Lille Lungegårdsvann. Grieghallen, Bergen Domkirke og lokale kirker holder julekonserter gjennom hele desember. Adventssøndagene markeres med levende lys på Fløyen.',
 				`Gåri samler alle juleaktiviteter fra over ${SOURCE_COUNT} lokale kilder — spillesteder, museer, kirker og kulturinstitusjoner. Denne siden oppdateres daglig gjennom hele julesesongen. Se også gratis-siden for juleaktiviteter uten billettpris.`
 			],
 			en: [
-				'Bergen is one of Norway\'s most atmospheric Christmas cities. The main Christmas market at Festplassen features 90+ stalls with handicrafts, local food and gløgg (mulled wine), a Ferris wheel, and free entry. The Gingerbread City (Pepperkakebyen) — the world\'s largest — opens mid-November at Sentralbadet, with schools and kindergartens contributing gingerbread houses.',
+				'Bergen is one of Norway\'s most atmospheric Christmas cities. The main Christmas market at Festplassen features 90+ stalls with handicrafts, local food and gløgg (mulled wine), a Ferris wheel, and free entry. The Gingerbread City (Pepperkakebyen) — the world\'s largest — opens mid-November at byROMMET in Kong Oscars gate, with schools and kindergartens contributing gingerbread houses.',
 				'The Christmas season kicks off with the Light Festival (Lysfest) in November, organised by Bergens Tidende for over 30 years: official Christmas tree lighting, live music and fireworks over Lille Lungegårdsvann. Grieghallen, Bergen Cathedral and local churches hold Christmas concerts throughout December. Advent Sundays are marked with candlelight on Fløyen.',
 				`Gåri collects all Christmas events from over ${SOURCE_COUNT} local sources — venues, museums, churches and cultural institutions. This page is updated daily throughout the Christmas season. Check the free events page for no-cost Christmas activities.`
 			]
@@ -1814,19 +1814,19 @@ const collections: Collection[] = [
 		faq: {
 			no: [
 				{ q: 'Når åpner julemarkedet i Bergen?', a: 'Bergen Julemarked på Festplassen åpner vanligvis rundt 20. november og holder åpent til 22. desember. Åpningstider: hverdager 12–21, helger 10–21. Gratis inngang.' },
-				{ q: 'Hvor er Pepperkakebyen i Bergen?', a: 'Pepperkakebyen ligger på Sentralbadet i Bergen sentrum. Den åpner midt i november og er åpen til tidlig januar. Skoler og barnehager bygger hundrevis av pepperkakehus.' },
+				{ q: 'Hvor er Pepperkakebyen i Bergen?', a: 'Pepperkakebyen ligger på byROMMET i Kong Oscars gate 24-26 i Bergen sentrum. Den åpner midt i november og er åpen til tidlig januar. Skoler og barnehager bygger hundrevis av pepperkakehus.' },
 				{ q: 'Er julemarkedet i Bergen gratis?', a: 'Ja, inngang til Bergen Julemarked på Festplassen er gratis. Mat, drikke og håndverk kjøpes fra bodene. Pepperkakebyen har en liten inngangspris.' },
 				{ q: 'Hva er Lysfesten i Bergen?', a: 'Lysfesten er Bergens offisielle markering av julestart, arrangert av Bergens Tidende i over 30 år. Inkluderer juletretenning, livemusikk og fyrverkeri over Lille Lungegårdsvann.' },
 				{ q: 'Hvilke julekonserter er det i Bergen?', a: `Bergen har julekonserter i Grieghallen, Bergen Domkirke, Korskirken og mange lokale kirker. Gåri samler alle fra ${SOURCE_COUNT} kilder — fra klassisk til gospel og barnekonserter.` },
-				{ q: 'Hvor mange julemarkeder er det i Bergen?', a: 'Bergen har flere julemarkeder. Det største er på Festplassen med over 90 boder. I tillegg er det marked på Munken (Munkebryggene), på Gamlehaugen og i ulike bydeler. Pepperkakebyen på Sentralbadet er et eget opplevelsessenter.' }
+				{ q: 'Hvor mange julemarkeder er det i Bergen?', a: 'Bergen har flere julemarkeder. Det største er på Festplassen med over 90 boder. I tillegg er det marked på Munken (Munkebryggene), på Gamlehaugen og i ulike bydeler. Pepperkakebyen på byROMMET er et eget opplevelsessenter.' }
 			],
 			en: [
 				{ q: 'When does the Bergen Christmas market open?', a: 'Bergen Christmas Market at Festplassen typically opens around November 20 and runs until December 22. Opening hours: weekdays 12–21, weekends 10–21. Free entry.' },
-				{ q: 'Where is the Gingerbread City in Bergen?', a: 'The Gingerbread City (Pepperkakebyen) is at Sentralbadet in Bergen city centre. It opens mid-November and stays open until early January. Schools and kindergartens build hundreds of gingerbread houses.' },
+				{ q: 'Where is the Gingerbread City in Bergen?', a: 'The Gingerbread City (Pepperkakebyen) is at byROMMET (Kong Oscars gate 24-26) in Bergen city centre. It opens mid-November and stays open until early January. Schools and kindergartens build hundreds of gingerbread houses.' },
 				{ q: 'Is the Bergen Christmas market free?', a: 'Yes, entry to Bergen Christmas Market at Festplassen is free. Food, drinks and crafts are purchased from stalls. The Gingerbread City has a small entry fee.' },
 				{ q: 'What is Lysfesten in Bergen?', a: "Lysfesten (the Light Festival) is Bergen's official start of Christmas, organised by Bergens Tidende for over 30 years. Features Christmas tree lighting, live music and fireworks over Lille Lungegårdsvann." },
 				{ q: 'What Christmas concerts are in Bergen?', a: `Bergen hosts Christmas concerts at Grieghallen, Bergen Cathedral, Korskirken and many local churches. Gåri lists them all from ${SOURCE_COUNT} sources — from classical to gospel and children's concerts.` },
-				{ q: 'How many Christmas markets are there in Bergen?', a: 'Bergen has several Christmas markets. The largest is at Festplassen with 90+ stalls. Additional markets are at Munken (Munkebryggene), Gamlehaugen and various neighbourhoods. The Gingerbread City at Sentralbadet is a separate experience.' }
+				{ q: 'How many Christmas markets are there in Bergen?', a: 'Bergen has several Christmas markets. The largest is at Festplassen with 90+ stalls. Additional markets are at Munken (Munkebryggene), Gamlehaugen and various neighbourhoods. The Gingerbread City at byROMMET is a separate experience.' }
 			]
 		},
 		offSeasonHint: {
@@ -2213,7 +2213,7 @@ const collections: Collection[] = [
 		newsletterHeading: { no: 'Få juleprogrammet i innboksen', en: 'Get the Christmas guide in your inbox' },
 		quickAnswer: {
 			no: 'Bergen har julemarked på Festplassen, Pepperkakebyen og hundrevis av julekonserter.',
-			en: "Bergen hosts 90+ Christmas market stalls at Festplassen (free entry, late November to December 22), the world's largest Gingerbread City (Pepperkakebyen) at Sentralbadet, the Light Festival (Lysfest) with fireworks, and hundreds of concerts and events throughout the season."
+			en: "Bergen hosts 90+ Christmas market stalls at Festplassen (free entry, late November to December 22), the world's largest Gingerbread City (Pepperkakebyen) at byROMMET, the Light Festival (Lysfest) with fireworks, and hundreds of concerts and events throughout the season."
 		},
 		editorial: {
 			no: [
@@ -2222,7 +2222,7 @@ const collections: Collection[] = [
 				`Gåri samler alle juleaktiviteter fra over ${SOURCE_COUNT} lokale kilder. Oppdatert daglig.`
 			],
 			en: [
-				"Bergen is one of Scandinavia's most atmospheric Christmas destinations. The main Christmas market at Festplassen features 90+ stalls with Norwegian handicrafts, local food and gløgg (mulled wine), plus a Ferris wheel — all with free entry. The Gingerbread City (Pepperkakebyen) at Sentralbadet is the world's largest, built by local schools and kindergartens.",
+				"Bergen is one of Scandinavia's most atmospheric Christmas destinations. The main Christmas market at Festplassen features 90+ stalls with Norwegian handicrafts, local food and gløgg (mulled wine), plus a Ferris wheel — all with free entry. The Gingerbread City (Pepperkakebyen) at byROMMET is the world's largest, built by local schools and kindergartens.",
 				"The season opens with Lysfesten (Light Festival) in mid-November — Bergen's beloved tradition for over 30 years, featuring the official Christmas tree lighting, live music and fireworks over Lille Lungegårdsvann. Grieghallen, Bergen Cathedral and churches throughout the city host Christmas concerts from late November through December.",
 				`Bergen's compact city centre makes it easy to visit the Christmas market, Bryggen's historic wharf, and the Gingerbread City in one day. Gåri collects all Christmas events from over ${SOURCE_COUNT} local sources — updated daily throughout the season.`
 			]
@@ -2231,14 +2231,14 @@ const collections: Collection[] = [
 			no: [
 				{ q: 'Når åpner julemarkedet i Bergen?', a: 'Julemarkedet på Festplassen åpner vanligvis rundt 20. november og varer til 22. desember.' },
 				{ q: 'Er julemarkedet gratis?', a: 'Ja, inngang til julemarkedet er gratis. Pepperkakebyen har en liten inngangspris.' },
-				{ q: 'Hva er Pepperkakebyen?', a: 'Verdens største pepperkakeby, bygget av skoler og barnehager i Bergen. Utstilt på Sentralbadet fra november til januar.' },
+				{ q: 'Hva er Pepperkakebyen?', a: 'Verdens største pepperkakeby, bygget av skoler og barnehager i Bergen. Utstilt på byROMMET fra november til januar.' },
 				{ q: 'Hvilke julekonserter er det i Bergen?', a: 'Grieghallen, Domkirken, Korskirken og kirker i hele byen har konserter fra november. Alt fra klassisk til gospel og barnekonserter.' },
 				{ q: 'Hva er Lysfesten i Bergen?', a: 'Lysfesten markerer julestart med tenning av juletreet, musikk og fyrverkeri over Lille Lungegårdsvann. Tradisjon i over 30 år.' },
 				{ q: 'Er Bergen fin å besøke i desember?', a: 'Ja — Bergen er et av Skandinavias mest stemningsfulle julereisemål. Julemarked, Pepperkakebyen, festlige lys og konsertprogram gjør desember til en populær besøksmåned. Forvent 3–6°C og en del regn; Bryggen er magisk i kulda.' }
 			],
 			en: [
 				{ q: 'When does the Bergen Christmas market open?', a: 'Bergen Christmas Market at Festplassen opens around November 20 and runs until December 22. Hours: weekdays 12–21, weekends 10–21. Free entry.' },
-				{ q: 'What is the Gingerbread City (Pepperkakebyen)?', a: "The world's largest gingerbread city, at Sentralbadet in Bergen centre. Built annually by local schools and kindergartens with hundreds of gingerbread houses. Open mid-November to early January." },
+				{ q: 'What is the Gingerbread City (Pepperkakebyen)?', a: "The world's largest gingerbread city, at byROMMET in Bergen centre. Built annually by local schools and kindergartens with hundreds of gingerbread houses. Open mid-November to early January." },
 				{ q: 'Is the Bergen Christmas market worth visiting?', a: "Yes — Bergen's Christmas market at Festplassen has 90+ stalls with Norwegian handicrafts and food, a Ferris wheel, and free entry. Combined with the Gingerbread City and Bryggen's atmosphere, it's one of Scandinavia's best." },
 				{ q: 'What Christmas concerts are in Bergen?', a: 'Grieghallen, Bergen Cathedral, Korskirken and churches across the city host concerts from late November. Genres range from classical to gospel, folk and children\'s concerts.' },
 				{ q: 'How is the weather in Bergen at Christmas?', a: "Bergen in December averages 3–6°C with frequent rain (about 200 mm). Snow is uncommon in the city centre but possible. Dress in layers with waterproof outerwear. The Christmas market and Gingerbread City are covered." },
