@@ -29,10 +29,9 @@ const THURSDAY = 4;
 const SATURDAY = 6;
 
 /**
- * Oppmøtetid for seniorklatring. Sofie 2026-07-01: "Klatringen er flyttet
- * mellom 9 juli til og med 6 august til kl 11:00 på grunn av våre
- * sommeråpningstider. I morgen og fra 13 august og utover høsten er det
- * oppmøte kl 10:00 igjen."
+ * Oppmøtetid for seniorklatring, oppgitt av arrangøren i e-post 2026-07-01:
+ * kl. 11:00 fra 9. juli til og med 6. august på grunn av sommeråpningstidene,
+ * ellers kl. 10:00.
  *
  * Intervallene er inklusive i begge ender og sjekkes i rekkefølge.
  */
@@ -42,10 +41,10 @@ const SENIOR_TIMES: { from: string; until: string; hhmm: string }[] = [
 ];
 
 /**
- * Fire familiedager, bekreftet både i Sofies e-post og på
+ * Fire familiedager, bekreftet både i arrangørens e-post og på
  * studiovertikal.no/familiedag/. Klokkeslettet manglet begge steder og ble
- * bekreftet av Sofie i e-post 2026-08-06: "Familiedag er i hele våre
- * åpningstider så lørdager er det mellom 11:00-20:00".
+ * bekreftet av arrangøren i e-post 2026-08-06: familiedagen går i hele
+ * åpningstiden, på lørdager 11:00 til 20:00.
  *
  * Det er altså et drop-in-tilbud over hele dagen, ikke en økt med fast oppmøte.
  * Derfor settes både start og slutt, slik at visningen ikke gir inntrykk av at
@@ -57,9 +56,9 @@ const FAMILIEDAG_CLOSE = '20:00';
 const FAMILIEDAGER: string[] = ['2026-08-15', '2026-09-12', '2026-10-10', '2026-11-28'];
 
 /**
- * Studentdag, fredag 11. september 2026. Bekreftet to steder: Sofie Vervaet i
- * e-post 2026-09-03 ("gratis klatring hele dagen og live jazzmusikk fra kl 16
- * og utover"), og studiovertikal.no/studentdag/, som oppgir gratis inngang og
+ * Studentdag, fredag 11. september 2026. Bekreftet to steder: arrangørens
+ * e-post 2026-09-03 (gratis klatring hele dagen, jazz fra kl. 16), og
+ * studiovertikal.no/studentdag/, som oppgir gratis inngang og
  * gratis utstyrsleie for alle med gyldig studentbevis.
  *
  * Klokkeslettene er senterets ordinaere fredagsaapningstid, hentet fra
@@ -77,8 +76,8 @@ const STUDENTDAG_OPEN = '08:00';
 const STUDENTDAG_CLOSE = '20:00';
 
 /**
- * Bildene er sendt direkte fra Sofie Vervaet som vedlegg 2026-08-06, med
- * "Disse kan brukes i alle deres kanaler". De er altså ikke skrapet, og ikke
+ * Bildene er sendt direkte fra arrangøren som vedlegg 2026-08-06, med skriftlig
+ * tillatelse til bruk i alle kanaler. De er altså ikke skrapet, og ikke
  * hot-linket: de ligger hos oss i static/events/ og serveres fra gaari.no.
  * Det er den eneste kilden i registeret der vi hoster bildet selv, nettopp
  * fordi tillatelsen er skriftlig og uten forbehold. Se docs/bildesamtykke.md.

@@ -31,7 +31,7 @@ const HOPPES_OVER = /\.(png|jpg|jpeg|webp|gif|svg|ico|woff2?|ttf|pdf|mp4|zip)$|p
 /**
  * Regelen er formet etter hva som gjør en adresse til en personopplysning.
  *
- * `info@bergenfest.no` identifiserer ingen. `sofie@studiovertikal.no` gjør det.
+ * `info@bergenfest.no` identifiserer ingen. `fornavn@arrangoren.no` gjør det.
  * Forskjellen ligger i lokaldelen, ikke i domenet, så testen spør om lokaldelen
  * er et rollenavn. Det skalerer uten at noen må vedlikeholde en liste over hver
  * enkelt adresse — og det er nettopp lista-vedlikehold som har sviktet før.
