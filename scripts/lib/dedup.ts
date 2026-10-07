@@ -88,6 +88,7 @@ const SOURCE_RANK: Record<string, number> = {
 	dnt: 4,
 	brettspill: 4,
 	studiovertikal: 4,
+	bergenfellesverksted: 4,
 
 	// Bookibud er arrangorens egen bookingplattform, ikke en konkurrerende
 	// oppforingsside. API-et er bygget for Gaari, feltene er strukturerte og

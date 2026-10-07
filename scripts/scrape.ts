@@ -46,6 +46,7 @@ import { scrape as scrapeBergenfest } from './scrapers/bergenfest.js';
 import { scrape as scrapeNattjazz } from './scrapers/nattjazz.js';
 import { scrape as scrapeBjorgvinBlues } from './scrapers/bjorgvinblues.js';
 import { scrape as scrapeBEK } from './scrapers/bek.js';
+import { scrape as scrapeBergenFellesverksted } from './scrapers/bergenfellesverksted.js';
 import { scrape as scrapeBeyondTheGates } from './scrapers/beyondthegates.js';
 import { scrape as scrapeBrann } from './scrapers/brann.js';
 import { scrape as scrapeKulturhusetIBergen } from './scrapers/kulturhusetibergen.js';
@@ -167,6 +168,7 @@ export const scrapers: Record<string, () => Promise<{ found: number; inserted: n
 	swingnsweetjazzclub: scrapeSwingNSweet,
 	studiovertikal: scrapeStudioVertikal,
 	bek: scrapeBEK,
+	bergenfellesverksted: scrapeBergenFellesverksted,
 	beyondthegates: scrapeBeyondTheGates,
 	brann: scrapeBrann,
 	kulturhusetibergen: scrapeKulturhusetIBergen,
