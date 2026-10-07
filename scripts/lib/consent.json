@@ -593,6 +593,17 @@
       ],
       "bevis": "Avtaler",
       "vurderesInnen": "2028-09-02"
+    },
+    {
+      "slug": "baerekraftigeliv",
+      "navn": "Bærekraftige Liv Landås",
+      "dato": "2026-09-13",
+      "grunnlag": "dokumentert",
+      "omfang": [
+        "visning"
+      ],
+      "bevis": "Avtaler",
+      "vurderesInnen": "2028-09-13"
     }
   ],
   "avslag": [

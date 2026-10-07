@@ -82,13 +82,14 @@ kolonnegrantet i `20260821150000_rls_lock_personal_data.sql`.
 Rader som ble lagt inn før 2026-08-25 har NULL i begge, og for dem gjelder
 fortsatt den svakere begrunnelsen over.
 
-## Dokumentert samtykke (23)
+## Dokumentert samtykke (24)
 
 Beviset er en e-post i `Avtaler` eller et lydopptak med tidspunkt. Formen er
 likegyldig; det som teller er at samtykket kan vises fram.
 
 | Kilde | Arrangør | Dato | Omfang | Bevis |
 |---|---|---|---|---|
+| `baerekraftigeliv` | Bærekraftige Liv Landås | 2026-09-13 | Visning | Avtaler |
 | `oseana` | Oseana kunst- og kultursenter | 2026-09-02 | Visning + SoMe | Avtaler |
 | `fortellerstraedet` | Fortellerstrædet | 2026-08-15 | Visning + SoMe | Avtaler |
 | `highvoltage` | High Voltage Rockfest | 2026-08-14 | Visning + SoMe | Avtaler |
