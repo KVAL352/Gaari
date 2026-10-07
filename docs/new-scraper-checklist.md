@@ -37,6 +37,7 @@ Alle disse må være sjekket og rapportert eksplisitt til brukeren før vi skriv
 
 - [ ] **`scripts/scrape.ts`** — importér og legg til i `SCRAPERS`-map under riktig hastighetsbøtte (fast/medium/slow).
 - [ ] **`scripts/lib/dedup.ts`** — legg til i `SOURCE_RANK` med tier 3-5 etter kvalitet (Tier 5 = canonical venue, Tier 4 = vanlig venue, Tier 3 = community/aggregator).
+- [ ] **`src/lib/constants.ts` og `static/llms.txt` / `static/llms-full.txt`** — tell opp `SOURCE_COUNT` og tallet i begge llms-filene (testen `seo-audit` feiler ellers). Legg også kilden i kildelista i `llms.txt`.
 - [ ] **Lokal testkjøring** — `npx tsx scripts/scrape.ts <name>` og verifiser at events inserter riktig.
 
 ## D. Bildepolicy (separat beslutning)
