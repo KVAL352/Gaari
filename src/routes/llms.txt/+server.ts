@@ -129,7 +129,7 @@ Grieghallen, Den Nationale Scene (DNS), Ole Bull Huset, USF Verftet, Forum Scene
 KODE (Bergen art museums), Bergen Kunsthall, Litteraturhuset Bergen, Media City Bergen, BEK (Bergen Centre for Electronic Arts), Bergen Filmklubb
 
 ### Libraries and museums
-Bergen Bibliotek, Bymuseet i Bergen, Museum Vest (Fiskerimuseum, Sjøfartsmuseum, Hanseatiske Museum), Akvariet i Bergen, Fløyen
+Bergen Bibliotek, Museum Vest (Fiskerimuseum, Sjøfartsmuseum, Hanseatiske Museum), Akvariet i Bergen, Fløyen
 
 ### Ticket platforms
 Eventbrite, TicketCo (multiple Bergen venues), Billetto, Hoopla

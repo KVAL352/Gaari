@@ -220,7 +220,7 @@
 						{$lang === 'no' ? 'Kunst & museer' : 'Art & museums'}
 					</h4>
 					<p class="text-sm leading-relaxed">
-						KODE Bergen, Bergen Kunsthall, BEK, Akvariet i Bergen, Bymuseet i Bergen, Museum Vest,
+						KODE Bergen, Bergen Kunsthall, BEK, Akvariet i Bergen, Museum Vest,
 						Litteraturhuset i Bergen, Bergen Filmklubb
 					</p>
 				</div>

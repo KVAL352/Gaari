@@ -1020,7 +1020,7 @@ export async function removeExpiredEvents(): Promise<{ deleted: number; slugs: s
 // ligger i Os, i Bjoernafjorden. Eieren har besluttet aa aapne for dem likevel,
 // fordi tunnelen gjoer reisen rundt 25 minutter fra Bergen, og fordi de selv tok
 // kontakt. Bydel settes til «Os», ikke til en Bergen-bydel.
-export const DISABLED_SOURCES = ['bergenlive', 'barnasnorge', 'eventbrite', 'kulturikveld'];
+export const DISABLED_SOURCES = ['bergenlive', 'barnasnorge', 'eventbrite', 'kulturikveld', 'bymuseet'];
 
 export async function removeDisabledSourceEvents(): Promise<number> {
 	const { data } = await supabase

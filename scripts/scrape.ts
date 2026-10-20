@@ -52,7 +52,7 @@ import { scrape as scrapeBeyondTheGates } from './scrapers/beyondthegates.js';
 import { scrape as scrapeBrann } from './scrapers/brann.js';
 import { scrape as scrapeKulturhusetIBergen } from './scrapers/kulturhusetibergen.js';
 import { scrape as scrapeVVV } from './scrapers/vvv.js';
-import { scrape as scrapeBymuseet } from './scrapers/bymuseet.js';
+// import { scrape as scrapeBymuseet } from './scrapers/bymuseet.js';
 import { scrape as scrapeMuseumVest } from './scrapers/museumvest.js';
 import { scrape as scrapeAkvariet } from './scrapers/akvariet.js';
 import { scrape as scrapeKvarteret } from './scrapers/kvarteret.js';
@@ -196,7 +196,9 @@ export const scrapers: Record<string, () => Promise<{ found: number; inserted: n
 	floyen: scrapeFloyen,
 	oconnors: scrapeOConnors,
 	litthusbergen: scrapeLitthus,
-	bymuseet: scrapeBymuseet,
+	// AV 2026-10-20: Bymuseet ba 14. okt om ikke å ligge på gaari.no før en eventuell prat i 2027.
+	// Står også i DISABLED_SOURCES, så rader som dukker opp likevel slettes.
+	// bymuseet: scrapeBymuseet,
 	museumvest: scrapeMuseumVest,
 	akvariet: scrapeAkvariet,
 	dnt: scrapeDNT,
