@@ -6,7 +6,7 @@ export const translations = {
 		siteName: 'Gåri',
 		tagline: 'Ke\u2019 det går i, Bergen?',
 		heroSubtitle: 'Hva skjer i Bergen? Alle arrangementer på ett sted',
-		homeSeoTitle: 'Hva skjer i Bergen? Arrangementer i dag og denne uken — Gåri',
+		homeSeoTitle: 'Hva skjer i Bergen i dag og i helgen? | Gåri',
 
 		// Navigation
 		// "explore" is used only as the back-link anchor on event-detail pages.
