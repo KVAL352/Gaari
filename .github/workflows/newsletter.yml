@@ -15,7 +15,9 @@ on:
 jobs:
   newsletter:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Én MailerLite-kampanje per preferansegruppe (ca. 50), 5–70 s hver. Under 5 min
+    # ble jobben avbrutt midt i løkka 1., 8. og 15. okt og de siste gruppene fikk ingenting.
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v6
