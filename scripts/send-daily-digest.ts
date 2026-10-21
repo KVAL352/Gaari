@@ -21,6 +21,7 @@ import { supabase } from './lib/supabase.js';
 import { fetchAllRows } from './lib/utils.js';
 import { scrapers } from './scrape.js';
 import { analyzeScraperHealth, type ScraperHealthStatus } from './lib/scraper-health.js';
+import { KOER, ventedager, harVentetForLenge, type KoNokkel } from './lib/ventende.js';
 import {
 	CAMPAIGN_TARGETS,
 	checkCampaign,
@@ -52,6 +53,8 @@ interface PendingCounts {
 	submissions: number;
 	optouts: number;
 	inquiries: number;
+	/** Hele døgn den eldste i køen har ventet, null når køen er tom. */
+	eldste: Record<KoNokkel, number | null>;
 }
 
 interface ScraperActivity {
@@ -215,19 +218,23 @@ interface DigestData {
 async function collectPendingCounts(): Promise<PendingCounts> {
 	console.log('📋 Counting pending tasks...');
 
-	const [corrections, submissions, optouts, inquiries] = await Promise.all([
-		supabase.from('edit_suggestions').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-		supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-		supabase.from('opt_out_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-		supabase.from('organizer_inquiries').select('id', { count: 'exact', head: true }).eq('status', 'pending')
-	]);
+	// Køene og statusene står i lib/ventende.ts, ikke her. Henvendelser ble
+	// talt med feil status i et halvt år, og tallet var alltid 0.
+	const naa = new Date();
+	const svar = await Promise.all(KOER.map(async (ko) => {
+		const { data, count, error } = await supabase
+			.from(ko.tabell)
+			.select('created_at', { count: 'exact' })
+			.eq('status', ko.status)
+			.order('created_at', { ascending: true })
+			.limit(1);
+		if (error) console.error(`   ⚠  Kunne ikke telle ${ko.tabell}: ${error.message}`);
+		return [ko.nokkel, count ?? 0, ventedager(data?.[0]?.created_at ?? null, naa)] as const;
+	}));
 
-	return {
-		corrections: corrections.count ?? 0,
-		submissions: submissions.count ?? 0,
-		optouts: optouts.count ?? 0,
-		inquiries: inquiries.count ?? 0
-	};
+	const antall = Object.fromEntries(svar.map(([k, n]) => [k, n])) as Record<KoNokkel, number>;
+	const eldste = Object.fromEntries(svar.map(([k, , d]) => [k, d])) as Record<KoNokkel, number | null>;
+	return { ...antall, eldste };
 }
 
 async function collectScraperActivity(): Promise<ScraperActivity> {
@@ -1083,12 +1090,14 @@ function renderHtml(data: DigestData): string {
 	const warningScrapers = data.scraperHealth.filter(s => s.status === 'warning');
 	const pipelineMissing = data.lastPipeline?.scrapersMissing.length ?? 0;
 	const urgentFestivals = data.festivalReminders.filter(f => f.daysUntil <= 3);
-	const hasWarning = data.scraper.newEvents24h === 0 || total > 10 || brokenScrapers.length > 0 || data.staleSources.length >= 5 || pipelineMissing > 0 || urgentFestivals.length > 0;
+	const forGamle = KOER.filter(k => harVentetForLenge(data.pending.eldste[k.nokkel]));
+	const hasWarning = forGamle.length > 0 || data.scraper.newEvents24h === 0 || total > 10 || brokenScrapers.length > 0 || data.staleSources.length >= 5 || pipelineMissing > 0 || urgentFestivals.length > 0;
 
 	const warningHtml = hasWarning ? `
 		<div style="background:#fef2f2;border:2px solid #dc2626;border-radius:8px;padding:16px;margin-bottom:24px">
 			<h2 style="color:#dc2626;margin:0 0 8px;font-size:16px">Trenger oppmerksomhet</h2>
 			${data.scraper.newEvents24h === 0 ? '<p style="margin:4px 0;color:#991b1b">Ingen nye events de siste 24 timene — scraper-pipeline kan ha feilet</p>' : ''}
+			${forGamle.map(k => `<p style="margin:4px 0;color:#991b1b">${k.etikett}: den eldste har ventet i ${data.pending.eldste[k.nokkel]} dager. <a href="${SITE_URL}${k.url}" style="color:#991b1b">Åpne</a></p>`).join('')}
 			${total > 10 ? `<p style="margin:4px 0;color:#991b1b">${total} ventende oppgaver — vurder å behandle dem</p>` : ''}
 			${brokenScrapers.length > 0 ? `<p style="margin:4px 0;color:#991b1b">${brokenScrapers.length} scraper${brokenScrapers.length === 1 ? '' : 'e'} nede: ${brokenScrapers.map(s => s.name).join(', ')}</p>` : ''}
 			${data.staleSources.length >= 5 ? `<p style="margin:4px 0;color:#991b1b">${data.staleSources.length} kilder har 0 kommende events</p>` : ''}
@@ -1107,17 +1116,13 @@ function renderHtml(data: DigestData): string {
 		<h2 style="border-bottom:2px solid #C82D2D;padding-bottom:6px;margin-top:0">Ventende oppgaver</h2>
 		<table style="width:100%;border-collapse:collapse;margin-bottom:24px">
 			<tbody>
-				${[
-					{ label: 'Rettelser', count: data.pending.corrections, url: '/admin/corrections' },
-					{ label: 'Arrangementer', count: data.pending.submissions, url: '/admin/submissions' },
-					{ label: 'Datahenvendelser', count: data.pending.optouts, url: '/admin/optouts' },
-					{ label: 'Henvendelser', count: data.pending.inquiries, url: '/admin/innsendelser' }
-				].map(item => `
+				${KOER.map(ko => ({ label: ko.etikett, count: data.pending[ko.nokkel], url: ko.url, dager: data.pending.eldste[ko.nokkel] })).map(item => `
 					<tr>
 						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px">${item.label}</td>
 						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:center">
 							<span style="display:inline-block;padding:2px 12px;border-radius:4px;font-size:13px;font-weight:600;${badgeColor(item.count)}">${item.count}</span>
 						</td>
+						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;color:${harVentetForLenge(item.dager) ? '#991b1b;font-weight:600' : '#555'}">${item.dager === null ? '' : `eldste ${item.dager} d`}</td>
 						<td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right">
 							<a href="${SITE_URL}${item.url}" style="color:#C82D2D;text-decoration:underline;font-size:13px">Åpne</a>
 						</td>
