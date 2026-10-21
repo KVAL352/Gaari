@@ -303,5 +303,10 @@
     "date": "2026-09-11",
     "title": "Gjentagende arrangementer deler lenke, og da bommer oppslaget",
     "description": "To litthusbergen-rader har en annen dato enn kilden oppgir for samme lenke: «Poetry Night» (basen 12. september, kilden 19. september) og «Lillelørdag: Lansering av Det regner dinosaurer» (basen 26. september, kilden 5. desember). Litteraturhuset bruker altsaa ÉN lenke for et arrangement som gaar flere ganger, og oppdaterer datoen paa den.\n\nDette er samme klasse som bookibud-dubletten: eventExists() slaar opp paa noeyaktig source_url, saa en lenke som betyr «neste forekomst» gir enten dublett eller feil dato. `rett-litthusbergen-klokkeslett.ts` roerer dem ikke, med vilje — en klokkeslettretting skal ikke kunne flytte en dato.\n\nGjoer dette: avgjoer om radene i basen er utgaatte forekomster som skal slettes, eller om datoen er feil. Sjekk kilden foer du retter, jf. pattern_sjekk_kilden_for_du_retter. Vurder samtidig om litthusbergen trenger en noekkel som er lenke + dato, slik bookibud viste at den trengte."
+  },
+  {
+    "date": "2027-01-12",
+    "title": "Bymuseet: ta kontakt om kaffe og presentasjon av Gåri",
+    "description": "Kontakten hos Bymuseet ba i oktober 2026 om at vi tar kontakt over nyttår for en kaffe og en ordentlig presentasjon av Gåri. Bymuseet ble slått av som kilde 14. oktober etter ønske fra dem. Detaljer i private/reminders.json."
   }
 ]
