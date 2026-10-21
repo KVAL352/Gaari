@@ -298,40 +298,12 @@ async function approveSubmission(partialId: string) {
 
 	console.log(`\n✅ Submission approved: ${event.title_no}`);
 
+	// Bekreftelsen sendes ikke her. notify-submitters (notify.yml, hvert kvarter)
+	// sender den ene malen til alle godkjente innsendinger, uansett hvor
+	// godkjenningen skjedde, og sletter submitter_email i samme runde (GDPR).
+	// Sendte denne veien også, fikk innsenderen to ulike eposter.
 	if (event.submitter_email) {
-		await sendEmail(
-			event.submitter_email,
-			`«${event.title_no}» er nå publisert på Gåri`,
-			[
-				`Hei,`,
-				``,
-				`«${event.title_no}» er nå godkjent og publisert på Gåri.`,
-				``,
-				`Du kan se det her: https://gaari.no/no/${event.slug}`,
-				``,
-				`Jeg kan gjøre feil, så hvis du ser noe som ikke stemmer eller mangler, send meg en kort melding på post@gaari.no så retter jeg det opp.`,
-				``,
-				`Takk for at du bidro med innhold til Gåri.`,
-				``,
-				`Vennlig hilsen,`,
-				`Kjersti`,
-				`Gåri — gaari.no`
-			].join('\n')
-		);
-	}
-
-	// GDPR: drop submitter_email once the confirmation is out — its only purpose
-	// was to confirm or reject. The web admin does this at approval; this path
-	// did not, which left addresses in a table the public anon key can read.
-	if (event.submitter_email) {
-		const { error: scrubErr } = await supabase
-			.from('events')
-			.update({ submitter_email: null })
-			.eq('id', id);
-		if (scrubErr) {
-			console.error(`   ⚠  Kunne ikke slette submitter_email: ${scrubErr.message}`);
-			console.error('      Slett den manuelt — den er lesbar med den offentlige anon-nøkkelen.');
-		}
+		console.log('   📧 Bekreftelse sendes av notify-submitters innen ca. 15 minutter');
 	}
 
 	console.log('');

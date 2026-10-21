@@ -2,9 +2,10 @@
 
 - **CI** (`ci.yml`): lint, type-check, test, build on push/PR to master.
 - **Ytelsesbudsjett** (`lighthouse.yml`): push/PR til master. Bygger produksjonsbygget, serverer det med `vite preview`, og kjører `scripts/lighthouse-budget-check.mjs` mot fire sidetyper + engelsk forside. Tre kjøringer per side, median per måltall, `lighthouse-budget.json` som fasit. Feiler ved brudd. Supabase-URL settes til `.invalid` slik at sidene bruker seed-data og ser like ut hver kjøring. Bakgrunn og dagens tall: `docs/YTELSESBUDSJETT.md`.
-- **Scrape** (`scrape.yml`): daily 6 AM UTC, 25min timeout. Secrets: SUPABASE + GEMINI_API_KEY + RESEND_API_KEY. Kjører to varslingsjobber som egne steg med `if: always()`, slik at folk får bekreftelse selv om en scraper feilet:
+- **Scrape** (`scrape.yml`): daily 6 AM UTC, 25min timeout. Secrets: SUPABASE + GEMINI_API_KEY + RESEND_API_KEY. Varslingsjobbene kjører ikke her, men i `notify.yml` (hvert kvarter, også manuelt via dispatch):
   - `notify-submitters.ts` — arrangementer sendt inn via `/submit`, koblet på `events.submitter_email`.
   - `notify-organizers.ts` — arrangører som sendte inn nettsiden sin via B2B-skjemaet, koblet på `organizer_inquiries.event_source`. Malen leser bildeomfang fra `consent.json` og kan derfor ikke love mer SoMe-bruk enn registeret gir.
+- **Notify** (`notify.yml`): hvert 15. minutt. Kjører de to jobbene over, slik at innsendere og arrangører får bekreftelse kort tid etter publisering, uansett hvor godkjenningen skjedde. Jobbene stempler i samme runde, så hyppig kjøring gir ikke dobbel epost. `notify-submitters` sletter `submitter_email` etter sending.
 - **Newsletter** (`newsletter.yml`): Thursdays 10:00 UTC. `scripts/send-newsletter.ts`. `--dry-run` via dispatch. Sends verification copy to `post@gaari.no` via Resend. Secrets: MAILERLITE_API_KEY, NEWSLETTER_SIGNING_SECRET, RESEND_API_KEY.
 - **SEO Report** (`seo-report.yml`): 1st of month 09:00 UTC. `scripts/seo-weekly-report.ts`.
 - **Daily Digest** (`daily-digest.yml`): weekdays 08:00 UTC. `scripts/send-daily-digest.ts`. Includes scraper health, stale sources, pipeline completeness, festival reminders, active Meta ad campaigns. Auto-snapshots ad insights to `ad_insights` table. Secrets: SUPABASE, RESEND_API_KEY, UMAMI, MAILERLITE_API_KEY, META_ACCESS_TOKEN, META_APP_ID, META_APP_SECRET, META_AD_ACCOUNT_ID, FB_PAGE_ID, IG_USER_ID.

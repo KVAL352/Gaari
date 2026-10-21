@@ -48,10 +48,11 @@ export const actions: Actions = {
 			return fail(400, { error: 'id is required' });
 		}
 
-		// GDPR: drop submitter_email at approval — its only purpose was to confirm/reject.
+		// submitter_email blir stående: notify-submitters (notify.yml, hvert
+		// kvarter) sender bekreftelsen og sletter adressen samtidig (GDPR).
 		const { error } = await supabaseAdmin
 			.from('events')
-			.update({ status: 'approved', submitter_email: null })
+			.update({ status: 'approved' })
 			.eq('id', id);
 
 		if (error) {

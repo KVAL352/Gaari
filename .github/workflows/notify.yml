@@ -1,0 +1,54 @@
+name: Notify submitters and organizers
+
+# Egen workflow, ikke steg i scrape.yml: bekreftelsen skal ut kort tid etter at
+# et arrangement er publisert, uansett hvor godkjenningen skjedde (nettadmin,
+# admin-ops eller direkte i Supabase). Jobbene avstemmer en tilstand og
+# stempler i samme runde, så hyppig kjøring gir aldri dobbel epost.
+# GitHub kan forsinke planlagte kjøringer med flere minutter.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Manuell trigger, f.eks. rett etter en godkjenning
+
+concurrency:
+  group: notify
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install dependencies
+        working-directory: scripts
+        run: npm ci
+        timeout-minutes: 2
+
+      # Egne steg med if: always(), slik at en feil i den ene køen ikke
+      # stopper den andre.
+      - name: Notify event submitters
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: npx tsx notify-submitters.ts
+
+      - name: Notify organizers
+        if: always()
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: npx tsx notify-organizers.ts

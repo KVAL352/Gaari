@@ -4,7 +4,7 @@
  *   npx tsx scripts/notify-submitters.ts            send bekreftelser
  *   npx tsx scripts/notify-submitters.ts --dry-run  vis hvem som ville fått, uten å sende
  *
- * Kjøres som en del av den daglige pipelinen.
+ * Kjøres hvert kvarter av notify.yml.
  *
  * Jobben avstemmer en tilstand i stedet for å utføre en handling til rett tid.
  * Den ser etter arrangementer som er godkjent, har en innsender-e-post, og ennå
@@ -88,9 +88,11 @@ async function main() {
 
 		// Stemples umiddelbart etter sending. Krasjer jobben nå, er e-posten
 		// allerede ute, og en manglende stempling ville gitt dublett i morgen.
+		// GDPR: adressen slettes i samme oppdatering. Formålet var å bekrefte,
+		// og det er gjort. Nettadmin og admin-ops lar den stå til hit.
 		const { error: stampErr } = await supabase
 			.from('events')
-			.update({ submitter_notified_at: new Date().toISOString() })
+			.update({ submitter_notified_at: new Date().toISOString(), submitter_email: null })
 			.eq('id', rad.id);
 
 		if (stampErr) {
