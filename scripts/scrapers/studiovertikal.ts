@@ -76,6 +76,22 @@ const STUDENTDAG_OPEN = '08:00';
 const STUDENTDAG_CLOSE = '20:00';
 
 /**
+ * Halloweenklatring, fredag 30. oktober til søndag 1. november 2026. Sendt av
+ * arrangøren i e-post 2026-10-21 med lenke til studiovertikal.no/halloweenklatring-2026/,
+ * som oppgir vanlig inngang, ingen påmelding, oppgaver på veggen og premie til
+ * alle som deltar.
+ *
+ * Sida tallfester ikke klokkeslett, bare "vanlig inngang". Tidene er derfor
+ * senterets ordinære åpningstid fra studiovertikal.no/apningstider/: fredag
+ * 08:00 åpner helga, søndag 20:00 stenger den. Én rad over tre dager, ikke tre
+ * rader, fordi det er ett tilbud som varer hele helga.
+ */
+const HALLOWEEN_START = '2026-10-30';
+const HALLOWEEN_END = '2026-11-01';
+const HALLOWEEN_OPEN = '08:00';
+const HALLOWEEN_CLOSE = '20:00';
+
+/**
  * Bildene er sendt direkte fra arrangøren som vedlegg 2026-08-06, med skriftlig
  * tillatelse til bruk i alle kanaler. De er altså ikke skrapet, og ikke
  * hot-linket: de ligger hos oss i static/events/ og serveres fra gaari.no.
@@ -127,6 +143,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		hhmm: string;
 		/** Stengetid. Settes kun for tilbud som varer hele dagen. */
 		endHhmm?: string;
+		/** Sluttdato når tilbudet varer flere dager. Uten den slutter det samme dag. */
+		endDate?: string;
 		title: string;
 		category: string;
 		ageGroup: string;
@@ -187,6 +205,27 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		});
 	}
 
+	// Halloweenklatring — én helg, vanlig inngang i hele åpningstiden.
+	if (HALLOWEEN_END >= today) {
+		planned.push({
+			date: HALLOWEEN_START,
+			hhmm: HALLOWEEN_OPEN,
+			endDate: HALLOWEEN_END,
+			endHhmm: HALLOWEEN_CLOSE,
+			title: 'Halloweenklatring',
+			category: 'sports',
+			ageGroup: 'all',
+			price: 'Vanlig inngang',
+			path: '/halloweenklatring-2026/',
+			facts: {
+				påmelding: 'ingen',
+				premie: 'til alle som deltar',
+				forkunnskaper: 'ikke nødvendig',
+				utstyr: 'kan leies på senteret',
+			},
+		});
+	}
+
 	const found = planned.length;
 	let inserted = 0;
 
@@ -197,8 +236,9 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		if (await eventExists(sourceUrl)) continue;
 
 		const dateStart = new Date(`${p.date}T${p.hhmm}:00${bergenOffset(p.date)}`).toISOString();
+		const endDate = p.endDate ?? p.date;
 		const dateEnd = p.endHhmm
-			? new Date(`${p.date}T${p.endHhmm}:00${bergenOffset(p.date)}`).toISOString()
+			? new Date(`${endDate}T${p.endHhmm}:00${bergenOffset(endDate)}`).toISOString()
 			: undefined;
 
 		const aiDesc = await generateDescription({
