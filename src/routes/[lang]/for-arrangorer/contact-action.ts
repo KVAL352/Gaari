@@ -36,7 +36,8 @@ export async function handleContactSubmit({ request }: RequestEvent) {
 
 	if (error) return fail(500, { contactError: true });
 
-	notifyInquiry({ name, organization, email, message }).catch((err) =>
+	// Ventes på, ellers kan Vercel stoppe funksjonen før eposten er sendt.
+	await notifyInquiry({ name, organization, email, message }).catch((err) =>
 		console.error('Failed to send inquiry notification:', err)
 	);
 

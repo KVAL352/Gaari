@@ -32,7 +32,10 @@ export const POST: RequestHandler = async ({ request }) => {
 				return json({ error: 'Missing required fields' }, { status: 400 });
 			}
 
-			notifySubmission({
+			// Ventes på. Uten await svarte ruten før sendingen var ferdig, og Vercel
+			// kan stoppe funksjonen så snart svaret er ute. Samfunnet i Bergens
+			// henvendelse 8. sept 2026 ligger i basen, men varselet kom aldri.
+			await notifySubmission({
 				title,
 				venue,
 				dateStart: truncate(data.dateStart),
@@ -49,7 +52,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				return json({ error: 'Missing required fields' }, { status: 400 });
 			}
 
-			notifyInquiry({
+			await notifyInquiry({
 				name,
 				organization,
 				email,
