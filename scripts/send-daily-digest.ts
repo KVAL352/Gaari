@@ -22,6 +22,7 @@ import { fetchAllRows } from './lib/utils.js';
 import { scrapers } from './scrape.js';
 import { analyzeScraperHealth, type ScraperHealthStatus } from './lib/scraper-health.js';
 import { KOER, ventedager, harVentetForLenge, type KoNokkel } from './lib/ventende.js';
+import { hentSisteNyhetsbrevKjoring, vurderNyhetsbrevKjoring, type NyhetsbrevStatus } from './lib/newsletter-run-status.js';
 import {
 	CAMPAIGN_TARGETS,
 	checkCampaign,
@@ -208,6 +209,7 @@ interface DigestData {
 	festivalReminders: FestivalReminder[];
 	reminders: Reminder[];
 	newsletterReport: NewsletterReport | null;
+	newsletterRun: NyhetsbrevStatus;
 	socialStatus: SocialStatus | null;
 	activeCampaigns: CampaignBrief[];
 	sourceWatch: WatchResult[];
@@ -714,6 +716,16 @@ function collectFestivalReminders(): FestivalReminder[] {
 	return reminders.sort((a, b) => a.daysUntil - b.daysUntil);
 }
 
+// Hver hverdag, ikke bare fredag: en rød utsending skal stå øverst til neste går bra.
+async function collectNewsletterRun(): Promise<NyhetsbrevStatus> {
+	try {
+		return vurderNyhetsbrevKjoring(await hentSisteNyhetsbrevKjoring(), new Date());
+	} catch (err: any) {
+		// Klarer vi ikke å sjekke, vet vi ikke, og det skal heller ikke se grønt ut.
+		return { ok: false, melding: `Kunne ikke sjekke nyhetsbrevet: ${err.message}` };
+	}
+}
+
 async function collectNewsletterReport(): Promise<NewsletterReport | null> {
 	// Only run on Fridays (day after Thursday newsletter send)
 	const dayOfWeek = new Date().getUTCDay();
@@ -1091,11 +1103,12 @@ function renderHtml(data: DigestData): string {
 	const pipelineMissing = data.lastPipeline?.scrapersMissing.length ?? 0;
 	const urgentFestivals = data.festivalReminders.filter(f => f.daysUntil <= 3);
 	const forGamle = KOER.filter(k => harVentetForLenge(data.pending.eldste[k.nokkel]));
-	const hasWarning = forGamle.length > 0 || data.scraper.newEvents24h === 0 || total > 10 || brokenScrapers.length > 0 || data.staleSources.length >= 5 || pipelineMissing > 0 || urgentFestivals.length > 0;
+	const hasWarning = forGamle.length > 0 || data.scraper.newEvents24h === 0 || total > 10 || brokenScrapers.length > 0 || data.staleSources.length >= 5 || pipelineMissing > 0 || urgentFestivals.length > 0 || !data.newsletterRun.ok;
 
 	const warningHtml = hasWarning ? `
 		<div style="background:#fef2f2;border:2px solid #dc2626;border-radius:8px;padding:16px;margin-bottom:24px">
 			<h2 style="color:#dc2626;margin:0 0 8px;font-size:16px">Trenger oppmerksomhet</h2>
+			${!data.newsletterRun.ok ? `<p style="margin:4px 0;color:#991b1b">Nyhetsbrev: ${data.newsletterRun.melding}${data.newsletterRun.url ? ` <a href="${data.newsletterRun.url}" style="color:#991b1b">Loggen</a>` : ''}</p>` : ''}
 			${data.scraper.newEvents24h === 0 ? '<p style="margin:4px 0;color:#991b1b">Ingen nye events de siste 24 timene — scraper-pipeline kan ha feilet</p>' : ''}
 			${forGamle.map(k => `<p style="margin:4px 0;color:#991b1b">${k.etikett}: den eldste har ventet i ${data.pending.eldste[k.nokkel]} dager. <a href="${SITE_URL}${k.url}" style="color:#991b1b">Åpne</a></p>`).join('')}
 			${total > 10 ? `<p style="margin:4px 0;color:#991b1b">${total} ventende oppgaver — vurder å behandle dem</p>` : ''}
@@ -1764,7 +1777,7 @@ async function main() {
 	if (DRY_RUN) console.log('   (dry run — will write HTML to file, not send email)\n');
 
 	// Collect data in parallel
-	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, canaryHealth, silentScrapers, dataAnomalies, newsletterReport, socialStatus, activeCampaigns] = await Promise.all([
+	const [pending, scraper, scraperHealth, staleSources, lastPipeline, traffic, subscriberData, expiringPlacements, canaryHealth, silentScrapers, dataAnomalies, newsletterReport, newsletterRun, socialStatus, activeCampaigns] = await Promise.all([
 		collectPendingCounts(),
 		collectScraperActivity(),
 		collectScraperHealth(),
@@ -1777,6 +1790,7 @@ async function main() {
 		collectSilentScrapers(),
 		collectDataAnomalies(),
 		collectNewsletterReport(),
+		collectNewsletterRun(),
 		collectSocialStatus(),
 		collectActiveCampaigns()
 	]);
@@ -1802,6 +1816,7 @@ async function main() {
 		festivalReminders,
 		reminders,
 		newsletterReport,
+		newsletterRun,
 		socialStatus,
 		activeCampaigns,
 		sourceWatch

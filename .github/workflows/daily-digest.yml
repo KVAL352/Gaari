@@ -40,6 +40,8 @@ jobs:
           UMAMI_API_KEY: ${{ secrets.UMAMI_API_KEY }}
           UMAMI_WEBSITE_ID: ${{ secrets.UMAMI_WEBSITE_ID }}
           MAILERLITE_API_KEY: ${{ secrets.MAILERLITE_API_KEY }}
+          # Leser utfallet av siste nyhetsbrev-kjøring (lib/newsletter-run-status.ts).
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Meta Ads: empty values degrade gracefully — campaigns section is
           # simply hidden if the ad-account secrets aren't configured.
           META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
