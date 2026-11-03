@@ -145,7 +145,7 @@ function introContent(data: NewsletterData): IntroContent {
 	const isNo = lang === 'no';
 	const labels = isNo ? CATEGORY_LABELS_NO : CATEGORY_LABELS_EN;
 
-	const heading = isNo ? 'Hva skjer denne uken?' : 'What\u2019s on this week?';
+	const heading = isNo ? 'Hva skjer til helgen?' : 'What\u2019s on this weekend?';
 
 	const audienceLabel = preferences?.audience
 		? (isNo ? AUDIENCE_LABELS_NO : AUDIENCE_LABELS_EN)[preferences.audience] || ''
@@ -179,12 +179,12 @@ function introContent(data: NewsletterData): IntroContent {
 		const freeStr = isFree ? (isNo ? ', og alt er gratis' : ', and it\u2019s all free') : '';
 
 		body = isNo
-			? `${count} utvalgte arrangementer ${desc} denne uken${freeStr}.`
-			: `${count} curated events ${desc} this week${freeStr}.`;
+			? `${count} utvalgte arrangementer ${desc} til helgen${freeStr}.`
+			: `${count} curated events ${desc} this weekend${freeStr}.`;
 	} else {
 		body = isNo
-			? `${count} utvalgte arrangementer i Bergen denne uken.`
-			: `${count} curated events in Bergen this week.`;
+			? `${count} utvalgte arrangementer i Bergen til helgen.`
+			: `${count} curated events in Bergen this weekend.`;
 	}
 
 	return { heading, body };
@@ -654,7 +654,7 @@ export function generateSubject(
 	preferences?: { audience?: string; categories?: string; bydel?: string }
 ): string {
 	if (!preferences?.audience && !preferences?.categories && !preferences?.bydel) {
-		return lang === 'no' ? 'Hva skjer i Bergen denne uken?' : "What's happening in Bergen this week?";
+		return lang === 'no' ? 'Hva skjer i Bergen til helgen?' : "What's happening in Bergen this weekend?";
 	}
 
 	const parts: string[] = [];
@@ -674,8 +674,8 @@ export function generateSubject(
 	if (parts.length > 0) {
 		const desc = parts.join(' ');
 		return lang === 'no'
-			? `${desc} denne uken`
-			: `${desc} this week`;
+			? `${desc} til helgen`
+			: `${desc} this weekend`;
 	}
 
 	const audienceLabels: Record<string, Record<string, string>> = {
@@ -684,8 +684,8 @@ export function generateSubject(
 	};
 
 	if (preferences.audience && audienceLabels[lang]?.[preferences.audience]) {
-		return `${audienceLabels[lang][preferences.audience]} ${lang === 'no' ? 'denne uken' : 'this week'}`;
+		return `${audienceLabels[lang][preferences.audience]} ${lang === 'no' ? 'til helgen' : 'this weekend'}`;
 	}
 
-	return lang === 'no' ? 'Hva skjer i Bergen denne uken?' : "What's happening in Bergen this week?";
+	return lang === 'no' ? 'Hva skjer i Bergen til helgen?' : "What's happening in Bergen this weekend?";
 }
