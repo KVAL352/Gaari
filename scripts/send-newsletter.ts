@@ -10,7 +10,8 @@
 
 import { createHmac } from 'crypto';
 import { supabase } from './lib/supabase.js';
-import { getOsloNow, toOsloDateStr, addDays } from '../src/lib/event-filters.js';
+import { getOsloNow, toOsloDateStr, addDays, getWeekendDates } from '../src/lib/event-filters.js';
+import { velgUtvalg } from './lib/newsletter-utvalg.js';
 import { generateNewsletterHtml, generateQuietWeekHtml, generateSubject } from './lib/newsletter-template.js';
 import { mailerliteBase, lagMlFetch, loggbarSti, utenEpost } from './lib/mailerlite.js';
 import type { GaariEvent } from '../src/lib/types.js';
@@ -208,22 +209,33 @@ async function fetchUpcomingEvents(): Promise<GaariEvent[]> {
 	const now = getOsloNow();
 	const todayStr = toOsloDateStr(now);
 	const nextWeekStr = toOsloDateStr(addDays(now, 7));
+	const helg = getWeekendDates(now);
 
-	const { data, error } = await supabase
+	const kolonner = 'id,slug,title_no,title_en,description_no,description_en,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status';
+	const hent = (fra: string, til: string, tak: number) => supabase
 		.from('events')
-		.select('id,slug,title_no,title_en,description_no,description_en,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,image_url,age_group,language,status')
+		.select(kolonner)
 		.eq('status', 'approved')
-		.gte('date_start', `${todayStr}T00:00:00`)
-		.lte('date_start', `${nextWeekStr}T23:59:59`)
+		.gte('date_start', `${fra}T00:00:00`)
+		.lte('date_start', `${til}T23:59:59`)
 		.order('date_start', { ascending: true })
-		.limit(200);
+		.limit(tak);
 
-	if (error) {
-		console.error('Supabase query failed:', error);
+	// Helgen hentes for seg: sortert på dato og kuttet ved 200 faller ellers
+	// lørdag og søndag bort når uka er full, og det er dem brevet skal vise.
+	const [uke, helgen] = await Promise.all([
+		hent(todayStr, nextWeekStr, 200),
+		hent(helg.start < todayStr ? todayStr : helg.start, helg.end, 500)
+	]);
+
+	if (uke.error || helgen.error) {
+		console.error('Supabase query failed:', uke.error ?? helgen.error);
 		return [];
 	}
 
-	return (data || []) as GaariEvent[];
+	const perId = new Map<string, GaariEvent>();
+	for (const e of [...(uke.data || []), ...(helgen.data || [])] as GaariEvent[]) perId.set(e.id, e);
+	return [...perId.values()].sort((a, b) => a.date_start.localeCompare(b.date_start));
 }
 
 // ── Event filtering (mirrors homepage logic) ──
@@ -451,6 +463,7 @@ async function main() {
 	}
 
 	const now = getOsloNow();
+	const helg = getWeekendDates(now);
 
 	// 2b. Fetch promoted venues (weekly rotation based on slot_share %)
 	console.log('Fetching promoted placements...');
@@ -515,35 +528,10 @@ async function main() {
 				}
 			});
 		} else {
-			// Pick 1 promoted event per paying venue, place them first
-			const promotedPicks: GaariEvent[] = [];
-			const usedVenues = new Set<string>();
-			for (const e of events) {
-				if (promotedVenues.has(e.venue_name) && !usedVenues.has(e.venue_name)) {
-					promotedPicks.push(e);
-					usedVenues.add(e.venue_name);
-				}
-			}
-			const promotedIds = new Set(promotedPicks.map(e => e.id));
-			const rest = events.filter(e => !promotedIds.has(e.id));
+				// Betalende arrangører først, så helgen, så resten av uka (lib/newsletter-utvalg.ts)
+				const { utvalg, promotedIds } = velgUtvalg(events, promotedVenues, helg, MAX_EVENTS_PER_EMAIL);
 
-			// Category-diverse selection: max 2 per category to avoid monotony
-			const catCount = new Map<string, number>();
-			const diverse: GaariEvent[] = [];
-			const overflow: GaariEvent[] = [];
-			for (const e of rest) {
-				const c = catCount.get(e.category) || 0;
-				if (c < 2) {
-					diverse.push(e);
-					catCount.set(e.category, c + 1);
-				} else {
-					overflow.push(e);
-				}
-			}
-			// Fill remaining slots from overflow if needed
-			const ordered = [...promotedPicks, ...diverse, ...overflow];
-
-			const newsletterEvents = ordered.slice(0, MAX_EVENTS_PER_EMAIL).map(e => ({
+				const newsletterEvents = utvalg.map(e => ({
 				slug: e.slug,
 				title: lang === 'en' && e.title_en ? e.title_en : e.title_no,
 				description: lang === 'en' && e.description_en ? e.description_en : e.description_no,
@@ -558,7 +546,7 @@ async function main() {
 			}));
 
 			// Build preheader with unique venue names for curiosity
-			const uniqueVenues = [...new Set(ordered.slice(0, MAX_EVENTS_PER_EMAIL).map(e => e.venue_name))].slice(0, 3);
+			const uniqueVenues = [...new Set(utvalg.map(e => e.venue_name))].slice(0, 3);
 			const venueStr = uniqueVenues.join(', ');
 			const preheader = lang === 'no'
 				? `${venueStr} og mer denne uken`
