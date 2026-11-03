@@ -12,6 +12,7 @@
 
 import 'dotenv/config';
 import { supabase } from './lib/supabase.js';
+import { fetchAllRows } from './lib/utils.js';
 import { EVENT_IMAGE_BUCKET, eventImageStoragePath } from '../src/lib/storage-path.js';
 
 const FROM_EMAIL = 'Gåri <noreply@gaari.no>';
@@ -41,13 +42,14 @@ function truncate(s: string | null, max = 40): string {
 }
 
 async function resolveId(table: string, partialId: string): Promise<string> {
-	// UUID columns don't support ilike — fetch IDs and filter client-side
-	const { data, error } = await supabase
-		.from(table)
-		.select('id');
-
-	if (error) throw new Error(`DB error: ${error.message}`);
-	const matches = (data ?? []).filter(r => r.id.startsWith(partialId));
+	// UUID columns don't support ilike — fetch IDs and filter client-side.
+	// Alle sider, ikke bare de første 1000: uten paginering fant ikke
+	// «approve» innsendinger som lå lenger ut i tabellen.
+	const data = await fetchAllRows<{ id: string }>(
+		(from, to) => supabase.from(table).select('id').order('id').range(from, to),
+		`resolveId(${table})`
+	);
+	const matches = data.filter(r => r.id.startsWith(partialId));
 	if (matches.length === 0) throw new Error(`No match for ID prefix "${partialId}"`);
 	if (matches.length > 1) throw new Error(`Ambiguous ID prefix "${partialId}" — ${matches.length} matches. Use more characters.`);
 	return matches[0].id;
