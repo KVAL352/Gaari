@@ -207,8 +207,9 @@ export const GET: RequestHandler = async () => {
 			} else {
 				const lastRunAt = new Date(data[0].run_at);
 				const hoursAgo = (Date.now() - lastRunAt.getTime()) / (1000 * 60 * 60);
-				// Pipeline runs at 06:00 and 18:00 UTC — 14h gap means it missed a run
-				const isStale = hoursAgo > 14;
+				// Pipeline runs once a day. Cron says 06:00 UTC, but GitHub starts it between ~11:30 and ~14:30,
+				// so a normal gap reaches ~27h. Over 30h means a day was missed
+				const isStale = hoursAgo > 30;
 				checks.push({
 					name: 'pipeline_freshness',
 					status: isStale ? 'fail' : 'pass',
