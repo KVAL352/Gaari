@@ -12,6 +12,7 @@ import { createHmac } from 'crypto';
 import { supabase } from './lib/supabase.js';
 import { getOsloNow, toOsloDateStr, addDays } from '../src/lib/event-filters.js';
 import { generateNewsletterHtml, generateQuietWeekHtml, generateSubject } from './lib/newsletter-template.js';
+import { mailerliteBase, lagMlFetch, loggbarSti, utenEpost } from './lib/mailerlite.js';
 import type { GaariEvent } from '../src/lib/types.js';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
@@ -26,8 +27,26 @@ const NEWSLETTER_SIGNING_SECRET = process.env.NEWSLETTER_SIGNING_SECRET;
 const SUMMARY_FILE = process.env.SUMMARY_FILE;
 const DRY_RUN = process.argv.includes('--dry-run');
 const MAX_EVENTS_PER_EMAIL = 9; // 1 hero + 8 grid cards
-const MAILERLITE_BASE = 'https://connect.mailerlite.com/api';
+// Kaster i sandkassemodus hvis adressen ikke er lokal, se lib/mailerlite.ts.
+const MAILERLITE_BASE = mailerliteBase();
 const VERIFICATION_EMAIL = 'post@gaari.no';
+
+/**
+ * Hvor lenge løkka får starte nye grupper.
+ *
+ * GitHub dreper jobben ved `timeout-minutes` i newsletter.yml (20 min), og et
+ * drap merkes «cancelled», ikke «failed». Slik gikk fem av seks utsendinger
+ * fra 10. september til 15. oktober 2026 uten at noen merket det: de siste
+ * gruppene fikk ingenting, og bekreftelseskopien kom aldri. Stopper vi selv
+ * før GitHub gjør det, rekker vi å skrive hvem som mangler og avslutte rødt.
+ */
+export const SEND_DEADLINE_MS = 15 * 60_000;
+// Overstyres bare for å prøve stoppen i en tørrkjøring: NEWSLETTER_DEADLINE_MS=0 --dry-run.
+const DEADLINE_MS = Number(process.env.NEWSLETTER_DEADLINE_MS ?? SEND_DEADLINE_MS);
+
+export function harTidTilNesteGruppe(startMs: number, naaMs: number, fristMs = SEND_DEADLINE_MS): boolean {
+	return naaMs - startMs < fristMs;
+}
 
 function generatePreferenceToken(email: string): string {
 	if (!NEWSLETTER_SIGNING_SECRET) throw new Error('NEWSLETTER_SIGNING_SECRET not set');
@@ -60,73 +79,10 @@ interface GroupedSubscribers {
 
 // ── MailerLite API helpers ──
 
-// MailerLite allows 120 requests/minute. A personalized send makes roughly
-// 3 calls per group plus one per subscriber, which overran the limit on
-// 2026-08-20 and silently dropped two groups. Retry on 429 and slow down
-// before we hit the wall, so a busy week degrades in speed, not in delivery.
-const ML_MAX_RETRIES = 5;
-const ML_LOW_REMAINING = 5;
+// Testene og loggsperren importerer disse herfra.
+export { loggbarSti, utenEpost };
 
-/**
- * Endepunktet uten identifikatorer, til logging.
- *
- * `/subscribers/ola%40eksempel.no/groups/123` inneholder abonnentens
- * e-postadresse, og Actions-loggen er offentlig fordi repoet er det. Loggen
- * trenger å vite hvilket kall som ble rate-limitet, ikke hvem det gjaldt.
- */
-export function loggbarSti(path: string): string {
-	return path
-		.split('?')[0]
-		.split('/')
-		// Bytt ut det som er en identifikator, ikke det som er et endepunktnavn.
-		// `/campaigns/123/schedule` skal fortsatt kunne leses som schedule-kallet.
-		.map((del) => (/@|%40|^[0-9a-f]{6,}$|^\d+$/i.test(del) ? ':id' : del))
-		.join('/');
-}
-
-/**
- * Samme grunn, men for svarkroppene vi logger videre. Vi vet ikke sikkert om
- * MailerLite gjentar adressen i feilmeldingene sine, og det er billigere aa
- * fjerne den enn aa finne det ut.
- */
-export function utenEpost(tekst: string): string {
-	return tekst.replace(/[\w.+-]+@[\w-]+\.[\w.]{2,}/g, '[e-post fjernet]');
-}
-
-async function mlFetch(
-	path: string,
-	options: RequestInit = {},
-	attempt = 0
-): Promise<Response> {
-	const res = await fetch(`${MAILERLITE_BASE}${path}`, {
-		...options,
-		headers: {
-			'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
-			'Content-Type': 'application/json',
-			'Accept': 'application/json',
-			...options.headers
-		}
-	});
-
-	if (res.status === 429 && attempt < ML_MAX_RETRIES) {
-		const retryAfter = Number(res.headers.get('retry-after'));
-		const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
-			? retryAfter * 1000
-			: Math.min(60_000, 2 ** attempt * 2000);
-		console.warn(`  Rate limited on ${loggbarSti(path)} — waiting ${Math.round(waitMs / 1000)}s (attempt ${attempt + 1}/${ML_MAX_RETRIES})`);
-		await delay(waitMs);
-		return mlFetch(path, options, attempt + 1);
-	}
-
-	// Back off before the window is exhausted rather than after.
-	const remaining = Number(res.headers.get('x-ratelimit-remaining'));
-	if (Number.isFinite(remaining) && remaining <= ML_LOW_REMAINING) {
-		console.warn(`  Rate limit nearly spent (${remaining} left) — pausing 60s`);
-		await delay(60_000);
-	}
-
-	return res;
-}
+const mlFetch = lagMlFetch(MAILERLITE_BASE, MAILERLITE_API_KEY);
 
 async function fetchAllSubscribers(): Promise<MailerLiteSubscriber[]> {
 	const subscribers: MailerLiteSubscriber[] = [];
@@ -513,9 +469,21 @@ async function main() {
 	let missedCount = 0;
 	let firstSubject = '';
 	let firstHtml = '';
+	const ikkeStartet: string[] = [];
+	const startMs = Date.now();
 
-	for (const [key, group] of groups) {
+	// Største gruppe først: må løkka stoppes ved fristen, rammer det færrest.
+	const iRekkefolge = [...groups].sort(([, a], [, b]) => b.emails.length - a.emails.length);
+
+	for (const [key, group] of iRekkefolge) {
 		const { profile, emails } = group;
+
+		if (!harTidTilNesteGruppe(startMs, Date.now(), DEADLINE_MS)) {
+			ikkeStartet.push(key);
+			missedCount += emails.length;
+			errorCount++;
+			continue;
+		}
 		const lang = profile.lang;
 
 		// Filter events for this profile
@@ -658,6 +626,11 @@ async function main() {
 	}
 
 	console.log('─'.repeat(50));
+	if (ikkeStartet.length > 0) {
+		// Nøklene er preferanser, ikke adresser, så de tåler den offentlige loggen.
+		console.error(`DEADLINE: ${Math.round(DEADLINE_MS / 60_000)} min passert, ${ikkeStartet.length} grupper ble ikke startet:`);
+		for (const key of ikkeStartet) console.error(`  - [${key}]`);
+	}
 	console.log(`Done. ${sentCount} emails ${DRY_RUN ? 'previewed' : 'sent'}, ${errorCount} errors.`);
 	if (missedCount > 0) {
 		console.error(`WARNING: ${missedCount} of ${subscribers.length} active subscribers received nothing.`);
@@ -675,8 +648,12 @@ async function main() {
 		sent: sentCount,
 		errors: errorCount,
 		missed: missedCount,
+		groupsNotStarted: ikkeStartet,
 		dryRun: DRY_RUN
 	});
+
+	// Noen fikk ikke brevet: kjøringen skal være rød, ellers merker ingen det.
+	if (missedCount > 0) process.exitCode = 1;
 }
 
 async function sendVerificationCopy(subject: string, html: string, groupCount: number, sentCount: number): Promise<void> {
