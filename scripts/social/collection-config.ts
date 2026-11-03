@@ -3,7 +3,7 @@
  *
  * Konstantene her lå tidligere kopiert i hver enkelt generator. ENGLISH_SLUGS
  * fantes for eksempel fire steder, identisk, i generate-posts, generate-reels,
- * post-to-socials og post-to-bluesky. Å legge til en engelsk samleside krevde
+ * post-to-socials. Å legge til en engelsk samleside krevde
  * dermed at man husket fire filer, og glemte man én, fikk innholdet norsk
  * tekst i én kanal og engelsk i en annen uten at noe sa fra.
  *
