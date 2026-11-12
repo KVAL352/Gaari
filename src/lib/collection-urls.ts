@@ -31,6 +31,8 @@ export const HREFLANG_PAIRS: Record<string, Record<'no' | 'en', string>> = {
 	'17th-of-may-bergen': { no: '17-mai', en: '17th-of-may-bergen' },
 	'julemarked': { no: 'julemarked', en: 'christmas-bergen' },
 	'christmas-bergen': { no: 'julemarked', en: 'christmas-bergen' },
+	'julekonserter': { no: 'julekonserter', en: 'christmas-concerts-bergen' },
+	'christmas-concerts-bergen': { no: 'julekonserter', en: 'christmas-concerts-bergen' },
 	'paske': { no: 'paske', en: 'easter-bergen' },
 	'easter-bergen': { no: 'paske', en: 'easter-bergen' },
 	'sankthans': { no: 'sankthans', en: 'midsummer-bergen' },

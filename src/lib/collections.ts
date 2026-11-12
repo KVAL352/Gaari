@@ -19,14 +19,40 @@ const filter17Mai = (events: GaariEvent[], now: Date) => {
 // Fem uker er for langt til å vise alt som skjer: uten tema ga siden 641
 // arrangementer (DNT-turer, språkkafé, filmvisninger) under tittelen «jul».
 // «jul» står foran (?!i) så Julia, Julie og Julius ikke treffer.
-const JULE_TITLE_RE = /\bjul(?!i)\w*|pepperkake|\badvent(?:s\w*)?\b|gløgg|\bnisse\w*|lysfest|christmas|xmas/i;
+const JULE_TITLE_RE = /\bjul(?!i)\w*|pepperkake|\badvent(?:s\w*)?\b|gløgg|\bnisse\w*|lysfest|christmas|xmas|\blucia\w*|\bcarols?\b/i;
+// Beskrivelsen fanger julekonserter uten «jul» i tittelen («O Helga Natt»,
+// «Kniv og Taffel», «Falle til ro»). Smalere enn tittelregexen: «advent» og
+// «nisse» står ikke her, fordi en beskrivelse kan nevne dem tilfeldig.
+// Alle 15 beskrivelsestreff i vinduet ble lest 12. nov 2026 og var ekte jul.
+const JULE_TEXT_RE = /\bjul(?!i)\w*|christmas|\blucia\w*/i;
+
+/** Én fasit for «handler dette om jul?», brukt av julemarked- og julekonsertsidene. */
+const isJuleEvent = (e: GaariEvent) =>
+	JULE_TITLE_RE.test(e.title_no) || JULE_TEXT_RE.test(e.description_no ?? '');
+
+// Vinduet er bredt fordi temafilteret, ikke datoen, holder siden ren. 15. nov
+// som start mistet «Jul i Bråkmakergata» (14. nov), og 23. des mistet romjulen.
+const juleVindu = (now: Date) => {
+	const year = now.getFullYear();
+	return { startStr: `${year}-11-01`, endStr: `${year}-12-30` };
+};
 
 const filterJulemarked = (events: GaariEvent[], now: Date) => {
-	const year = now.getFullYear();
-	const startStr = `${year}-11-15`;
-	const endStr = `${year}-12-23`;
+	const { startStr, endStr } = juleVindu(now);
+	return events.filter(e => eventOverlapsRange(e, startStr, endStr) && isJuleEvent(e));
+};
+
+// Konsert, ikke fest eller barneforestilling: kategorien «music» rommer også
+// julebord og danseshow, så de tas ut på tittel.
+const KONSERT_RE = /konsert|concert|juleturné|gospel|kor\b|orkester|oratorium|carols/i;
+const IKKE_KONSERT_TITLE_RE = /julebord|dansesenter|juleforestilling|lillelørdag|barnelørdag|julekvad/i;
+
+const filterJulekonserter = (events: GaariEvent[], now: Date) => {
+	const { startStr, endStr } = juleVindu(now);
 	return events.filter(e => {
-		return eventOverlapsRange(e, startStr, endStr) && JULE_TITLE_RE.test(e.title_no);
+		if (!eventOverlapsRange(e, startStr, endStr) || !isJuleEvent(e)) return false;
+		if (IKKE_KONSERT_TITLE_RE.test(e.title_no)) return false;
+		return e.category === 'music' || KONSERT_RE.test(`${e.title_no} ${e.description_no ?? ''}`);
 	});
 };
 
@@ -1782,8 +1808,8 @@ const collections: Collection[] = [
 		seasonal: true,
 		seasonEndMonth: 12,
 		title: {
-			no: 'Julemarked og jul i Bergen',
-			en: 'Christmas Markets and Christmas in Bergen'
+			no: 'Julemarked og julearrangementer i Bergen',
+			en: 'Christmas Events and Markets in Bergen'
 		},
 		description: {
 			no: `Julemarkeder, konserter, Pepperkakebyen og juleaktiviteter i Bergen. Komplett oversikt over julesesongen fra ${SOURCE_COUNT} lokale kilder.`,
@@ -1793,7 +1819,7 @@ const collections: Collection[] = [
 			no: 'Julemarkeder, konserter og juleaktiviteter',
 			en: 'Markets, concerts and holiday events'
 		},
-		relatedSlugs: ['nyttarsaften', 'gratis', 'familiehelg', 'denne-helgen'],
+		relatedSlugs: ['julekonserter', 'nyttarsaften', 'gratis', 'familiehelg', 'denne-helgen'],
 		newsletterHeading: { no: 'Få julekalenderen rett i innboksen', en: 'Get the Christmas calendar in your inbox' },
 		quickAnswer: {
 			no: 'Bergen har over 90 markedsboder på Festplassen fra slutten av november til 22. desember, Pepperkakebyen — verdens største pepperkakeby — på byROMMET i Kong Oscars gate, Lysfest med fyrverkeri over Lille Lungegårdsvann, og hundrevis av julekonserter og arrangementer. Gratis inngang til julemarkedet.',
@@ -1833,6 +1859,9 @@ const collections: Collection[] = [
 			no: 'Julemarkedene i Bergen åpner vanligvis i midten av november. Meld deg på nyhetsbrevet for påminnelse!',
 			en: 'Christmas markets in Bergen usually open in mid-November. Sign up for the newsletter to get notified!'
 		},
+		// Grieghallen alene har rundt 20 julekonserter. Standardtaket på 3 per
+		// sted skjulte 44 av 132 treff (12. nov 2026).
+		maxPerVenue: 50,
 		filterEvents: filterJulemarked
 	},
 	{
@@ -2198,8 +2227,8 @@ const collections: Collection[] = [
 		seasonal: true,
 		seasonEndMonth: 12,
 		title: {
-			no: 'Jul i Bergen',
-			en: 'Christmas in Bergen'
+			no: 'Julearrangementer i Bergen',
+			en: 'Christmas Events and Markets in Bergen'
 		},
 		description: {
 			no: 'Julemarkeder, konserter og juleaktiviteter i Bergen.',
@@ -2209,7 +2238,7 @@ const collections: Collection[] = [
 			no: 'Julemarkeder og juleaktiviteter',
 			en: 'Christmas markets and holiday events'
 		},
-		relatedSlugs: ['new-years-eve-bergen', 'free-things-to-do-bergen', 'familiehelg'],
+		relatedSlugs: ['christmas-concerts-bergen', 'new-years-eve-bergen', 'free-things-to-do-bergen', 'familiehelg'],
 		newsletterHeading: { no: 'Få juleprogrammet i innboksen', en: 'Get the Christmas guide in your inbox' },
 		quickAnswer: {
 			no: 'Bergen har julemarked på Festplassen, Pepperkakebyen og hundrevis av julekonserter.',
@@ -2249,7 +2278,126 @@ const collections: Collection[] = [
 			no: 'Julemarkedene i Bergen åpner vanligvis i midten av november. Meld deg på nyhetsbrevet for påminnelse!',
 			en: 'Christmas markets in Bergen usually open in mid-November. Sign up for the newsletter to get notified!'
 		},
+		// Grieghallen alene har rundt 20 julekonserter. Standardtaket på 3 per
+		// sted skjulte 44 av 132 treff (12. nov 2026).
+		maxPerVenue: 50,
 		filterEvents: filterJulemarked
+	},
+	{
+		id: 'julekonserter',
+		slug: 'julekonserter',
+		seasonal: true,
+		seasonEndMonth: 12,
+		title: {
+			no: 'Julekonserter i Bergen',
+			en: 'Christmas Concerts in Bergen'
+		},
+		description: {
+			no: `Julekonserter i Bergen samlet på ett sted: Grieghallen, kirker, Oseana og flere. Program og billetter fra ${SOURCE_COUNT} lokale kilder.`,
+			en: `Christmas concerts in Bergen in one place: Grieghallen, churches, Oseana and more. Programme and tickets from ${SOURCE_COUNT} local sources.`
+		},
+		ogSubtitle: {
+			no: 'Julekonserter, luciakonserter og adventskonserter',
+			en: 'Christmas, Lucia and Advent concerts'
+		},
+		relatedSlugs: ['julemarked', 'konserter', 'gratis', 'familiehelg'],
+		newsletterHeading: { no: 'Få julekonsertene rett i innboksen', en: 'Get the Christmas concerts in your inbox' },
+		quickAnswer: {
+			no: 'Julekonsertene i Bergen begynner i slutten av november og er tettest i desember. Du finner dem i Grieghallen, Oseana, Kulturhuset i Bergen, Ole Bull Scene, Forum Scene, Bergen Domkirke og flere kirker. Luciakonsertene ligger rundt 13. desember.',
+			en: 'Christmas concerts in Bergen start in late November and are most frequent in December. You find them at Grieghallen, Oseana, Kulturhuset i Bergen, Ole Bull Scene, Forum Scene, Bergen Cathedral and several churches. Lucia concerts are held around 13 December.'
+		},
+		editorial: {
+			no: [
+				'Bergen har julekonserter for de fleste smaker. Store scener som Grieghallen og Oseana har popartister, jazz og storband, mens Bergen Domkirke og kirkene i byen har kor, advent- og luciakonserter. Programmet er tettest i desember.',
+				'Listen under viser alle julekonserter Gåri har funnet, sortert etter dato. Konserter for barn og familier ligger også her.',
+				`Gåri samler programmet fra over ${SOURCE_COUNT} lokale kilder og oppdaterer siden daglig gjennom hele julesesongen. Skal du ha med deg barn eller leter etter noe gratis, kan du se juleaktivitetene på julemarkedssiden og gratissiden.`
+			],
+			en: [
+				'Bergen has Christmas concerts for most tastes. Large stages such as Grieghallen and Oseana host pop artists, jazz and big bands, while Bergen Cathedral and churches around the city offer choirs, Advent and Lucia concerts. The programme is densest in December.',
+				'The list below shows every Christmas concert Gåri has found, sorted by date. Concerts for children and families are included.',
+				`Gåri collects the programme from over ${SOURCE_COUNT} local sources and updates this page daily throughout the season. For other Christmas activities, see the Christmas page and the free events page.`
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når begynner julekonsertene i Bergen?', a: 'De første julekonsertene er i slutten av november. Desember har flest, og programmet fortsetter helt til jul.' },
+				{ q: 'Hvor er julekonsertene i Bergen?', a: 'Blant annet Grieghallen, Oseana, Kulturhuset i Bergen, Ole Bull Scene, Forum Scene, Bergen Domkirke og Troldhaugen. I tillegg har mange kirker egne konserter.' },
+				{ q: 'Når er luciakonsertene i Bergen?', a: 'Luciadagen er 13. desember, og luciakonsertene ligger rundt den datoen. Bergen Domkirke har blant annet luciakonserter.' },
+				{ q: 'Finnes det gratis julekonserter i Bergen?', a: 'Noen konserter, særlig i kirker og på biblioteker, er trolig gratis. Se prisen på hvert arrangement og sjekk hos arrangøren før du går.' },
+				{ q: 'Er det julekonserter for barn i Bergen?', a: 'Ja, flere scener har julekonserter og forestillinger for barn og familier. Sjekk aldersanbefalingen på arrangementet.' }
+			],
+			en: [
+				{ q: 'When do Christmas concerts start in Bergen?', a: 'The first Christmas concerts are in late November. December has the most, and the programme runs right up to Christmas.' },
+				{ q: 'Where are the Christmas concerts in Bergen?', a: 'Among others Grieghallen, Oseana, Kulturhuset i Bergen, Ole Bull Scene, Forum Scene, Bergen Cathedral and Troldhaugen. Many churches also hold their own concerts.' },
+				{ q: 'When are the Lucia concerts in Bergen?', a: 'Lucia Day is 13 December, and the Lucia concerts are held around that date. Bergen Cathedral hosts Lucia concerts, among others.' },
+				{ q: 'Are there free Christmas concerts in Bergen?', a: 'Some concerts, especially in churches and libraries, are likely free. Check the price on each event and confirm with the organiser before you go.' },
+				{ q: 'Are there Christmas concerts for children in Bergen?', a: 'Yes, several venues have Christmas concerts and shows for children and families. Check the age recommendation on the event.' }
+			]
+		},
+		offSeasonHint: {
+			no: 'Julekonsertene i Bergen kommer ut fra slutten av oktober. Meld deg på nyhetsbrevet for påminnelse.',
+			en: 'Christmas concerts in Bergen are usually announced from late October. Sign up for the newsletter to get a reminder.'
+		},
+		maxPerVenue: 50,
+		filterEvents: filterJulekonserter
+	},
+	{
+		id: 'julekonserter-en',
+		slug: 'christmas-concerts-bergen',
+		seasonal: true,
+		seasonEndMonth: 12,
+		title: {
+			no: 'Julekonserter i Bergen',
+			en: 'Christmas Concerts in Bergen'
+		},
+		description: {
+			no: `Julekonserter i Bergen samlet på ett sted: Grieghallen, kirker, Oseana og flere. Program og billetter fra ${SOURCE_COUNT} lokale kilder.`,
+			en: `Christmas concerts in Bergen in one place: Grieghallen, churches, Oseana and more. Programme and tickets from ${SOURCE_COUNT} local sources.`
+		},
+		ogSubtitle: {
+			no: 'Julekonserter, luciakonserter og adventskonserter',
+			en: 'Christmas, Lucia and Advent concerts'
+		},
+		relatedSlugs: ['christmas-bergen', 'konserter', 'free-things-to-do-bergen', 'familiehelg'],
+		newsletterHeading: { no: 'Få julekonsertene rett i innboksen', en: 'Get the Christmas concerts in your inbox' },
+		quickAnswer: {
+			no: 'Julekonsertene i Bergen begynner i slutten av november og er tettest i desember. Du finner dem i Grieghallen, Oseana, Kulturhuset i Bergen, Ole Bull Scene, Forum Scene, Bergen Domkirke og flere kirker.',
+			en: 'Christmas concerts in Bergen start in late November and are most frequent in December. You find them at Grieghallen, Oseana, Kulturhuset i Bergen, Ole Bull Scene, Forum Scene, Bergen Cathedral and several churches. Lucia concerts are held around 13 December.'
+		},
+		editorial: {
+			no: [
+				'Bergen har julekonserter for de fleste smaker, fra pop og jazz på de store scenene til kor og luciakonserter i kirkene.',
+				'Listen viser alle julekonserter Gåri har funnet, sortert etter dato.',
+				`Gåri samler programmet fra over ${SOURCE_COUNT} lokale kilder og oppdaterer siden daglig.`
+			],
+			en: [
+				'Bergen has Christmas concerts for most tastes. Large stages such as Grieghallen and Oseana host pop artists, jazz and big bands, while Bergen Cathedral and churches around the city offer choirs, Advent and Lucia concerts. The programme is densest in December.',
+				'The list below shows every Christmas concert Gåri has found, sorted by date. Concerts for children and families are included.',
+				`Gåri collects the programme from over ${SOURCE_COUNT} local sources and updates this page daily throughout the season. For other Christmas activities, see the Christmas page and the free events page.`
+			]
+		},
+		faq: {
+			no: [
+				{ q: 'Når begynner julekonsertene i Bergen?', a: 'De første julekonsertene er i slutten av november. Desember har flest, og programmet fortsetter helt til jul.' },
+				{ q: 'Hvor er julekonsertene i Bergen?', a: 'Blant annet Grieghallen, Oseana, Kulturhuset i Bergen, Ole Bull Scene, Forum Scene, Bergen Domkirke og Troldhaugen. I tillegg har mange kirker egne konserter.' },
+				{ q: 'Når er luciakonsertene i Bergen?', a: 'Luciadagen er 13. desember, og luciakonsertene ligger rundt den datoen. Bergen Domkirke har blant annet luciakonserter.' },
+				{ q: 'Finnes det gratis julekonserter i Bergen?', a: 'Noen konserter, særlig i kirker og på biblioteker, er trolig gratis. Se prisen på hvert arrangement og sjekk hos arrangøren før du går.' },
+				{ q: 'Er det julekonserter for barn i Bergen?', a: 'Ja, flere scener har julekonserter og forestillinger for barn og familier. Sjekk aldersanbefalingen på arrangementet.' }
+			],
+			en: [
+				{ q: 'When do Christmas concerts start in Bergen?', a: 'The first Christmas concerts are in late November. December has the most, and the programme runs right up to Christmas.' },
+				{ q: 'Where are the Christmas concerts in Bergen?', a: 'Among others Grieghallen, Oseana, Kulturhuset i Bergen, Ole Bull Scene, Forum Scene, Bergen Cathedral and Troldhaugen. Many churches also hold their own concerts.' },
+				{ q: 'When are the Lucia concerts in Bergen?', a: 'Lucia Day is 13 December, and the Lucia concerts are held around that date. Bergen Cathedral hosts Lucia concerts, among others.' },
+				{ q: 'Are there free Christmas concerts in Bergen?', a: 'Some concerts, especially in churches and libraries, are likely free. Check the price on each event and confirm with the organiser before you go.' },
+				{ q: 'Are there Christmas concerts for children in Bergen?', a: 'Yes, several venues have Christmas concerts and shows for children and families. Check the age recommendation on the event.' }
+			]
+		},
+		offSeasonHint: {
+			no: 'Julekonsertene i Bergen kommer ut fra slutten av oktober. Meld deg på nyhetsbrevet for påminnelse.',
+			en: 'Christmas concerts in Bergen are usually announced from late October. Sign up for the newsletter to get a reminder.'
+		},
+		maxPerVenue: 50,
+		filterEvents: filterJulekonserter
 	},
 	{
 		id: 'paske-en',
@@ -3787,6 +3935,7 @@ export function getSeasonalFooterCollections(lang: Lang): Array<{ slug: string; 
 		{ slugNo: 'sankthans', slugEn: 'midsummer-bergen', labelNo: 'Sankthans', labelEn: 'Midsummer', start: `${year}-05-25`, end: `${year}-06-25` },
 		{ slugNo: 'hostferie', slugEn: 'hostferie', labelNo: 'Høstferie', labelEn: 'Autumn break', start: `${year}-09-20`, end: `${year}-10-20` },
 		{ slugNo: 'julemarked', slugEn: 'christmas-bergen', labelNo: 'Julemarked', labelEn: 'Christmas', start: `${year}-10-15`, end: `${year}-12-24` },
+		{ slugNo: 'julekonserter', slugEn: 'christmas-concerts-bergen', labelNo: 'Julekonserter', labelEn: 'Christmas concerts', start: `${year}-10-15`, end: `${year}-12-24` },
 		{ slugNo: 'nyttarsaften', slugEn: 'new-years-eve-bergen', labelNo: 'Nyttårsaften', labelEn: "New Year's Eve", start: `${year}-12-15`, end: `${year + 1}-01-02` },
 		{ slugNo: 'vinterferie', slugEn: 'winter-break-bergen', labelNo: 'Vinterferie', labelEn: 'Winter break', start: `${year}-02-01`, end: `${year}-03-10` },
 		{ slugNo: 'paske', slugEn: 'easter-bergen', labelNo: 'Påske', labelEn: 'Easter', start: `${year}-03-15`, end: `${year}-04-25` },
@@ -3890,6 +4039,7 @@ export function getGroupedCollections(lang: Lang): CollectionGroup[] {
 		{ slugNo: 'sankthans', slugEn: 'midsummer-bergen', start: `${year}-05-25`, end: `${year}-06-25` },
 		{ slugNo: 'hostferie', slugEn: 'hostferie', start: `${year}-09-20`, end: `${year}-10-20` },
 		{ slugNo: 'julemarked', slugEn: 'christmas-bergen', start: `${year}-10-15`, end: `${year}-12-24` },
+		{ slugNo: 'julekonserter', slugEn: 'christmas-concerts-bergen', start: `${year}-10-15`, end: `${year}-12-24` },
 		{ slugNo: 'nyttarsaften', slugEn: 'new-years-eve-bergen', start: `${year}-12-15`, end: `${year + 1}-01-02` },
 		{ slugNo: 'vinterferie', slugEn: 'winter-break-bergen', start: `${year}-02-01`, end: `${year}-03-10` },
 		{ slugNo: 'paske', slugEn: 'easter-bergen', start: `${year}-03-15`, end: `${year}-04-25` },

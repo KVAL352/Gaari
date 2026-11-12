@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCollection, getAllCollectionSlugs, getFooterCollections, getSeasonYear } from '../collections';
+import { getCollection, getAllCollectionSlugs, getFooterCollections, getSeasonYear, getHreflangSlugs } from '../collections';
 import type { GaariEvent } from '../types';
 
 function makeEvent(overrides: Partial<GaariEvent> = {}): GaariEvent {
@@ -32,9 +32,9 @@ describe('getCollection', () => {
 		expect(getCollection('gibberish')).toBeUndefined();
 	});
 
-	it('returns all 59 collections', () => {
+	it('returns all 61 collections', () => {
 		const slugs = getAllCollectionSlugs();
-		expect(slugs).toHaveLength(59);
+		expect(slugs).toHaveLength(61);
 		// 18 evergreen
 		expect(slugs).toContain('denne-helgen');
 		expect(slugs).toContain('i-kveld');
@@ -682,17 +682,34 @@ describe('17. mai filter (17-mai)', () => {
 describe('julemarked filter', () => {
 	const collection = getCollection('julemarked')!;
 
-	it('includes Christmas events Nov 15 – Dec 23', () => {
+	it('includes Christmas events Nov 1 – Dec 30 (romjul included)', () => {
 		const now = new Date('2026-11-01T12:00:00');
 		const events = [
-			makeEvent({ id: '1', title_no: 'Julekonsert', date_start: '2026-11-15T10:00:00Z' }), // Nov 15 ✓
-			makeEvent({ id: '2', title_no: 'Julemarkedet 2026', date_start: '2026-12-01T18:00:00Z' }), // Dec 1 ✓
-			makeEvent({ id: '3', title_no: 'Julebord', date_start: '2026-12-23T10:00:00Z' }), // Dec 23 ✓
-			makeEvent({ id: '4', title_no: 'Julekonsert', date_start: '2026-11-14T10:00:00Z' }), // Nov 14 — excluded
-			makeEvent({ id: '5', title_no: 'Julekonsert', date_start: '2026-12-24T10:00:00Z' })  // Dec 24 — excluded
+			makeEvent({ id: '1', title_no: 'Julekonsert', date_start: '2026-11-01T10:00:00Z' }), // Nov 1 ✓
+			makeEvent({ id: '2', title_no: 'Jul i Bråkmakergata', date_start: '2026-11-14T18:00:00Z' }), // Nov 14 ✓ (mistet før)
+			makeEvent({ id: '3', title_no: 'Julebord', date_start: '2026-12-28T10:00:00Z' }), // romjul ✓
+			makeEvent({ id: '4', title_no: 'Julekonsert', date_start: '2026-10-31T10:00:00Z' }), // før vinduet
+			makeEvent({ id: '5', title_no: 'Julekonsert', date_start: '2026-12-31T10:00:00Z' })  // etter vinduet
 		];
 		const result = collection.filterEvents(events, now);
 		expect(result.map(e => e.id)).toEqual(['1', '2', '3']);
+	});
+
+	it('finds Christmas concerts that only say so in the description', () => {
+		const now = new Date('2026-11-01T12:00:00');
+		const events = [
+			makeEvent({ id: '1', title_no: 'Didrik Solli-Tangen – O Helga Natt', description_no: 'Didrik fremfører sin julekonsert «O Helga Natt».', date_start: '2026-12-12T19:00:00Z' }),
+			makeEvent({ id: '2', title_no: 'Luciamorgen 2026', date_start: '2026-12-13T07:00:00Z' }),
+			makeEvent({ id: '3', title_no: 'A Ceremony of Carols', date_start: '2026-11-29T14:00:00Z' }),
+			makeEvent({ id: '4', title_no: 'Stand-up', description_no: 'Kveld med humor i juli.', date_start: '2026-12-05T20:00:00Z' }),
+			makeEvent({ id: '5', title_no: 'Slektsgransking på Fana bibliotek', date_start: '2026-12-10T12:00:00Z' })
+		];
+		expect(collection.filterEvents(events, now).map(e => e.id)).toEqual(['1', '2', '3']);
+	});
+
+	it('does not cap Christmas events per venue', () => {
+		expect(collection.maxPerVenue).toBeGreaterThanOrEqual(20);
+		expect(getCollection('christmas-bergen')!.maxPerVenue).toBeGreaterThanOrEqual(20);
 	});
 
 	it('excludes events in the window that are not about Christmas', () => {
@@ -727,6 +744,38 @@ describe('julemarked filter', () => {
 			makeEvent({ id: '2', title_no: 'Quiz', date_start: '2026-12-01T18:00:00Z' })
 		];
 		expect(en.filterEvents(events, now).map(e => e.id)).toEqual(['1']);
+	});
+});
+
+describe('julekonserter filter', () => {
+	const collection = getCollection('julekonserter')!;
+	const now = new Date('2026-11-01T12:00:00');
+
+	it('keeps Christmas concerts and drops parties, dance shows and children series', () => {
+		const events = [
+			makeEvent({ id: '1', title_no: 'Kurt Nilsen - Julekonsert 2026', category: 'music', date_start: '2026-12-19T19:00:00Z' }),
+			makeEvent({ id: '2', title_no: 'Kniv og Taffel (fredag)', category: 'music', description_no: 'Konsert med jazz og julesanger.', date_start: '2026-12-18T19:00:00Z' }),
+			makeEvent({ id: '3', title_no: 'THE JULEBORD', category: 'music', date_start: '2026-12-03T20:00:00Z' }),
+			makeEvent({ id: '4', title_no: 'Juleforestilling 1 kl 13:30, Bergen Dansesenter', category: 'music', date_start: '2026-12-06T13:30:00Z' }),
+			makeEvent({ id: '5', title_no: 'Lillelørdag: Eit julekvad', category: 'music', date_start: '2026-12-19T11:00:00Z' }),
+			makeEvent({ id: '6', title_no: 'Pepperkakebyen 2026', category: 'student', date_start: '2026-11-14T10:00:00Z' }),
+			makeEvent({ id: '7', title_no: 'En julefortelling', category: 'theatre', date_start: '2026-12-05T18:00:00Z' })
+		];
+		expect(collection.filterEvents(events, now).map(e => e.id)).toEqual(['1', '2']);
+	});
+
+	it('keeps a non-music-category concert that says konsert', () => {
+		const events = [
+			makeEvent({ id: '1', title_no: 'Hanne Krogh på Troldhaugen', category: 'culture', description_no: 'Konsert med tema Julestjernen.', date_start: '2026-11-22T14:00:00Z' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(1);
+	});
+
+	it('EN counterpart shares the filter and has an hreflang pair', () => {
+		const en = getCollection('christmas-concerts-bergen')!;
+		expect(en).toBeDefined();
+		expect(en.filterEvents).toBeDefined();
+		expect(getHreflangSlugs('julekonserter')).toEqual({ no: 'julekonserter', en: 'christmas-concerts-bergen' });
 	});
 });
 
@@ -886,6 +935,7 @@ describe('seasonal collections metadata', () => {
 	const seasonalSlugs = [
 		'17-mai', '17th-of-may-bergen',
 		'julemarked', 'christmas-bergen',
+		'julekonserter', 'christmas-concerts-bergen',
 		'paske', 'easter-bergen',
 		'sankthans', 'midsummer-bergen',
 		'nyttarsaften', 'new-years-eve-bergen',
