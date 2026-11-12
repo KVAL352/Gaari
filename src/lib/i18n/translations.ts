@@ -252,7 +252,7 @@ export const translations = {
 		siteName: 'Gåri',
 		tagline: 'What\'s happening in Bergen?',
 		heroSubtitle: 'What\u2019s on in Bergen? All events in one place',
-		homeSeoTitle: 'What\u2019s On in Bergen? Events Today and This Week — Gåri',
+		homeSeoTitle: 'Events in Bergen Today and This Weekend | Gåri',
 
 		explore: "What's On in Bergen",
 		categories: 'Categories',
