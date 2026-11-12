@@ -198,8 +198,8 @@
 		return {
 			'17-mai':              { start: `${year}-05-14`, end: `${year}-05-18` },
 			'17th-of-may-bergen':  { start: `${year}-05-14`, end: `${year}-05-18` },
-			'julemarked':          { start: `${year}-11-15`, end: `${year}-12-23` },
-			'christmas-bergen':    { start: `${year}-11-15`, end: `${year}-12-23` },
+			'julemarked':          { start: `${year}-11-01`, end: `${year}-12-30` },
+			'christmas-bergen':    { start: `${year}-11-01`, end: `${year}-12-30` },
 			'paske':               { start: formatDate(palmSunday), end: formatDate(easterMonday) },
 			'easter-bergen':       { start: formatDate(palmSunday), end: formatDate(easterMonday) },
 			'sankthans':           { start: `${year}-06-21`, end: `${year}-06-24` },
