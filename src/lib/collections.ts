@@ -497,7 +497,7 @@ const collections: Collection[] = [
 			en: 'Live music over the next two weeks'
 		},
 		relatedSlugs: ['denne-helgen', 'i-kveld', 'festspillene', 'bergenfest'],
-		footerLabel: { no: 'Konserter', en: 'Concerts' },
+		footerLabel: { no: 'Konserter i dag', en: 'Concerts today' },
 		footer: { langs: ['no', 'en'], order: 5 },
 		newsletterHeading: { no: 'Få ukas konserttips hver torsdag', en: 'Get concert picks every Thursday' },
 		quickAnswer: {
