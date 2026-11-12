@@ -21,6 +21,35 @@ Avgjørelse hun må ta etter A: hvilke 2 til 3 grupper vi prioriterer. Ikke fler
 - **Hva er en vellykket 2027?** Et tall hun kan stå inne for. I dag: ca. 100 klikk per dag fra Google, 240 abonnenter, 11,8 % av økter klikker ut (september). Spør henne hva hun vil ha mer av.
 - Hvilket mål har inntektsmodellen? «Business model» i `CLAUDE.md` strider mot «Retning» (åpen sak siden 30. sept). Uten svar vet vi ikke om trafikk skal selges til arrangører eller bare gi dem synlighet.
 
+### Besluttet 12. november 2026 (Kjersti)
+
+**Hovedmål for 2027: klikk fra Google, 150 per dag i snitt, ca. 55 000 for året.** Måles som årssum i Search Console, og hver måned mot samme måned i 2026.
+
+Grunnlag (Search Console, `sc-domain:gaari.no`, hentet 12. nov, første dag med data 24. feb 2026):
+
+| Måned 2026 | Klikk/dag | Visninger | CTR |
+|---|---|---|---|
+| mars | 14,6 | 25 080 | 1,81 % |
+| april | 34,4 | 37 415 | 2,76 % |
+| mai | 53,4 | 77 603 | 2,13 % |
+| juni | 145,3 | 133 798 | 3,26 % |
+| juli | 43,7 | 58 531 | 2,32 % |
+| august | 80,6 | 108 521 | 2,30 % |
+| september | 122,8 | 120 839 | 3,05 % |
+| oktober | 98,5 | 115 460 | 2,65 % |
+| nov (1.–10.) | 96,7 | 36 309 | 2,66 % |
+
+Veksten har flatet ut siden september (ca. 100 klikk/dag, 115 000 til 120 000 visninger i måneden). Uten tiltak blir 2027 grovt regnet ca. 100 per dag (ca. 36 000 klikk). Én sesong med data, så sesongmønsteret er ikke bekreftet.
+
+**Delmål (målet er delt i to, så vi ser hvilken del som ikke følger med):**
+1. **Visninger:** fra ca. 117 000 til ca. 145 000 i måneden (+25 %). Kommer fra nye sider for de tre målgruppene.
+2. **CTR:** fra 2,65 % til ca. 3,1 % (nådd i juni og september). Kommer fra titler og utdrag.
+
+**Delmål per målgruppe** (settes når sidene finnes, fordi det ikke er noe å måle mot før):
+- Barnefamilier: klikk til barnesidene.
+- Nye i Bergen: klikk til den engelske siden for nye i byen.
+- Turister om sommeren: engelske klikk i juli og august (juli 2026: 43,7 klikk/dag, årets laveste).
+
 ## C. Hva vi har og hva som virker (innsiden)
 
 1. **Sidetyper mot utfall.** Forside, samlesider, arrangementssider, scenesider: klikk, visninger, indeksering, og utklikk per type. September-analysen har tall for 90 dager; oppdater med november.

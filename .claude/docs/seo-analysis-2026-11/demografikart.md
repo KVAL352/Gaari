@@ -79,7 +79,7 @@ Hun velger 2 til 3. Forslaget mitt står nederst.
 
 Ikke valgt: seniorer (Google er trolig ikke kanalen), polsk og ukrainsk (ingen arrangementssøk), studenter som egen gruppe (nås gjennom lenker, ikke søk).
 
-**Besluttet 12. november 2026 (hun):** alle tre forslagene, altså barnefamilier, nye i Bergen (engelsk) og turister om sommeren. Hovedmål for 2027 (punkt B i `kartlegging.md`): **klikk fra Google**. Måltall er ikke satt (i dag ca. 100 klikk per dag).
+**Besluttet 12. november 2026 (hun):** alle tre forslagene, altså barnefamilier, nye i Bergen (engelsk) og turister om sommeren. Hovedmål for 2027 (punkt B i `kartlegging.md`): **klikk fra Google**. Måltall: 150 klikk per dag i snitt (ca. 55 000 for året), med delmål. Se punkt B i `kartlegging.md`.
 
 ## Hva basen har for de valgte gruppene (S, Supabase 12. nov)
 
