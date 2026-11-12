@@ -549,8 +549,8 @@ async function main() {
 			const uniqueVenues = [...new Set(utvalg.map(e => e.venue_name))].slice(0, 3);
 			const venueStr = uniqueVenues.join(', ');
 			const preheader = lang === 'no'
-				? `${venueStr} og mer til helgen`
-				: `${venueStr} and more this weekend`;
+				? `${venueStr} og flere arrangementer i Bergen`
+				: `${venueStr} and more events in Bergen`;
 
 			html = generateNewsletterHtml({
 				lang,
