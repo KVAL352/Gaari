@@ -1248,3 +1248,28 @@ describe('sesongsamlinger hardkoder ikke aarstall', () => {
 	});
 });
 
+
+describe('seoTitle', () => {
+	it('konserter har egen søketittel på begge språk, med suffikset selv', () => {
+		const c = getCollection('konserter');
+		expect(c?.seoTitle?.no).toBe('Konserter i Bergen i dag og denne helgen | Gåri');
+		expect(c?.seoTitle?.en).toBe('Concerts in Bergen Today and This Weekend | Gåri');
+		// H1 skal ikke endres
+		expect(c?.title.no).toBe('Konserter i Bergen');
+	});
+
+	it('ingen seoTitle har « — Gåri» to ganger, og alle slutter på « | Gåri»', () => {
+		for (const slug of getAllCollectionSlugs()) {
+			const c = getCollection(slug);
+			if (!c?.seoTitle) continue;
+			for (const t of Object.values(c.seoTitle)) {
+				expect(t.endsWith(' | Gåri')).toBe(true);
+				expect(t).not.toContain('— Gåri');
+			}
+		}
+	});
+
+	it('samlinger uten seoTitle har ingen (faller tilbake på title)', () => {
+		expect(getCollection('i-morgen')?.seoTitle).toBeUndefined();
+	});
+});

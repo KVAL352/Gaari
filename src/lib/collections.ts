@@ -134,6 +134,11 @@ export interface Collection {
 	id: string;
 	slug: string;
 	title: Record<Lang, string>;
+	/**
+	 * Valgfri tittel for søkemotorer: brukes i <title>, og:title og twitter:title,
+	 * hele og uten « — Gåri» på slutten. H1 og JSON-LD bruker fortsatt `title`.
+	 */
+	seoTitle?: Record<Lang, string>;
 	description: Record<Lang, string>;
 	ogSubtitle: Record<Lang, string>;
 	editorial?: Record<Lang, string[]>;
@@ -478,6 +483,10 @@ const collections: Collection[] = [
 		title: {
 			no: 'Konserter i Bergen',
 			en: 'Concerts in Bergen'
+		},
+		seoTitle: {
+			no: 'Konserter i Bergen i dag og denne helgen | Gåri',
+			en: 'Concerts in Bergen Today and This Weekend | Gåri'
 		},
 		description: {
 			no: `Konserter og livemusikk i Bergen — Grieghallen, Ole Bull, Hulen, USF Verftet og flere scener. Oppdatert daglig fra ${SOURCE_COUNT} kilder.`,

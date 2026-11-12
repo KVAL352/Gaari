@@ -198,6 +198,7 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 			id: collection.id,
 			slug: collection.slug,
 			title: collection.title,
+			seoTitle: collection.seoTitle,
 			description: collection.description,
 			ogSubtitle: collection.ogSubtitle,
 			editorial: collection.editorial,

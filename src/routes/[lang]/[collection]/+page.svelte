@@ -67,6 +67,9 @@
 	// paa neste utgave — det er den folk leter etter i august.
 	let year = $derived(data.collection.seasonYear ?? new Date().getFullYear());
 	let title = $derived(data.collection.seasonal ? `${baseTitle} ${year}` : baseTitle);
+	// Tittel for søkemotorer. seoTitle har suffikset « | Gåri» selv; uten den
+	// legger siden til « — Gåri» på den vanlige tittelen.
+	let metaTitle = $derived(data.collection.seoTitle?.[ssrLang] ?? `${title} — Gåri`);
 	let descriptionBase = $derived(data.collection.description[ssrLang]);
 	// Dynamic meta description with event count for freshness signal
 	let description = $derived.by(() => {
@@ -212,20 +215,20 @@
 </script>
 
 <svelte:head>
-	<title>{title} — Gåri</title>
+	<title>{metaTitle}</title>
 	<meta name="description" content={description} />
 	<link rel="canonical" href={canonicalUrl} />
 	{#if data.events.length === 0 && !data.collection.seasonal && !data.collection.offSeasonHint}
 	<meta name="robots" content="noindex, follow" />
 	{/if}
-	<meta property="og:title" content={`${title} — Gåri`} />
+	<meta property="og:title" content={metaTitle} />
 	<meta property="og:description" content={description} />
 	<meta property="og:image" content={`${$page.url.origin}/og/c/${data.collection.slug}.png${ssrLang === 'en' ? '?lang=en' : ''}`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta property="article:modified_time" content={`${data.dateModified}T00:00:00Z`} />
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content={`${title} — Gåri`} />
+	<meta name="twitter:title" content={metaTitle} />
 	<meta name="twitter:description" content={description} />
 	<meta name="twitter:image" content={`${$page.url.origin}/og/c/${data.collection.slug}.png${ssrLang === 'en' ? '?lang=en' : ''}`} />
 	<!-- eslint-disable svelte/no-at-html-tags -->
