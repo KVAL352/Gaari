@@ -119,6 +119,7 @@ the job there is to notice what needs an answer and to say so.
 - Use MCP protonmail tools for all email operations
 - IMAP folder paths use `Folders/` prefix (e.g. `Folders/Gaari/Inquiries/Unresolved`)
 - Sieve auto-sorts `[Inquiry]`, `[Correction]`, `[Opt-out]`, `[Submission]` subjects.
+- `Inquiries/Unresolved` holder TO typer: B2B-henvendelser fra for-arrangorer, og nettside-innsendinger fra `/submit` (meldingen starter med «Nettside-innsendelse»). Den andre er en bestilling av automatisk henting (scraper), med løftet «vi tar kontakt». Se minnet `project_innsendingsflyter.md`.
   Outreach, Partnerships and the flat folders are sorted by hand, which is why
   they are easy to forget and why step 1 derives them instead of naming them.
 - IMAP deletion via Bridge is unreliable — flag for manual deletion if needed
