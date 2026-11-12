@@ -33,6 +33,22 @@ jobs:
         run: npm ci
         timeout-minutes: 2
 
+      # Utsendingen lager én MailerLite-gruppe per profil og sletter ingen. Taket er
+      # 1 000 grupper; 5. nov 2026 var det nådd, og 231 abonnenter fikk ingenting.
+      # Ryddeskriptet sletter bare `newsletter-*` eldre enn 7 dager og feiler hvis
+      # antall aktive abonnenter går ned. Da stopper jobben før noe sendes.
+      - name: Rydd gamle MailerLite-grupper
+        working-directory: scripts
+        env:
+          MAILERLITE_API_KEY: ${{ secrets.MAILERLITE_API_KEY }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            npx tsx newsletter-cleanup-groups.ts
+          else
+            npx tsx newsletter-cleanup-groups.ts --apply
+          fi
+        timeout-minutes: 15
+
       - name: Send newsletter
         id: send
         working-directory: scripts
