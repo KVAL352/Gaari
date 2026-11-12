@@ -78,7 +78,7 @@ Våre egne tall peker samme vei: i Google vinner vi på 6-ords søk (7,5 % CTR),
 2. **`/no/konserter` må ta «konsert bergen i dag/i kveld/denne helgen».** Tittel og H1 med «i dag» og «denne helgen», og lenke fra forsiden med den teksten. 12 594 visninger på temaet.
 3. **Engelsk forside-tittel for «events this weekend».** 4 400+ visninger, 0 klikk, plass 4. Bare én tittel å endre. Sjekk først hva Google faktisk viser.
 4. **FERDIG 12. nov (5683d66), mål 10. des.** Svar på «når er …»-spørsmål i utdraget på store arrangementssider** (dato og sted i meta-beskrivelsen). Lysfesten, Julegøy, Rosa sløyfe.
-5. **Uteliv/nightlife.** 652 visninger, 0 klikk, og det største søket fra Storbritannia, USA, Nederland og Tyskland. `/no/uteliv` finnes; engelsk motpart finnes ikke i slug-lista.
+5. **FERDIG 12. nov, mål 10. des.** Engelsk side fantes alt (`/en/nightlife-bergen`) med feil canonical (4ff6693); ny søketittel «Bergen Nightlife This Week: Clubs and Live Music». Uteliv/nightlife. 652 visninger, 0 klikk, og det største søket fra Storbritannia, USA, Nederland og Tyskland. `/no/uteliv` finnes; engelsk motpart finnes ikke i slug-lista.
 
 ## Språknisjer
 
