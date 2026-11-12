@@ -308,5 +308,15 @@
     "date": "2027-01-12",
     "title": "Bymuseet: ta kontakt om kaffe og presentasjon av Gåri",
     "description": "Kontakten hos Bymuseet ba i oktober 2026 om at vi tar kontakt over nyttår for en kaffe og en ordentlig presentasjon av Gåri. Bymuseet ble slått av som kilde 14. oktober etter ønske fra dem. Detaljer i private/reminders.json."
+  },
+  {
+    "date": "2026-11-26",
+    "title": "Mål jul-CTR etter julesidene (86d76c7)",
+    "description": "Julesidene ble endret 12. november (commit 86d76c7). Hent klikkandel og klikk for /no/julemarked og /no/julekonserter fra Search Console, 14 dager etter endringen mot 14 dager før, og sammenlign med resten av sidene for å se sesongeffekt. Husk at desember øker søk på jul uansett, så mål andel, ikke antall. Skriv resultatet i OVERLEVERING.md under lavthengende frukt 1."
+  },
+  {
+    "date": "2026-12-10",
+    "title": "Mål konsertsiden og engelsk forside i Search Console",
+    "description": "Tre endringer gikk live 12. november: engelsk forsidetittel (8621953), egen søketittel på /no/konserter og /en/konserter (0ee25f8) og lenketekst «Konserter i dag» i bunnen (f50f3bc). Mål klikk, visninger, klikkandel og posisjon for hver side, 28 dager etter mot 28 dager før. De tre ble pushet samme dag, så effekten kan ikke skilles fra hverandre; si det i konklusjonen. Les sammen med delmålene i scripts/seo-report.ts (klikk per dag). Hun avgjør om delmålene skal justeres."
   }
 ]
