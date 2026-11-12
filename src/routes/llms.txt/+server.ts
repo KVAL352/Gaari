@@ -81,7 +81,8 @@ const PAGES = `## Key pages
 
 ### Seasonal collections (Norwegian)
 - [17. mai i Bergen](https://gaari.no/no/17-mai) — Constitution Day events
-- [Julemarked i Bergen](https://gaari.no/no/julemarked) — Christmas markets and holiday events
+- [Julemarked og julearrangementer i Bergen](https://gaari.no/no/julemarked) — Christmas markets and holiday events
+- [Julekonserter i Bergen](https://gaari.no/no/julekonserter) — Christmas concerts
 - [Påske i Bergen](https://gaari.no/no/paske) — Easter events
 - [Sankthans i Bergen](https://gaari.no/no/sankthans) — Midsummer celebrations
 - [Nyttårsaften i Bergen](https://gaari.no/no/nyttarsaften) — New Year's Eve events
@@ -90,7 +91,8 @@ const PAGES = `## Key pages
 
 ### Seasonal collections (English)
 - [17th of May in Bergen](https://gaari.no/en/17th-of-may-bergen) — Constitution Day
-- [Christmas in Bergen](https://gaari.no/en/christmas-bergen) — Christmas markets and events
+- [Christmas Events and Markets in Bergen](https://gaari.no/en/christmas-bergen) — Christmas markets and events
+- [Christmas Concerts in Bergen](https://gaari.no/en/christmas-concerts-bergen) — Christmas concerts
 - [Easter in Bergen](https://gaari.no/en/easter-bergen) — Easter events
 - [Midsummer in Bergen](https://gaari.no/en/midsummer-bergen) — Midsummer celebrations
 - [New Year's Eve in Bergen](https://gaari.no/en/new-years-eve-bergen) — NYE events

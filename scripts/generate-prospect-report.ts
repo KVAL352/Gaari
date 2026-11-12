@@ -195,14 +195,24 @@ const COLLECTION_META: Record<string, { no: string; en: string; desc_no: string;
 		categories: ['music', 'culture', 'family', 'festival', 'tours']
 	},
 	'julemarked': {
-		no: 'Julemarked i Bergen', en: 'Christmas Markets',
+		no: 'Julemarked og julearrangementer i Bergen', en: 'Christmas Events and Markets in Bergen',
 		desc_no: 'Julemarkeder og julearrangementer', desc_en: 'Christmas markets and holiday events',
 		categories: ['family', 'food', 'culture', 'music', 'workshop']
 	},
 	'christmas-bergen': {
-		no: 'Christmas in Bergen', en: 'Christmas in Bergen',
-		desc_no: 'Christmas events in Bergen', desc_en: 'Christmas events in Bergen',
+		no: 'Julemarked og julearrangementer i Bergen', en: 'Christmas Events and Markets in Bergen',
+		desc_no: 'Julemarkeder og julearrangementer', desc_en: 'Christmas markets and holiday events',
 		categories: ['family', 'food', 'culture', 'music', 'workshop']
+	},
+	'julekonserter': {
+		no: 'Julekonserter i Bergen', en: 'Christmas Concerts in Bergen',
+		desc_no: 'Julekonserter i Bergen', desc_en: 'Christmas concerts in Bergen',
+		categories: ['music']
+	},
+	'christmas-concerts-bergen': {
+		no: 'Julekonserter i Bergen', en: 'Christmas Concerts in Bergen',
+		desc_no: 'Julekonserter i Bergen', desc_en: 'Christmas concerts in Bergen',
+		categories: ['music']
 	},
 	'paske': {
 		no: 'Påske i Bergen', en: 'Easter in Bergen',

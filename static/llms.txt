@@ -44,8 +44,10 @@ Gåri collects events from 61 local sources in Bergen and presents them in a sin
 - https://gaari.no/en/17th-of-may-bergen — 17th of May in Bergen
 - https://gaari.no/no/paske — Påske i Bergen (Easter)
 - https://gaari.no/en/easter-bergen — Easter in Bergen
-- https://gaari.no/no/julemarked — Julemarked i Bergen (Christmas)
-- https://gaari.no/en/christmas-bergen — Christmas in Bergen
+- https://gaari.no/no/julemarked — Julemarked og julearrangementer i Bergen (Christmas)
+- https://gaari.no/en/christmas-bergen — Christmas Events and Markets in Bergen
+- https://gaari.no/no/julekonserter — Julekonserter i Bergen
+- https://gaari.no/en/christmas-concerts-bergen — Christmas Concerts in Bergen
 - https://gaari.no/no/sankthans — Sankthans i Bergen (Midsummer)
 - https://gaari.no/en/midsummer-bergen — Midsummer in Bergen
 - https://gaari.no/no/nyttarsaften — Nyttårsaften i Bergen
