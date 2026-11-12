@@ -56,7 +56,8 @@ export const POST: RequestHandler = async ({ request }) => {
 				name,
 				organization,
 				email,
-				message: data.message ? truncate(data.message, 2000) : null
+				message: data.message ? truncate(data.message, 2000) : null,
+				kilde: 'nettside'
 			}).catch((err) => console.error('Failed to send website submission notification:', err));
 		}
 	} catch (err) {

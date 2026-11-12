@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
+import { varselEmne, varselIngress, type InquiryKilde } from '$lib/innsending';
 
 const ADMIN_EMAIL = 'post@gaari.no';
 
@@ -76,14 +77,15 @@ export async function notifyInquiry(data: {
 	organization: string;
 	email: string;
 	message: string | null;
+	kilde: InquiryKilde;
 }): Promise<void> {
 	await getResend().emails.send({
 		from: 'Gåri <noreply@gaari.no>',
 		to: ADMIN_EMAIL,
 		replyTo: data.email,
-		subject: `[Inquiry] ${data.organization} — ${data.name}`,
+		subject: varselEmne(data.organization, data.name, data.kilde),
 		text: [
-			`New inquiry from the B2B contact form (for-arrangorer).`,
+			varselIngress(data.kilde),
 			``,
 			`Name: ${data.name}`,
 			`Organization: ${data.organization}`,

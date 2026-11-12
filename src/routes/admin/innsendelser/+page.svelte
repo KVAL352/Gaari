@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import AdminNav from '$lib/components/AdminNav.svelte';
+	import { erNettsideInnsending } from '$lib/innsending';
 	import type { PageData } from './$types';
 	import type { InquiryRow } from './+page.server';
 
@@ -12,13 +13,8 @@
 		return new Date(d).toLocaleDateString('nb-NO', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 	}
 
-	function isWebsiteSubmission(message: string | null): boolean {
-		return !!message && message.startsWith('Nettside-innsendelse');
-	}
-
 	function cleanMessage(message: string | null): string {
-		if (!message) return '–';
-		return message.replace(/^Nettside-innsendelse\n?\n?/, '').trim() || '–';
+		return message?.trim() || '–';
 	}
 
 	const STATUS_LABELS: Record<string, string> = {
@@ -98,7 +94,7 @@
 						{formatDateTime(inquiry.created_at)}
 					</td>
 					<td style="padding: 12px; white-space: nowrap;">
-						{#if isWebsiteSubmission(inquiry.message)}
+						{#if erNettsideInnsending(inquiry.kilde)}
 						<span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #E8F4FD; color: #0A4A7A;">
 							Nettside
 						</span>
@@ -109,7 +105,7 @@
 						{/if}
 					</td>
 					<td style="padding: 12px; font-weight: 500; color: #141414; max-width: 160px;">
-						{#if isWebsiteSubmission(inquiry.message) && inquiry.organization.startsWith('http')}
+						{#if erNettsideInnsending(inquiry.kilde) && inquiry.organization.startsWith('http')}
 						<a href={inquiry.organization} target="_blank" rel="noopener noreferrer" style="color: #C82D2D; word-break: break-all;">
 							{inquiry.organization}
 						</a>

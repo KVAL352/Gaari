@@ -9,6 +9,7 @@ export interface InquiryRow {
 	organization: string;
 	email: string;
 	message: string | null;
+	kilde: 'b2b' | 'nettside';
 	status: 'new' | 'contacted' | 'converted' | 'declined';
 	notes: string | null;
 	created_at: string;

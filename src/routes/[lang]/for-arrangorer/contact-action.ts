@@ -31,13 +31,14 @@ export async function handleContactSubmit({ request }: RequestEvent) {
 		name,
 		organization,
 		email,
-		message
+		message,
+		kilde: 'b2b'
 	});
 
 	if (error) return fail(500, { contactError: true });
 
 	// Ventes på, ellers kan Vercel stoppe funksjonen før eposten er sendt.
-	await notifyInquiry({ name, organization, email, message }).catch((err) =>
+	await notifyInquiry({ name, organization, email, message, kilde: 'b2b' }).catch((err) =>
 		console.error('Failed to send inquiry notification:', err)
 	);
 

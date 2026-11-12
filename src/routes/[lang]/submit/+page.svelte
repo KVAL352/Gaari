@@ -3,6 +3,7 @@
 	import { lang, t } from '$lib/i18n';
 	import { CATEGORIES, BYDELER } from '$lib/types';
 	import { getCanonicalUrl } from '$lib/seo';
+	import { byggNettsideMelding } from '$lib/innsending';
 	import { supabase } from '$lib/supabase';
 	import { slugify, toBergenIsoFromParts } from '$lib/utils';
 	import { Upload, AlertTriangle, CalendarPlus, Globe } from 'lucide-svelte';
@@ -411,15 +412,14 @@
 				: '\nSosiale medier: ikke godkjent. Kun visning på gaari.no.')
 			: '';
 		const imageNote = imageNotes[websiteImageChoice!] + promoNote;
-		const message = note
-			? `Nettside-innsendelse\n\n${note}${imageNote}`
-			: `Nettside-innsendelse${imageNote}`;
+		const message = byggNettsideMelding(note, imageNote);
 
 		const { error } = await supabase.from('organizer_inquiries').insert({
 			name,
 			organization: url,
 			email,
-			message
+			message,
+			kilde: 'nettside'
 		});
 
 		websiteSubmitting = false;
