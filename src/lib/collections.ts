@@ -618,6 +618,12 @@ const collections: Collection[] = [
 			no: 'Uteliv i Bergen denne uken',
 			en: 'Nightlife in Bergen This Week'
 		},
+		// Bare engelsk er endret (12. nov 2026): «Bergen nightlife» er det største
+		// søket fra utlandet. Norsk har bare fått samme suffiks som de andre (« | Gåri»).
+		seoTitle: {
+			no: 'Uteliv i Bergen denne uken | Gåri',
+			en: 'Bergen Nightlife This Week: Clubs and Live Music | Gåri'
+		},
 		description: {
 			no: 'Uteliv i Bergen denne uken — konserter, klubber, livemusikk og barer med arrangement på Hulen, Madam Felle, USF Verftet, Bergen Kjøtt og flere.',
 			en: 'Bergen nightlife this week — concerts, clubs, live music and bar events at Hulen, Madam Felle, USF Verftet, Bergen Kjøtt and more.'

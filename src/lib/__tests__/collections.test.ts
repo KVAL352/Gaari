@@ -1269,6 +1269,15 @@ describe('seoTitle', () => {
 		}
 	});
 
+	it('uteliv har engelsk søketittel med «Bergen nightlife» først, og H1 er uendret', () => {
+		const c = getCollection('uteliv');
+		expect(c?.seoTitle?.en).toBe('Bergen Nightlife This Week: Clubs and Live Music | Gåri');
+		expect(c?.seoTitle?.en.length).toBeLessThanOrEqual(60);
+		expect(c?.title.en).toBe('Nightlife in Bergen This Week');
+		// den engelske aliassiden henter samme samling
+		expect(getCollection('nightlife-bergen')?.seoTitle?.en).toBe(c?.seoTitle?.en);
+	});
+
 	it('samlinger uten seoTitle har ingen (faller tilbake på title)', () => {
 		expect(getCollection('i-morgen')?.seoTitle).toBeUndefined();
 	});
