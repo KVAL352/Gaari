@@ -79,6 +79,37 @@ export function formatMetaDate(dateStr: string, locale: 'no' | 'en' = 'no'): str
 	});
 }
 
+/**
+ * Meta-beskrivelse for en arrangementsside. Dato og sted staar FOERST, fordi
+ * soeket er «naar er ...» og Google kutter bak ca. 160 tegn. Beskrivelsen
+ * fyller resten. Staar tittelen foerst i beskrivelsen, strippes den (ellers
+ * staar navnet to ganger).
+ */
+export function buildMetaDescription(
+	title: string,
+	description: string | null | undefined,
+	venue: string | null | undefined,
+	dateStr: string,
+	locale: 'no' | 'en' = 'no'
+): string {
+	const MAX = 160;
+	const date = formatMetaDate(dateStr, locale);
+	const where = venue?.trim() ? `${locale === 'no' ? 'på' : 'at'} ${venue.trim()}, Bergen` : 'i Bergen';
+	const place = venue?.trim() ? where : locale === 'no' ? 'i Bergen' : 'in Bergen';
+	const lead = `${title.trim()}: ${date} ${place}.`;
+	if (lead.length >= MAX) return lead.slice(0, MAX - 1).trimEnd() + '…';
+
+	let desc = (description || '').replace(/\s+/g, ' ').trim();
+	if (desc.toLowerCase().startsWith(title.trim().toLowerCase())) {
+		desc = desc.slice(title.trim().length).replace(/^[\s—–:.,-]+/, '');
+	}
+	const room = MAX - lead.length - 1;
+	if (!desc || room < 40) return lead;
+	if (desc.length <= room) return `${lead} ${desc}`;
+	const cut = desc.lastIndexOf(' ', room - 1);
+	return `${lead} ${desc.slice(0, cut > 0 ? cut : room - 1)}…`;
+}
+
 export function formatEventTime(dateStr: string, locale: 'no' | 'en' = 'no'): string {
 	const date = new Date(dateStr);
 	// Don't show time if it's the midnight UTC placeholder (scraped events without known times)

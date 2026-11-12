@@ -4,7 +4,7 @@
 	import { lang, t } from '$lib/i18n';
 	import { collectionHref } from '$lib/collection-urls';
 	import {
-		formatEventDate, formatEventTime, formatMetaDate, formatPrice, isFreeEvent, buildOutboundUrl,
+		formatEventDate, formatEventTime, formatMetaDate, buildMetaDescription, formatPrice, isFreeEvent, buildOutboundUrl,
 		outboundRel
 	} from '$lib/utils';
 	import type { GaariEvent } from '$lib/types';
@@ -40,18 +40,7 @@
 		if (venue) parts.push(venue);
 		return parts.join(' — ') + ' | Gåri';
 	});
-	let metaDescription = $derived.by(() => {
-		const date = formatMetaDate(event.date_start, $lang);
-		const venue = event.venue_name ? `${event.venue_name}, Bergen` : 'Bergen';
-		const suffix = ` — ${date}, ${venue}`;
-		const desc = description || title;
-		const maxDescLen = 160 - suffix.length;
-		if (maxDescLen < 40) return (desc + suffix).slice(0, 160);
-		const trimmed = desc.length > maxDescLen
-			? desc.slice(0, desc.lastIndexOf(' ', maxDescLen) || maxDescLen) + '…'
-			: desc;
-		return trimmed + suffix;
-	});
+	let metaDescription = $derived(buildMetaDescription(title, description, event.venue_name, event.date_start, $lang));
 
 	let isCancelled = $derived(event.status === 'cancelled');
 

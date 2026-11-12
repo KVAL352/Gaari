@@ -6,7 +6,8 @@ import {
 	buildOutboundUrl,
 	outboundRel,
 	formatEventTime,
-	toBergenIsoFromParts
+	toBergenIsoFromParts,
+	buildMetaDescription
 } from '../utils';
 
 describe('toBergenIsoFromParts', () => {
@@ -296,5 +297,38 @@ describe('outboundRel', () => {
 		for (const u of ['https://bookibud.com/x', 'https://grieghallen.no/x', 'not-a-url']) {
 			expect(outboundRel(u).split(' ')).toContain('noopener');
 		}
+	});
+});
+
+describe('buildMetaDescription', () => {
+	const d = '2026-11-14T10:00:00+01:00';
+	it('setter dato og sted foerst', () => {
+		const m = buildMetaDescription('Lysfesten 2026', 'Studentarrangement paa Festplassen.', 'Festplassen', d);
+		expect(m.startsWith('Lysfesten 2026: 14. nov. 2026 på Festplassen, Bergen.')).toBe(true);
+		expect(m).toContain('Studentarrangement');
+	});
+	it('stripper tittelen fra starten av beskrivelsen og dobbeltmellomrom', () => {
+		const m = buildMetaDescription('Lysfesten 2026', 'Lysfesten 2026 — Studentarrangement.  ', 'Festplassen', d);
+		expect(m.match(/Lysfesten 2026/g)).toHaveLength(1);
+		expect(m).not.toMatch(/\s{2}/);
+	});
+	it('uten sted staar bare Bergen', () => {
+		expect(buildMetaDescription('X', 'Hei', null, d)).toContain('i Bergen.');
+		expect(buildMetaDescription('X', 'Hei', null, d, 'en')).toContain('in Bergen.');
+	});
+	it('engelsk bruker at', () => {
+		expect(buildMetaDescription('X', 'Hi', 'Grieghallen', d, 'en')).toContain('at Grieghallen, Bergen.');
+	});
+	it('uten beskrivelse: bare linjen foran', () => {
+		expect(buildMetaDescription('X', '', 'Y', d)).toBe('X: 14. nov. 2026 på Y, Bergen.');
+	});
+	it('aldri over 160 tegn, kuttes ved ord', () => {
+		const m = buildMetaDescription('Tittel', 'ord '.repeat(100), 'Sted', d);
+		expect(m.length).toBeLessThanOrEqual(160);
+		expect(m.endsWith('…')).toBe(true);
+	});
+	it('lang tittel: bare linjen foran, kuttet', () => {
+		const m = buildMetaDescription('T'.repeat(200), 'Hei', 'Sted', d);
+		expect(m.length).toBeLessThanOrEqual(160);
 	});
 });
