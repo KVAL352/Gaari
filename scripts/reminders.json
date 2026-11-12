@@ -318,5 +318,10 @@
     "date": "2026-12-10",
     "title": "Mål konsertsiden og engelsk forside i Search Console",
     "description": "Tre endringer gikk live 12. november: engelsk forsidetittel (8621953), egen søketittel på /no/konserter og /en/konserter (0ee25f8) og lenketekst «Konserter i dag» i bunnen (f50f3bc). Mål klikk, visninger, klikkandel og posisjon for hver side, 28 dager etter mot 28 dager før. De tre ble pushet samme dag, så effekten kan ikke skilles fra hverandre; si det i konklusjonen. Les sammen med delmålene i scripts/seo-report.ts (klikk per dag). Hun avgjør om delmålene skal justeres."
+  },
+  {
+    "date": "2026-12-10",
+    "title": "Mål meta-beskrivelsen på arrangementssider (5683d66)",
+    "description": "Dato og sted står først i meta-beskrivelsen på alle arrangementssider siden 12. november (5683d66). Mål klikkandel og visninger for Lysfesten, Julegøy og Rosa sløyfe i Search Console, 28 dager etter mot 28 dager før. Effekten på posisjon forventes ikke, bare på klikkandel. Sjekk først med curl at beskrivelsen er live. Tre andre endringer gikk live samme dag (se påminnelsen om konsertsiden), så si ifra om at effekten ikke kan skilles fullt ut."
   }
 ]
