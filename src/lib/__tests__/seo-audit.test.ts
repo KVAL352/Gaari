@@ -103,6 +103,24 @@ describe('source count consistency', () => {
 	});
 });
 
+// ─── llms.txt: arrangørsvaret ───────────────────────────────────────
+// Live /llms.txt bygges av ruta, ikke av static/llms.txt. Arrangørsvaret skal stå
+// i alle tre, og lenke til /submit: /for-arrangorer er skjult og sender til forsiden.
+
+describe('llms-filene svarer arrangører', () => {
+	const projectRoot = path.resolve(import.meta.dirname, '../../..');
+	const files = ['src/routes/llms.txt/+server.ts', 'static/llms.txt', 'static/llms-full.txt'];
+	for (const file of files) {
+		it(`${file} lenker til innsendingssida på norsk og engelsk`, () => {
+			const text = fs.readFileSync(path.join(projectRoot, file), 'utf-8');
+			expect(text).toContain('https://gaari.no/no/submit');
+			expect(text).toContain('https://gaari.no/en/submit');
+			expect(text).not.toContain('gaari.no/no/for-arrangorer');
+			expect(text).not.toContain('gaari.no/en/for-organizers');
+		});
+	}
+});
+
 // ─── Meta Description Validation ────────────────────────────────────
 
 describe('collection meta descriptions', () => {
