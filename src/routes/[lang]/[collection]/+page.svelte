@@ -82,7 +82,7 @@
 		}
 		return base;
 	});
-	let canonicalUrl = $derived(getCanonicalUrl(`/${ssrLang}/${data.collection.slug}`));
+	let canonicalUrl = $derived(getCanonicalUrl(collectionHref(data.collection.slug, ssrLang)));
 	let collectionJsonLd = $derived(
 		generateCollectionJsonLd(data.collection, ssrLang, canonicalUrl, data.events)
 	);
