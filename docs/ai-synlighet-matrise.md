@@ -118,6 +118,23 @@ Etter at matrisen er fylt ut:
 2. Sammenlign med backlinkene vi har (litthusbergen.no, studentbergen.no) og målene på lista (bergen.kommune.no/hvaskjer, 1881-katalogen).
 3. Velg 3 til 5 tiltak. Ikke flere.
 
+### Tiltak etter første runde (2026-11-12)
+
+Grunnlaget er tynt: én motor, én kjøring per spørsmål, innlogget konto. Tiltakene under er valgt fordi de er billige og ikke kan skade, ikke fordi matrisen beviser at de virker.
+
+**Vi har sidene, vi mangler tilliten.** Gåri har egne samlingssider for de fleste spørsmålene vi tapte: gratis (#6, #13), konserter (#7), teater (#9), quiz (#10), julemarked (#15, #18), engelsk nyttårsaften (#17). Svaret er altså ikke flere sider. Unntakene er jazz (#12) og «denne måneden» (#5), og de er ikke grunn nok til nye sider etter én kjøring.
+
+1. **Svar arrangørene i llms-filene.** `static/llms.txt` nevner ikke arrangører i det hele tatt, og `llms-full.txt` sier bare «Use the submission form at gaari.no», uten lenke. Legg inn et spørsmål og svar på norsk og engelsk («Hvor kan jeg legge inn arrangementet mitt i Bergen?» / «Where can I list my event in Bergen?») med lenke til `/no/submit` og `/no/for-arrangorer`. Svarer på #24 til #26. Usikkert: vi vet ikke om ChatGPT leser llms.txt; i mai var det bare et inntrykk.
+2. **Sjekk Bing før noe annet tolkes.** Lag 1 har to hull: Bing-dekningen og crawlerne i Vercel-loggen. ChatGPT-søk antas å bygge på Bing, men det har vi ikke en verifisert kilde på. Se særlig om de engelske samlingssidene er indeksert (#16 S mot #17 0). Krever Bing Webmaster og Vercel-dashbordet, altså henne.
+3. **Lenker fra domener som faktisk siteres, ikke fra konkurrenter.** visitbergen.com (11 av 28) er konkurrent og ikke et mål. kulturikveld.no er en aggregator vi selv skraper. Det som står igjen:
+   - **bergen.kommune.no** ble sitert på #24 og står alt som mål i påminnelsen «Registrer Gåri i norske kataloger» (`scripts/reminders.json`). Matrisen styrker den, den legger ikke til noe nytt.
+   - **samfunnetibergen.no** (2 av 28): vi har en relasjon gjennom Martin, og scraperen skal bygges. Når den er live, kan det spørres om en lenke, slik Litteraturhuset og StudentBergen har.
+   - **norskekalendere.no, altskjer.no, myguidebergen.com**: ukjent om de er kataloger vi kan stå i eller konkurrenter. Se på dem før noen kontaktes.
+   Dette er også det eneste som kan hjelpe merkenavnet (#27): «Gåri» blir kjent gjennom at andre skriver det, ikke gjennom våre egne filer.
+4. **Andre runde før neste beslutning.** Kjør de 28 på nytt i desember, to ganger hver, og ta Perplexity og Gemini med. Bare de spørsmålene som er 0 i begge kjøringene regnes som tap. Sted- og festivalspørsmålene (#19 til #21) kan droppes fra runden; de gir bare arrangørens egen side.
+
+Ikke valgt: egne sider for jazz og «denne måneden», og endringer i samlingssidene. Begge venter på andre runde.
+
 ## Krysskontroll mot egne data
 
 - Search Console: samlingssider med mange visninger og få klikk.
