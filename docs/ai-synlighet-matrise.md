@@ -16,7 +16,7 @@ Opprettet 2026-11-12. Erstatter ikke minnenotatet `ai-search-status.md`, men gir
 | llms.txt | 200, 9 550 byte | |
 | llms-full.txt | 200, 14 476 byte | |
 | Crawlere i Vercel-loggene | IKKE SJEKKET | Å ha lov er ikke det samme som å bli besøkt |
-| Bing-indeksdekning | IKKE SJEKKET | Bing Webmaster, manuelt |
+| Bing-indeksdekning | 2 267 sider i indeksen 5. nov, ned fra 2 449 30. okt. 570 til 770 sider krøpet per dag | Hentet 12. nov med `scripts/seo-report.ts` (API, ingen innlogging). Bings tall henger ca. en uke etter. Feiltallet (150 til 270 per dag) teller med 410-svar, se minnet `bing_crawl_errors_misleading.md`. Null klikk fra Bing på alle sidene i lista. Om de engelske samlingssidene er indeksert, sier ikke API-kallene i skriptet; det krever URL-inspeksjon i Bing Webmaster |
 | JSON-LD stemmer med siden | IKKE SJEKKET denne gangen | Sist verifisert i mai |
 
 ## Lag 1b: AI-henvisninger i Umami (28 dager mot 28 før)
