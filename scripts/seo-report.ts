@@ -179,6 +179,38 @@ async function gscReport() {
 	startDate.setDate(startDate.getDate() - 29);
 	const fmt = (d: Date) => d.toISOString().slice(0, 10);
 
+	// Delmål 2027: totaler for de siste 28 dagene (uten dimensjon = én rad).
+	// Målene er satt 12. nov 2026, se .claude/docs/seo-analysis-2026-11/demografikart.md.
+	// Merk: 28 dager, ikke kalendermåned, slik at tallet er sammenlignbart uke for uke.
+	try {
+		const goalEnd = new Date();
+		goalEnd.setDate(goalEnd.getDate() - 3); // GSC henger 2-3 dager etter
+		const goalStart = new Date(goalEnd);
+		goalStart.setDate(goalStart.getDate() - 27);
+		const resp = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(GSC_SITE)}/searchAnalytics/query`, {
+			method: 'POST',
+			headers: gscHeaders,
+			body: JSON.stringify({ startDate: fmt(goalStart), endDate: fmt(goalEnd) })
+		});
+		if (resp.ok) {
+			const data = await resp.json() as { rows?: Array<{ clicks: number; impressions: number; ctr: number }> };
+			const t = data.rows?.[0];
+			if (t) {
+				const GOAL_IMPRESSIONS = 145_000;
+				const GOAL_CTR = 0.031;
+				const GOAL_CLICKS_PER_DAY = 150;
+				console.log(`\n  Delmål (siste 28 dager, ${fmt(goalStart)} → ${fmt(goalEnd)}):`);
+				table([
+					{ mål: 'Visninger', nå: t.impressions, delmål: GOAL_IMPRESSIONS, andel: pct(t.impressions / GOAL_IMPRESSIONS) },
+					{ mål: 'Klikkandel', nå: pct(t.ctr), delmål: pct(GOAL_CTR), andel: pct(t.ctr / GOAL_CTR) },
+					{ mål: 'Klikk per dag', nå: (t.clicks / 28).toFixed(0), delmål: GOAL_CLICKS_PER_DAY, andel: pct(t.clicks / 28 / GOAL_CLICKS_PER_DAY) }
+				]);
+			}
+		} else {
+			console.error('  GSC delmål error:', await resp.text());
+		}
+	} catch (e) { console.error('  GSC delmål error:', e); }
+
 	// Search performance — top queries
 	try {
 		const resp = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(GSC_SITE)}/searchAnalytics/query`, {
