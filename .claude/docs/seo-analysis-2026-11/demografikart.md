@@ -79,6 +79,18 @@ Hun velger 2 til 3. Forslaget mitt står nederst.
 
 Ikke valgt: seniorer (Google er trolig ikke kanalen), polsk og ukrainsk (ingen arrangementssøk), studenter som egen gruppe (nås gjennom lenker, ikke søk).
 
+**Besluttet 12. november 2026 (hun):** alle tre forslagene, altså barnefamilier, nye i Bergen (engelsk) og turister om sommeren. Hovedmål for 2027 (punkt B i `kartlegging.md`): **klikk fra Google**. Måltall er ikke satt (i dag ca. 100 klikk per dag).
+
+## Hva basen har for de valgte gruppene (S, Supabase 12. nov)
+
+Kommende godkjente rader uten canaries: 1 411 (12. nov 2026 til 5. nov 2027). Skript: tellingen ble kjørt fra scratchpad, ikke lagret i repoet.
+
+**Barn** (`category='family'` eller `age_group='family'`): 116. Helg 81, hverdag (man–fre, Oslo-tid) 35. Gratis 41, av dem 12 på hverdag. Per måned (hverdag/helg): nov 12/34, des 17/25, jan 0/8, feb 3/12, deretter nesten ingenting. Hverdagsarrangementene er bibliotek, Fyllingsdalen Teater og Loddefjord menighetshus. 9 rader nevner de minste (babysang, språkleik).
+- Konsekvens: en hverdagsside for barn har ca. 3 til 4 arrangementer i uka nå, og ingen i januar. Den blir tynn uten flere kilder.
+- Data om sommeren finnes ikke ennå: kildene legger ut arrangementer en til to måneder fram. En sommerferieside må bygges på evergreen-tekst og fylles når kildene publiserer (mai/juni).
+
+**Nye i Bergen:** 41 språkkafeer og norsktreninger i tittelen, på 8 steder, alle fra `bergenbibliotek`, ca. 20 per måned (nov og des). 34 av 41 har `title_en`. Ordsøket fanget også noen få andre (møteplasser for voksne, «Gubbetreffet»), og ellers mest støy. En engelsk side for nye i Bergen har altså jevn tilførsel, men bare fra én kilde.
+
 ## Hull vi vet om
 
 - Antall internasjonale studenter ved UiB og HVL (DBH).
