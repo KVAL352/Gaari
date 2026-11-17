@@ -5,7 +5,8 @@
 	import { browser } from '$app/env';
 	import { lang, t } from '#lib/i18n';
 	import { collectionHref } from '#lib/collection-urls';
-	import { isFreeEvent, isTouristFriendly, isStudentRelevant } from '#lib/utils';
+	import { isFreeEvent } from '#lib/utils';
+	import { matchesAudience } from '#lib/audience';
 	import { hideEvent, hideVenue, hideCategory, isHidden, unhideAll, hiddenCount, hiddenSummary } from '#lib/hidden-events.svelte';
 	import { getOsloNow, toOsloDateStr, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString, eventOnDay, eventOverlapsRange, sortForListing } from '#lib/event-filters';
 	import type { Bydel, GaariEvent } from '#lib/types';
@@ -97,66 +98,9 @@
 			events = events.filter(e => !isFreeEvent(e.price));
 		}
 
-		// Audience filter
-		const familyTitleRe = /familie|barnelørdag|barnas\s|for\s+barn|barneforestilling/i;
-		if (audience === 'family') {
-			events = events.filter(e => e.age_group === 'family' || e.category === 'family' || familyTitleRe.test(e.title_no));
-		} else if (audience === 'ungdom') {
-			const youthRe = /\bungdom|\btenåring|\bteenåring|\bfor\s+unge?\b|\bunge?\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år/i;
-			events = events.filter(e => {
-				if (e.age_group === '18+') return false;
-				if (e.category === 'nightlife' || e.category === 'food') return false;
-				if (e.age_group === 'family' || e.category === 'family') return true;
-				if (e.age_group === 'youth') return true;
-				if (youthRe.test(e.title_no) || youthRe.test(e.description_no)) return true;
-				return false;
-			});
-		} else if (audience === 'student') {
-			events = events.filter(e => isStudentRelevant(e));
-		} else if (audience === 'tourist') {
-			events = events.filter(e => isTouristFriendly(e));
-		} else if (audience === 'voksen') {
-			const voksenCategories = new Set(['culture', 'music', 'theatre', 'tours', 'food', 'workshop', 'festival']);
-			const clubRe = /\bklubb|\bdj\b|\bhouse\b|\btechno|\bafterparty|\bnattklubb|\brave\b/i;
-			const childRe = /junior|for\s+barn|\bbarnas\s|barnelørdag|barneforestilling|eventyrstund|eventyromvisning|prompepulver|babysang|babymassasje|babysvømming|knøttekor|knottekor|lillelørdag|lørdagsverksted|ronja\s+røverdatter|fabelrommet/i;
-			const youthRe = /\bungdom|\bfor\s+unge?\b|\bunge?\b|\btenåring|\bteen/i;
-			const indieVenues = ['hulen', 'garage', 'kvarteret', 'det akademiske kvarter', 'landmark', 'bergen kjøtt', 'fincken', 'røkeriet', 'østre'];
-			events = events.filter(e => {
-				if (e.age_group === 'family' || e.category === 'family') return false;
-				if (e.age_group === 'students' || e.age_group === 'youth') return false;
-				if (!voksenCategories.has(e.category)) return false;
-				if (clubRe.test(e.title_no) || clubRe.test(e.description_no || '')) return false;
-				const text = e.title_no + ' ' + (e.venue_name || '');
-				if (childRe.test(text)) return false;
-				if (youthRe.test(e.title_no)) return false;
-				const venueLower = e.venue_name?.toLowerCase() || '';
-				if (indieVenues.some(v => venueLower.includes(v))) return false;
-				if (/\bhulen\b/i.test(e.title_no)) return false;
-				return true;
-			});
-		} else if (audience === 'adult') {
-			const adultVenueNames = [
-				'hulen', 'garage', 'kvarteret', 'akademiske kvarter', 'landmark',
-				'bergen kjøtt', 'fincken', 'røkeriet', 'østre', 'bodega',
-				"o'connor", 'gåsa pub', 'biblioteket bar', 'bryggen nightclub', 'cinemateket',
-				'victoria', 'kronbar', 'statsraaden',
-				'7 fjell bryggeri', '7fjell bryggeri', 'kennel', 'steppeulven',
-				'bakrommet', 'spissen', 'sardinen', "heidi's", 'shipyard'
-			];
-			const adultRe = /\bsingel\s*treff|\bspeed\s*dat|\bpub\s*quiz|\bquiz\b|\blive\s+på\s+pub|\bnattklubb|\bklubb(?:kveld|natt)|\bafterparty|\bbar\s+og\b|\bstand.?up\b|\bklubbkveld\b|\bklubb\b/i;
-			const childRe18 = /\bjunior\b|\bfor\s+barn\b|\bbarnas\s|\bbarnelørdag|\bbarneforestilling|\beventyrstund|\beventyromvisning|\bprompepulver/i;
-			events = events.filter(e => {
-				if (e.age_group === 'family' || e.category === 'family') return false;
-				if (childRe18.test(e.title_no)) return false;
-				if (e.age_group === '18+') return true;
-				if (e.category === 'nightlife') return true;
-				const venueLower = e.venue_name?.toLowerCase() || '';
-				if (adultVenueNames.some(v => venueLower.includes(v))) return true;
-				if (adultRe.test(e.title_no) || adultRe.test(e.description_no || '')) return true;
-				return false;
-			});
-		} else if (audience === 'free') {
-			events = events.filter(e => isFreeEvent(e.price));
+		// Audience filter: same rule as the count on the button ($lib/audience)
+		if (audience) {
+			events = events.filter(e => matchesAudience(e, audience));
 		}
 
 		// Search query
