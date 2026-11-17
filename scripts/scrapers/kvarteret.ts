@@ -1,149 +1,203 @@
-import { mapBydel } from '../lib/categories.js';
-import { makeSlug, eventExists, insertEvent } from '../lib/utils.js';
+import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
+import { mapBydel, hasAdultAgeLimit } from '../lib/categories.js';
+import { resolveTicketUrl } from '../lib/venues.js';
+import * as cheerio from 'cheerio';
 
+// Det Akademiske Kvarter, via Samfunnet i Bergen (samfunnetibergen.no).
+// Den gamle kilden kvarteret.no/api/events svarer 404, så kildenavnet `kvarteret`
+// bor nå her. robots.txt tillater alt (kildegransker 2026-11-03), og Samfunnet
+// har hvitelistet vår User-Agent. Sitemap + JSON-LD (schema.org/Event) på hver side.
 const SOURCE = 'kvarteret';
-const API_URL = 'https://kvarteret.no/api/events';
+const BASE = 'https://www.samfunnetibergen.no';
+const SITEMAP_URL = `${BASE}/sitemap.xml`;
+const VENUE = 'Det Akademiske Kvarter';
+const ADDRESS = 'Olav Kyrres gate 49, 5015 Bergen';
 
-interface KvarteretTranslation {
-	title: string;
-	description: string;
-	languages_code: { url_code: string };
+// Tittel som ikke er for allmennheten: fadderuker og velkomstuker er for
+// nye studenter ved en bestemt fakultetsenhet (CLAUDE.md: ingen ikke-offentlige).
+const EXCLUDED_TITLE_RE = /velkomstuke|fadder/i;
+
+export interface LdOffer {
+	price?: string | number;
+	url?: string;
 }
 
-interface KvarteretEvent {
-	slug: string;
-	status: string;
-	event_start: string;
-	event_end: string | null;
-	price: string | null;
-	ticket_url: string | null;
-	translations: KvarteretTranslation[];
-	categories: { name: string }[];
-	top_image: { id: string } | null;
+export interface LdEvent {
+	name?: string;
+	url?: string;
+	startDate?: string;
+	endDate?: string;
+	description?: string;
+	image?: string | string[];
+	keywords?: string[] | string;
+	isAccessibleForFree?: boolean;
+	eventStatus?: string;
+	location?: { name?: string; address?: { postalCode?: string } };
+	offers?: LdOffer | LdOffer[];
 }
 
-const CATEGORY_MAP: Record<string, string> = {
-	'Konsert og musikk': 'music',
-	'Debatter og foredrag': 'culture',
-	'Fest': 'nightlife',
-	'Quiz': 'nightlife',
-	'Revy': 'theatre',
-	'Teater': 'theatre',
-	'Film': 'culture',
-};
-
-function mapCategory(categories: { name: string }[]): string {
-	if (!categories || categories.length === 0) return 'student';
-	const name = categories[0].name;
-	return CATEGORY_MAP[name] || 'student';
+/** Første Event i en JSON-LD-blokk, enten @graph eller enkeltobjekt. */
+export function findEvent(json: unknown): LdEvent | null {
+	const obj = json as { '@graph'?: unknown[]; '@type'?: string } | null;
+	if (!obj) return null;
+	const nodes = Array.isArray(obj['@graph']) ? obj['@graph'] : [obj];
+	const ev = nodes.find((n) => (n as { '@type'?: string })?.['@type'] === 'Event');
+	return (ev as LdEvent) ?? null;
 }
 
-function parsePrice(price: string | null): string {
-	if (!price) return '';
-	const trimmed = price.trim().toLowerCase();
-	if (trimmed === '0' || trimmed === 'gratis' || trimmed === 'free') return '0';
-	// Extract first number from strings like "75 Student // 100 Ordinær"
-	const match = price.match(/(\d+)/);
-	return match ? `${match[1]} kr` : price.trim();
+export function extractEvent(html: string): LdEvent | null {
+	const $ = cheerio.load(html);
+	for (const el of $('script[type="application/ld+json"]').toArray()) {
+		try {
+			const ev = findEvent(JSON.parse($(el).html() ?? ''));
+			if (ev) return ev;
+		} catch {
+			// ugyldig blokk, prøv neste
+		}
+	}
+	return null;
 }
 
-function getImageUrl(topImage: { id: string } | null): string | undefined {
-	if (!topImage || !topImage.id) return undefined;
-	// id may be a full URL (Firebase Storage) or a Directus asset ID
-	if (topImage.id.startsWith('http')) return topImage.id;
-	return `https://kvarteret.no/assets/${topImage.id}`;
+export function isExcluded(title: string): boolean {
+	return EXCLUDED_TITLE_RE.test(title);
+}
+
+/** Bare adresser i Bergen (postnummer 5xxx). Mangler postnummer: avvis, ikke gjett. */
+export function isBergen(postalCode: string | undefined): boolean {
+	return !!postalCode && /^5\d{3}$/.test(postalCode.trim());
+}
+
+/** Kilden gir UTC («...Z») for lokal tid. Ugyldig dato gir null. */
+export function toIso(start: string | undefined): string | null {
+	if (!start) return null;
+	const d = new Date(start);
+	return isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+export function mapCategory(keywords: string[] | string | undefined): string {
+	const kw = (Array.isArray(keywords) ? keywords : (keywords ?? '').split(','))
+		.map((k) => k.trim().toLowerCase());
+	if (kw.includes('quiz')) return 'nightlife';
+	if (kw.includes('forestilling') || kw.includes('revy') || kw.includes('teater')) return 'theatre';
+	if (kw.includes('konserter') || kw.includes('konsert') || kw.includes('festival')) return 'music';
+	if (kw.includes('faglig') || kw.includes('foredrag') || kw.includes('panelsamtale')) return 'culture';
+	if (kw.includes('åpen øving')) return 'workshop';
+	if (kw.includes('film')) return 'culture';
+	return 'student';
+}
+
+/** Gratis gir '0'. Ellers første tilbuds pris (ordinær), eller tom streng når den ikke står. */
+export function parsePrice(ev: LdEvent): string {
+	const offers = Array.isArray(ev.offers) ? ev.offers : ev.offers ? [ev.offers] : [];
+	if (ev.isAccessibleForFree === true) return '0';
+	const n = Number(String(offers[0]?.price ?? '').replace(/[^\d.]/g, ''));
+	if (!isFinite(n) || offers[0]?.price == null || String(offers[0].price) === '') return '';
+	return n === 0 ? '0' : `${Math.round(n)} kr`;
+}
+
+export function pickTicketUrl(ev: LdEvent): string | undefined {
+	const offers = Array.isArray(ev.offers) ? ev.offers : ev.offers ? [ev.offers] : [];
+	const url = offers.find((o) => o.url && /^https?:/.test(o.url))?.url;
+	return url ? resolveTicketUrl(VENUE, url) : undefined;
+}
+
+export function isCancelled(ev: LdEvent): boolean {
+	return !!ev.eventStatus && /Cancel|Postponed/i.test(ev.eventStatus);
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
-	console.log(`\n[${SOURCE}] Fetching Kvarteret events API...`);
+	console.log(`\n[${SOURCE}] Fetching Samfunnet i Bergen sitemap...`);
 
-	const res = await fetch(API_URL, {
-		headers: {
-			'User-Agent': 'Gaari-Bergen-Events/1.0 (gaari.bergen@proton.me)',
-			'Accept': 'application/json',
-		},
-	});
-
-	if (!res.ok) {
-		console.error(`[${SOURCE}] HTTP ${res.status}`);
+	const sitemap = await fetchHTML(SITEMAP_URL);
+	if (!sitemap) {
+		console.error(`[${SOURCE}] Sitemap unavailable`);
 		return { found: 0, inserted: 0 };
 	}
 
-	const events: KvarteretEvent[] = await res.json();
-	const now = new Date();
+	const urls = [...sitemap.matchAll(/<loc>([^<]+\/nb\/arrangementer\/[^<]+)<\/loc>/g)].map((m) => m[1]);
+	console.log(`[${SOURCE}] ${urls.length} event pages in sitemap`);
 
-	// Filter to published future events
-	const upcoming = events.filter(e =>
-		e.status === 'published' && new Date(e.event_start) > now
-	);
-
-	const found = upcoming.length;
-	console.log(`[${SOURCE}] Found ${found} upcoming events (${events.length} total)`);
-
+	let found = 0;
 	let inserted = 0;
 
-	for (const event of upcoming) {
-		const sourceUrl = `https://kvarteret.no/events/${event.slug}`;
-		if (await eventExists(sourceUrl)) continue;
-
-		// Extract Norwegian title (required)
-		const noTranslation = event.translations.find(t => t.languages_code.url_code === 'no');
-		const enTranslation = event.translations.find(t => t.languages_code.url_code === 'en');
-
-		const titleNo = noTranslation?.title || enTranslation?.title;
-		if (!titleNo) {
-			console.log(`  - Skipping event with no title: ${event.slug}`);
+	for (const url of urls) {
+		// Spar forespørsler: kjent adresse trenger ikke hentes på nytt.
+		if (await eventExists(url)) {
+			found++;
 			continue;
 		}
 
-		const titleEn = enTranslation?.title || undefined;
-		const category = mapCategory(event.categories);
-		const bydel = mapBydel('Det Akademiske Kvarter');
-		const price = parsePrice(event.price);
-		const datePart = event.event_start.slice(0, 10);
+		await delay(1000);
+		const html = await fetchHTML(url);
+		if (!html) continue;
+
+		const ev = extractEvent(html);
+		const title = ev?.name?.trim();
+		if (!ev || !title) {
+			console.log(`  - skip (ingen Event i JSON-LD): ${url.split('/').pop()}`);
+			continue;
+		}
+		if (isExcluded(title)) {
+			console.log(`  - skip (ikke for allmennheten): ${title}`);
+			continue;
+		}
+		if (isCancelled(ev)) {
+			console.log(`  - skip (avlyst): ${title}`);
+			continue;
+		}
+		if (!isBergen(ev.location?.address?.postalCode)) {
+			console.log(`  - skip (utenfor Bergen eller postnummer mangler): ${title}`);
+			continue;
+		}
+
+		const dateStart = toIso(ev.startDate);
+		if (!dateStart || new Date(dateStart) < new Date()) continue;
+		const dateEnd = toIso(ev.endDate) ?? undefined;
+
+		found++;
+
+		const category = mapCategory(ev.keywords);
+		const bydel = mapBydel(VENUE);
+		const price = parsePrice(ev);
+		const image = Array.isArray(ev.image) ? ev.image[0] : ev.image;
 
 		const aiDesc = await generateDescription({
-			title: titleNo,
-			venue: 'Det Akademiske Kvarter',
+			title,
+			venue: VENUE,
 			category,
-			date: new Date(event.event_start),
+			date: new Date(dateStart),
 			price,
+			bydel,
+			address: ADDRESS
 		});
 
-		// Use specific event page as fallback when API returns generic homepage
-		const apiTicketUrl = event.ticket_url?.trim();
-		const ticketUrl = (apiTicketUrl && apiTicketUrl !== 'https://kvarteret.no' && apiTicketUrl !== 'https://kvarteret.no/')
-			? apiTicketUrl
-			: sourceUrl;
-
 		const success = await insertEvent({
-			slug: makeSlug(titleNo, datePart),
-			title_no: titleNo,
-			// Kvarteret oversetter titlene sine selv. Deres egen ordlyd går foran
-			// vår genererte. Sto tidligere som to title_en-nøkler i samme objekt,
-			// der den andre vant og kildens tittel ble kastet uten at noe sa fra.
-			title_en: titleEn ?? aiDesc.title_en,
+			slug: makeSlug(title, dateStart),
+			title_no: title,
+			title_en: aiDesc.title_en,
 			description_no: aiDesc.no,
 			description_en: aiDesc.en,
 			category,
-			date_start: new Date(event.event_start).toISOString(),
-			date_end: event.event_end ? new Date(event.event_end).toISOString() : undefined,
-			venue_name: 'Det Akademiske Kvarter',
-			address: 'Olav Kyrres gate 49, 5015 Bergen',
+			date_start: dateStart,
+			date_end: dateEnd,
+			venue_name: VENUE,
+			address: ADDRESS,
 			bydel,
 			price,
-			ticket_url: ticketUrl,
+			ticket_url: pickTicketUrl(ev) ?? url,
 			source: SOURCE,
-			source_url: sourceUrl,
-			image_url: getImageUrl(event.top_image),
-			age_group: 'students',
-			language: (titleEn ?? aiDesc.title_en) ? 'both' : 'no',
-			status: 'approved',
+			source_url: url,
+			image_url: image && /^https?:/.test(image) ? image : undefined,
+			// Aldersgrensen står i kildens egen tekst («Aldersgrense 20 år»), ikke i
+			// den genererte beskrivelsen insertEvent ser. Les den fra kilden.
+			age_group: hasAdultAgeLimit(title, ev.description) ? '18+' : 'students',
+			language: aiDesc.title_en ? 'both' : 'no',
+			status: 'approved'
 		});
 
 		if (success) {
-			console.log(`  + ${titleNo} (${category})`);
+			console.log(`  + ${title} (${category}, ${dateStart.slice(0, 10)})`);
 			inserted++;
 		}
 	}
