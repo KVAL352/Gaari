@@ -17,7 +17,8 @@
 
 ## Medium Priority (already partially covered)
 
-### 2. Kvarteret Direct API (`kvarteret.no/api/events/`)
+### 2. Kvarteret (BYGGET 2026-11-17: `samfunnetibergen.no`, sitemap + JSON-LD)
+- **Merk:** `kvarteret.no/api/events/` er død (404). Ny `kvarteret.ts` leser samfunnetibergen.no.
 - **Already covered by:** TicketCo scraper (subdomain `kvarteret`)
 - **Direct API benefit:** Richer data — price breakdown, Norwegian descriptions, category tags, organizer info
 - **Events:** Only 1 at time of research (sparse listing)
@@ -103,7 +104,7 @@ These venues/sources are already scraped by existing scrapers:
 |-------|-----------|
 | Akvariet | `akvariet.ts` (daily activity calendar, 14-day lookahead) |
 | Bymuseet i Bergen | `bymuseet.ts` (WordPress HTML, event sitemap, 9 museums) |
-| Det Akademiske Kvarter | `kvarteret.ts` + `ticketco.ts` (subdomain `kvarteret`) |
+| Det Akademiske Kvarter | `kvarteret.ts` (samfunnetibergen.no) + `ticketco.ts` (subdomain `kvarteret`) |
 | Hulen | `ticketco.ts` (subdomain `hulen`) |
 | Museum Vest | `museumvest.ts` (sitemap discovery, 3 Bergen museums) |
 | Madam Felle | `ticketco.ts` (subdomain `madamefell`) |

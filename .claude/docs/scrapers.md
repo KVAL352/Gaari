@@ -101,7 +101,7 @@
 ## Other
 | Source | File | Method |
 |--------|------|--------|
-| Det Akademiske Kvarter | `kvarteret.ts` | JSON API (`/api/events`), also covered by TicketCo |
+| Det Akademiske Kvarter | `kvarteret.ts` | samfunnetibergen.no: sitemap + JSON-LD (schema.org/Event), UTC til lokal tid, bare 5xxx, hopper over velkomstuke/fadder/avlyst. Gammel `kvarteret.no/api/events` er død (404). Også dekket av TicketCo |
 | Kulturhuset i Bergen | `kulturhusetibergen.ts` | Squarespace eventlist, room extraction |
 | Bergen Chamber | `bergenchamber.ts` | HTML |
 | ~~Oseana~~ | `oseana.ts` | DISABLED 2026-04-17 — outside Bergen coverage area |
