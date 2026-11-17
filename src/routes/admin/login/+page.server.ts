@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { dev } from '$app/environment';
+import { dev } from '$app/env';
 import { ADMIN_COOKIE, makeSessionToken, verifyAdminPassword } from '$lib/server/admin-auth';
 import type { Actions } from './$types';
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import { page } from '$app/state';
 	import { lang, t } from '$lib/i18n';
 	import type { Category } from '$lib/types';

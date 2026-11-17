@@ -1,4 +1,4 @@
-import type { Handle, HandleServerError } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit/hooks';
 import { redirect } from '@sveltejs/kit';
 import { ADMIN_COOKIE, isValidToken, requiresAdminAuth } from '$lib/server/admin-auth';
 
@@ -114,8 +114,20 @@ export function getRateLimitTier(pathname: string, method: string): 'form' | 'ap
 
 // ── Structured error logging (parsed by Vercel's log system) ──
 
-export const handleError: HandleServerError = ({ error, event, status }) => {
-	const err = error instanceof Error ? error : new Error(String(error));
+// I SvelteKit 3 kjører denne for alle feil, også dem vi kaster selv med
+// `error(404, ...)`, og det vi returnerer erstatter meldingen deres. Kit 2
+// kalte den bare for rammeverksfeil og ukjente feil, så de to andre slippes
+// gjennom urørt for å beholde den gamle oppførselen.
+export const handleError: HandleServerError = (caught) => {
+	if (caught.kind === 'app' || caught.kind === 'validation') return;
+	const { event } = caught;
+	const status = caught.kind === 'framework' ? caught.error.status : 500;
+	const err =
+		caught.kind === 'framework'
+			? new Error(caught.error.message)
+			: caught.error instanceof Error
+				? caught.error
+				: new Error(String(caught.error));
 	const stack = err.stack?.split('\n').slice(0, 5).join('\n');
 
 	console.error(
@@ -133,6 +145,10 @@ export const handleError: HandleServerError = ({ error, event, status }) => {
 
 	return { message: 'An unexpected error occurred. Please try again later.' };
 };
+
+// Omdirigeringene fra gåri.no, www og klistremerket går til en annen vert.
+// Kit 3 kaster feil på slike med mindre målet er tillatt eksplisitt.
+const GAARI_ORIGIN = ['https://gaari.no'];
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const host = event.request.headers.get('host')?.replace(/:\d+$/, '') ?? '';
@@ -156,7 +172,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 		}
 
 		const sti = collection ? `/no/${collection}` : '/no';
-		redirect(302, `https://gaari.no${sti}?utm_source=sticker&utm_medium=qr`);
+		redirect(302, `https://gaari.no${sti}?utm_source=sticker&utm_medium=qr`, {
+			external: GAARI_ORIGIN
+		});
 	}
 
 	// Root URL: 302 redirect based on Accept-Language (not 301 — destination varies per user)
@@ -171,7 +189,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		const url = new URL(event.request.url);
 		url.host = 'gaari.no';
 		url.port = '';
-		redirect(301, url.toString());
+		redirect(301, url.toString(), { external: GAARI_ORIGIN });
 	}
 
 	// Guard every mutating request to /admin. The admin +layout.server.ts load

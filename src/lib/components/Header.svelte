@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { lang, t } from '$lib/i18n';
 	import LanguageSwitch from './LanguageSwitch.svelte';
 	import { Plus, Search, X } from 'lucide-svelte';

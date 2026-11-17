@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { lang, t } from '$lib/i18n';
 	import { collectionHref } from '$lib/collection-urls';
 	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
@@ -57,7 +57,7 @@
 	// Pagination: complete days when possible, with an event cap to keep DOM under ~1500.
 	// Baseline ~95 DOM + ~38 per card → 25 events ≈ 1045 DOM, 35 events ≈ 1425 DOM.
 	const EVENTS_PER_PAGE = 25;
-	let pageNum = $derived(Number($page.url.searchParams.get('page') || '1'));
+	let pageNum = $derived(Number(page.url.searchParams.get('page') || '1'));
 
 	// Use server-provided lang for SSR-critical values (JSON-LD, meta tags).
 	// $lang store only syncs via $effect (client-only), so it defaults to 'no' during SSR.
@@ -223,14 +223,14 @@
 	{/if}
 	<meta property="og:title" content={metaTitle} />
 	<meta property="og:description" content={description} />
-	<meta property="og:image" content={`${$page.url.origin}/og/c/${data.collection.slug}.png${ssrLang === 'en' ? '?lang=en' : ''}`} />
+	<meta property="og:image" content={`${page.url.origin}/og/c/${data.collection.slug}.png${ssrLang === 'en' ? '?lang=en' : ''}`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta property="article:modified_time" content={`${data.dateModified}T00:00:00Z`} />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={metaTitle} />
 	<meta name="twitter:description" content={description} />
-	<meta name="twitter:image" content={`${$page.url.origin}/og/c/${data.collection.slug}.png${ssrLang === 'en' ? '?lang=en' : ''}`} />
+	<meta name="twitter:image" content={`${page.url.origin}/og/c/${data.collection.slug}.png${ssrLang === 'en' ? '?lang=en' : ''}`} />
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + collectionJsonLd + '</scr' + 'ipt>'}
 	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}
