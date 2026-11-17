@@ -34,7 +34,9 @@ const data = load();
 
 describe('bildesamtykke', () => {
 	it('har et dokument som er i takt med fasiten', () => {
-		const påDisk = readFileSync(DOC_PATH, 'utf8');
+		// Git på Windows (core.autocrlf=true) sjekker ut fila med CRLF, mens
+		// render() gir LF. Innholdet skal sammenlignes, ikke linjeskiftstilen.
+		const påDisk = readFileSync(DOC_PATH, 'utf8').replace(/\r\n/g, '\n');
 		expect(
 			påDisk === render(data),
 			'docs/bildesamtykke.md er utdatert eller redigert for hånd. ' +
