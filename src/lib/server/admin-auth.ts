@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from 'crypto';
-import { ADMIN_SESSION_SECRET, ADMIN_PASSWORD } from '$env/static/private';
+import { ADMIN_SESSION_SECRET, ADMIN_PASSWORD } from '$app/env/private';
 
 export const ADMIN_COOKIE = 'gaari_admin';
 

@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
-import { env } from '$env/dynamic/private';
-import { PUBLIC_SUPABASE_URL } from '$env/static/public';
+import { RESEND_API_KEY } from '$app/env/private';
+import { PUBLIC_SUPABASE_URL } from '$app/env/public';
 import { varselEmne, varselIngress, type InquiryKilde } from '$lib/innsending';
 
 const ADMIN_EMAIL = 'post@gaari.no';
@@ -14,10 +14,10 @@ let resend: Resend;
 
 function getResend(): Resend {
 	if (!resend) {
-		if (!env.RESEND_API_KEY) {
+		if (!RESEND_API_KEY) {
 			throw new Error('RESEND_API_KEY is not set');
 		}
-		resend = new Resend(env.RESEND_API_KEY);
+		resend = new Resend(RESEND_API_KEY);
 	}
 	return resend;
 }

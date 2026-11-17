@@ -1,13 +1,13 @@
 import { error, json } from '@sveltejs/kit';
 import Stripe from 'stripe';
-import { env } from '$env/dynamic/private';
+import { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } from '$app/env/private';
 import { supabaseAdmin } from '$lib/server/supabase-admin';
 import { TIER_SLOT } from '$lib/promotion-config';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
-	const stripeKey = env.STRIPE_SECRET_KEY;
-	const webhookSecret = env.STRIPE_WEBHOOK_SECRET;
+	const stripeKey = STRIPE_SECRET_KEY;
+	const webhookSecret = STRIPE_WEBHOOK_SECRET;
 
 	if (!stripeKey || !webhookSecret) {
 		console.error('Stripe env vars not configured');

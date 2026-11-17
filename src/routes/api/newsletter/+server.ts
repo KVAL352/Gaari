@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
+import { MAILERLITE_API_KEY, RESEND_API_KEY } from '$app/env/private';
 import { generatePreferenceToken, buildPreferenceUrl } from '$lib/server/newsletter-auth';
 import type { RequestHandler } from './$types';
 
@@ -28,7 +28,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ error: 'Invalid email format' }, { status: 400 });
 	}
 
-	if (!env.MAILERLITE_API_KEY) {
+	if (!MAILERLITE_API_KEY) {
 		console.error('MAILERLITE_API_KEY is not set');
 		return json({ error: 'Newsletter service unavailable' }, { status: 500 });
 	}
@@ -57,7 +57,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	const res = await fetch('https://connect.mailerlite.com/api/subscribers', {
 		method: 'POST',
 		headers: {
-			'Authorization': `Bearer ${env.MAILERLITE_API_KEY}`,
+			'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
 			'Content-Type': 'application/json',
 			'Accept': 'application/json'
 		},
@@ -75,13 +75,13 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	// Send welcome email via Resend (fire-and-forget)
-	if (env.RESEND_API_KEY) {
+	if (RESEND_API_KEY) {
 		const isEn = langPref === 'en';
 		const prefsUrl = buildPreferenceUrl(email, isEn ? 'en' : 'no');
 		fetch('https://api.resend.com/emails', {
 			method: 'POST',
 			headers: {
-				'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+				'Authorization': `Bearer ${RESEND_API_KEY}`,
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({

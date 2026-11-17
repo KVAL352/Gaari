@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
 import { sanitizeDestination, sanitizeSourcePage } from '$lib/server/klikksporing';
-import { SKIP_LOG_IPS } from '$env/static/private';
+import { SKIP_LOG_IPS } from '$app/env/private';
 import type { RequestHandler } from './$types';
 
 const skipIps = new Set((SKIP_LOG_IPS ?? '').split(',').map(s => s.trim()).filter(Boolean));
