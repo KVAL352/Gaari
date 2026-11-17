@@ -1,4 +1,4 @@
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 
 const STORAGE_KEY = 'gaari-hidden';
 const VENUE_CATEGORY_TTL_DAYS = 7;

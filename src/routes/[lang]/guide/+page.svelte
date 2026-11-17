@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { browser } from '$app/environment';
+	import { page } from '$app/state';
+	import { browser } from '$app/env';
 	import { lang } from '$lib/i18n';
 	import { collectionHref } from '$lib/collection-urls';
 	import { getCanonicalUrl, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
@@ -385,7 +385,7 @@
 	<meta property="og:description" content={$lang === 'no'
 		? 'Hva skjer i Bergen i dag, denne helgen og fremover? Konserter, teater, festivaler, familieaktiviteter og mer.'
 		: 'What\u2019s on in Bergen today, this weekend and beyond? Concerts, theatre, festivals, family activities and more.'} />
-	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
+	<meta property="og:image" content={`${page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<!-- eslint-disable svelte/no-at-html-tags -->

@@ -72,7 +72,9 @@ const WHEN_COLLECTION: Record<string, Record<string, string>> = {
  * Noise params (time, price, audience, q) are stripped from the canonical.
  */
 export function computeCanonical(
-	url: URL,
+	// Bare lesing: i SvelteKit 3 er `page.url` en skrivebeskyttet URL, og den
+	// passer ikke i en vanlig `URL`.
+	url: { readonly searchParams: { get(name: string): string | null } },
 	lang: string,
 	eventCount: number
 ): { canonical: string; noindex: boolean } {

@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
+import { MAILERLITE_API_KEY } from '$app/env/private';
 import { verifyPreferenceToken } from '$lib/server/newsletter-auth';
 import type { PageServerLoad, Actions } from './$types';
 
@@ -9,7 +9,7 @@ async function mlFetch(path: string, options: RequestInit = {}) {
 	return fetch(`${ML_BASE}${path}`, {
 		...options,
 		headers: {
-			'Authorization': `Bearer ${env.MAILERLITE_API_KEY}`,
+			'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
 			'Content-Type': 'application/json',
 			'Accept': 'application/json',
 			...options.headers
@@ -30,7 +30,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		return { email: '', preferences: null, invalidToken: true };
 	}
 
-	if (!env.MAILERLITE_API_KEY) {
+	if (!MAILERLITE_API_KEY) {
 		return { email, preferences: null, invalidToken: false };
 	}
 
@@ -74,7 +74,7 @@ export const actions: Actions = {
 			return fail(403, { error: true });
 		}
 
-		if (!env.MAILERLITE_API_KEY) {
+		if (!MAILERLITE_API_KEY) {
 			return fail(500, { error: true });
 		}
 

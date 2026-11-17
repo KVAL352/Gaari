@@ -74,13 +74,13 @@ describe('hooks.handle admin guard', () => {
 		} as any;
 	}
 
-	const resolved = () => new Response('reached the route', { status: 200 });
+	const resolved = async () => new Response('reached the route', { status: 200 });
 
 	it('rejects an unauthenticated admin POST before the route runs', async () => {
 		let routeRan = false;
 		const res = await handle({
 			event: fakeEvent('/admin/submissions', 'POST'),
-			resolve: () => {
+			resolve: async () => {
 				routeRan = true;
 				return resolved();
 			}

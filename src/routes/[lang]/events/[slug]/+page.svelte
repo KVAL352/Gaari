@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
 	import { lang, t } from '$lib/i18n';
 	import { collectionHref } from '$lib/collection-urls';
@@ -249,13 +249,13 @@
 	<meta property="og:title" content={metaTitle} />
 	<meta property="og:description" content={metaDescription} />
 	<meta property="og:type" content="event" />
-	<meta property="og:image" content={`${$page.url.origin}/og/${event.slug}.png`} />
+	<meta property="og:image" content={`${page.url.origin}/og/${event.slug}.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={metaTitle} />
 	<meta name="twitter:description" content={metaDescription} />
-	<meta name="twitter:image" content={`${$page.url.origin}/og/${event.slug}.png`} />
+	<meta name="twitter:image" content={`${page.url.origin}/og/${event.slug}.png`} />
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + eventJsonLd + '</scr' + 'ipt>'}
 	{@html '<script type="application/ld+json">' + breadcrumbJsonLd + '</scr' + 'ipt>'}

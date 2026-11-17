@@ -39,7 +39,7 @@ const HOPPES_OVER = /\.(png|jpg|jpeg|webp|gif|svg|ico|woff2?|ttf|pdf|mp4|zip)$|p
 const ROLLER = new Set([
 	'post', 'noreply', 'no-reply', 'ikkesvar', 'info', 'kontakt', 'support',
 	'hei', 'hello', 'privacy', 'personvern', 'billett', 'booking', 'presse',
-	'redaksjonen', 'notifications', 'invoice', 'ship', 'bingwb', 'admin',
+	'redaksjonen', 'kultur', 'notifications', 'invoice', 'ship', 'bingwb', 'admin',
 	'gaari.bergen', 'kjersti.therkildsen'
 ]);
 

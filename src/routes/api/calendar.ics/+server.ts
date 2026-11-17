@@ -1,5 +1,5 @@
 import { supabase } from '$lib/server/supabase';
-import { env } from '$env/dynamic/private';
+import { CALENDAR_FEED_TOKEN } from '$app/env/private';
 import type { RequestHandler } from './$types';
 
 function escapeICS(text: string): string {
@@ -31,7 +31,7 @@ const CATEGORY_MAP: Record<string, string> = {
 
 export const GET: RequestHandler = async ({ url }) => {
 	const token = url.searchParams.get('token');
-	if (!env.CALENDAR_FEED_TOKEN || token !== env.CALENDAR_FEED_TOKEN) {
+	if (!CALENDAR_FEED_TOKEN || token !== CALENDAR_FEED_TOKEN) {
 		return new Response('Unauthorized', { status: 401 });
 	}
 

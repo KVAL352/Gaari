@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { lang, t } from '$lib/i18n';
 	import { CATEGORIES, BYDELER } from '$lib/types';
 	import { CATEGORY_HEX_COLORS } from '$lib/utils';
@@ -8,7 +8,7 @@
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
-	const token = $derived($page.url.searchParams.get('token') || '');
+	const token = $derived(page.url.searchParams.get('token') || '');
 
 	let status: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');
 

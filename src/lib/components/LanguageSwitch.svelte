@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { lang, setLang } from '$lib/i18n';
 	import type { Lang } from '$lib/types';
@@ -8,9 +8,9 @@
 		const newLang: Lang = $lang === 'no' ? 'en' : 'no';
 		setLang(newLang);
 		// Update URL prefix
-		const currentPath = $page.url.pathname;
+		const currentPath = page.url.pathname;
 		const newPath = currentPath.replace(/^\/(no|en)/, `/${newLang}`);
-		goto(newPath + $page.url.search, { replaceState: true });
+		goto(newPath + page.url.search, { replaceState: true });
 	}
 </script>
 

@@ -4,7 +4,7 @@ import { getCollection, getHreflangSlugs, getSeasonYear, isCollectionLang } from
 import { getOsloNow } from '$lib/event-filters';
 import { seedEvents } from '$lib/data/seed-events';
 import { getActivePromotions, pickPromotedVenues, logImpression, logCollectionImpression } from '$lib/server/promotions';
-import { SKIP_LOG_IPS } from '$env/static/private';
+import { SKIP_LOG_IPS } from '$app/env/private';
 import type { GaariEvent } from '$lib/types';
 import type { PageServerLoad } from './$types';
 

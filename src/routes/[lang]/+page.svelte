@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { goto, beforeNavigate, afterNavigate } from '$app/navigation';
 	import { tick } from 'svelte';
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import { lang, t } from '$lib/i18n';
 	import { collectionHref } from '$lib/collection-urls';
 	import { isFreeEvent, isTouristFriendly, isStudentRelevant } from '$lib/utils';
@@ -207,7 +207,7 @@
 	// and since server load doesn't depend on url params, it won't remount.
 	function updateParam(key: string, value: string) {
 		const qs = buildQueryString(page.url.search, key, value);
-		goto(`?${qs}`, { replaceState: true, noScroll: true, keepFocus: true });
+		goto(`?${qs}`, { replaceState: true, reset: false });
 	}
 
 	function handleFilterChange(key: string, value: string) {
@@ -216,7 +216,7 @@
 	}
 
 	function handleClearAll() {
-		goto(`/${$lang}`, { replaceState: true, noScroll: true, keepFocus: true });
+		goto(`/${$lang}`, { replaceState: true, reset: false });
 		pageNum = 1;
 	}
 

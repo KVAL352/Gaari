@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
-	let statusCode = $derived($page.status);
-	let isNorwegian = $derived($page.url.pathname.startsWith('/en') ? false : true);
-	let isEventPage = $derived($page.url.pathname.includes('/events/'));
+	let statusCode = $derived(page.status);
+	let isNorwegian = $derived(page.url.pathname.startsWith('/en') ? false : true);
+	let isEventPage = $derived(page.url.pathname.includes('/events/'));
 	let lang = $derived(isNorwegian ? 'no' : 'en');
 
 	let title = $derived(

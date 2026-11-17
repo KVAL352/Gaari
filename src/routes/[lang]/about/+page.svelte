@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { lang, t } from '$lib/i18n';
 	import { generateOrganizationJsonLd, getFaqItems, getCanonicalUrl } from '$lib/seo';
 	import { SOURCE_COUNT } from '$lib/constants';
@@ -22,7 +22,7 @@
 	<meta property="og:description" content={$lang === 'no'
 		? `Gåri samler alle arrangementer i Bergen på ett sted — konserter, teater, festivaler og mer. Gratis og oppdatert daglig fra ${SOURCE_COUNT} kilder.`
 		: `Gåri gathers all events in Bergen in one place — concerts, theatre, festivals and more. Free and updated daily from ${SOURCE_COUNT} sources.`} />
-	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
+	<meta property="og:image" content={`${page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta name="twitter:card" content="summary" />
@@ -30,7 +30,7 @@
 	<meta name="twitter:description" content={$lang === 'no'
 		? 'Gåri samler alle arrangementer i Bergen på ett sted — konserter, teater, festivaler og mer.'
 		: 'Gåri gathers all events in Bergen in one place — concerts, theatre, festivals and more.'} />
-	<meta name="twitter:image" content={`${$page.url.origin}/og/default.png`} />
+	<meta name="twitter:image" content={`${page.url.origin}/og/default.png`} />
 	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html '<script type="application/ld+json">' + orgJsonLd + '</scr' + 'ipt>'}
 </svelte:head>

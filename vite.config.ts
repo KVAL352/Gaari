@@ -1,10 +1,24 @@
 /// <reference types="vitest/config" />
 import tailwindcss from '@tailwindcss/vite';
+import adapter from '@sveltejs/adapter-vercel';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
+	plugins: [
+		tailwindcss(),
+		// SvelteKit 3 leser ikke lenger svelte.config.js; konfigen bor her.
+		// `$lib` er fjernet i kit 3 til fordel for `#lib`. Aliaset holder de
+		// over 100 importene våre i live til de skrives om.
+		sveltekit({
+			adapter: adapter(),
+			preprocess: vitePreprocess(),
+			alias: {
+				$lib: 'src/lib'
+			}
+		})
+	],
 	build: {
 		/**
 		 * Kildekart i produksjon.

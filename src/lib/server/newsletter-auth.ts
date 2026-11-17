@@ -1,12 +1,12 @@
 import { createHmac, timingSafeEqual } from 'crypto';
-import { env } from '$env/dynamic/private';
+import { NEWSLETTER_SIGNING_SECRET } from '$app/env/private';
 
 /**
  * Generate an HMAC-SHA256 token for a newsletter subscriber's email.
  * Used to sign preference page URLs so only the email owner can access them.
  */
 export function generatePreferenceToken(email: string): string {
-	const secret = env.NEWSLETTER_SIGNING_SECRET;
+	const secret = NEWSLETTER_SIGNING_SECRET;
 	if (!secret) throw new Error('NEWSLETTER_SIGNING_SECRET is not set');
 	return createHmac('sha256', secret)
 		.update(email.toLowerCase().trim())

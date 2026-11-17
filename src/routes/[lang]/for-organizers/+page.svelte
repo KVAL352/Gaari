@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { lang } from '$lib/i18n';
 	import { getCanonicalUrl } from '$lib/seo';
 	import ForArrangorerPage from '$lib/components/ForArrangorerPage.svelte';
@@ -15,8 +15,8 @@
 		? 'Gjør arrangementet ditt synlig for tusenvis av bergensere. Fremhevet plassering, nyhetsbrev og AI-søk. Prøv gratis.'
 		: 'Make your event visible to thousands of people in Bergen. Promoted placement, newsletter and AI search. Try free.');
 	let ogImage = $derived($lang === 'no'
-		? `${$page.url.origin}/og/for-arrangorer.png`
-		: `${$page.url.origin}/og/for-organizers.png`);
+		? `${page.url.origin}/og/for-arrangorer.png`
+		: `${page.url.origin}/og/for-organizers.png`);
 </script>
 
 <svelte:head>

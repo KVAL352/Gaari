@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { lang } from '$lib/i18n';
 	import { getCanonicalUrl } from '$lib/seo';
 	import { Calendar, Sparkles, Users, Music, Mail, Send, Info, Instagram, Facebook } from 'lucide-svelte';
@@ -86,7 +86,7 @@
 	<link rel="canonical" href={canonicalUrl} />
 	<meta property="og:title" content={`${titleText} — Gåri`} />
 	<meta property="og:description" content={description} />
-	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
+	<meta property="og:image" content={`${page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta name="twitter:card" content="summary" />

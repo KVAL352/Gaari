@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { lang, t } from '$lib/i18n';
 	import { CATEGORIES, BYDELER } from '$lib/types';
 	import { getCanonicalUrl } from '$lib/seo';
@@ -454,7 +454,7 @@
 	<link rel="canonical" href={canonicalUrl} />
 	<meta property="og:title" content={`${$t('submitTitle')} — Gåri`} />
 	<meta property="og:description" content={$t('submitDescription')} />
-	<meta property="og:image" content={`${$page.url.origin}/og/default.png`} />
+	<meta property="og:image" content={`${page.url.origin}/og/default.png`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta name="twitter:card" content="summary" />

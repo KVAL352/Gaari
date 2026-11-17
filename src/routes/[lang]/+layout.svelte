@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { lang, setLang } from '$lib/i18n';
 	import type { Lang } from '$lib/types';
 	import Header from '$lib/components/Header.svelte';
@@ -21,7 +21,7 @@
 	setLang(data.lang);
 
 	// SEO: hreflang + OG URL — always use gaari.no as the canonical base
-	let pathWithoutLang = $derived($page.url.pathname.replace(/^\/(no|en)/, ''));
+	let pathWithoutLang = $derived(page.url.pathname.replace(/^\/(no|en)/, ''));
 	const baseUrl = 'https://gaari.no';
 
 	// Collection pages with paired slugs (e.g. denne-helgen ↔ this-weekend) provide hreflangPaths.
@@ -32,7 +32,7 @@
 	// `/no/i-kveld`, som 301-er til forsiden: et alternate som peker paa en
 	// omdirigering er verre enn ingen, fordi det lover Google en utgave som
 	// ikke finnes.
-	let hreflangPaths = $derived(($page.data as any).hreflangPaths as { no?: string; en?: string } | undefined);
+	let hreflangPaths = $derived((page.data as any).hreflangPaths as { no?: string; en?: string } | undefined);
 	let hreflangNb = $derived(
 		hreflangPaths ? (hreflangPaths.no ? `${baseUrl}${hreflangPaths.no}` : null) : `${baseUrl}/no${pathWithoutLang}`
 	);
@@ -44,7 +44,7 @@
 
 	// Keep $effect for client-side navigation (SPA-style route changes)
 	$effect(() => {
-		const urlLang = $page.params.lang as Lang;
+		const urlLang = page.params.lang as Lang;
 		if (urlLang === 'no' || urlLang === 'en') {
 			setLang(urlLang);
 			if (typeof document !== 'undefined') {

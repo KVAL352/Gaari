@@ -9,7 +9,7 @@
 	import MiniCalendar from './MiniCalendar.svelte';
 	import { Users, Drama, GraduationCap, Moon, MapPin, Mail, Sparkle } from 'lucide-svelte';
 	import { slide } from 'svelte/transition';
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, addDays, getEndOfWeekDateStr, getContextualHighlight, matchesTimeOfDay } from '$lib/event-filters';
 
 	interface Props {
