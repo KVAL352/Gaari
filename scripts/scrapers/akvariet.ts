@@ -4,7 +4,10 @@ import { generateDescription } from '../lib/ai-descriptions.js';
 
 const SOURCE = 'akvariet';
 const BASE_URL = 'https://www.akvariet.no';
-const CALENDAR_URL = `${BASE_URL}/hva-skjer/aktivitetskalender/dag`;
+// Nettstedet ble bygd om høsten 2026: den gamle `/hva-skjer/aktivitetskalender/dag/<dato>`
+// svarer 404, og programmet ligger nå på `/program?date=<dato>`. Skraperen fant 0 i
+// minst 14 dager uten at kjøringen ble merket som feilet.
+const PROGRAM_URL = `${BASE_URL}/program`;
 const DAYS_AHEAD = 14;
 
 // Akvariet fixed admission price — activities are included in general admission.
@@ -13,30 +16,16 @@ const DAYS_AHEAD = 14;
 const ADMISSION_PRICE = 'Inkl. i billett (voksen 415 kr, barn 265 kr, familie 1 145 kr)';
 const AFTERNOON_PRICE = 'Inkl. i ettermiddagsbillett kl. 16-18 (voksen 355 kr, barn 225 kr, familie 970 kr)';
 
-// Special article page for the recurring "sleepover at Akvariet" event.
-// This is published as a news article (not in the daily activity calendar) and
-// lists upcoming dates as ticket links like
-// `/kjop-billett/overnatting-en-natt-paa-akvariet-17-april-2026`.
-const OVERNATTING_URL = `${BASE_URL}/nyheter/en-natt-paa-akvariet-overnatting-paa-akvariet`;
+// Egen side for «En natt på Akvariet» (ikke i dagsprogrammet). Etter ombyggingen
+// står datoen bare i teksten («Når skjer det? Fredag 29. januar kl. 17:00 til
+// lørdag 30. januar 2027 kl. 07:30»), med én felles billettlenke.
+const OVERNATTING_URL = `${BASE_URL}/en-natt-paa-akvariet`;
 const OVERNATTING_PRICE = '1030 kr (960 kr for årskortbrukere)';
 
 const NORWEGIAN_MONTHS: Record<string, number> = {
 	januar: 1, februar: 2, mars: 3, april: 4, mai: 5, juni: 6,
 	juli: 7, august: 8, september: 9, oktober: 10, november: 11, desember: 12,
 };
-
-// Recurring daily activities to skip — these repeat every day and are not discrete "events".
-// Only skip on exact (case-insensitive) title match. Unique variants like
-// "Vinterferieprogram: Bli kjent med havskilpadden" will still be captured.
-const RECURRING_TITLES = [
-	'pingvin',
-	'sjøløve',
-	'oter',
-	'tropisk',
-	'fiskefôring i rotunden',
-	'åpen røktergang',
-	'møt dyrepasser',
-];
 
 // Films/documentaries that screen daily — recurring, not unique events.
 // Ingvild (markedskoordinator) ba oss eksplisitt 2026-04-20 om ikke å vise
@@ -53,13 +42,18 @@ const RECURRING_FILMS = [
 // Heuristic: cinema films often carry language indicators like "(norsk tale)",
 // "(english)", "sub: engelsk". Catches new films Akvariet adds without us
 // updating RECURRING_FILMS.
-function isCinemaFilm(title: string): boolean {
+export function isCinemaFilm(title: string): boolean {
 	return /\((?:norsk tale|english|norwegian|engelsk tale)/i.test(title)
 		|| /\bsub:\s*(?:engelsk|english|norsk|norwegian)/i.test(title);
 }
 
-function isRecurring(title: string): boolean {
-	const normalized = title
+/** Kino fra Akvariet-programmet: navngitt film eller språkmerke i tittelen. */
+export function isFilm(title: string): boolean {
+	return RECURRING_FILMS.includes(normalizeActivityTitle(title)) || isCinemaFilm(title);
+}
+
+function normalizeActivityTitle(title: string): string {
+	return title
 		.replace(/&quot;/g, '"')
 		.replace(/["""]/g, '')
 		.replace(/\s*\(norsk\)\s*/gi, '')
@@ -67,8 +61,6 @@ function isRecurring(title: string): boolean {
 		.replace(/\s*\(english\)\s*/gi, '')
 		.trim()
 		.toLowerCase();
-
-	return RECURRING_TITLES.includes(normalized) || RECURRING_FILMS.includes(normalized);
 }
 
 function guessCategory(title: string): string {
@@ -79,64 +71,92 @@ function guessCategory(title: string): string {
 	return 'family';
 }
 
+export interface AkvarietActivity {
+	title: string;
+	time: string;
+	endTime: string;
+	location: string;
+	description: string;
+	imageUrl?: string;
+	detailUrl?: string;
+	isHighlight: boolean;
+}
+
 /**
- * Scrape one day of the Akvariet activity calendar.
- * Returns array of parsed activity cards.
+ * Les ett dagsprogram fra `/program?date=<dato>`.
+ * Hvert kort er en `<details>`: i `<summary>` står tid (`tabular-nums`),
+ * tittel (`text-h5`) og sted (`text-body-small`); under står bilde,
+ * beskrivelse og en «Les mer»-lenke til `/program/<navn>?date=<dato>`.
  */
-function parseDay($: cheerio.CheerioAPI, dateStr: string) {
-	const activities: Array<{
-		title: string;
-		time: string;
-		endTime: string;
-		location: string;
-		description: string;
-		imageUrl?: string;
-		detailUrl?: string;
-		isHighlight: boolean;
-	}> = [];
+export function parseDay(html: string): AkvarietActivity[] {
+	const $ = cheerio.load(html);
+	const activities: AkvarietActivity[] = [];
 
-	// Each activity card is a div.row.mb-3.p-3.border inside the container
-	$('div.row.mb-3.p-3.border').each((_i, el) => {
+	$('details').each((_i, el) => {
 		const card = $(el);
+		const summary = card.children('summary');
 
-		// Highlight: Akvariet marks featured activities with bg-info (blue background)
-		const isHighlight = card.hasClass('bg-info');
-
-		// Time: first <span> with text-primary inside the time column
-		const timeText = card.find('.col-3 span.text-primary, .col-lg-2 span.text-primary').first().text().trim();
-		// Extract start and end time (e.g. "10:30" and "10:45" from "10:30 - 10:45")
-		const timeMatch = timeText.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
-		const time = timeMatch ? timeMatch[1] : '';
-		const endTime = timeMatch ? timeMatch[2] : '';
-
-		// Title: h3 inside the card — strip capacity notes that vary day-to-day
-		const rawTitle = card.find('h3').first().text().trim()
-			.replace(/&quot;/g, '"')
+		// Tittel: fjern kapasitetsmerknader som varierer fra dag til dag
+		const rawTitle = summary.find('.text-h5').first().text().trim()
 			.replace(/\s*-\s*Begrenset antall.*/i, '')
 			.replace(/\s*\.\s*Spør etter.*/i, '');
 		if (!rawTitle) return;
 
-		// Location: span.fw-normal after the title
-		const location = card.find('.d-flex.flex-column span.fw-normal').first().text().trim();
+		// «15:00 – 15:15» (tankestrek) eller «15:00 - 15:15»
+		const timeText = summary.find('.tabular-nums').first().text().trim();
+		const timeMatch = timeText.match(/(\d{1,2}[:.]\d{2})(?:\s*[-–—]\s*(\d{1,2}[:.]\d{2}))?/);
+		const norm = (t?: string) => (t ? t.replace('.', ':').padStart(5, '0') : '');
+		const time = norm(timeMatch?.[1]);
+		const endTime = norm(timeMatch?.[2]);
 
-		// Description: paragraph inside the collapse section
-		const description = card.find('.collapse p').first().text().trim();
+		// Akvariet merker sine anbefalte aktiviteter med et «Høydepunkt»-merke
+		// (avrundet .text-body-small foran tittelen). Stedet er .text-body-small etter tittelen.
+		const isHighlight = summary.find('.rounded-full').filter((_j, b) => /høydepunkt/i.test($(b).text())).length > 0;
+		const location = summary.find('.text-h5').first().nextAll('.text-body-small').first().text().trim();
+		const body = card.children().not('summary');
+		const description = body.find('p').first().text().trim();
+		const imageUrl = body.find('img').first().attr('src') || undefined;
 
-		// Image: img.img-fluid inside <picture> in the collapse section
-		const imgSrc = card.find('.collapse picture img.img-fluid').first().attr('src');
-		const imageUrl = imgSrc || undefined;
-
-		// Detail link: "Les mer" button
-		const detailLink = card.find('.collapse a.btn-primary[href]').first().attr('href');
-		let detailUrl: string | undefined;
-		if (detailLink) {
-			detailUrl = detailLink.startsWith('http') ? detailLink : `${BASE_URL}${detailLink}`;
-		}
+		const detailLink = body.find('a[href*="/program/"]').first().attr('href');
+		const detailUrl = detailLink
+			? (detailLink.startsWith('http') ? detailLink : `${BASE_URL}${detailLink}`)
+			: undefined;
 
 		activities.push({ title: rawTitle, time, endTime, location, description, imageUrl, detailUrl, isHighlight });
 	});
 
 	return activities;
+}
+
+/**
+ * Finn datoen for «En natt på Akvariet» i teksten:
+ * «Når skjer det? Fredag 29. januar kl. 17:00 til lørdag 30. januar 2027 kl. 07:30.»
+ * Året står ofte bare på sluttdatoen. Gir null når setningen ikke finnes, slik
+ * at en ny formulering gir 0 funnet, ikke en gal dato.
+ */
+export function parseOvernattingDate(html: string): {
+	startDate: string; startTime: string; endDate: string; endTime: string;
+} | null {
+	const $ = cheerio.load(html);
+	$('script, style').remove();
+	const text = $('body').text().replace(/\s+/g, ' ');
+	const m = text.match(
+		/Når skjer det\?\s*\p{L}+\s+(\d{1,2})\.\s*(\p{L}+)(?:\s+(\d{4}))?\s+kl\.?\s*(\d{1,2}[:.]\d{2})\s+til\s+\p{L}+\s+(\d{1,2})\.\s*(\p{L}+)\s+(\d{4})\s+kl\.?\s*(\d{1,2}[:.]\d{2})/u
+	);
+	if (!m) return null;
+	const sMonth = NORWEGIAN_MONTHS[m[2].toLowerCase()];
+	const eMonth = NORWEGIAN_MONTHS[m[6].toLowerCase()];
+	if (!sMonth || !eMonth) return null;
+	const eYear = parseInt(m[7], 10);
+	const sYear = m[3] ? parseInt(m[3], 10) : (sMonth > eMonth ? eYear - 1 : eYear);
+	const pad = (n: number) => String(n).padStart(2, '0');
+	const t = (s: string) => s.replace('.', ':').padStart(5, '0');
+	return {
+		startDate: `${sYear}-${pad(sMonth)}-${pad(parseInt(m[1], 10))}`,
+		startTime: t(m[4]),
+		endDate: `${eYear}-${pad(eMonth)}-${pad(parseInt(m[5], 10))}`,
+		endTime: t(m[8]),
+	};
 }
 
 /**
@@ -166,46 +186,27 @@ async function scrapeOvernatting(): Promise<{ found: number; inserted: number }>
 
 	const $ = cheerio.load(html);
 	const ogImage = $('meta[property="og:image"]').attr('content') || undefined;
+	const ticketHref = $('a[href*="billett.akvariet.no/arrangementer/"]').first().attr('href');
 
-	// Match ticket links like /kjop-billett/overnatting-en-natt-paa-akvariet-17-april-2026
-	const seen = new Set<string>();
-	const dates: Array<{ year: number; month: number; day: number; href: string }> = [];
+	const when = parseOvernattingDate(html);
+	if (!when) {
+		console.warn(`[${SOURCE}]   Fant ingen dato på overnattingssiden («Når skjer det?» mangler)`);
+		return { found, inserted };
+	}
 
-	$('a[href*="/kjop-billett/overnatting-en-natt-paa-akvariet-"]').each((_i, el) => {
-		const href = $(el).attr('href');
-		if (!href || seen.has(href)) return;
-		seen.add(href);
-		const m = href.match(/overnatting-en-natt-paa-akvariet-(\d{1,2})-([a-zæøå]+)-(\d{4})/i);
-		if (!m) return;
-		const day = parseInt(m[1], 10);
-		const month = NORWEGIAN_MONTHS[m[2].toLowerCase()];
-		const year = parseInt(m[3], 10);
-		if (!month) return;
-		dates.push({ year, month, day, href });
-	});
-
-	const todayMidnight = new Date();
-	todayMidnight.setHours(0, 0, 0, 0);
-
-	for (const { year, month, day, href } of dates) {
-		const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-		const eventDate = new Date(`${dateStr}T00:00:00Z`);
-		if (eventDate < todayMidnight) continue;
+	{
+		const { startDate: dateStr, startTime, endDate: endDateStr, endTime } = when;
+		const dateStart = new Date(`${dateStr}T${startTime}:00${bergenOffset(dateStr)}`).toISOString();
+		if (new Date(dateStart) < new Date()) return { found, inserted };
 
 		found++;
 
-		const ticketUrl = href.startsWith('http') ? href : `${BASE_URL}${href}`;
-		const sourceUrl = ticketUrl;
+		const ticketUrl = ticketHref || OVERNATTING_URL;
+		const sourceUrl = `${OVERNATTING_URL}#${dateStr}`;
 
-		if (await eventExists(sourceUrl)) continue;
+		if (await eventExists(sourceUrl)) return { found, inserted };
 
-		const offset = bergenOffset(dateStr);
-		const dateStart = new Date(`${dateStr}T17:00:00${offset}`).toISOString();
-		// Sleepover ends next morning around 09:00
-		const endDate = new Date(eventDate);
-		endDate.setUTCDate(endDate.getUTCDate() + 1);
-		const endDateStr = endDate.toISOString().slice(0, 10);
-		const dateEnd = new Date(`${endDateStr}T09:00:00${bergenOffset(endDateStr)}`).toISOString();
+		const dateEnd = new Date(`${endDateStr}T${endTime}:00${bergenOffset(endDateStr)}`).toISOString();
 
 		const title = 'Overnatting på Akvariet';
 		const aiDesc = await generateDescription({
@@ -252,6 +253,8 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 
 	let found = 0;
 	let inserted = 0;
+	let failedDays = 0;
+	let emptyDays = 0;
 
 	const today = new Date();
 
@@ -260,26 +263,27 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		date.setDate(today.getDate() + d);
 		const dateStr = date.toISOString().slice(0, 10); // YYYY-MM-DD
 
-		const url = `${CALENDAR_URL}/${dateStr}`;
+		const url = `${PROGRAM_URL}?date=${dateStr}`;
 
 		if (d > 0) await delay(1500);
 
 		const html = await fetchHTML(url);
 		if (!html) {
 			console.warn(`[${SOURCE}]   Failed to fetch ${dateStr}`);
+			failedDays++;
 			continue;
 		}
 
-		const $ = cheerio.load(html);
-		const activities = parseDay($, dateStr);
+		const activities = parseDay(html);
+		if (activities.length === 0) emptyDays++;
 
 		let daySpecialCount = 0;
 		for (const activity of activities) {
-			// Skip recurring daily activities and cinema films
-			if (isRecurring(activity.title) || isCinemaFilm(activity.title)) continue;
-
-			// Previously filtered on bg-info highlight class, but Akvariet removed it (Mar 2026).
-			// Now we rely solely on isRecurring() to skip daily repeating activities.
+			// Bare det Akvariet selv merker «Høydepunkt» (avgjort 2026-11-17). Fôringer og
+			// visninger uten merket går flere ganger i uka og drukner resten av lista.
+			// Kino aldri, selv om den skulle bli merket: Ingvild ba om det 2026-04-20.
+			if (!activity.isHighlight) continue;
+			if (isFilm(activity.title)) continue;
 
 			daySpecialCount++;
 			found++;
@@ -294,7 +298,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 				.toLowerCase()
 				.replace(/[æ]/g, 'ae').replace(/[ø]/g, 'o').replace(/[å]/g, 'a')
 				.replace(/["""]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-			const sourceUrl = `${BASE_URL}/hva-skjer/aktivitetskalender/dag/${dateStr}#${titleSlug}`;
+			const sourceUrl = `${PROGRAM_URL}?date=${dateStr}#${titleSlug}`;
 
 			// Resolve image first so we can update existing events that lack one
 			let imageUrl = activity.imageUrl;
@@ -333,7 +337,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			});
 
 			// Link to the day's calendar page so visitors see the full programme
-			const ticketUrl = activity.detailUrl || `${CALENDAR_URL}/${dateStr}`;
+			const ticketUrl = activity.detailUrl || `${PROGRAM_URL}?date=${dateStr}`;
 
 			const success = await insertEvent({
 				slug: makeSlug(activity.title, dateStr),
@@ -374,5 +378,12 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 	inserted += overnatting.inserted;
 
 	console.log(`[${SOURCE}] Done: found ${found}, inserted ${inserted}`);
+
+	// Akvariet har daglige aktiviteter (pingvin, sjøløve) hver dag. Ingen kort på
+	// noen dag betyr at adressen eller HTML-en er endret, ikke at programmet er tomt.
+	// Uten dette ble 14 dager med 404 logget som en vanlig kjøring med «found 0».
+	if (failedDays + emptyDays === DAYS_AHEAD) {
+		throw new Error(`Akvariet: ingen aktiviteter på ${DAYS_AHEAD} dager (${failedDays} feilet, ${emptyDays} tomme). Sjekk ${PROGRAM_URL}`);
+	}
 	return { found, inserted };
 }
