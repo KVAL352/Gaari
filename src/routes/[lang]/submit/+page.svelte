@@ -463,6 +463,7 @@
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-12">
+	<h1 class="mb-2 text-3xl font-bold">{$t('submitTitle')}</h1>
 
 	{#if mode === null && !submitted && !websiteSubmitted}
 		<!-- Choice screen -->
