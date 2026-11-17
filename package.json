@@ -2,6 +2,9 @@
 	"name": "gaari",
 	"version": "0.1.0",
 	"private": true,
+	"engines": {
+		"node": ">=22.17"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
