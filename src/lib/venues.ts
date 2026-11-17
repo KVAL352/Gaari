@@ -11,6 +11,17 @@ export interface VenueInfo {
 	lng: number;
 	website?: string;
 	bydel: string;
+	/**
+	 * Flere navn stedssiden skal lete etter i `venue_name`, i tillegg til `name`.
+	 * Kildene skriver ofte ikke stedets offisielle navn: biblioteket heter
+	 * «Hovedbiblioteket, Auditoriet» i radene, så siden viste 1 av ca. 70 (17. nov 2026).
+	 */
+	matchNames?: string[];
+}
+
+/** Alle navn stedssiden matcher på (case-insensitivt, delstreng). */
+export function venueMatchNames(v: Pick<VenueInfo, 'name' | 'matchNames'>): string[] {
+	return [v.name, ...(v.matchNames ?? [])];
 }
 
 /**
@@ -159,7 +170,10 @@ export const TOP_VENUES: VenueInfo[] = [
 			en: 'Bergen main library with free events, exhibitions, talks and activities for all ages.'
 		},
 		street: 'Strømgaten 6', postalCode: '5015', lat: 60.3893, lng: 5.3316,
-		website: 'https://bergenbibliotek.no', bydel: 'Sentrum'
+		website: 'https://bergenbibliotek.no', bydel: 'Sentrum',
+		// «Bergen Bibliotek» står også i radene, men uten adresse; uvisst om det er
+		// hovedbiblioteket eller en filial, så det er ikke tatt med.
+		matchNames: ['Hovedbiblioteket']
 	},
 	{
 		slug: 'forum-scene',
