@@ -7,7 +7,7 @@
 	import { collectionHref } from '#lib/collection-urls';
 	import { isFreeEvent, isTouristFriendly, isStudentRelevant } from '#lib/utils';
 	import { hideEvent, hideVenue, hideCategory, isHidden, unhideAll, hiddenCount, hiddenSummary } from '#lib/hidden-events.svelte';
-	import { getOsloNow, toOsloDateStr, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString, eventOnDay, eventOverlapsRange } from '#lib/event-filters';
+	import { getOsloNow, toOsloDateStr, getWeekendDates, matchesTimeOfDay, addDays, getEndOfWeekDateStr, buildQueryString, eventOnDay, eventOverlapsRange, sortForListing } from '#lib/event-filters';
 	import type { Bydel, GaariEvent } from '#lib/types';
 	import { generateWebSiteJsonLd, generateFaqJsonLd, generateOrganizationJsonLd, generateBreadcrumbJsonLd, computeCanonical, getCanonicalUrl, safeJsonLd } from '#lib/seo';
 	import { SOURCE_COUNT } from '#lib/constants';
@@ -174,12 +174,7 @@
 		// to 1h, so a freshly-computed client now would split upcoming/ongoing differently
 		// than the cached SSR HTML, reorder cards, and mispair images during hydration
 		// (right title, wrong image). data.now is identical on server and client.
-		const nowIso = data.now ?? new Date().toISOString();
-		const upcoming = events.filter(e => e.date_start >= nowIso);
-		const ongoing = events.filter(e => e.date_start < nowIso);
-		upcoming.sort((a, b) => a.date_start < b.date_start ? -1 : a.date_start > b.date_start ? 1 : 0);
-		ongoing.sort((a, b) => (a.date_end ?? '') < (b.date_end ?? '') ? -1 : (a.date_end ?? '') > (b.date_end ?? '') ? 1 : 0);
-		events = [...upcoming, ...ongoing];
+		events = sortForListing(events, data.now ?? new Date().toISOString());
 
 		// Remove user-hidden events — only after hydration to prevent SSR mismatch
 		if (hydrated) {

@@ -148,3 +148,31 @@ export function matchesTimeOfDay(dateStart: string, times: string[]): boolean {
 		}
 	});
 }
+
+/**
+ * Rekkefølgen i lista på forsiden: det som starter nå eller senere (og det som
+ * startet tidligere i dag, Oslo-tid) etter starttid; deretter det som startet
+ * en tidligere dag og fortsatt pågår, etter sluttid.
+ *
+ * Det som startet tidligere i dag skal stå under «I dag». Før 17. nov 2026 gikk
+ * det bakerst i en liste på flere hundre, så «I dag» viste 21 mens knappen
+ * sa 23: Elvetun 11:30 og Etterskoleklubb 13:30 forsvant midt på dagen.
+ *
+ * `nowIso` skal være serverens tid (data.now), ikke klientens, ellers stokkes
+ * kortene om under hydrering av den ISR-cachede siden.
+ */
+export function sortForListing<T extends { date_start: string; date_end?: string | null }>(
+	events: T[],
+	nowIso: string
+): T[] {
+	const today = toOsloDateStr(new Date(nowIso));
+	const isUpcoming = (e: T) =>
+		e.date_start >= nowIso || toOsloDateStr(new Date(e.date_start)) === today;
+	const upcoming = events.filter(isUpcoming);
+	const ongoing = events.filter((e) => !isUpcoming(e));
+	upcoming.sort((a, b) => (a.date_start < b.date_start ? -1 : a.date_start > b.date_start ? 1 : 0));
+	ongoing.sort((a, b) =>
+		(a.date_end ?? '') < (b.date_end ?? '') ? -1 : (a.date_end ?? '') > (b.date_end ?? '') ? 1 : 0
+	);
+	return [...upcoming, ...ongoing];
+}

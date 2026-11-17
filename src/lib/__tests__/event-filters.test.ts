@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { matchesTimeOfDay, getWeekendDates, isSameDay, toOsloDateStr, addDays, getEndOfWeekDateStr, buildQueryString, getEasterDate, getISOWeekDates, getContextualHighlight } from '../event-filters';
+import { matchesTimeOfDay, getWeekendDates, isSameDay, toOsloDateStr, addDays, getEndOfWeekDateStr, buildQueryString, getEasterDate, getISOWeekDates, getContextualHighlight, sortForListing } from '../event-filters';
 
 describe('matchesTimeOfDay', () => {
 	// Winter (CET, UTC+1): 19:00 UTC = 20:00 Oslo = evening
@@ -293,5 +293,44 @@ describe('getContextualHighlight', () => {
 	it('returns empty string on Monday morning', () => {
 		// Monday 09:00
 		expect(getContextualHighlight(new Date(2026, 2, 2, 9, 0))).toBe('');
+	});
+});
+
+describe('sortForListing', () => {
+	// 17. nov 2026, 15:51 Oslo = 14:51Z
+	const now = '2026-11-17T14:51:00.000Z';
+	const ev = (id: string, date_start: string, date_end: string | null = null) => ({ id, date_start, date_end });
+
+	it('keeps an event that started earlier today in the today block, before tomorrow', () => {
+		const out = sortForListing(
+			[
+				ev('tomorrow', '2026-11-18T17:00:00.000Z'),
+				ev('exhibition', '2026-11-10T09:00:00.000Z', '2026-12-01T16:00:00.000Z'),
+				ev('later-today', '2026-11-17T17:00:00.000Z'),
+				ev('started-1130', '2026-11-17T10:30:00.000Z', '2026-11-17T17:00:00.000Z')
+			],
+			now
+		);
+		expect(out.map((e) => e.id)).toEqual(['started-1130', 'later-today', 'tomorrow', 'exhibition']);
+	});
+
+	it('uses Oslo day, not UTC day: 00:30 Oslo start is today even though it is 23:30Z yesterday', () => {
+		const out = sortForListing(
+			[ev('tomorrow', '2026-11-18T17:00:00.000Z'), ev('just-after-midnight', '2026-11-16T23:30:00.000Z', '2026-11-17T23:00:00.000Z')],
+			now
+		);
+		expect(out.map((e) => e.id)).toEqual(['just-after-midnight', 'tomorrow']);
+	});
+
+	it('puts multi-day events from earlier days last, ordered by end', () => {
+		const out = sortForListing(
+			[
+				ev('ends-late', '2026-11-01T09:00:00.000Z', '2026-12-20T16:00:00.000Z'),
+				ev('ends-soon', '2026-11-05T09:00:00.000Z', '2026-11-20T16:00:00.000Z'),
+				ev('next-week', '2026-11-24T18:00:00.000Z')
+			],
+			now
+		);
+		expect(out.map((e) => e.id)).toEqual(['next-week', 'ends-soon', 'ends-late']);
 	});
 });
