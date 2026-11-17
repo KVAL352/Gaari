@@ -616,6 +616,18 @@
       ],
       "bevis": "Avtaler",
       "vurderesInnen": "2028-10-15"
+    },
+    {
+      "slug": "sjoforsvaretsmusikkorps",
+      "navn": "Sjøforsvarets musikkorps (Forsvaret)",
+      "dato": "2026-11-12",
+      "grunnlag": "dokumentert",
+      "omfang": [
+        "visning",
+        "some"
+      ],
+      "bevis": "Avtaler",
+      "vurderesInnen": "2028-11-12"
     }
   ],
   "avslag": [
