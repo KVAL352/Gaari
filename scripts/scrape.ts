@@ -50,6 +50,7 @@ import { scrape as scrapeBergenFellesverksted } from './scrapers/bergenfellesver
 import { scrape as scrapeBaerekraftigeLiv } from './scrapers/baerekraftigeliv.js';
 import { scrape as scrapeBeyondTheGates } from './scrapers/beyondthegates.js';
 import { scrape as scrapeBrann } from './scrapers/brann.js';
+import { scrape as scrapeSjoforsvaretsMusikkorps } from './scrapers/sjoforsvaretsmusikkorps.js';
 import { scrape as scrapeKulturhusetIBergen } from './scrapers/kulturhusetibergen.js';
 import { scrape as scrapeVVV } from './scrapers/vvv.js';
 // import { scrape as scrapeBymuseet } from './scrapers/bymuseet.js';
@@ -173,6 +174,7 @@ export const scrapers: Record<string, () => Promise<{ found: number; inserted: n
 	baerekraftigeliv: scrapeBaerekraftigeLiv,
 	beyondthegates: scrapeBeyondTheGates,
 	brann: scrapeBrann,
+	sjoforsvaretsmusikkorps: scrapeSjoforsvaretsMusikkorps,
 	kulturhusetibergen: scrapeKulturhusetIBergen,
 	vvv: scrapeVVV,
 	kvarteret: scrapeKvarteret,
