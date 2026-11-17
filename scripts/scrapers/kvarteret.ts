@@ -160,7 +160,6 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const category = mapCategory(ev.keywords);
 		const bydel = mapBydel(VENUE);
 		const price = parsePrice(ev);
-		const image = Array.isArray(ev.image) ? ev.image[0] : ev.image;
 
 		const aiDesc = await generateDescription({
 			title,
@@ -188,7 +187,11 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 			ticket_url: pickTicketUrl(ev) ?? url,
 			source: SOURCE,
 			source_url: url,
-			image_url: image && /^https?:/.test(image) ? image : undefined,
+			// Ingen bilder før Samfunnet i Bergen har svart. Hotlink-raden `kvarteret`
+			// gjelder Det Akademiske Kvarter (varslet 11. mai), ikke Samfunnet, og
+			// SOURCE står på den lista, så isImageAllowed() ville sluppet dem gjennom.
+			// Avgjort 2026-11-17. Ved et ja: legg inn rad i consent.json, så denne linja.
+			image_url: undefined,
 			// Aldersgrensen står i kildens egen tekst («Aldersgrense 20 år»), ikke i
 			// den genererte beskrivelsen insertEvent ser. Les den fra kilden.
 			age_group: hasAdultAgeLimit(title, ev.description) ? '18+' : 'students',
