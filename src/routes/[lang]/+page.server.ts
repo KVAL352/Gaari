@@ -1,7 +1,7 @@
-import { supabase } from '$lib/server/supabase';
-import { getGroupedCollections } from '$lib/collections';
-import { seedEvents } from '$lib/data/seed-events';
-import type { GaariEvent } from '$lib/types';
+import { supabase } from '#lib/server/supabase';
+import { getGroupedCollections } from '#lib/collections';
+import { seedEvents } from '#lib/data/seed-events';
+import type { GaariEvent } from '#lib/types';
 import type { PageServerLoad } from './$types';
 
 export const config = {
@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 	// upcoming/ongoing buckets, and mispair images with cards during hydration.
 	const nowUtc = new Date().toISOString();
 
-	// Lenkekartet nederst paa forsiden. Settes sammen her fordi $lib/collections
+	// Lenkekartet nederst paa forsiden. Settes sammen her fordi #lib/collections
 	// er hele katalogen paa 338 kB kildekode: importerte forsiden den selv,
 	// fulgte 70 kB komprimert JavaScript med til nettleseren for aa tegne noen
 	// og seksti lenker. Bare slug og etikett sendes videre.

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { eventImageStoragePath, EVENT_IMAGE_BUCKET } from '$lib/storage-path';
+import { eventImageStoragePath, EVENT_IMAGE_BUCKET } from '#lib/storage-path';
 
 const BASE = `https://rilwtpluofguyjpzdezi.supabase.co/storage/v1/object/public/${EVENT_IMAGE_BUCKET}/`;
 

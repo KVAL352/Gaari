@@ -1,11 +1,11 @@
 import { error, redirect } from '@sveltejs/kit';
-import { supabase } from '$lib/server/supabase';
-import { getCollection, getHreflangSlugs, getSeasonYear, isCollectionLang } from '$lib/collections';
-import { getOsloNow } from '$lib/event-filters';
-import { seedEvents } from '$lib/data/seed-events';
-import { getActivePromotions, pickPromotedVenues, logImpression, logCollectionImpression } from '$lib/server/promotions';
+import { supabase } from '#lib/server/supabase';
+import { getCollection, getHreflangSlugs, getSeasonYear, isCollectionLang } from '#lib/collections';
+import { getOsloNow } from '#lib/event-filters';
+import { seedEvents } from '#lib/data/seed-events';
+import { getActivePromotions, pickPromotedVenues, logImpression, logCollectionImpression } from '#lib/server/promotions';
 import { SKIP_LOG_IPS } from '$app/env/private';
-import type { GaariEvent } from '$lib/types';
+import type { GaariEvent } from '#lib/types';
 import type { PageServerLoad } from './$types';
 
 const skipIps = new Set((SKIP_LOG_IPS ?? '').split(',').map(s => s.trim()).filter(Boolean));

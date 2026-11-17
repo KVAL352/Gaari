@@ -1,6 +1,6 @@
-import { supabase } from '$lib/server/supabase';
-import { getCollectionSitemapPaths } from '$lib/collections';
-import { getAllVenueSlugs } from '$lib/venues';
+import { supabase } from '#lib/server/supabase';
+import { getCollectionSitemapPaths } from '#lib/collections';
+import { getAllVenueSlugs } from '#lib/venues';
 
 const BASE = 'https://gaari.no';
 
@@ -63,7 +63,7 @@ export async function GET() {
 	}
 
 	// For arrangører — hidden. The switch is B2B_PAGES_PUBLIC in
-	// $lib/b2b-visibility; this block has to be restored by hand when it
+	// #lib/b2b-visibility; this block has to be restored by hand when it
 	// flips, since it was commented out rather than made conditional.
 	// priorityUrls += `  <url>
 	//   <loc>${BASE}/no/for-arrangorer</loc>

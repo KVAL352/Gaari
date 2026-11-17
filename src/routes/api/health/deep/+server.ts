@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
-import { supabase } from '$lib/server/supabase';
-import { supabaseAdmin } from '$lib/server/supabase-admin';
-import { PUBLIC_EVENT_COLUMNS } from '$lib/server/event-columns';
+import { supabase } from '#lib/server/supabase';
+import { supabaseAdmin } from '#lib/server/supabase-admin';
+import { PUBLIC_EVENT_COLUMNS } from '#lib/server/event-columns';
 import type { RequestHandler } from './$types';
 
 /**

@@ -1,8 +1,8 @@
-import { supabase } from '$lib/server/supabase';
-import { supabaseAdmin } from '$lib/server/supabase-admin';
+import { supabase } from '#lib/server/supabase';
+import { supabaseAdmin } from '#lib/server/supabase-admin';
 import { fail } from '@sveltejs/kit';
-import { TIER_SLOT } from '$lib/promotion-config';
-import { getCollectionOptions } from '$lib/collections';
+import { TIER_SLOT } from '#lib/promotion-config';
+import { getCollectionOptions } from '#lib/collections';
 import type { PageServerLoad, Actions } from './$types';
 
 export interface PlacementRow {

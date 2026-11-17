@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import AdminNav from '$lib/components/AdminNav.svelte';
-	import { erNettsideInnsending } from '$lib/innsending';
+	import AdminNav from '#lib/components/AdminNav.svelte';
+	import { erNettsideInnsending } from '#lib/innsending';
 	import type { PageData } from './$types';
 	import type { InquiryRow } from './+page.server';
 

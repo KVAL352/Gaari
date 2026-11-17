@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import AdminNav from '$lib/components/AdminNav.svelte';
+	import AdminNav from '#lib/components/AdminNav.svelte';
 	import type { PageData } from './$types';
 	import type { CalendarItem } from './+page.server';
 

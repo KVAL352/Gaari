@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Lang } from '$lib/types';
+	import type { Lang } from '#lib/types';
 
 	interface Props {
 		selectedDate?: string;

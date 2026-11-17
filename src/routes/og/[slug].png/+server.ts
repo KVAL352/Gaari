@@ -1,6 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
-import { supabase } from '$lib/server/supabase';
-import { generateOgImage } from '$lib/og/og-image';
+import { supabase } from '#lib/server/supabase';
+import { generateOgImage } from '#lib/og/og-image';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, url }) => {

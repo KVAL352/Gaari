@@ -2,6 +2,9 @@
 	"name": "gaari",
 	"version": "0.1.0",
 	"private": true,
+	"imports": {
+		"#lib/*": ["./src/lib/*", "./src/lib/*.ts", "./src/lib/*.js", "./src/lib/*/index.ts"]
+	},
 	"engines": {
 		"node": "24.x"
 	},

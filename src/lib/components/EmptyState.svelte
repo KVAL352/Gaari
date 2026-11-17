@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { lang, t } from '$lib/i18n';
+	import { lang, t } from '#lib/i18n';
 	import { Search } from 'lucide-svelte';
-	import type { GaariEvent } from '$lib/types';
+	import type { GaariEvent } from '#lib/types';
 	import EventCard from './EventCard.svelte';
 	import NewsletterInline from './NewsletterInline.svelte';
 

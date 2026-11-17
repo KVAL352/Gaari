@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { supabase } from '$lib/server/supabase';
+import { supabase } from '#lib/server/supabase';
 import type { Actions } from './$types';
 
 export const actions: Actions = {

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { lang, t } from '$lib/i18n';
-	import type { GaariEvent } from '$lib/types';
-	import { optimizedSrc } from '$lib/image';
-	import { SOURCE_COUNT } from '$lib/constants';
+	import { lang, t } from '#lib/i18n';
+	import type { GaariEvent } from '#lib/types';
+	import { optimizedSrc } from '#lib/image';
+	import { SOURCE_COUNT } from '#lib/constants';
 
 	interface Props {
 		/** Sample events to show as a preview collage in the hero area */

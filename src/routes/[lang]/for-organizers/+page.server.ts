@@ -1,8 +1,8 @@
 import { redirect } from '@sveltejs/kit';
-import { B2B_PAGES_PUBLIC } from '$lib/b2b-visibility';
+import { B2B_PAGES_PUBLIC } from '#lib/b2b-visibility';
 import { handleContactSubmit } from '../for-arrangorer/contact-action';
-import { supabase } from '$lib/server/supabase';
-import { getActivePartners } from '$lib/server/promotions';
+import { supabase } from '#lib/server/supabase';
+import { getActivePartners } from '#lib/server/promotions';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {

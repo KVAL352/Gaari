@@ -49,12 +49,12 @@ describe('klientpakke', () => {
 		expect(filer.length).toBeGreaterThan(20);
 	});
 
-	it('importerer ingen .svelte-fil $lib/collections', () => {
-		// Trenger du en adresse, importer fra $lib/collection-urls.
+	it('importerer ingen .svelte-fil #lib/collections', () => {
+		// Trenger du en adresse, importer fra #lib/collection-urls.
 		// Trenger du selve katalogen, hent den i +page.server.ts og send den
 		// inn som prop — slik Footer.svelte alt gjoer med lenkene sine.
 		const brudd = filer.filter((f) =>
-			/import\s[^;]*from\s+['"]\$lib\/collections['"]/.test(readFileSync(f, 'utf-8'))
+			/import\s[^;]*from\s+['"]#lib\/collections['"]/.test(readFileSync(f, 'utf-8'))
 		);
 		expect(brudd).toEqual([]);
 	});

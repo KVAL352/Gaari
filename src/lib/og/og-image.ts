@@ -1,7 +1,7 @@
 import satori, { type Font } from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 import sharp from 'sharp';
-import type { Category } from '$lib/types';
+import type { Category } from '#lib/types';
 
 // Hex values matching CSS custom properties in app.css
 const CATEGORY_COLORS: Record<Category, string> = {

@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { lang, t } from '$lib/i18n';
-	import { collectionHref } from '$lib/collection-urls';
-	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
-	import { getOsloNow, getWeekendDates } from '$lib/event-filters';
-	import EventGrid from '$lib/components/EventGrid.svelte';
-	import FilterBar from '$lib/components/FilterBar.svelte';
-	import LoadMore from '$lib/components/LoadMore.svelte';
-	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
-	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
-	import { groupEventsByDate } from '$lib/utils';
-	import type { Category, Bydel } from '$lib/types';
+	import { lang, t } from '#lib/i18n';
+	import { collectionHref } from '#lib/collection-urls';
+	import { getCanonicalUrl, generateCollectionJsonLd, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '#lib/seo';
+	import { getOsloNow, getWeekendDates } from '#lib/event-filters';
+	import EventGrid from '#lib/components/EventGrid.svelte';
+	import FilterBar from '#lib/components/FilterBar.svelte';
+	import LoadMore from '#lib/components/LoadMore.svelte';
+	import NewsletterCTA from '#lib/components/NewsletterCTA.svelte';
+	import ImagePlaceholder from '#lib/components/ImagePlaceholder.svelte';
+	import { groupEventsByDate } from '#lib/utils';
+	import type { Category, Bydel } from '#lib/types';
 
 	let { data } = $props();
 

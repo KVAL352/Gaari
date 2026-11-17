@@ -1,6 +1,6 @@
 import type { Handle, HandleServerError } from '@sveltejs/kit/hooks';
 import { redirect } from '@sveltejs/kit';
-import { ADMIN_COOKIE, isValidToken, requiresAdminAuth } from '$lib/server/admin-auth';
+import { ADMIN_COOKIE, isValidToken, requiresAdminAuth } from '#lib/server/admin-auth';
 
 // ── Rate limiting (in-memory, per-IP) ──
 

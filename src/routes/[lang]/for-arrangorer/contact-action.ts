@@ -1,7 +1,7 @@
 import { error as httpError, fail } from '@sveltejs/kit';
-import { B2B_PAGES_PUBLIC } from '$lib/b2b-visibility';
-import { supabase } from '$lib/server/supabase';
-import { notifyInquiry } from '$lib/server/email';
+import { B2B_PAGES_PUBLIC } from '#lib/b2b-visibility';
+import { supabase } from '#lib/server/supabase';
+import { notifyInquiry } from '#lib/server/email';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export async function handleContactSubmit({ request }: RequestEvent) {

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { lang, setLang } from '$lib/i18n';
-	import type { Lang } from '$lib/types';
-	import Header from '$lib/components/Header.svelte';
-	import Footer from '$lib/components/Footer.svelte';
-	import BackToTop from '$lib/components/BackToTop.svelte';
+	import { lang, setLang } from '#lib/i18n';
+	import type { Lang } from '#lib/types';
+	import Header from '#lib/components/Header.svelte';
+	import Footer from '#lib/components/Footer.svelte';
+	import BackToTop from '#lib/components/BackToTop.svelte';
 	import type { Snippet } from 'svelte';
 
 	let {

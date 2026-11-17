@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Category } from '$lib/types';
-	import { getCategoryColor } from '$lib/utils';
+	import type { Category } from '#lib/types';
+	import { getCategoryColor } from '#lib/utils';
 	import {
 		Music, Palette, Drama, Users, UtensilsCrossed,
 		PartyPopper, Dumbbell, Moon, BookOpen, GraduationCap, Map

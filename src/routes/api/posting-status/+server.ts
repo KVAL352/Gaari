@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { supabase } from '$lib/server/supabase';
+import { supabase } from '#lib/server/supabase';
 import type { RequestHandler } from './$types';
 
 /** GET /api/posting-status?week=2026-04-14 — returns { [taskKey]: true } */

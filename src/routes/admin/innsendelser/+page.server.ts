@@ -1,5 +1,5 @@
-import { supabaseAdmin } from '$lib/server/supabase-admin';
-import { sendInquiryDeclineEmail } from '$lib/server/email';
+import { supabaseAdmin } from '#lib/server/supabase-admin';
+import { sendInquiryDeclineEmail } from '#lib/server/email';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { lang, setLang } from '$lib/i18n';
-	import type { Lang } from '$lib/types';
+	import { lang, setLang } from '#lib/i18n';
+	import type { Lang } from '#lib/types';
 
 	function switchLang() {
 		const newLang: Lang = $lang === 'no' ? 'en' : 'no';

@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 import { RESEND_API_KEY } from '$app/env/private';
 import { PUBLIC_SUPABASE_URL } from '$app/env/public';
-import { varselEmne, varselIngress, type InquiryKilde } from '$lib/innsending';
+import { varselEmne, varselIngress, type InquiryKilde } from '#lib/innsending';
 
 const ADMIN_EMAIL = 'post@gaari.no';
 

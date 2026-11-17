@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { browser } from '$app/env';
-	import { lang } from '$lib/i18n';
-	import { collectionHref } from '$lib/collection-urls';
-	import { getCanonicalUrl, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '$lib/seo';
-	import { SOURCE_COUNT } from '$lib/constants';
-	import { getEasterDate, addDays, getISOWeekDates, getContextualHighlight, getOsloNow } from '$lib/event-filters';
-	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
+	import { lang } from '#lib/i18n';
+	import { collectionHref } from '#lib/collection-urls';
+	import { getCanonicalUrl, generateBreadcrumbJsonLd, generateFaqJsonLdFromItems, safeJsonLd } from '#lib/seo';
+	import { SOURCE_COUNT } from '#lib/constants';
+	import { getEasterDate, addDays, getISOWeekDates, getContextualHighlight, getOsloNow } from '#lib/event-filters';
+	import NewsletterCTA from '#lib/components/NewsletterCTA.svelte';
 
 	let { data } = $props();
 

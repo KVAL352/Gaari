@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { lang, t } from '$lib/i18n';
+	import { lang, t } from '#lib/i18n';
 
 	interface Props {
 		/** Unique location id for analytics tracking */

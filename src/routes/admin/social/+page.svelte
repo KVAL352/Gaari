@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AdminNav from '$lib/components/AdminNav.svelte';
+	import AdminNav from '#lib/components/AdminNav.svelte';
 	import type { PageData } from './$types';
 	import type { SocialPost, SocialInsight } from './+page.server';
 

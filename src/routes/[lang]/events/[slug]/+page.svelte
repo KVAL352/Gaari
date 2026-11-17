@@ -1,21 +1,21 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
-	import { lang, t } from '$lib/i18n';
-	import { collectionHref } from '$lib/collection-urls';
+	import { lang, t } from '#lib/i18n';
+	import { collectionHref } from '#lib/collection-urls';
 	import {
 		formatEventDate, formatEventTime, formatMetaDate, buildMetaDescription, formatPrice, isFreeEvent, buildOutboundUrl,
 		outboundRel
-	} from '$lib/utils';
-	import type { GaariEvent } from '$lib/types';
-	import { generateEventJsonLd, generateBreadcrumbJsonLd, getCanonicalUrl } from '$lib/seo';
-	import StatusBadge from '$lib/components/StatusBadge.svelte';
-	import EventCard from '$lib/components/EventCard.svelte';
-	import ImagePlaceholder from '$lib/components/ImagePlaceholder.svelte';
-	import CalendarDropdown from '$lib/components/CalendarDropdown.svelte';
+	} from '#lib/utils';
+	import type { GaariEvent } from '#lib/types';
+	import { generateEventJsonLd, generateBreadcrumbJsonLd, getCanonicalUrl } from '#lib/seo';
+	import StatusBadge from '#lib/components/StatusBadge.svelte';
+	import EventCard from '#lib/components/EventCard.svelte';
+	import ImagePlaceholder from '#lib/components/ImagePlaceholder.svelte';
+	import CalendarDropdown from '#lib/components/CalendarDropdown.svelte';
 	import { Calendar, MapPin, Clock, Tag, ExternalLink, ArrowLeft, MessageSquareDiff, Share2, Check, Navigation, Bell } from 'lucide-svelte';
-	import { optimizedSrc, optimizedSrcset } from '$lib/image';
-	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
+	import { optimizedSrc, optimizedSrcset } from '#lib/image';
+	import NewsletterCTA from '#lib/components/NewsletterCTA.svelte';
 	import { slide } from 'svelte/transition';
 	import { ArrowRight } from 'lucide-svelte';
 

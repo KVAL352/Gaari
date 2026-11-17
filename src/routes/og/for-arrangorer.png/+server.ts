@@ -1,4 +1,4 @@
-import { generateCollectionOgImage } from '$lib/og/og-image';
+import { generateCollectionOgImage } from '#lib/og/og-image';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url }) => {

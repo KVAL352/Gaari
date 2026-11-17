@@ -1,7 +1,7 @@
-import { supabaseAdmin } from '$lib/server/supabase-admin';
-import { sendCorrectionAppliedEmail, sendCorrectionRejectedEmail } from '$lib/server/email';
+import { supabaseAdmin } from '#lib/server/supabase-admin';
+import { sendCorrectionAppliedEmail, sendCorrectionRejectedEmail } from '#lib/server/email';
 import { fail } from '@sveltejs/kit';
-import { EDITABLE_FIELDS } from '$lib/corrections';
+import { EDITABLE_FIELDS } from '#lib/corrections';
 import type { PageServerLoad, Actions } from './$types';
 
 const ALLOWED_FIELDS: readonly string[] = EDITABLE_FIELDS;

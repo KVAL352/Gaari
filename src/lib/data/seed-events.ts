@@ -1,4 +1,4 @@
-import type { GaariEvent } from '$lib/types';
+import type { GaariEvent } from '#lib/types';
 
 // Helper: create dates relative to today
 function daysFromNow(days: number, hour = 19, minute = 0): string {

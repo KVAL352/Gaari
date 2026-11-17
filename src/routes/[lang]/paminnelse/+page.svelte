@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { lang } from '$lib/i18n';
+	import { lang } from '#lib/i18n';
 
 	// Landingsside for bekreftelseslenka i påminnelses-e-posten.
 	// /api/remind/confirm sender hit med ?status=ok|ugyldig|feil.

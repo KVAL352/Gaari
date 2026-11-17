@@ -11,7 +11,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { getCollection, getCollectionSitemapPaths, collectionHref } from '$lib/collections';
+import { getCollection, getCollectionSitemapPaths, collectionHref } from '#lib/collections';
 
 describe('canonical på samlingssider', () => {
 	const sider = getCollectionSitemapPaths();

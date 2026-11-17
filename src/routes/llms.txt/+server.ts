@@ -1,6 +1,6 @@
-import { supabase } from '$lib/server/supabase';
-import { SOURCE_COUNT } from '$lib/constants';
-import { BYDELER } from '$lib/types';
+import { supabase } from '#lib/server/supabase';
+import { SOURCE_COUNT } from '#lib/constants';
+import { BYDELER } from '#lib/types';
 
 // Static content sections — keep in sync with static/llms.txt for fallback
 const HEADER = `# Gåri

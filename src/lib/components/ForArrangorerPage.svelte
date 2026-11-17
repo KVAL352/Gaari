@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { lang } from '$lib/i18n';
-	import { getB2bFaqItems } from '$lib/seo';
-	import { SOURCE_COUNT } from '$lib/constants';
+	import { lang } from '#lib/i18n';
+	import { getB2bFaqItems } from '#lib/seo';
+	import { SOURCE_COUNT } from '#lib/constants';
 
 	interface Props {
 		heroImages: Array<{ url: string; title: string; venue: string }>;

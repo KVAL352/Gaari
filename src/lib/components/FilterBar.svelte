@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { t } from '$lib/i18n';
-	import { CATEGORIES, BYDELER, type Category, type Bydel } from '$lib/types';
+	import { t } from '#lib/i18n';
+	import { CATEGORIES, BYDELER, type Category, type Bydel } from '#lib/types';
 
 	interface Props {
 		category?: Category | '';

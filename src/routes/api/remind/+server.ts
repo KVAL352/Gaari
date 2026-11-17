@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { randomBytes } from 'node:crypto';
-import { supabase } from '$lib/server/supabase';
-import { sendReminderConfirmation } from '$lib/server/email';
+import { supabase } from '#lib/server/supabase';
+import { sendReminderConfirmation } from '#lib/server/email';
 import type { RequestHandler } from './$types';
 
 /**

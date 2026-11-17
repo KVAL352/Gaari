@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import { lang, t } from '$lib/i18n';
-	import type { CalendarEventData } from '$lib/utils';
-	import { getGoogleCalendarUrl, getOutlookCalendarUrl, downloadICS } from '$lib/utils';
+	import { lang, t } from '#lib/i18n';
+	import type { CalendarEventData } from '#lib/utils';
+	import { getGoogleCalendarUrl, getOutlookCalendarUrl, downloadICS } from '#lib/utils';
 	import { CalendarPlus, ExternalLink, Download } from 'lucide-svelte';
 
 	interface Props {
