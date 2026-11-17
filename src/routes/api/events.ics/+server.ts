@@ -1,7 +1,7 @@
-import { supabase } from '$lib/server/supabase';
+import { supabase } from '#lib/server/supabase';
 import type { RequestHandler } from '@sveltejs/kit';
-import type { Category } from '$lib/types';
-import { CATEGORIES } from '$lib/types';
+import type { Category } from '#lib/types';
+import { CATEGORIES } from '#lib/types';
 
 const VALID_FILTERS = [...CATEGORIES, 'free', 'all'] as const;
 type FeedFilter = (typeof VALID_FILTERS)[number];

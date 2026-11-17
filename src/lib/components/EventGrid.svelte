@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { GaariEvent } from '$lib/types';
-	import { lang, t } from '$lib/i18n';
-	import { groupEventsByDate, formatDateSectionHeader } from '$lib/utils';
+	import type { GaariEvent } from '#lib/types';
+	import { lang, t } from '#lib/i18n';
+	import { groupEventsByDate, formatDateSectionHeader } from '#lib/utils';
 	import EventCard from './EventCard.svelte';
 	import NewsletterInline from './NewsletterInline.svelte';
 	import NewsletterSignupCard from './NewsletterSignupCard.svelte';

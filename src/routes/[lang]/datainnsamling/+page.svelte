@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
-	import { lang, t } from '$lib/i18n';
-	import { getCanonicalUrl } from '$lib/seo';
-	import { SOURCE_COUNT } from '$lib/constants';
+	import { lang, t } from '#lib/i18n';
+	import { getCanonicalUrl } from '#lib/seo';
+	import { SOURCE_COUNT } from '#lib/constants';
 	import { Mail } from 'lucide-svelte';
 
 	let optOutStatus: 'idle' | 'submitting' | 'success' | 'error' = $state('idle');

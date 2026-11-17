@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { lang, t } from '$lib/i18n';
-	import { safeJsonLd } from '$lib/seo';
+	import { lang, t } from '#lib/i18n';
+	import { safeJsonLd } from '#lib/seo';
 	import { MapPin, Globe, ArrowRight, Calendar } from 'lucide-svelte';
-	import EventCard from '$lib/components/EventCard.svelte';
+	import EventCard from '#lib/components/EventCard.svelte';
 
 	let { data } = $props();
 	let venue = $derived(data.venue);

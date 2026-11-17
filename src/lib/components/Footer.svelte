@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { lang, t } from '$lib/i18n';
-	import { collectionHref } from '$lib/collection-urls';
-	import { CATEGORIES, type Lang } from '$lib/types';
+	import { lang, t } from '#lib/i18n';
+	import { collectionHref } from '#lib/collection-urls';
+	import { CATEGORIES, type Lang } from '#lib/types';
 	import NewsletterCTA from './NewsletterCTA.svelte';
 	import { Instagram, Facebook } from 'lucide-svelte';
 	// Ren boolsk konstant. Trygg aa importere her selv med regelen under:
 	// den drar ingenting med seg, og blokken forsvinner naar den er false.
-	import { B2B_PAGES_PUBLIC } from '$lib/b2b-visibility';
+	import { B2B_PAGES_PUBLIC } from '#lib/b2b-visibility';
 
 	// Lenkene kommer ferdig utplukket fra +layout.server.ts. Komponenten skal
-	// ikke importere $lib/collections: den importen dro hele samlingskatalogen
+	// ikke importere #lib/collections: den importen dro hele samlingskatalogen
 	// (70 kB komprimert) inn i klientpakken paa alle sider.
 	let {
 		collections = []

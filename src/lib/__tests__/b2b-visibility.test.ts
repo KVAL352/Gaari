@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { B2B_PAGES_PUBLIC } from '$lib/b2b-visibility';
+import { B2B_PAGES_PUBLIC } from '#lib/b2b-visibility';
 
 // Skjemahandlingen henter inn Supabase og e-postutsending paa modulnivaa.
 // Begge stubbes, slik at testen kan slaa fast at INGEN av dem blir roert.
 const insert = vi.fn(() => Promise.resolve({ error: null }));
 const notifyInquiry = vi.fn((_inquiry: unknown) => Promise.resolve());
 
-vi.mock('$lib/server/supabase', () => ({
+vi.mock('#lib/server/supabase', () => ({
 	supabase: { from: () => ({ insert }) }
 }));
-vi.mock('$lib/server/email', () => ({
+vi.mock('#lib/server/email', () => ({
 	notifyInquiry: (inquiry: unknown) => notifyInquiry(inquiry)
 }));
 

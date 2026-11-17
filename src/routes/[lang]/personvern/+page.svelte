@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { lang } from '$lib/i18n';
-	import { getCanonicalUrl } from '$lib/seo';
+	import { lang } from '#lib/i18n';
+	import { getCanonicalUrl } from '#lib/seo';
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/personvern`));
 

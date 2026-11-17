@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { lang, t } from '$lib/i18n';
-	import { generateOrganizationJsonLd, getFaqItems, getCanonicalUrl } from '$lib/seo';
-	import { SOURCE_COUNT } from '$lib/constants';
+	import { lang, t } from '#lib/i18n';
+	import { generateOrganizationJsonLd, getFaqItems, getCanonicalUrl } from '#lib/seo';
+	import { SOURCE_COUNT } from '#lib/constants';
 	import { Mail } from 'lucide-svelte';
-	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
+	import NewsletterCTA from '#lib/components/NewsletterCTA.svelte';
 
 	let canonicalUrl = $derived(getCanonicalUrl(`/${$lang}/about`));
 	let orgJsonLd = generateOrganizationJsonLd();

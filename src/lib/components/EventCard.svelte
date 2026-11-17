@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { GaariEvent, BadgeType } from '$lib/types';
-	import { lang, t } from '$lib/i18n';
-	import { formatEventDate, formatEventTime, formatPrice, isFreeEvent, hasStudentPrice } from '$lib/utils';
+	import type { GaariEvent, BadgeType } from '#lib/types';
+	import { lang, t } from '#lib/i18n';
+	import { formatEventDate, formatEventTime, formatPrice, isFreeEvent, hasStudentPrice } from '#lib/utils';
 	import StatusBadge from './StatusBadge.svelte';
 	import ImagePlaceholder from './ImagePlaceholder.svelte';
 	import CalendarDropdown from './CalendarDropdown.svelte';
 	import { Send, X } from 'lucide-svelte';
-	import { optimizedSrc, optimizedSrcset } from '$lib/image';
+	import { optimizedSrc, optimizedSrcset } from '#lib/image';
 
 	interface Props {
 		event: GaariEvent;

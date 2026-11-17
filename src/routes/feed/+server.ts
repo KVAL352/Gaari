@@ -1,8 +1,8 @@
-import { supabase } from '$lib/server/supabase';
+import { supabase } from '#lib/server/supabase';
 import type { RequestHandler } from '@sveltejs/kit';
-import type { Category } from '$lib/types';
-import { CATEGORIES } from '$lib/types';
-import { SOURCE_COUNT } from '$lib/constants';
+import type { Category } from '#lib/types';
+import { CATEGORIES } from '#lib/types';
+import { SOURCE_COUNT } from '#lib/constants';
 
 const BASE_URL = 'https://gaari.no';
 

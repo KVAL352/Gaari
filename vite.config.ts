@@ -9,14 +9,10 @@ export default defineConfig({
 	plugins: [
 		tailwindcss(),
 		// SvelteKit 3 leser ikke lenger svelte.config.js; konfigen bor her.
-		// `$lib` er fjernet i kit 3 til fordel for `#lib`. Aliaset holder de
-		// over 100 importene våre i live til de skrives om.
+		// `$lib` er erstattet av `#lib` (subpath import i package.json).
 		sveltekit({
 			adapter: adapter(),
-			preprocess: vitePreprocess(),
-			alias: {
-				$lib: 'src/lib'
-			}
+			preprocess: vitePreprocess()
 		})
 	],
 	build: {

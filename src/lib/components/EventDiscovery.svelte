@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { t } from '$lib/i18n';
-	import { CATEGORIES, BYDELER } from '$lib/types';
-	import type { Lang, TimeOfDay, GaariEvent } from '$lib/types';
-	import { CATEGORY_HEX_COLORS } from '$lib/utils';
-	import { isFreeEvent, isTouristFriendly, isStudentRelevant } from '$lib/utils';
+	import { t } from '#lib/i18n';
+	import { CATEGORIES, BYDELER } from '#lib/types';
+	import type { Lang, TimeOfDay, GaariEvent } from '#lib/types';
+	import { CATEGORY_HEX_COLORS } from '#lib/utils';
+	import { isFreeEvent, isTouristFriendly, isStudentRelevant } from '#lib/utils';
 	import FilterPill from './FilterPill.svelte';
 	import MiniCalendar from './MiniCalendar.svelte';
 	import { Users, Drama, GraduationCap, Moon, MapPin, Mail, Sparkle } from 'lucide-svelte';
 	import { slide } from 'svelte/transition';
 	import { browser } from '$app/env';
-	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, addDays, getEndOfWeekDateStr, getContextualHighlight, matchesTimeOfDay } from '$lib/event-filters';
+	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, addDays, getEndOfWeekDateStr, getContextualHighlight, matchesTimeOfDay } from '#lib/event-filters';
 
 	interface Props {
 		lang: Lang;

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { lang, t } from '$lib/i18n';
-	import { isFreeEvent } from '$lib/utils';
-	import { safeJsonLd } from '$lib/seo';
-	import { SOURCE_COUNT } from '$lib/constants';
-	import EventCard from '$lib/components/EventCard.svelte';
-	import NewsletterCTA from '$lib/components/NewsletterCTA.svelte';
+	import { lang, t } from '#lib/i18n';
+	import { isFreeEvent } from '#lib/utils';
+	import { safeJsonLd } from '#lib/seo';
+	import { SOURCE_COUNT } from '#lib/constants';
+	import EventCard from '#lib/components/EventCard.svelte';
+	import NewsletterCTA from '#lib/components/NewsletterCTA.svelte';
 	import { ArrowRight } from 'lucide-svelte';
 
 	let { data } = $props();

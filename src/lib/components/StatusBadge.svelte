@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { BadgeType } from '$lib/types';
-	import { t } from '$lib/i18n';
+	import type { BadgeType } from '#lib/types';
+	import { t } from '#lib/i18n';
 	import { Check, X, AlertTriangle, Ban, CalendarDays, GraduationCap } from 'lucide-svelte';
 
 	interface Props {

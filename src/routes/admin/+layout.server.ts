@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { ADMIN_COOKIE, isValidToken } from '$lib/server/admin-auth';
+import { ADMIN_COOKIE, isValidToken } from '#lib/server/admin-auth';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ cookies, url }) => {

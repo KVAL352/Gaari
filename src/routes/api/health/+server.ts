@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { supabase } from '$lib/server/supabase';
+import { supabase } from '#lib/server/supabase';
 import type { RequestHandler } from './$types';
 
 // Lightweight liveness probe — hit every 5 min by UptimeRobot.

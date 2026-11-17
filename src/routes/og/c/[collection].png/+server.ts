@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
-import { getCollection } from '$lib/collections';
-import { generateCollectionOgImage } from '$lib/og/og-image';
+import { getCollection } from '#lib/collections';
+import { generateCollectionOgImage } from '#lib/og/og-image';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, url }) => {

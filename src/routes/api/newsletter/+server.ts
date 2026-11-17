@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { MAILERLITE_API_KEY, RESEND_API_KEY } from '$app/env/private';
-import { generatePreferenceToken, buildPreferenceUrl } from '$lib/server/newsletter-auth';
+import { generatePreferenceToken, buildPreferenceUrl } from '#lib/server/newsletter-auth';
 import type { RequestHandler } from './$types';
 
 // Basic email format validation (RFC 5322 simplified)

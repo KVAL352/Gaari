@@ -1,4 +1,4 @@
-import { supabase } from '$lib/server/supabase';
+import { supabase } from '#lib/server/supabase';
 import { CALENDAR_FEED_TOKEN } from '$app/env/private';
 import type { RequestHandler } from './$types';
 

@@ -1,8 +1,8 @@
 import { error, json } from '@sveltejs/kit';
 import Stripe from 'stripe';
 import { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } from '$app/env/private';
-import { supabaseAdmin } from '$lib/server/supabase-admin';
-import { TIER_SLOT } from '$lib/promotion-config';
+import { supabaseAdmin } from '#lib/server/supabase-admin';
+import { TIER_SLOT } from '#lib/promotion-config';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {

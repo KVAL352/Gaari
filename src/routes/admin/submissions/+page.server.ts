@@ -1,8 +1,8 @@
-import { supabaseAdmin } from '$lib/server/supabase-admin';
-import { sendRejectionEmail } from '$lib/server/email';
+import { supabaseAdmin } from '#lib/server/supabase-admin';
+import { sendRejectionEmail } from '#lib/server/email';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { EVENT_IMAGE_BUCKET, eventImageStoragePath } from '$lib/storage-path';
+import { EVENT_IMAGE_BUCKET, eventImageStoragePath } from '#lib/storage-path';
 
 export interface SubmissionRow {
 	id: string;

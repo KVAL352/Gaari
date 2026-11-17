@@ -1,5 +1,5 @@
 import { error, redirect } from '@sveltejs/kit';
-import { supabase } from '$lib/server/supabase';
+import { supabase } from '#lib/server/supabase';
 import type { PageServerLoad } from './$types';
 
 const PAGE_LABELS: Record<string, string> = {

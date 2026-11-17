@@ -1,6 +1,6 @@
 import { writable, derived, get } from 'svelte/store';
 import { translations, type TranslationKey } from './translations';
-import type { Lang } from '$lib/types';
+import type { Lang } from '#lib/types';
 
 export const lang = writable<Lang>('no');
 

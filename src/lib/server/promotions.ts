@@ -1,5 +1,5 @@
-import { supabase } from '$lib/server/supabase';
-import { MAX_PROMOTED_SLOTS } from '$lib/promotion-config';
+import { supabase } from '#lib/server/supabase';
+import { MAX_PROMOTED_SLOTS } from '#lib/promotion-config';
 
 export interface PromotedPlacement {
 	id: string;

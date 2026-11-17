@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { supabase } from '$lib/server/supabase';
+import { supabase } from '#lib/server/supabase';
 import type { PageServerLoad } from './$types';
 
 const BUCKET = 'social-media';

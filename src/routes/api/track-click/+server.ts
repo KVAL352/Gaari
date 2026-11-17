@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
-import { supabase } from '$lib/server/supabase';
-import { sanitizeDestination, sanitizeSourcePage } from '$lib/server/klikksporing';
+import { supabase } from '#lib/server/supabase';
+import { sanitizeDestination, sanitizeSourcePage } from '#lib/server/klikksporing';
 import { SKIP_LOG_IPS } from '$app/env/private';
 import type { RequestHandler } from './$types';
 

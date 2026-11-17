@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { browser } from '$app/env';
 	import { page } from '$app/state';
-	import { lang, t } from '$lib/i18n';
-	import type { Category } from '$lib/types';
+	import { lang, t } from '#lib/i18n';
+	import type { Category } from '#lib/types';
 
 	interface Props {
 		variant?: 'card' | 'inline';

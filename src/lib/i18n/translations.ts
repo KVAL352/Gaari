@@ -1,4 +1,4 @@
-import { SOURCE_COUNT } from '$lib/constants';
+import { SOURCE_COUNT } from '#lib/constants';
 
 export const translations = {
 	no: {

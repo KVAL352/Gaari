@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { dev } from '$app/env';
-import { ADMIN_COOKIE, makeSessionToken, verifyAdminPassword } from '$lib/server/admin-auth';
+import { ADMIN_COOKIE, makeSessionToken, verifyAdminPassword } from '#lib/server/admin-auth';
 import type { Actions } from './$types';
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days

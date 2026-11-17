@@ -1,10 +1,10 @@
-import { getFooterCollections, getSeasonalFooterCollections } from '$lib/collections';
+import { getFooterCollections, getSeasonalFooterCollections } from '#lib/collections';
 import type { LayoutServerLoad } from './$types';
 
 /**
  * Lenkene i bunnteksten hentes her og ikke inne i Footer.svelte.
  *
- * $lib/collections.ts er hele samlingskatalogen — 53 samlinger med to-språklige
+ * #lib/collections.ts er hele samlingskatalogen — 53 samlinger med to-språklige
  * beskrivelser, FAQ-er og SEO-tekst, 338 kB kildekode. Så lenge en komponent
  * som vises på alle sider importerte noe derfra, havnet hele katalogen i
  * klientpakken: 70 kB komprimert JavaScript lastet på hver eneste sidevisning,

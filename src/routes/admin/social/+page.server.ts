@@ -1,4 +1,4 @@
-import { supabase } from '$lib/server/supabase';
+import { supabase } from '#lib/server/supabase';
 import type { PageServerLoad } from './$types';
 
 export interface SocialPost {

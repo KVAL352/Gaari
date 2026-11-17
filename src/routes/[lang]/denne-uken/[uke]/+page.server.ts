@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
-import { supabase } from '$lib/server/supabase';
-import { PUBLIC_EVENT_COLUMNS } from '$lib/server/event-columns';
-import type { GaariEvent } from '$lib/types';
+import { supabase } from '#lib/server/supabase';
+import { PUBLIC_EVENT_COLUMNS } from '#lib/server/event-columns';
+import type { GaariEvent } from '#lib/types';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {

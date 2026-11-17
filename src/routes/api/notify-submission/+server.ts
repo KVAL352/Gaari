@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { notifySubmission, notifyInquiry } from '$lib/server/email';
+import { notifySubmission, notifyInquiry } from '#lib/server/email';
 import type { RequestHandler } from './$types';
 
 const MAX_FIELD_LENGTH = 500;

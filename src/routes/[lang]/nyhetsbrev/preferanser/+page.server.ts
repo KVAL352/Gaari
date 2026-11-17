@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { MAILERLITE_API_KEY } from '$app/env/private';
-import { verifyPreferenceToken } from '$lib/server/newsletter-auth';
+import { verifyPreferenceToken } from '#lib/server/newsletter-auth';
 import type { PageServerLoad, Actions } from './$types';
 
 const ML_BASE = 'https://connect.mailerlite.com/api';
