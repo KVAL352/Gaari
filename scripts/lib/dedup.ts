@@ -28,6 +28,8 @@ const SOURCE_RANK: Record<string, number> = {
 	nattjazz: 5,
 	beyondthegates: 5,
 	brann: 5,
+	// Under grieghallen (5): samme konsert fra venue-scraperen skal vinne.
+	sjoforsvaretsmusikkorps: 4,
 	kulturhusetibergen: 5,
 	biff: 5,
 	borealis: 5,
