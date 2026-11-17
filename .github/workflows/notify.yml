@@ -44,6 +44,15 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: npx tsx notify-submitters.ts
 
+      - name: Notify correction requesters
+        if: always()
+        working-directory: scripts
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: npx tsx notify-corrections.ts
+
       - name: Notify organizers
         if: always()
         working-directory: scripts
