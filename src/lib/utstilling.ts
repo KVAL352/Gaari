@@ -10,7 +10,7 @@
 // Exhibition / gallery filter — only true exhibition venues or exhibition-keyword titles
 export const EXHIBITION_VENUE_RE = /\b(KODE|Bergen Kunsthall|Bymuseet|Museum Vest|BEK|Bryggens Museum|Håkonshallen|Schøtstuene|Rosenkrantztårnet|Permanenten|Lysverket|Stenersen|Rasmus Meyer|Gamle Bergen|Damsgård|Hordamuseet|Norsk Trikotasjemuseum|Norges Fiskerimuseum|Vil[\s-]?Vite)\b/i;
 export const EXHIBITION_TITLE_RE = /\b(utstilling|åpning|vernissage|exhibition|kunstutstilling|gallerivandring|kunstvandring|book\s*fair|art\s*book|kunstvisning|samling)\b/i;
-export const NON_EXHIBITION_TITLE_RE = /\b(kafé|kafe|café|cafe|spillkveld|padling|paddl|vinsmaking|matkurs|matklubb|trylleshow|quiz|nabolagsk|brunsj|frokost|lunsj|middag|konsert|jazz|disko|klubb|pub|bar|drop[\s-]?in|familiesøndag|familielørdag|verksted|workshop|forelesning|debatt|foredrag|panel|filmkveld|kinokveld|litteratur|forfatterkveld|babysang|yoga|trening|svømming|løpetur|hiketur|fjelltur)\b/i;
+export const NON_EXHIBITION_TITLE_RE = /\b(kafé|kafe|café|cafe|spillkveld|padling|paddl|vinsmaking|matkurs|matklubb|trylleshow|quiz|nabolagsk|brunsj|frokost|lunsj|middag|konsert|jazz|disko|klubb|pub|bar|drop[\s-]?in|familiesøndag|familielørdag|verksted|workshop|forelesning|debatt|foredrag|panel|filmkveld|kinokveld|litteratur|forfatterkveld|babysang|yoga|trening|svømming|løpetur|hiketur|fjelltur|kor(et)?)\b/i;
 
 export interface UtstillingsRad {
 	category?: string | null;

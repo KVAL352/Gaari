@@ -433,6 +433,15 @@ describe('exhibitions filter (utstillinger)', () => {
 		expect(collection.filterEvents(events, now).map(e => e.id)).toEqual(['1']);
 	});
 
+	it('regner ikke et kor som utstilling, selv på et utstillingssted', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2025-08-25T09:00:00Z', date_end: '2026-12-15T12:00:00Z', category: 'culture', venue_name: 'Permanenten', title_no: 'Kode-koret' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T12:00:00Z', category: 'culture', venue_name: 'KODE', title_no: 'Korsvik-utstilling' })
+		];
+		expect(collection.filterEvents(events, now).map(e => e.id)).toEqual(['2']);
+	});
+
 	it('returns empty when no events match', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
