@@ -1,8 +1,7 @@
 import { supabase } from './supabase.js';
+import { NO_DAYS, EN_DAYS, hasDateSuffix, stripDateSuffix } from '../../src/lib/title-date-suffix.js';
 
-const NO_DAYS = ['søndag', 'mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lørdag'];
 const NO_MONTHS = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
-const EN_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const EN_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 const RECURRING_THRESHOLD = 3;
@@ -20,18 +19,9 @@ function suffix(dateIso: string, lang: 'no' | 'en'): string {
 	return ` — ${EN_DAYS[day]} ${dom} ${EN_MONTHS[mon]}`;
 }
 
-// True if title already has a date-suffix appended by us. Idempotent guard.
-function hasDateSuffix(title: string): boolean {
-	if (!title.includes(' — ')) return false;
-	const tail = title.split(' — ').pop() || '';
-	const tailLower = tail.toLowerCase();
-	return NO_DAYS.some(d => tailLower.startsWith(d)) || EN_DAYS.some(d => tailLower.startsWith(d.toLowerCase()));
-}
-
-function baseTitle(title: string): string {
-	if (!hasDateSuffix(title)) return title.trim();
-	return title.split(' — ').slice(0, -1).join(' — ').trim();
-}
+// Gjenkjenningen av tillegget bor i src/lib, fordi arrangementssiden må ta det
+// av igjen i <title>. Én regel, ikke to som kan gli fra hverandre.
+const baseTitle = stripDateSuffix;
 
 /**
  * Append day-name + date suffix to titles that recur 3+ times among future events.

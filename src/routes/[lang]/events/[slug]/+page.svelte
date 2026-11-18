@@ -3,6 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { lang, t } from '#lib/i18n';
 	import { collectionHref } from '#lib/collection-urls';
+	import { stripDateSuffix } from '#lib/title-date-suffix';
 	import {
 		formatEventDate, formatEventTime, formatMetaDate, buildMetaDescription, formatPrice, isFreeEvent, buildOutboundUrl,
 		outboundRel
@@ -33,14 +34,19 @@
 		const cut = description.lastIndexOf(' ', DESC_LIMIT);
 		return description.slice(0, cut > 0 ? cut : DESC_LIMIT) + '…';
 	});
+	// <title> og meta-beskrivelsen har sin egen dato med årstall. Tittelen på
+	// gjentakende arrangementer har i tillegg «— onsdag 18. november» (lagt på
+	// av enrich-titles), så den tas av her for at datoen ikke skal stå to
+	// ganger. Overskriften på siden beholder den.
+	let metaBaseTitle = $derived(stripDateSuffix(title));
 	let metaTitle = $derived.by(() => {
 		const date = formatMetaDate(event.date_start, $lang);
 		const venue = event.venue_name || '';
-		const parts = [title, date];
+		const parts = [metaBaseTitle, date];
 		if (venue) parts.push(venue);
 		return parts.join(' — ') + ' | Gåri';
 	});
-	let metaDescription = $derived(buildMetaDescription(title, description, event.venue_name, event.date_start, $lang));
+	let metaDescription = $derived(buildMetaDescription(metaBaseTitle, description, event.venue_name, event.date_start, $lang));
 
 	let isCancelled = $derived(event.status === 'cancelled');
 
