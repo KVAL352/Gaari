@@ -11,7 +11,7 @@ Tegn: `x` gjort, `d` delvis (før skillen, uten fast metode), tomt = ikke gjort.
 | Sidetype | 1 Data | 2 Innhold | 3 QA | 4 Frontend | 5 SEO | 6 Tilgj. | 7 Ytelse | 8 UX | 9 UI | 10 Personvern | 11 Analytiker |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | Forside |  |  | d |  |  |  |  |  |  |  |  |
-| Samlingssider |  |  | d |  | d |  |  |  |  |  |  |
+| Samlingssider |  | x | d |  | d |  |  |  |  |  |  |
 | Arrangementssider | d |  | d |  | d |  |  |  |  |  |  |
 | Stedssider | d |  | d |  |  |  |  |  |  |  |  |
 | Denne uken |  |  |  |  |  |  |  |  |  |  |  |
@@ -29,6 +29,13 @@ blant dem `24c4eb4` (relaterte arrangementer) og `e509a75` (dato i tittel).
 | Dato | Sidetype | Rolle | Utvalg | Sider | Feil | Undersøkes | Forbedring | Commits |
 |---|---|---|---|---|---|---|---|---|
 | 2026-11-18 | Samlingssider (+ forsiden, samme henting) | 1 Data | alle 86 samlingssider i sitemapen, NO+EN; bydelssidene mot basen | 86 | 1: tre lokkeduer i forsidens HTML (side 2 i hentingen mangler `is_canary`-filter) | 0 | 0 | ingen ennå: tre strukturvalg tatt, se under |
+| 2026-11-18 | Samlingssider | 2 Innhold | 43 norske samlingssider fra sitemapen; 15 lest i detalj (tittel, ingress, kort), resten bare ingress og antall. Instrument: `curl` (ser ikke JavaScript) + `collections.ts` for filteret | 43 | 1: sesongfiltre brukte feil år (påske 0 mot minst 3, vinterferie 0 mot minst 10, høstferie viste to utstillinger fra okt. 2026 under «2027») | 5: Bergen Pride (36 ukentlige treff mot «Regnbuedagene»), for-ungdom (barnearrangementer), gratis («Ingen billett nødvendig»), festivaler («8 arrangementer»), tom sesong lover «komplett program» | 0 | `dad9e9b` |
+
+Merknad til runden: kort per side teller bare det serveren sender første gang (ca. 24 per side), så antall kort er sammenlignet med ingressens tall bare der siden er under taket. Studentkveld er en poengregel (gratis + kveld gir poeng), så gratis leseklubb og debatt kommer med; det er regelen, ikke en feil. Antall «62» i konserter og julekonserter er tilfeldighet (34 mot 23 scener).
+
+### Avgjort 2026-11-18 (runde 2), bygd samme dag (`dad9e9b`)
+
+**Sesongåret:** filter og tittel velger år med samme funksjon, `seasonYearFor` i `collections.ts` (etter sluttmåneden gjelder neste år). Sluttmåneden står hardkodet i filtrene og som `seasonEndMonth` på samlingen; testen «sesongfiltre følger tittelåret» låser at de gir samme år i 10 samlinger på fire tidspunkt. Etter push: se at `/no/paske`, `/no/vinterferie` og `/no/hostferie` viser riktig (påminnelse 21. nov).
 
 ### Avgjort 2026-11-18, bygd samme dag (`2c9b718`, `e929381`, `a81afe8`)
 

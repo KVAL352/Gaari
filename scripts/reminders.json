@@ -348,5 +348,35 @@
     "date": "2026-11-20",
     "title": "Dependabot: 5 moderate sårbarheter på master",
     "description": "GitHub meldte 5 moderate ved push 18. nov (9 før kit 3). Se github.com/KVAL352/Gaari/security/dependabot, hvilke pakker, og om de ligger i src/ eller bare i scripts/."
+  },
+  {
+    "date": "2026-11-21",
+    "title": "Sesongsider: se at påske, vinterferie og høstferie viser riktig år live (dad9e9b)",
+    "description": "Etter push og ca. 1 time ISR: /no/paske skal vise minst 3 arrangementer (24., 26., 27. mars 2027), /no/vinterferie minst 10 (uke 9, 1.–7. mars 2027), /no/hostferie skal ikke lenger vise to utstillinger fra oktober 2026. Telle href=\"/no/events/\" med curl."
+  },
+  {
+    "date": "2026-11-25",
+    "title": "Bergen Pride-samlingen: 36 arrangementer året rundt mot «Regnbuedagene i juni»",
+    "description": "Filteret tar alt fra bergenpride.no og bergenpride.ticketco.events, så siden viser ukentlige treff (transkafé, foreldrekafé, Transalliansen) mens teksten lover Regnbuedagene-programmet i juni 2027. Avklar med henne: vise alt, eller bare Regnbuedagene? Struktur: spør før retting."
+  },
+  {
+    "date": "2026-11-25",
+    "title": "For ungdom (13–18): barnearrangementer slipper gjennom",
+    "description": "Sett 18. nov: /no/for-ungdom viser barnekino, babysang, Detektiv Trine på dinosaurjakt og barnelørdag. Teksten sier at alt passer for 13–18. Filteret fjerner bare 18+ og uteliv. Sjekk filterfunksjonen og audience.ts; tell hvor mange av de ca. 49 som er barnearrangementer."
+  },
+  {
+    "date": "2026-11-25",
+    "title": "/no/gratis og forbeholdet «Trolig gratis»",
+    "description": "Meta-beskrivelsen på /no/gratis sier «Ingen billett nødvendig». Regelen i CLAUDE.md er at vi aldri påstår «Gratis», bare «Trolig gratis». Se om siden har forbehold i synlig tekst, og om beskrivelsen bør endres. Forbedring, endres ikke uten hennes ja."
+  },
+  {
+    "date": "2026-11-25",
+    "title": "Sesongsider uten arrangementer lover «Komplett program, oppdatert daglig»",
+    "description": "Sett 18. nov: festspillene, borealis, biff, 17-mai, påske, sankthans, vinterferie, nattjazz, beyond-the-gates, fadderuke har 0 arrangementer men meta-beskrivelsen lover komplett program. Selve sidene sier ærlig at programmet kommer senere. Vurder tekst for tom sesong i meta-beskrivelsen. Forbedring."
+  },
+  {
+    "date": "2026-11-25",
+    "title": "/no/festivaler: «8 arrangementer akkurat nå» teller trolig festivaler",
+    "description": "Siden viser lenker til festivalsamlinger (0 arrangementskort), men ingressen sier «8 arrangementer akkurat nå». Finn hva tallet teller og om ordet bør være «festivaler»."
   }
 ]
