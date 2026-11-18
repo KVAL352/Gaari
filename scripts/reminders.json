@@ -328,5 +328,25 @@
     "date": "2026-12-10",
     "title": "Mål engelsk utelivside i Search Console",
     "description": "Fra 12. november har /en/nightlife-bergen riktig canonical (4ff6693, før pekte den på /en/uteliv som 301-er) og ny søketittel «Bergen Nightlife This Week: Clubs and Live Music | Gåri». Utgangspunkt: 652 visninger, 0 klikk, posisjon 12,1. Mål klikk, visninger og posisjon, 28 dager etter mot 28 dager før. De to endringene gikk live samme dag og kan ikke skilles; si det i konklusjonen. Sjekk først med curl at canonical og tittel er live."
+  },
+  {
+    "date": "2026-11-19",
+    "title": "Akvariet: lagrer skrapingen rader etter cc0810d?",
+    "description": "Kjøringen 17. nov startet før rettingen. Sjekk scraper_runs for akvariet (found over 0, ca. 12 høydepunkter på 14 dager i tørrkjøring 18. nov) og at overnattingen 29. jan 2027 ligger i events. Er det 0: les scripts/scrapers/akvariet.ts og hent /program?date=<i dag>."
+  },
+  {
+    "date": "2026-11-19",
+    "title": "Se relaterte arrangementer live (24c4eb4)",
+    "description": "Åpne et par arrangementssider i ulike kategorier på gaari.no. «Flere i samme kategori» skal vise de neste fra i dag, ikke Testival (startet 31. aug) eller lokkeduer. Endringen er synlig ca. en time etter deploy."
+  },
+  {
+    "date": "2026-11-20",
+    "title": "Kategori: «Klipp Monarchy, 1345» ligger i nightlife",
+    "description": "Sett 18. nov i spørringen for relaterte arrangementer (19. nov kl. 12:30). Ser ut som en frisørtime, ikke et arrangement. Finn kilden og om den skal ut eller ha annen kategori; se om flere rader fra samme kilde er like."
+  },
+  {
+    "date": "2026-11-20",
+    "title": "Dependabot: 5 moderate sårbarheter på master",
+    "description": "GitHub meldte 5 moderate ved push 18. nov (9 før kit 3). Se github.com/KVAL352/Gaari/security/dependabot, hvilke pakker, og om de ligger i src/ eller bare i scripts/."
   }
 ]
