@@ -380,9 +380,9 @@
     "description": "Siden viser lenker til festivalsamlinger (0 arrangementskort), men ingressen sier «8 arrangementer akkurat nå». Finn hva tallet teller og om ordet bør være «festivaler»."
   },
   {
-    "date": "2026-11-19",
-    "title": "Dagoverskrifter sier «1 arrangementer» / «1 events» (entall)",
-    "description": "Sett 18. nov på /no/utstillinger og /en/utstillinger: dagoverskriftene («I morgen», «onsdag 25. november») har tellertekst «1 arrangementer» og «1 events». Skal være «1 arrangement» / «1 event». Teksten genereres i EventDiscovery.svelte (ikke bekreftet hvor eksakt). Sjekk også «1 arrangementer» i andre komponenter. Feil, liten. Rettes når ingen andre økter jobber i src/."
+    "date": "2026-11-20",
+    "title": "Entall «1 arrangement»: se live, og sjekk resten av tellerne",
+    "description": "Rettet 18. nov (c62af7f) i EventGrid (dagoverskrifter) og samlingssidens tre tellere via antallArrangementer i src/lib/antall.ts; ikke sett live (ISR ca. 1 time). Se at /no/utstillinger og /en/utstillinger viser «1 arrangement» / «1 event» i dagoverskriftene. Ikke rørt, samme feilklasse: denne-uken/[uke]/+page.svelte (events.length arrangementer, linje 33, 34, 79, 80, 98), LoadMore.svelte (shown av total, enhet), EventDiscovery.svelte:672 (result-label), seo.ts og stedssidene. Sjekk med: grep -rn \"length} arrangementer\" src."
   },
   {
     "date": "2026-11-19",
