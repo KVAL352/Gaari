@@ -27,6 +27,7 @@ export const variables = defineEnvVars({
 	SKIP_LOG_IPS: { static: true },
 
 	CALENDAR_FEED_TOKEN: { schema: valgfri },
+	GAARI_TESTMODUS: { schema: valgfri },
 	MAILERLITE_API_KEY: { schema: valgfri },
 	NEWSLETTER_SIGNING_SECRET: { schema: valgfri },
 	RESEND_API_KEY: { schema: valgfri },

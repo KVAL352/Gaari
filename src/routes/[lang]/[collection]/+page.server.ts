@@ -5,7 +5,7 @@ import { getOsloNow } from '#lib/event-filters';
 import { hentKommendeArrangementer } from '#lib/server/hent-arrangementer';
 import { seedEvents } from '#lib/data/seed-events';
 import { seedEllerFeil } from '#lib/server/ikke-tilgjengelig';
-import { dev } from '$app/env';
+import { seedTillatt } from '#lib/server/seed-tillatt';
 import { getActivePromotions, pickPromotedVenues, logImpression, logCollectionImpression } from '#lib/server/promotions';
 import { SKIP_LOG_IPS } from '$app/env/private';
 import type { GaariEvent } from '#lib/types';
@@ -63,11 +63,11 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 				price: e.price === '' || e.price === null ? '' : isNaN(Number(e.price)) ? e.price : Number(e.price)
 			}));
 		} else {
-			events = seedEllerFeil(seedEvents, `samling:${params.collection}`, 'events-tabellen ga ingen rader', dev);
+			events = seedEllerFeil(seedEvents, `samling:${params.collection}`, 'events-tabellen ga ingen rader', seedTillatt);
 		}
 	} catch (err) {
 		if (isHttpError(err)) throw err; // 503 fra seedEllerFeil over
-		events = seedEllerFeil(seedEvents, `samling:${params.collection}`, err, dev);
+		events = seedEllerFeil(seedEvents, `samling:${params.collection}`, err, seedTillatt);
 	}
 
 	// Filter to only active events, then apply collection filter

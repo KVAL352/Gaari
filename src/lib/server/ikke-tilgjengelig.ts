@@ -14,6 +14,22 @@ import { error } from '@sveltejs/kit';
  * `dev` sendes inn i stedet for å importeres, så funksjonen kan testes uten
  * SvelteKit-runtime.
  */
+/**
+ * Når seed-data er lov utenfor `dev`: bare i Lighthouse-målingen, og bare når
+ * Supabase-adressen er den reserverte `.invalid`-adressen som aldri kan slås
+ * opp. Begge må stemme. Produksjon har en ekte adresse, så et uhell med
+ * flagget kan ikke gi en falsk forside med HTTP 200 igjen.
+ */
+export const TESTMODUS_FLAGG = 'lighthouse-ci';
+export function erTestmodus(flagg: string | undefined, supabaseUrl: string | undefined): boolean {
+	if (flagg !== TESTMODUS_FLAGG) return false;
+	try {
+		return new URL((supabaseUrl ?? '').trim()).hostname.endsWith('.invalid');
+	} catch {
+		return false;
+	}
+}
+
 export function seedEllerFeil<T>(seed: T, sted: string, aarsak: unknown, dev: boolean): T {
 	if (dev) return seed;
 	loggIkkeTilgjengelig(sted, aarsak);

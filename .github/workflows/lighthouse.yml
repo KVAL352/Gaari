@@ -54,6 +54,9 @@ jobs:
           cp .env.ci .env
           sed -i 's#^PUBLIC_SUPABASE_URL=.*#PUBLIC_SUPABASE_URL=https://supabase.invalid#' .env
           grep '^PUBLIC_SUPABASE_URL=' .env
+          # Slår på seed-data i produksjonsbygget. Virker bare mot .invalid-adressen
+          # over (erTestmodus), så flagget er harmløst om det havner andre steder.
+          echo 'GAARI_TESTMODUS=lighthouse-ci' >> .env
 
       - name: Install dependencies
         run: npm ci

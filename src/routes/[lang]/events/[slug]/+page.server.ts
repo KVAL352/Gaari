@@ -4,7 +4,7 @@ import { notifyCorrection } from '#lib/server/email';
 import { isEditableField } from '#lib/corrections';
 import { seedEvents } from '#lib/data/seed-events';
 import { erIngenRadFunnet, loggIkkeTilgjengelig } from '#lib/server/ikke-tilgjengelig';
-import { dev } from '$app/env';
+import { seedTillatt } from '#lib/server/seed-tillatt';
 import type { GaariEvent } from '#lib/types';
 import type { PageServerLoad, Actions } from './$types';
 
@@ -79,12 +79,12 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 		// Databasen svarte, men raden finnes ikke: videre til 410/302 under.
 		// Alt annet er at databasen ikke svarer. Da skal vi ikke svare 410 («borte,
 		// fjern fra indeksen») på en adresse som finnes, men 503 og en logglinje.
-		if (!dev && !erIngenRadFunnet(dbFeil)) {
+		if (!seedTillatt && !erIngenRadFunnet(dbFeil)) {
 			loggIkkeTilgjengelig(`arrangement:${params.slug}`, dbFeil);
 			throw error(503, 'Arrangementene kan ikke vises akkurat nå');
 		}
 		// Seed-data bare lokalt.
-		const event = dev ? seedEvents.find(e => e.slug === params.slug) : undefined;
+		const event = seedTillatt ? seedEvents.find(e => e.slug === params.slug) : undefined;
 		if (!event) {
 			// Check if this looks like an expired event slug (ends with -YYYY-MM-DD)
 			const isEventSlug = /\d{4}-\d{2}-\d{2}$/.test(params.slug);

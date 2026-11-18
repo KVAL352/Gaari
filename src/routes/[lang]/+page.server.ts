@@ -3,7 +3,7 @@ import { getGroupedCollections } from '#lib/collections';
 import { hentKommendeArrangementer } from '#lib/server/hent-arrangementer';
 import { seedEvents } from '#lib/data/seed-events';
 import { seedEllerFeil } from '#lib/server/ikke-tilgjengelig';
-import { dev } from '$app/env';
+import { seedTillatt } from '#lib/server/seed-tillatt';
 import { isHttpError } from '@sveltejs/kit';
 import type { GaariEvent } from '#lib/types';
 import type { PageServerLoad } from './$types';
@@ -89,12 +89,12 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 		}
 
 		// Tom tabell: seed-data bare lokalt, 503 i produksjon.
-		const events = seedEllerFeil(seedEvents, 'forsiden', 'events-tabellen ga ingen rader', dev);
+		const events = seedEllerFeil(seedEvents, 'forsiden', 'events-tabellen ga ingen rader', seedTillatt);
 		return { events, source: 'seed' as const, lang, dateModified, now: nowUtc, collectionGroups };
 	} catch (err) {
 		if (isHttpError(err)) throw err; // 503 fra seedEllerFeil over
 		// Supabase utilgjengelig: seed-data bare lokalt, 503 i produksjon.
-		const events = seedEllerFeil(seedEvents, 'forsiden', err, dev);
+		const events = seedEllerFeil(seedEvents, 'forsiden', err, seedTillatt);
 		return { events, source: 'seed' as const, lang, dateModified, now: nowUtc, collectionGroups };
 	}
 };

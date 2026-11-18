@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { seedEllerFeil, erIngenRadFunnet } from '../server/ikke-tilgjengelig';
+import { seedEllerFeil, erIngenRadFunnet, erTestmodus } from '../server/ikke-tilgjengelig';
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -63,12 +63,55 @@ describe('sidene bruker seedEvents bare via seedEllerFeil', () => {
 		});
 	}
 
-	it('arrangementssiden: seed bare i dev, og databasefeil gir 503, ikke 410', () => {
+	it('arrangementssiden: seed bare når seedTillatt, og databasefeil gir 503, ikke 410', () => {
 		const k = les('src/routes/[lang]/events/[slug]/+page.server.ts');
-		expect(k).toMatch(/dev \? seedEvents\.find/);
+		expect(k).toMatch(/seedTillatt \? seedEvents\.find/);
 		expect(k).toContain('erIngenRadFunnet(dbFeil)');
 		expect(k).toContain('throw error(503');
 		// 503-sjekken må komme før 410-grenen
 		expect(k.indexOf('throw error(503')).toBeLessThan(k.indexOf('throw error(410'));
+	});
+});
+
+describe('erTestmodus: seed-data utenfor dev, bare i Lighthouse-målingen', () => {
+	const invalid = 'https://supabase.invalid';
+
+	it('slår inn med riktig flagg og en .invalid-adresse', () => {
+		expect(erTestmodus('lighthouse-ci', invalid)).toBe(true);
+		expect(erTestmodus('lighthouse-ci', ' https://x.supabase.invalid ')).toBe(true);
+	});
+
+	it('slår aldri inn mot en ekte Supabase-adresse, selv med flagget satt', () => {
+		expect(erTestmodus('lighthouse-ci', 'https://abcd.supabase.co')).toBe(false);
+		expect(erTestmodus('lighthouse-ci', 'https://invalid.example.com')).toBe(false);
+	});
+
+	it('slår ikke inn uten riktig flagg, selv mot .invalid', () => {
+		expect(erTestmodus(undefined, invalid)).toBe(false);
+		expect(erTestmodus('', invalid)).toBe(false);
+		expect(erTestmodus('true', invalid)).toBe(false);
+	});
+
+	it('tåler manglende eller ugyldig adresse', () => {
+		expect(erTestmodus('lighthouse-ci', undefined)).toBe(false);
+		expect(erTestmodus('lighthouse-ci', 'ikke en url')).toBe(false);
+	});
+});
+
+describe('seed-tillatt.ts og Lighthouse-arbeidsflyten henger sammen', () => {
+	const les = (fil: string) => readFileSync(resolve(process.cwd(), fil), 'utf8');
+
+	it('seedTillatt er dev eller erTestmodus, ingenting annet', () => {
+		const k = les('src/lib/server/seed-tillatt.ts');
+		expect(k).toMatch(/dev \|\| erTestmodus\(GAARI_TESTMODUS, PUBLIC_SUPABASE_URL\)/);
+	});
+
+	it('bare lighthouse.yml setter flagget', () => {
+		expect(les('.github/workflows/lighthouse.yml')).toContain('GAARI_TESTMODUS=lighthouse-ci');
+		for (const f of ['ci.yml', 'scrape.yml', 'newsletter.yml', 'notify.yml']) {
+			let k = '';
+			try { k = les(`.github/workflows/${f}`); } catch {}
+			expect(k).not.toContain('GAARI_TESTMODUS');
+		}
 	});
 });
