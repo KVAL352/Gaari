@@ -11,7 +11,7 @@ Tegn: `x` gjort, `d` delvis (før skillen, uten fast metode), tomt = ikke gjort.
 | Sidetype | 1 Data | 2 Innhold | 3 QA | 4 Frontend | 5 SEO | 6 Tilgj. | 7 Ytelse | 8 UX | 9 UI | 10 Personvern | 11 Analytiker |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | Forside |  |  | d |  |  |  |  |  |  |  |  |
-| Samlingssider |  | x | d (curl gjort, Chrome ikke) |  | d |  |  |  |  |  |  |
+| Samlingssider |  | x | x |  | d |  |  |  |  |  |  |
 | Arrangementssider | d |  | d |  | d |  |  |  |  |  |  |
 | Stedssider | d |  | d |  |  |  |  |  |  |  |  |
 | Denne uken |  |  |  |  |  |  |  |  |  |  |  |
