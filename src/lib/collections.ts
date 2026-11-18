@@ -10,9 +10,17 @@ import { erUtstilling } from './utstilling';
 import { getHreflangSlugs, isCollectionLang, collectionHref } from './collection-urls';
 export { getHreflangSlugs, isCollectionLang, collectionHref, COLLECTION_LANGS } from './collection-urls';
 
+// Én fasit for hvilket år en sesong gjelder: sesongen er over når måneden
+// er forbi sluttmåneden, og da gjelder neste år. Brukes av både tittelen
+// (getSeasonYear) og filtrene under, så de ikke kan velge hvert sitt år.
+// Filtrene hardkoder sluttmåneden; testen «sesongfiltre følger tittelåret»
+// låser at den er lik seasonEndMonth på samlingen.
+const seasonYearFor = (now: Date, endMonth: number) =>
+	now.getMonth() + 1 > endMonth ? now.getFullYear() + 1 : now.getFullYear();
+
 // Shared filter functions for seasonal collections (NO + EN pairs share the same logic)
 const filter17Mai = (events: GaariEvent[], now: Date) => {
-	const year = now.getFullYear();
+	const year = seasonYearFor(now, 5);
 	const dayStr = `${year}-05-17`;
 	return events.filter(e => eventOnDay(e, dayStr));
 };
@@ -58,7 +66,7 @@ const filterJulekonserter = (events: GaariEvent[], now: Date) => {
 };
 
 const filterPaske = (events: GaariEvent[], now: Date) => {
-	const year = now.getFullYear();
+	const year = seasonYearFor(now, 4);
 	const easter = getEasterDate(year);
 	const palmSunday = addDays(easter, -7);
 	const easterMonday = addDays(easter, 1);
@@ -70,7 +78,7 @@ const filterPaske = (events: GaariEvent[], now: Date) => {
 };
 
 const filterSankthans = (events: GaariEvent[], now: Date) => {
-	const year = now.getFullYear();
+	const year = seasonYearFor(now, 6);
 	// Window 19-25. juni fanger weekend-før (Tønnebålet på Laksevåg holdes
 	// alltid lørdag før selve Sankthansaften) og dagene rett etter.
 	const startStr = `${year}-06-19`;
@@ -92,7 +100,7 @@ const filterNyttarsaften = (events: GaariEvent[], now: Date) => {
 };
 
 const filterVinterferie = (events: GaariEvent[], now: Date) => {
-	const year = now.getFullYear();
+	const year = seasonYearFor(now, 3);
 	const { start, end } = getISOWeekDates(year, 9);
 	return events.filter(e => {
 		return eventOverlapsRange(e, start, end);
@@ -100,7 +108,7 @@ const filterVinterferie = (events: GaariEvent[], now: Date) => {
 };
 
 const filterHostferie = (events: GaariEvent[], now: Date) => {
-	const year = now.getFullYear();
+	const year = seasonYearFor(now, 10);
 	const { start, end } = getISOWeekDates(year, 41);
 	return events.filter(e => {
 		return eventOverlapsRange(e, start, end);
@@ -3561,7 +3569,7 @@ const collections: Collection[] = [
 			en: 'Freshers\u2019 week is in August. Events are added as institutions publish their programmes.'
 		},
 		filterEvents: (events: GaariEvent[], now: Date) => {
-			const year = now.getFullYear();
+			const year = seasonYearFor(now, 9);
 			const { start, end } = getISOWeekDates(year, 34);
 			const weekBefore = getISOWeekDates(year, 33).start;
 			return events.filter(e => {
@@ -3973,9 +3981,8 @@ export function getSeasonalFooterCollections(lang: Lang): Array<{ slug: string; 
  * trygt aa la staa udefinert.
  */
 export function getSeasonYear(collection: Pick<Collection, 'seasonal' | 'seasonEndMonth'>, now: Date): number {
-	const year = now.getFullYear();
-	if (!collection.seasonal || !collection.seasonEndMonth) return year;
-	return now.getMonth() + 1 > collection.seasonEndMonth ? year + 1 : year;
+	if (!collection.seasonal || !collection.seasonEndMonth) return now.getFullYear();
+	return seasonYearFor(now, collection.seasonEndMonth);
 }
 
 

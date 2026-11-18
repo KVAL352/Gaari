@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getCollection, getAllCollectionSlugs, getFooterCollections, getSeasonYear, getHreflangSlugs } from '../collections';
 import type { GaariEvent } from '../types';
+import { toOsloDateStr, getEasterDate, getISOWeekDates } from '../event-filters';
 
 function makeEvent(overrides: Partial<GaariEvent> = {}): GaariEvent {
 	return {
@@ -1303,4 +1304,45 @@ describe('seoTitle', () => {
 	it('samlinger uten seoTitle har ingen (faller tilbake på title)', () => {
 		expect(getCollection('i-morgen')?.seoTitle).toBeUndefined();
 	});
+});
+
+// Sesongfiltrene og tittelen skal velge samme år. Før dette viste /no/paske
+// «2027» i tittelen men filtrerte på 2026, så 0 av minst 3 påskearrangementer
+// kom med, og høstferie viste to utstillinger fra oktober 2026 under «2027».
+describe('sesongfiltre følger tittelåret', () => {
+	// slug -> et sted inne i sesongvinduet for det året
+	const dagIVinduet: Record<string, (y: number) => string> = {
+		'17-mai': (y) => `${y}-05-17`,
+		'17th-of-may-bergen': (y) => `${y}-05-17`,
+		sankthans: (y) => `${y}-06-22`,
+		'midsummer-bergen': (y) => `${y}-06-22`,
+		paske: (y) => toOsloDateStr(getEasterDate(y)),
+		'easter-bergen': (y) => toOsloDateStr(getEasterDate(y)),
+		vinterferie: (y) => getISOWeekDates(y, 9).start,
+		'winter-break-bergen': (y) => getISOWeekDates(y, 9).start,
+		hostferie: (y) => getISOWeekDates(y, 41).start,
+		'fadderuke-bergen': (y) => getISOWeekDates(y, 34).start
+	};
+	// 18. nov 2026 er etter alle sesongene; 10. apr 2026 midt i påske og vinterferie 2026 er forbi
+	const naaTidspunkt = ['2026-01-10T12:00:00Z', '2026-04-10T12:00:00Z', '2026-11-18T12:00:00Z', '2026-12-20T12:00:00Z'];
+
+	for (const [slug, dag] of Object.entries(dagIVinduet)) {
+		for (const iso of naaTidspunkt) {
+			it(`${slug} ${iso.slice(0, 10)}: tar med arrangement i tittelens sesongår`, () => {
+				const c = getCollection(slug)!;
+				const now = new Date(iso);
+				const aar = getSeasonYear(c, now);
+				const ev = makeEvent({ date_start: `${dag(aar)}T12:00:00Z`, date_end: undefined });
+				expect(c.filterEvents([ev], now)).toHaveLength(1);
+			});
+
+			it(`${slug} ${iso.slice(0, 10)}: tar ikke med arrangement i forrige sesongår`, () => {
+				const c = getCollection(slug)!;
+				const now = new Date(iso);
+				const aar = getSeasonYear(c, now) - 1;
+				const ev = makeEvent({ date_start: `${dag(aar)}T12:00:00Z`, date_end: undefined });
+				expect(c.filterEvents([ev], now)).toHaveLength(0);
+			});
+		}
+	}
 });
