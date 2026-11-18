@@ -381,11 +381,6 @@
   },
   {
     "date": "2026-11-19",
-    "title": "Detektiv-runde 3 (QA samlingssider): klikktestene i Chrome er ikke gjort",
-    "description": "Chrome kjørt 18. nov på to sider (/no/konserter: bydel Fana gir 1 kort, tilbake forlater siden; /no/utstillinger -> /en/utstillinger: språkbytte OK, 16 kort). Gjenstår: bydelsside, festivalside og en sesongside, med filter og språkbytte. Allerede gjort via curl: check-site 317 adresser 0 problemer; 170 hreflang-lenker på 86 samlingssider alle 200."
-  },
-  {
-    "date": "2026-11-19",
     "title": "Dagoverskrifter sier «1 arrangementer» / «1 events» (entall)",
     "description": "Sett 18. nov på /no/utstillinger og /en/utstillinger: dagoverskriftene («I morgen», «onsdag 25. november») har tellertekst «1 arrangementer» og «1 events». Skal være «1 arrangement» / «1 event». Teksten genereres i EventDiscovery.svelte (ikke bekreftet hvor eksakt). Sjekk også «1 arrangementer» i andre komponenter. Feil, liten. Rettes når ingen andre økter jobber i src/."
   },
