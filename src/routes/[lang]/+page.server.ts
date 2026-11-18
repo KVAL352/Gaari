@@ -1,5 +1,6 @@
 import { supabase } from '#lib/server/supabase';
 import { getGroupedCollections } from '#lib/collections';
+import { hentKommendeArrangementer } from '#lib/server/hent-arrangementer';
 import { seedEvents } from '#lib/data/seed-events';
 import type { GaariEvent } from '#lib/types';
 import type { PageServerLoad } from './$types';
@@ -39,38 +40,11 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 		// ticket_url er tatt ut. Kortet bruker den ikke — arrangementssida henter
 		// den selv — og den fulgte med til nettleseren for alle 1 967 rader.
 		const fields = 'id,slug,title_no,title_en,description_no,description_en,category,date_start,date_end,venue_name,address,bydel,price,image_url,age_group,language,status,is_sold_out';
-		const PAGE = 1000;
-
-		// Floor for date_start: reject events that started more than 60 days ago.
+		// Floor for date_start: reject events that started more than 14 days ago.
 		// Long-running series with stale date_start pollute results and sort order.
 		const startFloor = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
 
-		const { data: page1, error } = await supabase
-			.from('events')
-			.select(fields)
-			.in('status', ['approved', 'cancelled'])
-			.eq('is_canary', false)
-			.gte('date_start', startFloor)
-			.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
-			.order('date_start', { ascending: true })
-			.range(0, PAGE - 1);
-
-		if (error) throw error;
-
-		let allData = page1 ?? [];
-
-		// Fetch second page if first was full (>1000 events)
-		if (allData.length === PAGE) {
-			const { data: page2 } = await supabase
-				.from('events')
-				.select(fields)
-				.in('status', ['approved', 'cancelled'])
-				.gte('date_start', startFloor)
-				.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
-				.order('date_start', { ascending: true })
-				.range(PAGE, PAGE * 2 - 1);
-			if (page2) allData = allData.concat(page2);
-		}
+		const allData = await hentKommendeArrangementer<GaariEvent>(supabase, fields, nowUtc, startFloor);
 
 		if (allData.length > 0) {
 			// Map price from string back to number where possible

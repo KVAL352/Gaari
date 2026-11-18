@@ -2,6 +2,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { supabase } from '#lib/server/supabase';
 import { getCollection, getHreflangSlugs, getSeasonYear, isCollectionLang } from '#lib/collections';
 import { getOsloNow } from '#lib/event-filters';
+import { hentKommendeArrangementer } from '#lib/server/hent-arrangementer';
 import { seedEvents } from '#lib/data/seed-events';
 import { getActivePromotions, pickPromotedVenues, logImpression, logCollectionImpression } from '#lib/server/promotions';
 import { SKIP_LOG_IPS } from '$app/env/private';
@@ -48,36 +49,11 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 	try {
 		// Use UTC — date_start is stored as UTC (timestamptz) in Supabase
 		const nowUtc = new Date().toISOString();
-		// Floor for date_start: reject events that started more than 60 days ago.
+		// Floor for date_start: reject events that started more than 14 days ago.
 		// Long-running series (e.g. weekly clubs) with stale date_start pollute results.
 		const startFloor = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
 		const collFields = 'id,slug,title_no,title_en,description_no,category,date_start,date_end,venue_name,address,bydel,price,ticket_url,source_url,image_url,age_group,language,status,is_sold_out';
-		const PAGE = 1000;
-
-		const { data, error: dbError } = await supabase
-			.from('events')
-			.select(collFields)
-			.in('status', ['approved', 'cancelled'])
-			.eq('is_canary', false)
-			.gte('date_start', startFloor)
-			.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
-			.order('date_start', { ascending: true })
-			.range(0, PAGE - 1);
-
-		if (dbError) throw dbError;
-
-		let allData = data ?? [];
-		if (allData.length === PAGE) {
-			const { data: p2 } = await supabase
-				.from('events')
-				.select(collFields)
-				.in('status', ['approved', 'cancelled'])
-				.gte('date_start', startFloor)
-				.or(`date_end.gte.${nowUtc},and(date_end.is.null,date_start.gte.${nowUtc})`)
-				.order('date_start', { ascending: true })
-				.range(PAGE, PAGE * 2 - 1);
-			if (p2) allData = allData.concat(p2);
-		}
+		const allData = await hentKommendeArrangementer<GaariEvent>(supabase, collFields, nowUtc, startFloor);
 
 		if (allData.length > 0) {
 			events = allData.map(e => ({

@@ -36,8 +36,13 @@ describe('Supabase query timezone safety', () => {
 		it(`${relPath} passes UTC value to date filter with null fallback`, () => {
 			const content = fs.readFileSync(fullPath, 'utf-8');
 
+			// Selve spørringen bor i den felles hentefunksjonen. Sidene skal bruke
+			// den (ikke ha egen kopi) og gi den et UTC-klokkeslett.
+			expect(content).toContain('hentKommendeArrangementer');
+			const hent = fs.readFileSync(path.resolve('src/lib/server/hent-arrangementer.ts'), 'utf-8');
+
 			// The query should use .or() with date_end.gte and null fallback to date_start
-			expect(content).toMatch(/\.or\(\s*`date_end\.gte\.\$\{(\w+)\},and\(date_end\.is\.null,date_start\.gte\.\$\{\1\}\)`\s*\)/);
+			expect(hent).toMatch(/\.or\(\s*`date_end\.gte\.\$\{(\w+)\},and\(date_end\.is\.null,date_start\.gte\.\$\{\1\}\)`\s*\)/);
 
 			// The variable used should be assigned from toISOString()
 			expect(content).toMatch(/const\s+\w+\s*=\s*new\s+Date\(\)\.toISOString\(\)/);
