@@ -45,13 +45,23 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 
 		const mapped = mapPrice(event);
 
-		// Fetch related events in parallel (don't await sequentially)
+		// «Flere i samme kategori»: de fire neste som starter fra nå.
+		//
+		// Uten datofilteret sorterte spørringen hele kategorien stigende og tok
+		// de fire eldste radene. Det ble langvarige arrangementer som startet for
+		// måneder siden (Testival, 31. aug., med pristeksten «Billetter kommer for
+		// salg i august 2026»), på hver eneste side i kategorien. `date_start`,
+		// ikke «ikke avsluttet» som forsiden bruker: med bare fire plasser skal
+		// de gå til det som kommer, ikke til det som alt har pågått lenge.
+		// Lokkeduene (is_canary) holdes ute her som på forsiden og i feedene.
 		const relatedPromise = supabase
 			.from('events')
 			.select(EVENT_COLUMNS)
 			.eq('category', mapped.category)
 			.eq('status', 'approved')
+			.eq('is_canary', false)
 			.neq('id', mapped.id)
+			.gte('date_start', new Date().toISOString())
 			.order('date_start', { ascending: true })
 			.limit(4);
 
