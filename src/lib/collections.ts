@@ -2,6 +2,7 @@ import type { GaariEvent, Lang } from './types';
 import { isFreeEvent, isStudentRelevant } from './utils';
 import { getWeekendDates, matchesTimeOfDay, toOsloDateStr, getEndOfWeekDateStr, addDays, getEasterDate, getISOWeekDates, eventOverlapsRange, eventOnDay } from './event-filters';
 import { SOURCE_COUNT } from './constants';
+import { erUtstilling } from './utstilling';
 // Adresselogikken bor i en egen fil uten katalogen bak seg. Klientkomponenter
 // skal importere derfra og ikke herfra — se kommentaren oeverst i
 // collection-urls.ts. Re-eksporten her er for serverkode som alt bruker
@@ -124,10 +125,6 @@ const FAMILY_TITLE_RE = /familie|barnelørdag|barnas\s|for\s+barn|barneforestill
 const YOUTH_TEXT_RE = /\bungdom|\btenåring|\bteenåring|\bfor\s+unge?\b|\bunge\b|\bteen|\b1[0-5]\s*[-–]\s*1[5-9]\s*år|\bfra\s+1[0-5]\s+år|\bungdomshus|\bungdomsklubb|\b13\+|\b14\+|\b15\+/i;
 const INDOOR_CATEGORIES = new Set(['music', 'culture', 'theatre', 'family', 'food', 'workshop', 'nightlife', 'student']);
 
-// Exhibition / gallery filter — only true exhibition venues or exhibition-keyword titles
-const EXHIBITION_VENUE_RE = /\b(KODE|Bergen Kunsthall|Bymuseet|Museum Vest|BEK|Bryggens Museum|Håkonshallen|Schøtstuene|Rosenkrantztårnet|Permanenten|Lysverket|Stenersen|Rasmus Meyer|Gamle Bergen|Damsgård|Hordamuseet|Norsk Trikotasjemuseum|Norges Fiskerimuseum|Vil[\s-]?Vite)\b/i;
-const EXHIBITION_TITLE_RE = /\b(utstilling|åpning|vernissage|exhibition|kunstutstilling|gallerivandring|kunstvandring|book\s*fair|art\s*book|kunstvisning|samling)\b/i;
-const NON_EXHIBITION_TITLE_RE = /\b(kafé|kafe|café|cafe|spillkveld|padling|paddl|vinsmaking|matkurs|matklubb|trylleshow|quiz|nabolagsk|brunsj|frokost|lunsj|middag|konsert|jazz|disko|klubb|pub|bar|drop[\s-]?in|familiesøndag|familielørdag|verksted|workshop|forelesning|debatt|foredrag|panel|filmkveld|kinokveld|litteratur|forfatterkveld|babysang|yoga|trening|svømming|løpetur|hiketur|fjelltur)\b/i;
 
 
 export interface Collection {
@@ -1676,15 +1673,7 @@ const collections: Collection[] = [
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
 				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
-				if (e.category !== 'culture') return false;
-				// Defensive title filter — exclude clearly non-exhibition activities that
-				// occasionally get tagged as 'culture' (cafés, paddling, wine tasting, film nights, etc.)
-				const title = e.title_no || '';
-				if (NON_EXHIBITION_TITLE_RE.test(title)) return false;
-				// Only include events that are either at a recognised exhibition venue
-				// OR whose title clearly signals an exhibition / opening / vernissage.
-				const venue = e.venue_name || '';
-				return EXHIBITION_VENUE_RE.test(venue) || EXHIBITION_TITLE_RE.test(title);
+				return erUtstilling(e);
 			});
 		}
 	},
