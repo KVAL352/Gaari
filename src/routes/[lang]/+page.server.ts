@@ -2,6 +2,9 @@ import { supabase } from '#lib/server/supabase';
 import { getGroupedCollections } from '#lib/collections';
 import { hentKommendeArrangementer } from '#lib/server/hent-arrangementer';
 import { seedEvents } from '#lib/data/seed-events';
+import { seedEllerFeil } from '#lib/server/ikke-tilgjengelig';
+import { dev } from '$app/env';
+import { isHttpError } from '@sveltejs/kit';
 import type { GaariEvent } from '#lib/types';
 import type { PageServerLoad } from './$types';
 
@@ -85,11 +88,13 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 			return { events, source: 'supabase' as const, lang, dateModified, now: nowUtc, collectionGroups };
 		}
 
-		// Empty table — fall back to seed data
-		return { events: seedEvents, source: 'seed' as const, lang, dateModified, now: nowUtc, collectionGroups };
+		// Tom tabell: seed-data bare lokalt, 503 i produksjon.
+		const events = seedEllerFeil(seedEvents, 'forsiden', 'events-tabellen ga ingen rader', dev);
+		return { events, source: 'seed' as const, lang, dateModified, now: nowUtc, collectionGroups };
 	} catch (err) {
-		// Supabase unreachable — fall back to seed data
-		console.error('Supabase load failed:', err);
-		return { events: seedEvents, source: 'seed' as const, lang, dateModified, now: nowUtc, collectionGroups };
+		if (isHttpError(err)) throw err; // 503 fra seedEllerFeil over
+		// Supabase utilgjengelig: seed-data bare lokalt, 503 i produksjon.
+		const events = seedEllerFeil(seedEvents, 'forsiden', err, dev);
+		return { events, source: 'seed' as const, lang, dateModified, now: nowUtc, collectionGroups };
 	}
 };

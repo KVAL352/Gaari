@@ -7,7 +7,9 @@
 	let lang = $derived(isNorwegian ? 'no' : 'en');
 
 	let title = $derived(
-		statusCode === 410
+		statusCode === 503
+			? (isNorwegian ? 'Arrangementene kan ikke vises nå' : 'Events cannot be shown right now')
+			: statusCode === 410
 			? (isNorwegian ? 'Arrangementet er over' : 'This event has ended')
 			: statusCode === 404
 				? (isNorwegian ? 'Siden ble ikke funnet' : 'Page not found')
@@ -15,7 +17,11 @@
 	);
 
 	let message = $derived(
-		statusCode === 410
+		statusCode === 503
+			? (isNorwegian
+				? 'Vi får ikke hentet arrangementene akkurat nå. Prøv igjen om noen minutter.'
+				: 'We cannot load the events right now. Please try again in a few minutes.')
+			: statusCode === 410
 			? (isNorwegian
 				? 'Dette arrangementet er avsluttet. Her er noen kommende arrangementer:'
 				: 'This event has ended. Here are some upcoming events:')
