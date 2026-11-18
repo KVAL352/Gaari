@@ -382,6 +382,16 @@
   {
     "date": "2026-11-19",
     "title": "Detektiv-runde 3 (QA samlingssider): klikktestene i Chrome er ikke gjort",
-    "description": "Ikke sett: filtre, tilbake-knapp og språkbytte i nettleseren på et utvalg samlingssider. Chrome-utvidelsen var ikke tilgjengelig 18. nov. Gjort via curl: check-site 317 adresser 0 problemer; 170 hreflang-lenker (nb/en) på 86 samlingssider svarer alle 200 uten omdirigering. Start økta med Chrome på og klikk filtre på 5-6 samlinger (en evergreen, en bydel, en sesong, en festival), trykk tilbake, bytt språk."
+    "description": "Chrome kjørt 18. nov på to sider (/no/konserter: bydel Fana gir 1 kort, tilbake forlater siden; /no/utstillinger -> /en/utstillinger: språkbytte OK, 16 kort). Gjenstår: bydelsside, festivalside og en sesongside, med filter og språkbytte. Allerede gjort via curl: check-site 317 adresser 0 problemer; 170 hreflang-lenker på 86 samlingssider alle 200."
+  },
+  {
+    "date": "2026-11-19",
+    "title": "Dagoverskrifter sier «1 arrangementer» / «1 events» (entall)",
+    "description": "Sett 18. nov på /no/utstillinger og /en/utstillinger: dagoverskriftene («I morgen», «onsdag 25. november») har tellertekst «1 arrangementer» og «1 events». Skal være «1 arrangement» / «1 event». Teksten genereres i EventDiscovery.svelte (ikke bekreftet hvor eksakt). Sjekk også «1 arrangementer» i andre komponenter. Feil, liten. Rettes når ingen andre økter jobber i src/."
+  },
+  {
+    "date": "2026-11-19",
+    "title": "Filter uten treff: tom flate uten melding; filter i adressen mangler",
+    "description": "Sett 18. nov: /en/utstillinger med bydel Arna + Gratis viser «0 events», et tomt felt og «Clear all», men ingen setning om at ingenting passer. Filtervalg endrer heller ikke adressen og legger ikke til historikk, så tilbake-knappen forlater siden og et filter kan ikke deles. Forbedring (UX); filter i adressen er et strukturvalg, avklares med Kjersti."
   }
 ]
