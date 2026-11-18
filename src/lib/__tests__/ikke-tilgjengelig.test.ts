@@ -63,6 +63,18 @@ describe('sidene bruker seedEvents bare via seedEllerFeil', () => {
 		});
 	}
 
+	// SvelteKit legger headere fra setHeaders på ALLE svar fra siden, også 503.
+	// Satt før hentingen ville s-maxage=3600 fulgt en 503 og latt CDN-en cache den.
+	for (const fil of ['src/routes/[lang]/+page.server.ts', 'src/routes/[lang]/[collection]/+page.server.ts']) {
+		it(`${fil}: cache-header settes etter hentingen, ikke før`, () => {
+			const k = les(fil);
+			const hent = k.search(/hentKommendeArrangementer(<[^>]*>)?\(/);
+			const header = k.indexOf('setHeaders({');
+			expect(hent).toBeGreaterThan(-1);
+			expect(header).toBeGreaterThan(hent);
+		});
+	}
+
 	it('arrangementssiden: seed bare når seedTillatt, og databasefeil gir 503, ikke 410', () => {
 		const k = les('src/routes/[lang]/events/[slug]/+page.server.ts');
 		expect(k).toMatch(/seedTillatt \? seedEvents\.find/);

@@ -44,8 +44,6 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 		throw redirect(301, `/${params.lang}`);
 	}
 
-	setHeaders({ 'cache-control': 's-maxage=3600, stale-while-revalidate=7200' });
-
 	let events: GaariEvent[];
 
 	try {
@@ -69,6 +67,11 @@ export const load: PageServerLoad = async ({ params, setHeaders, getClientAddres
 		if (isHttpError(err)) throw err; // 503 fra seedEllerFeil over
 		events = seedEllerFeil(seedEvents, `samling:${params.collection}`, err, seedTillatt);
 	}
+
+	// Cache-header settes først når dataene er hentet. En header satt før en 503
+	// følger nemlig med feilsvaret (SvelteKit legger setHeaders på alle svar), og
+	// da kan CDN-en cache 503-en i en time.
+	setHeaders({ 'cache-control': 's-maxage=3600, stale-while-revalidate=7200' });
 
 	// Filter to only active events, then apply collection filter
 	const active = events.filter(e => e.status !== 'cancelled' && e.status !== 'expired');

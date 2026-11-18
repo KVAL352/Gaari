@@ -13,7 +13,6 @@ export const config = {
 };
 
 export const load: PageServerLoad = async ({ setHeaders, params }) => {
-	setHeaders({ 'cache-control': 's-maxage=3600, stale-while-revalidate=7200' });
 
 	const lang = params.lang === 'en' ? 'en' : 'no';
 	// Date-only (YYYY-MM-DD) — stable across same-day ISR revalidations, prevents
@@ -85,6 +84,10 @@ export const load: PageServerLoad = async ({ setHeaders, params }) => {
 				return true;
 			});
 
+			// Cache-header settes først når dataene er hentet. En header satt før en 503
+			// følger nemlig med feilsvaret (SvelteKit legger setHeaders på alle svar), og
+			// da kan CDN-en cache 503-en i en time.
+			setHeaders({ 'cache-control': 's-maxage=3600, stale-while-revalidate=7200' });
 			return { events, source: 'supabase' as const, lang, dateModified, now: nowUtc, collectionGroups };
 		}
 
