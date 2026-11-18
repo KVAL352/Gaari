@@ -380,13 +380,33 @@
     "description": "Siden viser lenker til festivalsamlinger (0 arrangementskort), men ingressen sier «8 arrangementer akkurat nå». Finn hva tallet teller og om ordet bør være «festivaler»."
   },
   {
-    "date": "2026-11-20",
-    "title": "Entall «1 arrangement»: se live, og sjekk resten av tellerne",
-    "description": "Rettet 18. nov (c62af7f) i EventGrid (dagoverskrifter) og samlingssidens tre tellere via antallArrangementer i src/lib/antall.ts; ikke sett live (ISR ca. 1 time). Se at /no/utstillinger og /en/utstillinger viser «1 arrangement» / «1 event» i dagoverskriftene. Ikke rørt, samme feilklasse: denne-uken/[uke]/+page.svelte (events.length arrangementer, linje 33, 34, 79, 80, 98), LoadMore.svelte (shown av total, enhet), EventDiscovery.svelte:672 (result-label), seo.ts og stedssidene. Sjekk med: grep -rn \"length} arrangementer\" src."
-  },
-  {
     "date": "2026-11-19",
     "title": "Filter uten treff: tom flate uten melding; filter i adressen mangler",
     "description": "Sett 18. nov: /en/utstillinger med bydel Arna + Gratis viser «0 events», et tomt felt og «Clear all», men ingen setning om at ingenting passer. Filtervalg endrer heller ikke adressen og legger ikke til historikk, så tilbake-knappen forlater siden og et filter kan ikke deles. Forbedring (UX); filter i adressen er et strukturvalg, avklares med Kjersti."
+  },
+  {
+    "date": "2026-11-20",
+    "title": "Kirkekilde til julesidene: åpne skjerikirken.no (Bergen)",
+    "description": "Bergen kirkelige fellesråd (28 menigheter) lenker «Kalender» til skjerikirken.no. Underagent fikk ikke åpnet siden og Chrome-utvidelsen mangler tillatelse til domenet 18. nov. Tell menighetene med Bergen-filteret, se etter RSS/iCal/eksport. Deretter kildegransker (robots.txt først) før noe bygges eller noen kontaktes. Aldri skrap visitbergen/fjordnorway; finn arrangøren. Epost til fellesrådet godkjenner Kjersti først. Se «Der vi slapp» 18. nov kveld i OVERLEVERING.md for listen over konserter som mangler."
+  },
+  {
+    "date": "2026-11-20",
+    "title": "Julesidene: ser Google mer enn 25 kort?",
+    "description": "Rå HTML fra /no/julemarked?page=10 har 25 kort; først etter JavaScript er det 204. Sjekk med curl hvor mange article-kort rå HTML har og om resten er nådd via lenker i HTML (?page=2 osv.) eller bare via «Vis flere». Gjelder alle samlingssider. Ikke sjekket 18. nov."
+  },
+  {
+    "date": "2026-11-20",
+    "title": "Grieghallen-scraperen: mangler Sissel 8. des?",
+    "description": "Sissel i Grieghallen 8. des (dato fra visitbergen, ikke åpnet hos Grieghallen) finnes ikke i basen 18. nov, heller ikke Swing julen inn (USF Verftet 6. des). Sjekk grieghallen.no/arrangementer for Sissel først, så hvorfor scraperen ikke har den (utsolgt, annen URL, filtrert bort?). Verifiser dato hos arrangøren."
+  },
+  {
+    "date": "2026-11-21",
+    "title": "Pepperkakebyen og Festplassen står som «Student»",
+    "description": "På /no/julemarked 18. nov har Pepperkakebyen 2026 (byROMMET) og Julemarkedet 2026 (Festplassen) kategori student. Finn hvorfor (mapCategory, kildens egen kategori, studentfilter?) før du endrer. Luciamorgen ligger som culture og kommer ikke på julekonsertsiden; samme sjekk. Toppen sier «190 arrangementer», bunnen «Viser 25 av 204»: groupedByDate i [collection]/+page.svelte teller flerdagers per dag."
+  },
+  {
+    "date": "2026-11-23",
+    "title": "Search Console ga ingen rader for nov–des 2025",
+    "description": "Spørring på sc-domain:gaari.no for 1. nov–31. des 2025 ga null rader for julesidene 18. nov. Uvisst om siden ikke fantes eller om dataene mangler. Sjekk når nettstedet fikk første data i GSC (uten sidefilter) før noen sammenligner med fjoråret."
   }
 ]
