@@ -32,7 +32,16 @@ jobs:
         working-directory: scripts
         run: npm ci
 
-      - name: Security audit
+      # Blokkerer bare på det som havner i produksjon. picomatch <=4.0.7
+      # (ReDoS, GHSA-fc5q-39xc-vjpf) sitter i byggeverktøyet (vite, vitest,
+      # svelte-check) og har ingen rettet versjon: 4.0.7 er siste på npm.
+      # Dette steget sto rødt fra 18. nov og skjulte at Lint, typesjekk og
+      # tester aldri kjørte. Verktøyfunnene vises under, men stopper ikke.
+      - name: Security audit (produksjon)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Security audit (byggeverktøy, ikke blokkerende)
+        continue-on-error: true
         run: npm audit --audit-level=high
 
       - name: Lint
