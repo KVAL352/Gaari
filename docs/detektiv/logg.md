@@ -30,7 +30,7 @@ blant dem `24c4eb4` (relaterte arrangementer) og `e509a75` (dato i tittel).
 |---|---|---|---|---|---|---|---|---|
 | 2026-11-18 | Samlingssider (+ forsiden, samme henting) | 1 Data | alle 86 samlingssider i sitemapen, NO+EN; bydelssidene mot basen | 86 | 1: tre lokkeduer i forsidens HTML (side 2 i hentingen mangler `is_canary`-filter) | 0 | 0 | ingen ennå: tre strukturvalg tatt, se under |
 
-### Avgjort 2026-11-18, ikke bygd ennå
+### Avgjort 2026-11-18, bygd samme dag (`2c9b718`, `e929381`, `a81afe8`)
 
 1. **Hentingen:** én felles hentefunksjon for forsiden (`src/routes/[lang]/+page.server.ts`) og samlingssidene (`src/routes/[lang]/[collection]/+page.server.ts`). `is_canary=false` i alle omganger, sortering på `date_start` + `id`, test som låser at begge bruker den og at ingen lokkedue slipper gjennom etter rad 1 000. Etterpå: se at de tre lokkeduene er borte fra forsidens HTML (NO+EN).
 2. **14-dagersgrensen:** står for klubber og serier, men pågående utstillinger slipper gjennom. Trenger en regel for hva en utstilling er (kategori og ord i tittelen; se hva `utstillinger`-samlingen allerede bruker). Kommentaren «60 days» rettes til 14. Tørrkjør: hvilke av de 47 kommer med, og tell utstillingssiden før og etter.
