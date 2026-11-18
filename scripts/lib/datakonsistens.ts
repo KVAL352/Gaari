@@ -32,7 +32,7 @@
  * roedt, og da er den verre enn ingen portvakt.
  */
 
-import { hasAdultAgeLimit } from './categories.js';
+import { hasAdultAgeLimit, studentbergenKategori } from './categories.js';
 import { normaliserStedsnavn, isImageAllowed } from './utils.js';
 
 export interface KonsistensRad {
@@ -111,6 +111,23 @@ export function klokkeslettIFelt(dateStart: string | null | undefined): string |
 }
 
 export const SJEKKER: Sjekk[] = [
+	{
+		navn: 'kategori-studentbergen',
+		hva: 'StudentBergen-rad står som «student», men scraperens egen regel gir en annen kategori (julemarked, pepperkakeby)',
+		sperrende: true,
+		finn: (rader) =>
+			rader
+				.filter(
+					(e) =>
+						e.source === 'studentbergen' &&
+						e.category === 'student' &&
+						studentbergenKategori(e.title_no ?? '', e.venue_name ?? '') !== 'student'
+				)
+				.map((rad) => ({
+					rad,
+					forklaring: `category='student' mens regelen gir '${studentbergenKategori(rad.title_no ?? '', rad.venue_name ?? '')}'`,
+				})),
+	},
 	{
 		navn: 'aldersgrense-mangler',
 		hva: 'Teksten oppgir 18+ eller 20+, men age_group sier noe annet',

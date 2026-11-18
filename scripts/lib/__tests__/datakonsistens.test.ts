@@ -293,3 +293,19 @@ describe('bilde-uten-samtykke', () => {
 		expect(funn).toHaveLength(0);
 	});
 });
+
+describe('kategori-studentbergen', () => {
+	const sb = (o: Partial<KonsistensRad>) => rad({ source: 'studentbergen', category: 'student', venue_name: 'Festplassen', ...o });
+
+	it('finner Julemarkedet og Pepperkakebyen som står som student', () => {
+		expect(finn('kategori-studentbergen', [sb({ title_no: 'Julemarkedet 2026' })])).toHaveLength(1);
+		expect(finn('kategori-studentbergen', [sb({ title_no: 'Pepperkakebyen 2026' })])).toHaveLength(1);
+		expect(finn('kategori-studentbergen', [sb({ title_no: 'Julemarked i Eidsvåg fabrikker' })])).toHaveLength(1);
+	});
+
+	it('lar ekte studentarrangementer og andre kilder være i fred', () => {
+		expect(finn('kategori-studentbergen', [sb({ title_no: 'Fadderuke-åpning' })])).toHaveLength(0);
+		expect(finn('kategori-studentbergen', [sb({ title_no: 'Julemarkedet 2026', source: 'loddefjord' })])).toHaveLength(0);
+		expect(finn('kategori-studentbergen', [sb({ title_no: 'Julemarkedet 2026', category: 'festival' })])).toHaveLength(0);
+	});
+});

@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { mapBydel } from '../lib/categories.js';
+import { mapBydel, studentbergenKategori } from '../lib/categories.js';
 import { resolveTicketUrl } from '../lib/venues.js';
 import { makeSlug, eventExists, insertEvent, fetchHTML, delay } from '../lib/utils.js';
 import { generateDescription } from '../lib/ai-descriptions.js';
@@ -15,23 +15,6 @@ interface SBEvent {
 	end: string;
 	url: string;
 	image: string;
-}
-
-function guessCategory(title: string, location: string): string {
-	const text = `${title} ${location}`.toLowerCase();
-	const w = (word: string) => new RegExp(`\\b${word}\\b`).test(text);
-	if (w('konsert') || w('musikk') || w('jazz') || w('fest')) return 'music';
-	if (w('revy') || w('teater') || w('forestilling')) return 'theatre';
-	if (w('film') || w('kino') || w('cinema')) return 'culture';
-	if (w('quiz')) return 'nightlife';
-	if (w('debatt') || w('foredrag') || w('konferanse') || w('seminar')) return 'culture';
-	if (w('karriere') || w('workshop') || w('kurs')) return 'workshop';
-	if (w('løp') || w('marathon') || w('fjelltur') || w('sport')) return 'sports';
-	if (w('festival') || w('marked') || w('loppemarked')) return 'festival';
-	if (text.includes('mat og drikke') || new RegExp('\\w' + 'matkurs' + '\\b').test(text) || new RegExp('\\w' + 'smaking' + '\\b').test(text)) return 'food';
-	if (w('quiz') || new RegExp('\\w' + 'quiz' + '\\b').test(text) || new RegExp('\\w' + 'kviss' + '\\b').test(text)) return 'nightlife';
-	if (w('klubb') || w('party') || text.includes('90-tall')) return 'nightlife';
-	return 'student';
 }
 
 export async function scrape(): Promise<{ found: number; inserted: number }> {
@@ -59,7 +42,7 @@ export async function scrape(): Promise<{ found: number; inserted: number }> {
 		const sourceUrl = event.url;
 		if (await eventExists(sourceUrl)) continue;
 
-		const category = guessCategory(event.title, event.location);
+		const category = studentbergenKategori(event.title, event.location);
 		const bydel = mapBydel(event.location);
 
 		// Fetch the detail page for description, price, and ticket URL

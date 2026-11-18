@@ -337,3 +337,30 @@ export function mapBydel(venueName: string): string {
 	// Default — most Bergen events are central
 	return 'Sentrum';
 }
+
+/**
+ * Kategori for et arrangement fra StudentBergen. Står her, ikke i scraperen,
+ * fordi den daglige datakonsistens-sjekken skal bruke samme regel (se
+ * `kategori-studentbergen` i datakonsistens.ts).
+ *
+ * `\b` treffer ikke inni sammensatte ord: «julemarkedet» ble `student` fordi
+ * `\bmarked\b` ikke matcher. Derfor eget uttrykk for marked.
+ */
+export function studentbergenKategori(title: string, location: string): string {
+	const text = `${title} ${location}`.toLowerCase();
+	const w = (word: string) => new RegExp(`\b${word}\b`).test(text);
+	if (w('konsert') || w('musikk') || w('jazz') || w('fest')) return 'music';
+	if (w('revy') || w('teater') || w('forestilling')) return 'theatre';
+	if (w('film') || w('kino') || w('cinema')) return 'culture';
+	if (w('quiz')) return 'nightlife';
+	if (w('debatt') || w('foredrag') || w('konferanse') || w('seminar')) return 'culture';
+	if (w('karriere') || w('workshop') || w('kurs')) return 'workshop';
+	if (w('løp') || w('marathon') || w('fjelltur') || w('sport')) return 'sports';
+	// «julemarked», «julemarkedet» og «loppemarked» er sammensatte ord, så \b treffer ikke.
+	// Pepperkakebyen er en jule-attraksjon, ikke student.
+	if (w('festival') || /marked(et)?\b/.test(text) || text.includes('pepperkakeby')) return 'festival';
+	if (text.includes('mat og drikke') || new RegExp('\w' + 'matkurs' + '\b').test(text) || new RegExp('\w' + 'smaking' + '\b').test(text)) return 'food';
+	if (new RegExp('\w' + 'quiz' + '\b').test(text) || new RegExp('\w' + 'kviss' + '\b').test(text)) return 'nightlife';
+	if (w('klubb') || w('party') || text.includes('90-tall')) return 'nightlife';
+	return 'student';
+}
