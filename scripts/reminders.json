@@ -378,5 +378,10 @@
     "date": "2026-11-25",
     "title": "/no/festivaler: «8 arrangementer akkurat nå» teller trolig festivaler",
     "description": "Siden viser lenker til festivalsamlinger (0 arrangementskort), men ingressen sier «8 arrangementer akkurat nå». Finn hva tallet teller og om ordet bør være «festivaler»."
+  },
+  {
+    "date": "2026-11-19",
+    "title": "Detektiv-runde 3 (QA samlingssider): klikktestene i Chrome er ikke gjort",
+    "description": "Ikke sett: filtre, tilbake-knapp og språkbytte i nettleseren på et utvalg samlingssider. Chrome-utvidelsen var ikke tilgjengelig 18. nov. Gjort via curl: check-site 317 adresser 0 problemer; 170 hreflang-lenker (nb/en) på 86 samlingssider svarer alle 200 uten omdirigering. Start økta med Chrome på og klikk filtre på 5-6 samlinger (en evergreen, en bydel, en sesong, en festival), trykk tilbake, bytt språk."
   }
 ]
