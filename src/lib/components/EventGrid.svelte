@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { GaariEvent } from '#lib/types';
-	import { lang, t } from '#lib/i18n';
+	import { lang } from '#lib/i18n';
+	import { antallArrangementer } from '#lib/antall';
 	import { groupEventsByDate, formatDateSectionHeader } from '#lib/utils';
 	import EventCard from './EventCard.svelte';
 	import NewsletterInline from './NewsletterInline.svelte';
@@ -128,7 +129,7 @@
 					{formatDateSectionHeader(dateKey + 'T00:00:00', $lang)}
 				</h2>
 				<span class="text-sm text-[var(--color-text-muted)]">
-					{dayEvents.length} {$t('events')}
+					{antallArrangementer(dayEvents.length, $lang)}
 				</span>
 			</div>
 			<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

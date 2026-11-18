@@ -10,6 +10,7 @@
 	import NewsletterCTA from '#lib/components/NewsletterCTA.svelte';
 	import ImagePlaceholder from '#lib/components/ImagePlaceholder.svelte';
 	import { groupEventsByDate } from '#lib/utils';
+	import { antallArrangementer } from '#lib/antall';
 	import type { Category, Bydel } from '#lib/types';
 
 	let { data } = $props();
@@ -76,7 +77,7 @@
 		const count = data.events.length;
 		const base = data.collection.seasonal ? `${descriptionBase.replace(/\.$/, '')} ${year}.` : descriptionBase;
 		if (count > 0) {
-			const countStr = ssrLang === 'no' ? `${count} arrangementer akkurat nå.` : `${count} events right now.`;
+			const countStr = ssrLang === 'no' ? `${antallArrangementer(count, 'no')} akkurat nå.` : `${antallArrangementer(count, 'en')} right now.`;
 			// Append count if it fits within 160 chars
 			return (base + ' ' + countStr).length <= 165 ? base + ' ' + countStr : base;
 		}
@@ -115,7 +116,7 @@
 	let quickAnswerBase = $derived(data.collection.quickAnswer?.[ssrLang] ?? '');
 	let quickAnswer = $derived(
 		quickAnswerBase && data.events.length > 0
-			? `${quickAnswerBase} ${ssrLang === 'no' ? `Akkurat nå: ${data.events.length} arrangementer.` : `Right now: ${data.events.length} events.`}`
+			? `${quickAnswerBase} ${ssrLang === 'no' ? `Akkurat nå: ${antallArrangementer(data.events.length, 'no')}.` : `Right now: ${antallArrangementer(data.events.length, 'en')}.`}`
 			: quickAnswerBase
 	);
 
@@ -254,7 +255,7 @@
 	<p class="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">{quickAnswer}</p>
 	{/if}
 	<p class="mt-2 flex flex-wrap gap-x-2 text-xs text-[var(--color-text-muted)]">
-		<span>{filteredEvents.length} {$t('events')}{venueCount > 1 ? ` ${$lang === 'no' ? 'fra' : 'from'} ${venueCount} ${$lang === 'no' ? 'scener' : 'venues'}` : ''}</span>
+		<span>{antallArrangementer(filteredEvents.length, $lang)}{venueCount > 1 ? ` ${$lang === 'no' ? 'fra' : 'from'} ${venueCount} ${$lang === 'no' ? 'scener' : 'venues'}` : ''}</span>
 		<span>· {$lang === 'no' ? 'Sist sjekket' : 'Last checked'} {new Date(`${data.dateModified}T00:00:00Z`).toLocaleDateString($lang === 'no' ? 'nb-NO' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
 	</p>
 </section>
