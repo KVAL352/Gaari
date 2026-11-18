@@ -408,5 +408,15 @@
     "date": "2026-11-21",
     "title": "Julesidene: Luciamorgen mangler på konsertsiden, og to ulike tall",
     "description": "Luciamorgen (culture, Domkirken, ticketco) kommer ikke på julekonsertsiden; finn hvorfor før du endrer. /no/julemarked sier «190 arrangementer» øverst og «Viser 25 av 204» nederst: groupedByDate i [collection]/+page.svelte (ca. linje 161-165) teller flerdagers per dag. Kategorifeilen (Student) er rettet i 0bf7141."
+  },
+  {
+    "date": "2026-11-24",
+    "title": "Julebrev: har Lyderhorn frivilligsentral svart?",
+    "description": "Julebrev sendt 18. nov fra protonmail om julemarkedet på Kjøkkelvik skole 29. nov (bilder på gaari.no, omtale i andre kanaler). Sjekk Inbox og Archive. Ja til bilder: legg rad i docs/bildesamtykke.md og CONSENT_RECORDS. Se OVERLEVERING.md, raden om julebrev."
+  },
+  {
+    "date": "2026-11-27",
+    "title": "Julebrev: har Skjold menighet svart?",
+    "description": "Julebrev sendt 18. nov fra protonmail, åpent spørsmål om de holder julemesse i år (bare 2024-messen er bekreftet). Sjekk Inbox og Archive. Svarer de ja, legg inn arrangementet med dato fra dem. Se OVERLEVERING.md, raden om julebrev."
   }
 ]
