@@ -420,6 +420,19 @@ describe('exhibitions filter (utstillinger)', () => {
 		expect(result.map(e => e.id)).toEqual(['1', '2', '3', '4']);
 	});
 
+	it('viser pågående utstillinger som startet for lenge siden, men ikke utløpte', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			// Startet for måneder siden, varer lenge (varighet over 6 dager) ✓
+			makeEvent({ id: '1', date_start: '2025-10-09T08:00:00Z', date_end: '2026-05-01T20:00:00Z', category: 'culture', venue_name: 'Bergen Kunsthall', title_no: 'Sung Hwan Kim' }),
+			// Utløpt ✗
+			makeEvent({ id: '2', date_start: '2025-10-09T08:00:00Z', date_end: '2026-02-20T20:00:00Z', category: 'culture', venue_name: 'KODE', title_no: 'Gammel utstilling' }),
+			// Starter først etter vinduet ✗
+			makeEvent({ id: '3', date_start: '2026-04-01T08:00:00Z', date_end: '2026-06-01T20:00:00Z', category: 'culture', venue_name: 'KODE', title_no: 'Kommer senere' })
+		];
+		expect(collection.filterEvents(events, now).map(e => e.id)).toEqual(['1']);
+	});
+
 	it('returns empty when no events match', () => {
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [

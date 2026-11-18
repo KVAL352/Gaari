@@ -1672,7 +1672,12 @@ const collections: Collection[] = [
 			const todayStr = toOsloDateStr(now);
 			const endStr = toOsloDateStr(addDays(now, 13));
 			return events.filter(e => {
-				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
+				// Vanlig overlapp, ikke eventOverlapsRange: den regner hendelser på
+				// 6 dager eller mer bare på startdagen, og en utstilling som har
+				// gått i måneder er nettopp det samlingen skal vise.
+				const start = e.date_start.slice(0, 10);
+				const end = e.date_end ? e.date_end.slice(0, 10) : start;
+				if (!(start <= endStr && end >= todayStr)) return false;
 				return erUtstilling(e);
 			});
 		}
