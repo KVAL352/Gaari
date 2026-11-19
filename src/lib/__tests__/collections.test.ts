@@ -601,11 +601,21 @@ describe('youth filter (for-ungdom)', () => {
 		expect(collection.filterEvents(events, now)).toHaveLength(0);
 	});
 
-	it('includes family events', () => {
+	it('family alene er ikke ungdom: barnekino og babysang holdes ute', () => {
+		// 19. nov 2026 kom 44 av 66 treff inn bare fordi de var «family».
 		const now = new Date('2026-02-24T12:00:00');
 		const events = [
-			makeEvent({ id: '1', date_start: '2026-02-25T14:00:00Z', age_group: 'family', category: 'theatre' }),
-			makeEvent({ id: '2', date_start: '2026-02-25T14:00:00Z', category: 'family', age_group: 'all' })
+			makeEvent({ id: '1', date_start: '2026-02-25T14:00:00Z', title_no: 'Barnekino: Den store stygge reven', age_group: 'family', category: 'culture' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T14:00:00Z', title_no: 'Babysang', category: 'family', age_group: 'all' })
+		];
+		expect(collection.filterEvents(events, now)).toHaveLength(0);
+	});
+
+	it('family som selv sier ungdom kommer med', () => {
+		const now = new Date('2026-02-24T12:00:00');
+		const events = [
+			makeEvent({ id: '1', date_start: '2026-02-25T14:00:00Z', title_no: 'Familiedag med ungdomsscene', category: 'family', age_group: 'family' }),
+			makeEvent({ id: '2', date_start: '2026-02-25T14:00:00Z', title_no: 'Spillkveld', category: 'family', age_group: 'youth' })
 		];
 		expect(collection.filterEvents(events, now)).toHaveLength(2);
 	});

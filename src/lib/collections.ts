@@ -1545,7 +1545,8 @@ const collections: Collection[] = [
 				if (!eventOverlapsRange(e, todayStr, endStr)) return false;
 				if (e.age_group === '18+') return false;
 				if (e.category === 'nightlife' || e.category === 'food') return false;
-				if (e.age_group === 'family' || e.category === 'family') return true;
+				// Ikke «family»: det slapp inn barnekino og babysang, 44 av 66
+				// treff 19. nov 2026. Bare det som selv sier at det er for ungdom.
 				if (e.age_group === 'youth') return true;
 				if (YOUTH_TEXT_RE.test(e.title_no) || YOUTH_TEXT_RE.test(e.description_no)) return true;
 				return false;
