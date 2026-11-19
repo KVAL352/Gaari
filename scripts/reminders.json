@@ -462,6 +462,6 @@
   {
     "date": "2026-11-23",
     "title": "Frontend-runde 4: ikke sjekket i konsoll og nettverk (/en, mobil, flere filtre)",
-    "description": "Runde 4 (19. nov) leste konsoll og nettverk bare for /no i Chrome (desktop-bredde) med datofilteret I morgen: null konsollmeldinger, ingen nettkall ved filtrering. Ikke sjekket: /en, mobilbredde 390, de andre filtrene (målgruppe, kategori, bydel, velg datoer), sidebytte via Vis flere, og hva nodes/1 (feilnoden i SvelteKit) gjør i den første lastingen. Nyhetsbrevboksen dukker opp under filtrene når et filter velges og flytter siden ned (et klikk på Student bommet); vurder om den skal reservere plass eller komme etter listen. Forbedringsforslag, ikke rettet uten hennes ja."
+    "description": "Runde 4 (19. nov) leste konsoll og nettverk bare for /no i Chrome (desktop-bredde) med datofilteret I morgen: null konsollmeldinger, ingen nettkall ved filtrering. Del 2 samme dag dekket /en (lastet, 0 konsollmeldinger), Student, Musikk & Konserter og Vis flere (alle rene). Fortsatt ikke testet, full liste i docs/detektiv/logg.md: mobilbredde 390 (resize_window ga aldri 390 i visningsflaten), bydel, Velg datoer, tid på dagen, filter på /en, tilbake-knappen (ren test), tre filtre samtidig, Nullstill filtre, Umami-hendelser, og hva nodes/1 (feilnoden i SvelteKit) er. Nyhetsbrevboksen dukker opp under filtrene når et filter velges og flytter siden ned (et klikk på Student bommet); vurder om den skal reservere plass eller komme etter listen. Forbedringsforslag, ikke rettet uten hennes ja."
   }
 ]
