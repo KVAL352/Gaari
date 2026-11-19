@@ -159,7 +159,8 @@
 	}
 
 	function handleCalendarSelect(date: string | { from: string; to: string }) {
-		showCalendar = false;
+		// Kalenderen blir åpen etter første klikk, så andre klikk kan velge intervall.
+		// MiniCalendar lukker den via onDone.
 		if (typeof date === 'string') {
 			onFilterChange('when', date);
 		} else {
@@ -573,6 +574,7 @@
 								selectedDate={calendarDate}
 								selectedRange={calendarRange}
 								onSelect={handleCalendarSelect}
+								onDone={() => (showCalendar = false)}
 							/>
 						</div>
 					{/if}

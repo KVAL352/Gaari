@@ -5,10 +5,12 @@
 		selectedDate?: string;
 		selectedRange?: { from: string; to: string };
 		onSelect: (date: string | { from: string; to: string }) => void;
+		/** Kalles når valget er ferdig: intervall valgt, eller samme dag klikket to ganger. */
+		onDone?: () => void;
 		lang: Lang;
 	}
 
-	let { selectedDate, selectedRange, onSelect, lang }: Props = $props();
+	let { selectedDate, selectedRange, onSelect, onDone, lang }: Props = $props();
 
 	const WEEKDAYS_NO = ['ma', 'ti', 'on', 'to', 'fr', 'lø', 'sø'];
 	const WEEKDAYS_EN = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -98,12 +100,14 @@
 		} else if (rangeStart === dateStr) {
 			// Clicked same date again — confirm single date
 			rangeStart = null;
+			onDone?.();
 		} else {
 			// Second click — create range
 			const from = rangeStart < dateStr ? rangeStart : dateStr;
 			const to = rangeStart < dateStr ? dateStr : rangeStart;
 			rangeStart = null;
 			onSelect({ from, to });
+			onDone?.();
 		}
 	}
 
