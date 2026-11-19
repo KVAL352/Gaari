@@ -400,6 +400,16 @@
     "description": "Julebrev sendt 18. nov fra protonmail, uten bestemt dato (julemarked 5.–6. des står bare på aggregatorer). Sjekk Inbox og Archive. Svar med dato: legg inn arrangementet manuelt (kilden må inn i SOURCE_RANK). Se OVERLEVERING.md, raden om julebrev."
   },
   {
+    "date": "2026-11-24",
+    "title": "To uforklarte tall fra trafikkanalysen 19. nov",
+    "description": "1) Engelske arrangementssider i Google halvert: klikk 350 → 180, visninger 12 676 → 7 765, sider med visninger 1 252 → 1 066 (28 d til 17. nov mot 28 d før). Sjekk om det er sesong (hvilke sider falt bort: Beyond the Gates, oktoberarrangementer) eller indeksering (URL-inspeksjon på tre engelske arrangementssider). 2) Umami viser +37 % besøk (8 063 mot 5 872), men Google-henvisninger i Umami falt 10 % og fluktraten steg (2 249 → 3 648 enkeltsidebesøk). Veksten kommer ikke fra Google. Finn ut hva den er (laptop 4 395 mot mobil 2 771 er uvanlig for en arrangementsside): inngangssider og tidspunkt for besøk uten henvisning. Er det roboter, skal de ikke regnes som vekst."
+  },
+  {
+    "date": "2026-11-24",
+    "title": "Forsiden falt på «hva skjer i bergen» 14.–17. nov: varig eller ikke?",
+    "description": "Søket lå på plass 4–7 hele oktober og november, og var 9,1 / 10,5 / 8,5 / 7,8 de fire dagene 14.–17. nov. Forsiden /no hadde 273 og 249 visninger 16. og 17. nov, mot ca. 425 på samme ukedager uka før, og plass 9,1 den 17. Googles egen boks sa 19. nov: klikk −73 %, plass 8,2 siste 7 dager. Årsaken er ikke kjent: Lysfest-uka kan ha fylt resultatsiden, de siste dagene i Search Console er foreløpige, og SvelteKit 3 gikk live 17. nov (1cf91d1). Hent dag for dag fra 10. nov for søket og for siden /no. Er plassen tilbake under 7, var det støy. Er den fortsatt over 8, sjekk SvelteKit 3-endringen (tittel, canonical, hreflang, statuskode på /no) før noe annet. Hvem står over oss (19. nov): Visit Bergen, Ticketmaster, Bergen Sentrum, Barn i Byen, Bergen Live, Bergen kommune."
+  },
+  {
     "date": "2026-11-20",
     "title": "Fem samlingsrettinger fra 19. nov: se dem live etter push",
     "description": "Commits 22daf6a, 740ffad, 0bacf12, 0105c89, 296caa9. Etter push og ca. 1 time ISR: /no/festivaler skal si samme tall i ingressen som summen på kortene (69 den 19. nov, ikke 10). /no/gratis skal si «Sjekk hos arrangøren før du går», ikke «Ingen billett nødvendig». /no/festspillene skal ha meta-beskrivelsen «… programmet er ikke ute ennå». /no/for-ungdom skal ha ca. 22 treff uten barnekino og babysang. /no/bergen-pride skal si «hele året» i ingressen."
@@ -408,5 +418,40 @@
     "date": "2026-11-25",
     "title": "Årstallet bakerst i sesongbeskrivelsene gir «Oppdatert daglig 2027.»",
     "description": "samlingBeskrivelse() i src/lib/meta-beskrivelse.ts henger året bakerst på beskrivelsen (lagt inn med vilje for SEO i ce7e96a). Det gir «Oppdatert daglig 2027.» (påske) og «fra 62 lokale kilder 2027.» (17. mai). Avgjør med henne: fjerne året (tittelen har det), eller skrive beskrivelsene om så året passer bakerst, slik Bergen Pride nå gjør («… og Regnbuedagene i juni 2027.»)."
+  },
+  {
+    "date": "2026-11-26",
+    "title": "Forsiden er 1,17 MB HTML: skader det noe?",
+    "description": "Målt 19. nov: /no svarer 200 med 1 170 235 byte (33 arrangementslenker i HTML-en). Ikke målt om det koster noe: se LCP og TTFB for /no i Lighthouse eller PageSpeed (mobil), og hva som tar plassen (innebygd data til EventDiscovery?). Se pattern_liten_funksjon_stor_tabell i minnet. Ikke endre før det er målt."
+  },
+  {
+    "date": "2026-11-26",
+    "title": "Søket «events» lander på utløpte Critical Mass-sider (plass 1, 0 klikk)",
+    "description": "GSC 28 d til 17. nov: «events» (1 286 visninger) gir /en/events/critical-mass-bergen-oktober-2026-10-30 (376 v) og ...-halloween-edition-2026-10-30 (153 v) på plass 1.0 med 0 klikk, og /en (274 v, plass 5,4) også 0 klikk. Arrangementet var 30. okt. Sjekk hva de to sidene svarer nå (410 eller 200?), og om Google rydder dem bort. Er søket verdt noe, er det /en som skal ta det: tittelen bør si Bergen og events this weekend (endret 12. nov, 8621953; ikke målt ennå)."
+  },
+  {
+    "date": "2026-11-27",
+    "title": "Nyttårsaften: åpne siden og se hva som mangler (ikke gjort 19. nov)",
+    "description": "/no/nyttarsaften: 1 165 visninger (før 457), 8,2 % CTR, plass 5,7. /en/new-years-eve-bergen: 634 v, 4,7 %, plass 5,5. Toppen kommer siste dagene i desember. Siden er ikke åpnet eller testet i denne analysen. Gjør: se hvilke steder og arrangementer siden viser mot det som skjer i Bergen nyttårsaften, finn arrangører som mangler (kildegransker før noe bygges, aldri aggregatorer), lag epostutkast hun leser først, og legg en lenke fra forsiden i desember. Se OVERLEVERING.md, NESTE OPPGAVE."
+  },
+  {
+    "date": "2026-11-26",
+    "title": "Delingsbildet /og/c/denne-helgen.png er ikke sett; lenkeinnlegg på Facebook?",
+    "description": "Et vanlig lenkeinnlegg til /no/denne-helgen bruker Gåris eget delingsbilde (og:image bekreftet 19. nov), ikke arrangørens, så bildesamtykket er ikke i veien. Selve bildet er ikke åpnet: se at det er lesbart i en delingsforhåndsvisning. Facebook gir 7 besøk på 28 dager mot 31 % av trafikken i april (postingen pauset siden 11. mai). Å poste igjen er hennes valg, hver post koster tid hver uke. Se fb_groups_distribution og some_kanalen_er_sultet i minnet."
+  },
+  {
+    "date": "2026-12-01",
+    "title": "Stedssidene (/venue/) tar «program»-søk uten klikk",
+    "description": "GSC 28 d til 17. nov: sidetypen «annet» (stedssider m.m.) har 19 265 visninger med 0,9 % CTR. «grieghallen program» → /no/venue/grieghallen: 1 278 visn, 1 klikk, plass 10,9; «forum scene» 355 v, «madam felle» 374 v, «kvarteret» 236 v, alle 0 klikk på plass 7–8. Arrangøren eier navnet. Ikke undersøkt hva stedssidene viser, eller om en tittel som «Grieghallen program i dag» kan vinne varianten arrangøren ikke dekker. Sjekk først hva Google viser (Chrome)."
+  },
+  {
+    "date": "2026-12-10",
+    "title": "Løftet dato-og-sted-først klikk på arrangementssider på plass 5–6?",
+    "description": "Før 12. nov-endringen (5683d66), 28 d til 17. nov: «love actually grieghallen» 667 v, plass 5–6, 0 klikk; «macy gray bergen» 237 v, plass 5,9, 2 klikk; ventet 2–3 % CTR på den plassen (egen CTR: plass 5 = 2,9 %, plass 6 = 2,4 %). Utdraget i Google er ikke sett. Mål samme søk 28 d etter. Arrangementssider NO falt samlet 2,1 % til 1,3 % fordi Lysfesten ga ca. 19 000 visninger på plass 9; sjekk at tallet er tilbake rundt 2 % uten Lysfesten før noe leses som svikt."
+  },
+  {
+    "date": "2026-12-01",
+    "title": "Nyttårsaften: se på siden igjen og finn steder som mangler",
+    "description": "19. nov viste /no/nyttarsaften 15 arrangementer, bare ca. 5 egentlige nyttårsarrangementer (Eikanger-Bjørsvik i Grieghallen, Bergen Street Food, Fløyen, «Nyttårsaften 31.12.2026», orgelmusikk). Grieghallen, Forum Scene, Ole Bull, DNS, USF, Bergen Live og Fløyen har scrapere; programmet for 31. des. var trolig ikke publisert (slutning ut fra fravær, ikke verifisert). Gjør: (1) åpne siden og tell igjen. (2) Mangler stedene med scraper fortsatt, sjekk arrangørens egen side. (3) Kjør kildegransker (robots.txt først) på steder uten scraper: Litteraturhuset, Bergenhus festning, Fjellheisen; Den Nationale Scene har scraper (dns.ts), ikke sjekket på arrangørens side pga. tilkoblingsfeil. Aldri aggregatorer. (4) Epostutkast skrives av Opus, hun leser før noe sendes. (5) Lenke fra forsiden i desember. Kommunens fyrverkerisak er datert 2024/25 og nevner ikke 2026; sjekk før teksten på siden hevder noe om 2026."
   }
 ]
