@@ -405,11 +405,6 @@
     "description": "Epost sendt 18. nov fra protonmail til skjerikirken.no om lov, Bergen-liste, bilder og nyhetsbrev/SoMe. Sjekk Inbox og Archive. Ikke bygg scraper før svar. Se OVERLEVERING.md, raden om skjerikirken.no."
   },
   {
-    "date": "2026-11-20",
-    "title": "Julesidene: se live at Luciamorgen er på konsertsiden og at nederste tall sier «datoer»",
-    "description": "Rettet og pushet 19. nov (caee218, d96a303). Se /no/julekonserter: «Luciamorgen 2026» (Domkirken, 13. des) skal stå der. Se /no/julemarked: «Viser 25 av 204 datoer» nederst, «190 arrangementer» øverst. Siden har 1 times ISR, så den skal være live. Gjenstår fra julesidene: gjentakelser (139 unike av 204 kort)."
-  },
-  {
     "date": "2026-11-24",
     "title": "Julebrev: har Lyderhorn frivilligsentral svart?",
     "description": "Julebrev sendt 18. nov fra protonmail om julemarkedet på Kjøkkelvik skole 29. nov (bilder på gaari.no, omtale i andre kanaler). Sjekk Inbox og Archive. Ja til bilder: legg rad i docs/bildesamtykke.md og CONSENT_RECORDS. Se OVERLEVERING.md, raden om julebrev."
