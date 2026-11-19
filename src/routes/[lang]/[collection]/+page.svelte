@@ -367,7 +367,14 @@
 		</div>
 	{:else}
 		<EventGrid events={filteredEvents} promotedEventIds={data.promotedEventIds} placementForEvent={data.placementForEvent} showNewsletterCta studentContext={data.collection.slug === 'studentkveld'} rangeFrom={dateRange.from} rangeTo={dateRange.to} maxEvents={visibleEvents} />
-		<LoadMore shown={Math.min(visibleEvents, totalEvents)} total={totalEvents} href={nextPageHref} />
+		<!-- Et flerdagers arrangement får ett kort per dag, så kortene kan være flere enn
+		     arrangementene i overskriften (190 mot 204). Da teller vi «datoer», ikke «arrangementer». -->
+		<LoadMore
+			shown={Math.min(visibleEvents, totalEvents)}
+			total={totalEvents}
+			href={nextPageHref}
+			unitLabel={totalEvents !== filteredEvents.length ? (ssrLang === 'no' ? 'datoer' : 'dates') : undefined}
+		/>
 
 	{/if}
 </div>
