@@ -453,5 +453,10 @@
     "date": "2026-12-01",
     "title": "Nyttårsaften: se på siden igjen og finn steder som mangler",
     "description": "19. nov viste /no/nyttarsaften 15 arrangementer, bare ca. 5 egentlige nyttårsarrangementer (Eikanger-Bjørsvik i Grieghallen, Bergen Street Food, Fløyen, «Nyttårsaften 31.12.2026», orgelmusikk). Grieghallen, Forum Scene, Ole Bull, DNS, USF, Bergen Live og Fløyen har scrapere; programmet for 31. des. var trolig ikke publisert (slutning ut fra fravær, ikke verifisert). Gjør: (1) åpne siden og tell igjen. (2) Mangler stedene med scraper fortsatt, sjekk arrangørens egen side. (3) Kjør kildegransker (robots.txt først) på steder uten scraper: Litteraturhuset, Bergenhus festning, Fjellheisen; Den Nationale Scene har scraper (dns.ts), ikke sjekket på arrangørens side pga. tilkoblingsfeil. Aldri aggregatorer. (4) Epostutkast skrives av Opus, hun leser før noe sendes. (5) Lenke fra forsiden i desember. Kommunens fyrverkerisak er datert 2024/25 og nevner ikke 2026; sjekk før teksten på siden hevder noe om 2026."
+  },
+  {
+    "date": "2026-11-20",
+    "title": "Se live at Pride-siden viser 69 og samme tall som hubkortet",
+    "description": "Pushet 19. nov (211ce0a): maxPerVenue 50 på bergen-pride og bergen-pride-festival. Før kuttet standarden (3 per sted) 69 treff til 36, mens hubsiden /no/festivaler lovet 69. Gjør: (1) åpne /no/bergen-pride, og se at antallet «akkurat nå» er 69, som Pride-kortet på /no/festivaler. (2) Sjekk /en/bergen-pride-festival. (3) Telling per sted er ikke gjort, så 36 av 69 er bare «trolig» kuttet; stemmer ikke tallene, ligger årsaken et annet sted. Åpent fra samme runde: for-ungdom viser 13 mot ca. 22 (trolig samme kutt, men opprinnelsen til 22 er ukjent). Hubkortene for Festspillene og Borealis sier fortsatt «Komplett program … Oppdatert daglig» med 0 arrangementer. Pride-tekstens «over 80 arrangementer», «50 000 deltakere» og «eid av FRI» er uverifisert."
   }
 ]
