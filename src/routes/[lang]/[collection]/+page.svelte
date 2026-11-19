@@ -10,7 +10,7 @@
 	import NewsletterCTA from '#lib/components/NewsletterCTA.svelte';
 	import ImagePlaceholder from '#lib/components/ImagePlaceholder.svelte';
 	import { groupEventsByDate } from '#lib/utils';
-	import { antallArrangementer } from '#lib/antall';
+	import { antallArrangementer, antallSomVises } from '#lib/antall';
 	import type { Category, Bydel } from '#lib/types';
 
 	let { data } = $props();
@@ -72,9 +72,12 @@
 	// legger siden til « — Gåri» på den vanlige tittelen.
 	let metaTitle = $derived(data.collection.seoTitle?.[ssrLang] ?? `${title} — Gåri`);
 	let descriptionBase = $derived(data.collection.description[ssrLang]);
+	// Hubsider (festivaler) viser kort, ikke arrangementer; se antallSomVises.
+	let isHub = $derived(!!data.hubItems?.length);
+	let shownCount = $derived(antallSomVises(data.events, data.hubItems));
 	// Dynamic meta description with event count for freshness signal
 	let description = $derived.by(() => {
-		const count = data.events.length;
+		const count = shownCount;
 		const base = data.collection.seasonal ? `${descriptionBase.replace(/\.$/, '')} ${year}.` : descriptionBase;
 		if (count > 0) {
 			const countStr = ssrLang === 'no' ? `${antallArrangementer(count, 'no')} akkurat nå.` : `${antallArrangementer(count, 'en')} right now.`;
@@ -115,8 +118,8 @@
 	// FAQ content is still rendered on-page for users and AI crawlers.
 	let quickAnswerBase = $derived(data.collection.quickAnswer?.[ssrLang] ?? '');
 	let quickAnswer = $derived(
-		quickAnswerBase && data.events.length > 0
-			? `${quickAnswerBase} ${ssrLang === 'no' ? `Akkurat nå: ${antallArrangementer(data.events.length, 'no')}.` : `Right now: ${antallArrangementer(data.events.length, 'en')}.`}`
+		quickAnswerBase && shownCount > 0
+			? `${quickAnswerBase} ${ssrLang === 'no' ? `Akkurat nå: ${antallArrangementer(shownCount, 'no')}.` : `Right now: ${antallArrangementer(shownCount, 'en')}.`}`
 			: quickAnswerBase
 	);
 
@@ -255,7 +258,7 @@
 	<p class="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">{quickAnswer}</p>
 	{/if}
 	<p class="mt-2 flex flex-wrap gap-x-2 text-xs text-[var(--color-text-muted)]">
-		<span>{antallArrangementer(filteredEvents.length, $lang)}{venueCount > 1 ? ` ${$lang === 'no' ? 'fra' : 'from'} ${venueCount} ${$lang === 'no' ? 'scener' : 'venues'}` : ''}</span>
+		<span>{antallArrangementer(isHub ? shownCount : filteredEvents.length, $lang)}{!isHub && venueCount > 1 ?` ${$lang === 'no' ? 'fra' : 'from'} ${venueCount} ${$lang === 'no' ? 'scener' : 'venues'}` : ''}</span>
 		<span>· {$lang === 'no' ? 'Sist sjekket' : 'Last checked'} {new Date(`${data.dateModified}T00:00:00Z`).toLocaleDateString($lang === 'no' ? 'nb-NO' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
 	</p>
 </section>

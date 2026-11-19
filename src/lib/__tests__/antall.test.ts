@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
-import { antallArrangementer } from '../antall';
+import { antallArrangementer, antallSomVises } from '../antall';
 
 describe('antallArrangementer', () => {
 	it('bruker entall for 1 på norsk og engelsk', () => {
@@ -35,9 +35,32 @@ describe('tellere bruker antallArrangementer', () => {
 	it('samlingssidens tre tellere', () => {
 		const kilde = les('../../routes/[lang]/[collection]/+page.svelte');
 		expect(kilde).toContain('antallArrangementer(count');
-		expect(kilde).toContain('antallArrangementer(data.events.length');
-		expect(kilde).toContain('antallArrangementer(filteredEvents.length');
+		expect(kilde).toContain('antallArrangementer(shownCount');
+		expect(kilde).toContain('antallArrangementer(isHub ? shownCount : filteredEvents.length');
+		// Hubsiden skal telle det kortene viser, ikke hubbens egne arrangementer.
+		expect(kilde).toContain('antallSomVises(data.events, data.hubItems)');
+		expect(kilde).not.toContain('antallArrangementer(data.events.length');
 		expect(kilde).not.toMatch(/\$\{count\} arrangementer akkurat/);
 		expect(kilde).not.toMatch(/\{filteredEvents\.length\} \{\$t\('events'\)\}/);
+	});
+});
+
+describe('antallSomVises', () => {
+	const ti = Array.from({ length: 10 }, (_, i) => i);
+
+	it('vanlig samling: teller arrangementene', () => {
+		expect(antallSomVises(ti)).toBe(10);
+		expect(antallSomVises(ti, [])).toBe(10);
+		expect(antallSomVises(ti, null)).toBe(10);
+	});
+
+	it('hubside: summen kortene viser, ikke hubbens egne arrangementer', () => {
+		const kort = [{ eventCount: 69 }, { eventCount: 0 }, { eventCount: 0 }];
+		expect(antallSomVises(ti, kort)).toBe(69);
+		expect(antallSomVises([], [{ eventCount: 3 }, { eventCount: 4 }])).toBe(7);
+	});
+
+	it('hubside der ingen festival har program: 0, selv om hubfilteret har treff', () => {
+		expect(antallSomVises(ti, [{ eventCount: 0 }, { eventCount: 0 }])).toBe(0);
 	});
 });
