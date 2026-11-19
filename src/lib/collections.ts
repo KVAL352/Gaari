@@ -308,8 +308,8 @@ const collections: Collection[] = [
 			en: 'Free Things to Do in Bergen'
 		},
 		description: {
-			no: 'Gratis ting å gjøre i Bergen de neste to ukene — utstillinger, konserter, turer og mer. Ingen billett nødvendig.',
-			en: 'Free things to do in Bergen over the next two weeks — exhibitions, concerts, tours and more. No ticket needed.'
+			no: 'Gratis ting å gjøre i Bergen de neste to ukene — utstillinger, konserter, turer og mer. Sjekk hos arrangøren før du går.',
+			en: 'Free things to do in Bergen over the next two weeks — exhibitions, concerts, tours and more. Check with the organiser before you go.'
 		},
 		ogSubtitle: {
 			no: 'Gratis arrangementer de neste to ukene',
@@ -814,8 +814,8 @@ const collections: Collection[] = [
 			en: 'Free Things to Do in Bergen'
 		},
 		description: {
-			no: 'Gratis arrangementer i Bergen — utstillinger, konserter, turer og aktiviteter. Ingen billett nødvendig.',
-			en: 'Free events and activities in Bergen — exhibitions, concerts, hikes and more. No ticket needed. Updated daily.'
+			no: 'Gratis arrangementer i Bergen — utstillinger, konserter, turer og aktiviteter. Sjekk hos arrangøren før du går.',
+			en: 'Free events and activities in Bergen — exhibitions, concerts, hikes and more. Check with the organiser before you go. Updated daily.'
 		},
 		ogSubtitle: {
 			no: 'Gratis aktiviteter i Bergen',

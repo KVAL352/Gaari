@@ -1354,3 +1354,16 @@ describe('sesongfiltre følger tittelåret', () => {
 		}
 	}
 });
+
+describe('gratis-teksten påstår ikke at alt er gratis', () => {
+	// Regelen er «Trolig gratis»: prisen er utledet fra teksten, ikke bekreftet.
+	// Meta-beskrivelsen på /no/gratis sa «Ingen billett nødvendig» mens kortene
+	// sa «Trolig gratis», og gratisarrangementer kan kreve påmelding.
+	const PÅSTAND = /ingen billett nødvendig|no ticket (needed|required)/i;
+	it.each(getAllCollectionSlugs())('%s', (slug) => {
+		const c = getCollection(slug)!;
+		for (const tekst of [c.description.no, c.description.en, c.quickAnswer?.no, c.quickAnswer?.en]) {
+			expect(tekst ?? '').not.toMatch(PÅSTAND);
+		}
+	});
+});
