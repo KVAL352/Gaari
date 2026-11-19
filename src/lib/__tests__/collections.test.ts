@@ -794,6 +794,14 @@ describe('julekonserter filter', () => {
 		expect(collection.filterEvents(events, now)).toHaveLength(1);
 	});
 
+	it('keeps Luciamorgen in the culture category, but not a lucia-free culture event', () => {
+		const events = [
+			makeEvent({ id: '1', title_no: 'Luciamorgen 2026', category: 'culture', description_no: 'Luciamorgen 2026 — Kulturarrangement på Bergen Domkirke', date_start: '2026-12-13T06:30:00Z' }),
+			makeEvent({ id: '2', title_no: 'Julefortelling for voksne', category: 'culture', description_no: 'Kulturarrangement', date_start: '2026-12-13T18:00:00Z' })
+		];
+		expect(collection.filterEvents(events, now).map(e => e.id)).toEqual(['1']);
+	});
+
 	it('EN counterpart shares the filter and has an hreflang pair', () => {
 		const en = getCollection('christmas-concerts-bergen')!;
 		expect(en).toBeDefined();

@@ -53,7 +53,9 @@ const filterJulemarked = (events: GaariEvent[], now: Date) => {
 
 // Konsert, ikke fest eller barneforestilling: kategorien «music» rommer også
 // julebord og danseshow, så de tas ut på tittel.
-const KONSERT_RE = /konsert|concert|juleturné|gospel|kor\b|orkester|oratorium|carols/i;
+// «lucia» står med fordi Luciamorgen i Domkirken (kategori culture, beskrivelsen
+// «Kulturarrangement») ellers falt ut: siden lover luciakonserter.
+const KONSERT_RE = /konsert|concert|juleturné|gospel|kor\b|orkester|oratorium|carols|\blucia\w*/i;
 const IKKE_KONSERT_TITLE_RE = /julebord|dansesenter|juleforestilling|lillelørdag|barnelørdag|julekvad/i;
 
 const filterJulekonserter = (events: GaariEvent[], now: Date) => {
