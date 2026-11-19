@@ -3152,6 +3152,8 @@ const collections: Collection[] = [
 		slug: 'bergen-pride',
 		seasonal: true,
 		seasonEndMonth: 6,
+		// Uten dette kuttet standarden (3 per sted) 69 treff til 36, mens hubsiden lovte 69.
+		maxPerVenue: 50,
 		title: {
 			no: 'Bergen Pride — Regnbuedagene',
 			en: 'Bergen Pride — Programme and Events'
@@ -3213,6 +3215,7 @@ const collections: Collection[] = [
 		slug: 'bergen-pride-festival',
 		seasonal: true,
 		seasonEndMonth: 6,
+		maxPerVenue: 50,
 		title: {
 			no: 'Bergen Pride Festival',
 			en: 'Bergen Pride Festival'

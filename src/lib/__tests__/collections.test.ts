@@ -1155,6 +1155,12 @@ describe('bergen pride filter', () => {
 		expect(result.map(e => e.id)).toEqual(['1', '2']);
 	});
 
+	it('viser alle treff: per-sted-kuttet på 3 ga 36 av 69 mens hubsiden lovte 69', () => {
+		for (const slug of ['bergen-pride', 'bergen-pride-festival']) {
+			expect(getCollection(slug)!.maxPerVenue, slug).toBeGreaterThanOrEqual(50);
+		}
+	});
+
 	it('EN slug resolves to same filter', () => {
 		const en = getCollection('bergen-pride-festival')!;
 		const events = [
