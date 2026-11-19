@@ -355,31 +355,6 @@
     "description": "Etter push og ca. 1 time ISR: /no/paske skal vise minst 3 arrangementer (24., 26., 27. mars 2027), /no/vinterferie minst 10 (uke 9, 1.–7. mars 2027), /no/hostferie skal ikke lenger vise to utstillinger fra oktober 2026. Telle href=\"/no/events/\" med curl."
   },
   {
-    "date": "2026-11-25",
-    "title": "Bergen Pride-samlingen: 36 arrangementer året rundt mot «Regnbuedagene i juni»",
-    "description": "Filteret tar alt fra bergenpride.no og bergenpride.ticketco.events, så siden viser ukentlige treff (transkafé, foreldrekafé, Transalliansen) mens teksten lover Regnbuedagene-programmet i juni 2027. Avklar med henne: vise alt, eller bare Regnbuedagene? Struktur: spør før retting."
-  },
-  {
-    "date": "2026-11-25",
-    "title": "For ungdom (13–18): barnearrangementer slipper gjennom",
-    "description": "Sett 18. nov: /no/for-ungdom viser barnekino, babysang, Detektiv Trine på dinosaurjakt og barnelørdag. Teksten sier at alt passer for 13–18. Filteret fjerner bare 18+ og uteliv. Sjekk filterfunksjonen og audience.ts; tell hvor mange av de ca. 49 som er barnearrangementer."
-  },
-  {
-    "date": "2026-11-25",
-    "title": "/no/gratis og forbeholdet «Trolig gratis»",
-    "description": "Meta-beskrivelsen på /no/gratis sier «Ingen billett nødvendig». Regelen i CLAUDE.md er at vi aldri påstår «Gratis», bare «Trolig gratis». Se om siden har forbehold i synlig tekst, og om beskrivelsen bør endres. Forbedring, endres ikke uten hennes ja."
-  },
-  {
-    "date": "2026-11-25",
-    "title": "Sesongsider uten arrangementer lover «Komplett program, oppdatert daglig»",
-    "description": "Sett 18. nov: festspillene, borealis, biff, 17-mai, påske, sankthans, vinterferie, nattjazz, beyond-the-gates, fadderuke har 0 arrangementer men meta-beskrivelsen lover komplett program. Selve sidene sier ærlig at programmet kommer senere. Vurder tekst for tom sesong i meta-beskrivelsen. Forbedring."
-  },
-  {
-    "date": "2026-11-25",
-    "title": "/no/festivaler: «8 arrangementer akkurat nå» teller trolig festivaler",
-    "description": "Siden viser lenker til festivalsamlinger (0 arrangementskort), men ingressen sier «8 arrangementer akkurat nå». Finn hva tallet teller og om ordet bør være «festivaler»."
-  },
-  {
     "date": "2026-11-19",
     "title": "Filter uten treff: tom flate uten melding; filter i adressen mangler",
     "description": "Sett 18. nov: /en/utstillinger med bydel Arna + Gratis viser «0 events», et tomt felt og «Clear all», men ingen setning om at ingenting passer. Filtervalg endrer heller ikke adressen og legger ikke til historikk, så tilbake-knappen forlater siden og et filter kan ikke deles. Forbedring (UX); filter i adressen er et strukturvalg, avklares med Kjersti."
@@ -423,5 +398,15 @@
     "date": "2026-11-30",
     "title": "Julebrev: har Lystgården svart?",
     "description": "Julebrev sendt 18. nov fra protonmail, uten bestemt dato (julemarked 5.–6. des står bare på aggregatorer). Sjekk Inbox og Archive. Svar med dato: legg inn arrangementet manuelt (kilden må inn i SOURCE_RANK). Se OVERLEVERING.md, raden om julebrev."
+  },
+  {
+    "date": "2026-11-20",
+    "title": "Fem samlingsrettinger fra 19. nov: se dem live etter push",
+    "description": "Commits 22daf6a, 740ffad, 0bacf12, 0105c89, 296caa9. Etter push og ca. 1 time ISR: /no/festivaler skal si samme tall i ingressen som summen på kortene (69 den 19. nov, ikke 10). /no/gratis skal si «Sjekk hos arrangøren før du går», ikke «Ingen billett nødvendig». /no/festspillene skal ha meta-beskrivelsen «… programmet er ikke ute ennå». /no/for-ungdom skal ha ca. 22 treff uten barnekino og babysang. /no/bergen-pride skal si «hele året» i ingressen."
+  },
+  {
+    "date": "2026-11-25",
+    "title": "Årstallet bakerst i sesongbeskrivelsene gir «Oppdatert daglig 2027.»",
+    "description": "samlingBeskrivelse() i src/lib/meta-beskrivelse.ts henger året bakerst på beskrivelsen (lagt inn med vilje for SEO i ce7e96a). Det gir «Oppdatert daglig 2027.» (påske) og «fra 62 lokale kilder 2027.» (17. mai). Avgjør med henne: fjerne året (tittelen har det), eller skrive beskrivelsene om så året passer bakerst, slik Bergen Pride nå gjør («… og Regnbuedagene i juni 2027.»)."
   }
 ]
