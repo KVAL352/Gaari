@@ -11,6 +11,7 @@
 	import ImagePlaceholder from '#lib/components/ImagePlaceholder.svelte';
 	import { groupEventsByDate } from '#lib/utils';
 	import { antallArrangementer, antallSomVises } from '#lib/antall';
+	import { samlingBeskrivelse } from '#lib/meta-beskrivelse';
 	import type { Category, Bydel } from '#lib/types';
 
 	let { data } = $props();
@@ -76,16 +77,14 @@
 	let isHub = $derived(!!data.hubItems?.length);
 	let shownCount = $derived(antallSomVises(data.events, data.hubItems));
 	// Dynamic meta description with event count for freshness signal
-	let description = $derived.by(() => {
-		const count = shownCount;
-		const base = data.collection.seasonal ? `${descriptionBase.replace(/\.$/, '')} ${year}.` : descriptionBase;
-		if (count > 0) {
-			const countStr = ssrLang === 'no' ? `${antallArrangementer(count, 'no')} akkurat nå.` : `${antallArrangementer(count, 'en')} right now.`;
-			// Append count if it fits within 160 chars
-			return (base + ' ' + countStr).length <= 165 ? base + ' ' + countStr : base;
-		}
-		return base;
-	});
+	let description = $derived(samlingBeskrivelse({
+		base: descriptionBase,
+		title,
+		seasonal: data.collection.seasonal,
+		year,
+		count: shownCount,
+		lang: ssrLang === 'en' ? 'en' : 'no'
+	}));
 	let canonicalUrl = $derived(getCanonicalUrl(collectionHref(data.collection.slug, ssrLang)));
 	let collectionJsonLd = $derived(
 		generateCollectionJsonLd(data.collection, ssrLang, canonicalUrl, data.events)

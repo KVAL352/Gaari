@@ -34,7 +34,9 @@ describe('tellere bruker antallArrangementer', () => {
 
 	it('samlingssidens tre tellere', () => {
 		const kilde = les('../../routes/[lang]/[collection]/+page.svelte');
-		expect(kilde).toContain('antallArrangementer(count');
+		// Meta-beskrivelsens teller bor i samlingBeskrivelse.
+		expect(kilde).toContain('samlingBeskrivelse(');
+		expect(les('../meta-beskrivelse.ts')).toContain('antallArrangementer(count');
 		expect(kilde).toContain('antallArrangementer(shownCount');
 		expect(kilde).toContain('antallArrangementer(isHub ? shownCount : filteredEvents.length');
 		// Hubsiden skal telle det kortene viser, ikke hubbens egne arrangementer.
