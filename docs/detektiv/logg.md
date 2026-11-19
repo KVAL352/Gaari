@@ -10,7 +10,7 @@ Tegn: `x` gjort, `d` delvis (før skillen, uten fast metode), tomt = ikke gjort.
 
 | Sidetype | 1 Data | 2 Innhold | 3 QA | 4 Frontend | 5 SEO | 6 Tilgj. | 7 Ytelse | 8 UX | 9 UI | 10 Personvern | 11 Analytiker |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Forside |  |  | d |  |  |  |  |  |  |  |  |
+| Forside |  |  | d | d |  |  |  |  |  |  |  |
 | Samlingssider |  | x | x |  | d |  |  |  |  |  |  |
 | Arrangementssider | d |  | d |  | d |  |  |  |  |  |  |
 | Stedssider | d |  | d |  |  |  |  |  |  |  |  |
@@ -31,6 +31,9 @@ blant dem `24c4eb4` (relaterte arrangementer) og `e509a75` (dato i tittel).
 | 2026-11-18 | Samlingssider (+ forsiden, samme henting) | 1 Data | alle 86 samlingssider i sitemapen, NO+EN; bydelssidene mot basen | 86 | 1: tre lokkeduer i forsidens HTML (side 2 i hentingen mangler `is_canary`-filter) | 0 | 0 | ingen ennå: tre strukturvalg tatt, se under |
 | 2026-11-18 | Samlingssider | 2 Innhold | 43 norske samlingssider fra sitemapen; 15 lest i detalj (tittel, ingress, kort), resten bare ingress og antall. Instrument: `curl` (ser ikke JavaScript) + `collections.ts` for filteret | 43 | 1: sesongfiltre brukte feil år (påske 0 mot minst 3, vinterferie 0 mot minst 10, høstferie viste to utstillinger fra okt. 2026 under «2027») | 5: Bergen Pride (36 ukentlige treff mot «Regnbuedagene»), for-ungdom (barnearrangementer), gratis («Ingen billett nødvendig»), festivaler («8 arrangementer»), tom sesong lover «komplett program» | 0 | `dad9e9b` |
 | 2026-11-18 | Samlingssider | 3 QA (delvis) | alle 86 samlingssider i sitemapen, NO+EN. Instrument: `check-site.ts` (317 adresser) + `curl` av hreflang nb/en på hver side. Chrome kjørt på 5 sider: `/no/konserter` (filter bydel), `/no/utstillinger` (språkbytte, tomt filter), `/no/julemarked` (bydel Åsane gir 0, stemmer: Åsane har 8 arrangementer, ingen med jul), `/no/asane` (språkbytte, 8 kort begge språk), `/no/beyond-the-gates` (tom festival, ærlig tekst) | 86 (5 i Chrome) | 1: dagoverskrifter «1 arrangementer»/«1 events» (entall) | 1: filter uten treff viser tom flate uten melding | 1: filter ikke i adressen, tilbake-knappen forlater siden (strukturvalg, avklares) | ingen |
+| 2026-11-19 | Forside | 4 Frontend (delvis) | `/no` i Chrome desktop, to lastinger, datofilter «I morgen»; `svelte-check` over hele prosjektet | 1 | 0 | 1: ikke sjekket `/en`, mobil, andre filtre (påminnelse 23. nov) | 1: nyhetsbrevboksen dukker opp under filtrene ved første filter og flytter siden | ingen |
+
+Positive tall for runde 4: `svelte-check` 4 520 filer, 0 feil, 8 varsler (kjent: `state_referenced_locally` ×4, ubrukt CSS `.filter-select`, a11y-varsel på dismiss-menyen i `EventCard` som `svelte-ignore` ikke fanger, én label uten kontroll i preferanser, `line-clamp`). Konsoll: 0 meldinger ved lasting og ved filtrering (sporingen var på: 58 nettkall ble fanget). Nett: 58 kall ved lasting, alle 200/304, ingen kall ved filtrering (filtreringen er lokal), 29 bilder, 0 ødelagte, 34 `article`, `lang="nb"`, én `h1`, HTML 1 180 KB. Filteret ligger nå i adressen (`?when=tomorrow`), så det åpne punktet fra runde 3 er bygd.
 
 Positive tall for runde 3: `check-site` 317 adresser, 0 problemer; 170 hreflang-lenker (nb og en) på 86 samlingssider, alle 200 uten omdirigering. Min første sjekk testet bare `en`, fordi norsk er `hreflang="nb"` og ikke `no`; den ga «0 feil» på halve materialet. Rettet og kjørt på nytt.
 

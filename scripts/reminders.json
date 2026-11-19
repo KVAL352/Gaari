@@ -458,5 +458,10 @@
     "date": "2026-11-20",
     "title": "Se live at Pride-siden viser 69 og samme tall som hubkortet",
     "description": "Pushet 19. nov (211ce0a): maxPerVenue 50 på bergen-pride og bergen-pride-festival. Før kuttet standarden (3 per sted) 69 treff til 36, mens hubsiden /no/festivaler lovet 69. Gjør: (1) åpne /no/bergen-pride, og se at antallet «akkurat nå» er 69, som Pride-kortet på /no/festivaler. (2) Sjekk /en/bergen-pride-festival. (3) Telling per sted er ikke gjort, så 36 av 69 er bare «trolig» kuttet; stemmer ikke tallene, ligger årsaken et annet sted. Åpent fra samme runde: for-ungdom viser 13 mot ca. 22 (trolig samme kutt, men opprinnelsen til 22 er ukjent). Hubkortene for Festspillene og Borealis sier fortsatt «Komplett program … Oppdatert daglig» med 0 arrangementer. Pride-tekstens «over 80 arrangementer», «50 000 deltakere» og «eid av FRI» er uverifisert."
+  },
+  {
+    "date": "2026-11-23",
+    "title": "Frontend-runde 4: ikke sjekket i konsoll og nettverk (/en, mobil, flere filtre)",
+    "description": "Runde 4 (19. nov) leste konsoll og nettverk bare for /no i Chrome (desktop-bredde) med datofilteret I morgen: null konsollmeldinger, ingen nettkall ved filtrering. Ikke sjekket: /en, mobilbredde 390, de andre filtrene (målgruppe, kategori, bydel, velg datoer), sidebytte via Vis flere, og hva nodes/1 (feilnoden i SvelteKit) gjør i den første lastingen. Nyhetsbrevboksen dukker opp under filtrene når et filter velges og flytter siden ned (et klikk på Student bommet); vurder om den skal reservere plass eller komme etter listen. Forbedringsforslag, ikke rettet uten hennes ja."
   }
 ]
