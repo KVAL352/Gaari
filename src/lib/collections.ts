@@ -3157,8 +3157,8 @@ const collections: Collection[] = [
 			en: 'Bergen Pride — Programme and Events'
 		},
 		description: {
-			no: 'Bergen Pride-programmet — parader, konserter, fester og kulturarrangementer under Regnbuedagene i Bergen.',
-			en: 'Bergen Pride programme — parades, concerts, parties and cultural events during Bergen Rainbow Days.'
+			no: 'Bergen Pride hele året — kaféer, møteplasser og kultur — og Regnbuedagene i juni.',
+			en: 'Bergen Pride all year round — cafés, meetups and culture — and the Rainbow Days in June.'
 		},
 		ogSubtitle: {
 			no: 'Regnbuedagene i Bergen',
@@ -3169,19 +3169,19 @@ const collections: Collection[] = [
 		footer: { langs: ['no'], order: 16 },
 		newsletterHeading: { no: 'Bergen Pride — årets program', en: 'Bergen Pride — this year\'s programme' },
 		quickAnswer: {
-			no: 'Bergen Pride (Regnbuedagene) er Vestlandets største pridearrangement, med over 80 arrangementer i starten av juni — parader, konserter, debatter og fester på ulike steder over hele byen.',
-			en: 'Bergen Pride (Regnbuedagene) is western Norway\'s largest pride event, with over 80 events in early June — parades, concerts, debates and parties at venues across the city.'
+			no: 'Bergen Pride (Regnbuedagene) er Vestlandets største pridearrangement, med over 80 arrangementer i starten av juni — parader, konserter, debatter og fester på ulike steder over hele byen. Resten av året har Bergen Pride faste møteplasser, som transkafé og foreldrekafé.',
+			en: 'Bergen Pride (Regnbuedagene) is western Norway\'s largest pride event, with over 80 events in early June — parades, concerts, debates and parties at venues across the city. The rest of the year, Bergen Pride runs regular meetups such as a trans café and a parents\' café.'
 		},
 		editorial: {
 			no: [
 				'Bergen Pride, også kjent som Regnbuedagene i Bergen, feirer mangfold og inkludering med over 80 arrangementer i starten av juni — fra den fargerike paraden gjennom sentrum til konserter, debatter og klubbkvelder på ulike steder i byen.',
 				'Festivalen trekker rundt 50 000 deltakere til Bergen hvert år og er en av de viktigste kulturbegivenhetene på forsommeren. Programmet spenner fra politiske samtaler og workshops til familiedager i Pride Park.',
-				'Gåri viser det komplette Bergen Pride-programmet med tidspunkter og steder, oppdatert daglig.'
+				'Gåri viser Bergen Prides arrangementer hele året, med tidspunkter og steder. Programmet for Regnbuedagene kommer her når det er publisert.'
 			],
 			en: [
 				'Bergen Pride, also known as Regnbuedagene (Rainbow Days), celebrates diversity and inclusion with over 80 events in early June — from the colourful parade through the city centre to concerts, debates and club nights at venues across the city.',
 				'The festival draws around 50,000 participants to Bergen each year and is one of the most important cultural events of early summer. The programme ranges from political talks and workshops to family days in Pride Park.',
-				'Gåri shows the complete Bergen Pride programme with times and venues, updated daily.'
+				'Gåri shows Bergen Pride events all year round, with times and venues. The Rainbow Days programme appears here once it is published.'
 			]
 		},
 		faq: {
@@ -3218,8 +3218,8 @@ const collections: Collection[] = [
 			en: 'Bergen Pride Festival'
 		},
 		description: {
-			no: 'Bergen Pride-programmet — parader, konserter og kulturarrangementer.',
-			en: 'Bergen Pride festival programme — parades, concerts, parties and cultural events in Bergen, Norway. Schedule, tickets and info.'
+			no: 'Bergen Pride hele året — kaféer, møteplasser og kultur — og Regnbuedagene i juni.',
+			en: 'Bergen Pride events all year round — cafés, meetups and culture in Bergen, Norway — and the Rainbow Days festival in June.'
 		},
 		ogSubtitle: {
 			no: 'Regnbuedagene i Bergen',
@@ -3230,19 +3230,19 @@ const collections: Collection[] = [
 		footer: { langs: ['en'], order: 16 },
 		newsletterHeading: { no: 'Bergen Pride — årets program', en: 'Bergen Pride — this year\'s programme' },
 		quickAnswer: {
-			no: 'Bergen Pride (Regnbuedagene) er Vestlandets største pridearrangement med over 80 arrangementer i starten av juni.',
-			en: 'Bergen Pride (Regnbuedagene) is western Norway\'s largest pride event, with over 80 events in early June — parades, concerts, debates and parties across the city.'
+			no: 'Bergen Pride (Regnbuedagene) er Vestlandets største pridearrangement med over 80 arrangementer i starten av juni. Resten av året har Bergen Pride faste møteplasser, som transkafé og foreldrekafé.',
+			en: 'Bergen Pride (Regnbuedagene) is western Norway\'s largest pride event, with over 80 events in early June — parades, concerts, debates and parties across the city. The rest of the year, Bergen Pride runs regular meetups such as a trans café and a parents\' café.'
 		},
 		editorial: {
 			no: [
 				'Bergen Pride feirer mangfold og inkludering med over 80 arrangementer i starten av juni — fra paraden gjennom sentrum til konserter og debatter.',
 				'Festivalen trekker rundt 50 000 deltakere til Bergen hvert år med et variert program for alle aldre.',
-				'Gåri viser det komplette Bergen Pride-programmet med tidspunkter og steder.'
+				'Gåri viser Bergen Prides arrangementer hele året, med tidspunkter og steder. Programmet for Regnbuedagene kommer her når det er publisert.'
 			],
 			en: [
 				'Bergen Pride, also known as Regnbuedagene (Rainbow Days), celebrates diversity and inclusion with over 80 events in early June — from the colourful parade through the city centre to concerts, debates and club nights.',
 				'The festival draws around 50,000 participants to Bergen each year and is one of the most important cultural events of early summer. The programme ranges from political conversations to family days in the park.',
-				'Gåri shows the complete Bergen Pride programme with times and venues, updated daily.'
+				'Gåri shows Bergen Pride events all year round, with times and venues. The Rainbow Days programme appears here once it is published.'
 			]
 		},
 		faq: {
