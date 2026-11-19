@@ -418,5 +418,15 @@
     "date": "2026-11-27",
     "title": "Julebrev: har Skjold menighet svart?",
     "description": "Julebrev sendt 18. nov fra protonmail, åpent spørsmål om de holder julemesse i år (bare 2024-messen er bekreftet). Sjekk Inbox og Archive. Svarer de ja, legg inn arrangementet med dato fra dem. Se OVERLEVERING.md, raden om julebrev."
+  },
+  {
+    "date": "2026-11-25",
+    "title": "Julebrev: har Løvstakken frivilligsentral svart?",
+    "description": "Julebrev sendt 18. nov fra protonmail om juletrefesten lørdag 28. nov kl. 15.30 i Solheimsgaten (bilder på gaari.no, omtale i andre kanaler). Sjekk Inbox og Archive. Ja til bilder: legg rad i docs/bildesamtykke.md og CONSENT_RECORDS. Se OVERLEVERING.md, raden om julebrev."
+  },
+  {
+    "date": "2026-11-30",
+    "title": "Julebrev: har Lystgården svart?",
+    "description": "Julebrev sendt 18. nov fra protonmail, uten bestemt dato (julemarked 5.–6. des står bare på aggregatorer). Sjekk Inbox og Archive. Svar med dato: legg inn arrangementet manuelt (kilden må inn i SOURCE_RANK). Se OVERLEVERING.md, raden om julebrev."
   }
 ]
