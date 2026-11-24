@@ -47,13 +47,18 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # `!cancelled()` får disse til å kjøre selv om et tidligere steg feilet,
+      # så ett rødt steg ikke skjuler resten. Jobben blir fortsatt rød.
       - name: Type check
+        if: ${{ !cancelled() }}
         run: npm run check
 
       - name: Test
+        if: ${{ !cancelled() }}
         run: npm test
 
       - name: Build
+        if: ${{ !cancelled() }}
         run: npm run build
 
       # Tilgjengelighet. Egne steg fordi nettleseren maa lastes ned foerst, og
