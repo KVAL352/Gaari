@@ -391,13 +391,13 @@
   },
   {
     "date": "2026-11-24",
-    "title": "Løvstakken frivilligsentral svarte ja: registrer samtykket og legg inn arrangementene",
-    "description": "Svar 19. nov (ligger i Folders/Gaari/Avtaler): ja til bilder på gaari.no, i nyhetsbrevet og i andre kanaler. Legg rad i docs/bildesamtykke.md og CONSENT_RECORDS. Juletrefesten 28. nov ligger alt inne fra bergenkommune, men med Ny-Krohnborg kl. 13, mens svaret sier kl. 15.30–16.30 i Solheimsgaten: avklar før noe rettes. Faste aktiviteter i svaret som ikke ligger inne: språkkafé tirsdager, fransk-norsk språkkafé mandager, seniortrim, Løvstakktur annenhver torsdag."
+    "title": "Løvstakken: faste aktiviteter og bilder gjenstår",
+    "description": "24. nov: samtykket registrert som source lovstakken (visning + SoMe, Avtaler). Juletrefesten 28. nov delt opp: fellesraden fra bergenkommune ligger (13:00, uten sluttid), fire rader lagt inn for hånd med source lovstakken (juleverksted, brettspillkafé, juletretenning, barkveld). Uvisst: om «Lokalt» er navnet på lokalet i Solheimsgaten 60. Gjenstår: de fire radene har ikke bilde; faste aktiviteter i svaret som ikke ligger inne: språkkafé tirsdager, fransk-norsk språkkafé mandager, seniortrim, Løvstakktur annenhver torsdag."
   },
   {
     "date": "2026-11-24",
-    "title": "Tre innsendinger venter på godkjenning, Kor e' tonen er 28. nov",
-    "description": "Pending i events: «Promises to keep» (Domkirken 28. nov, ja til SoMe: kilden må inn i PROMO_APPROVED_SOURCES og docs/bildesamtykke.md), «Julekonsert med Redeemed» Betlehem 3. des og Loddefjord kirke 4. des (bare visning). Varslene ligger i Folders/Gaari/Submissions/Unresolved."
+    "title": "To innsendinger venter på godkjenning, og SoMe-ja på innsendinger brukes ikke",
+    "description": "«Promises to keep» godkjent 24. nov. Jaet til SoMe ligger på raden (image_promo_consent = true), ikke i registeret: alle innsendinger har source innsending, så å legge den i PROMO_APPROVED_SOURCES ville gitt SoMe-lov til alle. SoMe-koden leser bare source, så jaet brukes ikke før koden også leser feltet (strukturvalg, avklares med henne). Venter fortsatt: «Julekonsert med Redeemed» Betlehem 3. des og Loddefjord kirke 4. des (bare visning). Varslene ligger i Folders/Gaari/Submissions/Unresolved."
   },
   {
     "date": "2026-11-24",
