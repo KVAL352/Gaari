@@ -345,10 +345,14 @@ export function mapBydel(venueName: string): string {
  *
  * `\b` treffer ikke inni sammensatte ord: «julemarkedet» ble `student` fordi
  * `\bmarked\b` ikke matcher. Derfor eget uttrykk for marked.
+ *
+ * Regex-litteraler og `String.raw`, ikke `'\\b'` i vanlige strenger: da
+ * regelen ble flyttet hit 18. nov falt én backslash ut, `'\b'` ble et
+ * backspace-tegn, og ingen ordtest traff på seks dager.
  */
 export function studentbergenKategori(title: string, location: string): string {
 	const text = `${title} ${location}`.toLowerCase();
-	const w = (word: string) => new RegExp(`\b${word}\b`).test(text);
+	const w = (word: string) => new RegExp(String.raw`\b${word}\b`).test(text);
 	if (w('konsert') || w('musikk') || w('jazz') || w('fest')) return 'music';
 	if (w('revy') || w('teater') || w('forestilling')) return 'theatre';
 	if (w('film') || w('kino') || w('cinema')) return 'culture';
@@ -359,8 +363,9 @@ export function studentbergenKategori(title: string, location: string): string {
 	// «julemarked», «julemarkedet» og «loppemarked» er sammensatte ord, så \b treffer ikke.
 	// Pepperkakebyen er en jule-attraksjon, ikke student.
 	if (w('festival') || /marked(et)?\b/.test(text) || text.includes('pepperkakeby')) return 'festival';
-	if (text.includes('mat og drikke') || new RegExp('\w' + 'matkurs' + '\b').test(text) || new RegExp('\w' + 'smaking' + '\b').test(text)) return 'food';
-	if (new RegExp('\w' + 'quiz' + '\b').test(text) || new RegExp('\w' + 'kviss' + '\b').test(text)) return 'nightlife';
+	// Sammensatte ord: «sushimatkurs», «vinsmaking», «pubquiz», «julekviss».
+	if (text.includes('mat og drikke') || /\wmatkurs\b/.test(text) || /\wsmaking\b/.test(text)) return 'food';
+	if (/\wquiz\b/.test(text) || /\wkviss\b/.test(text)) return 'nightlife';
 	if (w('klubb') || w('party') || text.includes('90-tall')) return 'nightlife';
 	return 'student';
 }
