@@ -376,13 +376,13 @@
   },
   {
     "date": "2026-11-25",
-    "title": "skjerikirken.no: har de svart?",
-    "description": "Epost sendt 18. nov fra protonmail til skjerikirken.no om lov, Bergen-liste, bilder og nyhetsbrev/SoMe. Sjekk Inbox og Archive. Ikke bygg scraper før svar. Se OVERLEVERING.md, raden om skjerikirken.no."
+    "title": "skjerikirken.no: adressen er nedlagt, send brevet til Kirkepartner",
+    "description": "Brevet 18. nov gikk til en adresse som ikke er i bruk (autosvar 18. nov, oppdaget 24. nov). Autosvaret viser til Kirkepartner servicedesk. Send samme brev dit, med hennes godkjenning av teksten først. Ikke bygg scraper før svar. Se OVERLEVERING.md, raden om skjerikirken.no."
   },
   {
-    "date": "2026-11-24",
+    "date": "2026-11-26",
     "title": "Julebrev: har Lyderhorn frivilligsentral svart?",
-    "description": "Julebrev sendt 18. nov fra protonmail om julemarkedet på Kjøkkelvik skole 29. nov (bilder på gaari.no, omtale i andre kanaler). Sjekk Inbox og Archive. Ja til bilder: legg rad i docs/bildesamtykke.md og CONSENT_RECORDS. Se OVERLEVERING.md, raden om julebrev."
+    "description": "Ingen svar 24. nov. Julebrev sendt 18. nov fra protonmail om julemarkedet på Kjøkkelvik skole 29. nov (bilder på gaari.no, omtale i andre kanaler). Sjekk Inbox og Archive. Ja til bilder: legg rad i docs/bildesamtykke.md og CONSENT_RECORDS. Se OVERLEVERING.md, raden om julebrev."
   },
   {
     "date": "2026-11-27",
@@ -390,9 +390,29 @@
     "description": "Julebrev sendt 18. nov fra protonmail, åpent spørsmål om de holder julemesse i år (bare 2024-messen er bekreftet). Sjekk Inbox og Archive. Svarer de ja, legg inn arrangementet med dato fra dem. Se OVERLEVERING.md, raden om julebrev."
   },
   {
+    "date": "2026-11-24",
+    "title": "Løvstakken frivilligsentral svarte ja: registrer samtykket og legg inn arrangementene",
+    "description": "Svar 19. nov (ligger i Folders/Gaari/Avtaler): ja til bilder på gaari.no, i nyhetsbrevet og i andre kanaler. Legg rad i docs/bildesamtykke.md og CONSENT_RECORDS. Juletrefesten 28. nov ligger alt inne fra bergenkommune, men med Ny-Krohnborg kl. 13, mens svaret sier kl. 15.30–16.30 i Solheimsgaten: avklar før noe rettes. Faste aktiviteter i svaret som ikke ligger inne: språkkafé tirsdager, fransk-norsk språkkafé mandager, seniortrim, Løvstakktur annenhver torsdag."
+  },
+  {
+    "date": "2026-11-24",
+    "title": "Tre innsendinger venter på godkjenning, Kor e' tonen er 28. nov",
+    "description": "Pending i events: «Promises to keep» (Domkirken 28. nov, ja til SoMe: kilden må inn i PROMO_APPROVED_SOURCES og docs/bildesamtykke.md), «Julekonsert med Redeemed» Betlehem 3. des og Loddefjord kirke 4. des (bare visning). Varslene ligger i Folders/Gaari/Submissions/Unresolved."
+  },
+  {
+    "date": "2026-11-24",
+    "title": "StudentBergen: 12 rader står som student fordi regelen mangler sammensatte ord",
+    "description": "Backspace-feilen i studentbergenKategori er rettet 24. nov (CI var rød siden 19. nov). Tørrkjøring etterpå: ingen av de 12 kommende student-radene endres, fordi regelen ikke dekker dem: Klimafestivalen, Borealisfestivalen, Festspillene, Sommernattsløpet, Bergen city milen, Fløibanen Opp, Stoltzekleiven Opp, Winter of Soul. Avgjør med henne om regelen skal utvides (f.eks. 'festival' som del av ord, 'løpet', 'opp 20xx'). Tørrkjør før radene rettes. Se også at CI er grønn etter push."
+  },
+  {
     "date": "2026-11-25",
-    "title": "Julebrev: har Løvstakken frivilligsentral svart?",
-    "description": "Julebrev sendt 18. nov fra protonmail om juletrefesten lørdag 28. nov kl. 15.30 i Solheimsgaten (bilder på gaari.no, omtale i andre kanaler). Sjekk Inbox og Archive. Ja til bilder: legg rad i docs/bildesamtykke.md og CONSENT_RECORDS. Se OVERLEVERING.md, raden om julebrev."
+    "title": "Tiltak etter backspace-feilen: lint i pre-push, CI i ny-okt, regel for flytting av kode",
+    "description": "Avtalt 24. nov, tas i ny økt. 1) .githooks/pre-push kjører også eslint med bare feil (--quiet). 2) Skillen ny-okt sjekker CI-status på siste commit og sier fra om rødt. 3) Når kode flyttes: kjør gammel og ny versjon mot samme eksempler, test hele funksjonen; skrives inn i minnet pattern_heredoc_odelegger_norske_tegn. 4) Valgfritt, avklares først: CI kjører testene selv om lint feiler. Prøv også om no-control-regex fanger '\\b' i malstreng før vi stoler på den."
+  },
+  {
+    "date": "2026-11-29",
+    "title": "Domeneshop: se at kontaktinformasjonen for gaari.no og gåri.no stemmer",
+    "description": "Årlig påminnelse fra Domeneshop 22. nov for begge domenene. Logg inn og bekreft, eposten ligger i INBOX."
   },
   {
     "date": "2026-11-30",
