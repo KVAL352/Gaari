@@ -48,6 +48,7 @@ const SOURCE_RANK: Record<string, number> = {
 	julivillaveien: 5,
 	highvoltage: 5,
 	fortellerstraedet: 5,
+	lovstakken: 5,
 
 	// Innsendt av arrangøren selv gjennom /submit, og godkjent av et menneske
 	// før den kom hit — pending-rader er utenfor dedup, se hentDedupKandidater().
