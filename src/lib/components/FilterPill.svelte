@@ -28,6 +28,11 @@
 
 	let isCategory = $derived(variant === 'category' && !!color);
 
+	// Tallet vises ikke på knappen (det står på resultatet). Knappen bruker det
+	// bare til å si fra at valget ikke gir noe: 0 treff gjør den nedtonet og låst.
+	// En valgt knapp låses aldri, så filteret kan alltid fjernes igjen.
+	let empty = $derived(count === 0 && !selected);
+
 	// Compute inline styles for category variant
 	let pillStyle = $derived.by(() => {
 		if (!isCategory) return '';
@@ -46,9 +51,10 @@
 <button
 	type="button"
 	aria-pressed={selected}
-	{disabled}
+	disabled={disabled || empty}
 	{onclick}
 	class="filter-pill"
+	class:empty
 	class:selected
 	class:highlighted={highlighted && !selected}
 	class:has-sublabel={!!sublabel}
@@ -78,9 +84,6 @@
 	<span class="pill-content">
 		<span class="pill-label">
 			{label}
-			{#if count !== undefined}
-				<span class="pill-count">{count}</span>
-			{/if}
 		</span>
 		{#if sublabel}
 			<span class="pill-sublabel">{sublabel}</span>
@@ -185,20 +188,10 @@
 		gap: 0.375rem;
 	}
 
-	.pill-count {
-		font-size: 11px;
-		font-variant-numeric: tabular-nums;
-		color: var(--color-text-muted);
-		font-weight: 400;
-	}
-
-	.filter-pill.selected .pill-count {
-		color: rgba(255, 255, 255, 0.8);
-	}
-
-	.filter-pill.category-selected .pill-count {
-		color: var(--funkis-iron);
-		opacity: 0.7;
+	.filter-pill.empty {
+		opacity: 0.45;
+		border-style: dashed;
+		background: transparent;
 	}
 
 	.pill-sublabel {
