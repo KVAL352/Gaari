@@ -375,9 +375,9 @@
     "description": "Spørring på sc-domain:gaari.no for 1. nov–31. des 2025 ga null rader for julesidene 18. nov. Uvisst om siden ikke fantes eller om dataene mangler. Sjekk når nettstedet fikk første data i GSC (uten sidefilter) før noen sammenligner med fjoråret."
   },
   {
-    "date": "2026-11-25",
-    "title": "skjerikirken.no: adressen er nedlagt, send brevet til Kirkepartner",
-    "description": "Brevet 18. nov gikk til en adresse som ikke er i bruk (autosvar 18. nov, oppdaget 24. nov). Autosvaret viser til Kirkepartner servicedesk. Send samme brev dit, med hennes godkjenning av teksten først. Ikke bygg scraper før svar. Se OVERLEVERING.md, raden om skjerikirken.no."
+    "date": "2026-12-02",
+    "title": "skjerikirken.no: har Kirkepartner svart?",
+    "description": "Brevet ble sendt til Kirkepartner servicedesk 25. nov (godkjent av henne), etter at den gamle adressen viste seg nedlagt. Brevet ber om lov til Bergen-listen, bildevisning og et eget ja til nyhetsbrev/SoMe, og ber dem sende det videre hvis det hører hjemme hos fellesrådet. Sjekk Inbox, Archive og Sent. Ikke bygg scraper før svar. Se OVERLEVERING.md, raden om skjerikirken.no."
   },
   {
     "date": "2026-11-26",
