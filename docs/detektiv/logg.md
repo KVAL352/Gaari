@@ -83,3 +83,5 @@ Merknad til runden: kort per side teller bare det serveren sender første gang (
 1. **Hentingen:** én felles hentefunksjon for forsiden (`src/routes/[lang]/+page.server.ts`) og samlingssidene (`src/routes/[lang]/[collection]/+page.server.ts`). `is_canary=false` i alle omganger, sortering på `date_start` + `id`, test som låser at begge bruker den og at ingen lokkedue slipper gjennom etter rad 1 000. Etterpå: se at de tre lokkeduene er borte fra forsidens HTML (NO+EN).
 2. **14-dagersgrensen:** står for klubber og serier, men pågående utstillinger slipper gjennom. Trenger en regel for hva en utstilling er (kategori og ord i tittelen; se hva `utstillinger`-samlingen allerede bruker). Kommentaren «60 days» rettes til 14. Tørrkjør: hvilke av de 47 kommer med, og tell utstillingssiden før og etter.
 3. **`seedEvents`:** brukes bare lokalt (`dev`). I produksjon får besøkende en melding om at arrangementene ikke kan vises nå, og feilen logges. Gjelder forsiden, samlingssidene og arrangementssidene.
+
+_2026-11-25: linje lagt inn for å teste godkjenningsfilteret på `git push`._
