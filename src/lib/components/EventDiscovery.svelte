@@ -1050,6 +1050,37 @@
 		color: var(--color-text-primary);
 	}
 
+	/* Mobile: compact prompt so the list doesn't jump down. Text is cut to one
+	   line and the privacy note appears once the field has focus (before submit). */
+	@media (max-width: 767px) {
+		.nl-prompt {
+			padding: 0.5rem 0.625rem;
+			gap: 0.375rem;
+		}
+
+		.nl-text {
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 1;
+			line-clamp: 1;
+			overflow: hidden;
+		}
+
+		.nl-prompt:focus-within .nl-text {
+			-webkit-line-clamp: unset;
+			line-clamp: unset;
+			display: block;
+		}
+
+		.nl-privacy {
+			display: none;
+		}
+
+		.nl-prompt:focus-within .nl-privacy {
+			display: block;
+		}
+	}
+
 	.nl-error {
 		font-size: 0.75rem;
 		color: var(--funkis-red);
