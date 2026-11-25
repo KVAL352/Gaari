@@ -406,8 +406,8 @@
   },
   {
     "date": "2026-11-25",
-    "title": "Tiltak etter backspace-feilen: lint i pre-push, CI i ny-okt, regel for flytting av kode",
-    "description": "Avtalt 24. nov, tas i ny økt. 1) .githooks/pre-push kjører også eslint med bare feil (--quiet). 2) Skillen ny-okt sjekker CI-status på siste commit og sier fra om rødt. 3) Når kode flyttes: kjør gammel og ny versjon mot samme eksempler, test hele funksjonen; skrives inn i minnet pattern_heredoc_odelegger_norske_tegn. 4) Valgfritt, avklares først: CI kjører testene selv om lint feiler. Prøv også om no-control-regex fanger '\\b' i malstreng før vi stoler på den."
+    "title": "Backspace-tiltakene er bygd: ikke prøvd er at CI kjører videre etter rødt steg, og no-control-regex",
+    "description": "Alle fire pushet 24. nov (131ce05, 47d1606), CI grønn. Ikke verifisert: at if: !cancelled() lar Type check, Test og Build kjøre når Lint er rød; se det første gang et steg feiler. Ikke prøvd: om no-control-regex fanger '\\b' i malstreng før vi stoler på den."
   },
   {
     "date": "2026-11-29",
