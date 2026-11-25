@@ -47,9 +47,10 @@
 	let expandMoreFilters = $state(false);
 	let expandFiltersPanel = $state(false);
 
-	// Count of active secondary filters (when/time/category/price/bydel)
+	// Count of active filters behind "Flere filtre" on mobile (time/category/price/bydel).
+	// `when` is not counted: on mobile the "Når" row is always visible, outside the panel.
 	let secondaryFilterCount = $derived(
-		(when ? 1 : 0) + (time ? 1 : 0) + (category ? category.split(',').length : 0) + (price ? 1 : 0) + (bydel ? 1 : 0)
+		(time ? 1 : 0) + (category ? category.split(',').length : 0) + (price ? 1 : 0) + (bydel ? 1 : 0)
 	);
 	// On mobile, auto-expand filters panel if any secondary filters are active via URL
 	let filtersPanelOpen = $derived(expandFiltersPanel || secondaryFilterCount > 0);
@@ -436,6 +437,46 @@
 	aria-label={$t('eventDiscovery')}
 	class="mx-auto max-w-7xl px-4 py-1 md:py-2"
 >
+	<!-- "Når" pills. Rendered twice: always visible on mobile (outside the panel),
+	     inside the expandable "Når" section on desktop. CSS shows one of them. -->
+	{#snippet whenPills(showLegend: boolean)}
+		<fieldset class="discovery-step">
+			{#if showLegend}
+				<legend class="label-caps">{$t('whenLabel')}</legend>
+			{/if}
+			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+			<div class="pill-row" role="group" aria-label={$t('whenLabel')} onkeydown={handlePillKeydown}>
+				{#each whenOptions as opt (opt.value)}
+					<FilterPill
+						label={$t(opt.labelKey)}
+						sublabel={whenSublabels[opt.value]}
+						count={whenCounts[opt.value]}
+						highlighted={opt.value === highlightedWhen}
+						selected={when === opt.value}
+						onclick={() => handleWhenSelect(opt.value)}
+					/>
+				{/each}
+				<FilterPill
+					label={$t('chooseDates')}
+					selected={showCalendar || !!isCalendarDate}
+					onclick={handleChooseDateClick}
+				/>
+			</div>
+
+			{#if showCalendar}
+				<div transition:slide={{ duration: 200 }} class="mt-3">
+					<MiniCalendar
+						{lang}
+						selectedDate={calendarDate}
+						selectedRange={calendarRange}
+						onSelect={handleCalendarSelect}
+						onDone={() => (showCalendar = false)}
+					/>
+				</div>
+			{/if}
+		</fieldset>
+	{/snippet}
+
 	<div class="discovery-panel">
 		<h2 class="panel-heading">{$t('findEvents')}</h2>
 
@@ -479,6 +520,11 @@
 			</div>
 		</fieldset>
 
+		<!-- Mobile: "Når" is the second choice, always visible -->
+		<div class="when-mobile">
+			{@render whenPills(true)}
+		</div>
+
 		<!-- Mobile: single "More filters" button -->
 		<button
 			type="button"
@@ -500,7 +546,7 @@
 			<div class="toggle-row">
 				<button
 					type="button"
-					class="section-toggle"
+					class="section-toggle when-toggle"
 					class:active={whenOpen}
 					aria-expanded={whenOpen}
 					aria-controls="when-section"
@@ -547,38 +593,9 @@
 		<!-- Expandable: When + Time of Day -->
 		{#if whenOpen}
 			<div id="when-section" class="section-content" transition:slide={{ duration: 200 }}>
-				<fieldset class="discovery-step">
-					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-					<div class="pill-row" role="group" aria-label={$t('whenLabel')} onkeydown={handlePillKeydown}>
-						{#each whenOptions as opt (opt.value)}
-							<FilterPill
-								label={$t(opt.labelKey)}
-								sublabel={whenSublabels[opt.value]}
-								count={whenCounts[opt.value]}
-								highlighted={opt.value === highlightedWhen}
-								selected={when === opt.value}
-								onclick={() => handleWhenSelect(opt.value)}
-							/>
-						{/each}
-						<FilterPill
-							label={$t('chooseDates')}
-							selected={showCalendar || !!isCalendarDate}
-							onclick={handleChooseDateClick}
-						/>
-					</div>
-
-					{#if showCalendar}
-						<div transition:slide={{ duration: 200 }} class="mt-3">
-							<MiniCalendar
-								{lang}
-								selectedDate={calendarDate}
-								selectedRange={calendarRange}
-								onSelect={handleCalendarSelect}
-								onDone={() => (showCalendar = false)}
-							/>
-						</div>
-					{/if}
-				</fieldset>
+				<div class="when-desktop">
+					{@render whenPills(false)}
+				</div>
 
 				<fieldset class="discovery-step">
 					<legend class="label-caps">{$t('timeLabel')}</legend>
@@ -1145,10 +1162,22 @@
 		.mobile-filters-toggle {
 			display: none;
 		}
+
+		/* "Når" lives inside the expandable section on desktop */
+		.when-mobile {
+			display: none;
+		}
 	}
 
 	@media (max-width: 767px) {
 		.desktop-only {
+			display: none;
+		}
+
+		/* "Når" is always visible above "Flere filtre" on mobile, so the
+		   desktop copy and its toggle are hidden. Time of day stays in the panel. */
+		.when-desktop,
+		.when-toggle {
 			display: none;
 		}
 
