@@ -11,7 +11,7 @@
 	import { Users, Drama, GraduationCap, Moon, MapPin, Mail, Sparkle } from 'lucide-svelte';
 	import { slide } from 'svelte/transition';
 	import { browser } from '$app/env';
-	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, addDays, getEndOfWeekDateStr, getContextualHighlight, matchesTimeOfDay } from '#lib/event-filters';
+	import { getOsloNow, toOsloDateStr, isSameDay, getWeekendDates, addDays, getEndOfWeekDateStr, matchesTimeOfDay } from '#lib/event-filters';
 
 	interface Props {
 		lang: Lang;
@@ -126,27 +126,8 @@
 
 	// ── Step 1: When? ──
 	const whenOptions = [
-		{ value: 'today', labelKey: 'today' },
-		{ value: 'tomorrow', labelKey: 'tomorrow' },
-		{ value: 'weekend', labelKey: 'thisWeekend' },
-		{ value: 'week', labelKey: 'thisWeek' }
+		{ value: 'weekend', labelKey: 'thisWeekend' }
 	] as const;
-
-	// Date sublabels
-	let whenSublabels = $derived.by(() => {
-		const now = getOsloNow();
-		const fmt = (d: Date) => d.toLocaleDateString(lang === 'no' ? 'nb-NO' : 'en-GB', {
-			weekday: 'short', day: 'numeric', month: 'short'
-		}).replace(/\.$/, '');
-		return {
-			today: fmt(now),
-			tomorrow: fmt(addDays(now, 1)),
-			weekend: lang === 'no' ? 'fre\u2013søn' : 'Fri\u2013Sun',
-			week: lang === 'no' ? '7 dager' : '7 days'
-		} as Record<string, string>;
-	});
-
-	let highlightedWhen = $derived(when ? '' : getContextualHighlight(getOsloNow()));
 
 	let isCalendarDate = $derived(when.match(/^\d{4}-\d{2}-\d{2}/));
 
@@ -449,9 +430,7 @@
 				{#each whenOptions as opt (opt.value)}
 					<FilterPill
 						label={$t(opt.labelKey)}
-						sublabel={whenSublabels[opt.value]}
 						count={whenCounts[opt.value]}
-						highlighted={opt.value === highlightedWhen}
 						selected={when === opt.value}
 						onclick={() => handleWhenSelect(opt.value)}
 					/>
